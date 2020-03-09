@@ -1,5 +1,6 @@
 <template>
   <div class="map-container" ref="container">
+    <NavBar></NavBar>
     <div>
       <el-radio-group v-model="species" size="small">
         <el-radio-button label="Human"></el-radio-button>
@@ -39,6 +40,7 @@
 /* eslint-disable no-alert, no-console */
 import TabContent from './TabContent.vue'
 import FloatingDialog from './FloatingDialog.vue'
+import NavBar from './NavBar'
 import Vue from "vue";
 import {
   RadioButton,
@@ -59,7 +61,8 @@ export default {
   name: "MapIntegratedVuer",
   components: {
     FloatingDialog,
-    TabContent
+    TabContent,
+    NavBar
   },
   methods: {
     dialogClicked: function(order) {
