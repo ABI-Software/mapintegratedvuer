@@ -1,12 +1,16 @@
 <template>
   <div class="map-container" ref="container">
     <div>
-    <el-radio-group v-model="species" size="small">
-      <el-radio-button label="Human"></el-radio-button>
-      <el-radio-button label="Rat"></el-radio-button>
-    </el-radio-group>
+      <el-radio-group v-model="species" size="small">
+        <el-radio-button label="Human"></el-radio-button>
+        <el-radio-button label="Rat"></el-radio-button>
+      </el-radio-group>
     </div>
-    <el-tabs 
+    <div style="top:10%;height: 90%;">
+      <FloatingDialog v-for="(item, order) in testEntries" :entry="item" :index="order" :key="item.resource" v-on:click.native="dialogClicked(order)"/>
+    </div>
+    <el-tabs
+      v-if="tabOn"
       v-model="editableTabsValue"
       :tab-position="tabPosition"
       @edit="handleTabsEdit"
@@ -34,6 +38,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import TabContent from './TabContent.vue'
+import FloatingDialog from './FloatingDialog.vue'
 import Vue from "vue";
 import {
   RadioButton,
@@ -53,9 +58,18 @@ Vue.use(TabPane);
 export default {
   name: "MapIntegratedVuer",
   components: {
+    FloatingDialog,
     TabContent
   },
   methods: {
+    dialogClicked: function(order) {
+      console.log("this")
+      if (this.zIndex !== this.testEntries[order].zIndex) {
+        this.zIndex++;
+        this.testEntries[order].zIndex = this.zIndex;
+        console.log(this.testEntries[order].zIndex)
+      }
+    },
     getTabArrayWithName: function(name) {
       for (let i = 0; i < this.editableTabs.length; i++) {
         if (name === this.editableTabs[i].name) {
@@ -162,7 +176,11 @@ export default {
                 type: "Flatmap"}],
         closable: false
       }],
-      index: 1
+      zIndex: 2,
+      testEntries: [{ resource: "NCBITaxon:9606", type: "Flatmap", zIndex:1}, {resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/use_case4/rat_heart_metadata.json",
+        type: "Scaffold", zIndex:2}],
+      index: 1,
+      tabOn: false
     }
   },
   watch: {
