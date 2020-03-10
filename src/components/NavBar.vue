@@ -78,6 +78,7 @@ export default {
 <style scoped>
 .navbar{
   min-width: 950px;
+  font-family: "HelveticaMedium", 
 }
 .tab-container {
   height: 100%;

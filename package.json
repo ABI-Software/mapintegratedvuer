@@ -17,7 +17,7 @@
   "dependencies": {
     "@abi-software/flatmapvuer": "^0.1.2",
     "@abi-software/scaffoldvuer": "^0.1.13",
-    "@tehsurfer/plotvuer": "^0.1.4",
+    "@tehsurfer/plotvuer": "^0.1.7",
     "core-js": "^3.3.2",
     "element-ui": "^2.13.0",
     "lodash": "^4.17.15",
@@ -34,6 +34,7 @@
     "babel-plugin-component": "^1.1.1",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "file-loader": "^5.1.0",
     "raw-loader": "^0.5.1",
     "vue-template-compiler": "^2.6.10"
   },
