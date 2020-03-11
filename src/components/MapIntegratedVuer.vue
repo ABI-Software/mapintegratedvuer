@@ -183,7 +183,7 @@ export default {
       testEntries: [
         { resource: "NCBITaxon:9606", type: "Flatmap", zIndex:1},
         {resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/use_case4/rat_heart_metadata.json", type: "Scaffold", zIndex:2},
-        {resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv", type: "Plot", zIndex:3}],
+        {resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv", plotType:"heatmap", type: "Plot", zIndex:3}],
       index: 1,
       tabOn: false
 }
