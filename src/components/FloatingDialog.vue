@@ -7,7 +7,7 @@
         <el-main class="dialog-main">
           <FlatmapVuer v-if="entry.type === 'Flatmap'" :entry="entry.resource" @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"  style="height:100%;width:100%;"/>
           <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
-          <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"></PlotVuer>
+          <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
         </el-main>
       </el-container>
     </vue-draggable-resizable>
