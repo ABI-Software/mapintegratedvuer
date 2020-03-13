@@ -1,11 +1,20 @@
 <template>
-    <vue-draggable-resizable :style="style" :w="500" :h="500" :resizable="true" @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" class-name="resizeable-class">
+    <vue-draggable-resizable class="parent-dialog" :style="style" :w="500" :h="500" :resizable="true" @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" class-name="resizeable-class">
       <el-container style="height:100%;background:white;">
-        <el-header style="text-align: left; font-size: 12px" height="30px" class="dialog-header">
-          Place Holder
+        <el-header style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+          <div class="title">
+            <div class="title-text">
+              {{entry.type}}
+            </div>
+            <el-row class="icon-group">
+              <el-button icon="el-icon-copy-document" size="medium" type="text" @click="onMaximise"></el-button>
+              <el-button icon="el-icon-remove-outline" size="medium" type="text" @click="onMinimise"></el-button>
+              <el-button icon="el-icon-close" size="medium" type="text" @click="onClose"></el-button>
+            </el-row>
+          </div>
         </el-header>
         <el-main class="dialog-main">
-          <FlatmapVuer v-if="entry.type === 'Flatmap'" :entry="entry.resource" @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"  style="height:100%;width:100%;"/>
+          <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"  style="height:100%;width:100%;"/>
           <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
           <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
         </el-main>
@@ -27,12 +36,16 @@ import '@tehsurfer/plotvuer/dist/plotvuer.css'
 import {
   Container,
   Header,
-  Main
+  Icon,
+  Main,
+  Row
 } from "element-ui";
 Vue.component('vue-draggable-resizable', VueDraggableResizable);
 Vue.use(Container);
 Vue.use(Header);
+Vue.use(Icon);
 Vue.use(Main);
+Vue.use(Row);
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
 export default {
@@ -52,8 +65,17 @@ export default {
       this.y = y
     },
     resourceSelected: function(type, resource) {
-        const result = {paneIndex: this.index, type: type, resource: resource};
-        this.$emit("resource-selected", result);
+      const result = {paneIndex: this.index, type: type, resource: resource};
+      this.$emit("resource-selected", result);
+    },
+    onMaximise: function() {
+      console.log("maximise");
+    },
+    onMinimise: function() {
+      console.log("minimise");
+    },
+    onClose: function() {
+      console.log("close");
     }
   },
   data: function() {
@@ -86,9 +108,10 @@ export default {
 }
 
 .dialog-header {
-  background-color: #B3C0D1;
   color: #333;
   line-height: 20px;
+  border: solid 0.7px #dcdfe6;
+  background-color: #f5f7fa;
 }
 
 .dialog-main {
@@ -100,6 +123,38 @@ export default {
     -webkit-transition: background-color 200ms linear;
     -ms-transition: background-color 200ms linear;
     transition: background-color 200ms linear;
+}
+
+.title {
+  width: 101px;
+  height: 38px;
+  border-right: solid 1px #dcdfe6;
+  background-color: white;
+  border-bottom: solid 1px #dcdfe6;
+}
+
+.title-text {
+  padding-top:9px;
+  text-align:center;
+}
+
+.parent-dialog:hover .title-text {
+  color:#8300bf;
+}
+
+.icon-group {
+  position:absolute;
+  top:-2px;
+  right:16px;
+}
+
+.icon-group >>> .el-button--text {
+  color:#606266;
+  font-size: 1.5em;
+}
+
+.icon-group >>> .el-button--text:hover {
+  color:#8300bf;
 }
 
 </style>

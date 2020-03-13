@@ -1,50 +1,43 @@
 <template>
   <div class="map-container" ref="container">
     <NavBar></NavBar>
-    <div>
-      <el-radio-group v-model="species" size="small">
-        <el-radio-button label="Human"></el-radio-button>
-        <el-radio-button label="Rat"></el-radio-button>
-      </el-radio-group>
+    <div class="map-app">
+      <div style="position:absolute;height: 100%;width:100%">
+        <FloatingDialog v-for="(item, order) in testEntries" :entry="item" :index="order" :key="item.resource" v-on:mousedown.native="dialogClicked(order)"/>
+      </div>
+      <el-tabs
+        v-if="tabOn"
+        v-model="editableTabsValue"
+        :tab-position="tabPosition"
+        @edit="handleTabsEdit"
+        style="top:10%;height: 90%;"
+        class="my-tabs">
+        <el-tab-pane
+          v-for="item in editableTabs"
+          :key="item.name"
+          :label="item.title"
+          :name="item.name"
+          :closable="item.closable"
+          style="height:100%"
+        >
+          <TabContent
+            :entry="item"
+            @resource-selected="resourceSelected(item.name, $event)"
+            @pane-changed="paneChanged(item.name, $event)"/>
+        </el-tab-pane>
+      </el-tabs>
     </div>
-    <div style="top:10%;height: 90%;">
-      <FloatingDialog v-for="(item, order) in testEntries" :entry="item" :index="order" :key="item.resource" v-on:mousedown.native="dialogClicked(order)"/>
-    </div>
-    <el-tabs
-      v-if="tabOn"
-      v-model="editableTabsValue"
-      :tab-position="tabPosition"
-      @edit="handleTabsEdit"
-      style="top:10%;height: 90%;"
-      class="my-tabs">
-      <el-tab-pane
-        v-for="item in editableTabs"
-        :key="item.name"
-        :label="item.title"
-        :name="item.name"
-        :closable="item.closable"
-        style="height:100%"
-      >
-        <TabContent
-          :entry="item"
-          @resource-selected="resourceSelected(item.name, $event)"
-          @pane-changed="paneChanged(item.name, $event)"/>
-      </el-tab-pane>
-    </el-tabs>
-    
 
   </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
-import TabContent from './TabContent.vue'
-import FloatingDialog from './FloatingDialog.vue'
-import NavBar from './NavBar'
+import TabContent from './TabContent.vue';
+import FloatingDialog from './FloatingDialog.vue';
+import NavBar from './NavBar';
 import Vue from "vue";
 import {
-  RadioButton,
-  RadioGroup,
   Tabs,
   TabPane
 } from "element-ui";
@@ -52,8 +45,6 @@ import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 locale.use(lang);
-Vue.use(RadioButton);
-Vue.use(RadioGroup);
 Vue.use(Tabs);
 Vue.use(TabPane);
 
@@ -66,11 +57,9 @@ export default {
   },
   methods: {
     dialogClicked: function(order) {
-      console.log("this")
       if (this.zIndex !== this.testEntries[order].zIndex) {
         this.zIndex++;
         this.testEntries[order].zIndex = this.zIndex;
-        console.log(this.testEntries[order].zIndex)
       }
     },
     getTabArrayWithName: function(name) {
@@ -179,13 +168,14 @@ export default {
                 type: "Flatmap"}],
         closable: false
       }],
-      zIndex: 2,
+      zIndex: 3,
       testEntries: [
-        { resource: "NCBITaxon:9606", type: "Flatmap", zIndex:1},
+        { resource: "NCBITaxon:9606", availableSpecies : {"Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
+          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} }, type: "Flatmap", zIndex:1},
         {resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/use_case4/rat_heart_metadata.json", type: "Scaffold", zIndex:2},
         {resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv", plotType:"heatmap", type: "Plot", zIndex:3}],
       index: 1,
-      tabOn: false
+      tabOn: true
 }
   },
   watch: {
@@ -217,6 +207,16 @@ export default {
 
 .my-tabs .el-tabs__content{
   height:100%;
+}
+
+.map-app {
+  position:absolute;
+  height: calc(100% - 84px);
+  width:calc(100% - 54px);
+  margin-top:19px;
+  margin-left:26px;
+  margin-right:26px;
+  border: solid 1px #dcdfe6;
 }
 
 </style>
