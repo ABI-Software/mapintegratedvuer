@@ -5,7 +5,6 @@
       :default-active="activeIndex"
       class="navbar"
       mode="horizontal"
-      @select="handleSelect"
     >
       <el-menu-item index="1" class="sparc-menu-item">
         <img :src="sparcLogo" class="sparc-navbar-logo"/>
@@ -17,14 +16,16 @@
         <el-menu-item index="3-2">item two</el-menu-item>
         <el-menu-item index="3-3">item three</el-menu-item>
       </el-submenu>
-      <el-submenu index="4">
-        <template slot="title">Learn</template>
-        <el-menu-item index="4-1">item one</el-menu-item>
-        <el-menu-item index="4-2">item two</el-menu-item>
-        <el-menu-item index="4-3">item three</el-menu-item>
+      <el-submenu index="4"  >
+        <template slot="title"  >Learn</template>
+        <el-row style="width: 100vw">
+            <el-col :span="24/learnCards.length" v-for="item in learnCards" :key="item.title">
+              <nav-drop-down-item :image="item.image" :title="item.title" :description="item.description"/>
+            </el-col>
+       </el-row>
       </el-submenu>
       <el-menu-item index="5">News</el-menu-item>
-      <el-submenu index="6">
+      <el-submenu index="6" style="">
         <template slot="title">Community</template>
         <el-menu-item index="6-1">item one</el-menu-item>
         <el-menu-item index="6-2">item two</el-menu-item>
@@ -49,25 +50,46 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import NavDropDownItem from './NavDropDownItem'
 import Vue from "vue";
-import { Menu, MenuItem, Submenu } from "element-ui";
+import { Menu, MenuItem, Submenu, Row, Col} from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
+import exploreDatasetImage from "../../assets/exploreDataset-192px.png"
+import exploreMapImage from "../../assets/exploreData2Dmap-192px.png"
+
 locale.use(lang);
 Vue.use(Menu);
 Vue.use(MenuItem);
 Vue.use(Submenu);
+Vue.use(Row)
+Vue.use(Col)
+
 
 export default {
   name: "NavBar",
-  components: {},
+  components: {NavDropDownItem},
   props: { entry: Object },
   methods: {},
   data: function() {
     return {
       activeIndex: "1",
-      sparcLogo: require('../../assets/sparc-logo-primary.svg')
+      sparcLogo: require('../../assets/sparc-logo-primary.svg'),
+      learnCards: [
+        {
+          image: exploreDatasetImage,
+          title: 'Datasets',
+          description: 'Filter dataset by species, organ, age, and view data type in 3d scaffold, heatmap, and graph. Dive deeper to data modality, sample count, citation, author’s name and date release. '
+        },
+       {
+          image: exploreMapImage,
+          title: '2D Flatmap/2D visualisations',
+          description: 'Advanced 2d flatmap, visualising anatomical map by species. Navigate organ on the 2d flatmap to download and view dataset, immerse yourself in the 3d scaffold simulation, view heatmap and graph. All type of dataset in one, from the 2d anatomical flatmap. '
+        }
+  
+      ]
+
     };
   },
   mounted: function() {}
@@ -91,4 +113,14 @@ export default {
   padding-top: 4px;
   width: 38px;
 }
+  .bg-purple {
+    background: #d3dce6;
+  }
+  .bg-purple-light {
+    background: #e5e9f2;
+  }
+  .grid-content {
+    border-radius: 4px;
+    min-height: 36px;
+  }
 </style>

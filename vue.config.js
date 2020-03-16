@@ -8,7 +8,7 @@ module.exports = {
           .loader('raw-loader')
           .end()
         .rule('fonts')
-        .test(/\.(woff|woff2|eot|ttf|svg)(\?.*$|$)/)
+        .test(/\.(woff|woff2|eot|ttf|svg|png|jpg|jpeg)(\?.*$|$)/)
         .use('file-loader')
           .loader('file-loader')
           .end()
