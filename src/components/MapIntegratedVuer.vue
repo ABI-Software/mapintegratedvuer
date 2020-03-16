@@ -8,7 +8,7 @@
       </el-radio-group>
     </div>
     <div style="top:10%;height: 90%;">
-      <FloatingDialog v-for="(item, order) in testEntries" :entry="item" :index="order" :key="item.resource" v-on:click.native="dialogClicked(order)"/>
+      <FloatingDialog v-for="(item, order) in testEntries" :entry="item" :index="order" :key="item.resource" v-on:mousedown.native="dialogClicked(order)"/>
     </div>
     <el-tabs
       v-if="tabOn"
