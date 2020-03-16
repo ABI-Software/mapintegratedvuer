@@ -110,7 +110,7 @@ export default {
 .dialog-header {
   color: #333;
   line-height: 20px;
-  border: solid 0.7px #dcdfe6;
+  border-bottom: solid 0.7px #dcdfe6;
   background-color: #f5f7fa;
 }
 

@@ -57,18 +57,12 @@ export default {
   height: 38px;
   border-right: solid 1px #dcdfe6;
   background-color: white;
-  border-bottom: solid 1px #dcdfe6;
   display:inline-block;
 }
 
 .title-text {
   padding-top:9px;
   text-align:center;
-}
-
-.parent-dialog {
-  border: solid 1px #dcdfe6;
-  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
 }
 
 .parent-dialog:hover .title-text {
