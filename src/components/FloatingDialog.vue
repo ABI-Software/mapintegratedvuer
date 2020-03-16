@@ -1,8 +1,8 @@
 <template>
-  <vue-draggable-resizable class="parent-dialog" :style="style" :w="500" :h="500" :resizable="true" @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" class-name="resizeable-class">
+  <vue-draggable-resizable :style="style" :w="500" :h="500" :resizable="true" @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" class-name="parent-dialog">
     <el-container style="height:100%;background:white;">
       <el-header :v-if="showHeader" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
-        <DialogToolbarContent :dialogTitles="[entry.type, 'temp']"  @maximise="onMaximise" @minimise="onMinimise" @close="onClose"/>         
+        <DialogToolbarContent :dialogTitles="[entry.type]"  @maximise="onMaximise" @minimise="onMinimise" @close="onClose"/>         
       </el-header>
       <el-main class="dialog-main">
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"  style="height:100%;width:100%;"/>
@@ -118,12 +118,10 @@ export default {
   padding:0px;
 }
 
-.resizeable-class {
-    border: 1px solid black;
-    -webkit-transition: background-color 200ms linear;
-    -ms-transition: background-color 200ms linear;
-    transition: background-color 200ms linear;
-}
+.parent-dialog {
+  border: solid 1px #dcdfe6;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
+} 
 
 .parent-dialog:hover .title-text {
   color:#8300bf;

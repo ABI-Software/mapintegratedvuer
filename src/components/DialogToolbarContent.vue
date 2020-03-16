@@ -66,6 +66,11 @@ export default {
   text-align:center;
 }
 
+.parent-dialog {
+  border: solid 1px #dcdfe6;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
+}
+
 .parent-dialog:hover .title-text {
   color:#8300bf;
 }
