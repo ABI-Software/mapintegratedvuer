@@ -1,25 +1,16 @@
 <template>
-    <vue-draggable-resizable class="parent-dialog" :style="style" :w="500" :h="500" :resizable="true" @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" class-name="resizeable-class">
-      <el-container style="height:100%;background:white;">
-        <el-header style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
-          <div class="title">
-            <div class="title-text">
-              {{entry.type}}
-            </div>
-            <el-row class="icon-group">
-              <el-button icon="el-icon-copy-document" size="medium" type="text" @click="onMaximise"></el-button>
-              <el-button icon="el-icon-remove-outline" size="medium" type="text" @click="onMinimise"></el-button>
-              <el-button icon="el-icon-close" size="medium" type="text" @click="onClose"></el-button>
-            </el-row>
-          </div>
-        </el-header>
-        <el-main class="dialog-main">
-          <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"  style="height:100%;width:100%;"/>
-          <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
-          <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
-        </el-main>
-      </el-container>
-    </vue-draggable-resizable>
+  <vue-draggable-resizable class="parent-dialog" :style="style" :w="500" :h="500" :resizable="true" @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" class-name="resizeable-class">
+    <el-container style="height:100%;background:white;">
+      <el-header :v-if="showHeader" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+        <DialogToolbarContent :dialogTitles="[entry.type, 'temp']"  @maximise="onMaximise" @minimise="onMinimise" @close="onClose"/>         
+      </el-header>
+      <el-main class="dialog-main">
+        <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"  style="height:100%;width:100%;"/>
+        <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
+        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
+      </el-main>
+    </el-container>
+  </vue-draggable-resizable>
 </template>
 
 
@@ -27,6 +18,7 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import VueDraggableResizable from 'vue-draggable-resizable';
+import DialogToolbarContent from './DialogToolbarContent';
 import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import '@abi-software/scaffoldvuer';
@@ -50,7 +42,15 @@ import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
 export default {
   name: "FloatingDialog",
-  props: {entry: Object, index: Number},
+  props: {entry: Object, index: Number,
+    showHeader: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  components: {
+    DialogToolbarContent
+  },
   methods: {
     onResize: function (x, y, width, height) {
       this.x = x
@@ -125,36 +125,12 @@ export default {
     transition: background-color 200ms linear;
 }
 
-.title {
-  width: 101px;
-  height: 38px;
-  border-right: solid 1px #dcdfe6;
-  background-color: white;
-  border-bottom: solid 1px #dcdfe6;
-}
-
-.title-text {
-  padding-top:9px;
-  text-align:center;
-}
-
 .parent-dialog:hover .title-text {
   color:#8300bf;
 }
 
-.icon-group {
-  position:absolute;
-  top:-2px;
-  right:16px;
-}
-
-.icon-group >>> .el-button--text {
-  color:#606266;
-  font-size: 1.5em;
-}
-
-.icon-group >>> .el-button--text:hover {
-  color:#8300bf;
+>>> input {
+  font-family: inherit;
 }
 
 </style>
