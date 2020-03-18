@@ -99,7 +99,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .navbar{
-  min-width: 950px;
+  min-width: 1000px;
   font-family: "HelveticaMedium", 
 }
 .tab-container {
@@ -123,4 +123,12 @@ export default {
     border-radius: 4px;
     min-height: 36px;
   }
+   .el-menu--horizontal>.el-submenu:focus .el-submenu__title{
+    color: #4720a4 !important; 
+  }
+
+  .el-menu--horizontal .el-menu-item:not(.is-disabled):hover{
+    color: #4720a4 !important; 
+  }
+
 </style>
