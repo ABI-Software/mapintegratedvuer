@@ -1,16 +1,22 @@
 <template>
-    <vue-draggable-resizable :style="style" :w="500" :h="500" :resizable="true" @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" class-name="resizeable-class">
-      <el-container style="height:100%;background:white;">
-        <el-header style="text-align: left; font-size: 12px" height="30px" class="dialog-header">
-          Place Holder
-        </el-header>
-        <el-main class="dialog-main">
-          <FlatmapVuer v-if="entry.type === 'Flatmap'" :entry="entry.resource" @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"  style="height:100%;width:100%;"/>
-          <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
-          <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
-        </el-main>
-      </el-container>
-    </vue-draggable-resizable>
+  <vue-draggable-resizable :style="style" :w="500" :h="500" :resizable="true" 
+    @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" 
+    :class-name="className">
+    <el-container style="height:100%;background:white;">
+      <el-header v-if="entry.mode==='normal'" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+        <DialogToolbarContent :dialogTitles="[indexTitle]"  @maximise="onMaximise" @minimise="onMinimise" 
+          @close="onClose"/>         
+      </el-header>
+      <el-main class="dialog-main">
+        <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
+          @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
+          style="height:100%;width:100%;"/>
+        <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
+          @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
+        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
+      </el-main>
+    </el-container>
+  </vue-draggable-resizable>
 </template>
 
 
@@ -18,6 +24,7 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import VueDraggableResizable from 'vue-draggable-resizable';
+import DialogToolbarContent from './DialogToolbarContent';
 import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import '@abi-software/scaffoldvuer';
@@ -37,7 +44,15 @@ import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
 export default {
   name: "FloatingDialog",
-  props: {entry: Object, index: Number},
+  props: {entry: Object, index: Number,
+    showHeader: {
+      type: Boolean,
+      default: true,
+    }
+  },
+  components: {
+    DialogToolbarContent
+  },
   methods: {
     onResize: function (x, y, width, height) {
       this.x = x
@@ -52,8 +67,17 @@ export default {
       this.y = y
     },
     resourceSelected: function(type, resource) {
-        const result = {paneIndex: this.index, type: type, resource: resource};
-        this.$emit("resource-selected", result);
+      const result = {paneIndex: this.index, type: type, resource: resource};
+      this.$emit("resource-selected", result);
+    },
+    onMaximise: function() {
+      this.$emit("maximise");
+    },
+    onMinimise: function() {
+      this.$emit("minimise");
+    },
+    onClose: function() {
+      this.$emit("close");
     }
   },
   data: function() {
@@ -61,18 +85,34 @@ export default {
       isReady: false,
       myElement: undefined,
       scaffoldCamera: undefined,
-      style: {zIndex: this.entry.zIndex}
+      style: {zIndex: this.entry.zIndex},
+      className: "parent-dialog",
+      indexTitle: {title: this.entry.type, id: this.index}
     }
   },
   mounted: function() {
     this.isReady = true;
+    if (this.entry.mode === "main")
+      this.className = "parent-dialog-full";
     if (this.entry.type === 'Scaffold') 
       this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
   },
   watch: {
     "entry.zIndex": function() {
       this.style.zIndex = this.entry.zIndex;
-
+    },
+    "entry.mode": function(val) {
+      switch(val) {
+        case "main":
+        case "maximised":
+          this.className = "parent-dialog-full";
+          break;
+        case "minimised":
+          this.className = "parent-dialog-hidden";
+          break;
+        default:
+          this.className = "parent-dialog";
+      }
     }
   }
 };
@@ -80,26 +120,43 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.dialog-container {
-  height: 100%;
-  width: 100%;
-}
-
 .dialog-header {
-  background-color: #B3C0D1;
   color: #333;
   line-height: 20px;
+  border-bottom: solid 0.7px #dcdfe6;
+  background-color: #f5f7fa;
 }
 
 .dialog-main {
   padding:0px;
 }
 
-.resizeable-class {
-    border: 1px solid black;
-    -webkit-transition: background-color 200ms linear;
-    -ms-transition: background-color 200ms linear;
-    transition: background-color 200ms linear;
+.parent-dialog {
+  border: solid 1px #dcdfe6;
+  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
+}
+
+.parent-dialog-full {
+  width:100%!important;
+  height:100%!important;
+  left:0px!important;
+  top:0px!important;
+}
+
+.parent-dialog-hidden {
+  visibility:hidden;
+}
+
+.parent-dialog-full:hover .title-text {
+  color:#8300bf;
+}
+
+.parent-dialog:hover .title-text {
+  color:#8300bf;
+}
+
+>>> input {
+  font-family: inherit;
 }
 
 </style>

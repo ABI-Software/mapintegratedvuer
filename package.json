@@ -15,7 +15,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.2",
+    "@abi-software/flatmapvuer": "^0.1.4",
     "@abi-software/scaffoldvuer": "^0.1.13",
     "@tehsurfer/plotvuer": "^0.2.3",
     "core-js": "^3.3.2",
