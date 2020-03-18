@@ -8,6 +8,7 @@
 import MapIntegratedVuer from './components/MapIntegratedVuer.vue'
 import '../assets/fonts.css'
 import  './styleguide.css'
+import '../assets/mapicon-species-style.css'
 
 export default {
   name: 'app',
