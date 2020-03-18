@@ -113,22 +113,16 @@ export default {
   padding-top: 4px;
   width: 38px;
 }
-  .bg-purple {
-    background: #d3dce6;
-  }
-  .bg-purple-light {
-    background: #e5e9f2;
-  }
-  .grid-content {
-    border-radius: 4px;
-    min-height: 36px;
-  }
-   .el-menu--horizontal>.el-submenu:focus .el-submenu__title{
-    color: #4720a4 !important; 
-  }
+.grid-content {
+  border-radius: 4px;
+  min-height: 36px;
+}
+.el-menu--horizontal>.el-submenu:focus .el-submenu__title{
+  color: var(--vibrant-purple) !important; 
+}
 
-  .el-menu--horizontal .el-menu-item:not(.is-disabled):hover{
-    color: #4720a4 !important; 
-  }
+.el-menu--horizontal .el-menu-item:not(.is-disabled):hover{
+  color: var(--vibrant-purple)!important; 
+}
 
 </style>
