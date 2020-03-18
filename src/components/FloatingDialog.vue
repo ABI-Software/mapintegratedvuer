@@ -1,12 +1,18 @@
 <template>
-  <vue-draggable-resizable :style="style" :w="500" :h="500" :resizable="true" @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" class-name="parent-dialog">
+  <vue-draggable-resizable :style="style" :w="500" :h="500" :resizable="true" 
+    @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" 
+    :class-name="className">
     <el-container style="height:100%;background:white;">
-      <el-header :v-if="showHeader" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
-        <DialogToolbarContent :dialogTitles="[entry.type]"  @maximise="onMaximise" @minimise="onMinimise" @close="onClose"/>         
+      <el-header v-if="entry.mode==='normal'" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+        <DialogToolbarContent :dialogTitles="[indexTitle]"  @maximise="onMaximise" @minimise="onMinimise" 
+          @close="onClose"/>         
       </el-header>
       <el-main class="dialog-main">
-        <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"  style="height:100%;width:100%;"/>
-        <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
+        <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
+          @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
+          style="height:100%;width:100%;"/>
+        <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
+          @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
         <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
       </el-main>
     </el-container>
@@ -28,16 +34,12 @@ import '@tehsurfer/plotvuer/dist/plotvuer.css'
 import {
   Container,
   Header,
-  Icon,
-  Main,
-  Row
+  Main
 } from "element-ui";
 Vue.component('vue-draggable-resizable', VueDraggableResizable);
 Vue.use(Container);
 Vue.use(Header);
-Vue.use(Icon);
 Vue.use(Main);
-Vue.use(Row);
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
 export default {
@@ -46,7 +48,7 @@ export default {
     showHeader: {
       type: Boolean,
       default: true,
-    },
+    }
   },
   components: {
     DialogToolbarContent
@@ -69,13 +71,13 @@ export default {
       this.$emit("resource-selected", result);
     },
     onMaximise: function() {
-      console.log("maximise");
+      this.$emit("maximise");
     },
     onMinimise: function() {
-      console.log("minimise");
+      this.$emit("minimise");
     },
     onClose: function() {
-      console.log("close");
+      this.$emit("close");
     }
   },
   data: function() {
@@ -83,18 +85,34 @@ export default {
       isReady: false,
       myElement: undefined,
       scaffoldCamera: undefined,
-      style: {zIndex: this.entry.zIndex}
+      style: {zIndex: this.entry.zIndex},
+      className: "parent-dialog",
+      indexTitle: {title: this.entry.type, id: this.index}
     }
   },
   mounted: function() {
     this.isReady = true;
+    if (this.entry.mode === "main")
+      this.className = "parent-dialog-full";
     if (this.entry.type === 'Scaffold') 
       this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
   },
   watch: {
     "entry.zIndex": function() {
       this.style.zIndex = this.entry.zIndex;
-
+    },
+    "entry.mode": function(val) {
+      switch(val) {
+        case "main":
+        case "maximised":
+          this.className = "parent-dialog-full";
+          break;
+        case "minimised":
+          this.className = "parent-dialog-hidden";
+          break;
+        default:
+          this.className = "parent-dialog";
+      }
     }
   }
 };
@@ -102,11 +120,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.dialog-container {
-  height: 100%;
-  width: 100%;
-}
-
 .dialog-header {
   color: #333;
   line-height: 20px;
@@ -121,7 +134,22 @@ export default {
 .parent-dialog {
   border: solid 1px #dcdfe6;
   box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
-} 
+}
+
+.parent-dialog-full {
+  width:100%!important;
+  height:100%!important;
+  left:0px!important;
+  top:0px!important;
+}
+
+.parent-dialog-hidden {
+  visibility:hidden;
+}
+
+.parent-dialog-full:hover .title-text {
+  color:#8300bf;
+}
 
 .parent-dialog:hover .title-text {
   color:#8300bf;

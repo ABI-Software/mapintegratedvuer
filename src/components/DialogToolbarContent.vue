@@ -1,16 +1,16 @@
 <template>
   <div>
     <el-row class="content">
-      <div class="title" v-for="title in dialogTitles" :key="title">
-        <div  class="title-text">
-          {{title}}
+      <div class="title" v-for="title in dialogTitles" :key="title.id">
+        <div class="title-text" v-bind:class="{ highlightText : (title.id==activeId) }" v-on:click="titleClicked(title.id)">
+          {{title.title}}
         </div>
       </div>
     </el-row>
-    <el-row class="icon-group">
-      <el-button class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="onMaximise"></el-button>
-      <el-button icon="el-icon-remove-outline" size="medium" type="text" @click="onMinimise"></el-button>
-      <el-button icon="el-icon-close" size="medium" type="text" @click="onClose"></el-button>
+    <el-row class="icon-group" v-if="showIcons">
+      <el-button class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
+      <el-button icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
+      <el-button icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
     </el-row>
   </div>
 </template>
@@ -30,15 +30,28 @@ Vue.use(Row);
 
 export default {
   name: "DialogToolbarContent",
-  props: {dialogTitles: Array},
+  props: {
+    dialogTitles: Array, 
+    showIcons: {
+      type: Boolean,
+      default: true
+    },
+    activeId: {
+      type: Number,
+      default: -1
+    }
+  },
   methods: {
-    onMaximise: function() {
+    titleClicked: function(id) {
+      this.$emit("titleClicked", id);
+    },
+    maximise: function() {
       this.$emit("maximise");
     },
-    onMinimise: function() {
+    minimise: function() {
       this.$emit("minimise");
     },
-    onClose: function() {
+    close: function() {
       this.$emit("close");
     }
   }
@@ -60,12 +73,20 @@ export default {
   display:inline-block;
 }
 
+.title:hover {
+  cursor: pointer;
+}
+
 .title-text {
   padding-top:9px;
   text-align:center;
 }
 
 .parent-dialog:hover .title-text {
+  color:#8300bf;
+}
+
+.highlightText {
   color:#8300bf;
 }
 
