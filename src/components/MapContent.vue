@@ -78,7 +78,6 @@ export default {
       let index = this.findIndexOfId(id);
       if ((index > -1) && (this.findIndexOfDockedArray(id) == -1)) {
         this.dockedArray.push({title: this.entries[index].type, id:this.entries[index].id});
-        this.entries[index].zIndex = 1;
       }
     },
     maximiseDialog: function(id) {
@@ -88,12 +87,15 @@ export default {
         if (this.entries[index].mode !== "main")
           this.entries[index].mode = "maximised";
         this.activeDockedId = id;
+        this.entries[index].zIndex = 1;
       }
     },
     minimiseDialog: function(id) {
       let index = this.findIndexOfId(id);
-      if (index > -1 && (this.entries[index].mode !== "main")) {
-        this.entries[index].mode = "minimised";
+      if (index > -1) {
+        if (this.entries[index].mode !== "main")
+          this.entries[index].mode = "minimised";
+        this.entries[index].zIndex = 0;
       }
     },
     undockDialog: function(id) {
