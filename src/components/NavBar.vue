@@ -117,12 +117,16 @@ export default {
   border-radius: 4px;
   min-height: 36px;
 }
-.el-menu--horizontal>.el-submenu:focus .el-submenu__title{
-  color: var(--vibrant-purple) !important; 
-}
 
 .el-menu--horizontal .el-menu-item:not(.is-disabled):hover{
-  color: var(--vibrant-purple)!important; 
+  color: var(--vibrant-purple);  
 }
 
+.el-submenu.is-opened >>> .el-submenu__title{
+  color: var(--vibrant-purple); 
+}
+
+.el-submenu__title:hover{
+  color: var(--vibrant-purple) !important; 
+}
 </style>
