@@ -1,7 +1,7 @@
 <template>
   <vue-draggable-resizable :style="style" :w="500" :h="500" :resizable="true" 
-    @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" 
-    :class-name="className">
+    @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-my-handle=".dialog-header" 
+    :class-name="className" class-name-handle="my-handle">
     <el-container style="height:100%;background:white;">
       <el-header v-if="entry.mode==='normal'" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
         <DialogToolbarContent :dialogTitles="[indexTitle]"  @maximise="onMaximise" @minimise="onMinimise" 
@@ -16,6 +16,14 @@
         <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
       </el-main>
     </el-container>
+    <div slot="tl" class="el-icon-top-left"></div>
+    <div slot="tm" class="el-icon-top"></div>
+    <div slot="tr" class="el-icon-top-right"></div>
+    <div slot="mr" class="el-icon-right"></div>
+    <div slot="br" class="el-icon-bottom-right"></div>
+    <div slot="bm" class="el-icon-bottom"></div>
+    <div slot="bl" class="el-icon-bottom-left"></div>
+    <div slot="ml" class="el-icon-back"></div>
   </vue-draggable-resizable>
 </template>
 
@@ -34,11 +42,13 @@ import '@tehsurfer/plotvuer/dist/plotvuer.css'
 import {
   Container,
   Header,
+  Icon,
   Main
 } from "element-ui";
 Vue.component('vue-draggable-resizable', VueDraggableResizable);
 Vue.use(Container);
 Vue.use(Header);
+Vue.use(Icon);
 Vue.use(Main);
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
@@ -157,6 +167,68 @@ export default {
 
 >>> input {
   font-family: inherit;
+}
+
+>>> .my-handle {
+    color:#979797;
+    position: absolute;
+    border: 0px;
+    width:10px;
+    height:10px;
+    box-sizing: border-box;
+}
+
+
+>>> .my-handle-tl {
+  top: -13px;
+  left: -13px;
+  cursor: nw-resize;
+}
+
+>>> .my-handle-tm {
+  top: -14px;
+  left: 50%;
+  margin-left: -7px;
+  cursor: n-resize;
+}
+
+>>> .my-handle-tr {
+  top: -13px;
+  right: -8px;
+  cursor: ne-resize;
+}
+
+>>> .my-handle-ml {
+  top: 50%;
+  margin-top: -7px;
+  left: -14px;
+  cursor: w-resize;
+}
+
+>>> .my-handle-mr {
+  top: 50%;
+  margin-top: -7px;
+  right: -8px;
+  cursor: e-resize;
+}
+
+>>> .my-handle-bl {
+  bottom: -8px;
+  left: -14px;
+  cursor: sw-resize;
+}
+
+>>> .my-handle-bm {
+  bottom: -8px;
+  left: 50%;
+  margin-left: -7px;
+  cursor: s-resize;
+}
+
+>>> .my-handle-br {
+  bottom: -8px;
+  right: -8px;
+  cursor: se-resize;
 }
 
 </style>
