@@ -48,7 +48,7 @@ export default {
   line-height: normal;
   letter-spacing: 1.05px;
   text-align: center;
-  color: #4720a4;
+  color: var(--vibrant-purple);;
 }
 .description {
   padding-top: 0.2em;
@@ -59,7 +59,7 @@ export default {
   font-style: normal;
   line-height: 130%;
   letter-spacing: 1.35px;
-  color: #999999;
+  color: var(--brownish-grey);
 }
 .image {
   width: 92px;
