@@ -1,6 +1,6 @@
 <template>
   <vue-draggable-resizable :style="style" :w="500" :h="500" :resizable="true" 
-    @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-my-handle=".dialog-header" 
+    @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" 
     :class-name="className" class-name-handle="my-handle">
     <el-container style="height:100%;background:white;">
       <el-header v-if="entry.mode==='normal'" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
