@@ -4,14 +4,14 @@
         <el-header style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
           <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
             :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" @maximise="dockedMaximise"
-            @minimise="dockedMinimise" @close="dockedClose" @titleClicked="dockedTitleClicked"/>         
+            @minimise="dockedMinimise" @close="dockedClose" @titleClicked="dockedTitleClicked"/>       
         </el-header>
         <el-main class="dialog-main">
           <div style="width:100%;height:100%;position:relative;overflow:hidden;">
             <FloatingDialog v-for="item in entries" :entry="item" :index="item.id"
               :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
               @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
-              @close="dialogClose(item.id)"/>
+              @close="dialogClose(item.id)" @onActionClick="onActionClick"/>
           </div>
         </el-main>
       </el-container>
@@ -39,6 +39,28 @@ export default {
     FloatingDialog
   },
   methods: {
+    onActionClick:function(action) {
+      if (action) {
+        if (action.type == "URL") {
+          window.open(action.resource,'_blank');
+        } else {
+          let newId = this.createNewEntry(action);
+          this.bringDialogToFront(newId);
+        }
+      }
+    },
+    createNewEntry: function(data) {
+      let newEntry = {};
+      newEntry.resource = data.resource;
+      newEntry.type = data.type;
+      newEntry.mode = "normal";
+      if (data.plotType)
+        newEntry.plotType = data.plotType;
+      newEntry.id = ++this.currentCount;
+      newEntry.zIndex = ++this.zIndex;
+      this.entries.push(newEntry);
+      return newEntry.id;
+    },
     findIndexOfId: function(id) {
       for (let i = 0; i < this.entries.length; i++) {
         if (this.entries[i].id == id) {
@@ -82,6 +104,7 @@ export default {
     },
     maximiseDialog: function(id) {
       let index = this.findIndexOfId(id);
+      console.log(index);
       if (index > -1) {
         this.minimiseDialog(this.activeDockedId);
         if (this.entries[index].mode !== "main")
@@ -139,62 +162,32 @@ export default {
     },
     dialogClicked: function(id) {
       this.bringDialogToFront(id);
+    },
+    resourceSelected: function(resource) {
+      console.log(resource);
     }
-    /** ,
-    resourceSelected: function(tabName, result) {
-      if (result.type == "Flatmap") {
-        let resource = result.resource;
-        let newResource = undefined;
-        let viewerType = "Scaffold";
-        switch (resource.resource[0]) {
-          case "UBERON:0000945": //stomach
-            newResource = "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stomach_lines/stomach_metadata.json";
-            break;
-          case "UBERON:0000948": //heart
-            newResource = "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/use_case4/rat_heart_metadata.json";
-            break;
-          case "UBERON:0001155": //colon
-            newResource = "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/colon/colonLines_metadata.json";
-            break;
-          case "UBERON:0002048": //lungs
-            newResource = "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/lungs/lungs_metadata.json";
-            break;
-          case "UBERON:0002440":
-          case "FMA:6474": //stellate
-            newResource = "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-2/Sample_1_18907001_channel_1.csv";
-            viewerType = "Plot";
-            //newResource = "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stellate/stellate_metadata.json";
-            break;
-          default:
-            break;
-        }
-        //this.addPaneToTab(tabName, viewerType, newResource);
-      }
-    }
-    */
   },
   data: function() {
     return {
       mainTabName: "Flatmap",
-      zIndex: 3,
+      zIndex: 1,
       showDialogIcons: false,
       dockedArray: [{title: "Flatmap", id:1}],
       activeDockedId: 1,
-      currentCount: 3,
+      currentCount: 1,
       entries: [
-        { resource: "NCBITaxon:9606", availableSpecies : {"Human":{taxo: "NCBITaxon:9606",
-            iconClass:"icon-mapicon_human"}, "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} },
-          type: "Flatmap", zIndex:1, mode: "main", id: 1},
-        {resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/use_case4/rat_heart_metadata.json",
-          type: "Scaffold", zIndex:2, mode: "normal", id: 2},
-        {resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
-          plotType:"heatmap", type: "Plot", zIndex:3, mode: "normal", id: 3}]
+        {
+          resource: "Human", availableSpecies : {"Human":{taxo: "NCBITaxon:9606",
+          iconClass:"icon-mapicon_human"}, "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} },
+          type: "Flatmap", zIndex:1, mode: "main",
+          id: 1
+        }
+      ]
     }
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
 .dialog-header {

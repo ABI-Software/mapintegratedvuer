@@ -16,13 +16,13 @@
     "build-static": "vue-cli-service build --dest test_html"
   },
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.4",
-    "@abi-software/scaffoldvuer": "^0.1.13",
+    "@abi-software/flatmapvuer": "^0.1.6",
+    "@abi-software/maptooltip": "^0.1.4",
+    "@abi-software/scaffoldvuer": "^0.1.17",
     "@tehsurfer/plotvuer": "^0.2.7",
     "core-js": "^3.3.2",
     "element-ui": "^2.13.0",
     "lodash": "^4.17.15",
-    "physiomeportal": "^0.4.13",
     "splitpanes": "^2.2.1",
     "vue": "^2.6.10",
     "vue-draggable-resizable": "^2.1.0"
