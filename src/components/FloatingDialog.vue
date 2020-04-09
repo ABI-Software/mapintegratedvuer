@@ -93,26 +93,20 @@ export default {
     showTooltip: function(result) {
       if (this.entry.type === 'Scaffold') {
         if (result.resource && result.resource.length > 0) {
-          let coords = this.$refs.scaffold.getCoordinatesOfSelected();
-          if (coords) {
-            this.tooltipLeft = Math.floor(coords.x);
-            this.tooltipTop = Math.floor(coords.y);
-            this.tVisible = true;
-          }
+          this.tVisible = true;
         } else {
           this.tVisible = false;
         }
       } else if (this.entry.type === 'Flatmap'){
-        console.log(this.$refs.flatmap)
         let coords = this.$refs.flatmap.getCoordinatesOfLastClick();
         if (coords) {
-          this.tooltipLeft = Math.floor(coords.x);
-          this.tooltipTop = Math.floor(coords.y);
+          this.tooltipCoords.x = coords.x;
+          this.tooltipCoords.y = coords.y;
           this.tVisible = true;
         }
       } else {
-        this.tooltipLeft = Math.floor(0);
-        this.tooltipTop = Math.floor(300);
+        this.tooltipCoords.x = 0;
+        this.tooltipCoords.y = 300;
         this.tVisible = true;
       }
     },
@@ -178,9 +172,8 @@ export default {
     },
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
-      if (this.updateTooltipContent(result)) {
-        this.showTooltip(result);
-      }
+      this.updateTooltipContent(result);
+      this.showTooltip(result);
       this.$emit("resource-selected", result);
     },
     onMaximise: function() {
@@ -202,8 +195,7 @@ export default {
       mainStyle: {overflow: this.entry.type === 'Scaffold' ? "hidden" : "auto"},
       className: "parent-dialog",
       indexTitle: {title: this.entry.type, id: this.index},
-      tooltipTop: 0,
-      tooltipLeft:0, 
+      tooltipCoords: {x: 0, y: 0},
       tPlacement: "bottom",
       tContent: {
         title: "Test",
@@ -231,8 +223,10 @@ export default {
     this.isReady = true;
     if (this.entry.mode === "main")
       this.className = "parent-dialog-full";
-    if (this.entry.type === 'Scaffold') 
+    if (this.entry.type === 'Scaffold') {
       this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
+      this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
+    }
   },
   watch: {
     "entry.zIndex": function() {
@@ -251,13 +245,12 @@ export default {
           this.className = "parent-dialog";
       }
     },
-    tooltipTop: function() {
-      this.tStyle.top = this.tooltipTop + "px";
+    "tooltipCoords.x": function() {
+      this.tStyle.left = Math.floor(this.tooltipCoords.x) + "px";
     },
-    tooltipLeft: function() {
-      this.tStyle.left = this.tooltipLeft + "px";
+    "tooltipCoords.y": function() {
+      this.tStyle.top = Math.floor(this.tooltipCoords.y) + "px";
     }
-
   }
 };
 </script>
