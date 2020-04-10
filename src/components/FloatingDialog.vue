@@ -1,5 +1,5 @@
 <template>
-  <vue-draggable-resizable :style="style" :w="820" :h="545"  :x="80" :resizable="true" 
+  <vue-draggable-resizable :style="style" :w="820" :h="545" :x="initialX" :y="initialY" :resizable="true" 
     @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" 
     :class-name="className" class-name-handle="my-handle">
     <el-container style="height:100%;background:white;">
@@ -138,7 +138,16 @@ export default {
       selectedResource: undefined,
       tooltipCoords: {x: 0, y: 0},
       tPlacement: "bottom",
-      tVisible: false
+      tVisible: false,
+      initialX: 0,
+      initialY: 0
+    }
+  },
+  beforeMount: function() {
+    if (this.index > 1) {
+      var remainder = (this.index - 2) % 4;
+      this.initialX = (remainder + 1) * 40;
+      this.initialY = remainder * 40;
     }
   },
   mounted: function() {
