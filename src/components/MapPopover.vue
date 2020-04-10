@@ -27,7 +27,7 @@ export default {
       this.$emit("onTooltipClose");
     },
     updateTooltipContent: function(result) {
-      if (result.resource) {
+      if (result && result.resource) {
         let resource = result.resource;
         if (Array.isArray(resource) && resource[0])
           resource = resource[0];
@@ -50,7 +50,6 @@ export default {
       if (term) {
         let data = {};
         if (term === "UBERON:0000948") {
-          console.log(term)
           data.title = "Mapping of ICN Neurons in a 3D Rat Heart";
           data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
           data.actions = [
@@ -72,8 +71,9 @@ export default {
           data.actions = [
             {
               title: "View plot",
+              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
               type: "Plot",
-              plotType: "heatmap"
+              plotType: "heatmap",
             }
           ];
         } else {
@@ -125,68 +125,3 @@ export default {
   }
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-
-.content {
-  width:calc(100% - 120px);
-}
-
-.title {
-  width: 101px;
-  height: 38px;
-  border-right: solid 1px #dcdfe6;
-  background-color: white;
-  display:inline-block;
-}
-
-.title:hover {
-  cursor: pointer;
-}
-
-.title-text {
-  padding-top:9px;
-  text-align:center;
-}
-
-.parent-dialog:hover .title-text {
-  color:#8300bf;
-}
-
-.highlightText {
-  color:#8300bf;
-}
-
-.icon-group {
-  position:absolute;
-  top:-2px;
-  right:16px;
-}
-
-.icon-group >>> .el-button--text {
-  color:#606266;
-  font-size: 1.5em;
-}
-
-.icon-group >>> .el-button--text:hover {
-  color:#8300bf;
-}
-
-.icon-transform {
-  -moz-transform: rotate(90deg);
-  -webkit-transform: rotate(90deg);
-  -o-transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  transform: rotate(90deg);
-}
-
-.header:hover {
-  cursor:grab;
-}
-
-.header:active {
-  cursor:grabbing;
-}
-
-</style>
