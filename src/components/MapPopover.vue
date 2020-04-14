@@ -1,7 +1,8 @@
 <template>
   <div>
     <TooltipVuer :placement="placement" :visible="visible" :content="tContent" 
-      :position="tStyle" @onActionClick="onActionClick" @onClose="onTooltipClose"/>
+      :position="tStyle" @onActionClick="onActionClick" @onClose="onTooltipClose"
+      :displayCloseButton="displayCloseButton" ref="tooltip"/>
   </div>
 </template>
 
@@ -17,14 +18,20 @@ export default {
     selectedResource: Object,
     placement: String,
     tooltipCoords: Object,
-    visible: Boolean
+    visible: Boolean,
+    displayCloseButton: Boolean
   },
   methods: {
     onActionClick: function(action) {
       this.$emit("onActionClick", action);
     },
     onTooltipClose: function() {
-      this.$emit("onTooltipClose");
+      this.$emit("onClose");
+    },
+    getTooltipContentElm: function() {
+      //Not the best way but required to get the content 
+      //into mapboxgl popup
+      return this.$refs.tooltip.$refs.content.$vnode.elm;
     },
     updateTooltipContent: function(result) {
       if (result && result.resource) {
@@ -103,8 +110,8 @@ export default {
         ]
       },
       tStyle: {
-        top: "200px",
-        left: "400px",
+        top: "0px",
+        left: "0px",
         position: "absolute"
       }
     }

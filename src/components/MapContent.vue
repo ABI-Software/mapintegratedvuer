@@ -104,7 +104,6 @@ export default {
     },
     maximiseDialog: function(id) {
       let index = this.findIndexOfId(id);
-      console.log(index);
       if (index > -1) {
         this.minimiseDialog(this.activeDockedId);
         if (this.entries[index].mode !== "main")
@@ -131,7 +130,6 @@ export default {
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
       this.dockDialog(id);
-
     },
     dialogMinimise: function(id) {
       this.minimiseDialog(id);

@@ -19,7 +19,9 @@
         <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('Scaffold'))"
           :selectedResource="selectedResource" :placement="tPlacement"
           :tooltipCoords="tooltipCoords" :visible="tVisible"
-          @onActionClick="onActionClick" @onClose="onTooltipClose"/>
+          @onActionClick="onActionClick" @onClose="onTooltipClose"
+          :displayCloseButton="entry.type === 'Scaffold'"
+          ref="popover"/>
       </el-main>
     </el-container>
     <div slot="tl" class="el-icon-top-left"></div>
@@ -76,6 +78,7 @@ export default {
       this.$emit("onActionClick", action);
     },
     onTooltipClose: function() {
+      console.log(this.tVisible)
       this.tVisible = false;
     },
     onResize: function (x, y, width, height) {
@@ -98,12 +101,9 @@ export default {
           this.tVisible = false;
         }
       } else if (this.entry.type === 'Flatmap'){
-        let coords = this.$refs.flatmap.getCoordinatesOfLastClick();
-        if (coords) {
-          this.tooltipCoords.x = coords.x;
-          this.tooltipCoords.y = coords.y;
-          this.tVisible = true;
-        }
+        const elm = this.$refs.popover.getTooltipContentElm();
+        this.$refs.flatmap.showPopup(result.resource.feature.id, elm,
+          {anchor: "top"});
       } else {
         this.tooltipCoords.x = 0;
         this.tooltipCoords.y = 300;
