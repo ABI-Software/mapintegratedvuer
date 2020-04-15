@@ -56,37 +56,56 @@ export default {
     fetchContent: function(term) {
       if (term) {
         let data = {};
-        if (term === "UBERON:0000948") {
-          data.title = "Mapping of ICN Neurons in a 3D Rat Heart";
-          data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
-          data.actions = [
-            {
-              title: "View 3D scaffold",
-              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
-              type: "Scaffold"
-            },
-            {
-              title: "View dataset",
-              resource: "https://sparc.science/datasets/37?type=dataset",
-              type: "URL"
-            }
-          ];
-          return data;
-        } else if (term === "ICN") { 
-          data.title = "RNA";
-          data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
-          data.actions = [
-            {
-              title: "View plot",
-              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
-              type: "Plot",
-              plotType: "heatmap",
-            }
-          ];
-        } else {
-          data.title = term;
-          data.description = "";
-          data.actions = [ ];
+        switch (term) {
+          case "UBERON:0000948":
+            data.title = "Mapping of ICN Neurons in a 3D Rat Heart";
+            data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
+            data.actions = [
+              {
+                title: "View 3D scaffold",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
+                type: "Scaffold"
+              },
+              {
+                title: "View dataset",
+                resource: "https://sparc.science/datasets/37?type=dataset",
+                type: "URL"
+              }
+            ];
+            break;
+          case "ICN":
+            data.title = "RNA";
+            data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
+            data.actions = [
+              {
+                title: "View plot",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
+                type: "Plot",
+                plotType: "heatmap",
+              }
+            ];
+            break;
+          case "UBERON:0000945":
+            data.title = "Stomach";
+            data.description = "Scaffolds of the stomach";
+            data.actions = [
+              {
+                title: "View volume scaffold",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/volume/stomach_volume_metadata.json",
+                type: "Scaffold"
+              },
+              {
+                title: "View opening scaffold",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stomach_lines/stomach_metadata.json",
+                type: "Scaffold"
+              }
+            ];
+            break;
+          default:
+            data.title = term;
+            data.description = "";
+            data.actions = [ ];
+            break;
         }
         return data;
       }
