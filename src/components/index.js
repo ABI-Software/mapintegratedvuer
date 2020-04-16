@@ -3,7 +3,6 @@
 import Vue from "vue";
 import MapContent from './MapContent.vue';
 
-
 const Components = {
     MapContent
   };

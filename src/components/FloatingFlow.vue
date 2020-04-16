@@ -88,7 +88,7 @@ export default {
         }
       }
     },
-    distroyDialog: function(id) {
+    destroyDialog: function(id) {
       let index = this.findIndexOfId(id);
       if (index > -1) {
         this.entries.splice(index, 1);
@@ -134,7 +134,7 @@ export default {
       this.dockDialog(id);
     },
     dialogClose: function(id) {
-      this.distroyDialog(id);
+      this.destroyDialog(id);
     },
     dockedTitleClicked: function(id) {
       this.maximiseDialog(id);
@@ -153,7 +153,7 @@ export default {
     },
     dockedClose: function() {
       this.undockDialog(this.activeDockedId);
-      this.distroyDialog(this.activeDockedId);
+      this.destroyDialog(this.activeDockedId);
       this.activeDockedId = this.entries[0].id;
     },
     dialogClicked: function(id) {
