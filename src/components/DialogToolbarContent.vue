@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="header">
     <el-row class="content">
       <div class="title" v-for="title in dialogTitles" :key="title.id">
         <div class="title-text" v-bind:class="{ highlightText : (title.id==activeId) }" v-on:click="titleClicked(title.id)">
@@ -111,6 +111,14 @@ export default {
   -o-transform: rotate(90deg);
   -ms-transform: rotate(90deg);
   transform: rotate(90deg);
+}
+
+.header:hover {
+  cursor:grab;
+}
+
+.header:active {
+  cursor:grabbing;
 }
 
 </style>
