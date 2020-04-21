@@ -30,6 +30,9 @@ Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
 
+/**
+ * Component of the floating dialogs.
+ */
 export default {
   name: "FloatingFlow",
   components: {
@@ -37,6 +40,9 @@ export default {
     FloatingDialog
   },
   methods: {
+    /**
+     * Callback when an action is performed (open new dialogs).
+     */
     onActionClick:function(action) {
       if (action) {
         if (action.type == "URL") {
@@ -47,6 +53,10 @@ export default {
         }
       }
     },
+    /**
+     * Add new entry which will sequentially create a
+     * new dialog.
+     */
     createNewEntry: function(data) {
       let newEntry = {};
       newEntry.resource = data.resource;
@@ -165,17 +175,20 @@ export default {
   },
   data: function() {
     return {
-      mainTabName: "Flatmap",
       zIndex: 1,
-      showDialogIcons: false,
       dockedArray: [{title: "Flatmap", id:1}],
       activeDockedId: 1,
       currentCount: 1,
       entries: [
         {
-          resource: "Human", availableSpecies : {"Human":{taxo: "NCBITaxon:9606",
-          iconClass:"icon-mapicon_human"}, "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} },
-          type: "Flatmap", zIndex:1, mode: "main",
+          resource: "Human",
+          availableSpecies : {
+            "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
+            "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
+          },
+          type: "Flatmap",
+          zIndex:1,
+          mode: "main",
           id: 1
         }
       ]

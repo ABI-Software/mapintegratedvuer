@@ -12,9 +12,15 @@
 import '@abi-software/maptooltip';
 import '@abi-software/maptooltip/dist/maptooltip.css';
 
+/**
+ * Component of the popover interface.
+ */
 export default {
   name: "MapPopover",
   props: {
+    /**
+     * Contain information of the region of interest.
+     */
     selectedResource: Object,
     placement: String,
     tooltipCoords: Object,
@@ -54,6 +60,7 @@ export default {
       return false;
     },
     fetchContent: function(term) {
+      /* this should be linked to Scicrucn search result when its possible */
       if (term) {
         let data = {};
         switch (term) {

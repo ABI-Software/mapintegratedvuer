@@ -28,14 +28,26 @@ Vue.use(Button);
 Vue.use(Icon);
 Vue.use(Row);
 
+/**
+ * Cmponent for the header of differnt vuers.
+ */
 export default {
   name: "DialogToolbarContent",
   props: {
+    /**
+     * Array of titles.
+     */
     dialogTitles: Array, 
+    /**
+     * Display icons for docking, undocking and etc.
+     */   
     showIcons: {
       type: Boolean,
       default: true
     },
+    /**
+     * The current active title.
+     */  
     activeId: {
       type: Number,
       default: -1

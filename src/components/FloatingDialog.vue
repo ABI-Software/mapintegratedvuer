@@ -24,6 +24,7 @@
           ref="popover"/>
       </el-main>
     </el-container>
+    /* Below set the style of the resize cursor */
     <div slot="tl" class="el-icon-top-left"></div>
     <div slot="tm" class="el-icon-top"></div>
     <div slot="tr" class="el-icon-top-right"></div>
@@ -61,9 +62,22 @@ Vue.use(Icon);
 Vue.use(Main);
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
+/**
+ * Vue component of the floating dialog.
+ */
 export default {
   name: "FloatingDialog",
-  props: {entry: Object, index: Number,
+  props: {
+    /**
+     * Object containing information for
+     * the required viewing.
+     */
+    entry: Object,
+    index: Number,
+    /**
+     * Flag for toggling the header.
+     * True when it is undocked.
+     */
     showHeader: {
       type: Boolean,
       default: true,
@@ -74,11 +88,17 @@ export default {
     MapPopover
   },
   methods: {
+    /**
+     * Callback for MapPopover action.
+     * Propagate the action upstream.
+     */
     onActionClick: function(action) {
       this.$emit("onActionClick", action);
     },
+    /**
+     * Callback when popover close button is clicked. 
+     */
     onTooltipClose: function() {
-      console.log(this.tVisible)
       this.tVisible = false;
     },
     onResize: function (x, y, width, height) {
@@ -93,6 +113,10 @@ export default {
       this.x = x
       this.y = y
     },
+    /**
+     * Display and set the position of the popover.
+     * Popover will handle the content.
+     */
     showTooltip: function(result) {
       if (this.entry.type === 'Scaffold') {
         if (result.resource && result.resource.length > 0) {
@@ -101,6 +125,7 @@ export default {
           this.tVisible = false;
         }
       } else if (this.entry.type === 'Flatmap'){
+        /* Use flatmap MapBoxGL for displaying the popover */
         const elm = this.$refs.popover.getTooltipContentElm();
         this.$refs.flatmap.showPopup(result.resource.feature.id, elm,
           {anchor: "top"});
@@ -110,6 +135,9 @@ export default {
         this.tVisible = true;
       }
     },
+    /**
+     * Callback when the vuers emit a selected event.
+     */
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
       this.selectedResource = result;
@@ -133,6 +161,10 @@ export default {
       scaffoldCamera: undefined,
       style: {zIndex: this.entry.zIndex},
       mainStyle: {overflow: this.entry.type === 'Scaffold' ? "hidden" : "auto"},
+      /**
+       * Control the style of the top compoent.
+       * @values parent-dialog, parent-dialog-full
+       */
       className: "parent-dialog",
       indexTitle: {title: this.entry.type, id: this.index},
       selectedResource: undefined,
