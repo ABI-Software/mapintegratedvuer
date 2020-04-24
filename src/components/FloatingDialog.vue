@@ -6,9 +6,11 @@
       <el-header v-if="entry.mode==='normal'" style="text-align: left; font-size: 14px;padding:0" 
         height="40px" class="dialog-header">
         <DialogToolbarContent :dialogTitles="[indexTitle]"  @maximise="onMaximise" @minimise="onMinimise" 
-          @close="onClose"/>         
+          @close="onClose"/>
       </el-header>
+      
       <el-main class="dialog-main" :style="mainStyle">
+        <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :title="entry.datasetTitle" :url="entry.datasetUrl"></DatasetHeader>
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
           @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
           style="height:100%;width:100%;" :initial="entry.resource"
@@ -41,6 +43,7 @@
 import Vue from "vue";
 import DialogToolbarContent from './DialogToolbarContent';
 import MapPopover from './MapPopover';
+import DatasetHeader from './DatasetHeader';
 import VueDraggableResizable from 'vue-draggable-resizable';
 import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
@@ -71,7 +74,8 @@ export default {
   },
   components: {
     DialogToolbarContent,
-    MapPopover
+    MapPopover,
+    DatasetHeader
   },
   methods: {
     onActionClick: function(action) {
@@ -215,6 +219,14 @@ export default {
 
 .parent-dialog:hover .title-text {
   color:#8300bf;
+}
+
+.dataset-header{
+  width: 100%;
+  height: 25px;
+  text-align: left;
+  padding-left: 55px;
+  padding-top: 10px;
 }
 
 >>> input {
