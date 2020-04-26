@@ -5,6 +5,7 @@
       :default-active="activeIndex"
       class="navbar"
       mode="horizontal"
+      menu-trigger="click"
     >
       <el-menu-item index="1" class="sparc-menu-item">
         <img :src="sparcLogo" class="sparc-navbar-logo"/>
@@ -12,17 +13,18 @@
       <el-menu-item index="2">About</el-menu-item>
       <el-submenu index="3">
         <template slot="title">Explore data</template>
-        <el-menu-item index="3-1">item one</el-menu-item>
-        <el-menu-item index="3-2">item two</el-menu-item>
-        <el-menu-item index="3-3">item three</el-menu-item>
-      </el-submenu>
-      <el-submenu index="4"  >
-        <template slot="title"  >Learn</template>
-        <el-row style="width: 100vw">
+          <el-row style="width: 100vw">
             <el-col :span="24/learnCards.length" v-for="item in learnCards" :key="item.title">
               <nav-drop-down-item :image="item.image" :title="item.title" :description="item.description"/>
             </el-col>
-       </el-row>
+          </el-row>
+   
+      </el-submenu>
+      <el-submenu index="4"  >
+        <template slot="title"  >Learn</template>
+        <el-menu-item index="4-1">item one</el-menu-item>
+        <el-menu-item index="4-2">item two</el-menu-item>
+        <el-menu-item index="4-3">item three</el-menu-item>
       </el-submenu>
       <el-menu-item index="5">News</el-menu-item>
       <el-submenu index="6" style="">
@@ -66,7 +68,6 @@ Vue.use(Submenu);
 Vue.use(Row)
 Vue.use(Col)
 
-
 export default {
   name: "NavBar",
   components: {NavDropDownItem},
@@ -87,9 +88,7 @@ export default {
           title: '2D Flatmap/2D visualisations',
           description: 'Advanced 2d flatmap, visualising anatomical map by species. Navigate organ on the 2d flatmap to download and view dataset, immerse yourself in the 3d scaffold simulation, view heatmap and graph. All type of dataset in one, from the 2d anatomical flatmap. '
         }
-  
       ]
-
     };
   },
   mounted: function() {}
@@ -111,7 +110,7 @@ export default {
 }
 .sparc-navbar-logo{
   padding-top: 4px;
-  width: 38px;
+  width: 45px;
 }
 .grid-content {
   border-radius: 4px;
