@@ -10,7 +10,7 @@
         <FloatingDialog v-for="item in entries" :entry="item" :index="item.id"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
-          @close="dialogClose(item.id)" @onActionClick="onActionClick"/>
+          @close="dialogClose(item.id)"/>
       </div>
     </el-main>
   </el-container>
@@ -20,6 +20,7 @@
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
+import EventBus from './EventBus';
 import Vue from "vue";
 import {
   Container,
@@ -37,7 +38,10 @@ export default {
     FloatingDialog
   },
   methods: {
-    onActionClick:function(action) {
+    /**
+     * Callback when an action is performed (open new dialogs).
+     */
+    actionClick:function(action) {
       if (action) {
         if (action.type == "URL") {
           window.open(action.resource,'_blank');
@@ -173,13 +177,23 @@ export default {
       currentCount: 1,
       entries: [
         {
-          resource: "Human", availableSpecies : {"Human":{taxo: "NCBITaxon:9606",
-          iconClass:"icon-mapicon_human"}, "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} },
-          type: "Flatmap", zIndex:1, mode: "main",
+          resource: "Rat",
+          availableSpecies : {
+            "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
+            "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
+          },
+          type: "Flatmap",
+          zIndex:1,
+          mode: "main",
           id: 1
         }
       ]
     }
+  },
+  mounted: function() {
+    EventBus.$on("PopoverActionClick", (payLoad) => {
+      this.actionClick(payLoad);
+    });
   }
 };
 </script>
