@@ -193,8 +193,8 @@ export default {
           plotType: "timeseries",
           type: "Plot", zIndex:3,
           id: 3,          
-          datasetTitle: 'Molecular Phenotype Distribution of Single Rat Intracardiac Neurons',
-          datasetUrl: 'https://discover.blackfynn.com/datasets/29'
+          datasetTitle: 'Cardioneural Recordings',
+          datasetUrl: 'https://discover.blackfynn.com/datasets/26'
         },
       ]
     }

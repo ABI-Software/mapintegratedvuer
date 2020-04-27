@@ -1,5 +1,5 @@
 <template>
-  <vue-draggable-resizable :style="style" :w="820" :h="545" :x="initialX" :y="initialY" :resizable="true" 
+  <vue-draggable-resizable :style="style" :w="1600" :h="1100" :x="initialX" :y="initialY" :resizable="true" 
     @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" 
     :class-name="className" class-name-handle="my-handle">
     <el-container style="height:100%;background:white;">
@@ -147,13 +147,7 @@ export default {
       initialY: 0
     }
   },
-  beforeMount: function() {
-    if (this.index > 1) {
-      var remainder = (this.index - 2) % 4;
-      this.initialX = (remainder + 1) * 40;
-      this.initialY = remainder * 40;
-    }
-  },
+
   mounted: function() {
     this.isReady = true;
     if (this.entry.mode === "main")
