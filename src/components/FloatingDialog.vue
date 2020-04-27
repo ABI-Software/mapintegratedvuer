@@ -19,7 +19,7 @@
         <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('Scaffold'))"
           :selectedResource="selectedResource" :placement="tPlacement"
           :tooltipCoords="tooltipCoords" :visible="tVisible"
-          @onActionClick="onActionClick" @onClose="onTooltipClose"
+          @onClose="onTooltipClose"
           :displayCloseButton="entry.type === 'Scaffold'"
           ref="popover"/>
       </el-main>
@@ -74,11 +74,10 @@ export default {
     MapPopover
   },
   methods: {
-    onActionClick: function(action) {
-      this.$emit("onActionClick", action);
-    },
+    /**
+     * Callback when popover close button is clicked. 
+     */
     onTooltipClose: function() {
-      console.log(this.tVisible)
       this.tVisible = false;
     },
     onResize: function (x, y, width, height) {
