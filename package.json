@@ -12,6 +12,7 @@
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "start": "vue-cli-service serve",
+    "build": "vue-cli-service build --mode prod",
     "build-bundle": "vue-cli-service build --target lib --name mapintegratedvuer ./src/components/index.js",
     "lint": "vue-cli-service lint",
     "build-static": "vue-cli-service build --dest test_html"
