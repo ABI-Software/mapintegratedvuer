@@ -18,7 +18,7 @@
   "dependencies": {
     "@abi-software/flatmapvuer": "^0.1.9",
     "@abi-software/maptooltip": "^0.1.6",
-    "@abi-software/scaffoldvuer": "^0.1.21",
+    "@abi-software/scaffoldvuer": "^0.1.22",
     "@tehsurfer/plotvuer": "^0.2.7",
     "core-js": "^3.3.2",
     "element-ui": "^2.13.0",
