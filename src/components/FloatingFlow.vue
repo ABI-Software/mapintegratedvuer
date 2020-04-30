@@ -172,21 +172,26 @@ export default {
       mainTabName: "Flatmap",
       zIndex: 1,
       showDialogIcons: false,
-      dockedArray: [{title: "Flatmap", id:1}],
+      dockedArray: [{title: "Flatmap", id:1},],
       activeDockedId: 1,
-      currentCount: 1,
-      entries: [
+      currentCount: 4,
+     entries: [
         {
-          resource: "Rat",
-          availableSpecies : {
-            "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
-            "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
-          },
-          type: "Flatmap",
-          zIndex:1,
-          mode: "main",
-          id: 1
-        }
+          resource: "Human", availableSpecies : {"Human":{taxo: "NCBITaxon:9606",
+          iconClass:"icon-mapicon_human"}, "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} },
+          type: "Flatmap", zIndex:1, mode: "main",
+          id: 1,
+          datasetTitle: 'Flatmap',
+          datasetUrl: 'https://github.com/ABI-Software/flatmap-viewer'
+        },
+        {
+          resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
+          plotType: "heatmap",
+          type: "Plot", zIndex:2,  mode: "normal",
+          id: 2,          
+          datasetTitle: 'Molecular Phenotype Distribution of Single Rat Intracardiac Neurons',
+          datasetUrl: 'https://discover.blackfynn.com/datasets/29'
+        },
       ]
     }
   },
