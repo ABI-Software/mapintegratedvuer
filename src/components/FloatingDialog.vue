@@ -8,6 +8,8 @@
         <DialogToolbarContent :dialogTitles="[indexTitle]"  @maximise="onMaximise" @minimise="onMinimise" 
           @close="onClose"/>         
       </el-header>
+      <div id='find-me'>Im right here</div>
+      <div id='find-me-2' style="padding-left:300px;">Im right here2</div>
       <el-main class="dialog-main" :style="mainStyle">
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
           @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 

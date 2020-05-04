@@ -1,18 +1,19 @@
 <template>
   <el-container style="height:100%;background:white;">
-    <el-header style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" @maximise="dockedMaximise"
         @minimise="dockedMinimise" @close="dockedClose" @titleClicked="dockedTitleClicked"/>       
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
-        <FloatingDialog v-for="item in entries" :entry="item" :index="item.id"
+        <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="item.id"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
           @close="dialogClose(item.id)"/>
       </div>
     </el-main>
+    <v-tour name="myTour" :steps="steps"></v-tour>
   </el-container>
 </template>
 
@@ -21,6 +22,8 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
 import EventBus from './EventBus';
+import VueTour from 'vue-tour'
+import 'vue-tour/dist/vue-tour.css'
 import Vue from "vue";
 import {
   Container,
@@ -30,6 +33,7 @@ import {
 Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
+Vue.use(VueTour)
 
 export default {
   name: "FloatingFlow",
@@ -187,6 +191,27 @@ export default {
           mode: "main",
           id: 1
         }
+      ],
+      steps: [
+        {
+          target: '#find-me',  // We're using document.querySelector() under the hood
+          header: {
+            title: 'Get Started',
+          },
+          content: `Discover <strong>Vue Tour</strong>!`,
+
+        },
+        {
+          target: '#find-me-2',
+          content: 'An awesome plugin made with Vue.js!'
+        },
+        {
+          target: '.el-select .select-box',
+          content: 'Try it, you\'ll love it!<br>You can put HTML in the steps and completely customize the DOM to suit your needs.',
+          params: {
+            placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+          }
+        }
       ]
     }
   },
@@ -194,6 +219,9 @@ export default {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
     });
+    this.$tours['myTour'].start()
+    window.tours = this.$tours
+    window.tt = this
   }
 };
 </script>
