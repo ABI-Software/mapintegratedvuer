@@ -62,7 +62,6 @@ Vue.use(Header);
 Vue.use(Icon);
 Vue.use(Main);
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
-
 export default {
   name: "FloatingDialog",
   props: {entry: Object, index: Number,
@@ -189,39 +188,31 @@ export default {
   border-bottom: solid 0.7px #dcdfe6;
   background-color: #f5f7fa;
 }
-
 .dialog-main {
   padding:0px;
 }
-
 .parent-dialog {
   border: solid 1px #dcdfe6;
   box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
 }
-
 .parent-dialog-full {
   width:100%!important;
   height:100%!important;
   left:0px!important;
   top:0px!important;
 }
-
 .parent-dialog-hidden {
   visibility:hidden;
 }
-
 .parent-dialog-full:hover .title-text {
   color:#8300bf;
 }
-
 .parent-dialog:hover .title-text {
   color:#8300bf;
 }
-
 >>> input {
   font-family: inherit;
 }
-
 >>> .my-handle {
     color:#979797;
     position: absolute;
@@ -230,58 +221,48 @@ export default {
     height:10px;
     box-sizing: border-box;
 }
-
-
 >>> .my-handle-tl {
   top: -13px;
   left: -13px;
   cursor: nw-resize;
 }
-
 >>> .my-handle-tm {
   top: -14px;
   left: 50%;
   margin-left: -7px;
   cursor: n-resize;
 }
-
 >>> .my-handle-tr {
   top: -13px;
   right: -8px;
   cursor: ne-resize;
 }
-
 >>> .my-handle-ml {
   top: 50%;
   margin-top: -7px;
   left: -14px;
   cursor: w-resize;
 }
-
 >>> .my-handle-mr {
   top: 50%;
   margin-top: -7px;
   right: -8px;
   cursor: e-resize;
 }
-
 >>> .my-handle-bl {
   bottom: -8px;
   left: -14px;
   cursor: sw-resize;
 }
-
 >>> .my-handle-bm {
   bottom: -8px;
   left: 50%;
   margin-left: -7px;
   cursor: s-resize;
 }
-
 >>> .my-handle-br {
   bottom: -8px;
   right: -8px;
   cursor: se-resize;
 }
-
 </style>

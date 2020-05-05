@@ -11,6 +11,8 @@
   ],
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
+    "start": "vue-cli-service serve",
+    "build": "vue-cli-service build --mode prod",
     "build-bundle": "vue-cli-service build --target lib --name mapintegratedvuer ./src/components/index.js",
     "lint": "vue-cli-service lint",
     "build-static": "vue-cli-service build --dest test_html"
@@ -18,8 +20,8 @@
   "dependencies": {
     "@abi-software/flatmapvuer": "^0.1.9",
     "@abi-software/maptooltip": "^0.1.7",
-    "@abi-software/scaffoldvuer": "^0.1.23",
-    "@tehsurfer/plotvuer": "^0.2.7",
+    "@abi-software/scaffoldvuer": "^0.1.22",
+    "@tehsurfer/plotvuer": "^0.2.13",
     "core-js": "^3.3.2",
     "element-ui": "^2.13.0",
     "lodash": "^4.17.15",

@@ -177,9 +177,9 @@ export default {
       mainTabName: "Flatmap",
       zIndex: 1,
       showDialogIcons: false,
-      dockedArray: [{title: "Flatmap", id:1}],
+      dockedArray: [{title: "Flatmap", id:1}, ],
       activeDockedId: 1,
-      currentCount: 1,
+      currentCount: 3,
       entries: [
         {
           resource: "Rat",
