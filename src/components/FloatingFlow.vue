@@ -23,6 +23,7 @@ import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
 import EventBus from './EventBus';
 import VueTour from 'vue-tour'
+import tourSteps from './tourSteps'
 import 'vue-tour/dist/vue-tour.css'
 import Vue from "vue";
 import {
@@ -192,27 +193,7 @@ export default {
           id: 1
         }
       ],
-      steps: [
-        {
-          target: '#find-me',  // We're using document.querySelector() under the hood
-          header: {
-            title: 'Get Started',
-          },
-          content: `Discover <strong>Vue Tour</strong>!`,
-
-        },
-        {
-          target: '#find-me-2',
-          content: 'An awesome plugin made with Vue.js!'
-        },
-        {
-          target: '.el-select .select-box',
-          content: 'Try it, you\'ll love it!<br>You can put HTML in the steps and completely customize the DOM to suit your needs.',
-          params: {
-            placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
-          }
-        }
-      ]
+      steps: tourSteps
     }
   },
   mounted: function() {
@@ -220,8 +201,6 @@ export default {
       this.actionClick(payLoad);
     });
     this.$tours['myTour'].start()
-    window.tours = this.$tours
-    window.tt = this
   }
 };
 </script>
