@@ -13,7 +13,8 @@
           @close="dialogClose(item.id)"/>
       </div>
     </el-main>
-    <div id='middle' class="middle-invis"></div>
+    <div id='heart' class="heart-invis"></div>
+    <div id='icn' class="icn-invis"></div>
     <v-tour name="myTour" :steps="steps"></v-tour>
   </el-container>
 </template>
@@ -221,11 +222,20 @@ export default {
   height:100%;
 }
 
-.middle-invis {
-  padding-left: 50%;
-  padding-top: 50%;
+.heart-invis {
+  position: absolute;
+  right:40%;
+  top:75%;
   height: 0px;
-  width: 0px
+  width: 0px;
+}
+
+.icn-invis {
+  position: absolute;
+  right:50%;
+  top:45%;
+  height: 0px;
+  width: 0px;
 }
 
 </style>

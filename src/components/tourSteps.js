@@ -15,12 +15,8 @@ export default [
       }
     },
     {
-      target: '#flatmapDisplayArea',
-      content: 'What species are you looking for?',
-    },
-    {
-      target: '#middle',
-      content: 'select a synapse',
+      target: '#heart',
+      content: 'Click the heart to see data associated with it',
       params: {
         placement: 'right' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
       }
@@ -28,21 +24,42 @@ export default [
     {
       target: '[data-v-6e7795b6]',
       header: {
-        title: 'Trying viewing the heart in a 3D scaffold',
+        title: 'View the 3D heart scaffold',
       },
-      content: 'This new window has controls in the header for expanding, docking and closing the window',
+      content: 'Click the "View 3d scaffold" button to bring up the 3d scaffold of the heart',
       params: {
         placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
       }
     },
     {
-      target: '#middle',
-      content: 'Try selecting this point of the heart to view its data',
+      target: '.el-icon-copy-document',
+      header: {
+        title: 'Window controls',
+      },
+      content: 'Use these controls to maximise, hide and close this window ',
       params: {
-        placement: 'bottom' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+        placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
       }
     },
-    
-    
-    
+    {
+      target: '[data-v-4b50b8b3]',
+      content: 'Select "ICN" to show the mapped data',
+      params: {
+        placement: 'right' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target: '#icn',
+      content: 'Select one of the yellow points to bring up associated data',
+      params: {
+        placement: 'right' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
+    {
+      target: '#el-popover-470',
+      content: 'Click here to bring up a heatmap of the data',
+      params: {
+        placement: 'left' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+      }
+    },
 ]
