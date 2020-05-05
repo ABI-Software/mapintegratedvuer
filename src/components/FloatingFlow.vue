@@ -13,6 +13,7 @@
           @close="dialogClose(item.id)"/>
       </div>
     </el-main>
+    <div id='middle' class="middle-invis"></div>
     <v-tour name="myTour" :steps="steps"></v-tour>
   </el-container>
 </template>
@@ -218,6 +219,13 @@ export default {
   padding:0px;
   width:100%;
   height:100%;
+}
+
+.middle-invis {
+  padding-left: 50%;
+  padding-top: 50%;
+  height: 0px;
+  width: 0px
 }
 
 </style>
