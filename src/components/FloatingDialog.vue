@@ -10,7 +10,11 @@
       </el-header>
       
       <el-main class="dialog-main" :style="mainStyle">
-        <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :title="entry.datasetTitle" :url="entry.datasetUrl"></DatasetHeader>
+        <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" 
+          :title="entry.datasetTitle" 
+          :url="entry.datasetUrl"
+          :description="entry.datasetDescription">
+        </DatasetHeader>
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
           @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
           style="height:100%;width:100%;" :initial="entry.resource"

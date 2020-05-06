@@ -168,9 +168,9 @@ export default {
       mainTabName: "Flatmap",
       zIndex: 1,
       showDialogIcons: false,
-      dockedArray: [{title: "Flatmap", id:1}, {title: "Heatmap", id:2},  {title: "Plot", id:3}],
+      dockedArray: [{title: "Flatmap", id:1},],
       activeDockedId: 1,
-      currentCount: 2,
+      currentCount: 1,
       entries: [
         {
           resource: "Human", availableSpecies : {"Human":{taxo: "NCBITaxon:9606",
@@ -178,23 +178,8 @@ export default {
           type: "Flatmap", zIndex:1, mode: "main",
           id: 1,
           datasetTitle: 'Flatmap',
-          datasetUrl: 'https://github.com/ABI-Software/flatmap-viewer'
-        },
-        {
-          resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
-          plotType: "heatmap",
-          type: "Plot", zIndex:2,
-          id: 2,          
-          datasetTitle: 'Molecular Phenotype Distribution of Single Rat Intracardiac Neurons',
-          datasetUrl: 'https://discover.blackfynn.com/datasets/29'
-        },
-        {
-          resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-2/Sample_1_18907001_channel_1.csv",
-          plotType: "timeseries",
-          type: "Plot", zIndex:3,
-          id: 3,          
-          datasetTitle: 'Molecular Phenotype Distribution of Single Rat Intracardiac Neurons',
-          datasetUrl: 'https://discover.blackfynn.com/datasets/29'
+          datasetUrl: 'https://github.com/ABI-Software/flatmap-viewer',
+          datasetDescription: "An in browswer map for exploring nerve connectivity"
         },
       ]
     }
