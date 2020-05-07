@@ -11,6 +11,7 @@
 /* eslint-disable no-alert, no-console */
 import '@abi-software/maptooltip';
 import '@abi-software/maptooltip/dist/maptooltip.css';
+import EventBus from './EventBus';
 
 export default {
   name: "MapPopover",
@@ -23,7 +24,7 @@ export default {
   },
   methods: {
     onActionClick: function(action) {
-      this.$emit("onActionClick", action);
+       EventBus.$emit("PopoverActionClick", action);
     },
     onTooltipClose: function() {
       this.$emit("onClose");

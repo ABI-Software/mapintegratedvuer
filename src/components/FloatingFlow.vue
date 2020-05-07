@@ -10,7 +10,7 @@
         <FloatingDialog v-for="item in entries" :entry="item" :index="item.id"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
-          @close="dialogClose(item.id)" @onActionClick="onActionClick"/>
+          @close="dialogClose(item.id)"/>
       </div>
     </el-main>
   </el-container>
@@ -20,6 +20,7 @@
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
+import EventBus from './EventBus';
 import Vue from "vue";
 import {
   Container,
@@ -37,7 +38,10 @@ export default {
     FloatingDialog
   },
   methods: {
-    onActionClick:function(action) {
+    /**
+     * Callback when an action is performed (open new dialogs).
+     */
+    actionClick:function(action) {
       if (action) {
         if (action.type == "URL") {
           window.open(action.resource,'_blank');
@@ -183,6 +187,11 @@ export default {
         },
       ]
     }
+  },
+  mounted: function() {
+    EventBus.$on("PopoverActionClick", (payLoad) => {
+      this.actionClick(payLoad);
+    });
   }
 };
 </script>

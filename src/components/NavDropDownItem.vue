@@ -51,6 +51,7 @@ export default {
   color: var(--vibrant-purple);;
 }
 .description {
+  width: 426px;
   padding-top: 0.2em;
   font-family: "Helvetica";
   font-size: 14px;

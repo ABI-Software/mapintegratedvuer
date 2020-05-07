@@ -39,7 +39,7 @@ export default {
   name: "DatasetHeader",
   components: {},
   props: ["title", "url", "description"],
-  data: function() { 
+  data: function() {
     return {
       cardDisplayed: false
     }
