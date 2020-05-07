@@ -24,9 +24,9 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
 import EventBus from './EventBus';
-import VueTour from 'vue-tour'
+import VueTour from '@tehsurfer/vue-tour'
 import tourSteps from './tourSteps'
-import 'vue-tour/dist/vue-tour.css'
+import '@tehsurfer/vue-tour/dist/vue-tour.css'
 import Vue from "vue";
 import {
   Container,
