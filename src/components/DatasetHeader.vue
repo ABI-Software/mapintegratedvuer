@@ -1,7 +1,7 @@
 <template>
   <div class="dataset-title-container" ref="container" @mouseleave="cardDisplayed=false">
     <div @click="cardDisplayed=true" class="dataset-link">
-      <el-link>
+      <el-link class="dataset-title">
         {{title}}
         <i v-show="!cardDisplayed" class="el-icon-arrow-down el-icon--right"></i>
         <i v-show="cardDisplayed" class="el-icon-arrow-up el-icon--right"></i>
@@ -56,6 +56,11 @@ export default {
 <style scoped>
 .dataset-title-container{
   margin: 3px;
+}
+.dataset-title{
+  font: HelveticaNeue-Medium;
+  font-size: 16px;
+  color: #606266;
 }
 .dataset-card{
   width: 230px;
