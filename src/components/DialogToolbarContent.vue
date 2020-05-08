@@ -7,10 +7,11 @@
         </div>
       </div>
     </el-row>
-    <el-row class="icon-group" v-if="showIcons">
-      <el-button class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
-      <el-button icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
-      <el-button icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
+    <el-row class="icon-group" >
+      <el-button icon="el-icon-full-screen" size="medium" type="text" v-if="showFullscreenIcon" @click="onFullscreen"></el-button>
+      <el-button class="icon-transform" icon="el-icon-copy-document" v-if="showIcons" size="medium" type="text" @click="maximise"></el-button>
+      <el-button icon="el-icon-remove-outline" size="medium" v-if="showIcons" type="text" @click="minimise"></el-button>
+      <el-button icon="el-icon-close" size="medium" v-if="showIcons" type="text" @click="close"></el-button>
     </el-row>
   </div>
 </template>
@@ -36,6 +37,10 @@ export default {
       type: Boolean,
       default: true
     },
+    showFullscreenIcon: {
+      type: Boolean,
+      default: false
+    },
     activeId: {
       type: Number,
       default: -1
@@ -44,6 +49,9 @@ export default {
   methods: {
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
+    },
+    onFullscreen: function() {
+      this.$emit("onFullscreen");
     },
     maximise: function() {
       this.$emit("maximise");
