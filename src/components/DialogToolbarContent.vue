@@ -7,10 +7,11 @@
         </div>
       </div>
     </el-row>
-    <el-row class="icon-group" v-if="showIcons">
-      <el-button class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
-      <el-button icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
-      <el-button icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
+    <el-row class="icon-group" >
+      <el-button class="icon-transform" icon="el-icon-help" v-if="showHelpIcon" size="medium" type="text" @click="startTutorial"></el-button>
+      <el-button class="icon-transform" v-if="showIcons" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
+      <el-button icon="el-icon-remove-outline" v-if="showIcons" size="medium" type="text" @click="minimise"></el-button>
+      <el-button icon="el-icon-close" v-if="showIcons" size="medium" type="text" @click="close"></el-button>
     </el-row>
   </div>
 </template>
@@ -39,11 +40,18 @@ export default {
     activeId: {
       type: Number,
       default: -1
-    }
+    },
+    showHelpIcon: {
+      type: Boolean,
+      default: false
+    },
   },
   methods: {
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
+    },
+    startTutorial: function(){
+      this.$emit("startTutorial")
     },
     maximise: function() {
       this.$emit("maximise");

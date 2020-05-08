@@ -11,7 +11,7 @@
       <el-main class="dialog-main" :style="mainStyle">
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
           @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
-          style="height:100%;width:100%;" :initial="entry.resource"
+          style="height:100%;width:100%;" :initial="entry.resource" 
           ref="flatmap"/>
         <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
           @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />

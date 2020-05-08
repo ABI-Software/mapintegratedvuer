@@ -2,8 +2,8 @@
   <el-container style="height:100%;background:white;">
     <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
-        :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" @maximise="dockedMaximise"
-        @minimise="dockedMinimise" @close="dockedClose" @titleClicked="dockedTitleClicked"/>       
+        :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" @maximise="dockedMaximise" :showHelpIcon="true"
+        @minimise="dockedMinimise" @close="dockedClose" @titleClicked="dockedTitleClicked" @startTutorial="startTutorial"/>       
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
@@ -176,6 +176,9 @@ export default {
       if (this.tour.isRunning){
         this.tour.nextStep()
       }
+    },
+    startTutorial: function(){
+      this.tour.start()
     },
     previousStepCallback: function(currentStep){
       console.log(currentStep)
