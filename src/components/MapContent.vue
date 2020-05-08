@@ -7,7 +7,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
-
+import '../../assets/mapicon-species-style.css'
 /**
  * Content of the app. More work flows will be added here.
  */
