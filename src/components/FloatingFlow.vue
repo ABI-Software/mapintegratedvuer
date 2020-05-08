@@ -7,15 +7,16 @@
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
-        <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="item.id"
+        <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
-          @close="dialogClose(item.id)"/>
+          @close="dialogClose(item.id)"
+          @resource-selected="resourceSelected(item)"/>
       </div>
     </el-main>
     <div id='heart' class="heart-invis"></div>
     <div id='icn' class="icn-invis"></div>
-    <v-tour name="myTour" :steps="steps"></v-tour>
+    <v-tour name="onboarding-tour" :steps="steps" :callbacks="tourCallbacks"></v-tour>
   </el-container>
 </template>
 
@@ -172,6 +173,43 @@ export default {
     },
     resourceSelected: function(resource) {
       console.log(resource);
+      if (this.tour.isRunning){
+        this.tour.nextStep()
+      }
+    },
+    previousStepCallback: function(currentStep){
+      console.log(currentStep)
+    },
+    nextStepCallback: function(currentStep){
+      console.log(currentStep)
+      // Hack on step three to show tooltip for the heart
+      if (currentStep === 2){
+        this.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':"263-891"}}})
+        this.$refs.dialogs[0].$refs.popover.updateFromTerm("UBERON:0000948")
+       
+      }
+      if (currentStep === 3){
+        this.actionClick({
+          title: "View 3D scaffold",
+          resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
+          type: "Scaffold"
+
+        })
+      }
+      // if (currentStep === 4){
+      //   this.dockDialog(2)
+      // }
+      if (currentStep === 5){
+        this.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.checkedItems.push('ICN')
+        this.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.handleChange([])
+      }
+      if (currentStep === 6){
+        window.diag = this.$refs.dialogs[1].showTooltip({'resource':['unused']})
+        this.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN")
+        // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
+        window.steps = this.steps
+        window.refs = this.$refs
+      }
     }
   },
   data: function() {
@@ -181,7 +219,7 @@ export default {
       showDialogIcons: false,
       dockedArray: [{title: "Flatmap", id:1}, ],
       activeDockedId: 1,
-      currentCount: 3,
+      currentCount: 1,
       entries: [
         {
           resource: "Rat",
@@ -195,14 +233,22 @@ export default {
           id: 1
         }
       ],
-      steps: tourSteps
+      steps: tourSteps,
+      tour: this.$tours['onboarding-tour'],
+      tourCallbacks: {
+        onPreviousStep: this.previousStepCallback,
+        onNextStep: this.nextStepCallback
+      }
     }
   },
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
+      console.log(payLoad)
     });
-    this.$tours['myTour'].start()
+    this.tour = this.$tours['onboarding-tour'] 
+    this.tour.start()
+    window.tour = this.tour
   }
 };
 </script>
