@@ -102,8 +102,6 @@ export default {
         const elm = this.$refs.popover.getTooltipContentElm();
         this.$refs.flatmap.showPopup(result.resource.feature.id, elm,
           {anchor: "top"});
-        console.log(result)
-        window.ree = result
       } else {
         this.tooltipCoords.x = 0;
         this.tooltipCoords.y = 300;

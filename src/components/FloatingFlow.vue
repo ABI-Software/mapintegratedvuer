@@ -177,6 +177,13 @@ export default {
         this.tour.nextStep()
       }
     },
+    checkForFirstTimeVisitor(){
+      var hasVisted = localStorage.getItem('hasVisitedMaps')
+      if (hasVisted === null || hasVisted === false){
+          localStorage.setItem('hasVisitedMaps', true);
+          this.startTutorial()
+      }
+    },
     startTutorial: function(){
       this.tour.start()
     },
@@ -250,8 +257,7 @@ export default {
       console.log(payLoad)
     });
     this.tour = this.$tours['onboarding-tour'] 
-    this.tour.start()
-    window.tour = this.tour
+    this.checkForFirstTimeVisitor()
   }
 };
 </script>
