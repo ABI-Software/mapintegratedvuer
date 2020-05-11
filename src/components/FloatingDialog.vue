@@ -10,6 +10,7 @@
       </el-header>
       <el-main class="dialog-main" :style="mainStyle">
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
+          @flatmapChanged="flatmapChanged"
           @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
           style="height:100%;width:100%;" :initial="entry.resource" 
           ref="flatmap"/>
@@ -122,6 +123,9 @@ export default {
     },
     onClose: function() {
       this.$emit("close");
+    },
+    flatmapChanged: function(){
+      this.$emit("flatmapChanged")
     }
   },
   data: function() {

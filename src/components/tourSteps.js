@@ -8,7 +8,7 @@ export default [
 
     },
     {
-      target: '.select-box[data-v-b0ad8088]',
+      target: '.select-box',
       content: 'What species are you looking for?',
       params: {
         placement: 'right' 
@@ -22,7 +22,7 @@ export default [
       }
     },
     {
-      target: '[data-v-6e7795b6]',
+      target: '.el-main.main',
       header: {
         title: 'View the 3D heart scaffold',
       },

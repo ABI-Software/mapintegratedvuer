@@ -11,7 +11,8 @@
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
           @close="dialogClose(item.id)"
-          @resource-selected="resourceSelected(item)"/>
+          @resource-selected="resourceSelected(item)"
+          @flatmapChanged="flatmapChanged"/>
       </div>
     </el-main>
     <div id='heart' class="heart-invis"></div>
@@ -69,6 +70,7 @@ export default {
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
       this.entries.push(newEntry);
+      this.updateStep(3)
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -140,6 +142,7 @@ export default {
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
       this.dockDialog(id);
+      this.updateStep(4)
     },
     dialogMinimise: function(id) {
       this.minimiseDialog(id);
@@ -177,6 +180,14 @@ export default {
         this.tour.nextStep()
       }
     },
+    updateStep: function(stepNumber){
+      if (this.tour.isRunning && this.tour.currentStep === stepNumber ){
+        this.tour.nextStep()
+      }
+    },
+    flatmapChanged: function (){
+      this.updateStep(2)
+    },
     checkForFirstTimeVisitor(){
       var hasVisted = localStorage.getItem('hasVisitedMaps')
       if (hasVisted === null || hasVisted === false){
@@ -191,24 +202,25 @@ export default {
       console.log(currentStep)
     },
     nextStepCallback: function(currentStep){
-      console.log(currentStep)
       // Hack on step three to show tooltip for the heart
       if (currentStep === 2){
         this.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':"263-891"}}})
         this.$refs.dialogs[0].$refs.popover.updateFromTerm("UBERON:0000948")
-       
       }
       if (currentStep === 3){
-        this.actionClick({
-          title: "View 3D scaffold",
-          resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
-          type: "Scaffold"
+        if(this.entries.length === 1){
+          this.actionClick({
+            title: "View 3D scaffold",
+            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
+            type: "Scaffold"
 
-        })
+          })
+        }
       }
-      // if (currentStep === 4){
-      //   this.dockDialog(2)
-      // }
+      if (currentStep === 4){
+        this.dockDialog(2)
+        this.maximiseDialog(2)
+      }
       if (currentStep === 5){
         this.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.checkedItems.push('ICN')
         this.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.handleChange([])
@@ -217,9 +229,17 @@ export default {
         window.diag = this.$refs.dialogs[1].showTooltip({'resource':['unused']})
         this.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN")
         // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
-        window.steps = this.steps
-        window.refs = this.$refs
       }
+    },
+    finishTutorialCallback(){
+       if(this.entries.length === 2){
+          this.actionClick({
+            title: "'Molecular Phenotype Distribution of Single Rat Intracardiac Neurons",
+            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
+            type: "Plot",
+            plotType: "heatmap",
+          })
+       }
     }
   },
   data: function() {
@@ -247,7 +267,8 @@ export default {
       tour: this.$tours['onboarding-tour'],
       tourCallbacks: {
         onPreviousStep: this.previousStepCallback,
-        onNextStep: this.nextStepCallback
+        onNextStep: this.nextStepCallback,
+        onFinish: this.finishTutorialCallback
       }
     }
   },
