@@ -160,3 +160,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+>>> .el-popover.el-popper {
+  position: absolute !important;
+  transform: translate3d(-134px, 0px, 0px) !important;
+}
+</style>

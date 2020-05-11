@@ -2,8 +2,11 @@
   <el-container style="height:100%;background:white;">
     <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
-        :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" @maximise="dockedMaximise" :showHelpIcon="true"
-        @minimise="dockedMinimise" @close="dockedClose" @titleClicked="dockedTitleClicked" @startTutorial="startTutorial"/>       
+        :showFullscreenIcon="entries[findIndexOfId(activeDockedId)].mode!=='normal'" 
+        :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" 
+        @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose" 
+        @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
+        :showHelpIcon="true" @startTutorial="startTutorial"/>       
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
@@ -138,6 +141,9 @@ export default {
         this.dockedArray.splice(dockedIndex, 1);
         this.bringDialogToFront(id);
       }
+    },
+    onFullscreen: function() {
+      this.$emit("onFullscreen");
     },
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
