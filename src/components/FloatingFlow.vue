@@ -221,6 +221,7 @@ export default {
             type: "Scaffold"
 
           })
+          this.tour.previousStep()
         }
       }
       if (currentStep === 4){
