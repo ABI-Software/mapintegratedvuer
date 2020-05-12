@@ -102,7 +102,7 @@ export default {
       } else if (this.entry.type === 'Flatmap'){
         const elm = this.$refs.popover.getTooltipContentElm();
         this.$refs.flatmap.showPopup(result.resource.feature.id, elm,
-          {anchor: "top"});
+          {anchor: "bottom"});
       } else {
         this.tooltipCoords.x = 0;
         this.tooltipCoords.y = 300;

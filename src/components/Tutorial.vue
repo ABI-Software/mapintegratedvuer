@@ -32,19 +32,20 @@ export default {
      * Callback when an action is performed (open new dialogs).
      */
     flowChange: function(action) {
-      if (action && this.tour.isRunning) {
+      if (action) {
         if (action === "startTutorial") {
           this.startTutorial()
-        } else if (action === "flatmapChanged"){
-          this.updateStep(3)
-        } else if (action === "createNewEntry") {
-          this.updateStep(4)
-        } else if (action === "dialogMaximise") {
-          this.updateStep(5)
-        } else if (action === "resourceSelected") {
-          this.tour.nextStep()
+        } else if (this.tour.isRunning){
+          if (action === "flatmapChanged"){
+            this.updateStep(3)
+          } else if (action === "createNewEntry") {
+            this.updateStep(4)
+          } else if (action === "dialogMaximise") {
+            this.updateStep(5)
+          } else if (action === "resourceSelected") {
+            this.tour.nextStep()
+          }
         }
-        
       }
     },
     updateStep: function(stepNumber){
@@ -60,7 +61,7 @@ export default {
       }
     },
     startTutorial: function(){
-      this.flow.resetApp()
+  // this.flow.resetApp()
       this.tour.start()
     },
     previousStepCallback: function(currentStep){
