@@ -8,6 +8,13 @@ export default [
 
     },
     {
+      target: '.el-icon-full-screen',
+      content: 'The app works best in full screen!',
+      params: {
+        placement: 'left' 
+      }
+    },
+    {
       target: '.select-box',
       content: 'What species are you looking for?',
       params: {

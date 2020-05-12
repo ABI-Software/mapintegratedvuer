@@ -35,11 +35,11 @@ export default {
         if (action === "startTutorial") {
           this.startTutorial()
         } else if (action === "flatmapChanged"){
-          this.updateStep(2)
-        } else if (action === "createNewEntry") {
           this.updateStep(3)
-        } else if (action === "dialogMaximise") {
+        } else if (action === "createNewEntry") {
           this.updateStep(4)
+        } else if (action === "dialogMaximise") {
+          this.updateStep(5)
         } else if (action === "resourceSelected") {
           this.tour.nextStep()
         }
@@ -68,14 +68,19 @@ export default {
     nextStepCallback: function(currentStep){
       //The list of callbacks below is customised for each step manipulate the app to brin the user through it
 
+      // Step one goes to full screen
+      if (currentStep === 1){
+        this.flow.onFullscreen()
+      }
+
       // Hack on step three to show tooltip for the heart
-      if (currentStep === 2){
+      if (currentStep === 3){
         this.flow.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':"263-891"}}})
         this.flow.$refs.dialogs[0].$refs.popover.updateFromTerm("UBERON:0000948")
       }
 
       // Step 4 brings up the heart scaffold
-      if (currentStep === 3){
+      if (currentStep === 4){
         if(this.flow.entries.length === 1){
           this.flow.actionClick({
             title: "View 3D scaffold",
@@ -88,19 +93,19 @@ export default {
       }
 
       // Step 5 docks the dialog
-      if (currentStep === 4){
+      if (currentStep === 5){
         this.flow.dockDialog(2)
         this.flow.maximiseDialog(2)
       }
 
       // Step 6 adds shows ICN points on the heart
-      if (currentStep === 5){
+      if (currentStep === 6){
         this.flow.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.checkedItems.push('ICN')
         this.flow.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.handleChange([])
       }
 
       // Step 7 pulls up the RNA seq data
-      if (currentStep === 6){
+      if (currentStep === 7){
         this.flow.$refs.dialogs[1].showTooltip({'resource':['unused']})
         this.flow.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN")
         // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
