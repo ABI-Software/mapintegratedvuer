@@ -18,9 +18,6 @@
           @flatmapChanged="flatmapChanged"/>
       </div>
     </el-main>
-    <div id='heart' class="heart-invis"></div>
-    <div id='icn' class="icn-invis"></div>
-    <v-tour name="onboarding-tour" :steps="steps" :callbacks="tourCallbacks"></v-tour>
   </el-container>
 </template>
 
@@ -29,9 +26,6 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
 import EventBus from './EventBus';
-import VueTour from '@tehsurfer/vue-tour'
-import tourSteps from './tourSteps'
-import '@tehsurfer/vue-tour/dist/vue-tour.css'
 import Vue from "vue";
 import {
   Container,
@@ -41,7 +35,6 @@ import {
 Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
-Vue.use(VueTour)
 
 export default {
   name: "FloatingFlow",
@@ -50,6 +43,10 @@ export default {
     FloatingDialog
   },
   methods: {
+
+    onFlowChange: function(action) {
+       EventBus.$emit("FlowChange", action);
+    },
     /**
      * Callback when an action is performed (open new dialogs).
      */
@@ -73,7 +70,7 @@ export default {
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
       this.entries.push(newEntry);
-      this.updateStep(3)
+      this.onFlowChange('createNewEntry');
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -148,7 +145,7 @@ export default {
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
       this.dockDialog(id);
-      this.updateStep(4)
+      this.onFlowChange('dialogMaximise');
     },
     dialogMinimise: function(id) {
       this.minimiseDialog(id);
@@ -182,71 +179,13 @@ export default {
     },
     resourceSelected: function(resource) {
       console.log(resource);
-      if (this.tour.isRunning){
-        this.tour.nextStep()
-      }
-    },
-    updateStep: function(stepNumber){
-      if (this.tour.isRunning && this.tour.currentStep === stepNumber ){
-        this.tour.nextStep()
-      }
+      this.onFlowChange('resourceSelected');
     },
     flatmapChanged: function (){
-      this.updateStep(2)
-    },
-    checkForFirstTimeVisitor(){
-      var hasVisted = localStorage.getItem('hasVisitedMaps')
-      if (hasVisted === null || hasVisted === false){
-          localStorage.setItem('hasVisitedMaps', true);
-          this.startTutorial()
-      }
+      this.onFlowChange('flatmapChanged');
     },
     startTutorial: function(){
-      this.tour.start()
-    },
-    previousStepCallback: function(currentStep){
-      console.log(currentStep)
-    },
-    nextStepCallback: function(currentStep){
-      // Hack on step three to show tooltip for the heart
-      if (currentStep === 2){
-        this.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':"263-891"}}})
-        this.$refs.dialogs[0].$refs.popover.updateFromTerm("UBERON:0000948")
-      }
-      if (currentStep === 3){
-        if(this.entries.length === 1){
-          this.actionClick({
-            title: "View 3D scaffold",
-            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
-            type: "Scaffold"
-
-          })
-          this.tour.previousStep()
-        }
-      }
-      if (currentStep === 4){
-        this.dockDialog(2)
-        this.maximiseDialog(2)
-      }
-      if (currentStep === 5){
-        this.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.checkedItems.push('ICN')
-        this.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.handleChange([])
-      }
-      if (currentStep === 6){
-        window.diag = this.$refs.dialogs[1].showTooltip({'resource':['unused']})
-        this.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN")
-        // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
-      }
-    },
-    finishTutorialCallback(){
-       if(this.entries.length === 2){
-          this.actionClick({
-            title: "'Molecular Phenotype Distribution of Single Rat Intracardiac Neurons",
-            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
-            type: "Plot",
-            plotType: "heatmap",
-          })
-       }
+      this.onFlowChange('startTutorial');
     }
   },
   data: function() {
@@ -270,22 +209,13 @@ export default {
           id: 1
         }
       ],
-      steps: tourSteps,
-      tour: this.$tours['onboarding-tour'],
-      tourCallbacks: {
-        onPreviousStep: this.previousStepCallback,
-        onNextStep: this.nextStepCallback,
-        onFinish: this.finishTutorialCallback
-      }
     }
   },
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
-      console.log(payLoad)
+      console.log(payLoad);
     });
-    this.tour = this.$tours['onboarding-tour'] 
-    this.checkForFirstTimeVisitor()
   }
 };
 </script>
