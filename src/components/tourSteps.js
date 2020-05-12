@@ -63,10 +63,10 @@ export default [
       }
     },
     {
-      target: '#el-popover-470',
-      content: 'Click here to bring up a heatmap of the data',
+      target: '#rna',
+      content: 'This pop up gives details on the data. Click on <strong>View Plot</strong> to explore the data further',
       params: {
-        placement: 'left' 
+        placement: 'right' 
       }
     },
 ]

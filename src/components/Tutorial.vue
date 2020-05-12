@@ -2,6 +2,7 @@
   <div>
     <div id='heart' class="heart-invis"></div>
     <div id='icn' class="icn-invis"></div>
+    <div id='rna' class="rna-invis"></div>
     <v-tour name="onboarding-tour" :steps="steps" :callbacks="tourCallbacks"></v-tour>
   </div>
 </template>
@@ -108,6 +109,7 @@ export default {
       if (currentStep === 7){
         this.flow.$refs.dialogs[1].showTooltip({'resource':['unused']})
         this.flow.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN")
+        this.flow.$refs.dialogs[1].$refs.popover.setTooltipCoords(300,300)
         // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
       }
     },
@@ -172,6 +174,14 @@ export default {
 .icn-invis {
   position: absolute;
   right:50%;
+  top:45%;
+  height: 0px;
+  width: 0px;
+}
+
+.rna-invis {
+  position: absolute;
+  right:68%;
   top:45%;
   height: 0px;
   width: 0px;
