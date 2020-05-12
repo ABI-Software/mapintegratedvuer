@@ -32,7 +32,7 @@ export default {
      * Callback when an action is performed (open new dialogs).
      */
     flowChange: function(action) {
-      if (action) {
+      if (action && this.tour.isRunning) {
         if (action === "startTutorial") {
           this.startTutorial()
         } else if (action === "flatmapChanged"){
