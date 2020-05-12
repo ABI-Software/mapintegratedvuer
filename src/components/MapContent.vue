@@ -1,7 +1,7 @@
 <template>
     <div style="height: 100%;width:100%;z-index:1" ref="MapApp">
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
-      <tutorial :flow="this.$refs.flow"></tutorial>
+      <tutorial :parentRefs="this.$refs"></tutorial>
     </div>
 </template>
 

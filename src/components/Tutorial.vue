@@ -25,7 +25,7 @@ Vue.use(VueTour)
 
 export default {
   name: "Tutorial",
-  props: ['flow'],
+  props: ['parentRefs'],
   methods: {
     /**
      * Callback when an action is performed (open new dialogs).
@@ -59,6 +59,7 @@ export default {
       }
     },
     startTutorial: function(){
+      this.flow.resetApp()
       this.tour.start()
     },
     previousStepCallback: function(currentStep){
@@ -98,10 +99,11 @@ export default {
         this.flow.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.handleChange([])
       }
 
-      // Step 7 pulls up the RNA seq data tooltip
+      // Step 7 pulls up the RNA seq data
       if (currentStep === 6){
         this.flow.$refs.dialogs[1].showTooltip({'resource':['unused']})
         this.flow.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN")
+        // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
       }
     },
     finishTutorialCallback(){
@@ -117,6 +119,7 @@ export default {
   },
   data: function() {
     return {
+      flow: undefined,
       steps: tourSteps,
       tour: this.$tours['onboarding-tour'],
       tourCallbacks: {
@@ -127,6 +130,7 @@ export default {
     }
   },
   mounted: function() {
+    this.flow = this.parentRefs.flow
     EventBus.$on("FlowChange", (payLoad) => {
       console.log(payLoad)
       this.flowChange(payLoad)

@@ -125,7 +125,7 @@ export default {
       this.$emit("close");
     },
     flatmapChanged: function(){
-      this.$emit("flatmapChanged")
+      this.$emit("flatmapChanged");
     }
   },
   data: function() {

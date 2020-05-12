@@ -36,6 +36,30 @@ Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
 
+var initialState = function() {
+  return {
+    mainTabName: "Flatmap",
+    zIndex: 1,
+    showDialogIcons: false,
+    dockedArray: [{title: "Flatmap", id:1}, ],
+    activeDockedId: 1,
+    currentCount: 1,
+    entries: [
+      {
+        resource: "Rat",
+        availableSpecies : {
+          "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
+          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
+        },
+        type: "Flatmap",
+        zIndex:1,
+        mode: "main",
+        id: 1
+      }
+    ],
+  }
+}
+
 export default {
   name: "FloatingFlow",
   components: {
@@ -186,30 +210,13 @@ export default {
     },
     startTutorial: function(){
       this.onFlowChange('startTutorial');
+    },
+    resetApp: function(){
+      Object.assign(this.$data, initialState());
     }
   },
   data: function() {
-    return {
-      mainTabName: "Flatmap",
-      zIndex: 1,
-      showDialogIcons: false,
-      dockedArray: [{title: "Flatmap", id:1}, ],
-      activeDockedId: 1,
-      currentCount: 1,
-      entries: [
-        {
-          resource: "Rat",
-          availableSpecies : {
-            "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
-            "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
-          },
-          type: "Flatmap",
-          zIndex:1,
-          mode: "main",
-          id: 1
-        }
-      ],
-    }
+    return initialState();
   },
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
