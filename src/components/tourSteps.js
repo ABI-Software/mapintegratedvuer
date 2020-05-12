@@ -9,21 +9,21 @@ export default [
     },
     {
       target: '.el-icon-full-screen',
-      content: 'The app works best in full screen!',
+      content: 'The app works best in <strong>full screen</strong>!',
       params: {
         placement: 'left' 
       }
     },
     {
       target: '.select-box',
-      content: 'What species are you looking for?',
+      content: 'What <strong>species</strong> are you looking for?',
       params: {
         placement: 'right' 
       }
     },
     {
       target: '#heart',
-      content: 'Click the heart to see data associated with it',
+      content: 'Click the <strong>heart</strong> to see data associated with it',
       params: {
         placement: 'right' 
       }
@@ -33,7 +33,7 @@ export default [
       header: {
         title: 'View the 3D heart scaffold',
       },
-      content: 'Click the "View 3d scaffold" button to bring up the 3d scaffold of the heart',
+      content: 'Click the <strong>View 3D scaffold</strong> button to bring up the 3d scaffold of the heart',
       params: {
         placement: 'left' 
       }
@@ -43,21 +43,21 @@ export default [
       header: {
         title: 'Window controls',
       },
-      content: 'Use these controls to maximise, hide and close this window ',
+      content: 'Use these controls to <strong>maximise, hide and close</strong> this window ',
       params: {
         placement: 'left' 
       }
     },
     {
       target: '[data-v-4b50b8b3]',
-      content: 'Select "ICN" to show the mapped data',
+      content: 'Select <strong>"ICN"</strong> to show the mapped data',
       params: {
         placement: 'right' 
       }
     },
     {
       target: '#icn',
-      content: 'Select one of the yellow points to bring up associated data',
+      content: 'Select one of the <strong>yellow points</strong> to bring up associated data',
       params: {
         placement: 'right' 
       }
