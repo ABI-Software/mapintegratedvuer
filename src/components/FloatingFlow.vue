@@ -1,18 +1,21 @@
 <template>
   <el-container style="height:100%;background:white;">
-    <el-header style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
         :showFullscreenIcon="entries[findIndexOfId(activeDockedId)].mode!=='normal'" 
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" 
         @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose" 
-        @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"/>       
+        @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
+        :showHelpIcon="true" @startTutorial="startTutorial"/>       
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
-        <FloatingDialog v-for="item in entries" :entry="item" :index="item.id"
+        <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
-          @close="dialogClose(item.id)"/>
+          @close="dialogClose(item.id)"
+          @resource-selected="resourceSelected(item)"
+          @flatmapChanged="flatmapChanged"/>
       </div>
     </el-main>
   </el-container>
@@ -33,6 +36,30 @@ Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
 
+var initialState = function() {
+  return {
+    mainTabName: "Flatmap",
+    zIndex: 1,
+    showDialogIcons: false,
+    dockedArray: [{title: "Flatmap", id:1}, ],
+    activeDockedId: 1,
+    currentCount: 1,
+    entries: [
+      {
+        resource: "Rat",
+        availableSpecies : {
+          "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
+          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
+        },
+        type: "Flatmap",
+        zIndex:1,
+        mode: "main",
+        id: 1
+      }
+    ],
+  }
+}
+
 export default {
   name: "FloatingFlow",
   components: {
@@ -40,6 +67,10 @@ export default {
     FloatingDialog
   },
   methods: {
+
+    onFlowChange: function(action) {
+       EventBus.$emit("FlowChange", action);
+    },
     /**
      * Callback when an action is performed (open new dialogs).
      */
@@ -63,6 +94,7 @@ export default {
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
       this.entries.push(newEntry);
+      this.onFlowChange('createNewEntry');
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -137,6 +169,7 @@ export default {
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
       this.dockDialog(id);
+      this.onFlowChange('dialogMaximise');
     },
     dialogMinimise: function(id) {
       this.minimiseDialog(id);
@@ -170,34 +203,25 @@ export default {
     },
     resourceSelected: function(resource) {
       console.log(resource);
+      this.onFlowChange('resourceSelected');
+    },
+    flatmapChanged: function (){
+      this.onFlowChange('flatmapChanged');
+    },
+    startTutorial: function(){
+      this.onFlowChange('startTutorial');
+    },
+    resetApp: function(){
+      Object.assign(this.$data, initialState());
     }
   },
   data: function() {
-    return {
-      mainTabName: "Flatmap",
-      zIndex: 1,
-      showDialogIcons: false,
-      dockedArray: [{title: "Flatmap", id:1}],
-      activeDockedId: 1,
-      currentCount: 1,
-      entries: [
-        {
-          resource: "Rat",
-          availableSpecies : {
-            "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
-            "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
-          },
-          type: "Flatmap",
-          zIndex:1,
-          mode: "main",
-          id: 1
-        }
-      ]
-    }
+    return initialState();
   },
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
+      console.log(payLoad);
     });
   }
 };
@@ -216,6 +240,22 @@ export default {
   padding:0px;
   width:100%;
   height:100%;
+}
+
+.heart-invis {
+  position: absolute;
+  right:40%;
+  top:75%;
+  height: 0px;
+  width: 0px;
+}
+
+.icn-invis {
+  position: absolute;
+  right:50%;
+  top:45%;
+  height: 0px;
+  width: 0px;
 }
 
 </style>

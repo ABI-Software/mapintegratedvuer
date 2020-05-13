@@ -54,6 +54,14 @@ export default {
       }
       return false;
     },
+    updateFromTerm: function(term) {
+      let data = this.fetchContent(term);
+      if (data) {
+        this.tContent = data;
+        return true;
+      }
+    return false;
+    },
     fetchContent: function(term) {
       if (term) {
         let data = {};
