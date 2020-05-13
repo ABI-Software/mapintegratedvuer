@@ -110,7 +110,7 @@ export default {
       if (currentStep === 7){
         this.flow.$refs.dialogs[1].showTooltip({'resource':['unused']})
         this.flow.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN")
-        this.flow.$refs.dialogs[1].$refs.popover.setTooltipCoords(300,300)
+        this.flow.$refs.dialogs[1].setTooltipCoords(300,300)
         // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
       }
     },

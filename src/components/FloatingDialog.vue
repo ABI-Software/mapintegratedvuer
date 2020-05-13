@@ -109,6 +109,11 @@ export default {
         this.tVisible = true;
       }
     },
+    setTooltipCoords(x, y){
+      this.tooltipCoords.x = x;
+      this.tooltipCoords.y = y;
+      this.tVisible = true;
+    },
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
       this.selectedResource = result;

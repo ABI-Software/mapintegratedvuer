@@ -62,10 +62,6 @@ export default {
       }
     return false;
     },
-    setTooltipCoords: function(x, y){
-      this.tooltipCoords.x = x;
-      this.tooltipCoords.y = y;
-    },
     fetchContent: function(term) {
       if (term) {
         let data = {};
