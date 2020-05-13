@@ -49,7 +49,7 @@ export default [
       }
     },
     {
-      target: '[data-v-4b50b8b3]',
+      target: '#scaffold-select-box-2',
       content: 'Select <strong>"ICN"</strong> to show the mapped data',
       params: {
         placement: 'right' 

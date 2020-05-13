@@ -61,7 +61,7 @@ export default {
       }
     },
     startTutorial: function(){
-  // this.flow.resetApp()
+      this.flow.resetApp()
       this.tour.start();
     },
     previousStepCallback: function(currentStep){

@@ -164,6 +164,7 @@ export default {
     if (this.entry.type === 'Scaffold') {
       this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
       this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
+      document.querySelectorAll('.el-select')[1].id = 'scaffold-select-box-' + this.entry.id;
     }
   },
   watch: {
