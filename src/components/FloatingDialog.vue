@@ -47,8 +47,8 @@ import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import '@abi-software/scaffoldvuer';
 import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
-import '@tehsurfer/plotvuer'
-import '@tehsurfer/plotvuer/dist/plotvuer.css'
+import '@tehsurfer/plotvuer';
+import '@tehsurfer/plotvuer/dist/plotvuer.css';
 import {
   Container,
   Header,
@@ -81,16 +81,16 @@ export default {
       this.tVisible = false;
     },
     onResize: function (x, y, width, height) {
-      this.x = x
-      this.y = y
-      this.width = width
-      this.height = height
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
     },
     onDragstop: function (x, y) {
       if (this.entry.type === 'Scaffold') 
         this.scaffoldCamera.onResize();
-      this.x = x
-      this.y = y
+      this.x = x;
+      this.y = y;
     },
     showTooltip: function(result) {
       if (this.entry.type === 'Scaffold') {
