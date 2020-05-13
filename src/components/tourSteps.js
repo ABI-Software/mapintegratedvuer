@@ -57,7 +57,7 @@ export default [
     },
     {
       target: '#icn',
-      content: 'Select one of the <strong>yellow points</strong> to bring up associated data',
+      content: 'Select the ICN region, shown as <strong>yellow points</strong>, to bring up associated data',
       params: {
         placement: 'right' 
       }
