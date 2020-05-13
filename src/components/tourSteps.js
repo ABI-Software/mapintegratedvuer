@@ -2,7 +2,7 @@ export default [
     {
       target: '.el-header.dialog-header',// We're using document.querySelector() under the hood
       header: {
-        title: 'Trying to view SPARC data?',
+        title: '<strong>Trying to view SPARC data?</strong>',
       },
       content: 'This quick tutorial will show you how to navigate and view mapped data from the SPARC project',
 
@@ -30,9 +30,6 @@ export default [
     },
     {
       target: '.el-main.main',
-      header: {
-        title: 'View the 3D heart scaffold',
-      },
       content: 'Click the <strong>View 3D scaffold</strong> button to bring up the 3d scaffold of the heart',
       params: {
         placement: 'left' 
