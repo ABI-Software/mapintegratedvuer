@@ -11,7 +11,7 @@ export default [
       target: '.el-icon-full-screen',
       content: 'The app works best in <strong>full screen</strong>!',
       params: {
-        placement: 'left' 
+        placement: 'bottom' 
       }
     },
     {
