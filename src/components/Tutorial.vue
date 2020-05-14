@@ -115,7 +115,7 @@ export default {
       }
 
       // Step 8 pulls opens up the plot vuer dailog 
-      if (currentStep === 7){
+      if (currentStep === 8){
         if(this.flow.entries.length === 2){
           this.flow.actionClick({
             title: "'Molecular Phenotype Distribution of Single Rat Intracardiac Neurons",

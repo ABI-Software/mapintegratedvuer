@@ -70,7 +70,7 @@ export default [
       target: '.plot-container',
       content: 'Explore the data here. Hit finish to reset the app',
       params: {
-        placement: 'right' 
+        placement: 'top' 
       }
     },
 ]
