@@ -273,4 +273,24 @@ export default {
   right: -8px;
   cursor: se-resize;
 }
+
+>>> .zoomOut {
+  top:95px;
+}
+
+>>> .resetView {
+  top:139px;
+}
+
+>>> #flatmap-zoom-out.navigation-zoom-out {
+  margin-top:12px;
+}
+
+>>> #flatmap-reset.navigation-reset {
+  margin-top:12px;
+}
+
+>>> .opacity-control {
+  top: 205px;
+}
 </style>
