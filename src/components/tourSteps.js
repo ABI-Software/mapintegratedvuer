@@ -11,7 +11,7 @@ export default [
       target: '.el-icon-full-screen',
       content: 'The app works best in <strong>full screen</strong>!',
       params: {
-        placement: 'left' 
+        placement: 'bottom' 
       }
     },
     {
@@ -64,6 +64,13 @@ export default [
       content: 'This pop up gives details on the data. Click on <strong>View Plot</strong> to explore the data further',
       params: {
         placement: 'right' 
+      }
+    },
+    {
+      target: '.plot-container',
+      content: 'Explore the data here. Hit finish to reset the app',
+      params: {
+        placement: 'top' 
       }
     },
 ]

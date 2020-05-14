@@ -113,17 +113,25 @@ export default {
         this.flow.$refs.dialogs[1].setTooltipCoords(300,300);
         // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
       }
-    },
-    finishTutorialCallback(){
-       if(this.flow.entries.length === 2){
+
+      // Step 8 pulls opens up the plot vuer dailog 
+      if (currentStep === 8){
+        if(this.flow.entries.length === 2){
           this.flow.actionClick({
             title: "'Molecular Phenotype Distribution of Single Rat Intracardiac Neurons",
             resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
             type: "Plot",
             plotType: "heatmap",
-          })
-       }
+          });
+        }
+      }
+    },
+    finishTutorialCallback(){
+      this.flow.resetApp();
+      document.querySelector('.mapboxgl-popup-close-button').click();
     }
+      
+      
   },
   data: function() {
     return {
@@ -140,7 +148,6 @@ export default {
   mounted: function() {
     this.flow = this.parentRefs.flow
     EventBus.$on("FlowChange", (payLoad) => {
-      console.log(payLoad);
       this.flowChange(payLoad);
     });
     this.tour = this.$tours['onboarding-tour'];
