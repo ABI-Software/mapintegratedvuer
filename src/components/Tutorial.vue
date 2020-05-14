@@ -128,6 +128,7 @@ export default {
     },
     finishTutorialCallback(){
       this.flow.resetApp();
+      document.querySelector('.mapboxgl-popup-close-button').click();
     }
       
       
@@ -147,7 +148,6 @@ export default {
   mounted: function() {
     this.flow = this.parentRefs.flow
     EventBus.$on("FlowChange", (payLoad) => {
-      console.log(payLoad);
       this.flowChange(payLoad);
     });
     this.tour = this.$tours['onboarding-tour'];

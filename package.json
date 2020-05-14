@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "main": "./dist/mapintegratedvuer.common.js",
   "files": [
     "dist/*",
