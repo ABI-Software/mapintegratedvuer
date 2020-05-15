@@ -90,13 +90,6 @@ export default {
   },
   methods: {
     /**
-     * Callback for MapPopover action.
-     * Propagate the action upstream.
-     */
-    onActionClick: function(action) {
-      this.$emit("onActionClick", action);
-    },
-    /**
      * Callback when popover close button is clicked. 
      */
     onTooltipClose: function() {
