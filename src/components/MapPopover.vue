@@ -13,9 +13,15 @@ import '@abi-software/maptooltip';
 import '@abi-software/maptooltip/dist/maptooltip.css';
 import EventBus from './EventBus';
 
+/**
+ * Component of the popover interface.
+ */
 export default {
   name: "MapPopover",
   props: {
+    /**
+     * Contain information of the region of interest.
+     */
     selectedResource: Object,
     placement: String,
     tooltipCoords: Object,
@@ -136,16 +142,15 @@ export default {
               data.title = term;
             data.description = "";
             if (label) {
-              data.actions = [              {
+              data.actions = [
+                {
                   title: "View dataset",
                   resource: "https://sparc.science/data?type=dataset&q=" + label,
                   type: "URL"
                 }
               ];
             } else {
-              data.actions = [
-              ];
-
+              data.actions = [];
             }
             break;
         }

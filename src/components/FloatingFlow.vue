@@ -36,6 +36,7 @@ Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
 
+
 var initialState = function() {
   return {
     mainTabName: "Flatmap",
@@ -60,6 +61,9 @@ var initialState = function() {
   }
 }
 
+/**
+ * Component of the floating dialogs.
+ */
 export default {
   name: "FloatingFlow",
   components: {
@@ -67,7 +71,6 @@ export default {
     FloatingDialog
   },
   methods: {
-
     onFlowChange: function(action) {
        EventBus.$emit("FlowChange", action);
     },
@@ -84,6 +87,10 @@ export default {
         }
       }
     },
+    /**
+     * Add new entry which will sequentially create a
+     * new dialog.
+     */
     createNewEntry: function(data) {
       let newEntry = {};
       newEntry.resource = data.resource;
@@ -221,7 +228,6 @@ export default {
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
-      console.log(payLoad);
     });
   }
 };
