@@ -10,8 +10,9 @@
       </el-header>
       <el-main class="dialog-main" :style="mainStyle">
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
+          @flatmapChanged="flatmapChanged"
           @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
-          style="height:100%;width:100%;" :initial="entry.resource"
+          style="height:100%;width:100%;" :initial="entry.resource" 
           ref="flatmap"/>
         <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
           @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
@@ -19,7 +20,7 @@
         <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('Scaffold'))"
           :selectedResource="selectedResource" :placement="tPlacement"
           :tooltipCoords="tooltipCoords" :visible="tVisible"
-          @onActionClick="onActionClick" @onClose="onTooltipClose"
+          @onClose="onTooltipClose"
           :displayCloseButton="entry.type === 'Scaffold'"
           ref="popover"/>
       </el-main>
@@ -47,8 +48,8 @@ import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import '@abi-software/scaffoldvuer';
 import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
-import '@tehsurfer/plotvuer'
-import '@tehsurfer/plotvuer/dist/plotvuer.css'
+import '@tehsurfer/plotvuer';
+import '@tehsurfer/plotvuer/dist/plotvuer.css';
 import {
   Container,
   Header,
@@ -102,16 +103,16 @@ export default {
       this.tVisible = false;
     },
     onResize: function (x, y, width, height) {
-      this.x = x
-      this.y = y
-      this.width = width
-      this.height = height
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
     },
     onDragstop: function (x, y) {
       if (this.entry.type === 'Scaffold') 
         this.scaffoldCamera.onResize();
-      this.x = x
-      this.y = y
+      this.x = x;
+      this.y = y;
     },
     /**
      * Display and set the position of the popover.
@@ -128,12 +129,17 @@ export default {
         /* Use flatmap MapBoxGL for displaying the popover */
         const elm = this.$refs.popover.getTooltipContentElm();
         this.$refs.flatmap.showPopup(result.resource.feature.id, elm,
-          {anchor: "top"});
+          {anchor: "bottom"});
       } else {
         this.tooltipCoords.x = 0;
         this.tooltipCoords.y = 300;
         this.tVisible = true;
       }
+    },
+    setTooltipCoords(x, y){
+      this.tooltipCoords.x = x;
+      this.tooltipCoords.y = y;
+      this.tVisible = true;
     },
     /**
      * Callback when the vuers emit a selected event.
@@ -152,6 +158,9 @@ export default {
     },
     onClose: function() {
       this.$emit("close");
+    },
+    flatmapChanged: function(){
+      this.$emit("flatmapChanged");
     }
   },
   data: function() {
@@ -189,6 +198,7 @@ export default {
     if (this.entry.type === 'Scaffold') {
       this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
       this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
+      document.querySelectorAll('.el-select')[1].id = 'scaffold-select-box-' + this.entry.id;
     }
   },
   watch: {
@@ -220,39 +230,31 @@ export default {
   border-bottom: solid 0.7px #dcdfe6;
   background-color: #f5f7fa;
 }
-
 .dialog-main {
   padding:0px;
 }
-
 .parent-dialog {
   border: solid 1px #dcdfe6;
   box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
 }
-
 .parent-dialog-full {
   width:100%!important;
   height:100%!important;
   left:0px!important;
   top:0px!important;
 }
-
 .parent-dialog-hidden {
   visibility:hidden;
 }
-
 .parent-dialog-full:hover .title-text {
   color:#8300bf;
 }
-
 .parent-dialog:hover .title-text {
   color:#8300bf;
 }
-
 >>> input {
   font-family: inherit;
 }
-
 >>> .my-handle {
     color:#979797;
     position: absolute;
@@ -261,58 +263,68 @@ export default {
     height:10px;
     box-sizing: border-box;
 }
-
-
 >>> .my-handle-tl {
   top: -13px;
   left: -13px;
   cursor: nw-resize;
 }
-
 >>> .my-handle-tm {
   top: -14px;
   left: 50%;
   margin-left: -7px;
   cursor: n-resize;
 }
-
 >>> .my-handle-tr {
   top: -13px;
   right: -8px;
   cursor: ne-resize;
 }
-
 >>> .my-handle-ml {
   top: 50%;
   margin-top: -7px;
   left: -14px;
   cursor: w-resize;
 }
-
 >>> .my-handle-mr {
   top: 50%;
   margin-top: -7px;
   right: -8px;
   cursor: e-resize;
 }
-
 >>> .my-handle-bl {
   bottom: -8px;
   left: -14px;
   cursor: sw-resize;
 }
-
 >>> .my-handle-bm {
   bottom: -8px;
   left: 50%;
   margin-left: -7px;
   cursor: s-resize;
 }
-
 >>> .my-handle-br {
   bottom: -8px;
   right: -8px;
   cursor: se-resize;
 }
 
+>>> .zoomOut {
+  top:95px;
+}
+
+>>> .resetView {
+  top:139px;
+}
+
+>>> #flatmap-zoom-out.navigation-zoom-out {
+  margin-top:12px;
+}
+
+>>> #flatmap-reset.navigation-reset {
+  margin-top:12px;
+}
+
+>>> .opacity-control {
+  top: 205px;
+}
 </style>
