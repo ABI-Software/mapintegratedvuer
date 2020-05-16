@@ -309,14 +309,6 @@ export default {
   top:139px;
 }
 
->>> #flatmap-zoom-out.navigation-zoom-out {
-  margin-top:12px;
-}
-
->>> #flatmap-reset.navigation-reset {
-  margin-top:12px;
-}
-
 >>> .opacity-control {
   top: 205px;
 }

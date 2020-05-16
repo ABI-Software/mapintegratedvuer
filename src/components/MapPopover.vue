@@ -47,15 +47,17 @@ export default {
           resource = resource[0];
         let term = undefined;
         let label = undefined;
+        let dataset = undefined;
         if (resource.data && resource.data.id) {
           term = resource.data.id;
           label = resource.data.id;
-        } else if (resource.resource && resource.resource[0]) {
-          term = resource.resource[0];
-          label = resource.label;
+        } else if (resource.feature) {
+          term = resource.feature.models;
+          label = resource.feature.label;
+          dataset = resource.feature.dataset;
         }
-        if (term) {    
-          let data = this.fetchContent(term, label);
+        if (term || label) {    
+          let data = this.fetchContent(term, label, dataset);
           if (data) {
             this.tContent = data;
             return true;
@@ -72,11 +74,13 @@ export default {
       }
     return false;
     },
-    fetchContent: function(term, label) {
-      if (term) {
+    fetchContent: function(term, label, dataset) {
+      if (term || label) {
         let data = {};
         switch (term) {
           case "UBERON:0000948":
+          case "UBERON:0002080":
+          case "UBERON:0002084":
             data.title = "Mapping of ICN Neurons in a 3D Rat Heart";
             data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
             data.actions = [
@@ -142,13 +146,23 @@ export default {
               data.title = term;
             data.description = "";
             if (label) {
-              data.actions = [
-                {
-                  title: "View dataset",
-                  resource: "https://sparc.science/data?type=dataset&q=" + label,
-                  type: "URL"
-                }
-              ];
+              if (dataset) {
+                data.actions = [
+                  {
+                    title: "View dataset",
+                    resource: dataset,
+                    type: "URL"
+                  }
+                ];
+              } else {
+                data.actions = [
+                  {
+                    title: "View dataset",
+                    resource: "https://sparc.science/data?type=dataset&q=" + label,
+                    type: "URL"
+                  }
+                ];
+              }
             } else {
               data.actions = [];
             }

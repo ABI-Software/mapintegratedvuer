@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "main": "./dist/mapintegratedvuer.common.js",
   "files": [
     "dist/*",
@@ -18,7 +18,7 @@
     "build-static": "vue-cli-service build --dest test_html"
   },
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.10",
+    "@abi-software/flatmapvuer": "^0.1.11",
     "@abi-software/maptooltip": "^0.1.7",
     "@abi-software/scaffoldvuer": "^0.1.24",
     "@tehsurfer/plotvuer": "^0.2.13",
