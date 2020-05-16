@@ -77,7 +77,7 @@ export default {
 
       // Hack on step three to show tooltip for the heart
       if (currentStep === 3){
-        this.flow.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':"263-891"}}});
+        this.flow.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':"263#10019"}}});
         this.flow.$refs.dialogs[0].$refs.popover.updateFromTerm("UBERON:0000948");
       }
 
