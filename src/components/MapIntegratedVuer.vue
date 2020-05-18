@@ -13,6 +13,10 @@ import MapContent from './MapContent.vue';
 import NavBar from './NavBar';
 
 export default {
+  /**
+   * The integrated webapp including the navigation bar.
+   * This does not get publish. 
+   */
   name: "MapIntegratedVuer",
   components: {
     MapContent,
@@ -21,7 +25,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .map-container {
   height: 100%;

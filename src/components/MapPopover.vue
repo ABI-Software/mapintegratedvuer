@@ -13,9 +13,15 @@ import '@abi-software/maptooltip';
 import '@abi-software/maptooltip/dist/maptooltip.css';
 import EventBus from './EventBus';
 
+/**
+ * Component of the popover interface.
+ */
 export default {
   name: "MapPopover",
   props: {
+    /**
+     * Contain information of the region of interest.
+     */
     selectedResource: Object,
     placement: String,
     tooltipCoords: Object,
@@ -40,12 +46,18 @@ export default {
         if (Array.isArray(resource) && resource[0])
           resource = resource[0];
         let term = undefined;
-        if (resource.data && resource.data.id)
+        let label = undefined;
+        let dataset = undefined;
+        if (resource.data && resource.data.id) {
           term = resource.data.id;
-        else if (resource.resource && resource.resource[0])
-          term = resource.resource[0];
-        if (term) {
-          let data = this.fetchContent(term);
+          label = resource.data.id;
+        } else if (resource.feature) {
+          term = resource.feature.models;
+          label = resource.feature.label;
+          dataset = resource.feature.dataset;
+        }
+        if (term || label) {    
+          let data = this.fetchContent(term, label, dataset);
           if (data) {
             this.tContent = data;
             return true;
@@ -54,11 +66,21 @@ export default {
       }
       return false;
     },
-    fetchContent: function(term) {
-      if (term) {
+    updateFromTerm: function(term) {
+      let data = this.fetchContent(term);
+      if (data) {
+        this.tContent = data;
+        return true;
+      }
+    return false;
+    },
+    fetchContent: function(term, label, dataset) {
+      if (term || label) {
         let data = {};
         switch (term) {
           case "UBERON:0000948":
+          case "UBERON:0002080":
+          case "UBERON:0002084":
             data.title = "Mapping of ICN Neurons in a 3D Rat Heart";
             data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
             data.actions = [
@@ -68,8 +90,13 @@ export default {
                 type: "Scaffold"
               },
               {
+                title: "View 3D scaffold with ICN data",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/rat_hearts/may-15-integrated/integrated_heart_may_metadata.json",
+                type: "Scaffold"
+              },
+              {
                 title: "View dataset",
-                resource: "https://sparc.science/datasets/37?type=dataset",
+                resource: "https://sparc.science/data?type=dataset&q=heart",
                 type: "URL"
               }
             ];
@@ -83,6 +110,11 @@ export default {
                 resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
                 type: "Plot",
                 plotType: "heatmap",
+              },
+              {
+                title: "View dataset",
+                resource: "https://sparc.science/data?type=dataset&q=icn",
+                type: "URL"
               }
             ];
             break;
@@ -99,13 +131,41 @@ export default {
                 title: "View opening scaffold",
                 resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stomach_lines/stomach_metadata.json",
                 type: "Scaffold"
+              },
+              {
+                title: "View dataset",
+                resource: "https://sparc.science/data?type=dataset&q=stomach",
+                type: "URL"
               }
             ];
             break;
           default:
-            data.title = term;
+            if (label)
+              data.title = label;
+            else
+              data.title = term;
             data.description = "";
-            data.actions = [ ];
+            if (label) {
+              if (dataset) {
+                data.actions = [
+                  {
+                    title: "View dataset",
+                    resource: dataset,
+                    type: "URL"
+                  }
+                ];
+              } else {
+                data.actions = [
+                  {
+                    title: "View dataset",
+                    resource: "https://sparc.science/data?type=dataset&q=" + label,
+                    type: "URL"
+                  }
+                ];
+              }
+            } else {
+              data.actions = [];
+            }
             break;
         }
         return data;
@@ -152,3 +212,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+>>> .el-popover.el-popper {
+  position: absolute !important;
+  transform: translate3d(-134px, 0px, 0px) !important;
+}
+</style>
