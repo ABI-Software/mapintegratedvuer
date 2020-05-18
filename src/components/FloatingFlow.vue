@@ -93,11 +93,8 @@ export default {
      */
     createNewEntry: function(data) {
       let newEntry = {};
-      newEntry.resource = data.resource;
-      newEntry.type = data.type;
+      Object.assign(newEntry, data)
       newEntry.mode = "normal";
-      if (data.plotType)
-        newEntry.plotType = data.plotType;
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
       this.entries.push(newEntry);
