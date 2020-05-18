@@ -110,6 +110,10 @@ export default {
                 resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
                 type: "Plot",
                 plotType: "heatmap",
+                datasetTitle: "Molecular Phenotype Distribution of Single Rat Intracardiac Neurons",
+                datasetDescription: "Images collected from serial cryostat sectioning of a cryopreserved heart was used to reconstruct the 3D context. Transcriptional profiles taken from isolated single neurons and mapped back into the previously generated 3D context.",
+                datasetUrl: "https://discover.blackfynn.com/datasets/29",
+                datasetImage: "https://assets.discover.blackfynn.com/dataset-assets/29/6/revisions/1/banner.jpg"
               },
               {
                 title: "Search for dataset",
