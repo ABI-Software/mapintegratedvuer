@@ -26,7 +26,7 @@ Vue.use(VueTour);
 
 export default {
   name: "Tutorial",
-  props: ['parentRefs'],
+  props: ['parentRefs', 'fullscreen'],
   methods: {
     /**
      * Callback when an action is performed (open new dialogs).
@@ -72,7 +72,9 @@ export default {
 
       // Step one goes to full screen
       if (currentStep === 1){
-        this.flow.onFullscreen();
+        if (!this.fullscreen){
+          this.flow.onFullscreen();
+        }
       }
 
       // Hack on step three to show tooltip for the heart
