@@ -36,10 +36,13 @@ export default [
       }
     },
     {
-      target: '.el-main.main',
+      target: '#popover-button-1',
       content: 'Click the <strong>View 3D scaffold</strong> button to bring up the 3d scaffold of the heart',
       params: {
-        placement: 'left' 
+        placement: 'left',
+        modifiers: {
+          preventOverflow: { enabled: false},
+        }
       }
     },
     {
