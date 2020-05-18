@@ -56,8 +56,6 @@ export default {
     },
     openCard: function(event){
       this.cardDisplayed = true;  
-      window.evvv = event
-      window.card = this.$refs.card
       this.$refs.card.$el.style.left = event.layerX + 'px'; 
       this.$refs.card.$el.style.top = event.layerY + 'px';
     },

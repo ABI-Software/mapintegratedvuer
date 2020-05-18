@@ -102,7 +102,6 @@ export default {
             ];
             break;
           case "ICN":
-            console.log('in ICN')
             data.title = "RNA";
             data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
             data.actions = [

@@ -17,7 +17,7 @@
           ref="flatmap"/>
         <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
           @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
-        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType" style="height: calc(100%-25px);"></PlotVuer>
+        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType" style="height: 200px"></PlotVuer>
         <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('Scaffold'))"
           :selectedResource="selectedResource" :placement="tPlacement"
           :tooltipCoords="tooltipCoords" :visible="tVisible"

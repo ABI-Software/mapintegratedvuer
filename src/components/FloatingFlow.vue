@@ -98,7 +98,6 @@ export default {
       newEntry.zIndex = ++this.zIndex;
       this.entries.push(newEntry);
       this.onFlowChange('createNewEntry');
-      window.newEntry = newEntry
       return newEntry.id;
     },
     findIndexOfId: function(id) {
