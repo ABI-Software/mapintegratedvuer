@@ -199,7 +199,7 @@ export default {
 
 .rna-invis {
   position: absolute;
-  right:68%;
+  right:60%;
   top:45%;
   height: 0px;
   width: 0px;
