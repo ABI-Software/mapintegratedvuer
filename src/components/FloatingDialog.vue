@@ -143,7 +143,8 @@ export default {
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
       this.selectedResource = result;
-      if (!(this.entry.type === 'Flatmap' && resource.feature.dataset)) {
+      if (!(this.entry.type === 'Flatmap' && (resource.feature.dataset || 
+        resource.feature.scaffold))) {
         this.showTooltip(result);
       }
       this.$emit("resource-selected", result);
