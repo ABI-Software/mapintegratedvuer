@@ -1,7 +1,7 @@
 <template>
     <div style="height: 100%;width:100%;z-index:1" ref="MapApp">
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
-      <tutorial :parentRefs="this.$refs"></tutorial>
+      <tutorial :parentRefs="this.$refs" :fullscreen="isFullscreen"></tutorial>
     </div>
 </template>
 
@@ -20,6 +20,11 @@ export default {
     FloatingFlow,
     Tutorial
   },
+  data: function(){
+    return{
+      isFullscreen: false
+    }
+  },
   methods: {
     onFullscreen: function() {
       let mapApp = this.$refs.MapApp;
@@ -34,6 +39,7 @@ export default {
         } else if (document.msExitFullscreen) { /* IE/Edge */
           document.msExitFullscreen();
         }
+        this.isFullscreen = false;
       } else {
         if (mapApp.requestFullscreen) {
           mapApp.requestFullscreen();
@@ -44,6 +50,7 @@ export default {
         } else if (parent.msRequestFullscreen) { /* IE/Edge */
           mapApp.msRequestFullscreen();
         }
+        this.isFullscreen = true;
       }
     }
   }
