@@ -17,7 +17,7 @@
           ref="flatmap"/>
         <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
           @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
-        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType"></PlotVuer>
+        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType" style="height: calc(100%-25px);"></PlotVuer>
         <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('Scaffold'))"
           :selectedResource="selectedResource" :placement="tPlacement"
           :tooltipCoords="tooltipCoords" :visible="tVisible"
@@ -213,7 +213,7 @@ export default {
         default:
           this.className = "parent-dialog";
       }
-    }
+    },
   }
 };
 </script>
@@ -225,6 +225,10 @@ export default {
   line-height: 20px;
   border-bottom: solid 0.7px #dcdfe6;
   background-color: #f5f7fa;
+}
+.incorperateHeader{
+  height: calc(100%-205px);
+  padding:0px;
 }
 .dialog-main {
   padding:0px;
