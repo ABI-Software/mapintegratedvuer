@@ -26,7 +26,7 @@
           ref="popover"/>
       </el-main>
     </el-container>
-    /* Below set the style of the resize cursor */
+    <!-- Below set the style of the resize cursor -->
     <div slot="tl" class="el-icon-top-left"></div>
     <div slot="tm" class="el-icon-top"></div>
     <div slot="tr" class="el-icon-top-right"></div>
@@ -143,7 +143,9 @@ export default {
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
       this.selectedResource = result;
-      this.showTooltip(result);
+      if (!(this.entry.type === 'Flatmap' && resource.feature.dataset)) {
+        this.showTooltip(result);
+      }
       this.$emit("resource-selected", result);
     },
     onMaximise: function() {
@@ -308,15 +310,4 @@ export default {
   cursor: se-resize;
 }
 
->>> .zoomOut {
-  top:95px;
-}
-
->>> .resetView {
-  top:139px;
-}
-
->>> .opacity-control {
-  top: 205px;
-}
 </style>
