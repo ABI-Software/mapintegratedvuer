@@ -93,7 +93,8 @@ export default {
      */
     createNewEntry: function(data) {
       let newEntry = {};
-      Object.assign(newEntry, data);
+      Object.assign(newEntry, data)
+      newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
       this.entries.push(newEntry);
