@@ -22,6 +22,13 @@ export default [
       }
     },
     {
+      target: '#pathway',
+      content: 'Right click the <strong> turquoise regions</strong> to toggle pathway visibility',
+      params: {
+        placement: 'left' 
+      }
+    },
+    {
       target: '#heart',
       content: 'Click the <strong>heart</strong> to see data associated with it',
       params: {
@@ -47,7 +54,7 @@ export default [
     },
     {
       target: '#scaffold-select-box-2',
-      content: 'Select <strong>"ICN"</strong> to show the mapped data',
+      content: 'Toggle <strong>visibility</strong> of <strong>regions</strong> here',
       params: {
         placement: 'right' 
       }

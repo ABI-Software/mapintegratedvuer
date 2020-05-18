@@ -1,6 +1,7 @@
 <template>
   <div>
     <div id='heart' class="heart-invis"></div>
+    <div id='pathway' class="pathway-invis"></div>
     <div id='icn' class="icn-invis"></div>
     <div id='rna' class="rna-invis"></div>
     <v-tour name="onboarding-tour" :steps="steps" :callbacks="tourCallbacks"></v-tour>
@@ -37,11 +38,11 @@ export default {
           this.startTutorial();
         } else if (this.tour.isRunning){
           if (action === "flatmapChanged"){
-            this.updateStep(3);
-          } else if (action === "createNewEntry") {
             this.updateStep(4);
-          } else if (action === "dialogMaximise") {
+          } else if (action === "createNewEntry") {
             this.updateStep(5);
+          } else if (action === "dialogMaximise") {
+            this.updateStep(6);
           } else if (action === "resourceSelected") {
             this.tour.nextStep();
           }
@@ -78,13 +79,13 @@ export default {
       }
 
       // Hack on step three to show tooltip for the heart
-      if (currentStep === 3){
+      if (currentStep === 4){
         this.flow.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':"263#10019"}}});
         this.flow.$refs.dialogs[0].$refs.popover.updateFromTerm("UBERON:0000948");
       }
 
       // Step 4 brings up the heart scaffold
-      if (currentStep === 4){
+      if (currentStep === 5){
         if(this.flow.entries.length === 1){
           this.flow.actionClick({
             title: "View 3D scaffold",
@@ -97,27 +98,21 @@ export default {
       }
 
       // Step 5 docks the dialog
-      if (currentStep === 5){
+      if (currentStep === 6){
         this.flow.dockDialog(2);
         this.flow.maximiseDialog(2);
       }
 
-      // Step 6 adds shows ICN points on the heart
-      if (currentStep === 6){
-        this.flow.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.checkedItems.push('ICN');
-        this.flow.$refs.dialogs[1].$refs.scaffold.$refs.selectControl.handleChange([]);
-      }
-
       // Step 7 pulls up the RNA seq data
-      if (currentStep === 7){
+      if (currentStep === 8){
         this.flow.$refs.dialogs[1].showTooltip({'resource':['unused']});
         this.flow.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN");
-        this.flow.$refs.dialogs[1].setTooltipCoords(300,300);
+        this.flow.$refs.dialogs[1].setTooltipCoords(500,300);
         // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
       }
 
       // Step 8 pulls opens up the plot vuer dailog 
-      if (currentStep === 8){
+      if (currentStep === 9){
         if(this.flow.entries.length === 2){
           this.flow.actionClick({
             title: "View plot",
@@ -181,7 +176,15 @@ export default {
 .heart-invis {
   position: absolute;
   right:40%;
-  top:75%;
+  top:65%;
+  height: 0px;
+  width: 0px;
+}
+
+.pathway-invis {
+  position: absolute;
+  right:30%;
+  top:50%;
   height: 0px;
   width: 0px;
 }
