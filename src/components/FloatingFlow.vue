@@ -93,15 +93,12 @@ export default {
      */
     createNewEntry: function(data) {
       let newEntry = {};
-      newEntry.resource = data.resource;
-      newEntry.type = data.type;
-      newEntry.mode = "normal";
-      if (data.plotType)
-        newEntry.plotType = data.plotType;
+      Object.assign(newEntry, data);
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
       this.entries.push(newEntry);
       this.onFlowChange('createNewEntry');
+      window.newEntry = newEntry
       return newEntry.id;
     },
     findIndexOfId: function(id) {

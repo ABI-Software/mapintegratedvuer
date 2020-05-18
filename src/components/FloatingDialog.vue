@@ -9,11 +9,7 @@
           @close="onClose"/>         
       </el-header>
       <el-main class="dialog-main" :style="mainStyle">
-        <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" 
-          :title="entry.datasetTitle" 
-          :url="entry.datasetUrl"
-          :description="entry.datasetDescription">
-        </DatasetHeader>
+        <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
           @flatmapChanged="flatmapChanged"
           @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
@@ -48,6 +44,7 @@
 import Vue from "vue";
 import DialogToolbarContent from './DialogToolbarContent';
 import MapPopover from './MapPopover';
+import DatasetHeader from './DatasetHeader'
 import VueDraggableResizable from 'vue-draggable-resizable';
 import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
@@ -91,7 +88,8 @@ export default {
   },
   components: {
     DialogToolbarContent,
-    MapPopover
+    MapPopover,
+    DatasetHeader
   },
   methods: {
     /**

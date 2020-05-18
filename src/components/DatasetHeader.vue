@@ -1,17 +1,17 @@
 <template>
   <div class="dataset-title-container" ref="container" @mouseleave="cardDisplayed=false">
-    <div @click="cardDisplayed=true" class="dataset-link">
+    <div @click="openCard($event)" class="dataset-link">
       <el-link class="dataset-title">
-        {{title}}
+        {{entry.datasetTitle}}
         <i v-show="!cardDisplayed" class="el-icon-arrow-down el-icon--right"></i>
         <i v-show="cardDisplayed" class="el-icon-arrow-up el-icon--right"></i>
       </el-link>
-      <el-card v-show="cardDisplayed" :body-style="{ padding: '0px' }" class="dataset-card">
-        <img src="https://assets.discover.blackfynn.com/dataset-assets/75/1/revisions/2/banner.jpg" class="image" />
+      <el-card v-show="cardDisplayed" :body-style="{ padding: '0px' }" class="dataset-card" ref="card">
+        <img :src="entry.datasetImage" class="image"/>
         <div style="padding: 14px;">
-          <span class="dataset-description">{{description}}</span>
+          <span class="dataset-description">{{entry.datasetDescription}}</span>
           <div >
-            <el-button class="button">Get Dataset</el-button>
+            <el-button class="button" @click="openDatasetUrl()">Get Dataset</el-button>
           </div>
         </div>
       </el-card>
@@ -33,12 +33,18 @@ Vue.use(Link);
 Vue.use(Icon);
 Vue.use(Card);
 Vue.use(Button);
-Vue.use(Select)
+Vue.use(Select);
 
 export default {
   name: "DatasetHeader",
   components: {},
-  props: ["title", "url", "description"],
+  props: {
+    /**
+     * Object containing information for
+     * the required viewing.
+     */
+    entry: Object,
+  },
   data: function() {
     return {
       cardDisplayed: false
@@ -46,7 +52,18 @@ export default {
   },
   methods: {
     switchCardDisplay: function(){
-      this.cardDisplayed = !this.cardDisplayed
+      this.cardDisplayed = !this.cardDisplayed;
+    },
+    openCard: function(event){
+      this.cardDisplayed = true;  
+      window.evvv = event
+      window.card = this.$refs.card
+      this.$refs.card.$el.style.left = event.layerX + 'px'; 
+      this.$refs.card.$el.style.top = event.layerY + 'px';
+    },
+    openDatasetUrl: function(){
+      window.open(this.entry.datasetUrl, '_blank');
+      this.cardDisplayed = false;
     }
   }
 };
@@ -65,13 +82,13 @@ export default {
 .dataset-card{
   width: 230px;
   position: absolute;
-  z-index: 6;
+  z-index: 10;
 }
 .image{
   width: 100%;
   display: block;
 }
 .dataset-description{
-  margin-bottom: 3px;
+  font-size: 10px;
 }
 </style>
