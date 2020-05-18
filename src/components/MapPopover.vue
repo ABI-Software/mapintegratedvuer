@@ -95,7 +95,7 @@ export default {
                 type: "Scaffold"
               },
               {
-                title: "View dataset",
+                title: "Search for dataset",
                 resource: "https://sparc.science/data?type=dataset&q=heart",
                 type: "URL"
               }
@@ -116,7 +116,7 @@ export default {
                 datasetImage: "https://assets.discover.blackfynn.com/dataset-assets/29/6/revisions/1/banner.jpg"
               },
               {
-                title: "View dataset",
+                title: "Search for dataset",
                 resource: "https://sparc.science/data?type=dataset&q=icn",
                 type: "URL"
               }
@@ -137,7 +137,7 @@ export default {
                 type: "Scaffold"
               },
               {
-                title: "View dataset",
+                title: "Search for dataset",
                 resource: "https://sparc.science/data?type=dataset&q=stomach",
                 type: "URL"
               }
@@ -158,10 +158,11 @@ export default {
                     type: "URL"
                   }
                 ];
+                this.onActionClick(data.actions[0]);
               } else {
                 data.actions = [
                   {
-                    title: "View dataset",
+                    title: "Search for dataset",
                     resource: "https://sparc.science/data?type=dataset&q=" + label,
                     type: "URL"
                   }
