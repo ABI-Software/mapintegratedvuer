@@ -23,7 +23,7 @@ export default [
     },
     {
       target: '#pathway',
-      content: 'Right click the <strong> turquoise regions</strong> to toggle pathway visibility',
+      content: 'Right click the <strong> yellow regions</strong> to toggle pathway visibility',
       params: {
         placement: 'left' 
       }
