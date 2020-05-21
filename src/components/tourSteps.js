@@ -70,7 +70,7 @@ export default [
       }
     },
     {
-      target: '#popover-button-2',
+      target: '#rna',
       content: 'This pop up gives details on the data. Click on <strong>View Plot</strong> to explore the data further',
       params: {
         placement: 'right' 
