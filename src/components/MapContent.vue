@@ -20,16 +20,32 @@ export default {
     FloatingFlow,
     Tutorial
   },
-  data: function(){
-    return{
-      isFullscreen: false
-    }
-  },
   methods: {
-    onFullscreen: function() {
-      let mapApp = this.$refs.MapApp;
-      if (document.fullscreenElement || document.webkitFullscreenElement ||
-        document.mozFullScreenElement || document.msFullscreenElement ) {
+    isFullscreen: function(){
+      return (document.fullscreenElement || document.webkitFullscreenElement ||
+        document.mozFullScreenElement || document.msFullscreenElement )
+    },
+    onFullscreen: function(fullscreenReq) {
+      //If a request is sent, try it
+      if (fullscreenReq !== undefined){
+        if (fullscreenReq && !this.isFullscreen()){
+          this.goFullscreen()
+        }
+        if(!fullscreenReq && this.isFullscreen()){
+          this.leaveFullscreen()
+        }
+      }
+      // Else we toggle fullscreen
+      else{
+        if(this.isFullscreen()){
+          this.leaveFullscreen()
+        } else {
+          this.goFullscreen()
+        }
+      }
+    },
+    leaveFullscreen: function(){
+      if (this.isFullscreen()) {
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.mozCancelFullScreen) { /* Firefox */
@@ -39,18 +55,19 @@ export default {
         } else if (document.msExitFullscreen) { /* IE/Edge */
           document.msExitFullscreen();
         }
-        this.isFullscreen = false;
-      } else {
-        if (mapApp.requestFullscreen) {
-          mapApp.requestFullscreen();
-        } else if (mapApp.mozRequestFullScreen) { /* Firefox */
-          mapApp.mozRequestFullScreen();
-        } else if (mapApp.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-          mapApp.webkitRequestFullscreen();
-        } else if (parent.msRequestFullscreen) { /* IE/Edge */
-          mapApp.msRequestFullscreen();
-        }
-        this.isFullscreen = true;
+      }
+    
+    },
+    goFullscreen: function(){
+      let mapApp = this.$refs.MapApp;
+      if (mapApp.requestFullscreen) {
+        mapApp.requestFullscreen();
+      } else if (mapApp.mozRequestFullScreen) { /* Firefox */
+        mapApp.mozRequestFullScreen();
+      } else if (mapApp.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+        mapApp.webkitRequestFullscreen();
+      } else if (parent.msRequestFullscreen) { /* IE/Edge */
+        mapApp.msRequestFullscreen();
       }
     }
   }

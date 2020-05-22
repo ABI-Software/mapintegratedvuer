@@ -48,6 +48,7 @@ export default {
         let term = undefined;
         let label = undefined;
         let dataset = undefined;
+        let scaffold = undefined;
         if (resource.data && resource.data.id) {
           term = resource.data.id;
           label = resource.data.id;
@@ -55,9 +56,10 @@ export default {
           term = resource.feature.models;
           label = resource.feature.label;
           dataset = resource.feature.dataset;
+          scaffold = resource.feature.scaffold;
         }
-        if (term || label) {    
-          let data = this.fetchContent(term, label, dataset);
+        if (term || label) {
+          let data = this.fetchContent(term, label, dataset, scaffold);
           if (data) {
             this.tContent = data;
             return true;
@@ -74,7 +76,7 @@ export default {
       }
     return false;
     },
-    fetchContent: function(term, label, dataset) {
+    fetchContent: function(term, label, dataset, scaffold) {
       if (term || label) {
         let data = {};
         switch (term) {
@@ -132,11 +134,6 @@ export default {
                 type: "Scaffold"
               },
               {
-                title: "View opening scaffold",
-                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stomach_lines/stomach_metadata.json",
-                type: "Scaffold"
-              },
-              {
                 title: "Search for dataset",
                 resource: "https://sparc.science/data?type=dataset&q=stomach",
                 type: "URL"
@@ -159,6 +156,18 @@ export default {
                   }
                 ];
                 this.onActionClick(data.actions[0]);
+              } else if (scaffold) {
+                // temporary changes to get circleon flatmap to response
+                if (scaffold == "heart") {
+                  data.actions = [
+                    {
+                      title: "View 3D scaffold",
+                      resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
+                      type: "Scaffold"
+                    }
+                  ];
+                  this.onActionClick(data.actions[0]);
+                }
               } else {
                 data.actions = [
                   {

@@ -73,9 +73,7 @@ export default {
 
       // Step one goes to full screen
       if (currentStep === 1){
-        if (!this.fullscreen){
-          this.flow.onFullscreen();
-        }
+        this.flow.onFullscreen(true);
       }
 
       // Hack on step three to show tooltip for the heart
