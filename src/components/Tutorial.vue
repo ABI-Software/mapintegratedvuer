@@ -27,7 +27,7 @@ Vue.use(VueTour);
 
 export default {
   name: "Tutorial",
-  props: ['parentRefs', 'fullscreen'],
+  props: ['parentRefs'],
   methods: {
     /**
      * Callback when an action is performed (open new dialogs).
@@ -73,14 +73,14 @@ export default {
 
       // Step one goes to full screen
       if (currentStep === 1){
-        if (!this.fullscreen){
-          this.flow.onFullscreen();
-        }
+        this.flow.onFullscreen(true);
       }
 
       // Hack on step three to show tooltip for the heart
       if (currentStep === 4){
-        this.flow.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':"263#10018"}}});
+        let map = this.flow.$refs.dialogs[0].$refs.flatmap.getCurrentFlatmap();
+        let heartId = map.mapImp.featuresForModel('UBERON:0000948')[0];
+        this.flow.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':heartId}}});
         this.flow.$refs.dialogs[0].$refs.popover.updateFromTerm("UBERON:0000948");
       }
 

@@ -170,8 +170,8 @@ export default {
         this.bringDialogToFront(id);
       }
     },
-    onFullscreen: function() {
-      this.$emit("onFullscreen");
+    onFullscreen: function(val) {
+      this.$emit("onFullscreen");	      this.$emit("onFullscreen", val);
     },
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
