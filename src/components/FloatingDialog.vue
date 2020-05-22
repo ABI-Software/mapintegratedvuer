@@ -131,6 +131,12 @@ export default {
         this.tooltipCoords.y = 300;
         this.tVisible = true;
       }
+      this.addTooltipId(this.entry.type)
+    },
+    addTooltipId: function(type){
+      if (type === 'Flatmap'){
+        this.$el.querySelectorAll('.el-button')[0].id = 'popover-button-' + this.entry.id;
+      } 
     },
     setTooltipCoords(x, y){
       this.tooltipCoords.x = x;
