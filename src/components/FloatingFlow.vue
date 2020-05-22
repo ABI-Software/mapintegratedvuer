@@ -93,7 +93,7 @@ export default {
      */
     createNewEntry: function(data) {
       let newEntry = {};
-      Object.assign(newEntry, data)
+      Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
@@ -139,7 +139,10 @@ export default {
     dockDialog: function(id) {
       let index = this.findIndexOfId(id);
       if ((index > -1) && (this.findIndexOfDockedArray(id) == -1)) {
-        this.dockedArray.push({title: this.entries[index].type, id:this.entries[index].id});
+        let title = this.entries[index].type;
+        if (this.entries[index].label)
+          title = this.entries[index].label + " (" + this.entries[index].type + ")";
+        this.dockedArray.push({title: title, id:this.entries[index].id});
       }
     },
     maximiseDialog: function(id) {

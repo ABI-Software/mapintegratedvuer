@@ -199,6 +199,8 @@ export default {
       this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
       document.querySelectorAll('.el-select')[1].id = 'scaffold-select-box-' + this.entry.id;
     }
+    if (this.entry.label)
+      this.indexTitle.title = this.entry.label + " (" + this.entry.type + ")";
   },
   watch: {
     "entry.zIndex": function() {
