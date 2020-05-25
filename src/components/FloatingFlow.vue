@@ -14,7 +14,7 @@
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
           @close="dialogClose(item.id)"
-          @resource-selected="resourceSelected(item)"
+          @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"/>
       </div>
     </el-main>

@@ -133,9 +133,15 @@ export default {
             data.description = "Scaffolds of the stomach";
             data.actions = [
               {
-                title: "View volume scaffold",
+                title: "View generic stomach scaffold",
                 label: "Stomach",
-                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/volume/stomach_volume_metadata.json",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/stomach_exploding/stomach_exploding_metadata.json",
+                type: "Scaffold"
+              },
+              {
+                title: "View scaffold with fitted neurites",
+                label: "Stomach",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stomach_lines/stomach_metadata.json",
                 type: "Scaffold"
               },
               {
