@@ -16,7 +16,8 @@
           style="height:100%;width:100%;" :initial="entry.resource" 
           ref="flatmap"/>
         <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
-          @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
+          @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
+          :backgroundToggle=true />
         <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType" style="height: 200px"></PlotVuer>
         <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('Scaffold'))"
           :selectedResource="selectedResource" :placement="tPlacement"
@@ -149,8 +150,7 @@ export default {
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
       this.selectedResource = result;
-      if (!(this.entry.type === 'Flatmap' && (resource.feature.dataset || 
-        resource.feature.scaffold))) {
+      if (!(this.entry.type === 'Flatmap' && resource.feature.dataset)) {
         this.showTooltip(result);
       }
       this.$emit("resource-selected", result);
@@ -205,6 +205,8 @@ export default {
       this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
       document.querySelectorAll('.el-select')[1].id = 'scaffold-select-box-' + this.entry.id;
     }
+    if (this.entry.label)
+      this.indexTitle.title = this.entry.label + " (" + this.entry.type + ")";
   },
   watch: {
     "entry.zIndex": function() {

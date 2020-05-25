@@ -88,16 +88,19 @@ export default {
             data.actions = [
               {
                 title: "View 3D scaffold",
+                label: "Heart",
                 resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
                 type: "Scaffold"
               },
               {
                 title: "View 3D scaffold with ICN data",
+                label: "Heart",
                 resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/rat_hearts/may-15-integrated/integrated_heart_may_metadata.json",
                 type: "Scaffold"
               },
               {
                 title: "Search for dataset",
+                label: "Heart",
                 resource: "https://sparc.science/data?type=dataset&q=heart",
                 type: "URL"
               }
@@ -109,6 +112,7 @@ export default {
             data.actions = [
               {
                 title: "View plot",
+                label: "ICN",
                 resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
                 type: "Plot",
                 plotType: "heatmap",
@@ -129,12 +133,20 @@ export default {
             data.description = "Scaffolds of the stomach";
             data.actions = [
               {
-                title: "View volume scaffold",
-                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/volume/stomach_volume_metadata.json",
+                title: "View generic stomach scaffold",
+                label: "Stomach",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/stomach_exploding/stomach_exploding_metadata.json",
+                type: "Scaffold"
+              },
+              {
+                title: "View scaffold with fitted neurites",
+                label: "Stomach",
+                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stomach_lines/stomach_metadata.json",
                 type: "Scaffold"
               },
               {
                 title: "Search for dataset",
+                label: "Stomach",
                 resource: "https://sparc.science/data?type=dataset&q=stomach",
                 type: "URL"
               }
@@ -151,6 +163,7 @@ export default {
                 data.actions = [
                   {
                     title: "View dataset",
+                    label: "dataset",
                     resource: dataset,
                     type: "URL"
                   }
@@ -162,6 +175,7 @@ export default {
                   data.actions = [
                     {
                       title: "View 3D scaffold",
+                      label: "Heart",
                       resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
                       type: "Scaffold"
                     }
@@ -172,6 +186,7 @@ export default {
                 data.actions = [
                   {
                     title: "Search for dataset",
+                    label: "dataset",
                     resource: "https://sparc.science/data?type=dataset&q=" + label,
                     type: "URL"
                   }

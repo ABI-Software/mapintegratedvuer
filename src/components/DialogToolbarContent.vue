@@ -2,8 +2,10 @@
   <div class="header">
     <el-row class="content">
       <div class="title" v-for="title in dialogTitles" :key="title.id">
-        <div class="title-text" v-bind:class="{ highlightText : (title.id==activeId) }" v-on:click="titleClicked(title.id)">
-          {{title.title}}
+        <div  class="title-text-table" v-bind:class="{ highlightText : (title.id==activeId) }" v-on:click="titleClicked(title.id)">
+          <div class="title-text">
+            {{title.title}}
+          </div>
         </div>
       </div>
     </el-row>
@@ -106,8 +108,15 @@ export default {
 }
 
 .title-text {
-  padding-top:9px;
   text-align:center;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.title-text-table {
+  display:table;
+  height: 100%;
+  width: 100%;
 }
 
 .parent-dialog:hover .title-text {
