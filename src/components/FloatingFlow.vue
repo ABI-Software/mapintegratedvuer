@@ -214,12 +214,20 @@ export default {
     },
     flatmapChanged: function (){
       this.onFlowChange('flatmapChanged');
+      console.log('f changed')
     },
     startTutorial: function(){
       this.onFlowChange('startTutorial');
     },
     resetApp: function(){
       Object.assign(this.$data, initialState());
+      let close = document.querySelectorAll('.mapboxgl-popup-close-button')
+      if (close.length !== 0){
+        for( let i in close){
+          close[i].click()
+        }
+      }
+
     }
   },
   data: function() {
