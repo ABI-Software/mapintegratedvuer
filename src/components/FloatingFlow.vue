@@ -221,13 +221,8 @@ export default {
     },
     resetApp: function(){
       Object.assign(this.$data, initialState());
-      let close = document.querySelectorAll('.mapboxgl-popup-close-button')
-      if (close.length !== 0){
-        for( let i in close){
-          close[i].click()
-        }
-      }
-
+      var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
+      closeItems.forEach( (item) => { item.click() });
     }
   },
   data: function() {
