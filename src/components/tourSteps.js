@@ -32,7 +32,7 @@ export default [
       }
     },
     {
-      target: '#heart-marker',
+      target: '#heart',
       content: 'Select a ' + locationIcon + ' to see <strong>models</strong> and <strong>data</strong> associated with the region',
       params: {
         placement: 'right' 
