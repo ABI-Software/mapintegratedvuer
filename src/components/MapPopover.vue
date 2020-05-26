@@ -11,6 +11,7 @@
 /* eslint-disable no-alert, no-console */
 import '@abi-software/maptooltip';
 import '@abi-software/maptooltip/dist/maptooltip.css';
+import {simulatedData} from './SimulatedData.js'
 import EventBus from './EventBus';
 
 /**
@@ -42,6 +43,7 @@ export default {
     },
     updateTooltipContent: function(result) {
       if (result && result.resource) {
+        
         let resource = result.resource;
         if (Array.isArray(resource) && resource[0])
           resource = resource[0];
@@ -49,6 +51,8 @@ export default {
         let label = undefined;
         let dataset = undefined;
         let scaffold = undefined;
+        let simulations = undefined;
+        let taxonomy = resource.taxonomy;
         if (resource.data && resource.data.id) {
           term = resource.data.id;
           label = resource.data.id;
@@ -57,9 +61,10 @@ export default {
           label = resource.feature.label;
           dataset = resource.feature.dataset;
           scaffold = resource.feature.scaffold;
+          simulations = resource.feature.simulations;
         }
         if (term || label) {
-          let data = this.fetchContent(term, label, dataset, scaffold);
+          let data = simulatedData(term, taxonomy, label, dataset, scaffold, simulations);
           if (data) {
             this.tContent = data;
             return true;
@@ -69,137 +74,12 @@ export default {
       return false;
     },
     updateFromTerm: function(term) {
-      let data = this.fetchContent(term);
+      let data = simulatedData(term);
       if (data) {
         this.tContent = data;
         return true;
       }
     return false;
-    },
-    fetchContent: function(term, label, dataset, scaffold) {
-      if (term || label) {
-        let data = {};
-        switch (term) {
-          case "UBERON:0000948":
-          case "UBERON:0002080":
-          case "UBERON:0002084":
-            data.title = "Mapping of ICN Neurons in a 3D Rat Heart";
-            data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
-            data.actions = [
-              {
-                title: "View 3D scaffold",
-                label: "Heart",
-                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
-                type: "Scaffold"
-              },
-              {
-                title: "View 3D scaffold with ICN data",
-                label: "Heart",
-                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/rat_hearts/may-15-integrated/integrated_heart_may_metadata.json",
-                type: "Scaffold"
-              },
-              {
-                title: "Search for dataset",
-                label: "Heart",
-                resource: "https://sparc.science/data?type=dataset&q=heart",
-                type: "URL"
-              }
-            ];
-            break;
-          case "ICN":
-            data.title = "RNA";
-            data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
-            data.actions = [
-              {
-                title: "View plot",
-                label: "ICN",
-                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/csv-data/use-case-4/RNA_Seq.csv",
-                type: "Plot",
-                plotType: "heatmap",
-                datasetTitle: "Molecular Phenotype Distribution of Single Rat Intracardiac Neurons",
-                datasetDescription: "Images collected from serial cryostat sectioning of a cryopreserved heart was used to reconstruct the 3D context. Transcriptional profiles taken from isolated single neurons and mapped back into the previously generated 3D context.",
-                datasetUrl: "https://discover.blackfynn.com/datasets/29",
-                datasetImage: "https://assets.discover.blackfynn.com/dataset-assets/29/6/revisions/1/banner.jpg"
-              },
-              {
-                title: "Search for dataset",
-                resource: "https://sparc.science/data?type=dataset&q=icn",
-                type: "URL"
-              }
-            ];
-            break;
-          case "UBERON:0000945":
-            data.title = "Stomach";
-            data.description = "Scaffolds of the stomach";
-            data.actions = [
-              {
-                title: "View generic stomach scaffold",
-                label: "Stomach",
-                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/stomach_exploding/stomach_exploding_metadata.json",
-                type: "Scaffold"
-              },
-              {
-                title: "View scaffold with fitted neurites",
-                label: "Stomach",
-                resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stomach_lines/stomach_metadata.json",
-                type: "Scaffold"
-              },
-              {
-                title: "Search for dataset",
-                label: "Stomach",
-                resource: "https://sparc.science/data?type=dataset&q=stomach",
-                type: "URL"
-              }
-            ];
-            break;
-          default:
-            if (label)
-              data.title = label;
-            else
-              data.title = term;
-            data.description = "";
-            if (label) {
-              if (dataset) {
-                data.actions = [
-                  {
-                    title: "View dataset",
-                    label: "dataset",
-                    resource: dataset,
-                    type: "URL"
-                  }
-                ];
-                this.onActionClick(data.actions[0]);
-              } else if (scaffold) {
-                // temporary changes to get circleon flatmap to response
-                if (scaffold == "heart") {
-                  data.actions = [
-                    {
-                      title: "View 3D scaffold",
-                      label: "Heart",
-                      resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
-                      type: "Scaffold"
-                    }
-                  ];
-                  this.onActionClick(data.actions[0]);
-                }
-              } else {
-                data.actions = [
-                  {
-                    title: "Search for dataset",
-                    label: "dataset",
-                    resource: "https://sparc.science/data?type=dataset&q=" + label,
-                    type: "URL"
-                  }
-                ];
-              }
-            } else {
-              data.actions = [];
-            }
-            break;
-        }
-        return data;
-      }
-      return undefined;
     }
   },
   data: function() {
