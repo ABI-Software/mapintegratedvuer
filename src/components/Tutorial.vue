@@ -129,8 +129,7 @@ export default {
     },
     finishTutorialCallback(){
       this.flow.resetApp();
-      document.querySelector('.mapboxgl-popup-close-button').click();
-      this.flow.onFullscreen();
+      this.flow.onFullscreen(false);
     }
       
       
