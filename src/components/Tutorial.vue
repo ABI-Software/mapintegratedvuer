@@ -129,7 +129,7 @@ export default {
     },
     finishTutorialCallback(){
       this.flow.resetApp();
-      this.flow.onFullscreen();
+      this.flow.onFullscreen(false);
     }
       
       

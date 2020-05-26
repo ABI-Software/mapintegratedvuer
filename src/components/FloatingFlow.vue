@@ -171,7 +171,7 @@ export default {
       }
     },
     onFullscreen: function(val) {
-      this.$emit("onFullscreen");	      this.$emit("onFullscreen", val);
+      this.$emit("onFullscreen", val);
     },
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
