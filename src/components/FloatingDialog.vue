@@ -12,7 +12,6 @@
         <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
         <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
           @flatmapChanged="flatmapChanged"
-          @ready="flatmapReady"
           @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
           style="height:100%;width:100%;" :initial="entry.resource" 
           ref="flatmap"/>
@@ -155,9 +154,6 @@ export default {
         this.showTooltip(result);
       }
       this.$emit("resource-selected", result);
-    },
-    flatmapReady: function(){
-      document.querySelectorAll('.flatmap-marker')[1].id = 'heart-marker';
     },
     onMaximise: function() {
       this.$emit("maximise");
