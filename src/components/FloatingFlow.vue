@@ -214,7 +214,6 @@ export default {
     },
     flatmapChanged: function (){
       this.onFlowChange('flatmapChanged');
-      console.log('f changed')
     },
     startTutorial: function(){
       this.onFlowChange('startTutorial');

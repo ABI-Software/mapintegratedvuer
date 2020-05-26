@@ -157,7 +157,7 @@ export default {
       this.$emit("resource-selected", result);
     },
     flatmapReady: function(){
-      document.querySelectorAll('.flatmap-marker')[1].id = 'heart-marker'
+      document.querySelectorAll('.flatmap-marker')[1].id = 'heart-marker';
     },
     onMaximise: function() {
       this.$emit("maximise");
