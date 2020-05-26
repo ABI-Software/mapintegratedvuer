@@ -171,7 +171,7 @@ export default {
       }
     },
     onFullscreen: function(val) {
-      this.$emit("onFullscreen");	      this.$emit("onFullscreen", val);
+      this.$emit("onFullscreen", val);
     },
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
@@ -220,6 +220,8 @@ export default {
     },
     resetApp: function(){
       Object.assign(this.$data, initialState());
+      var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
+      closeItems.forEach( (item) => { item.click() });
     }
   },
   data: function() {
