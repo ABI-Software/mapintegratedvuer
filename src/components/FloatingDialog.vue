@@ -18,7 +18,9 @@
         <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
           @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
           :backgroundToggle=true />
-        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType" style="height: 200px"></PlotVuer>
+        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
+        :plotType="entry.plotType" style="height: 200px"></PlotVuer>
+        <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
         <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('Scaffold'))"
           :selectedResource="selectedResource" :placement="tPlacement"
           :tooltipCoords="tooltipCoords" :visible="tVisible"
@@ -45,7 +47,8 @@
 import Vue from "vue";
 import DialogToolbarContent from './DialogToolbarContent';
 import MapPopover from './MapPopover';
-import DatasetHeader from './DatasetHeader'
+import DatasetHeader from './DatasetHeader';
+import IframeVuer from './Iframe';
 import VueDraggableResizable from 'vue-draggable-resizable';
 import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
@@ -88,9 +91,10 @@ export default {
     }
   },
   components: {
+    DatasetHeader,
     DialogToolbarContent,
+    IframeVuer,
     MapPopover,
-    DatasetHeader
   },
   methods: {
     /**
@@ -174,7 +178,8 @@ export default {
       myElement: undefined,
       scaffoldCamera: undefined,
       style: {zIndex: this.entry.zIndex},
-      mainStyle: {overflow: this.entry.type === 'Scaffold' ? "hidden" : "auto"},
+      mainStyle: {overflow: (this.entry.type === 'Scaffold' || 
+      this.entry.type === 'Iframe') ? "hidden" : "auto"},
       /**
        * Control the style of the top compoent.
        * @values parent-dialog, parent-dialog-full
