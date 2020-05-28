@@ -55,9 +55,13 @@ export default {
       this.cardDisplayed = !this.cardDisplayed;
     },
     openCard: function(event){
-      this.cardDisplayed = true;  
-      this.$refs.card.$el.style.left = event.layerX + 'px'; 
-      this.$refs.card.$el.style.top = event.layerY + 'px';
+      if (this.entry.datasetImage || this.entry.datasetDescription) {
+        this.cardDisplayed = true;  
+        this.$refs.card.$el.style.left = event.layerX + 'px'; 
+        this.$refs.card.$el.style.top = event.layerY + 'px';
+      } else {
+        this.openDatasetUrl();
+      }
     },
     openDatasetUrl: function(){
       window.open(this.entry.datasetUrl, '_blank');
