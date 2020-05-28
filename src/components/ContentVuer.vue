@@ -16,7 +16,8 @@
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" style="height: 200px"></PlotVuer>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
-      <MapPopover v-if="(entry.type === ('MultiFlatmap')) || (entry.type === ('Scaffold'))"
+      <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('MultiFlatmap')) || 
+        (entry.type === ('Scaffold'))"
         :selectedResource="selectedResource" :placement="tPlacement"
         :tooltipCoords="tooltipCoords" :visible="tVisible"
         @onClose="onTooltipClose"
@@ -78,6 +79,11 @@ export default {
         /* Use flatmap MapBoxGL for displaying the popover */
         const elm = this.$refs.popover.getTooltipContentElm();
         this.$refs.multiflatmap.showPopup(result.resource.feature.id, elm,
+          {anchor: "bottom"});
+      } else if (this.entry.type === 'Flatmap'){
+        /* Use flatmap MapBoxGL for displaying the popover */
+        const elm = this.$refs.popover.getTooltipContentElm();
+        this.$refs.flatmap.showPopup(result.resource.feature.id, elm,
           {anchor: "bottom"});
       } else {
         this.tooltipCoords.x = 0;
