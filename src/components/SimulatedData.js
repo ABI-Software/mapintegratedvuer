@@ -48,7 +48,9 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
               title: "View control diagram",
               label: "simulation",
               resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/hmlacoibfdemmkah.png",
-              type: "URL"
+              type: "Iframe",
+              datasetTitle: "Kember control diagram",
+              datasetUrl: "https://pubmed.ncbi.nlm.nih.gov/28692680/?from_term=Kember+G%5Bau%5D&from_pos=2"
             }
           );
         }

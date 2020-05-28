@@ -78,10 +78,10 @@ export default {
 
       // Hack on step three to show tooltip for the heart
       if (currentStep === 4){
-        let map = this.flow.$refs.dialogs[0].$refs.flatmap.getCurrentFlatmap();
+        let map = this.flow.$refs.dialogs[0].getVuerByReference("multiflatmap").getCurrentFlatmap();
         let heartId = map.mapImp.featuresForModel('UBERON:0000948')[0];
-        this.flow.$refs.dialogs[0].showTooltip({'resource':{'feature':{'id':heartId}}});
-        this.flow.$refs.dialogs[0].$refs.popover.updateFromTerm("UBERON:0000948");
+        this.flow.$refs.dialogs[0].$refs['content'].showTooltip({'resource':{'feature':{'id':heartId}}});
+        this.flow.$refs.dialogs[0].getVuerByReference("popover").updateFromTerm("UBERON:0000948");
       }
 
       // Step 4 brings up the heart scaffold
@@ -105,9 +105,9 @@ export default {
 
       // Step 7 pulls up the RNA seq data
       if (currentStep === 8){
-        this.flow.$refs.dialogs[1].showTooltip({'resource':['unused']});
-        this.flow.$refs.dialogs[1].$refs.popover.updateFromTerm("ICN");
-        this.flow.$refs.dialogs[1].setTooltipCoords(650,300);
+        this.flow.$refs.dialogs[1].$refs['content'].showTooltip({'resource':['unused']});
+        this.flow.$refs.dialogs[1].getVuerByReference("popover").updateFromTerm("ICN");
+        this.flow.$refs.dialogs[1].$refs['content'].setTooltipCoords(650,300);
         // this.steps[7].target = this.$refs.dialogs[1].$refs.popover.$refs.tooltip.$el.children[0].children[0].children[0].children[1].children[1],
       }
 
