@@ -50,7 +50,8 @@ var initialState = function() {
         resource: "Rat",
         availableSpecies : {
           "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
-          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
+          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"},
+          "Mouse":{taxo: "NCBITaxon:10090", iconClass:"icon-mapicon_mouse"},
         },
         type: "Flatmap",
         zIndex:1,
@@ -171,7 +172,7 @@ export default {
       }
     },
     onFullscreen: function(val) {
-      this.$emit("onFullscreen");	      this.$emit("onFullscreen", val);
+      this.$emit("onFullscreen", val);
     },
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
@@ -220,6 +221,8 @@ export default {
     },
     resetApp: function(){
       Object.assign(this.$data, initialState());
+      var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
+      closeItems.forEach( (item) => { item.click() });
     }
   },
   data: function() {

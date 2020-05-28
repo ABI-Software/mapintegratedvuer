@@ -132,11 +132,13 @@ export default {
         this.tooltipCoords.y = 300;
         this.tVisible = true;
       }
-      this.addTooltipId(this.entry.type)
+      this.addTooltipId(this.entry.type);
     },
     addTooltipId: function(type){
       if (type === 'Flatmap'){
-        this.$el.querySelectorAll('.el-button')[0].id = 'popover-button-' + this.entry.id;
+        let el = this.$el.querySelectorAll('.el-button')[0];
+        if (el)
+          el.id = 'popover-button-' + this.entry.id;
       } 
     },
     setTooltipCoords(x, y){
@@ -150,9 +152,7 @@ export default {
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
       this.selectedResource = result;
-      if (!(this.entry.type === 'Flatmap' && resource.feature.dataset)) {
-        this.showTooltip(result);
-      }
+      this.showTooltip(result);
       this.$emit("resource-selected", result);
     },
     onMaximise: function() {
