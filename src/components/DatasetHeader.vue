@@ -73,7 +73,7 @@ export default {
   text-align:center;
 }
 .dataset-title-container{
-  margin: 3px;
+  padding: 3px;
 }
 .dataset-title{
   font: HelveticaNeue-Medium;
