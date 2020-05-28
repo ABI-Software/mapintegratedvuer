@@ -44,11 +44,13 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
       } else {
         if (label == "Heart"){
           data.actions.push(
-            { 
+            {
               title: "View control diagram",
-              label: "simulation",
-              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/hmlacoibfdemmkah.png",
-              type: "Iframe",
+              label: "Kember",
+              resource: "ABI:1000001",
+              type: "Flatmap",
+              minZoom: 5,
+              pathControls: false,
               datasetTitle: "Kember control diagram",
               datasetUrl: "https://pubmed.ncbi.nlm.nih.gov/28692680/?from_term=Kember+G%5Bau%5D&from_pos=2"
             }
@@ -122,6 +124,24 @@ function getRatData(term, label, dataset, scaffold, simulations) {
           },
         ];
         break;
+        case "UBERON:0002048":
+          data.title = "Lung";
+          data.description = "";
+          data.actions = [
+            {
+              title: "View 3D scaffold",
+              label: "Lung",
+              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/lungs/28-may/lung_metadata.json",
+              type: "Scaffold"
+            },
+            {
+              title: "Search for dataset",
+              label: "Heart",
+              resource: "https://sparc.science/data?type=dataset&q=lung",
+              type: "URL"
+            },
+          ];
+          break;
       case "ICN":
         data.title = "RNA";
         data.description = "The distribution of neurons in the intrinsic cardiac nervous system (ICN) were mapped and visualized in a 3D reconstruction of a male rat heart.";
