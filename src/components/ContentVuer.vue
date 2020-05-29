@@ -9,7 +9,8 @@
         ref="multiflatmap"/>
       <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :entry="entry.resource" 
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
-        style="height:100%;width:100%;" ref="flatmap"/>
+        style="height:100%;width:100%;" :minZoom="entry.minZoom" 
+        :pathControls="entry.pathControls" ref="flatmap"/>
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
         :backgroundToggle=true />

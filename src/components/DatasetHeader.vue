@@ -64,7 +64,8 @@ export default {
       }
     },
     openDatasetUrl: function(){
-      window.open(this.entry.datasetUrl, '_blank');
+      if (this.entry.datasetUrl)
+        window.open(this.entry.datasetUrl, '_blank');
       this.cardDisplayed = false;
     }
   }
