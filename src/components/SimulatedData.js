@@ -248,10 +248,43 @@ function getMouseData(term, label, dataset, scaffold, simulations) {
   return undefined;
 }
 
+function getPigData(term, label, dataset, scaffold, simulations) {
+  if (term || label) {
+    let data = {};
+    switch (term) {
+      case "UBERON:0001155":
+        data.title = "Colon";
+        data.description = "";
+        data.actions = [
+          {
+            title: "View 3D scaffold",
+            label: "Colon",
+            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic+Scaffold/Colon/pig/pigColon_metadata.json",
+            type: "Scaffold"
+          },
+          {
+            title: "Search for dataset",
+            label: "Heart",
+            resource: "https://sparc.science/data?type=dataset&q=colon",
+            type: "URL"
+          },
+        ];
+        break;
+      default:
+        data = getGenericMarkerInfo(term, label, dataset, scaffold, simulations);
+        break;
+    }
+    return data;
+  }
+  return undefined;
+}
+
 export function simulatedData(term, taxonomy, label, dataset, scaffold, simulations) {
   switch (taxonomy) {
     case "NCBITaxon:10090":
       return getMouseData(term, label, dataset, scaffold, simulations);
+    case "NCBITaxon:9823":
+      return getPigData(term, label, dataset, scaffold, simulations);
     case "NCBITaxon:10114":
     default:
       return getRatData(term, label, dataset, scaffold, simulations);
