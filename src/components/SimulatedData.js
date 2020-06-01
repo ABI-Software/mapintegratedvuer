@@ -124,6 +124,24 @@ function getRatData(term, label, dataset, scaffold, simulations) {
           },
         ];
         break;
+        case "UBERON:0001255":
+          data.title = "Urinary Bladder";
+          data.description = "";
+          data.actions = [
+            {
+              title: "View 3D scaffold",
+              label: "Bladder",
+              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/bladder/rat/rat_bladder_metadata.json",
+              type: "Scaffold"
+            },
+            {
+              title: "Search for dataset",
+              label: "Heart",
+              resource: "https://sparc.science/data?type=dataset&q=bladder",
+              type: "URL"
+            },
+          ];
+        break;
         case "UBERON:0002048":
           data.title = "Lung";
           data.description = "";
