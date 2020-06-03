@@ -55,12 +55,17 @@ export default {
       this.cardDisplayed = !this.cardDisplayed;
     },
     openCard: function(event){
-      this.cardDisplayed = true;  
-      this.$refs.card.$el.style.left = event.layerX + 'px'; 
-      this.$refs.card.$el.style.top = event.layerY + 'px';
+      if (this.entry.datasetImage || this.entry.datasetDescription) {
+        this.cardDisplayed = true;  
+        this.$refs.card.$el.style.left = event.layerX + 'px'; 
+        this.$refs.card.$el.style.top = event.layerY + 'px';
+      } else {
+        this.openDatasetUrl();
+      }
     },
     openDatasetUrl: function(){
-      window.open(this.entry.datasetUrl, '_blank');
+      if (this.entry.datasetUrl)
+        window.open(this.entry.datasetUrl, '_blank');
       this.cardDisplayed = false;
     }
   }
@@ -73,7 +78,7 @@ export default {
   text-align:center;
 }
 .dataset-title-container{
-  margin: 3px;
+  padding: 3px;
 }
 .dataset-title{
   font: HelveticaNeue-Medium;

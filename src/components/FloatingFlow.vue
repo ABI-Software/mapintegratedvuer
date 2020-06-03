@@ -14,7 +14,7 @@
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
           @close="dialogClose(item.id)"
-          @resource-selected="resourceSelected(item)"
+          @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"/>
       </div>
     </el-main>
@@ -50,9 +50,11 @@ var initialState = function() {
         resource: "Rat",
         availableSpecies : {
           "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
-          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"} 
+          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"},
+          "Mouse":{taxo: "NCBITaxon:10090", iconClass:"icon-mapicon_mouse"},
+          "Pig":{taxo: "NCBITaxon:9823", iconClass:"icon-mapicon_pig"},
         },
-        type: "Flatmap",
+        type: "MultiFlatmap",
         zIndex:1,
         mode: "main",
         id: 1
@@ -93,7 +95,7 @@ export default {
      */
     createNewEntry: function(data) {
       let newEntry = {};
-      Object.assign(newEntry, data)
+      Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
@@ -139,7 +141,10 @@ export default {
     dockDialog: function(id) {
       let index = this.findIndexOfId(id);
       if ((index > -1) && (this.findIndexOfDockedArray(id) == -1)) {
-        this.dockedArray.push({title: this.entries[index].type, id:this.entries[index].id});
+        let title = this.entries[index].type;
+        if (this.entries[index].label)
+          title = this.entries[index].label + " (" + this.entries[index].type + ")";
+        this.dockedArray.push({title: title, id:this.entries[index].id});
       }
     },
     maximiseDialog: function(id) {
@@ -167,8 +172,8 @@ export default {
         this.bringDialogToFront(id);
       }
     },
-    onFullscreen: function() {
-      this.$emit("onFullscreen");
+    onFullscreen: function(val) {
+      this.$emit("onFullscreen", val);
     },
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
@@ -217,6 +222,8 @@ export default {
     },
     resetApp: function(){
       Object.assign(this.$data, initialState());
+      var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
+      closeItems.forEach( (item) => { item.click() });
     }
   },
   data: function() {

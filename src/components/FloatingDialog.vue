@@ -9,21 +9,8 @@
           @close="onClose"/>         
       </el-header>
       <el-main class="dialog-main" :style="mainStyle">
-        <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
-        <MultiFlatmapVuer v-if="entry.type === 'Flatmap'" :availableSpecies="entry.availableSpecies" 
-          @flatmapChanged="flatmapChanged"
-          @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
-          style="height:100%;width:100%;" :initial="entry.resource" 
-          ref="flatmap"/>
-        <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
-          @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" />
-        <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource" :plotType="entry.plotType" style="height: 200px"></PlotVuer>
-        <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('Scaffold'))"
-          :selectedResource="selectedResource" :placement="tPlacement"
-          :tooltipCoords="tooltipCoords" :visible="tVisible"
-          @onClose="onTooltipClose"
-          :displayCloseButton="entry.type === 'Scaffold'"
-          ref="popover"/>
+        <ContentVuer :entry="entry" ref="content" @resource-selected="resourceSelected"
+          @flatmapChanged="flatmapChanged"/>
       </el-main>
     </el-container>
     <!-- Below set the style of the resize cursor -->
@@ -43,15 +30,8 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import DialogToolbarContent from './DialogToolbarContent';
-import MapPopover from './MapPopover';
-import DatasetHeader from './DatasetHeader'
+import ContentVuer from './ContentVuer';
 import VueDraggableResizable from 'vue-draggable-resizable';
-import '@abi-software/flatmapvuer';
-import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
-import '@abi-software/scaffoldvuer';
-import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
-import '@tehsurfer/plotvuer';
-import '@tehsurfer/plotvuer/dist/plotvuer.css';
 import {
   Container,
   Header,
@@ -87,16 +67,12 @@ export default {
     }
   },
   components: {
+    ContentVuer,
     DialogToolbarContent,
-    MapPopover,
-    DatasetHeader
   },
   methods: {
-    /**
-     * Callback when popover close button is clicked. 
-     */
-    onTooltipClose: function() {
-      this.tVisible = false;
+    getVuerByReference: function(refName) {
+      return this.$refs.content.$refs[refName];
     },
     onResize: function (x, y, width, height) {
       this.x = x;
@@ -105,54 +81,14 @@ export default {
       this.height = height;
     },
     onDragstop: function (x, y) {
-      if (this.entry.type === 'Scaffold') 
-        this.scaffoldCamera.onResize();
+      this.$refs.content.onResize();
       this.x = x;
       this.y = y;
     },
     /**
-     * Display and set the position of the popover.
-     * Popover will handle the content.
-     */
-    showTooltip: function(result) {
-      if (this.entry.type === 'Scaffold') {
-        if (result.resource && result.resource.length > 0) {
-          this.tVisible = true;
-        } else {
-          this.tVisible = false;
-        }
-      } else if (this.entry.type === 'Flatmap'){
-        /* Use flatmap MapBoxGL for displaying the popover */
-        const elm = this.$refs.popover.getTooltipContentElm();
-        this.$refs.flatmap.showPopup(result.resource.feature.id, elm,
-          {anchor: "bottom"});
-      } else {
-        this.tooltipCoords.x = 0;
-        this.tooltipCoords.y = 300;
-        this.tVisible = true;
-      }
-      this.addTooltipId(this.entry.type)
-    },
-    addTooltipId: function(type){
-      if (type === 'Flatmap'){
-        this.$el.querySelectorAll('.el-button')[0].id = 'popover-button-' + this.entry.id;
-      } 
-    },
-    setTooltipCoords(x, y){
-      this.tooltipCoords.x = x;
-      this.tooltipCoords.y = y;
-      this.tVisible = true;
-    },
-    /**
      * Callback when the vuers emit a selected event.
      */
-    resourceSelected: function(type, resource) {
-      const result = {paneIndex: this.index, type: type, resource: resource};
-      this.selectedResource = result;
-      if (!(this.entry.type === 'Flatmap' && (resource.feature.dataset || 
-        resource.feature.scaffold))) {
-        this.showTooltip(result);
-      }
+    resourceSelected: function(result) {
       this.$emit("resource-selected", result);
     },
     onMaximise: function() {
@@ -170,23 +106,18 @@ export default {
   },
   data: function() {
     return {
-      isReady: false,
-      myElement: undefined,
-      scaffoldCamera: undefined,
       style: {zIndex: this.entry.zIndex},
-      mainStyle: {overflow: this.entry.type === 'Scaffold' ? "hidden" : "auto"},
+      mainStyle: {
+        overflow: this.entry.type === 'Scaffold' ? "hidden" : "auto",
+      },
       /**
        * Control the style of the top compoent.
        * @values parent-dialog, parent-dialog-full
        */
       className: "parent-dialog",
       indexTitle: {title: this.entry.type, id: this.index},
-      selectedResource: undefined,
-      tooltipCoords: {x: 0, y: 0},
-      tPlacement: "bottom",
-      tVisible: false,
       initialX: 0,
-      initialY: 0
+      initialY: 0,
     }
   },
   beforeMount: function() {
@@ -197,14 +128,10 @@ export default {
     }
   },
   mounted: function() {
-    this.isReady = true;
     if (this.entry.mode === "main")
       this.className = "parent-dialog-full";
-    if (this.entry.type === 'Scaffold') {
-      this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
-      this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
-      document.querySelectorAll('.el-select')[1].id = 'scaffold-select-box-' + this.entry.id;
-    }
+    if (this.entry.label)
+      this.indexTitle.title = this.entry.label + " (" + this.entry.type + ")";
   },
   watch: {
     "entry.zIndex": function() {
