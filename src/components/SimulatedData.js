@@ -53,7 +53,14 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
               pathControls: false,
               datasetTitle: "Kember control diagram",
               datasetUrl: "https://pubmed.ncbi.nlm.nih.gov/28692680/?from_term=Kember+G%5Bau%5D&from_pos=2"
+            },
+            { 
+              title: "View simulation",
+              label: "simulation",
+              resource: "https://sparc.science/datasets/78?type=simulation",
+              type: "URL"
             }
+            
           );
         }
       }
