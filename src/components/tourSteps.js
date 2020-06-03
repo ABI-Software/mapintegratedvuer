@@ -5,9 +5,9 @@ export default [
     {
       target: '.el-header.dialog-header',// We're using document.querySelector() under the hood
       header: {
-        title: '<strong>Trying to view SPARC data?</strong>',
+        title: '<strong>Want to explore SPARC data?</strong>',
       },
-      content: 'This quick tutorial will show you how to navigate and view mapped data from the SPARC project',
+      content: "This quick tutorial will help you navigate & view SPARC's mapped data.",
 
     },
     {
@@ -26,7 +26,7 @@ export default [
     },
     {
       target: '#path-control-button',
-      content: 'Toogle the' + pathButton + ' button to show/hide pathways, and' + keyButton + ' for the legend',
+      content: 'Toggle the' + pathButton + ' button to show/hide pathways, and' + keyButton + ' for the legend',
       params: {
         placement: 'left' 
       }
@@ -53,7 +53,7 @@ export default [
       header: {
         title: 'Window controls',
       },
-      content: 'Use these controls to <strong>maximise, hide and close</strong> this window ',
+      content: 'Use these controls to <strong>maximize, hide and close</strong> this window ',
       params: {
         placement: 'left' 
       }
@@ -74,14 +74,14 @@ export default [
     },
     {
       target: '#rna',
-      content: 'This pop up gives details on the data. Click on <strong>View Plot</strong> to explore the data further',
+      content: 'This pop-up gives details on the data. Click on <strong>View Plot</strong> to explore the data further',
       params: {
         placement: 'right' 
       }
     },
     {
       target: '.plot-container',
-      content: 'Explore the data here. Hit finish to reset the app',
+      content: 'Explore the data here. Click finish to reset the app',
       params: {
         placement: 'top' 
       }
