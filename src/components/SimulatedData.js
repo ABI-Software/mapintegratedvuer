@@ -53,7 +53,14 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
               pathControls: false,
               datasetTitle: "Kember control diagram",
               datasetUrl: "https://pubmed.ncbi.nlm.nih.gov/28692680/?from_term=Kember+G%5Bau%5D&from_pos=2"
+            },
+            { 
+              title: "View simulation",
+              label: "simulation",
+              resource: "https://sparc.science/datasets/78?type=simulation",
+              type: "URL"
             }
+            
           );
         }
       }
@@ -123,6 +130,24 @@ function getRatData(term, label, dataset, scaffold, simulations) {
             type: "URL"
           },
         ];
+        break;
+        case "UBERON:0001255":
+          data.title = "Urinary Bladder";
+          data.description = "";
+          data.actions = [
+            {
+              title: "View 3D scaffold",
+              label: "Bladder",
+              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/bladder/rat/rat_bladder_metadata.json",
+              type: "Scaffold"
+            },
+            {
+              title: "Search for dataset",
+              label: "Heart",
+              resource: "https://sparc.science/data?type=dataset&q=bladder",
+              type: "URL"
+            },
+          ];
         break;
         case "UBERON:0002048":
           data.title = "Lung";
