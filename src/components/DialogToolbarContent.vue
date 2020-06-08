@@ -10,11 +10,26 @@
       </div>
     </el-row>
     <el-row class="icon-group" >
-      <el-button icon="el-icon-question" v-if="showHelpIcon" size="medium" type="text" @click="startTutorial"></el-button>
-      <el-button icon="el-icon-full-screen" size="medium" type="text" v-if="showFullscreenIcon" @click="onFullscreen"></el-button>
-      <el-button class="icon-transform" icon="el-icon-copy-document" v-if="showIcons" size="medium" type="text" @click="maximise"></el-button>
-      <el-button icon="el-icon-remove-outline" size="medium" v-if="showIcons" type="text" @click="minimise"></el-button>
-      <el-button icon="el-icon-close" size="medium" v-if="showIcons" type="text" @click="close"></el-button>
+      <el-popover content="Help" placement="left"
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
+        <el-button slot="reference" icon="el-icon-question" size="medium" type="text" @click="startTutorial"></el-button>
+      </el-popover>
+      <el-popover content="Toggle fullscreen" placement="left"
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showFullscreenIcon">
+        <el-button slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
+      </el-popover>
+      <el-popover content="Maximize" placement="left"
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
+        <el-button slot="reference" class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
+      </el-popover>
+      <el-popover content="Minimize" placement="left"
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
+        <el-button slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
+      </el-popover>
+      <el-popover content="Close" placement="left"
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
+        <el-button slot="reference" icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
+      </el-popover>
     </el-row>
   </div>
 </template>
@@ -26,10 +41,12 @@ import Vue from "vue";
 import {
   Button,
   Icon,
+  Popover,
   Row
 } from "element-ui";
 Vue.use(Button);
 Vue.use(Icon);
+Vue.use(Popover);
 Vue.use(Row);
 
 /**
@@ -156,6 +173,11 @@ export default {
 
 .header:active {
   cursor:grabbing;
+}
+
+>>> .header-popper {
+  padding:9px 10px;
+  min-width:100px;
 }
 
 </style>
