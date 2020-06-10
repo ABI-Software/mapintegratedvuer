@@ -3,17 +3,17 @@
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies" 
-        @flatmapChanged="flatmapChanged"
+        @flatmapChanged="flatmapChanged" @ready="flatmapReady"
         @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
         style="height:100%;width:100%;" :initial="entry.resource" 
         ref="multiflatmap"/>
       <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :entry="entry.resource" 
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
         style="height:100%;width:100%;" :minZoom="entry.minZoom" 
-        :pathControls="entry.pathControls" ref="flatmap"/>
+        :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady"/>
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
-        :backgroundToggle=true />
+        :backgroundToggle=true :traditional=true />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" style="height: 200px"></PlotVuer>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
@@ -33,6 +33,7 @@
 import MapPopover from './MapPopover';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
+import {getAvailableTermsForSpecies} from './SimulatedData.js';
 import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import '@abi-software/scaffoldvuer';
@@ -79,12 +80,12 @@ export default {
       } else if (this.entry.type === 'MultiFlatmap'){
         /* Use flatmap MapBoxGL for displaying the popover */
         const elm = this.$refs.popover.getTooltipContentElm();
-        this.$refs.multiflatmap.showPopup(result.resource.feature.id, elm,
+        this.$refs.multiflatmap.showMarkerPopup(result.resource.feature.id, elm,
           {anchor: "bottom"});
       } else if (this.entry.type === 'Flatmap'){
         /* Use flatmap MapBoxGL for displaying the popover */
         const elm = this.$refs.popover.getTooltipContentElm();
-        this.$refs.flatmap.showPopup(result.resource.feature.id, elm,
+        this.$refs.flatmap.showMarkerPopup(result.resource.feature.id, elm,
           {anchor: "bottom"});
       } else {
         this.tooltipCoords.x = 0;
@@ -110,12 +111,20 @@ export default {
      */
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
+       console.log(result)
       this.selectedResource = result;
       this.showTooltip(result);
       this.$emit("resource-selected", result);
     },
     flatmapChanged: function() {
       this.$emit("flatmapChanged");
+    },
+    flatmapReady: function(component) {
+      let map = component.mapImp;
+      let terms = getAvailableTermsForSpecies(map.describes);
+      for (let i = 0; i < terms.length; i++) {
+        map.addMarker(terms[i].id, terms[i].type);
+      }
     }
   },
   data: function() {
@@ -136,7 +145,7 @@ export default {
     if (this.entry.type === 'Scaffold') {
       this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
       this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
-      document.querySelectorAll('.el-select')[1].id = 'scaffold-select-box-' + this.entry.id;
+      document.querySelectorAll('.el-checkbox-group')[0].id = 'scaffold-checkbox-group-' + this.entry.id;
     }
   },
 };
