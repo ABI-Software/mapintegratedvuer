@@ -111,7 +111,6 @@ export default {
      */
     resourceSelected: function(type, resource) {
       const result = {paneIndex: this.index, type: type, resource: resource};
-       console.log(result)
       this.selectedResource = result;
       this.showTooltip(result);
       this.$emit("resource-selected", result);
