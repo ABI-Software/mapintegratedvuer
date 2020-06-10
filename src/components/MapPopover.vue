@@ -11,7 +11,7 @@
 /* eslint-disable no-alert, no-console */
 import '@abi-software/maptooltip';
 import '@abi-software/maptooltip/dist/maptooltip.css';
-import {simulatedData} from './SimulatedData.js'
+import {simulatedData} from './SimulatedData.js';
 import EventBus from './EventBus';
 
 /**
@@ -127,4 +127,5 @@ export default {
   position: absolute !important;
   transform: translate3d(-134px, 0px, 0px) !important;
 }
+
 </style>
