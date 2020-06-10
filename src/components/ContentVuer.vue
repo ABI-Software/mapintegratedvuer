@@ -92,11 +92,10 @@ export default {
         this.tooltipCoords.y = 300;
         this.tVisible = true;
       }
-      this.addTooltipId(this.entry.type);
     },
     addTooltipId: function(type){
       if (type === 'MultiFlatmap'){
-        let el = this.$el.querySelectorAll('.el-button')[0];
+        let el = this.$el.querySelectorAll('.el-button')[1];
         if (el)
           el.id = 'popover-button-' + this.entry.id;
       } 
@@ -161,4 +160,14 @@ export default {
   height: 100%;
   width: 100%;
 }
+
+>>>.flatmapvuer-popover .mapboxgl-popup-content {
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.1);
+  padding: 3em 1em 3em 1em;
+  pointer-events: auto;
+  width: 25em;
+  background: #fff;
+}
+
 </style>

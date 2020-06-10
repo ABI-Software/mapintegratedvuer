@@ -210,7 +210,7 @@ function getRatData(term, label, dataset, scaffold, simulations) {
           },
         ];
         break;
-      case "UBERON:0001162":
+      case "UBERON:0000945":
         data.title = "Stomach";
         data.description = "Scaffolds of the stomach";
         data.actions = [
@@ -350,7 +350,7 @@ function getRatTerms() {
     {id: "UBERON:0000948", type:"default"},
     {id: "UBERON:0001156", type:"default"},
     {id: "UBERON:0001255", type:"default"},
-    {id: "UBERON:0001162", type:"default"},
+    {id: "UBERON:0000945", type:"default"},
     {id: "UBERON:0001759", type:"default"},
     {id: "UBERON:0002048", type:"default"},
   ];
