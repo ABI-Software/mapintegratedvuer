@@ -44,7 +44,7 @@ export default {
           } else if (action === "dialogMaximise") {
             this.updateStep(6);
           } else if (action === "resourceSelected") {
-            this.tour.nextStep();
+            this.updateStep(8);
           }
         }
       }

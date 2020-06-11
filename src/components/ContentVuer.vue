@@ -95,9 +95,14 @@ export default {
     },
     addTooltipId: function(type){
       if (type === 'MultiFlatmap'){
-        let el = this.$el.querySelectorAll('.el-button')[1];
-        if (el)
-          el.id = 'popover-button-' + this.entry.id;
+        let buttons = this.$el.querySelectorAll('.el-button');
+        buttons.forEach( (item, index) => {
+          if (item.children){
+            if(item.children[0].innerText === 'View 3D scaffold'){
+              buttons[index].id = 'popover-button-' + this.entry.id;
+            }
+          }
+        })
       } 
     },
     setTooltipCoords(x, y){
