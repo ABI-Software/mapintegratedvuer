@@ -93,13 +93,6 @@ export default {
         this.tVisible = true;
       }
     },
-    addTooltipId: function(type){
-      if (type === 'MultiFlatmap'){
-        let el = this.$el.querySelectorAll('.el-button')[1];
-        if (el)
-          el.id = 'popover-button-' + this.entry.id;
-      } 
-    },
     setTooltipCoords(x, y){
       this.tooltipCoords.x = x;
       this.tooltipCoords.y = y;
