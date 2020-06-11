@@ -61,6 +61,16 @@ export default {
           this.startTutorial();
       }
     },
+    addIdToScaffold: function(element){
+      let buttons = element.querySelectorAll('.el-button');
+        buttons.forEach( (item, index) => {
+          if (item.children){
+            if(item.children[0].innerText === 'View 3D scaffold'){
+              buttons[index].id = 'popover-button-' + '1';
+            }
+          }
+      })
+    },
     startTutorial: function(){
       this.flow.resetApp()
       this.tour.start();
@@ -80,12 +90,10 @@ export default {
       if (currentStep === 4){
         let map = this.flow.$refs.dialogs[0].getVuerByReference("multiflatmap").getCurrentFlatmap();
         let heartId = map.mapImp.featureIdsForModel('UBERON:0000948')[0];
-        //this.flow.$refs.dialogs[0].$refs['content'].showTooltip({'resource':{'feature':{'id':heartId}}});
         this.flow.$refs.dialogs[0].getVuerByReference("popover").updateFromTerm("UBERON:0000948");
         const elm = this.flow.$refs.dialogs[0].getVuerByReference("popover").getTooltipContentElm();
-        this.flow.$refs.dialogs[0].getVuerByReference("multiflatmap").showPopup(heartId, elm,
-          {anchor: "bottom"});
-        this.flow.$refs.dialogs[0].$refs.content.addTooltipId('MultiFlatmap');
+        this.flow.$refs.dialogs[0].getVuerByReference("multiflatmap").showPopup(heartId, elm, {anchor: "bottom"});
+        this.addIdToScaffold(this.flow.$el);
       }
 
       // Step 4 brings up the heart scaffold

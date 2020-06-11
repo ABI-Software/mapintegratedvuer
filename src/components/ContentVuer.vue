@@ -93,18 +93,6 @@ export default {
         this.tVisible = true;
       }
     },
-    addTooltipId: function(type){
-      if (type === 'MultiFlatmap'){
-        let buttons = this.$el.querySelectorAll('.el-button');
-        buttons.forEach( (item, index) => {
-          if (item.children){
-            if(item.children[0].innerText === 'View 3D scaffold'){
-              buttons[index].id = 'popover-button-' + this.entry.id;
-            }
-          }
-        })
-      } 
-    },
     setTooltipCoords(x, y){
       this.tooltipCoords.x = x;
       this.tooltipCoords.y = y;
