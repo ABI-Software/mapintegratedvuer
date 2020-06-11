@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'mapicon-species';
-  src:  url('fonts/mapicon-species.eot?lf5val');
-  src:  url('fonts/mapicon-species.eot?lf5val#iefix') format('embedded-opentype'),
-    url('fonts/mapicon-species.ttf?lf5val') format('truetype'),
-    url('fonts/mapicon-species.woff?lf5val') format('woff'),
-    url('fonts/mapicon-species.svg?lf5val#mapicon-species') format('svg');
+  src:  url('fonts/mapicon-species.eot?h40clo');
+  src:  url('fonts/mapicon-species.eot?h40clo#iefix') format('embedded-opentype'),
+    url('fonts/mapicon-species.ttf?h40clo') format('truetype'),
+    url('fonts/mapicon-species.woff?h40clo') format('woff'),
+    url('fonts/mapicon-species.svg?h40clo#mapicon-species') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -13,7 +13,7 @@
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'mapicon-species' !important;
-  speak: none;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -25,6 +25,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-mapicon_cat:before {
+  content: "\e904";
+}
 .icon-mapicon_rat:before {
   content: "\e900";
 }

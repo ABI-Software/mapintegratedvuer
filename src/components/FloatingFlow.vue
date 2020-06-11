@@ -53,7 +53,7 @@ var initialState = function() {
           "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"},
           "Mouse":{taxo: "NCBITaxon:10090", iconClass:"icon-mapicon_mouse"},
           "Pig":{taxo: "NCBITaxon:9823", iconClass:"icon-mapicon_pig"},
-          "Cat":{taxo: "NCBITaxon:9685"},
+          "Cat":{taxo: "NCBITaxon:9685", iconClass:"icon-mapicon_cat"},
         },
         type: "MultiFlatmap",
         zIndex:1,
