@@ -10,25 +10,25 @@
       </div>
     </el-row>
     <el-row class="icon-group" >
-      <el-popover content="Help" placement="left"
+      <el-popover content="Help" placement="bottom-end"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
-        <el-button slot="reference" icon="el-icon-question" size="medium" type="text" @click="startTutorial"></el-button>
+        <el-button class="header-icon" slot="reference" icon="el-icon-question" size="medium" type="text" @click="startTutorial"></el-button>
       </el-popover>
-      <el-popover content="Toggle fullscreen" placement="left"
+      <el-popover content="Toggle fullscreen" placement="bottom-end"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showFullscreenIcon">
-        <el-button slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
+        <el-button class="header-icon" slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
       </el-popover>
-      <el-popover content="Maximize" placement="left"
+      <el-popover content="Maximize" placement="bottom-end"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button slot="reference" class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
       </el-popover>
-      <el-popover content="Minimize" placement="left"
+      <el-popover content="Minimize" placement="bottom-end"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <el-button slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
+        <el-button class="header-icon" slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
       </el-popover>
-      <el-popover content="Close" placement="left"
+      <el-popover content="Close" placement="bottbottom-endom"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <el-button slot="reference" icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
+        <el-button class="header-icon" slot="reference" icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
       </el-popover>
     </el-row>
   </div>
@@ -165,6 +165,7 @@ export default {
   -o-transform: rotate(90deg);
   -ms-transform: rotate(90deg);
   transform: rotate(90deg);
+  padding:10px;
 }
 
 .header:hover {
@@ -178,6 +179,10 @@ export default {
 >>> .header-popper {
   padding:9px 10px;
   min-width:100px;
+  word-break:keep-all;
+}
+.header-icon {
+  padding-right:10px;
 }
 
 </style>
