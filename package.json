@@ -18,7 +18,7 @@
     "build-static": "vue-cli-service build --dest test_html"
   },
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.19",
+    "@abi-software/flatmapvuer": "^0.1.20",
     "@abi-software/maptooltip": "^0.1.10",
     "@abi-software/scaffoldvuer": "^0.1.31",
     "@tehsurfer/plotvuer": "^0.2.17",

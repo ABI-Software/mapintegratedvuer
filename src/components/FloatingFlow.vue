@@ -6,7 +6,7 @@
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" 
         @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose" 
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
-        :showHelpIcon="true" @startTutorial="startTutorial"/>       
+        :showHelpIcon="true" @startHelp="startHelp"/>       
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
@@ -218,9 +218,10 @@ export default {
     flatmapChanged: function (){
       this.onFlowChange('flatmapChanged');
     },
-    startTutorial: function(){
+    startHelp: function(){
       this.onFlowChange('startTutorial');
     },
+    
     resetApp: function(){
       Object.assign(this.$data, initialState());
       var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
