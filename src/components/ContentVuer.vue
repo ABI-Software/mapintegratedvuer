@@ -119,9 +119,16 @@ export default {
       }
     },
     startHelp: function(id){
-      if (this.entry.id === id){
+      if (this.entry.id === id && this.isInHelp === undefined){
         this.helpMode = true;
+        window.addEventListener("mousedown", this.endHelp)
+        this.isInHelp = true;
       }
+    },
+    endHelp: function(){
+      window.removeEventListener("mousedown", this.endHelp)
+      this.helpMode = false;
+      setTimeout(()=>{this.isInHelp = undefined}, 200);
     }
   },
   data: function() {
