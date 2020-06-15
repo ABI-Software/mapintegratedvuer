@@ -241,17 +241,17 @@ function getRatData(term, label, dataset, scaffold, simulations) {
           data.title = "Vagus nerve";
         data.actions = [
           {
+            title: "Search for dataset",
+            label: "Vagus nerve",
+            resource: "https://sparc.science/data?type=dataset&q=vagus+nerve",
+            type: "URL"
+          },
+          {
             title: "View MRG fiber model",
             label: "Vagus nerve",
             resource: "https://models.physiomeproject.org/e/5f7",
             type: "URL"
           },
-          {
-            title: "Search for dataset",
-            label: "Vagus nerve",
-            resource: "https://sparc.science/data?type=dataset&q=vagus+nerve",
-            type: "URL"
-          }
         ];
         break;
       default:
