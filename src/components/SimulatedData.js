@@ -150,6 +150,12 @@ function getRatData(term, label, dataset, scaffold, simulations) {
             resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic+Scaffold/Colon/mouse_time/mouseColon_metadata.json",
             type: "Scaffold"
           },
+          {
+            title: "View enteric nervous system diagram",
+            label: "Colon",
+            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
+            type: "Iframe"
+          },
         ];
         break;
         case "UBERON:0001255":
@@ -221,15 +227,9 @@ function getRatData(term, label, dataset, scaffold, simulations) {
             type: "URL"
           },
           {
-            title: "View generic stomach scaffold",
-            label: "Stomach",
-            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/stomach_exploding/stomach_exploding_metadata.json",
-            type: "Scaffold"
-          },
-          {
             title: "View scaffold with fitted neurites",
             label: "Stomach",
-            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/ISAN/scaffold/stomach_lines/stomach_metadata.json",
+            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/new_stomach_neurites/stomach_neurites_metadata.json",
             type: "Scaffold"
           },
         ];
@@ -283,6 +283,12 @@ function getMouseData(term, label, dataset, scaffold, simulations) {
             resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic+Scaffold/Colon/mouse_time/mouseColon_metadata.json",
             type: "Scaffold"
           },
+          {
+            title: "View enteric nervous system diagram",
+            label: "Colon",
+            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
+            type: "Iframe"
+          },
         ];
         break;
       default:
@@ -313,6 +319,12 @@ function getPigData(term, label, dataset, scaffold, simulations) {
             label: "Colon",
             resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic+Scaffold/Colon/pig/pigColon_metadata.json",
             type: "Scaffold"
+          },
+          {
+            title: "View enteric nervous system diagram",
+            label: "Colon",
+            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
+            type: "Iframe"
           },
         ];
         break;
