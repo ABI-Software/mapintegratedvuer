@@ -5,17 +5,17 @@
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies" 
         @flatmapChanged="flatmapChanged" @ready="flatmapReady"
         @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
-        style="height:100%;width:100%;" :initial="entry.resource" 
+        style="height:100%;width:100%;" :initial="entry.resource" :helpMode="helpMode"
         ref="multiflatmap"/>
       <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :entry="entry.resource" 
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
-        style="height:100%;width:100%;" :minZoom="entry.minZoom" 
+        style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
         :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady"/>
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
-        :backgroundToggle=true :traditional=true />
+        :backgroundToggle=true :traditional=true :helpMode="helpMode"/>
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
-      :plotType="entry.plotType" style="height: 200px"></PlotVuer>
+      :plotType="entry.plotType" :helpMode="helpMode" style="height: 200px"></PlotVuer>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
       <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('MultiFlatmap')) || 
         (entry.type === ('Scaffold'))"
@@ -30,6 +30,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import EventBus from './EventBus';
 import MapPopover from './MapPopover';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
@@ -116,6 +117,18 @@ export default {
       for (let i = 0; i < terms.length; i++) {
         map.addMarker(terms[i].id, terms[i].type);
       }
+    },
+    startHelp: function(id){
+      if (this.entry.id === id && this.isInHelp === undefined){
+        this.helpMode = true;
+        window.addEventListener("mousedown", this.endHelp)
+        this.isInHelp = true;
+      }
+    },
+    endHelp: function(){
+      window.removeEventListener("mousedown", this.endHelp)
+      this.helpMode = false;
+      setTimeout(()=>{this.isInHelp = undefined}, 200);
     }
   },
   data: function() {
@@ -129,7 +142,8 @@ export default {
         height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",
         width: "100%",
         bottom: "0px",
-      }
+      },
+      helpMode: false
     }
   },
   mounted: function() {
@@ -138,6 +152,9 @@ export default {
       this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
       document.querySelectorAll('.el-checkbox-group')[0].id = 'scaffold-checkbox-group-' + this.entry.id;
     }
+    EventBus.$on("startHelp", (id) => {
+      this.startHelp(id);
+    })
   },
 };
 </script>

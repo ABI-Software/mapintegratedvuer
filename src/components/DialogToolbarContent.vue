@@ -12,7 +12,7 @@
     <el-row class="icon-group" >
       <el-popover content="Help" placement="bottom-end"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
-        <el-button class="header-icon" slot="reference" icon="el-icon-question" size="medium" type="text" @click="startTutorial"></el-button>
+        <el-button class="header-icon" slot="reference" icon="el-icon-question" size="medium" type="text" @click="startHelp(activeId)"></el-button>
       </el-popover>
       <el-popover content="Toggle fullscreen" placement="bottom-end"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showFullscreenIcon">
@@ -38,6 +38,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
+import EventBus from './EventBus';
 import {
   Button,
   Icon,
@@ -79,15 +80,15 @@ export default {
     },
     showHelpIcon: {
       type: Boolean,
-      default: false
+      default: true
     },
   },
   methods: {
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
-    startTutorial: function(){
-      this.$emit("startTutorial")
+    startHelp: function(id){
+      EventBus.$emit("startHelp", id);
     },
     onFullscreen: function() {
       this.$emit("onFullscreen");

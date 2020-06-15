@@ -6,7 +6,7 @@
       <el-header v-if="entry.mode==='normal'" style="text-align: left; font-size: 14px;padding:0" 
         height="40px" class="dialog-header">
         <DialogToolbarContent :dialogTitles="[indexTitle]"  @maximise="onMaximise" @minimise="onMinimise" 
-          @close="onClose"/>         
+          @close="onClose" :activeId="index"/>         
       </el-header>
       <el-main class="dialog-main" :style="mainStyle">
         <ContentVuer :entry="entry" ref="content" @resource-selected="resourceSelected"
