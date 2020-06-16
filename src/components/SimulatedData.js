@@ -386,29 +386,29 @@ export function simulatedData(term, taxonomy, label, dataset, scaffold, simulati
 
 function getHumanTerms() {
   return [
-    {id: "UBERON:0001157", type:"default"},
+    {id: "UBERON:0001157", type:"simulation"},
   ];
 }
 
 function getMouseTerms() {
-  return [{id: "UBERON:0001156", type:"default"},
-    {id: "UBERON:0002108", type:"default"},];
+  return [{id: "UBERON:0001156", type:"simulation"},
+    {id: "UBERON:0002108", type:"simulation"},];
 }
 
 function getPigTerms() {
-  return [{id: "UBERON:0008972", type:"default"},
-    {id: "UBERON:0002108", type:"default"},];
+  return [{id: "UBERON:0008972", type:"simulation"},
+    {id: "UBERON:0002108", type:"simulation"},];
 }
 
 function getRatTerms() {
   return [
-    {id: "UBERON:0000948", type:"default"},
-    {id: "UBERON:0001156", type:"default"},
-    {id: "UBERON:0001255", type:"default"},
-    {id: "UBERON:0000945", type:"default"},
-    {id: "UBERON:0001759", type:"default"},
-    {id: "UBERON:0002108", type:"default"},
-    {id: "UBERON:0002048", type:"default"},
+    {id: "UBERON:0000948", type:"simulation"},
+    {id: "UBERON:0001156", type:"simulation"},
+    {id: "UBERON:0001255", type:"simulation"},
+    {id: "UBERON:0000945", type:"simulation"},
+    {id: "UBERON:0001759", type:"simulation"},
+    {id: "UBERON:0002108", type:"simulation"},
+    {id: "UBERON:0002048", type:"simulation"},
   ];
 }
 
