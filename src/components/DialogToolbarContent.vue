@@ -180,8 +180,16 @@ export default {
 >>> .header-popper {
   padding:9px 10px;
   min-width:100px;
+  font-size:12px;
+  color: #fff;
+  background-color: #8300bf;  
   word-break:keep-all;
 }
+
+>>> .header-popper .popper__arrow::after{
+  border-bottom-color: #8300bf !important;
+}
+
 .header-icon {
   padding-right:10px;
 }
