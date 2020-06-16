@@ -18,11 +18,11 @@
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showFullscreenIcon">
         <el-button class="header-icon" slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
       </el-popover>
-      <el-popover content="Maximize" placement="bottom-end"
+      <el-popover content="Resize" placement="bottom-end"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button slot="reference" class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
       </el-popover>
-      <el-popover content="Minimize" placement="bottom-end"
+      <el-popover content="Dock" placement="bottom-end"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button class="header-icon" slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
       </el-popover>
