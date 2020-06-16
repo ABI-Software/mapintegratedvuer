@@ -35,7 +35,7 @@ export default {
      */
     checkForFirstTimeVisitor(){
       var hasVisted = localStorage.getItem('hasVisitedMaps')
-      if (hasVisted === null || hasVisted === false || hasVisted){
+      if (hasVisted === null || hasVisted === false){
           localStorage.setItem('hasVisitedMaps', true);
           this.startTutorial();
       }
