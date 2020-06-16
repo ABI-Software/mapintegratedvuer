@@ -144,7 +144,7 @@ export default {
       if ((index > -1) && (this.findIndexOfDockedArray(id) == -1)) {
         let title = this.entries[index].type;
         if (this.entries[index].label)
-          title = this.entries[index].label + " (" + this.entries[index].type + ")";
+          title = this.entries[index].label + " " +this.entries[index].type;
         this.dockedArray.push({title: title, id:this.entries[index].id});
       }
     },

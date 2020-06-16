@@ -131,7 +131,7 @@ export default {
     if (this.entry.mode === "main")
       this.className = "parent-dialog-full";
     if (this.entry.label)
-      this.indexTitle.title = this.entry.label + " (" + this.entry.type + ")";
+      this.indexTitle.title = this.entry.label + " " + this.entry.type;
   },
   watch: {
     "entry.zIndex": function() {
