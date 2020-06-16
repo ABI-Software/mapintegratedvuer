@@ -168,6 +168,7 @@ export default {
 }
 .dialog-main {
   padding:0px;
+  height:100%;
 }
 .parent-dialog {
   border: solid 1px #dcdfe6;
