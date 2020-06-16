@@ -79,6 +79,38 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
   return data;
 }
 
+
+function getHumanData(term, label, dataset, scaffold, simulations) {
+  if (term || label) {
+    let data = {};
+    switch (term) {
+      case "UBERON:0001157":
+        data.title = "Colon";
+        data.description = "";
+        data.actions = [
+          {
+            title: "Search for dataset",
+            label: "Colon",
+            resource: "https://sparc.science/data?type=dataset&q=colon",
+            type: "URL"
+          },
+          {
+            title: "View 3D scaffold",
+            label: "Colon",
+            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic+Scaffold/Colon/human/humanColon_metadata.json",
+            type: "Scaffold"
+          },
+        ];
+        break;
+      default:
+        data = getGenericMarkerInfo(term, label, dataset, scaffold, simulations);
+        break;
+    }
+    return data;
+  }
+  return undefined;
+}
+
 function getRatData(term, label, dataset, scaffold, simulations) {
   if (term || label) {
     let data = {};
@@ -150,16 +182,28 @@ function getRatData(term, label, dataset, scaffold, simulations) {
             resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic+Scaffold/Colon/mouse_time/mouseColon_metadata.json",
             type: "Scaffold"
           },
-          {
-            title: "View enteric nervous system diagram",
-            label: "Colon",
-            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
-            type: "Iframe"
-          },
         ];
         break;
+        case "UBERON:0002108":
+          data.title = "Small intestines";
+          data.description = "";
+          data.actions = [
+            {
+              title: "Search for dataset",
+              label: "Colon",
+              resource: "https://sparc.science/data?type=dataset&q=small+intestines",
+              type: "URL"
+            },
+            {
+              title: "View enteric nervous system diagram",
+              label: "Colon",
+              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
+              type: "Iframe"
+            },
+          ];
+          break;
         case "UBERON:0001255":
-          data.title = "Urinary Bladder";
+          data.title = "Urinary bladder";
           data.description = "";
           data.actions = [
             {
@@ -283,14 +327,26 @@ function getMouseData(term, label, dataset, scaffold, simulations) {
             resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic+Scaffold/Colon/mouse_time/mouseColon_metadata.json",
             type: "Scaffold"
           },
-          {
-            title: "View enteric nervous system diagram",
-            label: "Colon",
-            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
-            type: "Iframe"
-          },
         ];
         break;
+        case "UBERON:0002108":
+          data.title = "Small intestines";
+          data.description = "";
+          data.actions = [
+            {
+              title: "Search for dataset",
+              label: "Colon",
+              resource: "https://sparc.science/data?type=dataset&q=small+intestines",
+              type: "URL"
+            },
+            {
+              title: "View enteric nervous system diagram",
+              label: "Colon",
+              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
+              type: "Iframe"
+            },
+          ];
+          break;
       default:
         data = getGenericMarkerInfo(term, label, dataset, scaffold, simulations);
         break;
@@ -304,7 +360,7 @@ function getPigData(term, label, dataset, scaffold, simulations) {
   if (term || label) {
     let data = {};
     switch (term) {
-      case "UBERON:0001156":
+      case "UBERON:0008972":
         data.title = "Colon";
         data.description = "";
         data.actions = [
@@ -320,14 +376,26 @@ function getPigData(term, label, dataset, scaffold, simulations) {
             resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic+Scaffold/Colon/pig/pigColon_metadata.json",
             type: "Scaffold"
           },
-          {
-            title: "View enteric nervous system diagram",
-            label: "Colon",
-            resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
-            type: "Iframe"
-          },
         ];
         break;
+        case "UBERON:0002108":
+          data.title = "Small intestines";
+          data.description = "";
+          data.actions = [
+            {
+              title: "Search for dataset",
+              label: "Colon",
+              resource: "https://sparc.science/data?type=dataset&q=small+intestines",
+              type: "URL"
+            },
+            {
+              title: "View enteric nervous system diagram",
+              label: "Colon",
+              resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/misc/img/enteric_nervous_system.png",
+              type: "Iframe"
+            },
+          ];
+          break;
       default:
         data = getGenericMarkerInfo(term, label, dataset, scaffold, simulations);
         break;
@@ -339,22 +407,33 @@ function getPigData(term, label, dataset, scaffold, simulations) {
 
 export function simulatedData(term, taxonomy, label, dataset, scaffold, simulations) {
   switch (taxonomy) {
+    case "NCBITaxon:9606":
+        return getHumanData(term, label, dataset, scaffold, simulations);
+    case "NCBITaxon:9823":
+        return getPigData(term, label, dataset, scaffold, simulations);
     case "NCBITaxon:10090":
       return getMouseData(term, label, dataset, scaffold, simulations);
-    case "NCBITaxon:9823":
-      return getPigData(term, label, dataset, scaffold, simulations);
     case "NCBITaxon:10114":
-    default:
       return getRatData(term, label, dataset, scaffold, simulations);
+    default:
+      return undefined;
   }
 }
 
+function getHumanTerms() {
+  return [
+    {id: "UBERON:0001157", type:"default"},
+  ];
+}
+
 function getMouseTerms() {
-  return [{id: "UBERON:0001156", type:"default"}];
+  return [{id: "UBERON:0001156", type:"default"},
+    {id: "UBERON:0002108", type:"default"},];
 }
 
 function getPigTerms() {
-  return [{id: "UBERON:0001156", type:"default"}];
+  return [{id: "UBERON:0008972", type:"default"},
+    {id: "UBERON:0002108", type:"default"},];
 }
 
 function getRatTerms() {
@@ -364,16 +443,19 @@ function getRatTerms() {
     {id: "UBERON:0001255", type:"default"},
     {id: "UBERON:0000945", type:"default"},
     {id: "UBERON:0001759", type:"default"},
+    {id: "UBERON:0002108", type:"default"},
     {id: "UBERON:0002048", type:"default"},
   ];
 }
 
 export function getAvailableTermsForSpecies(taxonomy) {
   switch (taxonomy) {
+    case "NCBITaxon:9606":
+      return getHumanTerms();
+      case "NCBITaxon:9823":
+        return getPigTerms();
     case "NCBITaxon:10090":
       return getMouseTerms();
-    case "NCBITaxon:9823":
-      return getPigTerms();
     case "NCBITaxon:10114":
       return getRatTerms();
     default:
