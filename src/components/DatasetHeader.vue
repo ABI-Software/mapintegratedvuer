@@ -3,8 +3,8 @@
     <div @click="openCard($event)" class="dataset-link">
       <el-link class="dataset-title">
         {{entry.datasetTitle}}
-        <i v-show="!cardDisplayed" class="el-icon-arrow-down el-icon--right"></i>
-        <i v-show="cardDisplayed" class="el-icon-arrow-up el-icon--right"></i>
+        <i v-show="!cardDisplayed && (entry.datasetImage || entry.datasetDescription)" class="el-icon-arrow-down el-icon--right"></i>
+        <i v-show="cardDisplayed && (entry.datasetImage || entry.datasetDescription)" class="el-icon-arrow-up el-icon--right"></i>
       </el-link>
       <el-card v-show="cardDisplayed" :body-style="{ padding: '0px' }" class="dataset-card" ref="card">
         <img :src="entry.datasetImage" class="image"/>
