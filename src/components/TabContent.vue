@@ -32,13 +32,10 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import '@abi-software/flatmapvuer';
-import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import '@abi-software/scaffoldvuer';
-import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
 import '@tehsurfer/plotvuer'
-import '@tehsurfer/plotvuer/dist/plotvuer.css'
 import { Splitpanes, Pane } from 'splitpanes';
-import 'splitpanes/dist/splitpanes.css';
+
 import Vue from "vue";
 import {
   Button,
@@ -46,7 +43,6 @@ import {
   Dialog,
   Icon
 } from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 locale.use(lang);
@@ -127,4 +123,20 @@ export default {
   top:1%;
   right:1%;
 }
+</style>
+<style scoped src="@abi-software/flatmapvuer/dist/flatmapvuer.css">
+</style>
+<style scoped src="@abi-software/scaffoldvuer/dist/scaffoldvuer.css">
+</style>
+<style scoped src="@tehsurfer/plotvuer/dist/plotvuer.css">
+</style>
+<style scoped src='splitpanes/dist/splitpanes.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/button.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/button-group.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/dialog.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/icon.css'>
 </style>
