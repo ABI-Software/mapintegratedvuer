@@ -1,6 +1,15 @@
 {
   "name": "@abi-software/mapintegratedvuer",
   "version": "0.1.19",
+  "scripts": {
+    "serve": "vue-cli-service serve --port 8081",
+    "build": "vue-cli-service build --mode prod",
+    "test-unit": "mochapack --webpack-config test/unit/webpack.config.js --require test/unit/setup.js test/unit/**/*.spec.js",
+    "lint": "vue-cli-service lint",
+    "build-bundle": "vue-cli-service build --target lib --name mapintegratedvuer ./src/components/index.js",
+    "build-static": "vue-cli-service build --dest test_html",
+    "start": "vue-cli-service serve"
+  },
   "main": "./dist/mapintegratedvuer.common.js",
   "files": [
     "dist/*",
@@ -9,14 +18,6 @@
     "*.json",
     "*.js"
   ],
-  "scripts": {
-    "serve": "vue-cli-service serve --port 8081",
-    "start": "vue-cli-service serve",
-    "build": "vue-cli-service build --mode prod",
-    "build-bundle": "vue-cli-service build --target lib --name mapintegratedvuer ./src/components/index.js",
-    "lint": "vue-cli-service lint",
-    "build-static": "vue-cli-service build --dest test_html"
-  },
   "dependencies": {
     "@abi-software/flatmapvuer": "^0.1.22",
     "@abi-software/maptooltip": "^0.1.10",
@@ -35,14 +36,26 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.0.0",
     "@vue/cli-plugin-eslint": "^4.0.0",
+    "@vue/cli-plugin-unit-mocha": "^4.4.4",
     "@vue/cli-service": "^4.0.0",
+    "@vue/test-utils": "^1.0.3",
     "babel-eslint": "^10.0.3",
     "babel-plugin-component": "^1.1.1",
+    "canvas": "^2.6.1",
+    "chai": "^4.1.2",
+    "dom-parser": "^0.1.6",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "file-loader": "^5.1.0",
+    "jsdom": "^16.2.2",
+    "jsdom-global": "^3.0.2",
+    "mocha": "^8.0.1",
+    "mochapack": "^2.0.0",
+    "node-loader": "^0.6.0",
     "raw-loader": "^0.5.1",
-    "vue-template-compiler": "^2.6.10"
+    "resolve-url-loader": "^3.1.1",
+    "vue-template-compiler": "^2.6.10",
+    "webpack-node-externals": "^1.7.2"
   },
   "eslintConfig": {
     "root": true,
@@ -56,7 +69,18 @@
     "rules": {},
     "parserOptions": {
       "parser": "babel-eslint"
-    }
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "mocha": true
+        }
+      }
+    ]
   },
   "postcss": {
     "plugins": {
