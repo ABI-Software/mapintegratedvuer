@@ -10,23 +10,23 @@
       </div>
     </el-row>
     <el-row class="icon-group" >
-      <el-popover content="Help" placement="bottom-end"
+      <el-popover content="Help" placement="bottom-end" open-delay="500"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
         <el-button class="header-icon" slot="reference" icon="el-icon-question" size="medium" type="text" @click="startHelp(activeId)"></el-button>
       </el-popover>
-      <el-popover content="Toggle fullscreen" placement="bottom-end"
+      <el-popover content="Toggle fullscreen" placement="bottom-end" open-delay="500"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showFullscreenIcon">
         <el-button class="header-icon" slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
       </el-popover>
-      <el-popover content="Resize" placement="bottom-end"
+      <el-popover content="Resize" placement="bottom-end" open-delay="500"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button slot="reference" class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
       </el-popover>
-      <el-popover content="Dock" placement="bottom-end"
+      <el-popover content="Dock" placement="bottom-end" open-delay="500"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button class="header-icon" slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
       </el-popover>
-      <el-popover content="Close" placement="bottbottom-endom"
+      <el-popover content="Close" placement="bottbottom-endom" open-delay="500"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button class="header-icon" slot="reference" icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
       </el-popover>
