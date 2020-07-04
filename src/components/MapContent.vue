@@ -1,5 +1,5 @@
 <template>
-    <div style="height: 100%;width:100%;z-index:1" ref="MapApp">
+    <div class="mapcontent" ref="MapApp">
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
       <tutorial :parentRefs="this.$refs"></tutorial>
     </div>
@@ -8,8 +8,8 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
-import Tutorial from './Tutorial.vue'
-import '../../assets/mapicon-species-style.css'
+import Tutorial from './Tutorial.vue';
+import '../../assets/mapicon-species-style.css';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -73,4 +73,12 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.mapcontent {
+  height: 100%;
+  width:100%;
+  z-index:1;
+}
+</style>
 
