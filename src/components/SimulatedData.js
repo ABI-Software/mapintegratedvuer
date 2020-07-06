@@ -189,7 +189,7 @@ function getRatData(term, label, dataset, scaffold, simulations) {
             type: "URL"
           },
           {
-            title: "View scaffold with fitted neurites",
+            title: "View 3D scaffold",
             label: "Stomach",
             resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/rat_stomach/new_stomach_neurites/stomach_neurites_metadata.json",
             type: "Scaffold"
