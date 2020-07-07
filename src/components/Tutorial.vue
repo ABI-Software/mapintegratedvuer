@@ -4,7 +4,7 @@
     <div id='pathway' class="pathway-invis"></div>
     <div id='icn' class="icn-invis"></div>
     <div id='rna' class="rna-invis"></div>
-    <v-tour ref='tour'  name="onboarding-tour" :steps="steps" :callbacks="tourCallbacks" :options="options">
+    <v-tour ref='tour'  name="onboarding-tour" :steps="steps" :options="options">
     </v-tour>
 
   </div>
