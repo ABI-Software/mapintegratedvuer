@@ -2,13 +2,15 @@
     <div style="height: 100%;width:100%;z-index:1" ref="MapApp">
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
       <tutorial :parentRefs="this.$refs"></tutorial>
+      <ContextHelp class="map-help-dialog"></ContextHelp>
     </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
-import Tutorial from './Tutorial.vue'
+import Tutorial from './Tutorial.vue';
+import ContextHelp from './ContextHelp'
 import '../../assets/mapicon-species-style.css'
 
 /**
@@ -18,7 +20,8 @@ export default {
   name: "MapContent",
   components: {
     FloatingFlow,
-    Tutorial
+    Tutorial, 
+    ContextHelp
   },
   methods: {
     isFullscreen: function(){
@@ -74,3 +77,11 @@ export default {
 };
 </script>
 
+<style scoped>
+.map-help-dialog{
+  position: fixed;
+  z-index: 20;
+  bottom: 30px;
+  right: 30px;
+}
+</style>
