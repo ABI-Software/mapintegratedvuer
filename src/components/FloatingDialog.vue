@@ -43,7 +43,6 @@ Vue.use(Container);
 Vue.use(Header);
 Vue.use(Icon);
 Vue.use(Main);
-import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
 /**
  * Vue component of the floating dialog.
@@ -245,4 +244,6 @@ export default {
   cursor: se-resize;
 }
 
+</style>
+<style scoped src="vue-draggable-resizable/dist/VueDraggableResizable.css">
 </style>

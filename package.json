@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.19",
+  "version": "0.1.24",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
@@ -19,10 +19,10 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.22",
+    "@abi-software/flatmapvuer": "^0.1.26",
     "@abi-software/maptooltip": "^0.1.10",
-    "@abi-software/scaffoldvuer": "^0.1.36",
-    "@tehsurfer/plotvuer": "^0.2.19",
+    "@abi-software/scaffoldvuer": "^0.1.38",
+    "@tehsurfer/plotvuer": "^0.2.21",
     "@tehsurfer/vue-tour": "^1.3.4",
     "core-js": "^3.3.2",
     "element-ui": "^2.13.0",

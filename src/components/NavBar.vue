@@ -55,7 +55,6 @@
 import NavDropDownItem from './NavDropDownItem'
 import Vue from "vue";
 import { Menu, MenuItem, Submenu, Row, Col} from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 import exploreDatasetImage from "../../assets/exploreDataset-192px.png"
@@ -128,4 +127,14 @@ export default {
 .el-submenu__title:hover{
   color: var(--vibrant-purple) !important; 
 }
+</style>
+<style scoped src='element-ui/lib/theme-chalk/menu.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/menu-item.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/submenu.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/row.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/col.css'>
 </style>
