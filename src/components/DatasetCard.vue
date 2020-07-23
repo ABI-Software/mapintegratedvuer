@@ -1,14 +1,17 @@
 <template>
-  <div class="content-container">
-    <el-card class="box-card">
-      <div slot="header" class="header">
-        <el-input placeholder="Search" v-model="searchInput" @keyup.native="searchSciCrunch" clearable></el-input>
-        <el-button @click="searchSciCrunch">Search</el-button>
+  <div class="dataset-card-container">
+    <div class="dataset-card">
+      <div class="seperator-path"></div>
+      <div class="card">
+        <span class="card-left">
+          
+          <div class="title">{{entry.description}}</div>
+        </span>
+        <span class="card-right">
+          <img class="banner-img" src="../.././assets/example-banner.jpg"/>
+        </span>
       </div>
-      <div class="content">
-      <div v-for="o in steps" :key="o" class="step-item">{{o.description}}</div>
-      </div>
-    </el-card>
+    </div>
   </div>
 </template>
 
@@ -29,72 +32,57 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Input);
 
-var api_location = 'http://localhost:8089/search/'
-
-
 export default {
-  name: "DatasetCard",
+  name: "SideBar",
   props: {
     /**
      * Object containing information for
      * the required viewing.
      */
-    entry: Object
+    entry: Object,
   },
-  data: function() { 
-    return  {
-      searchInput: '',
-      steps: [{description: '1. Start off by selecting a point on the scaffold with data'},
-      {description: '2. Try opening up the scaffoldvuer by clicking "View Scaffold"'},
-      {description: '3. This window is the scaffold viewer. Use click and drag with mouse to rotate the model'},
-      {description: '4. Find a point with data on the scaffold'},
-      {description: '5. Click on the point to bring up a dailogue of options with the data'},
-      {description: '6. Try viewing the data by clicking "View Plot"'},
-      {description: '7. Explore the data in the pop up plot'},
-      ]
-    }
+  data: function () {
+    return {};
   },
-  methods: {
-      searchSciCrunch: function(event = false){
-        if (event.keyCode === 13 || event instanceof MouseEvent){
-          this.callSciCrunch()
-        }
-      },
-      callSciCrunch: function(){
-        fetch(api_location + this.searchInput)
-            .then(response => response.json())
-            .then(data => {
-              this.steps = []
-              data.forEach(element => {
-                this.steps.push({'description': element.name})
-              });
-            });
-      }
-      
-  }
+  methods: {},
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.step-item {
-  font-size: 14px;
-  margin-bottom: 18px;
-  text-align: left;
+.dataset-card {
+  height: 257px;
+  padding-left: 16px;
 }
-
-.header{
-  height: 20px;
+.seperator-path {
+  width: 486px;
+  height: 0px;
+  border: solid 1px var(--pale-grey);
+  background-color: var(--pale-grey);
 }
-
-.box-card {
-  width: 280px;
-  height: 280px;
-  overflow: auto;
+.title {
+  width: 338px;
+  height: 36px;
+  font-family: Arial;
+  font-size: 16px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: 1.2px;
+  color: #484848;
 }
-
-.active {
-    width: 380px !important;
-    height: 380px !important;
+.card{
+  padding-top: 22px;
+}
+.card-right{
+  padding-left: 374px;
+  padding-top: 22px;
+}
+.banner-img{
+  width: 128px;
+  height: 128px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+  background-color: #ffffff;
 }
 </style>

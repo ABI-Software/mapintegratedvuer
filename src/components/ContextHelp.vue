@@ -9,7 +9,6 @@
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
       <div class="content">
-        <DatasetCard></DatasetCard>
       <div v-for="o in steps" :key="o" class="step-item">{{o.description}}</div>
       </div>
     </el-card>
@@ -23,7 +22,6 @@ import { Link, Icon, Card, Button, Select } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
-import DatasetCard from './DatasetCard'
 
 locale.use(lang);
 Vue.use(Link);
@@ -34,7 +32,6 @@ Vue.use(Select);
 
 export default {
   name: "ContextHelp",
-  components: { DatasetCard },
   props: {
     /**
      * Object containing information for

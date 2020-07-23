@@ -2,6 +2,7 @@
     <div style="height: 100%;width:100%;z-index:1" ref="MapApp">
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
       <tutorial :parentRefs="this.$refs"></tutorial>
+      <SideBar class="map-help-dialog"></SideBar>
       <ContextHelp class="map-help-dialog"></ContextHelp>
     </div>
 </template>
@@ -11,6 +12,7 @@
 import FloatingFlow from './FloatingFlow';
 import Tutorial from './Tutorial.vue';
 import ContextHelp from './ContextHelp'
+import SideBar from './SideBar'
 import '../../assets/mapicon-species-style.css'
 
 /**
@@ -21,7 +23,8 @@ export default {
   components: {
     FloatingFlow,
     Tutorial, 
-    ContextHelp
+    ContextHelp,
+    SideBar
   },
   methods: {
     isFullscreen: function(){
@@ -82,6 +85,12 @@ export default {
   position: fixed;
   z-index: 20;
   bottom: 30px;
+  right: 30px;
+}
+.sidebarg{
+  position: fixed;
+  z-index: 10;
+  bottom: 0px;
   right: 30px;
 }
 </style>
