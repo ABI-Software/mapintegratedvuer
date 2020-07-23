@@ -9,6 +9,7 @@
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
       <div class="content">
+        <DatasetCard></DatasetCard>
       <div v-for="o in steps" :key="o" class="step-item">{{o.description}}</div>
       </div>
     </el-card>
@@ -22,6 +23,7 @@ import { Link, Icon, Card, Button, Select } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
+import DatasetCard from './DatasetCard'
 
 locale.use(lang);
 Vue.use(Link);
@@ -32,6 +34,7 @@ Vue.use(Select);
 
 export default {
   name: "ContextHelp",
+  components: { DatasetCard },
   props: {
     /**
      * Object containing information for
@@ -43,20 +46,15 @@ export default {
     return  {
       isActive: false,
       showHelp: true,
-      steps: [{description: '1. Start off by selecting a point on the scaffold with data'},
-      {description: '2. Try opening up the scaffoldvuer by clicking "View Scaffold"'},
-      {description: '3. This window is the scaffold viewer. Use click and drag with mouse to rotate the model'},
-      {description: '4. Find a point with data on the scaffold'},
-      {description: '5. Click on the point to bring up a dailogue of options with the data'},
-      {description: '6. Try viewing the data by clicking "View Plot"'},
-      {description: '7. Explore the data in the pop up plot'},
+      steps: [
       ]
     }
   },
   methods: {
       close: function(){
         this.showHelp = false
-      }
+      },
+
   }
 };
 </script>
