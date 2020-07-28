@@ -4,11 +4,15 @@
       <div class="seperator-path"></div>
       <div class="card">
         <span class="card-left">
-          
           <div class="title">{{entry.description}}</div>
+          <div class="details">{{entry.contributors[0].name}}; {{entry.contributors[1].name}}</div>
+          <div class="details">{{entry.numberSamples}} samples</div>
+          <div class="details"><template v-for="(sex, i) in entry.sexes"><template v-if="i !== 0">, </template>{{sex}}</template></div>
+          <div v-if="entry.age" class="details">{{entry.age}}</div>
+          <div class="details">Last updated: {{entry.updated}}</div>
         </span>
         <span class="card-right">
-          <img class="banner-img" src="../.././assets/example-banner.jpg"/>
+          <img class="banner-img" src="../.././assets/example-banner.jpg" />
         </span>
       </div>
     </div>
@@ -62,8 +66,8 @@ export default {
 }
 .title {
   width: 338px;
-  height: 36px;
-  font-family: Arial;
+  height: 72px;
+  font-family: Asap;
   font-size: 16px;
   font-weight: bold;
   font-stretch: normal;
@@ -72,17 +76,33 @@ export default {
   letter-spacing: 1.2px;
   color: #484848;
 }
-.card{
+.card {
   padding-top: 22px;
+  display: flex;
 }
-.card-right{
-  padding-left: 374px;
-  padding-top: 22px;
+.card-left{
+  flex: 1;
 }
-.banner-img{
+.card-right {
+  flex: 1;
+  padding-left: 6px;
+}
+.banner-img {
   width: 128px;
   height: 128px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   background-color: #ffffff;
+}
+.details{
+  width: 338px;
+  height: 16px;
+  font-family: Asap;
+  font-size: 14px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: 1.05px;
+  color: #484848;
 }
 </style>

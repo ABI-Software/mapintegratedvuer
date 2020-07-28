@@ -12,8 +12,25 @@
         <el-button @click="searchSciCrunch">Search</el-button>
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
-
+      <div class="filters">Filters will go here!
+        <div class="search-feedback">
+        <span v-if="results.length > 0" class="dataset-results-feedback">{{results.length}} Datasets for '{{searchInput}}' | Showing </span>
+        <span v-if="results.length > 0"> 
+          <el-select class="number-shown-select" v-model="value" placeholder="10">
+             <el-option
+            v-for="item in numberDatasetsShown"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+           </el-select>
+        </span>
+        </div>
+         
+      </div>
       <div class="content">
+        <span v-if="results.length > 0" class="dataset-table-title">Title</span>
+        <span v-if="results.length > 0" class="dataset-table-title">Image</span>
           <div v-for="o in results" :key="o.id" class="step-item">
             <DatasetCard :entry="o"></DatasetCard>
           </div>
@@ -55,6 +72,8 @@ export default {
   data: function () {
     return {
       searchInput: "",
+      numberDatasetsShown: ['10', '20'],
+      defaultSelect: "10",
       results: [],
       sideBarOpen: true
     };
@@ -74,9 +93,17 @@ export default {
         .then((data) => {
           this.results = [];
           let id = 0;
+          
+          
           data.forEach((element) => {
+            console.log(element)
             this.results.push({ 
               description: element.name,
+              contributors: element.contributors,
+              numberSamples: Array.isArray(element.sample) ? element.sample.length : 1,
+              sexes: [...new Set(element.attributes.map((v) => v.sex.value))],
+              age: 'ageCategory' in element.attributes[0] ? element.attributes[0].ageCategory.value : undefined,
+              updated: element.updated[0].timestamp.split('T')[0],
               id: id
             });
             id++;
@@ -115,9 +142,70 @@ export default {
   text-align: left;
 }
 
+.filters{
+  height: 190px;
+}
+
+.search-feedback{
+  text-align: left;
+}
+
+
+>>> .el-select.number-shown-select {
+  width: 68px;
+  height: 26px;
+}
+.dataset-results-feedback{
+  width: 215px;
+  height: 16px;
+  font-family: Asap;
+  font-size: 14px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #292b66;
+}
+
+.dataset-table-title{
+  width: 28px;
+  height: 16px;
+  font-family: Asap;
+  text-align: left !important;
+  padding-left: 16px;
+  padding-right: 70px;
+  font-size: 14px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: var(--slate-grey);
+}
+
+.image-table-title{
+  width: 39px;
+  height: 16px;
+  padding-left: 50px;
+  font-family: Asap;
+  font-size: 14px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: var(--slate-grey);
+}
+
+
 >>> .el-card__header {
   background-color: #292b66;
   border: solid 1px #292b66;
+}
+
+>>> .el-card__body{
+ background-color: #F7FAFF; 
 }
 .el-icon-close {
   font-size: 32px;
@@ -133,12 +221,11 @@ export default {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
   border: solid 1px var(--pale-grey);
   background-color: #ffffff;
-  padding-top: 40px;
+  padding-top: 18px;
 }
 
 .box-card {
-  width: 560px;
-  height: 866px;
+  height: 60rem;
   overflow: auto;
 }
 
