@@ -1,6 +1,6 @@
 <template>
   <div class="dataset-card-container">
-    <div class="dataset-card">
+    <div class="dataset-card" @click="cardClicked">
       <div class="seperator-path"></div>
       <div class="card">
         <span class="card-left">
@@ -48,7 +48,11 @@ export default {
   data: function () {
     return {};
   },
-  methods: {},
+  methods: {
+    cardClicked: function(){
+      window.open(this.entry.url,'_blank');
+    }
+  },
 };
 </script>
 
@@ -57,6 +61,7 @@ export default {
 .dataset-card {
   height: 257px;
   padding-left: 16px;
+  cursor: pointer;
 }
 .seperator-path {
   width: 486px;

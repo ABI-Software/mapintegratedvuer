@@ -74,7 +74,9 @@ export default {
   },
   watch: {
     search: function(val){
+      console.log('search change found')
       this.searchInput = val;
+      this.lastSearch = val;
     }
   },
   methods: {
@@ -83,14 +85,15 @@ export default {
     },
     open: function(){
       this.drawerOpen = true
+      this.callSciCrunch()
     },
     searchSciCrunch: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
-        this.lastSearch = this.searchInput
         this.callSciCrunch();
       }
     },
     callSciCrunch: function () {
+      this.lastSearch = this.searchInput
       fetch(api_location + this.searchInput)
         .then((response) => response.json())
         .then((data) => {
@@ -106,6 +109,7 @@ export default {
               sexes: element.attributes ? [...new Set(element.attributes.map((v) => v.sex.value))] : undefined, // This processing only includes each gender once into 'sexes'
               age: element.attributes ? ('ageCategory' in element.attributes[0] ? element.attributes[0].ageCategory.value : undefined) : undefined,
               updated: element.updated[0].timestamp.split('T')[0],
+              url: element.current[0].uri,
               id: id
             });
             id++;
