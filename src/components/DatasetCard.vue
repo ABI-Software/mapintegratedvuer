@@ -6,7 +6,7 @@
         <span class="card-left">
           <div class="title">{{entry.description}}</div>
           <div class="details">{{entry.contributors[0].name}}; {{entry.contributors[1].name}}</div>
-          <div class="details">{{entry.numberSamples}} samples</div>
+          <div class="details">{{entry.numberSamples}} sample(s)</div>
           <div class="details"><template v-for="(sex, i) in entry.sexes"><template v-if="i !== 0">, </template>{{sex}}</template></div>
           <div v-if="entry.age" class="details">{{entry.age}}</div>
           <div class="details">Last updated: {{entry.updated}}</div>

@@ -18,6 +18,7 @@
           @flatmapChanged="flatmapChanged"/>
       </div>
     </el-main>
+    <SideBar :visible="sideBarVisbility" :search="search"></SideBar>
   </el-container>
 </template>
 
@@ -25,6 +26,7 @@
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
+import SideBar from './SideBar';
 import EventBus from './EventBus';
 import Vue from "vue";
 import {
@@ -61,6 +63,8 @@ var initialState = function() {
         id: 1
       }
     ],
+    sideBarVisbility: false,
+    search: ''
   }
 }
 
@@ -71,7 +75,8 @@ export default {
   name: "FloatingFlow",
   components: {
     DialogToolbarContent,
-    FloatingDialog
+    FloatingDialog,
+    SideBar
   },
   methods: {
     onFlowChange: function(action) {
@@ -83,7 +88,8 @@ export default {
     actionClick:function(action) {
       if (action) {
         if (action.type == "URL") {
-          window.open(action.resource,'_blank');
+          this.search = action.label
+          this.sideBarVisbility = true;
         } else {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);

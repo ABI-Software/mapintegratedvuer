@@ -1,5 +1,7 @@
 <template>
-  <div v-if="sideBarOpen" class="side-bar">
+<el-drawer class="side-bar"
+  :visible.sync="drawerOpen"
+  :with-header="false">
     <el-card class="box-card">
       <div slot="header" class="header">
         <el-input
@@ -12,22 +14,7 @@
         <el-button @click="searchSciCrunch">Search</el-button>
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
-      <div class="filters">Filters will go here!
-        <div class="search-feedback">
-        <span v-if="results.length > 0" class="dataset-results-feedback">{{results.length}} Datasets for '{{searchInput}}' | Showing </span>
-        <span v-if="results.length > 0"> 
-          <el-select class="number-shown-select" v-model="value" placeholder="10">
-             <el-option
-            v-for="item in numberDatasetsShown"
-            :key="item"
-            :label="item"
-            :value="item">
-          </el-option>
-           </el-select>
-        </span>
-        </div>
-         
-      </div>
+      <SearchFilters class="filters" :entry="filterEntry"></SearchFilters>
       <div class="content">
         <span v-if="results.length > 0" class="dataset-table-title">Title</span>
         <span v-if="results.length > 0" class="dataset-table-title">Image</span>
@@ -36,18 +23,19 @@
           </div>
       </div>
     </el-card>
-  </div>
+  </el-drawer>
 </template>
 
 
 <script>
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
-import { Link, Icon, Card, Button, Select, Input } from "element-ui";
+import { Link, Icon, Card, Button, Select, Input, Drawer } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
-import DatasetCard from './DatasetCard'
+import SearchFilters from './SearchFilters'
+import DatasetCard from './DatasetCard';
 
 locale.use(lang);
 Vue.use(Link);
@@ -56,34 +44,47 @@ Vue.use(Card);
 Vue.use(Button);
 Vue.use(Select);
 Vue.use(Input);
+Vue.use(Drawer);
 
 var api_location = "http://localhost:8089/search/";
 
 export default {
-  components: { DatasetCard },
+  components: { SearchFilters, DatasetCard },
   name: "SideBar",
-  props: {
-    /**
-     * Object containing information for
-     * the required viewing.
-     */
-    entry: Object,
-  },
+  props: ['visible', 'search'],
   data: function () {
     return {
-      searchInput: "",
-      numberDatasetsShown: ['10', '20'],
-      defaultSelect: "10",
+      searchInput: '',
+      lastSearch: '',
       results: [],
-      sideBarOpen: true
+      drawerOpen: false,
+      numberOfHits: 0
     };
+  },
+  computed: {
+    filterEntry: function(){
+      return {
+        results: this.results,
+        lastSearch: this.lastSearch,
+        numberOfHits: this.numberOfHits,
+      }
+    },
+  },
+  watch: {
+    visible: function(val){
+      this.drawerOpen = val;
+    },
+    search: function(val){
+      this.searchInput = val;
+    }
   },
   methods: {
     close: function () {
-      this.sideBarOpen = false
+      this.drawerOpen = false
     },
     searchSciCrunch: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
+        this.lastSearch = this.searchInput
         this.callSciCrunch();
       }
     },
@@ -93,16 +94,15 @@ export default {
         .then((data) => {
           this.results = [];
           let id = 0;
-          
-          
-          data.forEach((element) => {
+          this.numberOfHits = data.numberOfHits
+          data.results.forEach((element) => {
             console.log(element)
             this.results.push({ 
               description: element.name,
               contributors: element.contributors,
               numberSamples: Array.isArray(element.sample) ? element.sample.length : 1,
-              sexes: [...new Set(element.attributes.map((v) => v.sex.value))],
-              age: 'ageCategory' in element.attributes[0] ? element.attributes[0].ageCategory.value : undefined,
+              sexes: element.attributes ? [...new Set(element.attributes.map((v) => v.sex.value))] : undefined, // This processing only includes each gender once into 'sexes'
+              age: element.attributes ? ('ageCategory' in element.attributes[0] ? element.attributes[0].ageCategory.value : undefined) : undefined,
               updated: element.updated[0].timestamp.split('T')[0],
               id: id
             });
@@ -144,17 +144,9 @@ export default {
 
 .filters{
   height: 190px;
+  witdth: 518px;
 }
 
-.search-feedback{
-  text-align: left;
-}
-
-
->>> .el-select.number-shown-select {
-  width: 68px;
-  height: 26px;
-}
 .dataset-results-feedback{
   width: 215px;
   height: 16px;

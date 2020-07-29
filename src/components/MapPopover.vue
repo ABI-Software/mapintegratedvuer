@@ -32,6 +32,7 @@ export default {
   methods: {
     onActionClick: function(action) {
        EventBus.$emit("PopoverActionClick", action);
+       console.log("action", action)
     },
     onTooltipClose: function() {
       this.$emit("onClose");
