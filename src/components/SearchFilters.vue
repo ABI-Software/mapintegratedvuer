@@ -1,5 +1,5 @@
 <template>
-  <div class="filters">Filters will go here!
+  <div class="filters">
         <div class="search-feedback">
         <div class="filters-row-1">
         <el-select class="filter-select" v-model="speciesSelected" placeholder="Selecte Species"
@@ -30,6 +30,19 @@
       default-first-option>
              <el-option
             v-for="item in regions"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+           </el-select>
+           </div>
+           <div class="filters-row-2">
+           <el-select class="filter-select" v-model="genderSelected" placeholder="Select Gender"
+                 multiple
+      filterable
+      default-first-option>
+             <el-option
+            v-for="item in gender"
             :key="item"
             :label="item"
             :value="item">
@@ -84,10 +97,12 @@ export default {
       speciesSelected: [],
       organSelected: [],
       regionSelected: [],
+      genderSelected: [],
       numberShown: 10,
       species: ['All species', 'Mouse', 'Pig', 'Human'],
       organ: ['All organs', 'Heart', 'Lung', 'Stomach', 'Urinary tract', 'Pancreas', 'Colon'],
-      regions: ['Left ventricle', 'Right ventricle', 'ICN', 'Left atrium'],
+      regions: ['All regions', 'Left ventricle', 'Right ventricle', 'ICN', 'Left atrium'],
+      gender: ['All sex', 'Male', 'Female', 'Uknown'],
       numberDatasetsShown: ['10', '20'],
       defaultSelect: "10",
     }
@@ -110,6 +125,10 @@ export default {
   background-color: var(--white);
   font-weight: 500;
   color: #8300bf;
+}
+
+.filters-row-2{
+  padding-top: 16px;
 }
 
 .filter-select >>> .el-input__inner{

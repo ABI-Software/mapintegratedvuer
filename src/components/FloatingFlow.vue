@@ -18,7 +18,7 @@
           @flatmapChanged="flatmapChanged"/>
       </div>
     </el-main>
-    <SideBar :visible="sideBarVisbility" :search="search"></SideBar>
+    <SideBar ref="sideBar" :visible="sideBarVisibility" :search="search"></SideBar>
   </el-container>
 </template>
 
@@ -63,7 +63,7 @@ var initialState = function() {
         id: 1
       }
     ],
-    sideBarVisbility: false,
+    sideBarVisibility: false,
     search: ''
   }
 }
@@ -88,8 +88,9 @@ export default {
     actionClick:function(action) {
       if (action) {
         if (action.type == "URL") {
+          console.log('in url clobk', action)
           this.search = action.label
-          this.sideBarVisbility = true;
+          this.$refs.sideBar.open()
         } else {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);

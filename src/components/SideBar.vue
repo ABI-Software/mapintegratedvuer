@@ -1,6 +1,8 @@
 <template>
 <el-drawer class="side-bar"
   :visible.sync="drawerOpen"
+  :appendToBody=false
+  :size="'550'"
   :with-header="false">
     <el-card class="box-card">
       <div slot="header" class="header">
@@ -71,9 +73,6 @@ export default {
     },
   },
   watch: {
-    visible: function(val){
-      this.drawerOpen = val;
-    },
     search: function(val){
       this.searchInput = val;
     }
@@ -81,6 +80,9 @@ export default {
   methods: {
     close: function () {
       this.drawerOpen = false
+    },
+    open: function(){
+      this.drawerOpen = true
     },
     searchSciCrunch: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
@@ -118,11 +120,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.side-bar{
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-  border: solid 1px var(--pale-grey);
-  background-color: #f7faff;
-}
+
 .step-item {
   font-size: 14px;
   margin-bottom: 18px;
@@ -217,7 +215,7 @@ export default {
 }
 
 .box-card {
-  height: 60rem;
+  height: 100%;
   overflow: auto;
 }
 
