@@ -59,7 +59,7 @@
             :label="item"
             :value="item">
           </el-option>
-           </el-select>
+          </el-select>
         </span>
         </div>
          
@@ -139,7 +139,7 @@ export default {
 .filter-select >>> .el-select-dropdown__item.selected {
   color: #8300bf;
   font-weight: normal;
-  font-family: Helvetica !important;
+  font-family: Asap !important;
 }
 
 .search-feedback{

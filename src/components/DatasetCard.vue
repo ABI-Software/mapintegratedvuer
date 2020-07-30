@@ -12,7 +12,7 @@
           <div class="details">Last updated: {{entry.updated}}</div>
         </span>
         <span class="card-right">
-          <img class="banner-img" src="../.././assets/example-banner.jpg" />
+          <img class="banner-img" v-bind:src="thumbnail" />
         </span>
       </div>
     </div>
@@ -36,6 +36,8 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Input);
 
+var api_location = "http://localhost:8089/banner/";
+
 export default {
   name: "SideBar",
   props: {
@@ -46,13 +48,27 @@ export default {
     entry: Object,
   },
   data: function () {
-    return {};
+    return {
+      thumbnail: "../.././assets/example-banner.jpg",
+      dataLocation: this.entry.url
+    };
   },
   methods: {
     cardClicked: function(){
-      window.open(this.entry.url,'_blank');
-    }
+      window.open(this.dataLocation,'_blank');
+    },
+    getBanner: function () {
+      fetch(api_location + this.entry.datasetId)
+        .then((response) => response.json())
+        .then((data) => {
+          this.thumbnail = data.banner
+          this.dataLocation = 'https://discover.blackfynn.com/datasets/' + data.id
+        });
+    },
   },
+  mounted: function(){
+    this.getBanner()
+  }
 };
 </script>
 

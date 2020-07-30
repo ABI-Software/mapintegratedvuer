@@ -17,11 +17,13 @@
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
       <SearchFilters class="filters" :entry="filterEntry"></SearchFilters>
-      <div class="content">
+      <div class="content scrollbar">
+       <div>
         <span v-if="results.length > 0" class="dataset-table-title">Title</span>
         <span v-if="results.length > 0" class="dataset-table-title">Image</span>
           <div v-for="o in results" :key="o.id" class="step-item">
             <DatasetCard :entry="o"></DatasetCard>
+          </div>
           </div>
       </div>
     </el-card>
@@ -110,6 +112,7 @@ export default {
               age: element.attributes ? ('ageCategory' in element.attributes[0] ? element.attributes[0].ageCategory.value : undefined) : undefined,
               updated: element.updated[0].timestamp.split('T')[0],
               url: element.current[0].uri,
+              datasetId: element.identifier,
               id: id
             });
             id++;
@@ -145,7 +148,7 @@ export default {
 }
 
 .filters{
-  height: 190px;
+  height: 160px;
   witdth: 518px;
 }
 
@@ -216,6 +219,7 @@ export default {
   border: solid 1px var(--pale-grey);
   background-color: #ffffff;
   padding-top: 18px;
+  overflow-y: scroll;
 }
 
 .box-card {
@@ -226,5 +230,25 @@ export default {
 .active {
   width: 380px !important;
   height: 380px !important;
+}
+
+.scrollbar::-webkit-scrollbar-track
+{
+	
+	border-radius: 10px;
+	background-color: #F5F5F5;
+}
+
+.scrollbar::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: #F5F5F5;
+}
+
+.scrollbar::-webkit-scrollbar-thumb
+{
+	border-radius: 4px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  background-color: #979797
 }
 </style>
