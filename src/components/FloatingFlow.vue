@@ -51,11 +51,11 @@ var initialState = function() {
       {
         resource: "Rat",
         availableSpecies : {
-          "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human"},
-          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat"},
-          "Mouse":{taxo: "NCBITaxon:10090", iconClass:"icon-mapicon_mouse"},
-          "Pig":{taxo: "NCBITaxon:9823", iconClass:"icon-mapicon_pig"},
-          "Cat":{taxo: "NCBITaxon:9685", iconClass:"icon-mapicon_cat"},
+          "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human", displayWarning: true},
+          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat", displayWarning: false},
+          "Mouse":{taxo: "NCBITaxon:10090", iconClass:"icon-mapicon_mouse", displayWarning: true},
+          "Pig":{taxo: "NCBITaxon:9823", iconClass:"icon-mapicon_pig", displayWarning: true},
+          "Cat":{taxo: "NCBITaxon:9685", iconClass:"icon-mapicon_cat", displayWarning: true},
         },
         type: "MultiFlatmap",
         zIndex:1,

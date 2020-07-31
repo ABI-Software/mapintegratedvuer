@@ -1,5 +1,5 @@
 <template>
-    <div style="height: 100%;width:100%;z-index:1" ref="MapApp">
+    <div class="mapcontent" ref="MapApp">
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
       <tutorial :parentRefs="this.$refs"></tutorial>
       <SideBar class="map-help-dialog"></SideBar>
@@ -93,4 +93,10 @@ export default {
   bottom: 0px;
   right: 30px;
 }
+.mapcontent {
+  height: 100%;
+  width:100%;
+  z-index:1;
+}
 </style>
+

@@ -19,7 +19,6 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import { Button, Card, Row, Col } from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 
@@ -68,4 +67,12 @@ export default {
   float: right;
   margin-top: 1.5em;
 }
+</style>
+<style scoped src='element-ui/lib/theme-chalk/button.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/card.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/row.css'>
+</style>
+<style scoped src='element-ui/lib/theme-chalk/col.css'>
 </style>

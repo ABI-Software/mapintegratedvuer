@@ -4,7 +4,7 @@
     <div id='pathway' class="pathway-invis"></div>
     <div id='icn' class="icn-invis"></div>
     <div id='rna' class="rna-invis"></div>
-    <v-tour ref='tour'  name="onboarding-tour" :steps="steps" :callbacks="tourCallbacks" :options="options">
+    <v-tour ref='tour'  name="onboarding-tour" :steps="steps" :options="options">
     </v-tour>
 
   </div>
@@ -14,7 +14,6 @@
 /* eslint-disable no-alert, no-console */
 import VueTour from '@tehsurfer/vue-tour';
 import tourSteps from './tourSteps';
-import '@tehsurfer/vue-tour/dist/vue-tour.css';
 import Vue from "vue";
 import {
   Container,
@@ -125,4 +124,6 @@ export default {
   width: 0px;
 }
 
+</style>
+<style scoped src='@tehsurfer/vue-tour/dist/vue-tour.css'>
 </style>
