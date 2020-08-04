@@ -36,7 +36,7 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Input);
 
-var api_location = "http://localhost:8089/banner/";
+var api_location = "http://localhost:5000/banner/";
 
 export default {
   name: "SideBar",

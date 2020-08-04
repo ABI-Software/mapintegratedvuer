@@ -50,12 +50,12 @@ Vue.use(Select);
 Vue.use(Input);
 Vue.use(Drawer);
 
-var api_location = "http://localhost:8089/search/";
+var api_location = "http://localhost:5000/search/";
 
 export default {
   components: { SearchFilters, DatasetCard },
   name: "SideBar",
-  props: ['visible', 'search'],
+  props: ['visible'],
   data: function () {
     return {
       searchInput: '',
@@ -85,18 +85,19 @@ export default {
     close: function () {
       this.drawerOpen = false
     },
-    open: function(){
+    openSearch: function(search){
       this.drawerOpen = true
-      this.callSciCrunch()
+      this.searchInput = search
+      this.callSciCrunch(search)
     },
     searchSciCrunch: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
-        this.callSciCrunch();
+        this.callSciCrunch(this.searchInput);
       }
     },
-    callSciCrunch: function () {
-      this.lastSearch = this.searchInput
-      fetch(api_location + this.searchInput)
+    callSciCrunch: function (search) {
+      this.lastSearch = search
+      fetch(api_location + search)
         .then((response) => response.json())
         .then((data) => {
           this.results = [];
