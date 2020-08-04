@@ -62,7 +62,7 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           this.thumbnail = data.banner
-          this.dataLocation = 'https://discover.blackfynn.com/datasets/' + data.id
+          this.dataLocation = 'https://sparc.science/datasets/' + data.id
         });
     },
   },
