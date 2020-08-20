@@ -1,37 +1,34 @@
 <template>
-<el-drawer class="side-bar"
-  :visible.sync="drawerOpen"
-  :appendToBody=false
-  :size="'550'"
-  :with-header="false">
+  <el-drawer
+    class="side-bar"
+    :visible.sync="drawerOpen"
+    :appendToBody="false"
+    :size="'550'"
+    :with-header="false"
+  >
     <el-card class="box-card">
       <div slot="header" class="header">
         <el-input
           class="search-input"
           placeholder="Search"
           v-model="searchInput"
-          @keyup.native="searchSciCrunch"
+          @keyup.native="searchSciCrunchButton"
           clearable
         ></el-input>
         <el-button @click="searchSciCrunch">Search</el-button>
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
-      <SearchFilters class="filters" :entry="filterEntry"></SearchFilters>
-      <el-pagination class="pagination"
-        small
-        layout="prev, pager, next"
-        :total="50">
-      </el-pagination>
+      <SearchFilters class="filters" :entry="filterEntry" @filterResults="resultsProcessing"></SearchFilters>
+      <el-pagination class="pagination" small layout="prev, pager, next" :total="50"></el-pagination>
       <div class="content scrollbar">
-       <div class="card-container">
-        <span v-if="results.length > 0" class="dataset-table-title">Title</span>
-        <span v-if="results.length > 0" class="image-table-title">Image</span>
-       </div>
-          <div v-for="o in results" :key="o.id" class="step-item">
-            <DatasetCard :entry="o"></DatasetCard>
-          </div>
-          </div>
-      
+        <div class="card-container">
+          <span v-if="results.length > 0" class="dataset-table-title">Title</span>
+          <span v-if="results.length > 0" class="image-table-title">Image</span>
+        </div>
+        <div v-for="o in results" :key="o.id" class="step-item">
+          <DatasetCard :entry="o"></DatasetCard>
+        </div>
+      </div>
     </el-card>
   </el-drawer>
 </template>
@@ -40,12 +37,21 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
-import { Link, Icon, Card, Button, Select, Input, Drawer, Pagination } from "element-ui";
+import {
+  Link,
+  Icon,
+  Card,
+  Button,
+  Select,
+  Input,
+  Drawer,
+  Pagination,
+} from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
-import SearchFilters from './SearchFilters'
-import DatasetCard from './DatasetCard';
+import SearchFilters from "./SearchFilters";
+import DatasetCard from "./DatasetCard";
 
 locale.use(lang);
 Vue.use(Link);
@@ -62,71 +68,90 @@ var api_location = "http://localhost:5000/search/";
 export default {
   components: { SearchFilters, DatasetCard },
   name: "SideBar",
-  props: ['visible'],
+  props: ["visible"],
   data: function () {
     return {
-      searchInput: '',
-      lastSearch: '',
+      searchInput: "",
+      lastSearch: "",
       results: [],
       drawerOpen: false,
-      numberOfHits: 0
+      numberOfHits: 0,
     };
   },
   computed: {
-    filterEntry: function(){
+    filterEntry: function () {
       return {
         results: this.results,
         lastSearch: this.lastSearch,
         numberOfHits: this.numberOfHits,
-      }
+      };
     },
   },
   watch: {
-    search: function(val){
-      console.log('search change found')
+    search: function (val) {
+      console.log("search change found");
       this.searchInput = val;
       this.lastSearch = val;
-    }
+    },
   },
   methods: {
     close: function () {
-      this.drawerOpen = false
+      this.drawerOpen = false;
     },
-    openSearch: function(search){
-      this.drawerOpen = true
-      this.searchInput = search
-      this.callSciCrunch(search)
+    openSearch: function (search) {
+      this.drawerOpen = true;
+      this.searchInput = search;
+      this.searchSciCrunch(search);
     },
-    searchSciCrunch: function (event = false) {
+    searchSciCrunchButton: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
-        this.callSciCrunch(this.searchInput);
+       this.searchSciCrunch(this.searchInput)
       }
     },
-    callSciCrunch: function (search) {
-      this.lastSearch = search
-      fetch(api_location + search)
-        .then((response) => response.json())
-        .then((data) => {
-          this.results = [];
-          let id = 0;
-          this.numberOfHits = data.numberOfHits
-          data.results.forEach((element) => {
-            console.log(element)
-            this.results.push({ 
-              description: element.name,
-              contributors: element.contributors,
-              numberSamples: Array.isArray(element.sample) ? element.sample.length : 1,
-              sexes: element.attributes ? [...new Set(element.attributes.map((v) => v.sex.value))] : undefined, // This processing only includes each gender once into 'sexes'
-              age: element.attributes ? ('ageCategory' in element.attributes[0] ? element.attributes[0].ageCategory.value : undefined) : undefined,
-              updated: element.updated[0].timestamp.split('T')[0],
-              url: element.current[0].uri,
-              datasetId: element.identifier,
-              id: id
-            });
-            id++;
-          });
+    searchSciCrunch: function(search) {
+      this.callSciCrunch(search).then((result)=> {
+         this.resultsProcessing(result)
+       })
+    },
+    resultsProcessing: function (data) {
+      this.results = [];
+      let id = 0;
+      this.numberOfHits = data.numberOfHits;
+      data.results.forEach((element) => {
+        console.log(element);
+        this.results.push({
+          description: element.name,
+          contributors: element.contributors,
+          numberSamples: Array.isArray(element.sample)
+            ? element.sample.length
+            : 1,
+          sexes: element.attributes
+            ? element.attributes.sex 
+              ? [...new Set(element.attributes.map((v) => v.sex.value))]
+              : undefined
+            : undefined, // This processing only includes each gender once into 'sexes'
+          age: element.attributes
+            ? "ageCategory" in element.attributes[0]
+              ? element.attributes[0].ageCategory.value
+              : undefined
+            : undefined,
+          updated: element.updated[0].timestamp.split("T")[0],
+          url: element.current[0].uri,
+          datasetId: element.identifier,
+          id: id,
         });
-        console.log(this.results)
+        id++;
+      });
+    },
+    callSciCrunch: function (search) {
+      return new Promise((resolve) => {
+        this.lastSearch = search;
+        fetch(api_location + search)
+          .then((response) => response.json())
+          .then((data) => {
+            resolve(data);
+          });
+      });
     },
   },
 };
@@ -134,8 +159,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-
 .step-item {
   font-size: 14px;
   margin-bottom: 18px;
@@ -155,15 +178,15 @@ export default {
   text-align: left;
 }
 
-.filters{
+.filters {
   witdth: 518px;
 }
 
-.pagination{
+.pagination {
   padding-top: 10px;
 }
 
-.dataset-results-feedback{
+.dataset-results-feedback {
   width: 215px;
   height: 16px;
   font-family: Asap;
@@ -176,12 +199,11 @@ export default {
   color: #292b66;
 }
 
-.card-container{
+.card-container {
   display: flex;
 }
 
-
-.dataset-table-title{
+.dataset-table-title {
   flex: 1.3;
   height: 16px;
   font-family: Asap;
@@ -196,7 +218,7 @@ export default {
   color: var(--slate-grey);
 }
 
-.image-table-title{
+.image-table-title {
   flex: 1;
   padding-left: 16px;
   font-family: Asap;
@@ -210,14 +232,13 @@ export default {
   color: var(--slate-grey);
 }
 
-
 >>> .el-card__header {
   background-color: #292b66;
   border: solid 1px #292b66;
 }
 
->>> .el-card__body{
- background-color: #F7FAFF; 
+>>> .el-card__body {
+  background-color: #f7faff;
 }
 .el-icon-close {
   font-size: 32px;
@@ -247,23 +268,19 @@ export default {
   height: 380px !important;
 }
 
-.scrollbar::-webkit-scrollbar-track
-{
-	
-	border-radius: 10px;
-	background-color: #F5F5F5;
+.scrollbar::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #f5f5f5;
 }
 
-.scrollbar::-webkit-scrollbar
-{
-	width: 12px;
-	background-color: #F5F5F5;
+.scrollbar::-webkit-scrollbar {
+  width: 12px;
+  background-color: #f5f5f5;
 }
 
-.scrollbar::-webkit-scrollbar-thumb
-{
-	border-radius: 4px;
+.scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 4px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  background-color: #979797
+  background-color: #979797;
 }
 </style>

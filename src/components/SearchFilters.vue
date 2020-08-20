@@ -135,7 +135,8 @@ export default {
     speciesFilterSearch: function (event) {
       this.callSciCrunch(api_location, 'facet-search/species/', event[0]).then(
         (results) =>{
-          window.resultttts = results
+          window.reess = results
+          this.$emit('filterResults', results)
         }
       )
     },
@@ -163,6 +164,7 @@ export default {
   },
   mounted: function () {
     this.getSpecies();
+    this.getGenders();
   },
 };
 </script>
