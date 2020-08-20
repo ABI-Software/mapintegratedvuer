@@ -17,15 +17,21 @@
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
       <SearchFilters class="filters" :entry="filterEntry"></SearchFilters>
+      <el-pagination class="pagination"
+        small
+        layout="prev, pager, next"
+        :total="50">
+      </el-pagination>
       <div class="content scrollbar">
-       <div>
+       <div class="card-container">
         <span v-if="results.length > 0" class="dataset-table-title">Title</span>
-        <span v-if="results.length > 0" class="dataset-table-title">Image</span>
+        <span v-if="results.length > 0" class="image-table-title">Image</span>
+       </div>
           <div v-for="o in results" :key="o.id" class="step-item">
             <DatasetCard :entry="o"></DatasetCard>
           </div>
           </div>
-      </div>
+      
     </el-card>
   </el-drawer>
 </template>
@@ -34,7 +40,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
-import { Link, Icon, Card, Button, Select, Input, Drawer } from "element-ui";
+import { Link, Icon, Card, Button, Select, Input, Drawer, Pagination } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -49,6 +55,7 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Input);
 Vue.use(Drawer);
+Vue.use(Pagination);
 
 var api_location = "http://localhost:5000/search/";
 
@@ -149,8 +156,11 @@ export default {
 }
 
 .filters{
-  height: 160px;
   witdth: 518px;
+}
+
+.pagination{
+  padding-top: 10px;
 }
 
 .dataset-results-feedback{
@@ -166,13 +176,17 @@ export default {
   color: #292b66;
 }
 
+.card-container{
+  display: flex;
+}
+
+
 .dataset-table-title{
-  width: 28px;
+  flex: 1.3;
   height: 16px;
   font-family: Asap;
   text-align: left !important;
   padding-left: 16px;
-  padding-right: 70px;
   font-size: 14px;
   font-weight: 500;
   font-stretch: normal;
@@ -183,10 +197,10 @@ export default {
 }
 
 .image-table-title{
-  width: 39px;
-  height: 16px;
-  padding-left: 50px;
+  flex: 1;
+  padding-left: 16px;
   font-family: Asap;
+  text-align: left !important;
   font-size: 14px;
   font-weight: 500;
   font-stretch: normal;
