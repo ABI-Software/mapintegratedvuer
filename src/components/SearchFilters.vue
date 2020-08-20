@@ -6,6 +6,7 @@
         <el-select
           class="filter-select"
           v-model="speciesSelected"
+          @change="speciesFilterSearch($event)"
           placeholder="Selecte Species"
           multiple
           filterable
@@ -76,6 +77,9 @@ Vue.use(Card);
 Vue.use(Button);
 Vue.use(Select);
 
+const api_location = "http://localhost:5000/";
+const facet_endpoint = "get-facets/";
+
 export default {
   name: "SearchFilters",
   components: {},
@@ -116,13 +120,56 @@ export default {
       defaultSelect: "10",
     };
   },
-  methods: {},
+  methods: {
+    getSpecies: function () {
+      var species = ["All species"];
+      this.callSciCrunch(api_location, facet_endpoint, "species").then(
+        (species_terms) => {
+          species_terms.forEach((element) => {
+            species.push(element["key"]);
+          });
+          this.species = [...new Set(species)]
+        }
+      );
+    },
+    speciesFilterSearch: function (event) {
+      this.callSciCrunch(api_location, 'facet-search/species/', event[0]).then(
+        (results) =>{
+          window.resultttts = results
+        }
+      )
+    },
+    getGenders: function () {
+      var gender = ["All sex"];
+      this.callSciCrunch(api_location, facet_endpoint, "gender").then(
+        (gender_terms) => {
+          gender_terms.forEach((element) => {
+            gender.push(element["key"]);
+          });
+          this.gender = [...new Set(gender)]
+        }
+      );
+
+    },
+    callSciCrunch: function (api_location, endpoint, term) {
+      return new Promise((resolve) => {
+        fetch(api_location + endpoint + term)
+          .then((response) => response.json())
+          .then((data) => {
+            resolve(data); // Yay! Everything went well!
+          });
+      });
+    },
+  },
+  mounted: function () {
+    this.getSpecies();
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.filter-collapsed{
+.filter-collapsed {
   font-family: Asap;
   font-size: 14px;
   font-weight: 500;
@@ -162,7 +209,6 @@ export default {
 .search-filters {
   text-align: left;
 }
-
 
 >>> .el-select.number-shown-select {
   width: 68px;
