@@ -8,8 +8,6 @@
           v-model="speciesSelected"
           @change="speciesFilterSearch($event)"
           placeholder="Selecte Species"
-          multiple
-          filterable
           default-first-option
         >
           <el-option v-for="item in species" :key="item" :label="item" :value="item"></el-option>
@@ -39,9 +37,8 @@
         <el-select
           class="filter-select"
           v-model="genderSelected"
+          @change="genderFilterSearch($event)"
           placeholder="Select Gender"
-          multiple
-          filterable
           default-first-option
         >
           <el-option v-for="item in gender" :key="item" :label="item" :value="item"></el-option>
@@ -49,7 +46,7 @@
       </div>
 
       <span
-        v-if="entry.numberOfHits > 0"
+        
         class="dataset-results-feedback"
       >{{entry.numberOfHits }} Datasets for '{{entry.lastSearch}}' | Showing</span>
       <span v-if="entry.numberOfHits  > 0">
@@ -133,12 +130,10 @@ export default {
       );
     },
     speciesFilterSearch: function (event) {
-      this.callSciCrunch(api_location, 'facet-search/species/', event[0]).then(
-        (results) =>{
-          window.reess = results
-          this.$emit('filterResults', results)
-        }
-      )
+      this.$emit('filterResults', {'facet': event, 'term':'species'})
+    },
+    genderFilterSearch: function (event) {
+      this.$emit('filterResults', {'facet': event, 'term':'gender'})
     },
     getGenders: function () {
       var gender = ["All sex"];
@@ -157,7 +152,7 @@ export default {
         fetch(api_location + endpoint + term)
           .then((response) => response.json())
           .then((data) => {
-            resolve(data); // Yay! Everything went well!
+            resolve(data); 
           });
       });
     },

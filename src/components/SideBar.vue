@@ -18,7 +18,7 @@
         <el-button @click="searchSciCrunch">Search</el-button>
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
-      <SearchFilters class="filters" :entry="filterEntry" @filterResults="resultsProcessing"></SearchFilters>
+      <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate"></SearchFilters>
       <el-pagination class="pagination" small layout="prev, pager, next" :total="50"></el-pagination>
       <div class="content scrollbar">
         <div class="card-container">
@@ -63,7 +63,7 @@ Vue.use(Input);
 Vue.use(Drawer);
 Vue.use(Pagination);
 
-var api_location = "http://localhost:5000/search/";
+var api_location = "http://localhost:5000/filter-search/";
 
 export default {
   components: { SearchFilters, DatasetCard },
@@ -76,6 +76,7 @@ export default {
       results: [],
       drawerOpen: false,
       numberOfHits: 0,
+      filter:{}
     };
   },
   computed: {
@@ -105,18 +106,31 @@ export default {
     },
     searchSciCrunchButton: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
-       this.searchSciCrunch(this.searchInput)
+        this.searchSciCrunch(this.searchInput);
       }
     },
-    searchSciCrunch: function(search) {
-      this.callSciCrunch(search).then((result)=> {
-         this.resultsProcessing(result)
-       })
+    filterUpdate: function(filter){
+      console.log('filter update', filter)
+      if(filter.facet === undefined){
+        this.filter = {}
+      } else {
+        this.filter = filter
+      }
+      this.searchSciCrunch(this.searchInput)
+    },
+    searchSciCrunch: function (search) {
+      this.callSciCrunch(api_location, search, this.filter).then((result) => {
+        this.resultsProcessing(result);
+      });
     },
     resultsProcessing: function (data) {
+      this.lastSearch = this.searchInput
       this.results = [];
       let id = 0;
       this.numberOfHits = data.numberOfHits;
+      if (data.results.length === 0){
+        return
+      }
       data.results.forEach((element) => {
         console.log(element);
         this.results.push({
@@ -126,7 +140,7 @@ export default {
             ? element.sample.length
             : 1,
           sexes: element.attributes
-            ? element.attributes.sex 
+            ? element.attributes.sex
               ? [...new Set(element.attributes.map((v) => v.sex.value))]
               : undefined
             : undefined, // This processing only includes each gender once into 'sexes'
@@ -143,10 +157,9 @@ export default {
         id++;
       });
     },
-    callSciCrunch: function (search) {
+    callSciCrunch: function (api_location, search, params={}) {
       return new Promise((resolve) => {
-        this.lastSearch = search;
-        fetch(api_location + search)
+        fetch(api_location + search + '/?' + (new URLSearchParams(params)).toString())
           .then((response) => response.json())
           .then((data) => {
             resolve(data);
