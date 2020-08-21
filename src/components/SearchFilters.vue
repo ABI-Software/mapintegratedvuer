@@ -74,7 +74,7 @@ Vue.use(Card);
 Vue.use(Button);
 Vue.use(Select);
 
-const api_location = "http://localhost:5000/";
+const api_location = "https://sparc-test-api.herokuapp.com/";
 const facet_endpoint = "get-facets/";
 
 export default {

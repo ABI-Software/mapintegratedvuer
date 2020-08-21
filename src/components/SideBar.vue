@@ -63,7 +63,7 @@ Vue.use(Input);
 Vue.use(Drawer);
 Vue.use(Pagination);
 
-var api_location = "http://localhost:5000/filter-search/";
+var api_location = "https://sparc-test-api.herokuapp.com/" + "filter-search/";
 
 export default {
   components: { SearchFilters, DatasetCard },
