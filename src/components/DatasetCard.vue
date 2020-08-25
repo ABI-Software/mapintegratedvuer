@@ -39,7 +39,7 @@ Vue.use(Input);
 
 
 
-var api_location = "http://localhost:5000/banner/";
+var api_location = process.env.VUE_APP_API_LOCATION + "banner/";
 
 export default {
   name: "SideBar",

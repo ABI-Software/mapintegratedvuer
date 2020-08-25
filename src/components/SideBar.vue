@@ -12,10 +12,10 @@
           class="search-input"
           placeholder="Search"
           v-model="searchInput"
-          @keyup.native="searchSciCrunchButton"
+          @keyup.native="searchEvent"
           clearable
         ></el-input>
-        <el-button @click="searchSciCrunch">Search</el-button>
+        <el-button @click="searchEvent">Search</el-button>
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
       </div>
       <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate"></SearchFilters>
@@ -63,7 +63,7 @@ Vue.use(Input);
 Vue.use(Drawer);
 Vue.use(Pagination);
 
-var api_location = "https://sparc-test-api.herokuapp.com/" + "filter-search/";
+var api_location = process.env.VUE_APP_API_LOCATION + "filter-search/";
 
 export default {
   components: { SearchFilters, DatasetCard },
@@ -104,7 +104,7 @@ export default {
       this.searchInput = search;
       this.searchSciCrunch(search);
     },
-    searchSciCrunchButton: function (event = false) {
+    searchEvent: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
         this.searchSciCrunch(this.searchInput);
       }
