@@ -2,59 +2,23 @@
   <div class="filters">
     <div class="filter-collapsed" @click="showFilters = !showFilters">Filter</div>
     <div v-if="showFilters" class="search-filters">
-      <div class="filters-row-1">
-        <el-select
-          class="filter-select"
-          v-model="speciesSelected"
-          @change="speciesFilterSearch($event)"
-          placeholder="Selecte Species"
-          default-first-option
-        >
-          <el-option v-for="item in species" :key="item" :label="item" :value="item"></el-option>
-        </el-select>
-        <el-select
-          class="filter-select"
-          v-model="organSelected"
-          placeholder="Select Organ"
-          multiple
-          filterable
-          default-first-option
-        >
-          <el-option v-for="item in organ" :key="item" :label="item" :value="item"></el-option>
-        </el-select>
-        <el-select
-          class="filter-select"
-          v-model="regionSelected"
-          placeholder="Select Region"
-          multiple
-          filterable
-          default-first-option
-        >
-          <el-option v-for="item in regions" :key="item" :label="item" :value="item"></el-option>
-        </el-select>
-      </div>
-      <div class="filters-row-2">
-        <el-select
-          class="filter-select"
-          v-model="genderSelected"
-          @change="genderFilterSearch($event)"
-          placeholder="Select Gender"
-          default-first-option
-        >
-          <el-option v-for="item in gender" :key="item" :label="item" :value="item"></el-option>
-        </el-select>
-      </div>
-
-      <span
-        
+        <el-cascader
+        class="cascader"
+        placeholder="Filter"
+    :options="options"
+        :props="propss"
+        @change="cascadeEvent($event)"
+        :show-all-levels="false">
+       </el-cascader>
+    </div>
+    <span
         class="dataset-results-feedback"
       >{{entry.numberOfHits }} Datasets for '{{entry.lastSearch}}' | Showing</span>
-      <span v-if="entry.numberOfHits  > 0">
+      <span v-if="entry.lastSearch  !== ''">
         <el-select class="number-shown-select" v-model="numberShown" placeholder="10">
           <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
         </el-select>
       </span>
-    </div>
   </div>
 </template>
 
@@ -62,7 +26,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
-import { Link, Icon, Card, Button, Select } from "element-ui";
+import { Link, Icon, Card, Button, Select, Cascader } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -73,6 +37,7 @@ Vue.use(Icon);
 Vue.use(Card);
 Vue.use(Button);
 Vue.use(Select);
+Vue.use(Cascader)
 
 const api_location = process.env.VUE_APP_API_LOCATION;
 const facet_endpoint = "get-facets/";
@@ -112,12 +77,54 @@ export default {
         "ICN",
         "Left atrium",
       ],
+      facets: ['species', 'gender'],
       gender: ["All sex", "Male", "Female", "Uknown"],
       numberDatasetsShown: ["10", "20"],
       defaultSelect: "10",
+      propss: { multiple: true },
+      options: [{
+        value: 1,
+        label: 'Species',
+        children: [{
+        }]
+      }]
     };
   },
   methods: {
+    populateCascader: function () {
+      var value = 1
+      this.options = []
+      this.facets.forEach((term)=>{
+        this.getFacet(term).then((facets)=>{
+          this.options.push({
+            value: value,
+            label: term,
+            children: []
+          })
+          value++;
+          facets.forEach((facet)=>{
+            this.options[this.options.length-1].children.push({
+              value: value,
+              label: facet, 
+            })
+            value++;
+          })
+        })
+      })
+    },
+    getFacet: function (facet) {
+      return new Promise((resolve) => {
+        var facets = [`All ${facet}`];
+        this.callSciCrunch(api_location, facet_endpoint, facet).then(
+          (facet_terms) => {
+            facet_terms.forEach((element) => {
+              facets.push(element["key"]);
+            });
+            resolve([...new Set(facets)]);
+          }
+        );
+      })
+    },
     getSpecies: function () {
       var species = ["All species"];
       this.callSciCrunch(api_location, facet_endpoint, "species").then(
@@ -125,15 +132,29 @@ export default {
           species_terms.forEach((element) => {
             species.push(element["key"]);
           });
-          this.species = [...new Set(species)]
+          this.species = [...new Set(species)];
         }
       );
     },
+    cascadeEvent: function(event){
+      var output = { facet: undefined, term: undefined }
+      let id = event[0][1]
+      for(let i in this.options){
+        for(let j in this.options[i].children){
+          if(this.options[i].children[j].value == id){
+            output.facet = this.options[i].children[j].label
+            output.term = this.options[i].label
+          }
+        }
+      }
+      this.$emit("filterResults", output);
+
+    },
     speciesFilterSearch: function (event) {
-      this.$emit('filterResults', {'facet': event, 'term':'species'})
+      this.$emit("filterResults", { facet: event, term: "species" });
     },
     genderFilterSearch: function (event) {
-      this.$emit('filterResults', {'facet': event, 'term':'gender'})
+      this.$emit("filterResults", { facet: event, term: "gender" });
     },
     getGenders: function () {
       var gender = ["All sex"];
@@ -142,22 +163,22 @@ export default {
           gender_terms.forEach((element) => {
             gender.push(element["key"]);
           });
-          this.gender = [...new Set(gender)]
+          this.gender = [...new Set(gender)];
         }
       );
-
     },
     callSciCrunch: function (api_location, endpoint, term) {
       return new Promise((resolve) => {
         fetch(api_location + endpoint + term)
           .then((response) => response.json())
           .then((data) => {
-            resolve(data); 
+            resolve(data);
           });
       });
     },
   },
   mounted: function () {
+    this.populateCascader();
     this.getSpecies();
     this.getGenders();
   },

@@ -20,7 +20,7 @@
       </div>
       <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate"></SearchFilters>
       <el-pagination class="pagination" small layout="prev, pager, next" :total="50"></el-pagination>
-      <div class="content scrollbar">
+      <div class="content scrollbar"  v-loading="loadingCards">
         <div class="card-container">
           <span v-if="results.length > 0" class="dataset-table-title">Title</span>
           <span v-if="results.length > 0" class="image-table-title">Image</span>
@@ -46,6 +46,7 @@ import {
   Input,
   Drawer,
   Pagination,
+  Loading,
 } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
@@ -62,6 +63,7 @@ Vue.use(Select);
 Vue.use(Input);
 Vue.use(Drawer);
 Vue.use(Pagination);
+Vue.use(Loading)
 
 var api_location = process.env.VUE_APP_API_LOCATION + "filter-search/";
 
@@ -76,7 +78,8 @@ export default {
       results: [],
       drawerOpen: false,
       numberOfHits: 0,
-      filter:{}
+      filter:{},
+      loadingCards: true
     };
   },
   computed: {
@@ -119,8 +122,10 @@ export default {
       this.searchSciCrunch(this.searchInput)
     },
     searchSciCrunch: function (search) {
+      this.loadingCards = true;
       this.callSciCrunch(api_location, search, this.filter).then((result) => {
         this.resultsProcessing(result);
+        this.loadingCards = false;
       });
     },
     resultsProcessing: function (data) {
