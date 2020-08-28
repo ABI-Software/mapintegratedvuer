@@ -148,6 +148,7 @@ export default {
         }
       }
       this.$emit("filterResults", output);
+      this.showFilters = false;
 
     },
     speciesFilterSearch: function (event) {
@@ -187,6 +188,22 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.filters{
+    justify-content: center;
+    align-items: center;
+}
+.cascader {
+  font-family: Asap;
+  font-size: 14px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #292b66; 
+  text-align: center;
+}
+
 .filter-collapsed {
   font-family: Asap;
   font-size: 14px;

@@ -5,6 +5,7 @@
     :appendToBody="false"
     :size="'550'"
     :with-header="false"
+    :wrapperClosable="false"
   >
     <el-card class="box-card">
       <div slot="header" class="header">
@@ -20,13 +21,20 @@
       </div>
       <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate"></SearchFilters>
       <el-pagination class="pagination" small layout="prev, pager, next" :total="50"></el-pagination>
-      <div class="content scrollbar"  v-loading="loadingCards">
-        <div class="card-container">
-          <span v-if="results.length > 0" class="dataset-table-title">Title</span>
-          <span v-if="results.length > 0" class="image-table-title">Image</span>
+      <div class="wrapper">
+        <div class="wrapper-left">
+          <i class="el-icon-arrow-right" @click="close"></i>
         </div>
-        <div v-for="o in results" :key="o.id" class="step-item">
-          <DatasetCard :entry="o"></DatasetCard>
+        <div class="wrapper-right">
+          <div class="content scrollbar"  v-loading="loadingCards">
+            <div class="card-container">
+              <span v-if="results.length > 0" class="dataset-table-title">Title</span>
+              <span v-if="results.length > 0" class="image-table-title">Image</span>
+            </div>
+            <div v-for="o in results" :key="o.id" class="step-item">
+              <DatasetCard :entry="o"></DatasetCard>
+            </div>
+          </div>
         </div>
       </div>
     </el-card>
@@ -177,6 +185,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.box-card{
+  pointer-events: auto;
+}
+
 .step-item {
   font-size: 14px;
   margin-bottom: 18px;
@@ -258,12 +270,27 @@ export default {
 >>> .el-card__body {
   background-color: #f7faff;
 }
+
+.wrapper{
+  display: flex;
+  flex-direction: row;
+}
+
 .el-icon-close {
+  cursor: pointer;
   font-size: 32px;
   width: 16px;
   height: 16px;
   color: #f9f9fa;
   padding-right: 32px;
+}
+
+.el-icon-arrow-right{
+  cursor: pointer;
+  font-size: 20px;
+  top: 50%; 
+  position: absolute;
+  left: 0;
 }
 
 .content {
@@ -300,5 +327,14 @@ export default {
   border-radius: 4px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   background-color: #979797;
+}
+</style>
+<style>
+.v-modal{
+  pointer-events: none;
+  opacity: 0;
+}
+.el-drawer__wrapper{
+  pointer-events: none;
 }
 </style>
