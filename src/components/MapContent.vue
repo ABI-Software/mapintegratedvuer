@@ -3,7 +3,6 @@
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
       <tutorial :parentRefs="this.$refs"></tutorial>
       <SideBar class="map-help-dialog"></SideBar>
-      <ContextHelp class="map-help-dialog"></ContextHelp>
     </div>
 </template>
 
@@ -11,7 +10,6 @@
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
 import Tutorial from './Tutorial.vue';
-import ContextHelp from './ContextHelp'
 import SideBar from './SideBar'
 import '../../assets/mapicon-species-style.css'
 
@@ -23,7 +21,6 @@ export default {
   components: {
     FloatingFlow,
     Tutorial, 
-    ContextHelp,
     SideBar
   },
   methods: {
