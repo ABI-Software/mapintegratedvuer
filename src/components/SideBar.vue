@@ -114,6 +114,10 @@ export default {
   methods: {
     close: function () {
       this.drawerOpen = !this.drawerOpen;
+      if(this.drawerOpen){
+        this.searchSciCrunch(this.searchInput);
+      }
+      
     },
     openSearch: function (search) {
       this.drawerOpen = true;
@@ -177,7 +181,12 @@ export default {
     },
     callSciCrunch: function (api_location, search, params={}) {
       return new Promise((resolve) => {
-        fetch(api_location + search + '/?' + (new URLSearchParams(params)).toString())
+        var endpoint = api_location;
+        // Add parameters if we are sent them
+        if (search !== '' && Object.entries(params).length !== 0){
+          endpoint = api_location + search + '/?' + (new URLSearchParams(params)).toString();
+        }
+        fetch(endpoint)
           .then((response) => response.json())
           .then((data) => {
             resolve(data);
