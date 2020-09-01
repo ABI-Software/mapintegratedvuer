@@ -1,44 +1,49 @@
 <template>
-  <el-drawer
-    class="side-bar"
-    :visible.sync="drawerOpen"
-    :appendToBody="false"
-    :size="'550'"
-    :with-header="false"
-    :wrapperClosable="false"
-  >
-    <el-card class="box-card">
-      <div slot="header" class="header">
-        <el-input
-          class="search-input"
-          placeholder="Search"
-          v-model="searchInput"
-          @keyup.native="searchEvent"
-          clearable
-        ></el-input>
-        <el-button @click="searchEvent">Search</el-button>
-        <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
-      </div>
-      <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate"></SearchFilters>
-      <el-pagination class="pagination" small layout="prev, pager, next" :total="50"></el-pagination>
-      <div class="wrapper">
-        <div class="wrapper-left">
-          <i class="el-icon-arrow-right" @click="close"></i>
+  <div>
+    <div v-if="!drawerOpen" @click="close" class="open-tab">
+      <i class="el-icon-arrow-left"></i>
+    </div>
+    <el-drawer
+      class="side-bar"
+      :visible.sync="drawerOpen"
+      :appendToBody="false"
+      :size="'550'"
+      :with-header="false"
+      :wrapperClosable="false"
+    >
+      <el-card class="box-card">
+        <div slot="header" class="header">
+          <el-input
+            class="search-input"
+            placeholder="Search"
+            v-model="searchInput"
+            @keyup.native="searchEvent"
+            clearable
+          ></el-input>
+          <el-button @click="searchEvent">Search</el-button>
+          <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
         </div>
-        <div class="wrapper-right">
-          <div class="content scrollbar"  v-loading="loadingCards">
-            <div class="card-container">
-              <span v-if="results.length > 0" class="dataset-table-title">Title</span>
-              <span v-if="results.length > 0" class="image-table-title">Image</span>
-            </div>
-            <div v-for="o in results" :key="o.id" class="step-item">
-              <DatasetCard :entry="o"></DatasetCard>
+        <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate"></SearchFilters>
+        <el-pagination class="pagination" small layout="prev, pager, next" :total="50"></el-pagination>
+        <div class="wrapper">
+          <div class="wrapper-left">
+            <i class="el-icon-arrow-right" @click="close"></i>
+          </div>
+          <div class="wrapper-right">
+            <div class="content scrollbar"  v-loading="loadingCards">
+              <div class="card-container">
+                <span v-if="results.length > 0" class="dataset-table-title">Title</span>
+                <span v-if="results.length > 0" class="image-table-title">Image</span>
+              </div>
+              <div v-for="o in results" :key="o.id" class="step-item">
+                <DatasetCard :entry="o"></DatasetCard>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </el-card>
-  </el-drawer>
+      </el-card>
+    </el-drawer>
+  </div>
 </template>
 
 
@@ -108,7 +113,7 @@ export default {
   },
   methods: {
     close: function () {
-      this.drawerOpen = false;
+      this.drawerOpen = !this.drawerOpen;
     },
     openSearch: function (search) {
       this.drawerOpen = true;
@@ -185,6 +190,27 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.open-tab{
+  width: 20px;
+  height: 40px;
+  z-index: 25;
+  position: absolute;
+  top: calc(50vh - 80px);
+  right: -26px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
+  border: solid 1px var(--pale-grey);
+  background-color: #F7FAFF;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.el-icon-arrow-left{
+  font-size: 20px;
+  padding-top: 8px;
+  color: #292b66;
+}
+
 .box-card{
   pointer-events: auto;
 }
