@@ -211,8 +211,7 @@ export default {
     dialogClicked: function(id) {
       this.bringDialogToFront(id);
     },
-    resourceSelected: function(resource) {
-      console.log(resource);
+    resourceSelected: function() {
       this.onFlowChange('resourceSelected');
     },
     flatmapChanged: function (){
