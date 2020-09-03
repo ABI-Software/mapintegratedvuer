@@ -39,7 +39,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .title {
-  font-family: "HelveticaMedium";
   font-size: 14px;
   font-weight: bold;
   font-stretch: normal;
@@ -52,7 +51,6 @@ export default {
 .description {
   width: 426px;
   padding-top: 0.2em;
-  font-family: "Helvetica";
   font-size: 14px;
   font-weight: normal;
   font-stretch: normal;

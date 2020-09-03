@@ -13,7 +13,8 @@
         :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady"/>
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
-        :backgroundToggle=true :traditional=true :helpMode="helpMode"/>
+        :backgroundToggle=true :traditional=true :helpMode="helpMode"
+        :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" :helpMode="helpMode" style="height: 200px"></PlotVuer>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />

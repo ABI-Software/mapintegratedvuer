@@ -9,7 +9,6 @@
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
 import Tutorial from './Tutorial.vue';
-import '../../assets/mapicon-species-style.css';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -81,4 +80,5 @@ export default {
   z-index:1;
 }
 </style>
-
+<style src="../../assets/mapicon-species-style.css">
+</style>
