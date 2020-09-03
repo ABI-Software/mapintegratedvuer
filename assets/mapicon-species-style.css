@@ -1,10 +1,10 @@
+
 @font-face {
   font-family: 'mapicon-species';
   src:  url('fonts/mapicon-species.eot?h40clo');
   src:  url('fonts/mapicon-species.eot?h40clo#iefix') format('embedded-opentype'),
     url('fonts/mapicon-species.ttf?h40clo') format('truetype'),
-    url('fonts/mapicon-species.woff?h40clo') format('woff'),
-    url('fonts/mapicon-species.svg?h40clo#mapicon-species') format('svg');
+    url('fonts/mapicon-species.woff?h40clo') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: block;

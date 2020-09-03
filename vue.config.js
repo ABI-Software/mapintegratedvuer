@@ -7,12 +7,18 @@ module.exports = {
         .use('raw-loader')
           .loader('raw-loader')
           .end()
+      const fontsRule = config.module.rule('fonts')
+      fontsRule.uses.clear()
+      config.module
         .rule('fonts')
-        .test(/\.(woff|woff2|eot|ttf|svg|png|jpg|jpeg)(\?.*$|$)/)
-        .use('file-loader')
-          .loader('file-loader')
-          .end()
-
+        .test(/\.(ttf|otf|eot|woff|woff2)$/)
+        .use('base64-inline-loader')
+        .loader('base64-inline-loader')
+        .tap(options => {
+          // modify the options...    
+          return options
+        })
+        .end()
     },
     devServer: {
       disableHostCheck: true
