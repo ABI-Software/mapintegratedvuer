@@ -13,7 +13,7 @@
           <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
         </span>
         <span class="card-right">
-          <img class="banner-img" v-bind:src="thumbnail" @click="cardClicked"/>
+          <img class="banner-img" :src="thumbnail" @click="cardClicked"/>
         </span>
       </div>
     </div>
@@ -52,7 +52,7 @@ export default {
   },
   data: function () {
     return {
-      thumbnail: "../.././assets/example-banner.jpg",
+      thumbnail: require('../../assets/missing-image.svg'),
       dataLocation: this.entry.url,
       cardOverflow: false,
       expanded: false
@@ -83,7 +83,12 @@ export default {
     this.cardOverflow = this.isOverflown(this.$refs.card)
   },
   updated: function () {
-    this.cardOverflow = this.isOverflown(this.$refs.card)
+  },
+  watch: { 
+    'entry.description': function() { // watch it
+      this.getBanner()
+      this.cardOverflow = this.isOverflown(this.$refs.card)
+    }
   }
 };
 </script>

@@ -23,8 +23,8 @@
           <el-button @click="searchEvent">Search</el-button>
           <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
         </div>
-        <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate"></SearchFilters>
-        <el-pagination class="pagination" small layout="prev, pager, next" :total="50"></el-pagination>
+        <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
+        <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
         <div class="wrapper">
           <div class="wrapper-left">
             <i class="el-icon-arrow-right" @click="close"></i>
@@ -92,7 +92,10 @@ export default {
       drawerOpen: false,
       numberOfHits: 0,
       filter:{},
-      loadingCards: true
+      loadingCards: true,
+      numberPerPage: 10,
+      page: 1,
+      start: 0
     };
   },
   computed: {
@@ -138,9 +141,20 @@ export default {
       }
       this.searchSciCrunch(this.searchInput)
     },
+    numberPerPageUpdate: function (val) {
+      this.numberPerPage = val;
+      this.pageChange(1);
+    },
+    pageChange: function(page){
+      this.start = (page-1) * this.numberPerPage;
+      this.searchSciCrunch(this.searchInput);
+    },
     searchSciCrunch: function (search) {
       this.loadingCards = true;
-      this.callSciCrunch(api_location, search, this.filter).then((result) => {
+      let params = this.filter;
+      params.size = this.numberPerPage;
+      params.start = this.start;
+      this.callSciCrunch(api_location, search, params).then((result) => {
         this.resultsProcessing(result);
         this.loadingCards = false;
       });
@@ -249,6 +263,17 @@ export default {
 
 .pagination {
   padding-top: 10px;
+  background-color: #F7FAFF;
+}
+
+.pagination>>>button{
+  background-color: #F7FAFF !important;
+}
+.pagination>>>li{
+  background-color: #F7FAFF !important;
+}
+.pagination>>>li.active{
+  color: var(--vibrant-purple);
 }
 
 .dataset-results-feedback {

@@ -1,21 +1,28 @@
 <template>
   <div class="filters">
-    <div class="filter-collapsed" @click="showFilters = !showFilters">Filter</div>
-    <div v-if="showFilters" class="search-filters">
-        <el-cascader
-        class="cascader"
-        placeholder="Filter"
-    :options="options"
-        :props="propss"
-        @change="cascadeEvent($event)"
-        :show-all-levels="false">
-       </el-cascader>
-    </div>
+    <transition name="el-zoom-in-top">
+      <div v-show="showFilters" class="search-filters transition-box">
+          <el-cascader
+          class="cascader"
+          placeholder="Filter"
+      :options="options"
+          :props="propss"
+          @change="cascadeEvent($event)"
+          :show-all-levels="false">
+        </el-cascader>
+      </div>
+    </transition>
+
+    <div class="filter-collapsed" @click="showFilters = !showFilters">
+      <img class="filter-icon" :src="require('../../assets/noun-filter.svg')"/>
+      Filter
+     </div>
+    
     <span
         class="dataset-results-feedback"
       >{{entry.numberOfHits }} Datasets for '{{entry.lastSearch}}' | Showing</span>
       <span v-if="entry.lastSearch  !== ''">
-        <el-select class="number-shown-select" v-model="numberShown" placeholder="10">
+        <el-select class="number-shown-select" v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
           <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
         </el-select>
       </span>
@@ -157,6 +164,9 @@ export default {
     genderFilterSearch: function (event) {
       this.$emit("filterResults", { facet: event, term: "gender" });
     },
+    numberShownChanged: function (event){
+      this.$emit("numberPerPage", event);
+    },
     getGenders: function () {
       var gender = ["All sex"];
       this.callSciCrunch(api_location, facet_endpoint, "gender").then(
@@ -192,6 +202,15 @@ export default {
     justify-content: center;
     align-items: center;
 }
+
+.filter-icon{
+  width: 40px;
+  height: 24px;
+  color: #292b66;
+  transform: scale(1.5);
+  bottom: -10px;
+}
+
 .cascader {
   font-family: Asap;
   font-size: 14px;
@@ -202,17 +221,26 @@ export default {
   letter-spacing: normal;
   color: #292b66; 
   text-align: center;
+
+}
+
+.dataset-results-feedback{
+  text-align: left;
 }
 
 .filter-collapsed {
   font-family: Asap;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   font-stretch: normal;
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
+  text-align: right;
   color: #292b66;
+  width: 100px;
+  float: right;
+  cursor: pointer;
 }
 
 .filter-select {
@@ -243,10 +271,17 @@ export default {
 
 .search-filters {
   text-align: left;
+        -moz-transition: height 0.5s;
+    -ms-transition: height 0.5s;
+    -o-transition: height 0.5s;
+    -webkit-transition: height 0.5s;
+    transition: height 0.5s;
 }
 
->>> .el-select.number-shown-select {
+.number-shown-select >>> .el-input__inner{
   width: 68px;
-  height: 26px;
+  height: 32px;
+  color: #8300bf;
 }
+
 </style>
