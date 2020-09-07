@@ -118,14 +118,15 @@ export default {
     close: function () {
       this.drawerOpen = !this.drawerOpen;
       if(this.drawerOpen){
-        this.searchSciCrunch(this.searchInput);
+        this.openSearch(this.searchInput);
       }
-      
     },
     openSearch: function (search) {
       this.drawerOpen = true;
-      this.searchInput = search;
-      this.searchSciCrunch(search);
+      if (this.searchInput !== search){
+        this.searchInput = search;
+        this.searchSciCrunch(search);
+      }
     },
     searchEvent: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
