@@ -2,7 +2,6 @@
     <div class="mapcontent" ref="MapApp">
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
       <tutorial :parentRefs="this.$refs"></tutorial>
-      <SideBar class="map-help-dialog"></SideBar>
     </div>
 </template>
 
@@ -10,7 +9,6 @@
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
 import Tutorial from './Tutorial.vue';
-import SideBar from './SideBar'
 import '../../assets/mapicon-species-style.css'
 
 /**
@@ -21,7 +19,6 @@ export default {
   components: {
     FloatingFlow,
     Tutorial, 
-    SideBar
   },
   methods: {
     isFullscreen: function(){
