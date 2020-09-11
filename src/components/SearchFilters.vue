@@ -201,13 +201,14 @@ export default {
 .filters{
     justify-content: center;
     align-items: center;
+    padding-bottom: 10px;
 }
 
 .filter-icon{
-  width: 40px;
-  height: 24px;
+  width: 12px;
+  height: 12px;
   color: #292b66;
-  transform: scale(1.5);
+  transform: scale(2);
   bottom: -10px;
 }
 
@@ -221,7 +222,7 @@ export default {
   letter-spacing: normal;
   color: #292b66; 
   text-align: center;
-
+  padding-bottom: 6px;
 }
 
 .dataset-results-feedback{

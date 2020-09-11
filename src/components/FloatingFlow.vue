@@ -88,7 +88,6 @@ export default {
     actionClick:function(action) {
       if (action) {
         if (action.type == "URL") {
-          console.log('in url clobk', action)
           this.$refs.sideBar.openSearch(action.label)
         } else {
           let newId = this.createNewEntry(action);
