@@ -33,7 +33,7 @@
 /* eslint-disable no-alert, no-console */
 import '@abi-software/flatmapvuer';
 import '@abi-software/scaffoldvuer';
-import '@tehsurfer/plotvuer'
+import '@abi-software/plotvuer'
 import { Splitpanes, Pane } from 'splitpanes';
 
 import Vue from "vue";
@@ -128,7 +128,7 @@ export default {
 </style>
 <style scoped src="@abi-software/scaffoldvuer/dist/scaffoldvuer.css">
 </style>
-<style scoped src="@tehsurfer/plotvuer/dist/plotvuer.css">
+<style scoped src="@abi-software/plotvuer/dist/plotvuer.css">
 </style>
 <style scoped src='splitpanes/dist/splitpanes.css'>
 </style>

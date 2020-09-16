@@ -40,8 +40,8 @@ import '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import '@abi-software/scaffoldvuer';
 import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
-import '@tehsurfer/plotvuer';
-import '@tehsurfer/plotvuer/dist/plotvuer.css';
+import '@abi-software/plotvuer';
+import '@abi-software/plotvuer/dist/plotvuer.css';
 
 export default {
   name: "ContentVuer",
@@ -182,4 +182,3 @@ export default {
 }
 
 </style>
-
