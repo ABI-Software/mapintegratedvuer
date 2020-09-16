@@ -6,16 +6,14 @@
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" 
         @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose" 
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
-        :showHelpIcon="true" @startHelp="startHelp"/>       
+        :showHelpIcon="true"/>       
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
         <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
-          @close="dialogClose(item.id)"
-          @resource-selected="resourceSelected"
-          @flatmapChanged="flatmapChanged"/>
+          @close="dialogClose(item.id)"/>
       </div>
     </el-main>
   </el-container>
@@ -74,9 +72,6 @@ export default {
     FloatingDialog
   },
   methods: {
-    onFlowChange: function(action) {
-       EventBus.$emit("FlowChange", action);
-    },
     /**
      * Callback when an action is performed (open new dialogs).
      */
@@ -101,7 +96,6 @@ export default {
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
       this.entries.push(newEntry);
-      this.onFlowChange('createNewEntry');
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -179,7 +173,6 @@ export default {
     dialogMaximise: function(id) {
       this.maximiseDialog(id);
       this.dockDialog(id);
-      this.onFlowChange('dialogMaximise');
     },
     dialogMinimise: function(id) {
       this.minimiseDialog(id);
@@ -211,16 +204,6 @@ export default {
     dialogClicked: function(id) {
       this.bringDialogToFront(id);
     },
-    resourceSelected: function() {
-      this.onFlowChange('resourceSelected');
-    },
-    flatmapChanged: function (){
-      this.onFlowChange('flatmapChanged');
-    },
-    startHelp: function(){
-      this.onFlowChange('startTutorial');
-    },
-    
     resetApp: function(){
       Object.assign(this.$data, initialState());
       var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
