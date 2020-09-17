@@ -18,7 +18,7 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
         data.actions = [
           {
             title: "Explore data",
-            resource: "https://sparc.science/data?type=dataset&q=icn",
+            resource: "icn",
             type: "URL"
           },
           {
@@ -162,7 +162,7 @@ function getRatData(term, label, dataset, scaffold, simulations) {
         data.actions = [
           {
             title: "Explore data",
-            resource: "https://sparc.science/data?type=dataset&q=icn",
+            resource: "icn",
             type: "URL"
           },
           {
