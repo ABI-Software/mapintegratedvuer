@@ -1,13 +1,13 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.25",
+  "version": "0.1.26-beta.1",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
     "test-unit": "mochapack --webpack-config test/unit/webpack.config.js --require test/unit/setup.js test/unit/**/*.spec.js",
     "lint": "vue-cli-service lint",
     "build-bundle": "vue-cli-service build --target lib --name mapintegratedvuer ./src/components/index.js",
-    "build-static": "vue-cli-service build --dest test_html",
+    "build-static": "vue-cli-service build --dest test_html --mode static",
     "start": "vue-cli-service serve"
   },
   "main": "./dist/mapintegratedvuer.common.js",
@@ -24,6 +24,7 @@
     "@abi-software/maptooltip": "^0.1.12",
     "@abi-software/plotvuer": "^0.2.24",
     "@abi-software/scaffoldvuer": "^0.1.41",
+    "@soda/get-current-script": "^1.0.2",
     "core-js": "^3.3.2",
     "d3-time-format": "^3.0.0",
     "element-ui": "^2.13.0",
@@ -33,7 +34,8 @@
     "splitpanes": "^2.2.1",
     "vue": "^2.6.10",
     "vue-cli-plugin-webpack-bundle-analyzer": "^2.0.0",
-    "vue-draggable-resizable": "^2.1.0"
+    "vue-draggable-resizable": "2.1.0",
+    "webpack-node-externals": "^2.5.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.0.0",

@@ -1,3 +1,5 @@
+const nodeExternals = require('webpack-node-externals');
+
 module.exports = {
   pluginOptions: {
     webpackBundleAnalyzer: {
@@ -27,5 +29,10 @@ module.exports = {
     },
     devServer: {
       disableHostCheck: true
-  }
+  },
+  configureWebpack: config => {
+    if(process.env.NODE_ENV === 'production') {
+      config.externals =  [ nodeExternals({}) ];
+    }
+  },
 }
