@@ -1,7 +1,7 @@
 <template>
   <div class="dataset-card-container"  ref="container">
     <div v-bind:class=" expanded ? 'dataset-card-expanded' : 'dataset-card'"  ref="card">
-      <div class="seperator-path"></div>
+      <div v-if="entry.id !== 0" class="seperator-path"></div>
       <div class="card" >
         <span class="card-left" >
           <div class="title" @click="cardClicked">{{entry.description}}</div>

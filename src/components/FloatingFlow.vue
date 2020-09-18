@@ -16,9 +16,9 @@
           @close="dialogClose(item.id)"
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"/>
+          <SideBar ref="sideBar" class="side-bar" :visible="sideBarVisibility"></SideBar>
       </div>
     </el-main>
-    <SideBar ref="sideBar" :visible="sideBarVisibility"></SideBar>
   </el-container>
 </template>
 

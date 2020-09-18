@@ -222,13 +222,18 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.side-bar{
+  position: relative;
+  height: 100%;
+}
+
 .open-tab{
   width: 20px;
   height: 40px;
   z-index: 25;
   position: absolute;
   top: calc(50vh - 80px);
-  right: -26px;
+  right: 0px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
   border: solid 1px var(--pale-grey);
   background-color: #F7FAFF;
@@ -300,6 +305,13 @@ export default {
 
 .card-container {
   display: flex;
+  position: sticky;
+  top:0;
+  background-color: white;
+  z-index: 300;
+  padding-top: 10px;
+  height: 20px;
+  border-bottom: 1px solid var(--pale-grey);
 }
 
 .dataset-table-title {
@@ -368,7 +380,6 @@ export default {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
   border: solid 1px var(--pale-grey);
   background-color: #ffffff;
-  padding-top: 18px;
   overflow-y: scroll;
 }
 
