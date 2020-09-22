@@ -20,10 +20,10 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.27",
-    "@abi-software/maptooltip": "^0.1.12",
-    "@abi-software/plotvuer": "^0.2.24",
-    "@abi-software/scaffoldvuer": "^0.1.42",
+    "@abi-software/flatmapvuer": "^0.1.28",
+    "@abi-software/maptooltip": "^0.1.13",
+    "@abi-software/plotvuer": "^0.2.25",
+    "@abi-software/scaffoldvuer": "^0.1.43",
     "@soda/get-current-script": "^1.0.2",
     "core-js": "^3.3.2",
     "d3-time-format": "^3.0.0",

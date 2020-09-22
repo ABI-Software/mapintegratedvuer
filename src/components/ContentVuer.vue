@@ -36,11 +36,11 @@ import MapPopover from './MapPopover';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
 import {getAvailableTermsForSpecies} from './SimulatedData.js';
-import '@abi-software/flatmapvuer';
+import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
-import '@abi-software/scaffoldvuer';
+import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
 import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
-import '@abi-software/plotvuer';
+import { PlotVuer } from '@abi-software/plotvuer';
 import '@abi-software/plotvuer/dist/plotvuer.css';
 
 export default {
@@ -56,6 +56,10 @@ export default {
     DatasetHeader,
     IframeVuer,
     MapPopover,
+    FlatmapVuer,
+    MultiFlatmapVuer,
+    ScaffoldVuer,
+    PlotVuer,
   },
   methods: {
     /**

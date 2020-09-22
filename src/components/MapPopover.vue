@@ -9,7 +9,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import '@abi-software/maptooltip';
+import { TooltipVuer } from '@abi-software/maptooltip';
 import '@abi-software/maptooltip/dist/maptooltip.css';
 import {simulatedData} from './SimulatedData.js';
 import EventBus from './EventBus';
@@ -19,6 +19,9 @@ import EventBus from './EventBus';
  */
 export default {
   name: "MapPopover",
+  components: {
+    TooltipVuer
+  },
   props: {
     /**
      * Contain information of the region of interest.

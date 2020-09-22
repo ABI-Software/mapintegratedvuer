@@ -31,9 +31,9 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import '@abi-software/flatmapvuer';
-import '@abi-software/scaffoldvuer';
-import '@abi-software/plotvuer'
+import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
+import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
+import { PlotVuer } from '@abi-software/plotvuer';
 import { Splitpanes, Pane } from 'splitpanes';
 
 import Vue from "vue";
@@ -41,7 +41,11 @@ import {
   Button,
   ButtonGroup,
   Dialog,
-  Icon
+  Icon,
+  FlatmapVuer,
+  MultiFlatmapVuer,
+  ScaffoldVuer,
+  PlotVuer,
 } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
