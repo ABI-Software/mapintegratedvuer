@@ -1,15 +1,12 @@
 <template>
     <div class="mapcontent" ref="MapApp">
       <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
-      <tutorial :parentRefs="this.$refs"></tutorial>
     </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
-import Tutorial from './Tutorial.vue';
-import '../../assets/mapicon-species-style.css'
 
 /**
  * Content of the app. More work flows will be added here.
@@ -18,7 +15,6 @@ export default {
   name: "MapContent",
   components: {
     FloatingFlow,
-    Tutorial, 
   },
   methods: {
     isFullscreen: function(){
@@ -93,4 +89,5 @@ export default {
   z-index:1;
 }
 </style>
-
+<style src="../../assets/mapicon-species-style.css">
+</style>

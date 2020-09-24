@@ -7,7 +7,6 @@
 
 <script>
 import MapIntegratedVuer from './components/MapIntegratedVuer.vue'
-import '../assets/fonts.css'
 import  './styleguide.css'
 
 
@@ -23,7 +22,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Asap&display=swap');
 
 #app {
-  font-family: Helvetica, 'Avenir',  Arial, sans-serif;
+  font-family:'Avenir',  Arial, sans-serif;
   letter-spacing: 0.08em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

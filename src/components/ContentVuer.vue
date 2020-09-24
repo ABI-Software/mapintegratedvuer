@@ -13,7 +13,8 @@
         :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady"/>
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
-        :backgroundToggle=true :traditional=true :helpMode="helpMode"/>
+        :backgroundToggle=true :traditional=true :helpMode="helpMode"
+        :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" :helpMode="helpMode" style="height: 200px"></PlotVuer>
       <Search v-else-if="entry.type === 'Search'" :visbility="true" :entry="entry.entry" class="search"></Search>
@@ -37,12 +38,12 @@ import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
 import {getAvailableTermsForSpecies} from './SimulatedData.js';
 import Search from './Search'
-import '@abi-software/flatmapvuer';
+import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
-import '@abi-software/scaffoldvuer';
+import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
 import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
-import '@tehsurfer/plotvuer';
-import '@tehsurfer/plotvuer/dist/plotvuer.css';
+import { PlotVuer } from '@abi-software/plotvuer';
+import '@abi-software/plotvuer/dist/plotvuer.css';
 
 export default {
   name: "ContentVuer",
@@ -57,7 +58,11 @@ export default {
     DatasetHeader,
     IframeVuer,
     MapPopover,
-    Search
+    Search,
+    FlatmapVuer,
+    MultiFlatmapVuer,
+    ScaffoldVuer,
+    PlotVuer,
   },
   methods: {
     /**
@@ -184,4 +189,3 @@ export default {
 }
 
 </style>
-
