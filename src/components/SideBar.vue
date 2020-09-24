@@ -44,6 +44,35 @@
         </div>
       </el-card>
     </el-drawer>
+    <el-card v-if="!isDrawer" class="box-card">
+        <div slot="header" class="header">
+          <el-input
+            class="search-input"
+            placeholder="Search"
+            v-model="searchInput"
+            @keyup.native="searchEvent"
+            clearable
+          ></el-input>
+          <el-button @click="searchEvent">Search</el-button>
+        </div>
+        <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
+        <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
+        <div class="wrapper">
+          <div class="wrapper-left">
+          </div>
+          <div class="wrapper-right">
+            <div class="content scrollbar"  v-loading="loadingCards">
+              <div class="card-container">
+                <span v-if="results.length > 0" class="dataset-table-title">Title</span>
+                <span v-if="results.length > 0" class="image-table-title">Image</span>
+              </div>
+              <div v-for="o in results" :key="o.id" class="step-item">
+                <DatasetCard :entry="o"></DatasetCard>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-card>
   </div>
 </template>
 
@@ -87,10 +116,9 @@ var initial_state = {
       lastSearch: "",
       results: [],
       drawerOpen: false,
-      isDrawer: true,
       numberOfHits: 0,
       filter:{},
-      loadingCards: true,
+      loadingCards: false,
       numberPerPage: 10,
       page: 1,
       start: 0
@@ -99,11 +127,22 @@ var initial_state = {
 export default {
   components: { SearchFilters, DatasetCard },
   name: "SideBar",
-  props: ["visible"],
+  props: {
+    visible: {
+      type: Boolean,
+      default: false
+    },
+    isDrawer: {
+      type: Boolean,
+      default: true
+    },
+    entry: {
+      type: Object,
+      default: () => (initial_state)
+    }
+  },
   data: function () {
-    return {
-      ...initial_state
-    };
+    return {...this.entry}
   },
   computed: {
     filterEntry: function () {
@@ -136,7 +175,7 @@ export default {
     },
     dock: function(){
       EventBus.$emit("PopoverActionClick", {'type': 'Search', 'entry':this.$data});
-      this.drawerOpen = false
+      this.drawerOpen = false;
     },
     searchEvent: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
@@ -376,7 +415,7 @@ export default {
 
 .content {
   width: 518px;
-  height: 1000px;
+  height: 48rem;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
   border: solid 1px var(--pale-grey);
   background-color: #ffffff;

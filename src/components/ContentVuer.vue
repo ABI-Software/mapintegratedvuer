@@ -17,7 +17,7 @@
         :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" :helpMode="helpMode" style="height: 200px"></PlotVuer>
-      <Search v-else-if="entry.type === 'Search'" :visbility="true" :entry="entry.entry" class="search"></Search>
+      <SideBar v-else-if="entry.type === 'Search'" :visbility="true" :isDrawer="false"  :entry="entry.entry" class="search"></SideBar>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
       <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('MultiFlatmap')) || 
         (entry.type === ('Scaffold'))"
@@ -37,7 +37,7 @@ import MapPopover from './MapPopover';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
 import {getAvailableTermsForSpecies} from './SimulatedData.js';
-import Search from './Search'
+import SideBar from './SideBar'
 import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
@@ -58,7 +58,7 @@ export default {
     DatasetHeader,
     IframeVuer,
     MapPopover,
-    Search,
+    SideBar,
     FlatmapVuer,
     MultiFlatmapVuer,
     ScaffoldVuer,
