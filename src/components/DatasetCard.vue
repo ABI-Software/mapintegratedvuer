@@ -28,6 +28,7 @@ import { Link, Icon, Card, Button, Select, Input } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
+import EventBus from "./EventBus"
 
 locale.use(lang);
 Vue.use(Link);
@@ -60,7 +61,20 @@ export default {
   },
   methods: {
     cardClicked: function(){
-      window.open(this.dataLocation,'_blank');
+      if(this.dataLocation === 'https://sparc.science/datasets/29'){
+        let action = {
+          label: "Heart",
+          resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
+          title: "View 3D scaffold",
+          type: "Scaffold"
+        }
+        EventBus.$emit("PopoverActionClick", action)
+      } else if (this.dataLocation === 'https://sparc.science/datasets/29') {
+        console.log(this.dataLocation)
+      } else{
+        window.open(this.dataLocation,'_blank');
+      }
+      
     },
     isOverflown: function(el){
       console.log(el.clientHeight , el.scrollHeight)
