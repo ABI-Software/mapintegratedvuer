@@ -166,11 +166,11 @@ export default {
         this.openSearch(this.searchInput);
       }
     },
-    openSearch: function (search) {
+    openSearch: function (search, filter=undefined) {
       this.drawerOpen = true;
       if (this.searchInput !== search){
         this.searchInput = search;
-        this.searchSciCrunch(search);
+        this.searchSciCrunch(search, filter);
       }
     },
     dock: function(){
@@ -183,12 +183,7 @@ export default {
       }
     },
     filterUpdate: function(filter){
-      if(filter.facet === undefined){
-        this.filter = {}
-      } else {
-        this.filter = filter
-      }
-      this.searchSciCrunch(this.searchInput)
+      this.searchSciCrunch(this.searchInput, filter);
     },
     numberPerPageUpdate: function (val) {
       this.numberPerPage = val;
@@ -198,9 +193,14 @@ export default {
       this.start = (page-1) * this.numberPerPage;
       this.searchSciCrunch(this.searchInput);
     },
-    searchSciCrunch: function (search) {
+    searchSciCrunch: function (search, filter=undefined) {
       this.loadingCards = true;
-      let params = this.filter;
+      let params = {}
+      if (filter !== undefined){
+        params = filter
+      } else {
+         params = this.filter;
+      }
       params.size = this.numberPerPage;
       params.start = this.start;
       this.callSciCrunch(api_location, search, params).then((result) => {
@@ -266,6 +266,10 @@ export default {
   height: 100%;
 }
 
+.side-bar >>> .el-drawer:focus{
+  outline:none;
+}
+
 .open-tab{
   width: 20px;
   height: 40px;
@@ -308,10 +312,6 @@ export default {
   border: solid 1px #292b66;
   background-color: #292b66;
   text-align: left;
-}
-
-.filters {
-  witdth: 518px;
 }
 
 .pagination {
@@ -439,6 +439,7 @@ export default {
 
 .scrollbar::-webkit-scrollbar {
   width: 12px;
+  right: -12px;
   background-color: #f5f5f5;
 }
 

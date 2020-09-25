@@ -19,7 +19,12 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
           {
             title: "Explore data",
             resource: "icn",
-            type: "URL"
+            type: "URL",
+            label: "ICN",
+            filter: {
+              facet: 'anatomy',
+              term: 'heart'
+            },
           },
           {
             title: "View plot",
@@ -56,7 +61,11 @@ function getHumanData(term, label, dataset, scaffold, simulations) {
             title: "Explore data",
             label: "Colon",
             resource: "https://sparc.science/data?type=dataset&q=colon",
-            type: "URL"
+            type: "URL",
+            filter: {
+              facet: 'anatomy',
+              term: 'colon'
+            },
           },
         ];
         break;
