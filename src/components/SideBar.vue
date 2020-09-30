@@ -7,6 +7,7 @@
       class="side-bar"
       :visible.sync="drawerOpen"
       :appendToBody="false"
+      :modal-append-to-body="false"
       :size="'550'"
       :with-header="false"
       :wrapperClosable="false"
@@ -453,13 +454,12 @@ export default {
   padding-right: 10px;
 }
 
-</style>
-<style>
-.v-modal{
+>>> .v-modal{
   pointer-events: none;
   opacity: 0;
 }
-.el-drawer__wrapper{
+
+>>> .el-drawer__wrapper{
   pointer-events: none;
 }
 </style>

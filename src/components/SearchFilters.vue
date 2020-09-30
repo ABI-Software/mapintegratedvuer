@@ -84,7 +84,7 @@ export default {
         "ICN",
         "Left atrium",
       ],
-      facets: ['species', 'gender'],
+      facets: ['species', 'gender', 'anatomy'],
       gender: ["All sex", "Male", "Female", "Uknown"],
       numberDatasetsShown: ["10", "20"],
       defaultSelect: "10",
