@@ -22,7 +22,7 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
             type: "URL",
             label: "ICN",
             filter: {
-              facet: 'anatomy',
+              facet: 'genotype',
               term: 'heart'
             },
           },
@@ -63,7 +63,7 @@ function getHumanData(term, label, dataset, scaffold, simulations) {
             resource: "https://sparc.science/data?type=dataset&q=colon",
             type: "URL",
             filter: {
-              facet: 'anatomy',
+              facet: 'genotype',
               term: 'colon'
             },
           },

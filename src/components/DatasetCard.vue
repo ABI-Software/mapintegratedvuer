@@ -53,7 +53,7 @@ export default {
   },
   data: function () {
     return {
-      thumbnail: require('../../assets/missing-image.svg'),
+      thumbnail: require('../assets/missing-image.svg'),
       dataLocation: this.entry.url,
       cardOverflow: false,
       expanded: false

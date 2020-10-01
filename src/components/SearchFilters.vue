@@ -8,13 +8,14 @@
       :options="options"
           :props="propss"
           @change="cascadeEvent($event)"
-          :show-all-levels="false">
+          :show-all-levels="false"
+          :append-to-body="false">
         </el-cascader>
       </div>
     </transition>
 
     <div class="filter-collapsed" @click="showFilters = !showFilters">
-      <img class="filter-icon" :src="require('../../assets/noun-filter.svg')"/>
+      <img class="filter-icon" :src="require('../assets/noun-filter.svg')"/>
       Filter
      </div>
     
@@ -22,7 +23,7 @@
         class="dataset-results-feedback"
       >{{entry.numberOfHits }} Datasets for '{{entry.lastSearch}}' | Showing</span>
       <span v-if="entry.lastSearch  !== ''">
-        <el-select class="number-shown-select" v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
+        <el-select class="number-shown-select"  v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
           <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
         </el-select>
       </span>
@@ -37,6 +38,7 @@ import { Link, Icon, Card, Button, Select, Cascader } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
+import nounFilter from '../assets/noun-filter.svg'
 
 locale.use(lang);
 Vue.use(Link);
@@ -62,6 +64,7 @@ export default {
   data: function () {
     return {
       showFilters: false,
+      nounFilter: nounFilter,
       speciesSelected: [],
       organSelected: [],
       regionSelected: [],
@@ -84,9 +87,9 @@ export default {
         "ICN",
         "Left atrium",
       ],
-      facets: ['species', 'gender', 'anatomy'],
+      facets: ['species', 'gender', 'genotype'],
       gender: ["All sex", "Male", "Female", "Uknown"],
-      numberDatasetsShown: ["10", "20"],
+      numberDatasetsShown: ["10", "20", "50"],
       defaultSelect: "10",
       propss: { multiple: true },
       options: [{

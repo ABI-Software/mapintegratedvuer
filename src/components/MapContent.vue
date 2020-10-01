@@ -88,6 +88,8 @@ export default {
   width:100%;
   z-index:1;
 }
+
 </style>
-<style src="../../assets/mapicon-species-style.css">
+<style src="../assets/mapicon-species-style.css">
 </style>
+

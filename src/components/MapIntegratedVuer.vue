@@ -43,5 +43,5 @@ export default {
 }
 
 </style>
-<style  scoped src="./assets/styleguide.css">
+<style src="../assets/styleguide.css">
 </style>
