@@ -57,8 +57,8 @@ import Vue from "vue";
 import { Menu, MenuItem, Submenu, Row, Col} from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
-import exploreDatasetImage from "../assets/exploreDataset-192px.png"
-import exploreMapImage from "../assets/exploreData2Dmap-192px.png"
+import exploreDatasetImage from "@/assets/exploreDataset-192px.png"
+import exploreMapImage from "@/assets/exploreData2Dmap-192px.png"
 
 locale.use(lang);
 Vue.use(Menu);
@@ -75,7 +75,7 @@ export default {
   data: function() {
     return {
       activeIndex: "1",
-      sparcLogo: require('../assets/sparc-logo-primary.svg'),
+      sparcLogo: require('@/assets/sparc-logo-primary.svg'),
       learnCards: [
         {
           image: exploreDatasetImage,
