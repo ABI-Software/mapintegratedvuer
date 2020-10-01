@@ -1,6 +1,6 @@
 {
   "name": "@tehsurfer/mapintegratedvuer",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",

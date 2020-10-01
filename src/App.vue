@@ -7,7 +7,7 @@
 
 <script>
 import MapIntegratedVuer from './components/MapIntegratedVuer.vue'
-import  './styleguide.css'
+
 
 
 export default {
