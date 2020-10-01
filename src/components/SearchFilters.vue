@@ -15,7 +15,7 @@
     </transition>
 
     <div class="filter-collapsed" @click="showFilters = !showFilters">
-      <img class="filter-icon" :src="require('@/../assets/noun-filter.svg')"/>
+      <img class="filter-icon" :src="require('../../assets/noun-filter.svg')"/>
       Filter
      </div>
     
@@ -38,7 +38,7 @@ import { Link, Icon, Card, Button, Select, Cascader } from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
-import nounFilter from '@/../assets/noun-filter.svg'
+import nounFilter from '../../assets/noun-filter.svg'
 
 locale.use(lang);
 Vue.use(Link);
