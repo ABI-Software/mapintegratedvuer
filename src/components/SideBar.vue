@@ -11,6 +11,7 @@
       :size="'550'"
       :with-header="false"
       :wrapperClosable="false"
+      :modal="false"
       v-if="isDrawer"
     >
       <el-card class="box-card">
@@ -265,6 +266,7 @@ export default {
 .side-bar{
   position: relative;
   height: 100%;
+  pointer-events: none;
 }
 
 .side-bar >>> .el-drawer:focus{
@@ -290,9 +292,7 @@ export default {
   font-size: 20px;
   padding-top: 8px;
   color: #292b66;
-}
-
-.box-card{
+  cursor: pointer;
   pointer-events: auto;
 }
 
@@ -390,6 +390,8 @@ export default {
 
 >>> .el-card__body {
   background-color: #f7faff;
+  height: calc(100% - 8rem);
+  overflow-y: hidden;
 }
 
 .wrapper{
@@ -416,7 +418,7 @@ export default {
 
 .content {
   width: 518px;
-  height: 48rem;
+  height: calc(100vh - 19.5rem);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
   border: solid 1px var(--pale-grey);
   background-color: #ffffff;
@@ -425,7 +427,8 @@ export default {
 
 .box-card {
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
+  pointer-events: auto;
 }
 
 .active {
@@ -454,12 +457,4 @@ export default {
   padding-right: 10px;
 }
 
->>> .v-modal{
-  pointer-events: none;
-  opacity: 0;
-}
-
->>> .el-drawer__wrapper{
-  pointer-events: none;
-}
 </style>
