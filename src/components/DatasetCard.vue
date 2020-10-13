@@ -9,6 +9,7 @@
           <div class="details">{{entry.numberSamples}} sample(s)</div>
           <div class="details"><template v-for="(sex, i) in entry.sexes"><template v-if="i !== 0">, </template>{{sex}}</template></div>
           <div v-if="entry.age" class="details">{{entry.age}}</div>
+          <div class="details">Has scaffold: {{entry.scaffold}}</div>
           <div class="details">Last updated: {{entry.updated}}</div>
           <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
         </span>
@@ -61,10 +62,10 @@ export default {
   },
   methods: {
     cardClicked: function(){
-      if(this.dataLocation === 'https://sparc.science/datasets/29'){
+      if(this.dataLocation === 'https://sparc.science/datasets/77'){
         let action = {
           label: "Heart",
-          resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/others/29_Jan_2020/heartICN_metadata.json",
+          resource: this.getScaffoldPath(this.dataLocation),
           title: "View 3D scaffold",
           type: "Scaffold"
         }
@@ -75,6 +76,11 @@ export default {
         window.open(this.dataLocation,'_blank');
       }
       
+    },
+    getScaffoldPath: function(dataLocation){
+      let discoverId = dataLocation.split('/').pop()
+      let path = `http://localhost:5000/s3-resource/${discoverId}/1/files/derivative/integrated-scaffold/integrated_metadata.json`
+      return path 
     },
     isOverflown: function(el){
       console.log(el.clientHeight , el.scrollHeight)

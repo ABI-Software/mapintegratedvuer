@@ -239,6 +239,7 @@ export default {
           url: element.current[0].uri,
           datasetId: element.identifier,
           id: id,
+          scaffold: element.scaffold ? true : false
         });
         id++;
       });
