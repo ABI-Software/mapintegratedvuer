@@ -49,6 +49,11 @@ git clone https://github.com/ABI-Software/mapintegratedvuer
 npm install
 ```
 
+### Create an instance
+```bash
+npm run serve
+```
+
 ### Compiles and minifies for production
 ```bash
 npm run build-bundle
