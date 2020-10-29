@@ -13,7 +13,7 @@
           <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
         </span>
         <span class="card-right">
-          <img class="banner-img" :src="thumbnail" @click="cardClicked"/>
+          <img svg-inline class="banner-img" src="@/../assets/missing-image.svg" @click="cardClicked"/>
         </span>
       </div>
     </div>
@@ -53,7 +53,6 @@ export default {
   },
   data: function () {
     return {
-      thumbnail: require('@/../assets/missing-image.svg'),
       dataLocation: this.entry.url,
       cardOverflow: false,
       expanded: false
