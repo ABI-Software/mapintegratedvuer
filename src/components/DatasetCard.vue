@@ -14,7 +14,7 @@
           <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
         </span>
         <span class="card-right">
-          <img svg-inline class="banner-img" src="@/../assets/missing-image.svg" @click="cardClicked"/>
+          <img svg-inline class="banner-img" :src="thumbnail" @click="cardClicked"/>
         </span>
       </div>
     </div>
@@ -39,8 +39,6 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Input);
 
-
-
 var api_location = process.env.VUE_APP_API_LOCATION + "banner/";
 
 export default {
@@ -54,6 +52,7 @@ export default {
   },
   data: function () {
     return {
+      thumbnail: require('@/../assets/missing-image.svg'),
       dataLocation: this.entry.url,
       cardOverflow: false,
       expanded: false
@@ -90,10 +89,21 @@ export default {
     },
     getBanner: function () {
       fetch(api_location + this.entry.datasetId)
-        .then((response) => response.json())
+        .then((response) =>{ 
+          if (!response.ok){
+            throw Error(response.statusText)
+          } else {
+             return response.json()
+          }
+        })
         .then((data) => {
           this.thumbnail = data.banner
           this.dataLocation = 'https://sparc.science/datasets/' + data.id
+        })
+        .catch(() => {
+          //set defaults if we hit an error
+          this.thumbnail = require('@/../assets/missing-image.svg')
+          this.dataLocation = this.entry.url
         });
     },
   },
