@@ -14,38 +14,35 @@
       :modal="false"
       v-if="isDrawer"
     >
-      <el-card class="box-card">
-        <div slot="header" class="header">
-          <el-input
-            class="search-input"
-            placeholder="Search"
-            v-model="searchInput"
-            @keyup.native="searchEvent"
-            clearable
-            @clear="clearSearchClicked"
-          ></el-input>
-          <el-button @click="searchEvent">Search</el-button>
-          <i class="el-icon-copy-document" style="float: right; padding: 3px 0" @click="dock"></i>
+      <div class="splitter">
+        <div v-if="drawerOpen" @click="close" class="close-tab">
+          <i class="el-icon-arrow-right"></i>
         </div>
-        <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
-        <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
-        <div class="wrapper">
-          <div class="wrapper-left">
-            <i class="el-icon-arrow-right" @click="close"></i>
+        <el-card class="box-card">
+          <div slot="header" class="header">
+            <el-input
+              class="search-input"
+              placeholder="Search"
+              v-model="searchInput"
+              @keyup.native="searchEvent"
+              clearable
+              @clear="clearSearchClicked"
+            ></el-input>
+            <el-button @click="searchEvent">Search</el-button>
           </div>
-          <div class="wrapper-right">
-            <div class="content scrollbar"  v-loading="loadingCards">
-              <div class="card-container">
-                <span v-if="results.length > 0" class="dataset-table-title">Title</span>
-                <span v-if="results.length > 0" class="image-table-title">Image</span>
-              </div>
-              <div v-for="o in results" :key="o.id" class="step-item">
-                <DatasetCard :entry="o"></DatasetCard>
-              </div>
+          <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
+          <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
+          <div class="content scrollbar"  v-loading="loadingCards">
+            <div class="card-container">
+              <span v-if="results.length > 0" class="dataset-table-title">Title</span>
+              <span v-if="results.length > 0" class="image-table-title">Image</span>
+            </div>
+            <div v-for="o in results" :key="o.id" class="step-item">
+              <DatasetCard :entry="o"></DatasetCard>
             </div>
           </div>
-        </div>
-      </el-card>
+        </el-card>
+      </div>
     </el-drawer>
     <el-card v-if="!isDrawer" class="box-card">
         <div slot="header" class="header">
@@ -269,6 +266,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- Not that splitter flex is currently not working as width is defined by 'content' for some reason -->
 <style scoped>
 .side-bar{
   position: relative;
@@ -300,6 +298,42 @@ export default {
   padding-top: 8px;
   color: #292b66;
   cursor: pointer;
+  pointer-events: auto;
+}
+
+.el-icon-arrow-right{
+  font-size: 20px;
+  padding-top: 8px;
+  color: #292b66;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.splitter{
+  display: flex;
+  flex-direction: row;
+}
+
+.close-tab{
+  flex: 1;
+  width: 20px;
+  height: 40px;
+  z-index: 10055;
+  position: absolute;
+  top: calc(50vh - 80px);
+  right: 540px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
+  border: solid 1px var(--pale-grey);
+  background-color: #F7FAFF;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.box-card {
+  flex: 3;
+  height: 100%;
+  overflow: hidden;
   pointer-events: auto;
 }
 
@@ -415,14 +449,6 @@ export default {
   padding-right: 32px;
 }
 
-.el-icon-arrow-right{
-  cursor: pointer;
-  font-size: 20px;
-  top: 50%; 
-  position: absolute;
-  left: 0;
-}
-
 .content {
   width: 518px;
   height: calc(100vh - 19.5rem);
@@ -432,11 +458,6 @@ export default {
   overflow-y: scroll;
 }
 
-.box-card {
-  height: 100%;
-  overflow: hidden;
-  pointer-events: auto;
-}
 
 .active {
   width: 380px !important;
