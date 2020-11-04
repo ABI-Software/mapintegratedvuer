@@ -6,7 +6,7 @@
           class="cascader"
           placeholder="Filter"
           :options="options"
-          :props="propss"
+          :props="props"
           @change="cascadeEvent($event)"
           :show-all-levels="false"
           :append-to-body="false">
@@ -21,12 +21,10 @@
     
     <span
         class="dataset-results-feedback"
-      >{{entry.numberOfHits }} Datasets for '{{entry.lastSearch}}' | Showing</span>
-      <span v-if="entry.lastSearch  !== ''">
-        <el-select class="number-shown-select"  v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
-          <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
-        </el-select>
-      </span>
+      >{{this.numberOfDatasetsResultText}}</span>
+      <el-select class="number-shown-select"  v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
+        <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
+      </el-select>
   </div>
 </template>
 
@@ -89,7 +87,7 @@ export default {
       gender: ["All sex", "Male", "Female", "Uknown"],
       numberDatasetsShown: ["10", "20", "50"],
       defaultSelect: "10",
-      propss: { multiple: true },
+      props: { multiple: true },
       options: [{
         value: 1,
         label: 'Species',
@@ -97,6 +95,15 @@ export default {
         }]
       }]
     };
+  },
+  computed: {
+    numberOfDatasetsResultText: function(){
+      var searchTermConfirmation = ''
+      if (this.entry.lastSearch !== ''){
+        searchTermConfirmation = `for '${this.entry.lastSearch}'`
+      }
+      return `${this.entry.numberOfHits} Datasets ${searchTermConfirmation} | Showing`
+    }
   },
   methods: {
     populateCascader: function () {
@@ -133,17 +140,6 @@ export default {
         );
       })
     },
-    getSpecies: function () {
-      var species = ["All species"];
-      this.callSciCrunch(api_location, facet_endpoint, "species").then(
-        (species_terms) => {
-          species_terms.forEach((element) => {
-            species.push(element["key"]);
-          });
-          this.species = [...new Set(species)];
-        }
-      );
-    },
     cascadeEvent: function(event){
       var output = { facet: undefined, term: undefined }
       let id = event[0][1]
@@ -156,8 +152,6 @@ export default {
         }
       }
       this.$emit("filterResults", output);
-      this.showFilters = false;
-
     },
     speciesFilterSearch: function (event) {
       this.$emit("filterResults", { facet: event, term: "species" });
@@ -167,17 +161,6 @@ export default {
     },
     numberShownChanged: function (event){
       this.$emit("numberPerPage", event);
-    },
-    getGenders: function () {
-      var gender = ["All sex"];
-      this.callSciCrunch(api_location, facet_endpoint, "gender").then(
-        (gender_terms) => {
-          gender_terms.forEach((element) => {
-            gender.push(element["key"]);
-          });
-          this.gender = [...new Set(gender)];
-        }
-      );
     },
     callSciCrunch: function (api_location, endpoint, term) {
       return new Promise((resolve) => {
@@ -191,8 +174,6 @@ export default {
   },
   mounted: function () {
     this.populateCascader();
-    this.getSpecies();
-    this.getGenders();
   },
 };
 </script>

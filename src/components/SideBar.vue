@@ -22,6 +22,7 @@
             v-model="searchInput"
             @keyup.native="searchEvent"
             clearable
+            @clear="clearSearchClicked"
           ></el-input>
           <el-button @click="searchEvent">Search</el-button>
           <i class="el-icon-copy-document" style="float: right; padding: 3px 0" @click="dock"></i>
@@ -54,6 +55,7 @@
             v-model="searchInput"
             @keyup.native="searchEvent"
             clearable
+            @clear="clearSearchClicked"
           ></el-input>
           <el-button @click="searchEvent">Search</el-button>
         </div>
@@ -147,18 +149,13 @@ export default {
     return {...this.entry}
   },
   computed: {
+    // This computed property populates filter data's entry object with $data from this sidebar
     filterEntry: function () {
       return {
         results: this.results,
         lastSearch: this.lastSearch,
         numberOfHits: this.numberOfHits,
       };
-    },
-  },
-  watch: {
-    search: function (val) {
-      this.searchInput = val;
-      this.lastSearch = val;
     },
   },
   methods: {
@@ -175,6 +172,10 @@ export default {
         this.searchSciCrunch(search, filter);
       }
     },
+    clearSearchClicked: function(){
+      this.searchInput = ''
+      this.searchSciCrunch(this.searchInput)
+    },
     dock: function(){
       EventBus.$emit("PopoverActionClick", {'type': 'Search', 'entry':this.$data});
       this.drawerOpen = false;
@@ -186,6 +187,7 @@ export default {
     },
     filterUpdate: function(filter){
       this.searchSciCrunch(this.searchInput, filter);
+      this.filter = filter
     },
     numberPerPageUpdate: function (val) {
       this.numberPerPage = val;
@@ -245,12 +247,16 @@ export default {
       });
     },
     callSciCrunch: function (api_location, search, params={}) {
+      console.log('search', search, 'params', params)
       return new Promise((resolve) => {
         var endpoint = api_location;
         // Add parameters if we are sent them
         if (search !== '' && Object.entries(params).length !== 0){
           endpoint = api_location + search + '/?' + (new URLSearchParams(params)).toString();
+        } else {
+          endpoint = api_location + '?' + (new URLSearchParams(params)).toString();
         }
+        
         fetch(endpoint)
           .then((response) => response.json())
           .then((data) => {
