@@ -260,11 +260,6 @@ export default {
 
 .search-filters {
   text-align: left;
-        -moz-transition: height 0.5s;
-    -ms-transition: height 0.5s;
-    -o-transition: height 0.5s;
-    -webkit-transition: height 0.5s;
-    transition: height 0.5s;
 }
 
 .number-shown-select >>> .el-input__inner{
