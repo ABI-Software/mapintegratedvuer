@@ -142,6 +142,12 @@ export default {
     },
     cascadeEvent: function(event){
       var output = { facet: undefined, term: undefined }
+      // If filters have been cleared, send an empty object
+      if(event[0] === undefined){
+       this.$emit("filterResults", {});
+       return 
+      }
+      // event[0][1] contains the index of the latest addition
       let id = event[0][1]
       for(let i in this.options){
         for(let j in this.options[i].children){
