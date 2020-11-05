@@ -28,6 +28,7 @@ import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
 import SideBar from './SideBar';
 import EventBus from './EventBus';
+import speciesMap from './species-map'
 import Vue from "vue";
 import {
   Container,
@@ -85,7 +86,7 @@ export default {
     actionClick:function(action) {
       if (action) {
         if (action.type == "URL") {
-          this.$refs.sideBar.openSearch(action.label, action.filter)
+          this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
         } else {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);
