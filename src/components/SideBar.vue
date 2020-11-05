@@ -243,15 +243,24 @@ export default {
         id++;
       });
     },
+    creatfilterParams: function(params){
+      var paramsString = ''
+      for(let param in params){
+        paramsString += (new URLSearchParams(params[param])).toString()
+        paramsString += '&'
+      }
+      paramsString = paramsString.slice(0, -1);
+      return paramsString
+    },
     callSciCrunch: function (api_location, search, params={}) {
       console.log('search', search, 'params', params)
       return new Promise((resolve) => {
         var endpoint = api_location;
         // Add parameters if we are sent them
         if (search !== '' && Object.entries(params).length !== 0){
-          endpoint = api_location + search + '/?' + (new URLSearchParams(params)).toString();
+          endpoint = api_location + search + '/?' + this.creatfilterParams(params)
         } else {
-          endpoint = api_location + '?' + (new URLSearchParams(params)).toString();
+          endpoint = api_location + '?' + this.creatfilterParams(params)
         }
         
         fetch(endpoint)
@@ -291,14 +300,13 @@ export default {
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .el-icon-arrow-left{
   font-size: 20px;
   padding-top: 8px;
   color: #292b66;
-  cursor: pointer;
-  pointer-events: auto;
 }
 
 .el-icon-arrow-right{
@@ -328,6 +336,7 @@ export default {
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
+  pointer-events: auto;
 }
 
 .box-card {

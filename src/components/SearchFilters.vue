@@ -67,6 +67,7 @@ export default {
       genderSelected: [],
       numberShown: 10,
       species: ["All species", "Mouse", "Pig", "Human"],
+      filters: [],
       organ: [
         "All organs",
         "Heart",
@@ -141,29 +142,34 @@ export default {
       })
     },
     cascadeEvent: function(event){
-      var output = { facet: undefined, term: undefined }
       // If filters have been cleared, send an empty object
       if(event[0] === undefined){
        this.$emit("filterResults", {});
        return 
       }
+      window.evv = event
+      this.filters = []
       // event[0][1] contains the index of the latest addition
-      let id = event[0][1]
       for(let i in this.options){
         for(let j in this.options[i].children){
-          if(this.options[i].children[j].value == id){
-            output.facet = this.options[i].children[j].label
-            output.term = this.options[i].label
+          for(let k in event){
+            if(event[k] !== undefined){
+              var id = event[k][1]
+              if(this.options[i].children[j].value == id){
+                let output = {}
+                output.facet = this.options[i].children[j].label
+                output.term = this.options[i].label
+                this.filters.push(output)
+              }
+            }
           }
         }
       }
-      this.$emit("filterResults", output);
-    },
-    speciesFilterSearch: function (event) {
-      this.$emit("filterResults", { facet: event, term: "species" });
-    },
-    genderFilterSearch: function (event) {
-      this.$emit("filterResults", { facet: event, term: "gender" });
+      // // Don't send a filter if all is selected
+      // if(output.facet.includes('All')){
+      //   output = {}
+      // }
+      this.$emit("filterResults", this.filters);
     },
     numberShownChanged: function (event){
       this.$emit("numberPerPage", event);
