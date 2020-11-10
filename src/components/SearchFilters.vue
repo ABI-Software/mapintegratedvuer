@@ -14,7 +14,6 @@
         </el-cascader>
       </div>
     </transition>
-    <el-button @click="cascadeSelected=[[3, 21]]">Select first</el-button>
     <div class="filter-collapsed" @click="showFilters = !showFilters">
       <img svg-inline class="filter-icon" src='@/../assets/noun-filter.svg'/>
       Filter

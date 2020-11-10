@@ -199,6 +199,7 @@ export default {
       this.loadingCards = true;
       if(this.$refs.content){
         this.$refs.content.scroll({top:0, behavior:'smooth'})
+        this.$refs.content.style['overflow-y'] = 'hidden'
       } 
       let params = {}
       if (filter !== undefined){
@@ -211,6 +212,7 @@ export default {
       this.callSciCrunch(api_location, search, params).then((result) => {
         this.resultsProcessing(result);
         this.loadingCards = false;
+        this.$refs.content.style['overflow-y'] = 'scroll'
       });
     },
     resultsProcessing: function (data) {
