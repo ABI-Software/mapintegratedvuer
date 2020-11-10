@@ -4,6 +4,7 @@
       <div v-show="showFilters" class="search-filters transition-box">
           <el-cascader
           class="cascader"
+          v-model="cascadeSelected"
           placeholder="Filter"
           :options="options"
           :props="props"
@@ -13,7 +14,7 @@
         </el-cascader>
       </div>
     </transition>
-
+    <el-button @click="cascadeSelected=[[3, 21]]">Select first</el-button>
     <div class="filter-collapsed" @click="showFilters = !showFilters">
       <img svg-inline class="filter-icon" src='@/../assets/noun-filter.svg'/>
       Filter
@@ -61,10 +62,7 @@ export default {
   data: function () {
     return {
       showFilters: false,
-      speciesSelected: [],
-      organSelected: [],
-      regionSelected: [],
-      genderSelected: [],
+      cascadeSelected: [],
       numberShown: 10,
       species: ["All species", "Mouse", "Pig", "Human"],
       filters: [],
@@ -110,23 +108,25 @@ export default {
     populateCascader: function () {
       var value = 1
       this.options = []
-      this.facets.forEach((term)=>{
-        this.getFacet(term).then((facets)=>{
-          this.options.push({
+      for(let i in this.facets){
+        this.options.push({
             value: value,
-            label: term,
+            label: this.facets[i],
             children: []
           })
           value++;
-          facets.forEach((facet)=>{
-            this.options[this.options.length-1].children.push({
+      }
+      for(let i in this.facets){
+        this.getFacet(this.facets[i]).then((labels)=>{
+          for(let j in labels){
+            this.options[i].children.push({
               value: value,
-              label: facet, 
+              label: labels[j], 
             })
             value++;
-          })
+          }
         })
-      })
+      }
     },
     getFacet: function (facet) {
       return new Promise((resolve) => {
@@ -142,6 +142,7 @@ export default {
       })
     },
     cascadeEvent: function(event){
+      console.log(this.cascadeSelected)
       // If filters have been cleared, send an empty object
       if(event[0] === undefined){
        this.$emit("filterResults", {});
@@ -183,6 +184,18 @@ export default {
           });
       });
     },
+    setCascader: function(tagName){
+      for(let i in this.options){
+        for(let j in this.options[i].children){
+          if(tagName === this.options[i].children[j].label){
+            console.log('label found')
+            console.log('adding the following: ', [Number(i)+1,this.options[i].children[j].value])
+        this.cascadeSelected = [[Number(i)+1,this.options[i].children[j].value]]
+          }
+        }
+      }
+      this.showFilters = true
+    }
   },
   mounted: function () {
     this.populateCascader();

@@ -30,7 +30,7 @@
             ></el-input>
             <el-button @click="searchEvent">Search</el-button>
           </div>
-          <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
+          <SearchFilters class="filters" ref="filtersRef" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
           <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
             <div class="card-container">
@@ -166,6 +166,7 @@ export default {
       this.drawerOpen = true;
       if (this.searchInput !== search){
         this.searchInput = search;
+        this.$refs.filtersRef.setCascader(filter[0].facet)
         this.searchSciCrunch(search, filter);
       }
     },
