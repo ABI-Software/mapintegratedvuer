@@ -33,7 +33,7 @@
           <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
           <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
-            <div class="card-container" v-loading="loadingCards">
+            <div class="card-container">
               <span v-if="results.length > 0" class="dataset-table-title">Title</span>
               <span v-if="results.length > 0" class="image-table-title">Image</span>
             </div>
@@ -196,7 +196,9 @@ export default {
     },
     searchSciCrunch: function (search, filter=undefined) {
       this.loadingCards = true;
-      this.$refs.content.scroll({top:0, behavior:'smooth'})
+      if(this.$refs.content){
+        this.$refs.content.scroll({top:0, behavior:'smooth'})
+      } 
       let params = {}
       if (filter !== undefined){
         params = filter
@@ -239,7 +241,8 @@ export default {
           url: element.current[0].uri,
           datasetId: element.identifier,
           id: id,
-          scaffold: element.scaffold ? true : false
+          scaffold: element.scaffold ? true : false,
+          scaffolds: element.scaffold ? element.scaffolds : false
         });
         id++;
       });

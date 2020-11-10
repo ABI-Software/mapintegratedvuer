@@ -30,6 +30,7 @@ import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 import EventBus from "./EventBus"
+import scaffoldMetaMap from './scaffold-meta-map';
 
 locale.use(lang);
 Vue.use(Link);
@@ -39,7 +40,7 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Input);
 
-var api_location = process.env.VUE_APP_API_LOCATION + "banner/";
+var api_location = process.env.VUE_APP_API_LOCATION;
 
 export default {
   name: "SideBar",
@@ -60,24 +61,24 @@ export default {
   },
   methods: {
     cardClicked: function(){
-      if(this.dataLocation === 'https://sparc.science/datasets/77'){
+      if(this.entry.scaffold && this.dataLocation.includes('sparc')){
+        console.log(this.dataLocation, ' has scaffold')
         let action = {
           label: "Heart",
           resource: this.getScaffoldPath(this.dataLocation),
           title: "View 3D scaffold",
           type: "Scaffold"
         }
+        console.log(action)
         EventBus.$emit("PopoverActionClick", action)
-      } else if (this.dataLocation === 'https://sparc.science/datasets/29') {
-        console.log(this.dataLocation)
-      } else{
+      }else{
         window.open(this.dataLocation,'_blank');
       }
-      
     },
     getScaffoldPath: function(dataLocation){
-      let discoverId = dataLocation.split('/').pop()
-      let path = `http://localhost:5000/s3-resource/${discoverId}/1/files/derivative/integrated-scaffold/integrated_metadata.json`
+      let discover_scaffold_path = this.entry.scaffolds[0].dataset.path
+      let id = dataLocation.split('/').pop()
+      let path = `${api_location}s3-resource/${id}/${scaffoldMetaMap[id].version}/files/${discover_scaffold_path}/${scaffoldMetaMap[id].meta_file}`
       return path 
     },
     isOverflown: function(el){
@@ -88,7 +89,7 @@ export default {
       this.expanded = true
     },
     getBanner: function () {
-      fetch(api_location + this.entry.datasetId)
+      fetch(api_location + 'banner/' + this.entry.datasetId)
         .then((response) =>{ 
           if (!response.ok){
             throw Error(response.statusText)
