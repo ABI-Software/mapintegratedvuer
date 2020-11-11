@@ -3,15 +3,15 @@
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies" 
-        @flatmapChanged="flatmapChanged" @ready="flatmapReady"
+        @flatmapChanged="flatmapChanged" @ready="flatmapReady" :state="entry.state"
         @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
         style="height:100%;width:100%;" :initial="entry.resource" :helpMode="helpMode"
         ref="multiflatmap"/>
-      <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :entry="entry.resource" 
+      <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :state="entry.state" :entry="entry.resource" 
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
         style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
         :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady"/>
-      <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
+      <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource" 
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
         :displayMinimap=false :displayMarkers=false />
@@ -71,6 +71,16 @@ export default {
     onResize: function () {
       if (this.entry.type === 'Scaffold') 
         this.scaffoldCamera.onResize();
+    },
+    getState: function() {
+      if (this.entry.type === 'Scaffold') {
+        return this.$refs.scaffold.getState();
+      } else if (this.entry.type === 'MultiFlatmap'){
+        return this.$refs.multiflatmap.getState();
+      } else if (this.entry.type === 'Flatmap'){
+        return this.$refs.flatmap.getState();
+      }
+      return undefined;
     },
     /**
      * Display and set the position of the popover.

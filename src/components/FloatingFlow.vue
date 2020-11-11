@@ -34,7 +34,6 @@ Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
 
-
 var initialState = function() {
   return {
     mainTabName: "Flatmap",
@@ -56,7 +55,8 @@ var initialState = function() {
         type: "MultiFlatmap",
         zIndex:1,
         mode: "main",
-        id: 1
+        id: 1,
+        state: undefined
       }
     ],
   }
@@ -95,6 +95,7 @@ export default {
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
+      newEntry.state = undefined;
       this.entries.push(newEntry);
       return newEntry.id;
     },
@@ -205,9 +206,28 @@ export default {
       this.bringDialogToFront(id);
     },
     resetApp: function(){
-      Object.assign(this.$data, initialState());
-      var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
+      this.setState(initialState());
+    },
+    setState: function(state){
+      this.mainTabName = state.mainTabName;
+      this.zIndex = state.zIndex;
+      this.showDialogIcons = state.showDialogIcons;
+      this.dockedArray = state.dockedArray.slice();
+      this.activeDockedId = state.activeDockedId;
+      this.currentCount = state.currentCount;
+      this.entries = state.entries.slice();
+      let closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
       closeItems.forEach( (item) => { item.click() });
+    },
+    getState: function() {
+      let state = JSON.parse(JSON.stringify(this.$data));
+      let dialogs = this.$refs["dialogs"];
+      if (state.entries.length === dialogs.length) {
+        for (let i = 0; i < dialogs.length; i++) {
+          state.entries[i].state = dialogs[i].getState();
+        }
+      }
+      return state;
     }
   },
   data: function() {

@@ -26,7 +26,42 @@
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button class="header-icon" slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
       </el-popover>
-      <el-popover content="Close" placement="bottbottom-endom" :open-delay="helpDelay"
+      <el-popover
+          ref="linkPopover"
+          placement="bottom-end"
+          width="400"
+          trigger="click">
+          <el-row :gutter="20">
+            <el-col :span="20">
+              <el-input
+                class="link-input"
+                size="mini"
+                placeholder="Permanant Link Here"
+                :readonly=true
+                v-model="shareLink"
+                ref="linkInput">
+              </el-input>
+            </el-col>
+            <el-col :span="4">
+              <el-popover content="Copy link" placement="bottom-end" 
+                :open-delay="helpDelay" :appendToBody=false trigger="hover"
+                popper-class="header-popper">
+              <el-button slot="reference" class="copy-button" 
+                icon="el-icon-document-copy" size="mini" 
+                @click="copyShareLink"></el-button>
+              </el-popover>
+            </el-col>
+          </el-row>
+      </el-popover>
+      <el-popover content="copy permalink" placement="bottom-end" 
+        :open-delay="helpDelay" :appendToBody=false trigger="hover" 
+        popper-class="header-popper" 
+        v-if="(false == showIcons) && shareLink">
+        <el-button v-popover:linkPopover class="header-icon" slot="reference"
+          icon="el-icon-link" size="medium" type="text" @click="getShareLink">
+        </el-button>
+      </el-popover>
+      <el-popover content="Close" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button class="header-icon" slot="reference" icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
       </el-popover>
@@ -39,14 +74,19 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import EventBus from './EventBus';
+import store from '../store';
 import {
   Button,
+  Col,
   Icon,
+  Input,
   Popover,
   Row
 } from "element-ui";
 Vue.use(Button);
+Vue.use(Col);
 Vue.use(Icon);
+Vue.use(Input);
 Vue.use(Popover);
 Vue.use(Row);
 
@@ -66,6 +106,7 @@ export default {
     showIcons: {
       type: Boolean,
       default: true
+
     },
     showFullscreenIcon: {
       type: Boolean,
@@ -81,6 +122,11 @@ export default {
     showHelpIcon: {
       type: Boolean,
       default: true
+    },
+  },
+  computed: {
+    shareLink() {
+      return store.state.settings.shareLink;
     },
   },
   data: function() {
@@ -106,6 +152,15 @@ export default {
     },
     close: function() {
       this.$emit("close");
+    },
+    copyShareLink: function() {
+      if (document) {
+        this.$refs.linkInput.$el.querySelector("input").select();
+        document.execCommand('copy');
+      }
+    },
+    getShareLink: function() {
+      EventBus.$emit("updateShareLinkRequested");
     }
   }
 };
@@ -199,4 +254,27 @@ export default {
   padding-right:10px;
 }
 
+.copy-button {
+  color:#FFFFFF;
+  background-color:#8300bf;
+}
+
+.copy-button:hover {
+  color:#FFFFFF;
+  background-color:#8300bf;
+  box-shadow: -3px 2px 4px #000000;
+}
+.copy-button:focus {
+  color:#FFFFFF;
+  background-color:#8300bf;
+  box-shadow: -3px 2px 4px #000000;
+}
+
+.link-input >>> .el-input__inner {
+  color:#303133;
+}
+
+.link-input >>> .el-input__inner:focus {
+  border-color:#8300bf;
+}
 </style>

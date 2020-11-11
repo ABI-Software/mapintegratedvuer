@@ -7,6 +7,8 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
+import EventBus from './EventBus';
+import store from '../store';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -15,6 +17,12 @@ export default {
   name: "MapContent",
   components: {
     FloatingFlow,
+  },
+  props: {
+    shareLink: {
+      type: String,
+      default: undefined
+    },
   },
   methods: {
     isFullscreen: function(){
@@ -65,7 +73,26 @@ export default {
       } else if (parent.msRequestFullscreen) { /* IE/Edge */
         mapApp.msRequestFullscreen();
       }
-    }
+    },
+    getState: function(){
+      return this.$refs.flow.getState();
+    },
+    setState: function(state){
+      return this.$refs.flow.setState(state);
+    },
+  },
+  watch: {
+    "shareLink" : {
+      handler: function (newLink) {
+        store.commit("settings/updateShareLink", newLink);
+      },
+      immediate: true,
+    },
+  },
+  mounted: function() {
+    EventBus.$on("updateShareLinkRequested", () => {
+      this.$emit("updateShareLinkRequested");
+    });
   }
 };
 </script>
