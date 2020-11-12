@@ -197,6 +197,7 @@ export default {
     },
     searchSciCrunch: function (search, filter=undefined) {
       this.loadingCards = true;
+      this.results = [];
       if(this.$refs.content){
         this.$refs.content.scroll({top:0, behavior:'smooth'})
         this.$refs.content.style['overflow-y'] = 'hidden'
@@ -227,25 +228,25 @@ export default {
         this.results.push({
           description: element.name,
           contributors: element.contributors,
-          numberSamples: Array.isArray(element.sample)
-            ? element.sample.length
+          numberSamples: Array.isArray(element.samples)
+            ? element.samples.length
             : 1,
-          sexes: element.attributes
-            ? element.attributes.sex
-              ? [...new Set(element.attributes.map((v) => v.sex.value))]
+          sexes: element.samples
+            ? element.samples[0].sex
+              ? [...new Set(element.samples.map((v) => v.sex.value))]
               : undefined
             : undefined, // This processing only includes each gender once into 'sexes'
-          age: element.attributes
-            ? "ageCategory" in element.attributes[0]
-              ? element.attributes[0].ageCategory.value
+          ages: element.samples
+            ? "ageCategory" in element.samples[0]
+              ? [...new Set(element.samples.map((v) => v.ageCategory.value))]
               : undefined
             : undefined,
           updated: element.updated[0].timestamp.split("T")[0],
-          url: element.current[0].uri,
+          url: element.uri[0],
           datasetId: element.identifier,
           id: id,
-          scaffold: element.scaffold ? true : false,
-          scaffolds: element.scaffold ? element.scaffolds : false
+          scaffold: element.scaffolds ? true : false,
+          scaffolds: element.scaffolds ? element.scaffolds : false
         });
         id++;
       });

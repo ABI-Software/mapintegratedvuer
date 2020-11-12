@@ -8,15 +8,15 @@
           <div class="details">{{entry.contributors[0].name}}; {{entry.contributors[1].name}}</div>
           <div class="details">{{entry.numberSamples}} sample(s)</div>
           <div class="details"><template v-for="(sex, i) in entry.sexes"><template v-if="i !== 0">, </template>{{sex}}</template></div>
-          <div v-if="entry.age" class="details">{{entry.age}}</div>
+          <div v-if="entry.ages" class="details"><template v-for="(sex, i) in entry.ages"><template v-if="i !== 0">, </template>{{sex}}</template></div>
           <div class="details">Has scaffold: {{entry.scaffold}}</div>
           <div class="details">Last updated: {{entry.updated}}</div>
-          <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
         </span>
         <span class="card-right">
           <img svg-inline class="banner-img" :src="thumbnail" @click="cardClicked"/>
         </span>
       </div>
+        <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
     </div>
   </div>
 </template>
@@ -82,7 +82,6 @@ export default {
       return path 
     },
     isOverflown: function(el){
-      console.log(el.clientHeight , el.scrollHeight)
       return el.clientHeight < el.scrollHeight
     },
     expand: function() {
@@ -116,8 +115,10 @@ export default {
   },
   watch: { 
     'entry.description': function() { // watch it
-      this.getBanner()
+      this.cardOverflow = false
+      this.expanded = false
       this.cardOverflow = this.isOverflown(this.$refs.card)
+      this.getBanner()
     }
   }
 };
@@ -169,8 +170,8 @@ export default {
   bottom: 0; 
   left: 0;
   width: 100%; 
-  text-align: left; 
-  margin: 0; padding: 30px 0; 
+  height: 20px;
+  margin: 0; padding: 20px 66px; 
   /* "transparent" only works here because == rgba(0,0,0,0) */
   background-image: linear-gradient(to bottom, transparent, white);
 }
