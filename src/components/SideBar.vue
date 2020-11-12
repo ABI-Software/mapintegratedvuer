@@ -12,7 +12,6 @@
       :with-header="false"
       :wrapperClosable="false"
       :modal="false"
-      v-if="isDrawer"
     >
       <div class="splitter">
         <div v-if="drawerOpen" @click="close" class="close-tab">
@@ -119,6 +118,7 @@ var initial_state = {
       drawerOpen: false,
       numberOfHits: 0,
       filter:{},
+      filterFacet: undefined,
       loadingCards: false,
       numberPerPage: 10,
       page: 1,
@@ -152,6 +152,7 @@ export default {
         results: this.results,
         lastSearch: this.lastSearch,
         numberOfHits: this.numberOfHits,
+        filterFacet: this.filterFacet
       };
     },
   },
@@ -164,11 +165,9 @@ export default {
     },
     openSearch: function (search, filter=undefined) {
       this.drawerOpen = true;
-      if (this.searchInput !== search){
-        this.searchInput = search;
-        this.$refs.filtersRef.setCascader(filter[0].facet)
-        this.searchSciCrunch(search, filter);
-      }
+      this.searchInput = search;
+      this.searchSciCrunch(search, filter);
+      this.filterFacet = filter[0].facet;
     },
     clearSearchClicked: function(){
       this.searchInput = ''

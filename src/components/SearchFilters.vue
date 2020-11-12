@@ -105,27 +105,34 @@ export default {
   },
   methods: {
     populateCascader: function () {
-      var value = 1
-      this.options = []
-      for(let i in this.facets){
-        this.options.push({
-            value: value,
-            label: this.facets[i],
-            children: []
-          })
-          value++;
-      }
-      for(let i in this.facets){
-        this.getFacet(this.facets[i]).then((labels)=>{
-          for(let j in labels){
-            this.options[i].children.push({
+      return new Promise( (resolve) => {
+        var value = 1
+        this.options = []
+        for(let i in this.facets){
+          this.options.push({
               value: value,
-              label: labels[j], 
+              label: this.facets[i],
+              children: []
             })
             value++;
-          }
-        })
-      }
+        }
+        var promiseList = []
+        for(let i in this.facets){
+          // Create a promise for each facet request
+          promiseList.push(this.getFacet(this.facets[i]).then((labels)=>{
+            // Populate children of each facet with scicrunch's facets 
+            for(let j in labels){
+              this.options[i].children.push({
+                value: value,
+                label: labels[j], 
+              })
+              value++;
+            }
+          })
+          )
+        }
+        Promise.allSettled(promiseList).then(()=>{resolve()})
+      })
     },
     getFacet: function (facet) {
       return new Promise((resolve) => {
@@ -141,7 +148,6 @@ export default {
       })
     },
     cascadeEvent: function(event){
-      console.log(this.cascadeSelected)
       // If filters have been cleared, send an empty object
       if(event[0] === undefined){
        this.$emit("filterResults", {});
@@ -187,9 +193,7 @@ export default {
       for(let i in this.options){
         for(let j in this.options[i].children){
           if(tagName === this.options[i].children[j].label){
-            console.log('label found')
-            console.log('adding the following: ', [Number(i)+1,this.options[i].children[j].value])
-        this.cascadeSelected = [[Number(i)+1,this.options[i].children[j].value]]
+            this.cascadeSelected = [[Number(i)+1,this.options[i].children[j].value]]
           }
         }
       }
@@ -197,7 +201,9 @@ export default {
     }
   },
   mounted: function () {
-    this.populateCascader();
+    this.populateCascader().then(()=>{
+      this.setCascader(this.entry.filterFacet)
+    })
   },
 };
 </script>
