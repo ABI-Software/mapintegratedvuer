@@ -1,6 +1,6 @@
 <template>
     <div class="mapcontent" ref="MapApp">
-      <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
+      <FloatingFlow @onFullscreen="onFullscreen" :initialState="initialState" ref="flow"/> 
     </div>
 </template>
 
@@ -23,6 +23,10 @@ export default {
       type: String,
       default: undefined
     },
+    initialState: {
+      type: Object,
+      default: undefined
+    }
   },
   methods: {
     isFullscreen: function(){
@@ -74,11 +78,11 @@ export default {
         mapApp.msRequestFullscreen();
       }
     },
+    setState: function(){
+      return this.$refs.flow.setState(state);
+    },
     getState: function(){
       return this.$refs.flow.getState();
-    },
-    setState: function(state){
-      return this.$refs.flow.setState(state);
     },
   },
   watch: {

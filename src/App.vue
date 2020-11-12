@@ -17,7 +17,7 @@
       <el-button icon="el-icon-setting" slot="reference">Options</el-button>
     </el-popover>
     <div class="map-app">
-      <MapContent ref="map" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
+      <MapContent ref="map" :initialState="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
     </div>
   </div>
 </template>
@@ -42,14 +42,15 @@ export default {
   data: function() {
     return {
       uuid: undefined,
-      prefix: "http://localhost:5679"
+      prefix: "http://localhost:5679",
+      state: undefined
     }
   },
   computed: {
     shareLink: function() {
       if (this.uuid)
-        return this.prefix + this.$route.fullPath +"?id=" + this.uuid;
-      return this.prefix + this.$route.fullPath;
+        return this.prefix + this.$route.path +"?id=" + this.uuid;
+      return this.prefix + this.$route.path;
     }
   },
   methods: {
@@ -88,7 +89,7 @@ export default {
       xmlhttp.onreadystatechange = () => {//Call a function when the state changes.
           if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             let state = JSON.parse(xmlhttp.responseText);
-            this.$refs.map.setState(state.state[0]);
+            this.initialState = state.state[0];
           }
       }
       xmlhttp.send(JSON.stringify({"uuid": this.uuid}));

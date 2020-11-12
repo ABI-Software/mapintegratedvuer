@@ -15,7 +15,7 @@
         <el-button class="header-icon" slot="reference" icon="el-icon-question" size="medium" type="text" @click="startHelp(activeId)"></el-button>
       </el-popover>
       <el-popover content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showFullscreenIcon">
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="topLevelControls">
         <el-button class="header-icon" slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
       </el-popover>
       <el-popover content="Resize" placement="bottom-end" :open-delay="helpDelay"
@@ -56,7 +56,7 @@
       <el-popover content="copy permalink" placement="bottom-end" 
         :open-delay="helpDelay" :appendToBody=false trigger="hover" 
         popper-class="header-popper" 
-        v-if="(false == showIcons) && shareLink">
+        v-if="topLevelControls && shareLink">
         <el-button v-popover:linkPopover class="header-icon" slot="reference"
           icon="el-icon-link" size="medium" type="text" @click="getShareLink">
         </el-button>
@@ -108,7 +108,7 @@ export default {
       default: true
 
     },
-    showFullscreenIcon: {
+    topLevelControls: {
       type: Boolean,
       default: false
     },

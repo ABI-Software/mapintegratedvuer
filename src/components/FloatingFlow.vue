@@ -2,7 +2,7 @@
   <el-container style="height:100%;background:white;">
     <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
-        :showFullscreenIcon="entries[findIndexOfId(activeDockedId)].mode!=='normal'" 
+        :topLevelControls="entries[findIndexOfId(activeDockedId)].mode!=='normal'" 
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" 
         @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose" 
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
@@ -70,6 +70,12 @@ export default {
   components: {
     DialogToolbarContent,
     FloatingDialog
+  },
+  props:{
+    initialState: {
+      type: Object,
+      default: undefined
+    },
   },
   methods: {
     /**
@@ -237,6 +243,9 @@ export default {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
     });
+    if (this.initialState) {
+      this.setState(this.initialState);
+    }
   }
 };
 </script>
