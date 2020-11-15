@@ -78,7 +78,7 @@ export default {
         mapApp.msRequestFullscreen();
       }
     },
-    setState: function(){
+    setState: function(state){
       return this.$refs.flow.setState(state);
     },
     getState: function(){
@@ -98,7 +98,8 @@ export default {
       this.$emit("updateShareLinkRequested");
     });
   }
-};
+}
+
 </script>
 
 <style scoped>
