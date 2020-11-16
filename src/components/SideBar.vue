@@ -3,6 +3,9 @@
     <div v-if="!drawerOpen" @click="close" class="open-tab">
       <i class="el-icon-arrow-left"></i>
     </div>
+    <div v-if="drawerOpen" @click="close" class="close-tab">
+      <i class="el-icon-arrow-right"></i>
+    </div>
     <el-drawer
       class="side-bar"
       :visible.sync="drawerOpen"
@@ -14,9 +17,6 @@
       :modal="false"
     >
       <div class="splitter">
-        <div v-if="drawerOpen" @click="close" class="close-tab">
-          <i class="el-icon-arrow-right"></i>
-        </div>
         <el-card class="box-card">
           <div slot="header" class="header">
             <el-input
@@ -336,7 +336,7 @@ export default {
   z-index: 10055;
   position: absolute;
   top: calc(50vh - 80px);
-  right: 540px;
+  right: 520px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
   border: solid 1px var(--pale-grey);
   background-color: #F7FAFF;
@@ -449,6 +449,8 @@ export default {
   background-color: #f7faff;
   height: calc(100% - 8rem);
   overflow-y: hidden;
+  padding:0px;
+  padding-top:16px;
 }
 
 .wrapper{
