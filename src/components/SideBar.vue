@@ -341,6 +341,8 @@ export default {
   z-index: 10055;
   margin-top: calc(50vh - 80px);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
+  border: solid 1px var(--pale-grey);
+  border-right: 0;
   background-color: #F7FAFF;
   text-align: center;
   vertical-align: middle;
@@ -451,8 +453,6 @@ export default {
   background-color: #f7faff;
   height: calc(100% - 8rem);
   overflow-y: hidden;
-  padding:0px;
-  padding-top:16px;
 }
 
 .wrapper{
