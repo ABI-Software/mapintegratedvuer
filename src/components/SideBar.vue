@@ -3,19 +3,22 @@
     <div v-if="!drawerOpen" @click="close" class="open-tab">
       <i class="el-icon-arrow-left"></i>
     </div>
-    <div v-if="drawerOpen" @click="close" class="close-tab">
-      <i class="el-icon-arrow-right"></i>
-    </div>
+
     <el-drawer
+      custom-class="my-drawer"
       class="side-bar"
       :visible.sync="drawerOpen"
       :appendToBody="false"
       :modal-append-to-body="false"
-      :size="'550'"
+      size=550
       :with-header="false"
       :wrapperClosable="false"
       :modal="false"
     >
+    <div>
+      <div v-if="drawerOpen" @click="close" class="close-tab">
+        <i class="el-icon-arrow-right"></i>
+      </div>
       <div class="splitter">
         <el-card class="box-card">
           <div slot="header" class="header">
@@ -41,6 +44,7 @@
             </div>
           </div>
         </el-card>
+      </div>
       </div>
     </el-drawer>
     <el-card v-if="!isDrawer" class="box-card">
@@ -330,15 +334,13 @@ export default {
 }
 
 .close-tab{
+  float: left;
   flex: 1;
   width: 20px;
   height: 40px;
   z-index: 10055;
-  position: absolute;
-  top: calc(50vh - 80px);
-  right: 520px;
+  margin-top: calc(50vh - 80px);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-  border: solid 1px var(--pale-grey);
   background-color: #F7FAFF;
   text-align: center;
   vertical-align: middle;
@@ -501,6 +503,11 @@ export default {
 
 >>> .el-input__suffix{
   padding-right: 10px;
+}
+
+>>> .my-drawer {
+  background: rgba(0,0,0,0);
+  box-shadow: none;
 }
 
 </style>
