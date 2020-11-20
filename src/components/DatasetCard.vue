@@ -54,18 +54,19 @@ export default {
   data: function () {
     return {
       thumbnail: require('@/../assets/missing-image.svg'),
-      dataLocation: this.entry.url,
+      dataLocation: this.entry.doi,
+      discoverId: undefined,
       cardOverflow: false,
       expanded: false
     };
   },
   methods: {
     cardClicked: function(){
-      if(this.entry.scaffold && this.dataLocation.includes('sparc')){
+      if(this.entry.scaffold){
         console.log(this.dataLocation, ' has scaffold')
         let action = {
           label: "Heart",
-          resource: this.getScaffoldPath(this.dataLocation),
+          resource: this.getScaffoldPath(this.discoverId, this.entry.scaffolds[0].dataset.path),
           title: "View 3D scaffold",
           type: "Scaffold"
         }
@@ -75,10 +76,9 @@ export default {
         window.open(this.dataLocation,'_blank');
       }
     },
-    getScaffoldPath: function(dataLocation){
-      let discover_scaffold_path = this.entry.scaffolds[0].dataset.path
-      let id = dataLocation.split('/').pop()
-      let path = `${api_location}s3-resource/${id}/${scaffoldMetaMap[id].version}/files/${discover_scaffold_path}/${scaffoldMetaMap[id].meta_file}`
+    getScaffoldPath: function(discoverId, scaffoldPath){
+      let id = discoverId
+      let path = `${api_location}s3-resource/${id}/${scaffoldMetaMap[id].version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
       return path 
     },
     isOverflown: function(el){
@@ -87,8 +87,12 @@ export default {
     expand: function() {
       this.expanded = true
     },
+    splitDOI: function(doi){
+      return [doi.split('/')[doi.split('/').length-2], doi.split('/')[doi.split('/').length-1]]
+    },
     getBanner: function () {
-      fetch(api_location + 'banner/' + this.entry.datasetId)
+      let doi = this.splitDOI(this.entry.doi)
+      fetch(`https://api.blackfynn.io/discover/datasets/doi/${doi[0]}/${doi[1]}`)
         .then((response) =>{ 
           if (!response.ok){
             throw Error(response.statusText)
@@ -98,12 +102,12 @@ export default {
         })
         .then((data) => {
           this.thumbnail = data.banner
-          this.dataLocation = 'https://sparc.science/datasets/' + data.id
+          this.discoverId = data.id
         })
         .catch(() => {
           //set defaults if we hit an error
           this.thumbnail = require('@/../assets/missing-image.svg')
-          this.dataLocation = this.entry.url
+          this.discoverId = undefined
         });
     },
   },
