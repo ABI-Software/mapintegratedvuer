@@ -230,7 +230,6 @@ export default {
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  text-align: right;
   color: #292b66;
   width: 100px;
   float: right;

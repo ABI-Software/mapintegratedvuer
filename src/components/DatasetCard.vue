@@ -63,7 +63,7 @@ export default {
   methods: {
     cardClicked: function(){
       if(this.entry.scaffold){
-        console.log(this.dataLocation, ' has scaffold')
+        console.log(this.entry.doi, ' has scaffold')
         let action = {
           label: "Heart",
           resource: this.getScaffoldPath(this.discoverId, this.entry.scaffolds[0].dataset.path),
@@ -103,6 +103,7 @@ export default {
         .then((data) => {
           this.thumbnail = data.banner
           this.discoverId = data.id
+          this.dataLocation = `https://sparc.science/datasets/${data.id}?type=dataset`
         })
         .catch(() => {
           //set defaults if we hit an error
