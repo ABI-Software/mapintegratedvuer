@@ -172,6 +172,7 @@ export default {
       this.searchInput = search;
       this.searchSciCrunch(search, filter);
       this.filterFacet = filter[0].facet;
+      EventBus.$emit("filterUiUpdate", filter[0].facet);
     },
     clearSearchClicked: function(){
       this.searchInput = ''
