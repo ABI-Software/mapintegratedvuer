@@ -36,7 +36,7 @@
           <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
             <div class="card-container">
-              <span v-if="results.length === 0" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
+              <span v-if="results.length === 0 && !loadingCards" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
               <span v-if="results.length > 0" class="dataset-table-title">Title</span>
               <span v-if="results.length > 0" class="image-table-title">Image</span>
             </div>
@@ -48,36 +48,6 @@
       </div>
       </div>
     </el-drawer>
-    <el-card v-if="!isDrawer" class="box-card">
-        <div slot="header" class="header">
-          <el-input
-            class="search-input"
-            placeholder="Search"
-            v-model="searchInput"
-            @keyup.native="searchEvent"
-            clearable
-            @clear="clearSearchClicked"
-          ></el-input>
-          <el-button @click="searchEvent">Search</el-button>
-        </div>
-        <SearchFilters class="filters" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
-        <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
-        <div class="wrapper">
-          <div class="wrapper-left">
-          </div>
-          <div class="wrapper-right">
-            <div class="content scrollbar"  v-loading="loadingCards">
-              <div class="card-container">
-                <span v-if="results.length > 0" class="dataset-table-title">Title</span>
-                <span v-if="results.length > 0" class="image-table-title">Image</span>
-              </div>
-              <div v-for="o in results" :key="o.id" class="step-item">
-                <DatasetCard :entry="o"></DatasetCard>
-              </div>
-            </div>
-          </div>
-        </div>
-      </el-card>
   </div>
 </template>
 
