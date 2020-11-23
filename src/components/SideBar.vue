@@ -36,6 +36,7 @@
           <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
             <div class="card-container">
+              <span v-if="results.length === 0" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
               <span v-if="results.length > 0" class="dataset-table-title">Title</span>
               <span v-if="results.length > 0" class="image-table-title">Image</span>
             </div>
@@ -112,7 +113,6 @@ Vue.use(Input);
 Vue.use(Drawer);
 Vue.use(Pagination);
 Vue.use(Loading)
-
 var api_location = process.env.VUE_APP_API_LOCATION + "filter-search/";
 
 var initial_state = {
