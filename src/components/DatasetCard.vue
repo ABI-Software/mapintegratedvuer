@@ -10,6 +10,7 @@
           <div class="details"><template v-for="(sex, i) in entry.sexes"><template v-if="i !== 0">, </template>{{sex}}</template></div>
           <div v-if="entry.ages" class="details"><template v-for="(sex, i) in entry.ages"><template v-if="i !== 0">, </template>{{sex}}</template></div>
           <div class="details">Last updated: {{entry.updated}}</div>
+          <div class="details">discoverId: {{discoverId}}</div>
         </span>
         <span class="card-right">
           <img svg-inline class="banner-img" :src="thumbnail" @click="cardClicked"/>

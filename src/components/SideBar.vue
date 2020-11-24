@@ -96,7 +96,8 @@ var initial_state = {
       loadingCards: false,
       numberPerPage: 10,
       page: 1,
-      start: 0
+      start: 0,
+      hasSearched: false
 }
 
 export default {
@@ -133,15 +134,12 @@ export default {
   methods: {
     close: function () {
       this.drawerOpen = !this.drawerOpen;
-      if(this.drawerOpen){
+      if(this.drawerOpen && !this.hasSearched){
         this.openSearch(this.searchInput);
       }
     },
     openSearch: function (search, filter=undefined) {
       this.drawerOpen = true;
-      if(search === this.searchInput){
-        return
-      }
       this.searchInput = search;
       this.searchSciCrunch(search, filter);
       this.filterFacet = filter[0].facet;
@@ -276,7 +274,7 @@ export default {
 .open-tab{
   width: 20px;
   height: 40px;
-  z-index: 25;
+  z-index: 8;
   position: absolute;
   top: calc(50vh - 80px);
   right: 0px;
@@ -313,7 +311,7 @@ export default {
   flex: 1;
   width: 20px;
   height: 40px;
-  z-index: 10055;
+  z-index: 8;
   margin-top: calc(50vh - 80px);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
   border: solid 1px var(--pale-grey);
@@ -384,7 +382,7 @@ export default {
   position: sticky;
   top:0;
   background-color: white;
-  z-index: 300;
+  z-index: 8;
   padding-top: 10px;
   height: 20px;
   border-bottom: 1px solid var(--pale-grey);

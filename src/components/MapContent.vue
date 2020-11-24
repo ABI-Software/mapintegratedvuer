@@ -77,9 +77,9 @@ export default {
   bottom: 30px;
   right: 30px;
 }
-.sidebarg{
+.sidebar{
   position: fixed;
-  z-index: 10;
+  z-index: 8;
   bottom: 0px;
   right: 30px;
 }
