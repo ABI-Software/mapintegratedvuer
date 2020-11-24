@@ -9,11 +9,14 @@
           <div class="details">{{entry.numberSamples}} sample(s)</div>
           <div class="details"><template v-for="(sex, i) in entry.sexes"><template v-if="i !== 0">, </template>{{sex}}</template></div>
           <div v-if="entry.ages" class="details"><template v-for="(sex, i) in entry.ages"><template v-if="i !== 0">, </template>{{sex}}</template></div>
-          <div class="details">Has scaffold: {{entry.scaffold}}</div>
           <div class="details">Last updated: {{entry.updated}}</div>
         </span>
         <span class="card-right">
           <img svg-inline class="banner-img" :src="thumbnail" @click="cardClicked"/>
+          <div v-if="entry.scaffold">
+            <el-button @click="openScaffold" size="mini" class="button" icon="el-icon-view">Scaffold</el-button>
+            <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">Dataset</el-button>
+          </div>
         </span>
       </div>
         <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
@@ -63,18 +66,22 @@ export default {
   methods: {
     cardClicked: function(){
       if(this.entry.scaffold){
-        console.log(this.entry.doi, ' has scaffold')
-        let action = {
-          label: "Heart",
+        this.openScaffold()
+      }else{
+        this.openDataset()
+      }
+    },
+    openScaffold: function(){
+      let action = {
+          label: this.entry.description,
           resource: this.getScaffoldPath(this.discoverId, this.entry.scaffolds[0].dataset.path),
           title: "View 3D scaffold",
           type: "Scaffold"
         }
-        console.log(action)
         EventBus.$emit("PopoverActionClick", action)
-      }else{
-        window.open(this.dataLocation,'_blank');
-      }
+    },
+    openDataset: function(){
+      window.open(this.dataLocation,'_blank');
     },
     getScaffoldPath: function(discoverId, scaffoldPath){
       let id = discoverId
@@ -193,6 +200,17 @@ export default {
   letter-spacing: normal;
   color: var(--vibrant-purple);
   padding: 0px;
+}
+
+.button{
+  font-family: Asap;
+  font-size: 14px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: var(--vibrant-purple);
 }
 
 .card-right {

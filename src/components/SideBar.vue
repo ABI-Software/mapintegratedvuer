@@ -139,6 +139,9 @@ export default {
     },
     openSearch: function (search, filter=undefined) {
       this.drawerOpen = true;
+      if(search === this.searchInput){
+        return
+      }
       this.searchInput = search;
       this.searchSciCrunch(search, filter);
       this.filterFacet = filter[0].facet;
