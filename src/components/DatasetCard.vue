@@ -7,6 +7,7 @@
           <div class="title" @click="cardClicked">{{entry.description}}</div>
           <div class="details">{{entry.contributors[0].name}}; {{entry.contributors[1].name}}</div>
           <div class="details">{{entry.numberSamples}} sample(s)</div>
+          <div class="details"><template v-for="(organ, i) in entry.organs"><template v-if="i !== 0">, </template>{{organ}}</template></div>
           <div class="details"><template v-for="(sex, i) in entry.sexes"><template v-if="i !== 0">, </template>{{sex}}</template></div>
           <div v-if="entry.ages" class="details"><template v-for="(sex, i) in entry.ages"><template v-if="i !== 0">, </template>{{sex}}</template></div>
           <div class="details">Last updated: {{entry.updated}}</div>
@@ -44,6 +45,10 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Input);
 
+var capitalise = function(string){
+  return string.replace(/\b\w/g, v => v.toUpperCase())
+}
+
 var api_location = process.env.VUE_APP_API_LOCATION;
 
 export default {
@@ -74,7 +79,7 @@ export default {
     },
     openScaffold: function(){
       let action = {
-          label: this.entry.description,
+          label: capitalise(this.entry.organs[0]),
           resource: this.getScaffoldPath(this.discoverId, this.entry.scaffolds[0].dataset.path),
           title: "View 3D scaffold",
           type: "Scaffold"
