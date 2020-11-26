@@ -33,7 +33,7 @@
             <el-button @click="searchEvent">Search</el-button>
           </div>
           <SearchFilters class="filters" ref="filtersRef" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
-          <el-pagination class="pagination" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
+          <el-pagination class="pagination" :current-page.sync="page" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
             <div class="card-container">
               <span v-if="results.length === 0 && !loadingCards" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
@@ -96,6 +96,7 @@ var initial_state = {
       loadingCards: false,
       numberPerPage: 10,
       page: 1,
+      pageModel: 1,
       start: 0,
       hasSearched: false
 }
@@ -141,12 +142,14 @@ export default {
     openSearch: function (search, filter=undefined) {
       this.drawerOpen = true;
       this.searchInput = search;
+      this.resetPageNavigation()
       this.searchSciCrunch(search, filter);
       this.filterFacet = filter[0].facet;
       EventBus.$emit("filterUiUpdate", filter[0].facet);
     },
     clearSearchClicked: function(){
       this.searchInput = ''
+      this.resetPageNavigation()
       this.searchSciCrunch(this.searchInput)
     },
     dock: function(){
@@ -155,10 +158,12 @@ export default {
     },
     searchEvent: function (event = false) {
       if (event.keyCode === 13 || event instanceof MouseEvent) {
+        this.resetPageNavigation()
         this.searchSciCrunch(this.searchInput);
       }
     },
     filterUpdate: function(filter){
+      this.resetPageNavigation()
       this.searchSciCrunch(this.searchInput, filter);
       this.filter = filter
     },
@@ -177,19 +182,37 @@ export default {
         this.$refs.content.scroll({top:0, behavior:'smooth'})
         this.$refs.content.style['overflow-y'] = 'hidden'
       } 
-      let params = {}
-      if (filter !== undefined){
-        params = filter
-      } else {
-         params = this.filter;
-      }
-      params.size = this.numberPerPage;
-      params.start = this.start;
+      let params = this.createParams(filter, this.start, this.numberPerPage)
       this.callSciCrunch(api_location, search, params).then((result) => {
         this.resultsProcessing(result);
         this.loadingCards = false;
         this.$refs.content.style['overflow-y'] = 'scroll'
       });
+    },
+    resetPageNavigation: function(){
+      this.start = 0
+      this.page = 1
+    },
+    createParams: function(filter, start, size){
+      var params = {}
+      if (filter !== undefined){
+        params = filter
+      } else {
+         params = this.filter;
+      }
+      if(params.length > 0){
+        for(let i in params){
+          if(params[i].start){
+            params[i].start = start
+            params[i].size = size
+          } 
+        }
+      } else {
+        params.start = start
+        params.size = size
+        params = [params]
+      }
+      return params
     },
     resultsProcessing: function (data) {
       this.lastSearch = this.searchInput
@@ -230,7 +253,7 @@ export default {
         id++;
       });
     },
-    creatfilterParams: function(params){
+    createfilterParams: function(params){
       var paramsString = ''
       for(let param in params){
         paramsString += (new URLSearchParams(params[param])).toString()
@@ -245,9 +268,9 @@ export default {
         var endpoint = api_location;
         // Add parameters if we are sent them
         if (search !== '' && Object.entries(params).length !== 0){
-          endpoint = api_location + search + '/?' + this.creatfilterParams(params)
+          endpoint = api_location + search + '/?' + this.createfilterParams(params)
         } else {
-          endpoint = api_location + '?' + this.creatfilterParams(params)
+          endpoint = api_location + '?' + this.createfilterParams(params)
         }
         
         fetch(endpoint)
