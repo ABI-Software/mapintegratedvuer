@@ -14,6 +14,7 @@
         </span>
         <span class="card-right">
           <img svg-inline class="banner-img" :src="thumbnail" @click="cardClicked"/>
+          <el-button @click="openPlot" size="mini" class="button" icon="el-icon-view">Plot</el-button>
           <div v-if="entry.scaffold">
             <el-button @click="openScaffold" size="mini" class="button" icon="el-icon-view">Scaffold</el-button>
             <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">Dataset</el-button>
@@ -82,6 +83,15 @@ export default {
           resource: this.getScaffoldPath(this.discoverId, this.entry.scaffolds[0].dataset.path),
           title: "View 3D scaffold",
           type: "Scaffold"
+        }
+        EventBus.$emit("PopoverActionClick", action)
+    },
+    openPlot: function(){
+      let action = {
+          label: capitalise(this.entry.organs[0]),
+          resource: 'http://localhost:8000/s3-resource/29/6/files/derivative/HB-ICN-NegDDCT-data.csv',
+          title: "View 3D scaffold",
+          type: "Plot"
         }
         EventBus.$emit("PopoverActionClick", action)
     },
