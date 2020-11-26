@@ -80,7 +80,7 @@ export default {
     openScaffold: function(){
       let action = {
           label: capitalise(this.entry.organs[0]),
-          resource: this.getScaffoldPath(this.discoverId, this.entry.scaffolds[0].dataset.path),
+          resource: this.getScaffoldPath(this.discoverId, this.version, this.entry.scaffolds[0].dataset.path),
           title: "View 3D scaffold",
           type: "Scaffold"
         }
@@ -98,9 +98,9 @@ export default {
     openDataset: function(){
       window.open(this.dataLocation,'_blank');
     },
-    getScaffoldPath: function(discoverId, scaffoldPath){
+    getScaffoldPath: function(discoverId, version, scaffoldPath){
       let id = discoverId
-      let path = `${api_location}s3-resource/${id}/${scaffoldMetaMap[id].version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
+      let path = `${api_location}s3-resource/${id}/${version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
       return path 
     },
     isOverflown: function(el){
@@ -125,6 +125,7 @@ export default {
         .then((data) => {
           this.thumbnail = data.banner
           this.discoverId = data.id
+          this.version = data.version
           this.dataLocation = `https://sparc.science/datasets/${data.id}?type=dataset`
         })
         .catch(() => {
