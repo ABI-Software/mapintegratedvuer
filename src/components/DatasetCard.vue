@@ -14,7 +14,7 @@
         </span>
         <span class="card-right">
           <img svg-inline class="banner-img" :src="thumbnail" @click="cardClicked"/>
-          <el-button @click="openPlot" size="mini" class="button" icon="el-icon-view">Plot</el-button>
+          <el-button v-if=" entry.csvFiles && entry.csvFiles.length !== 0"  @click="openPlot" size="mini" class="button" icon="el-icon-view">Plot</el-button>
           <div v-if="entry.scaffold">
             <el-button @click="openScaffold" size="mini" class="button" icon="el-icon-view">Scaffold</el-button>
             <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">Dataset</el-button>
@@ -87,9 +87,10 @@ export default {
         EventBus.$emit("PopoverActionClick", action)
     },
     openPlot: function(){
+      window.csvdataset = this.entry.csvFiles
       let action = {
           label: capitalise(this.entry.organs[0]),
-          resource: 'http://localhost:8000/s3-resource/29/6/files/derivative/HB-ICN-NegDDCT-data.csv',
+          resource: this.getFileFromPath(this.discoverId, this.version, this.entry.csvFiles[0].dataset.path),
           title: "View 3D scaffold",
           type: "Plot"
         }
@@ -102,6 +103,9 @@ export default {
       let id = discoverId
       let path = `${api_location}s3-resource/${id}/${version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
       return path 
+    },
+    getFileFromPath: function(discoverId, version, path){
+      return  `${api_location}s3-resource/${discoverId}/${version}/files/${path}`
     },
     isOverflown: function(el){
       return el.clientHeight < el.scrollHeight
