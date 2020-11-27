@@ -245,6 +245,7 @@ export default {
           updated: element.updated[0].timestamp.split("T")[0],
           url: element.uri[0],
           datasetId: element.identifier,
+          csvFiles: element.csvFiles,
           id: id,
           doi: element.doi,
           scaffold: element.scaffolds ? true : false,

@@ -14,9 +14,10 @@
         </span>
         <span class="card-right">
           <img svg-inline class="banner-img" :src="thumbnail" @click="cardClicked"/>
-          <div v-if="entry.scaffold">
-            <el-button @click="openScaffold" size="mini" class="button" icon="el-icon-view">Scaffold</el-button>
+          <div v-if="entry.scaffold || hasCSVFile">
             <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">Dataset</el-button>
+            <el-button v-if="entry.scaffold" @click="openScaffold" size="mini" class="button" icon="el-icon-view">Scaffold</el-button>
+            <el-button v-if="hasCSVFile"  @click="openPlot" size="mini" class="button" icon="el-icon-view">Plot</el-button>
           </div>
         </span>
       </div>
@@ -68,6 +69,11 @@ export default {
       expanded: false
     };
   },
+  computed: {
+    hasCSVFile: function(){
+      return ( this.entry.csvFiles && this.entry.csvFiles.length !== 0 )
+    }
+  },
   methods: {
     cardClicked: function(){
       if(this.entry.scaffold){
@@ -85,6 +91,16 @@ export default {
         }
         EventBus.$emit("PopoverActionClick", action)
     },
+    openPlot: function(){
+      window.csvdataset = this.entry.csvFiles
+      let action = {
+          label: capitalise(this.entry.organs[0]),
+          resource: this.getFileFromPath(this.discoverId, this.version, this.entry.csvFiles[0].dataset.path),
+          title: "View 3D scaffold",
+          type: "Plot"
+        }
+        EventBus.$emit("PopoverActionClick", action)
+    },
     openDataset: function(){
       window.open(this.dataLocation,'_blank');
     },
@@ -92,6 +108,9 @@ export default {
       let id = discoverId
       let path = `${api_location}s3-resource/${id}/${version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
       return path 
+    },
+    getFileFromPath: function(discoverId, version, path){
+      return  `${api_location}s3-resource/${discoverId}/${version}/files/${path}`
     },
     isOverflown: function(el){
       return el.clientHeight < el.scrollHeight
@@ -147,13 +166,11 @@ export default {
 .dataset-card {
   height: 230px;
   padding-left: 16px;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
 }
 .dataset-card-expanded {
   padding-left: 16px;
-  cursor: pointer;
   position: relative;
 }
 .seperator-path {
@@ -172,6 +189,7 @@ export default {
   line-height: 1.5;
   letter-spacing: 1.05px;
   color: #484848;
+  cursor: pointer;
 }
 .card {
   padding-top: 22px;
@@ -185,6 +203,7 @@ export default {
 
 .dataset-card .read-more { 
   position: absolute; 
+  z-index: 9;
   bottom: 0; 
   left: 0;
   width: 100%; 
@@ -192,6 +211,7 @@ export default {
   margin: 0; padding: 20px 66px; 
   /* "transparent" only works here because == rgba(0,0,0,0) */
   background-image: linear-gradient(to bottom, transparent, white);
+  pointer-events: none;
 }
 
 .read-more .button{
@@ -206,9 +226,12 @@ export default {
   letter-spacing: normal;
   color: var(--vibrant-purple);
   padding: 0px;
+  pointer-events: all;
+  cursor: pointer;
 }
 
 .button{
+  z-index: 10;
   font-family: Asap;
   font-size: 14px;
   font-weight: normal;
@@ -217,6 +240,7 @@ export default {
   line-height: normal;
   letter-spacing: normal;
   color: var(--vibrant-purple);
+  cursor: pointer;
 }
 
 .card-right {
@@ -228,6 +252,7 @@ export default {
   height: 128px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   background-color: #ffffff;
+  cursor: pointer;
 }
 .details{
   font-family: Asap;
