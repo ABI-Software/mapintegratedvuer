@@ -166,13 +166,11 @@ export default {
 .dataset-card {
   height: 230px;
   padding-left: 16px;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
 }
 .dataset-card-expanded {
   padding-left: 16px;
-  cursor: pointer;
   position: relative;
 }
 .seperator-path {
@@ -191,6 +189,7 @@ export default {
   line-height: 1.5;
   letter-spacing: 1.05px;
   color: #484848;
+  cursor: pointer;
 }
 .card {
   padding-top: 22px;
@@ -204,6 +203,7 @@ export default {
 
 .dataset-card .read-more { 
   position: absolute; 
+  z-index: 9;
   bottom: 0; 
   left: 0;
   width: 100%; 
@@ -211,6 +211,7 @@ export default {
   margin: 0; padding: 20px 66px; 
   /* "transparent" only works here because == rgba(0,0,0,0) */
   background-image: linear-gradient(to bottom, transparent, white);
+  pointer-events: none;
 }
 
 .read-more .button{
@@ -225,9 +226,12 @@ export default {
   letter-spacing: normal;
   color: var(--vibrant-purple);
   padding: 0px;
+  pointer-events: all;
+  cursor: pointer;
 }
 
 .button{
+  z-index: 10;
   font-family: Asap;
   font-size: 14px;
   font-weight: normal;
@@ -236,6 +240,7 @@ export default {
   line-height: normal;
   letter-spacing: normal;
   color: var(--vibrant-purple);
+  cursor: pointer;
 }
 
 .card-right {
@@ -247,6 +252,7 @@ export default {
   height: 128px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   background-color: #ffffff;
+  cursor: pointer;
 }
 .details{
   font-family: Asap;
