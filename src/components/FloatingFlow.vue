@@ -84,7 +84,7 @@ export default {
      */
     actionClick:function(action) {
       if (action) {
-        if (action.type == "URL") {
+        if (action.type == "Search") {
           // Line below filters by flatmap species (unused until more data is available)
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
           this.$refs.sideBar.openSearch(action.label, [{facet: "All species", term:'species'}] )
@@ -217,6 +217,12 @@ export default {
       Object.assign(this.$data, initialState());
       var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
       closeItems.forEach( (item) => { item.click() });
+    },
+    resourceSelected: function(result) {
+      this.$emit("resource-selected", result);
+    },
+    flatmapChanged: function(){
+      this.$emit("flatmapChanged");
     }
   },
   data: function() {

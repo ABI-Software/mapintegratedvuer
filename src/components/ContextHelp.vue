@@ -1,9 +1,9 @@
 <template>
   <div v-if="showHelp" class="content-container">
     <el-card class="box-card"
-    @mouseover.native="isActive = true"
-    @mouseleave.native="isActive = false"
-              v-bind:class="{active: isActive}">
+      @mouseover.native="isActive = true"
+      @mouseleave.native="isActive = false"
+      v-bind:class="{active: isActive}">
       <div slot="header" class="header">
         <span>Needing some help?</span>
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
