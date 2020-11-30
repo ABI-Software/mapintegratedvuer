@@ -77,8 +77,8 @@ export default {
         action = "search";
       }
       const result = {paneIndex: this.index, type: type, resource: resource};
-      let interactive = getInteractiveAction(result, action);
-      EventBus.$emit("PopoverActionClick", interactive);
+      let returnedAction = getInteractiveAction(result, action);
+      EventBus.$emit("PopoverActionClick", returnedAction);
       this.$emit("resource-selected", result);
     },
     flatmapChanged: function() {
