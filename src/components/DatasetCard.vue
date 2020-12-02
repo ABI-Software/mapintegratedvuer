@@ -92,7 +92,6 @@ export default {
         EventBus.$emit("PopoverActionClick", action)
     },
     openPlot: function(){
-      window.csvdataset = this.entry.csvFiles
       let action = {
           label: capitalise(this.entry.organs[0]),
           resource: this.getFileFromPath(this.discoverId, this.version, this.entry.csvFiles[0].dataset.path),

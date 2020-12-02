@@ -135,7 +135,6 @@ export default {
        this.$emit("filterResults", {});
        return 
       }
-      window.evv = event
       this.filters = []
       // event[0][1] contains the index of the latest addition
       for(let i in this.options){
