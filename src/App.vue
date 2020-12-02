@@ -1,4 +1,5 @@
 <template>
+  
   <div id="app">
     <el-popover
       placement="bottom"
@@ -23,7 +24,6 @@
 </template>
 
 <script>
-import  './styleguide.css'
 /* eslint-disable no-alert, no-console */
 import MapContent from './components/MapContent.vue';
 import Vue from "vue";
@@ -103,6 +103,8 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Asap&display=swap');
+
 #app {
   font-family:'Avenir',  Arial, sans-serif;
   letter-spacing: 0.08em;

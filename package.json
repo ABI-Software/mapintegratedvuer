@@ -20,7 +20,7 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.30-beta.2",
+    "@abi-software/flatmapvuer": "^0.1.30-beta.3",
     "@abi-software/maptooltip": "^0.1.13",
     "@abi-software/plotvuer": "^0.2.25",
     "@abi-software/scaffoldvuer": "^0.1.44-beta.1",
@@ -60,8 +60,9 @@
     "mochapack": "^2.0.0",
     "node-loader": "^0.6.0",
     "raw-loader": "^0.5.1",
-    "resolve-url-loader": "^3.1.1",
-    "vue-template-compiler": "^2.6.10"
+    "resolve-url-loader": "^3.1.2",
+    "vue-svg-inline-loader": "^1.5.1",
+    "vue-template-compiler": "^2.6.12"
   },
   "eslintConfig": {
     "root": true,

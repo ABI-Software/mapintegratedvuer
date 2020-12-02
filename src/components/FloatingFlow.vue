@@ -13,7 +13,10 @@
         <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
-          @close="dialogClose(item.id)"/>
+          @close="dialogClose(item.id)"
+          @resource-selected="resourceSelected"
+          @flatmapChanged="flatmapChanged"/>
+          <SideBar ref="sideBar" class="side-bar" :visible="sideBarVisibility"></SideBar>
       </div>
     </el-main>
   </el-container>
@@ -23,6 +26,7 @@
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
+import SideBar from './SideBar';
 import EventBus from './EventBus';
 import Vue from "vue";
 import {
@@ -59,6 +63,8 @@ var initialState = function() {
         state: undefined
       }
     ],
+    sideBarVisibility: false,
+    search: ''
   }
 }
 
@@ -69,7 +75,8 @@ export default {
   name: "FloatingFlow",
   components: {
     DialogToolbarContent,
-    FloatingDialog
+    FloatingDialog,
+    SideBar
   },
   props:{
     initialState: {
@@ -83,8 +90,10 @@ export default {
      */
     actionClick:function(action) {
       if (action) {
-        if (action.type == "URL") {
-          window.open(action.resource,'_blank');
+        if (action.type == "Search") {
+          // Line below filters by flatmap species (unused until more data is available)
+          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
+          this.$refs.sideBar.openSearch(action.label, [{facet: "All species", term:'species'}] )
         } else {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);
@@ -234,6 +243,12 @@ export default {
         }
       }
       return state;
+    },
+    resourceSelected: function(result) {
+      this.$emit("resource-selected", result);
+    },
+    flatmapChanged: function(){
+      this.$emit("flatmapChanged");
     }
   },
   data: function() {
