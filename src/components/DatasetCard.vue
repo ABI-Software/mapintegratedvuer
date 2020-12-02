@@ -13,7 +13,7 @@
           <div class="details">Last updated: {{entry.updated}}</div>
         </span>
         <span class="card-right">
-          <img svg-inline class="banner-img" :src="thumbnail" @click="cardClicked"/>
+          <img svg-inline class="banner-img" :src="thumbnail" @click="openDataset"/>
           <div v-if="entry.scaffold || hasCSVFile">
             <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">Dataset</el-button>
             <el-button v-if="entry.scaffold" @click="openScaffold" size="mini" class="button" icon="el-icon-view">Scaffold</el-button>
