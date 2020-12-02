@@ -1,4 +1,5 @@
 <template>
+  
   <div id="app">
     <MapIntegratedVuer />
   </div>
@@ -6,7 +7,7 @@
 
 <script>
 import MapIntegratedVuer from './components/MapIntegratedVuer.vue'
-import  './styleguide.css'
+
 
 
 export default {
@@ -18,6 +19,8 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Asap&display=swap');
+
 #app {
   font-family:'Avenir',  Arial, sans-serif;
   letter-spacing: 0.08em;

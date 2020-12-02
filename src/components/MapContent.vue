@@ -71,11 +71,25 @@ export default {
 </script>
 
 <style scoped>
+.map-help-dialog{
+  position: fixed;
+  z-index: 20;
+  bottom: 30px;
+  right: 30px;
+}
+.sidebar{
+  position: fixed;
+  z-index: 8;
+  bottom: 0px;
+  right: 30px;
+}
 .mapcontent {
   height: 100%;
   width:100%;
   z-index:1;
 }
+
 </style>
-<style src="../../assets/mapicon-species-style.css">
+<style src="@/../assets/mapicon-species-style.css">
 </style>
+
