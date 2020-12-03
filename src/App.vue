@@ -18,7 +18,7 @@
       <el-button icon="el-icon-setting" slot="reference">Options</el-button>
     </el-popover>
     <div class="map-app">
-      <MapContent ref="map" :initialState="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
+      <MapContent ref="map" :api="api" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
     </div>
   </div>
 </template>
@@ -42,15 +42,16 @@ export default {
   data: function() {
     return {
       uuid: undefined,
-      prefix: "http://localhost:5679",
-      state: undefined
+      state: undefined,
+      prefix: "/map",
+      api: process.env.VUE_APP_API_LOCATION
     }
   },
   computed: {
     shareLink: function() {
       if (this.uuid)
-        return this.prefix + this.$route.path +"?id=" + this.uuid;
-      return this.prefix + this.$route.path;
+        return this.prefix +"?id=" + this.uuid;
+      return this.prefix;
     }
   },
   methods: {
@@ -63,7 +64,7 @@ export default {
     },
     updateUUID: function() {
       let xmlhttp = new XMLHttpRequest();
-      let url = '/sparc-api/map/getsharelink';
+      let url = this.api + 'map/getsharelink';
       let state = this.$refs.map.getState();
       xmlhttp.open('POST', url, true);
       //Send the proper header information along with the request
@@ -78,24 +79,26 @@ export default {
 
     }
   },
-  beforeMount: function() {
+  created: function() {
     this.uuid = this.$route.query.id;
+    if (window) {
+      this.prefix = window.location.origin + window.location.pathname;
+    }
     if (this.uuid) {
       let xmlhttp = new XMLHttpRequest();
-      let url = '/sparc-api/map/getstate';
+      let url = this.api + 'map/getstate';
       xmlhttp.open('POST', url, true);
       //Send the proper header information along with the request
       xmlhttp.setRequestHeader('Content-type', 'application/json');
       xmlhttp.onreadystatechange = () => {//Call a function when the state changes.
           if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             let state = JSON.parse(xmlhttp.responseText);
-            this.initialState = state.state[0];
+            this.state = state.state[0];
           }
       }
       xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
     }
   },
-  
   mounted: function() {
     this._mapSettings = [];
   },
