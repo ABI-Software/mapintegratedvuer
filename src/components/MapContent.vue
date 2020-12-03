@@ -1,6 +1,6 @@
 <template>
     <div class="mapcontent" ref="MapApp">
-      <FloatingFlow @onFullscreen="onFullscreen" :initialState="initialState" ref="flow"/> 
+      <FloatingFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/> 
     </div>
 </template>
 
@@ -23,8 +23,12 @@ export default {
       type: String,
       default: undefined
     },
-    initialState: {
+    state: {
       type: Object,
+      default: undefined
+    },
+    api: {
+      type: String,
       default: undefined
     }
   },
@@ -92,6 +96,11 @@ export default {
       },
       immediate: true,
     },
+  },
+  beforeMount: function() {
+    if (this.api) {
+      store.commit("settings/updateAPI", this.api);
+    }
   },
   mounted: function() {
     EventBus.$on("updateShareLinkRequested", () => {

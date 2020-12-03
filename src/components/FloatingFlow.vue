@@ -79,7 +79,7 @@ export default {
     SideBar
   },
   props:{
-    initialState: {
+    state: {
       type: Object,
       default: undefined
     },
@@ -227,10 +227,12 @@ export default {
       this.mainTabName = state.mainTabName;
       this.zIndex = state.zIndex;
       this.showDialogIcons = state.showDialogIcons;
-      this.dockedArray = state.dockedArray.slice();
+      this.dockedArray = [];
+      Object.assign(this.dockedArray, state.dockedArray);
       this.activeDockedId = state.activeDockedId;
       this.currentCount = state.currentCount;
-      this.entries = state.entries.slice();
+      this.entries = [];
+      Object.assign(this.entries, state.entries);
       let closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
       closeItems.forEach( (item) => { item.click() });
     },
@@ -254,13 +256,25 @@ export default {
   data: function() {
     return initialState();
   },
+  watch: {
+    state: {
+      handler: function(value) {
+        if (value) {
+          if (!this.externalStateSet)
+            this.setState(value);
+          this.externalStateSet = true;
+        }
+      },
+      immediate: true,
+    }
+  },
+  created: function() {
+    this.externalStateSet = false;
+  },
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
     });
-    if (this.initialState) {
-      this.setState(this.initialState);
-    }
   }
 };
 </script>
