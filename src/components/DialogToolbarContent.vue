@@ -32,7 +32,10 @@
           width="400"
           :appendToBody=false
           trigger="click">
-          <el-row :gutter="20">
+          <el-row :gutter="20" 
+            v-loading="loadingLink"
+            element-loading-text="Creating link..."
+            element-loading-spinner="el-icon-loading">
             <el-col :span="20">
               <el-input
                 class="link-input"
@@ -54,9 +57,9 @@
             </el-col>
           </el-row>
       </el-popover>
-      <el-popover content="copy permalink" placement="bottom-end" 
+      <el-popover content="get permalink" placement="bottom-end" 
         :open-delay="helpDelay" :appendToBody=false trigger="hover" 
-        popper-class="header-popper" 
+        popper-class="header-popper"
         v-if="topLevelControls && shareLink">
         <el-button v-popover:linkPopover class="header-icon" slot="reference"
           icon="el-icon-link" size="medium" type="text" @click="getShareLink">
@@ -130,9 +133,15 @@ export default {
       return store.state.settings.shareLink;
     },
   },
+  watch: {
+    shareLink: function() {
+      this.loadingLink = false;
+    }
+  },
   data: function() {
     return {
-      helpDelay: 500
+      helpDelay: 500,
+      loadingLink: true
     }
   },
   methods: {
@@ -161,6 +170,7 @@ export default {
       }
     },
     getShareLink: function() {
+      this.loadingLink = true;
       EventBus.$emit("updateShareLinkRequested");
     }
   }
@@ -277,5 +287,12 @@ export default {
 
 .link-input >>> .el-input__inner:focus {
   border-color:#8300bf;
+}
+
+>>>.el-loading-spinner i{
+  color: #8300bf;  
+}
+>>>.el-loading-spinner .el-loading-text {
+  color: #8300bf; 
 }
 </style>
