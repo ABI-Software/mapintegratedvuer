@@ -36,7 +36,8 @@
           <el-pagination class="pagination" :current-page.sync="page" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
             <div class="card-container">
-              <span v-if="results.length === 0 && !loadingCards" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
+              <span v-if="results.length === 0 && !loadingCards && !sciCrunchError" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
+              <span v-if="sciCrunchError">{{sciCrunchError}}</span>
               <span v-if="results.length > 0" class="dataset-table-title">Title</span>
               <span v-if="results.length > 0" class="image-table-title">Image</span>
             </div>
@@ -98,7 +99,8 @@ var initial_state = {
       page: 1,
       pageModel: 1,
       start: 0,
-      hasSearched: false
+      hasSearched: false,
+      sciCrunchError: false
 }
 
 export default {
@@ -184,10 +186,21 @@ export default {
       } 
       let params = this.createParams(filter, this.start, this.numberPerPage)
       this.callSciCrunch(api_location, search, params).then((result) => {
-        this.resultsProcessing(result);
+        if(this.scicrunchCallSuccessful(result)){
+          this.resultsProcessing(result)
+          this.$refs.content.style['overflow-y'] = 'scroll'
+        }
         this.loadingCards = false;
-        this.$refs.content.style['overflow-y'] = 'scroll'
       });
+    },
+    scicrunchCallSuccessful: function(response){
+      if(response.error){
+        this.sciCrunchError = response.message
+        return false
+      } else {
+        this.sciCrunchError = false
+        return true
+      }
     },
     resetPageNavigation: function(){
       this.start = 0
