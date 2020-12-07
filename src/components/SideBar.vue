@@ -86,6 +86,20 @@ Vue.use(Pagination);
 Vue.use(Loading)
 var api_location = process.env.VUE_APP_API_LOCATION + "filter-search/";
 
+// handleErrors: A custom fetch error handler to recieve messages from the server 
+//    even when an error is found
+var handleErrors = async function(response) {
+    if (!response.ok) {
+      let parse = await response.json()
+      if (parse){
+        throw new Error(parse.message)
+      } else {
+        throw new Error(response)
+      }
+    }
+  return response;
+}
+
 var initial_state = {
       searchInput: "",
       lastSearch: "",
@@ -146,8 +160,10 @@ export default {
       this.searchInput = search;
       this.resetPageNavigation()
       this.searchSciCrunch(search, filter);
-      this.filterFacet = filter[0].facet;
-      EventBus.$emit("filterUiUpdate", filter[0].facet);
+      if (filter){
+        this.filterFacet = filter[0].facet;
+        EventBus.$emit("filterUiUpdate", filter[0].facet);
+      }
     },
     clearSearchClicked: function(){
       this.searchInput = ''
@@ -180,27 +196,22 @@ export default {
     searchSciCrunch: function (search, filter=undefined) {
       this.loadingCards = true;
       this.results = [];
+      this.disableCards();
+      let params = this.createParams(filter, this.start, this.numberPerPage)
+      this.callSciCrunch(api_location, search, params).then((result) => {
+        this.sciCrunchError = false
+        this.resultsProcessing(result)
+        this.$refs.content.style['overflow-y'] = 'scroll'
+      }).catch((result) => {
+        this.sciCrunchError = result.message
+      })
+      this.loadingCards = false
+    },
+    disableCards: function(){
       if(this.$refs.content){
         this.$refs.content.scroll({top:0, behavior:'smooth'})
         this.$refs.content.style['overflow-y'] = 'hidden'
       } 
-      let params = this.createParams(filter, this.start, this.numberPerPage)
-      this.callSciCrunch(api_location, search, params).then((result) => {
-        if(this.scicrunchCallSuccessful(result)){
-          this.resultsProcessing(result)
-          this.$refs.content.style['overflow-y'] = 'scroll'
-        }
-        this.loadingCards = false;
-      });
-    },
-    scicrunchCallSuccessful: function(response){
-      if(response.error){
-        this.sciCrunchError = response.message
-        return false
-      } else {
-        this.sciCrunchError = false
-        return true
-      }
     },
     resetPageNavigation: function(){
       this.start = 0
@@ -278,7 +289,7 @@ export default {
     },
     callSciCrunch: function (api_location, search, params={}) {
       console.log('search', search, 'params', params)
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         var endpoint = api_location;
         // Add parameters if we are sent them
         if (search !== '' && Object.entries(params).length !== 0){
@@ -288,10 +299,10 @@ export default {
         }
         
         fetch(endpoint)
+          .then(handleErrors)
           .then((response) => response.json())
-          .then((data) => {
-            resolve(data);
-          });
+          .then((data) => resolve(data))
+          .catch((data) => reject(data))
       });
     },
   },
