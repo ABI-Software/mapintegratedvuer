@@ -1,6 +1,6 @@
 <template>
     <div class="mapcontent" ref="MapApp">
-      <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
+      <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/>
     </div>
 </template>
 
@@ -52,7 +52,7 @@ export default {
           document.msExitFullscreen();
         }
       }
-    
+
     },
     goFullscreen: function(){
       let mapApp = this.$refs.MapApp;

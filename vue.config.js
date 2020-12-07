@@ -22,7 +22,7 @@ module.exports = {
         .use('base64-inline-loader')
         .loader('base64-inline-loader')
         .tap(options => {
-          // modify the options...    
+          // modify the options...
           return options
         })
         .end()

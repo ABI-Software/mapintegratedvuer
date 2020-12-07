@@ -57,5 +57,5 @@ module.exports = {
   },
   externals: [nodeExternals({
     whitelist: [/\.(?!(?:jsx?|json)$).{1,5}$/i],
-  })],  
+  })],
 }

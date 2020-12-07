@@ -2,23 +2,23 @@
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
     <div :style="mainStyle">
-      <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies" 
+      <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
         @flatmapChanged="flatmapChanged" @ready="flatmapReady"
-        @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource" 
+        @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"
         style="height:100%;width:100%;" :initial="entry.resource" :helpMode="helpMode"
         ref="multiflatmap"/>
-      <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :entry="entry.resource" 
+      <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :entry="entry.resource"
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
         style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
         :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady"/>
-      <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource" 
-        @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold" 
+      <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :url="entry.resource"
+        @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
         :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" :helpMode="helpMode" style="height: 200px"></PlotVuer>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
-      <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('MultiFlatmap')) || 
+      <MapPopover v-if="(entry.type === ('Flatmap')) || (entry.type === ('MultiFlatmap')) ||
         (entry.type === ('Scaffold'))"
         :selectedResource="selectedResource" :placement="tPlacement"
         :tooltipCoords="tooltipCoords" :visible="tVisible"
@@ -45,7 +45,7 @@ import '@abi-software/plotvuer/dist/plotvuer.css';
 
 export default {
   name: "ContentVuer",
-  props: { 
+  props: {
     /**
      * Object containing information for
      * the required viewing.
@@ -63,13 +63,13 @@ export default {
   },
   methods: {
     /**
-     * Callback when popover close button is clicked. 
+     * Callback when popover close button is clicked.
      */
     onTooltipClose: function() {
       this.tVisible = false;
     },
     onResize: function () {
-      if (this.entry.type === 'Scaffold') 
+      if (this.entry.type === 'Scaffold')
         this.scaffoldCamera.onResize();
     },
     /**

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TooltipVuer :placement="placement" :visible="visible" :content="tContent" 
+    <TooltipVuer :placement="placement" :visible="visible" :content="tContent"
       :position="tStyle" @onActionClick="onActionClick" @onClose="onTooltipClose"
       :displayCloseButton="displayCloseButton" ref="tooltip"/>
   </div>
@@ -40,13 +40,13 @@ export default {
       this.$emit("onClose");
     },
     getTooltipContentElm: function() {
-      //Not the best way but required to get the content 
+      //Not the best way but required to get the content
       //into mapboxgl popup
       return this.$refs.tooltip.$refs.content.$vnode.elm;
     },
     updateTooltipContent: function(result) {
       if (result && result.resource) {
-        
+
         let resource = result.resource;
         if (Array.isArray(resource) && resource[0])
           resource = resource[0];
@@ -89,7 +89,7 @@ export default {
     return {
       tContent: {
         title: "Test",
-        description: "Description", 
+        description: "Description",
         actions: [
           {
             title: "View 3D scaffold",

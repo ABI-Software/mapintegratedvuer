@@ -59,10 +59,10 @@ export default {
     /**
      * Array of titles.
      */
-    dialogTitles: Array, 
+    dialogTitles: Array,
     /**
      * Display icons for docking, undocking and etc.
-     */   
+     */
     showIcons: {
       type: Boolean,
       default: true
@@ -73,7 +73,7 @@ export default {
     },
     /**
      * The current active title.
-     */  
+     */
     activeId: {
       type: Number,
       default: -1
@@ -187,7 +187,7 @@ export default {
   min-width:100px;
   font-size:12px;
   color: #fff;
-  background-color: #8300bf;  
+  background-color: #8300bf;
   word-break:keep-all;
 }
 

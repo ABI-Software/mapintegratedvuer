@@ -2,17 +2,17 @@
   <el-container style="height:100%;background:white;">
     <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
-        :showFullscreenIcon="entries[findIndexOfId(activeDockedId)].mode!=='normal'" 
-        :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'" 
-        @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose" 
+        :showFullscreenIcon="entries[findIndexOfId(activeDockedId)].mode!=='normal'"
+        :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
+        @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose"
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
-        :showHelpIcon="true"/>       
+        :showHelpIcon="true"/>
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
         <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
-          @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)" 
+          @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)"
           @close="dialogClose(item.id)"/>
       </div>
     </el-main>

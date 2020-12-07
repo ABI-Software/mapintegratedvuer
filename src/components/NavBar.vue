@@ -1,6 +1,6 @@
 <template>
   <div class="banner-container" ref="container">
-    
+
     <el-menu
       :default-active="activeIndex"
       class="navbar"
@@ -18,7 +18,7 @@
               <nav-drop-down-item :image="item.image" :title="item.title" :description="item.description"/>
             </el-col>
           </el-row>
-   
+
       </el-submenu>
       <el-submenu index="4"  >
         <template slot="title"  >Learn</template>
@@ -116,15 +116,15 @@ export default {
 }
 
 .el-menu--horizontal .el-menu-item:not(.is-disabled):hover{
-  color: var(--vibrant-purple);  
+  color: var(--vibrant-purple);
 }
 
 .el-submenu.is-opened >>> .el-submenu__title{
-  color: var(--vibrant-purple); 
+  color: var(--vibrant-purple);
 }
 
 .el-submenu__title:hover{
-  color: var(--vibrant-purple) !important; 
+  color: var(--vibrant-purple) !important;
 }
 </style>
 <style scoped src='element-ui/lib/theme-chalk/menu.css'>

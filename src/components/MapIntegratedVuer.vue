@@ -15,7 +15,7 @@ import NavBar from './NavBar';
 export default {
   /**
    * The integrated webapp including the navigation bar.
-   * This does not get publish. 
+   * This does not get publish.
    */
   name: "MapIntegratedVuer",
   components: {
