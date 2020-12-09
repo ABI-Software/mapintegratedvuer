@@ -53,9 +53,9 @@ module.exports = {
     new VueLoaderPlugin()
   ],
   resolve: {
-    extensions: ['*', '.js', '.vue', '.json']
+    extensions: ['*', '.js', '.vue', '.json'],
+    alias: {
+      '@': path.resolve('src'),
+    }
   },
-  externals: [nodeExternals({
-    whitelist: [/\.(?!(?:jsx?|json)$).{1,5}$/i],
-  })],  
 }
