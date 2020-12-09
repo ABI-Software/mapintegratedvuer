@@ -204,8 +204,9 @@ export default {
         this.$refs.content.style['overflow-y'] = 'scroll'
       }).catch((result) => {
         this.sciCrunchError = result.message
+      }).finally(() => {
+        this.loadingCards = false
       })
-      this.loadingCards = false
     },
     disableCards: function(){
       if(this.$refs.content){
