@@ -223,6 +223,7 @@ export default {
 
 .cascader >>> .el-scrollbar__wrap{
   overflow-x: hidden;
+  margin-bottom: 2px !important;
 }
 
 .cascader >>> li[aria-owns*="cascader"] > .el-checkbox {
