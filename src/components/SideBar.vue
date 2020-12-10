@@ -36,7 +36,8 @@
           <el-pagination class="pagination" :current-page.sync="page" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
             <div class="card-container">
-              <span v-if="results.length === 0 && !loadingCards" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
+              <span v-if="results.length === 0 && !loadingCards && !sciCrunchError" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
+              <span v-if="sciCrunchError">{{sciCrunchError}}</span>
               <span v-if="results.length > 0" class="dataset-table-title">Title</span>
               <span v-if="results.length > 0" class="image-table-title">Image</span>
             </div>
@@ -85,6 +86,20 @@ Vue.use(Drawer);
 Vue.use(Pagination);
 Vue.use(Loading)
 
+// handleErrors: A custom fetch error handler to recieve messages from the server 
+//    even when an error is found
+var handleErrors = async function(response) {
+    if (!response.ok) {
+      let parse = await response.json()
+      if (parse){
+        throw new Error(parse.message)
+      } else {
+        throw new Error(response)
+      }
+    }
+  return response;
+}
+
 var initial_state = {
       searchInput: "",
       lastSearch: "",
@@ -98,7 +113,8 @@ var initial_state = {
       page: 1,
       pageModel: 1,
       start: 0,
-      hasSearched: false
+      hasSearched: false,
+      sciCrunchError: false
 }
 
 export default {
@@ -146,8 +162,10 @@ export default {
       this.searchInput = search;
       this.resetPageNavigation()
       this.searchSciCrunch(search, filter);
-      this.filterFacet = filter[0].facet;
-      EventBus.$emit("filterUiUpdate", filter[0].facet);
+      if (filter){
+        this.filterFacet = filter[0].facet;
+        EventBus.$emit("filterUiUpdate", filter[0].facet);
+      }
     },
     clearSearchClicked: function(){
       this.searchInput = ''
@@ -180,16 +198,23 @@ export default {
     searchSciCrunch: function (search, filter=undefined) {
       this.loadingCards = true;
       this.results = [];
+      this.disableCards();
+      let params = this.createParams(filter, this.start, this.numberPerPage)
+      this.callSciCrunch(this.apiLocation, this.searchEndpoint, search, params).then((result) => {
+        this.sciCrunchError = false
+        this.resultsProcessing(result)
+        this.$refs.content.style['overflow-y'] = 'scroll'
+      }).catch((result) => {
+        this.sciCrunchError = result.message
+      }).finally(() => {
+        this.loadingCards = false
+      })
+    },
+    disableCards: function(){
       if(this.$refs.content){
         this.$refs.content.scroll({top:0, behavior:'smooth'})
         this.$refs.content.style['overflow-y'] = 'hidden'
       } 
-      let params = this.createParams(filter, this.start, this.numberPerPage)
-      this.callSciCrunch(this.apiLocation, this.searchEndpoint, search, params).then((result) => {
-        this.resultsProcessing(result);
-        this.loadingCards = false;
-        this.$refs.content.style['overflow-y'] = 'scroll'
-      });
     },
     resetPageNavigation: function(){
       this.start = 0
@@ -266,7 +291,7 @@ export default {
       return paramsString
     },
     callSciCrunch: function (apiLocation, searchEndpoint, search, params={}) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         var endpoint = apiLocation + searchEndpoint;
         // Add parameters if we are sent them
         if (search !== '' && Object.entries(params).length !== 0){
@@ -276,10 +301,10 @@ export default {
         }
         
         fetch(endpoint)
+          .then(handleErrors)
           .then((response) => response.json())
-          .then((data) => {
-            resolve(data);
-          });
+          .then((data) => resolve(data))
+          .catch((data) => reject(data))
       });
     },
   },
