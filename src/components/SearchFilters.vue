@@ -221,6 +221,10 @@ export default {
   padding-bottom: 6px;
 }
 
+.cascader >>> .el-scrollbar__wrap{
+  overflow-x: hidden;
+}
+
 .dataset-results-feedback{
   text-align: left;
 }
