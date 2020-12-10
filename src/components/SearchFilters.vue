@@ -225,6 +225,10 @@ export default {
   overflow-x: hidden;
 }
 
+.cascader >>> li[aria-owns*="cascader"] > .el-checkbox {
+  display: none;
+}
+
 .dataset-results-feedback{
   text-align: left;
 }
