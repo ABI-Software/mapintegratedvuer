@@ -37,6 +37,7 @@ import "element-ui/lib/theme-chalk/index.css";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 import EventBus from './EventBus';
+import store from '../store';
 
 locale.use(lang);
 Vue.use(Link);
@@ -45,9 +46,6 @@ Vue.use(Card);
 Vue.use(Button);
 Vue.use(Select);
 Vue.use(Cascader)
-
-const api_location = process.env.VUE_APP_API_LOCATION;
-const facet_endpoint = "get-facets/";
 
 export default {
   name: "SearchFilters",
@@ -73,7 +71,7 @@ export default {
         label: 'Species',
         children: [{
         }]
-      }]
+      }],
     };
   },
   computed: {
@@ -119,7 +117,7 @@ export default {
     getFacet: function (facet) {
       return new Promise((resolve) => {
         var facets = [`All ${facet}`];
-        this.callSciCrunch(api_location, facet_endpoint, facet).then(
+        this.callSciCrunch(this.apiLocation, this.facetEndpoint, facet).then(
           (facet_terms) => {
             facet_terms.forEach((element) => {
               facets.push(element["key"]);
@@ -161,9 +159,9 @@ export default {
     numberShownChanged: function (event){
       this.$emit("numberPerPage", event);
     },
-    callSciCrunch: function (api_location, endpoint, term) {
+    callSciCrunch: function (apiLocation, endpoint, term) {
       return new Promise((resolve) => {
-        fetch(api_location + endpoint + term)
+        fetch(apiLocation + endpoint + term)
           .then((response) => response.json())
           .then((data) => {
             resolve(data);
@@ -181,9 +179,16 @@ export default {
       this.showFilters = true
     }
   },
+  created: function() {
+    //Create non-reactive local variables
+    this.apiLocation = "";
+    this.facetEndpoint = "get-facets/";
+    if (store.state.settings.api)
+      this.apiLocation = store.state.settings.api;
+  },
   mounted: function () {
     this.populateCascader().then(()=>{
-      this.setCascader(this.entry.filterFacet)
+      this.setCascader(this.entry.filterFacet);
     })
     EventBus.$on('filterUiUpdate', (payLoad) => {
       this.setCascader(payLoad);

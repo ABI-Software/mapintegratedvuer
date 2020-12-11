@@ -1,12 +1,14 @@
 <template>
     <div class="mapcontent" ref="MapApp">
-      <FloatingFlow @onFullscreen="onFullscreen" ref="flow"/> 
+      <FloatingFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/> 
     </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
+import EventBus from './EventBus';
+import store from '../store';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -15,6 +17,20 @@ export default {
   name: "MapContent",
   components: {
     FloatingFlow,
+  },
+  props: {
+    shareLink: {
+      type: String,
+      default: undefined
+    },
+    state: {
+      type: Object,
+      default: undefined
+    },
+    api: {
+      type: String,
+      default: undefined
+    }
   },
   methods: {
     isFullscreen: function(){
@@ -65,9 +81,34 @@ export default {
       } else if (parent.msRequestFullscreen) { /* IE/Edge */
         mapApp.msRequestFullscreen();
       }
+    },
+    setState: function(state){
+      return this.$refs.flow.setState(state);
+    },
+    getState: function(){
+      return this.$refs.flow.getState();
+    },
+  },
+  watch: {
+    "shareLink" : {
+      handler: function (newLink) {
+        store.commit("settings/updateShareLink", newLink);
+      },
+      immediate: true,
+    },
+  },
+  beforeMount: function() {
+    if (this.api) {
+      store.commit("settings/updateAPI", this.api);
     }
+  },
+  mounted: function() {
+    EventBus.$on("updateShareLinkRequested", () => {
+      this.$emit("updateShareLinkRequested");
+    });
   }
-};
+}
+
 </script>
 
 <style scoped>
