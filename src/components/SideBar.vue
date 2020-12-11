@@ -34,12 +34,10 @@
           </div>
           <SearchFilters class="filters" ref="filtersRef" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
-            <div class="card-container">
-              <span v-if="results.length === 0 && !loadingCards && !sciCrunchError" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
-              <span v-if="sciCrunchError">{{sciCrunchError}}</span>
-              <span v-if="results.length > 0" class="dataset-table-title">Title</span>
-              <span v-if="results.length > 0" class="image-table-title">Image</span>
+            <div class="error-feedback" v-if="results.length === 0 && !loadingCards && !sciCrunchError">
+              No results found - Please change your search / filter criteria.
             </div>
+            <div class="error-feedback" v-if="sciCrunchError">{{sciCrunchError}}</div>
             <div v-for="o in results" :key="o.id" class="step-item">
               <DatasetCard :entry="o"></DatasetCard>
             </div>
@@ -442,6 +440,13 @@ export default {
   line-height: normal;
   letter-spacing: normal;
   color: #292b66;
+}
+
+.error-feedback{
+  font-family: Asap;
+  font-size: 14px;
+  font-style: italic;
+  padding-top: 15px;
 }
 
 .card-container {

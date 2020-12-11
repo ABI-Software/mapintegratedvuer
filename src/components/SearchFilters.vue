@@ -25,7 +25,7 @@
       </el-select>
       <span
         class="dataset-results-feedback"
-      >{{this.numberOfDatasetsResultText}}</span>
+      >{{this.numberOfResultsText}}</span>
   </div>
 </template>
 
@@ -78,12 +78,8 @@ export default {
     };
   },
   computed: {
-    numberOfDatasetsResultText: function(){
-      var searchTermConfirmation = ''
-      if (this.entry.lastSearch !== ''){
-        searchTermConfirmation = `for '${this.entry.lastSearch}'`
-      }
-      return `${this.entry.numberOfHits} Datasets ${searchTermConfirmation} | Showing`
+    numberOfResultsText: function(){
+      return `${this.entry.numberOfHits} results | Showing`
     }
   },
   methods: {
@@ -247,9 +243,9 @@ export default {
   text-align: right;
   color: rgb(48, 49, 51);
   font-family: Asap;
-  font-size: 12.5px;
+  font-size: 18px;
   font-weight: 500;
-  padding-top: 10px;
+  padding-top: 8px;
 }
 
 .search-filters {
@@ -266,7 +262,7 @@ export default {
 .number-shown-select >>> .el-input__inner{
   width: 68px;
   height: 40px;
-  color: #8300bf;
+  color: rgb(48, 49, 51)
 }
 
 </style>
