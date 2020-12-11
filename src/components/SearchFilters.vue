@@ -247,9 +247,9 @@ export default {
   text-align: right;
   color: rgb(48, 49, 51);
   font-family: Asap;
-  font-size: 17px;
+  font-size: 12.5px;
   font-weight: 500;
-  padding-top: 8px;
+  padding-top: 10px;
 }
 
 .search-filters {
