@@ -233,8 +233,6 @@ export default {
       this.currentCount = state.currentCount;
       this.entries = [];
       Object.assign(this.entries, state.entries);
-      let closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
-      closeItems.forEach( (item) => { item.click() });
     },
     getState: function() {
       let state = JSON.parse(JSON.stringify(this.$data));
