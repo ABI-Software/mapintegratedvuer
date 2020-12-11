@@ -19,7 +19,6 @@
       <div v-if="drawerOpen" @click="close" class="close-tab">
         <i class="el-icon-arrow-right"></i>
       </div>
-      <div class="splitter">
         <el-card class="box-card">
           <div slot="header" class="header">
             <el-input
@@ -41,19 +40,18 @@
             <div v-for="o in results" :key="o.id" class="step-item">
               <DatasetCard :entry="o"></DatasetCard>
             </div>
-          <el-pagination 
-            class="pagination" 
-            :current-page.sync="page" 
-            hide-on-single-page 
-            large 
-            layout="prev, pager, next" 
-            :page-size="numberPerPage"
-            :total="numberOfHits"
-             @current-change="pageChange">
-          </el-pagination>
+            <el-pagination 
+              class="pagination" 
+              :current-page.sync="page" 
+              hide-on-single-page 
+              large 
+              layout="prev, pager, next" 
+              :page-size="numberPerPage"
+              :total="numberOfHits"
+              @current-change="pageChange">
+            </el-pagination>i
           </div>
         </el-card>
-      </div>
       </div>
     </el-drawer>
   </div>
@@ -318,7 +316,6 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<!-- Not that splitter flex is currently not working as width is defined by 'content' for some reason -->
 <style scoped>
 .side-bar{
   position: relative;
@@ -360,11 +357,6 @@ export default {
   pointer-events: auto;
 }
 
-.splitter{
-  display: flex;
-  flex-direction: row;
-}
-
 .close-tab{
   float: left;
   flex: 1;
@@ -400,6 +392,7 @@ export default {
   margin-bottom: 18px;
   text-align: left;
 }
+
 .search-input {
   width: 298px;
   height: 40px;
@@ -429,64 +422,11 @@ export default {
   color: var(--vibrant-purple);
 }
 
-.dataset-results-feedback {
-  width: 215px;
-  height: 16px;
-  font-family: Asap;
-  font-size: 14px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: #292b66;
-}
-
 .error-feedback{
   font-family: Asap;
   font-size: 14px;
   font-style: italic;
   padding-top: 15px;
-}
-
-.card-container {
-  display: flex;
-  position: sticky;
-  top:0;
-  background-color: white;
-  z-index: 8;
-  padding-top: 10px;
-  height: 20px;
-  border-bottom: 1px solid var(--pale-grey);
-}
-
-.dataset-table-title {
-  flex: 1.3;
-  height: 16px;
-  font-family: Asap;
-  text-align: left !important;
-  padding-left: 16px;
-  font-size: 14px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: var(--slate-grey);
-}
-
-.image-table-title {
-  flex: 1;
-  padding-left: 16px;
-  font-family: Asap;
-  text-align: left !important;
-  font-size: 14px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: var(--slate-grey);
 }
 
 >>> .el-card__header {
@@ -500,20 +440,6 @@ export default {
   overflow-y: hidden;
 }
 
-.wrapper{
-  display: flex;
-  flex-direction: row;
-}
-
-.el-icon-copy-document{
-  cursor: pointer;
-  font-size: 32px;
-  width: 16px;
-  height: 16px;
-  color: #f9f9fa;
-  padding-right: 32px;
-}
-
 .content {
   width: 518px;
   height: calc(100vh - 20rem);
@@ -521,12 +447,6 @@ export default {
   border: solid 1px var(--pale-grey);
   background-color: #ffffff;
   overflow-y: scroll;
-}
-
-
-.active {
-  width: 380px !important;
-  height: 380px !important;
 }
 
 .scrollbar::-webkit-scrollbar-track {
