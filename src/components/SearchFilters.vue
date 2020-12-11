@@ -1,30 +1,31 @@
 <template>
   <div class="filters">
     <transition name="el-zoom-in-top">
-      <div v-show="showFilters" class="search-filters transition-box">
+      <span v-show="showFilters" class="search-filters transition-box">
           <el-cascader
           class="cascader"
           v-model="cascadeSelected"
-          placeholder="Filter"
+          placeholder=""
+          :collapse-tags="true"
           :options="options"
           :props="props"
           @change="cascadeEvent($event)"
           :show-all-levels="false"
           :append-to-body="false">
         </el-cascader>
-      </div>
+        <div v-if="cascadeSelected.length === 0" class="filter-default-value"> 
+          <img svg-inline class="filter-icon-inside" src='@/../assets/noun-filter.svg'/>
+          Apply Filters
+        </div>
+      </span>
     </transition>
-    <div class="filter-collapsed" @click="showFilters = !showFilters">
-      <img svg-inline class="filter-icon" src='@/../assets/noun-filter.svg'/>
-      Filter
-     </div>
-    
-    <span
-        class="dataset-results-feedback"
-      >{{this.numberOfDatasetsResultText}}</span>
+  
       <el-select class="number-shown-select"  v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
         <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
       </el-select>
+      <span
+        class="dataset-results-feedback"
+      >{{this.numberOfDatasetsResultText}}</span>
   </div>
 </template>
 
@@ -61,7 +62,7 @@ export default {
   },
   data: function () {
     return {
-      showFilters: false,
+      showFilters: true,
       cascadeSelected: [],
       numberShown: 10,
       filters: [],
@@ -194,11 +195,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.filters{
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 10px;
-}
 
 .filter-icon{
   width: 12px;
@@ -206,6 +202,22 @@ export default {
   color: #292b66;
   transform: scale(2);
   bottom: -10px;
+}
+
+.filter-default-value{
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding-top: 10px;
+  padding-left: 16px;
+}
+
+.filter-icon-inside{
+  width: 12px;
+  height: 12px;
+  color: #292b66;
+  transform: scale(2);
 }
 
 .cascader {
@@ -231,56 +243,29 @@ export default {
 }
 
 .dataset-results-feedback{
-  text-align: left;
-}
-
-.filter-collapsed {
-  font-family: Asap;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: #292b66;
-  width: 100px;
   float: right;
-  cursor: pointer;
-}
-
-.filter-select {
-  width: 120px;
-  height: 40px;
-  margin-right: 16px;
-  border-radius: 4px;
-  border: solid 1px #8300bf;
-  background-color: var(--white);
+  text-align: right;
+  color: rgb(48, 49, 51);
+  font-family: Asap;
+  font-size: 17px;
   font-weight: 500;
-  color: #8300bf;
-}
-
-.filters-row-2 {
-  padding-top: 16px;
-}
-
-.filter-select >>> .el-input__inner {
-  color: #8300bf;
-  padding-top: 0.25em;
-}
-
-.filter-select >>> .el-select-dropdown__item.selected {
-  color: #8300bf;
-  font-weight: normal;
-  font-family: Asap !important;
+  padding-top: 8px;
 }
 
 .search-filters {
-  text-align: left;
+  position: relative;
+  float:left;
+  padding-right: 15px;
+  padding-bottom: 12px;
+}
+
+.number-shown-select{
+  float: right;
 }
 
 .number-shown-select >>> .el-input__inner{
   width: 68px;
-  height: 32px;
+  height: 40px;
   color: #8300bf;
 }
 

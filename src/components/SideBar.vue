@@ -30,10 +30,9 @@
               clearable
               @clear="clearSearchClicked"
             ></el-input>
-            <el-button @click="searchEvent">Search</el-button>
+            <el-button class="button" @click="searchEvent">Search</el-button>
           </div>
           <SearchFilters class="filters" ref="filtersRef" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
-          <el-pagination class="pagination" :current-page.sync="page" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
             <div class="card-container">
               <span v-if="results.length === 0 && !loadingCards && !sciCrunchError" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
@@ -44,6 +43,7 @@
             <div v-for="o in results" :key="o.id" class="step-item">
               <DatasetCard :entry="o"></DatasetCard>
             </div>
+          <el-pagination class="pagination" :current-page.sync="page" hide-on-single-page large layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           </div>
         </el-card>
       </div>
@@ -375,6 +375,12 @@ export default {
   pointer-events: auto;
 }
 
+.button{
+  background-color: var(--vibrant-purple);
+  border: var(--vibrant-purple);
+  color: white;
+}
+
 .box-card {
   flex: 3;
   height: 100%;
@@ -402,15 +408,15 @@ export default {
 }
 
 .pagination {
-  padding-top: 10px;
-  background-color: #F7FAFF;
+  padding-bottom: 16px;
+  background-color: white;
 }
 
 .pagination>>>button{
-  background-color: #F7FAFF !important;
+  background-color: white !important;
 }
 .pagination>>>li{
-  background-color: #F7FAFF !important;
+  background-color: white !important;
 }
 .pagination>>>li.active{
   color: var(--vibrant-purple);
@@ -496,7 +502,7 @@ export default {
 
 .content {
   width: 518px;
-  height: calc(100vh - 19.5rem);
+  height: calc(100vh - 20rem);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
   border: solid 1px var(--pale-grey);
   background-color: #ffffff;

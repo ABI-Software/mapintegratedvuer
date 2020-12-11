@@ -21,7 +21,7 @@
           </div>
         </span>
       </div>
-        <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
+        <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="read-more-button">Read more...</el-button></p>
     </div>
   </div>
 </template>
@@ -213,7 +213,7 @@ export default {
   pointer-events: none;
 }
 
-.read-more .button{
+.read-more-button{
   width: 85px;
   height: 20px;
   font-family: Asap;
@@ -238,7 +238,9 @@ export default {
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  color: var(--vibrant-purple);
+  background-color: var(--vibrant-purple);
+  border: var(--vibrant-purple);
+  color: white;
   cursor: pointer;
 }
 
