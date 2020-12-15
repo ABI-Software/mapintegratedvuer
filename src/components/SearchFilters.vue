@@ -262,7 +262,20 @@ export default {
 .number-shown-select >>> .el-input__inner{
   width: 68px;
   height: 40px;
-  color: rgb(48, 49, 51)
+  color: rgb(48, 49, 51);
+}
+
+.search-filters >>> .el-cascader-node.is-active{
+  color: var(--vibrant-purple);
+}
+
+.search-filters >>> .el-cascader-node.in-active-path{
+  color: var(--vibrant-purple);
+}
+
+.search-filters >>> .el-checkbox__input.is-checked > .el-checkbox__inner {
+  background-color: var(--vibrant-purple);
+  border-color: var(--vibrant-purple);
 }
 
 </style>
