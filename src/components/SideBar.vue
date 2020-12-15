@@ -78,6 +78,7 @@ import locale from "element-ui/lib/locale";
 import SearchFilters from "./SearchFilters";
 import DatasetCard from "./DatasetCard";
 import EventBus from './EventBus';
+import store from '../store';
 
 locale.use(lang);
 Vue.use(Link);
@@ -89,7 +90,6 @@ Vue.use(Input);
 Vue.use(Drawer);
 Vue.use(Pagination);
 Vue.use(Loading)
-var api_location = process.env.VUE_APP_API_LOCATION + "filter-search/";
 
 // handleErrors: A custom fetch error handler to recieve messages from the server 
 //    even when an error is found
@@ -140,7 +140,9 @@ export default {
     }
   },
   data: function () {
-    return {...this.entry}
+    return {
+      ...this.entry,
+    }
   },
   computed: {
     // This computed property populates filter data's entry object with $data from this sidebar
@@ -203,7 +205,7 @@ export default {
       this.results = [];
       this.disableCards();
       let params = this.createParams(filter, this.start, this.numberPerPage)
-      this.callSciCrunch(api_location, search, params).then((result) => {
+      this.callSciCrunch(this.apiLocation, this.searchEndpoint, search, params).then((result) => {
         this.sciCrunchError = false
         this.resultsProcessing(result)
         this.$refs.content.style['overflow-y'] = 'scroll'
@@ -293,15 +295,14 @@ export default {
       paramsString = paramsString.slice(0, -1);
       return paramsString
     },
-    callSciCrunch: function (api_location, search, params={}) {
-      console.log('search', search, 'params', params)
+    callSciCrunch: function (apiLocation, searchEndpoint, search, params={}) {
       return new Promise((resolve, reject) => {
-        var endpoint = api_location;
+        var endpoint = apiLocation + searchEndpoint;
         // Add parameters if we are sent them
         if (search !== '' && Object.entries(params).length !== 0){
-          endpoint = api_location + search + '/?' + this.createfilterParams(params)
+          endpoint = endpoint + search + '/?' + this.createfilterParams(params)
         } else {
-          endpoint = api_location + '?' + this.createfilterParams(params)
+          endpoint = endpoint + '?' + this.createfilterParams(params)
         }
         
         fetch(endpoint)
@@ -311,6 +312,13 @@ export default {
           .catch((data) => reject(data))
       });
     },
+  },
+  created: function () {
+    //Create non-reactive local variables
+    this.apiLocation = "";
+    this.searchEndpoint = "filter-search/";
+    if (store.state.settings.api)
+      this.apiLocation = store.state.settings.api;
   },
 };
 </script>

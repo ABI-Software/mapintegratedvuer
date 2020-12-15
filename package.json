@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.26",
+  "version": "0.1.28-beta-7",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
@@ -23,7 +23,7 @@
     "@abi-software/flatmapvuer": "^0.1.30-beta.3",
     "@abi-software/maptooltip": "^0.1.13",
     "@abi-software/plotvuer": "^0.2.25",
-    "@abi-software/scaffoldvuer": "^0.1.44-beta.1",
+    "@abi-software/scaffoldvuer": "^0.1.44-beta.3",
     "@soda/get-current-script": "^1.0.2",
     "core-js": "^3.3.2",
     "d3-time-format": "^3.0.0",
@@ -35,6 +35,8 @@
     "vue": "^2.6.10",
     "vue-cli-plugin-webpack-bundle-analyzer": "^2.0.0",
     "vue-draggable-resizable": "2.1.0",
+    "vue-router": "^3.4.9",
+    "vuex": "^3.5.1",
     "webpack-node-externals": "^2.5.2"
   },
   "devDependencies": {

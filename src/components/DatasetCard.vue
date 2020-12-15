@@ -38,6 +38,7 @@ import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 import EventBus from "./EventBus"
 import scaffoldMetaMap from './scaffold-meta-map';
+import store from '../store';
 
 locale.use(lang);
 Vue.use(Link);
@@ -51,10 +52,8 @@ var capitalise = function(string){
   return string.replace(/\b\w/g, v => v.toUpperCase())
 }
 
-var api_location = process.env.VUE_APP_API_LOCATION;
-
 export default {
-  name: "SideBar",
+  name: "DatasetCard",
   props: {
     /**
      * Object containing information for
@@ -107,11 +106,11 @@ export default {
     },
     getScaffoldPath: function(discoverId, version, scaffoldPath){
       let id = discoverId
-      let path = `${api_location}s3-resource/${id}/${version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
+      let path = `${this.apiLocation}s3-resource/${id}/${version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
       return path 
     },
     getFileFromPath: function(discoverId, version, path){
-      return  `${api_location}s3-resource/${discoverId}/${version}/files/${path}`
+      return  `${this.apiLocation}s3-resource/${discoverId}/${version}/files/${path}`
     },
     isOverflown: function(el){
       return el.clientHeight < el.scrollHeight
@@ -158,7 +157,13 @@ export default {
       this.cardOverflow = this.isOverflown(this.$refs.card)
       this.getBanner()
     }
-  }
+  },
+  created: function () {
+    //Create non-reactive local variables
+    this.apiLocation = "";
+    if (store.state.settings.api)
+      this.apiLocation = store.state.settings.api;
+  },
 };
 </script>
 

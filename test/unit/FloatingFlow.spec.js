@@ -36,15 +36,9 @@ const data = [
     datasetUrl: "https://discover.blackfynn.com/datasets/29",
     datasetImage: "https://assets.discover.blackfynn.com/dataset-assets/29/6/revisions/1/banner.jpg"
   },
-  {
-    title: "Search for dataset",
-    label: "Stomach",
-    resource: "https://sparc.science/data?type=dataset&q=stomach",
-    type: "URL"
-  },
 ];
 
-describe('MapContent.vue', () => {
+describe('FloatingFlow.vue', () => {
   it('DialogToolbarContent', () => {
     expect(wrapper.findComponent(DialogToolbarContent).exists()).to.be.true;
   }),
@@ -63,7 +57,6 @@ describe('MapContent.vue', () => {
     expect(wrapper.vm.createNewEntry(data[2])).to.equal(4);
   }),
   it('actionClick', () => {
-    expect(wrapper.vm.actionClick(data[3])).to.be.an('undefined');
     expect(wrapper.vm.actionClick(data[0])).to.be.an('undefined');
   }),
   it('allDialogs', () => {
