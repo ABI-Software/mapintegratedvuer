@@ -50,6 +50,10 @@ Vue.use(Cascader)
 const api_location = process.env.VUE_APP_API_LOCATION;
 const facet_endpoint = "get-facets/";
 
+var capitalise = function(string){
+  return string.replace(/\b\w/g, v => v.toUpperCase())
+}
+
 export default {
   name: "SearchFilters",
   components: {},
@@ -66,7 +70,7 @@ export default {
       cascadeSelected: [],
       numberShown: 10,
       filters: [],
-      facets: ['species', 'gender', 'genotype'],
+      facets: ['Species', 'Gender', 'Genotype'],
       numberDatasetsShown: ["10", "20", "50"],
       props: { multiple: true },
       options: [{
@@ -103,7 +107,7 @@ export default {
             for(let j in labels){
               this.options[i].children.push({
                 value: value,
-                label: labels[j], 
+                label: capitalise(labels[j]), // Capitalisation is to match design specs
               })
               value++;
             }
@@ -113,9 +117,10 @@ export default {
         Promise.allSettled(promiseList).then(()=>{resolve()})
       })
     },
-    getFacet: function (facet) {
+    getFacet: function (facetLabel) {
       return new Promise((resolve) => {
-        var facets = [`All ${facet}`];
+        var facets = [`All ${facetLabel}`];
+        let facet = facetLabel.toLowerCase() // 
         this.callSciCrunch(api_location, facet_endpoint, facet).then(
           (facet_terms) => {
             facet_terms.forEach((element) => {
@@ -126,6 +131,25 @@ export default {
         );
       })
     },
+    // switchFacetToRequest is used to set 'All' to lowercase. Api will not be case sensitive soon and this can be removed
+    switchFacetToRequest: function(facet){
+      if (!facet.includes('All')){
+        return facet.toLowerCase()
+      } else {
+        return facet
+      }
+    },
+    // switchTermToRequest is used to remove the count for sending a request to scicrunch
+    switchTermToRequest: function(term){
+      return term.split(' ')[0].toLowerCase()
+    },
+    updateLabels: function(counter){
+      for( let i in counter){
+        if( counter[i] > 0){
+          this.options[i].label = this.options[i].label.split(' ')[0] + ` (${counter[i]})`
+        }
+      }  
+    },
     cascadeEvent: function(event){
       // If filters have been cleared, send an empty object
       if(event[0] === undefined){
@@ -133,6 +157,9 @@ export default {
        return 
       }
       this.filters = []
+      // Label counts is used to show user how many are at each nested level. 
+      //    i.e.: if 3 species are selected it will show 'Species (3)' in the cascader
+      let labelCounts = [0,0,0]
       // event[0][1] contains the index of the latest addition
       for(let i in this.options){
         for(let j in this.options[i].children){
@@ -141,18 +168,16 @@ export default {
               var id = event[k][1]
               if(this.options[i].children[j].value == id){
                 let output = {}
-                output.facet = this.options[i].children[j].label
-                output.term = this.options[i].label
+                output.facet = this.switchFacetToRequest(this.options[i].children[j].label)
+                output.term = this.switchTermToRequest(this.options[i].label)
                 this.filters.push(output)
+                labelCounts[i] += 1
               }
             }
           }
         }
       }
-      // // Don't send a filter if all is selected
-      // if(output.facet.includes('All')){
-      //   output = {}
-      // }
+      this.updateLabels(labelCounts)
       this.$emit("filterResults", this.filters);
     },
     numberShownChanged: function (event){
@@ -175,10 +200,10 @@ export default {
           }
         }
       }
-      this.showFilters = true
     }
   },
   mounted: function () {
+    window.entry = this.entry
     this.populateCascader().then(()=>{
       this.setCascader(this.entry.filterFacet)
     })

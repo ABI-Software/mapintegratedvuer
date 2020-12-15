@@ -49,7 +49,7 @@
               :page-size="numberPerPage"
               :total="numberOfHits"
               @current-change="pageChange">
-            </el-pagination>i
+            </el-pagination>
           </div>
         </el-card>
       </div>
