@@ -133,4 +133,6 @@ export default {
 </style>
 <style src="@/../assets/mapicon-species-style.css">
 </style>
+<style src="@/../assets/styleguide.css">
+</style>
 
