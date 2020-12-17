@@ -176,8 +176,8 @@ export default {
 .seperator-path {
   width: 486px;
   height: 0px;
-  border: solid 1px var(--pale-grey);
-  background-color: var(--pale-grey);
+  border: solid 1px #e4e7ed;
+  background-color: #e4e7ed;
 }
 .title {
   padding-bottom: 5px;
@@ -229,7 +229,7 @@ export default {
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  color: var(--vibrant-purple);
+  color: #8300bf;
   padding: 0px;
   pointer-events: all;
   cursor: pointer;
@@ -244,8 +244,8 @@ export default {
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  background-color: var(--vibrant-purple);
-  border: var(--vibrant-purple);
+  background-color: #8300bf;
+  border: #8300bf;
   color: white;
   cursor: pointer;
   margin-top: 8px;

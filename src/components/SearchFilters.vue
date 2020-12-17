@@ -295,16 +295,16 @@ export default {
 }
 
 .search-filters >>> .el-cascader-node.is-active{
-  color: var(--vibrant-purple);
+  color: #8300bf;
 }
 
 .search-filters >>> .el-cascader-node.in-active-path{
-  color: var(--vibrant-purple);
+  color: #8300bf;
 }
 
 .search-filters >>> .el-checkbox__input.is-checked > .el-checkbox__inner {
-  background-color: var(--vibrant-purple);
-  border-color: var(--vibrant-purple);
+  background-color: #8300bf;
+  border-color: #8300bf;
 }
 
 </style>

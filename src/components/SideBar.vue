@@ -343,7 +343,7 @@ export default {
   top: calc(50vh - 80px);
   right: 0px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-  border: solid 1px var(--pale-grey);
+  border: solid 1px #e4e7ed;
   background-color: #F7FAFF;
   text-align: center;
   vertical-align: middle;
@@ -373,7 +373,7 @@ export default {
   z-index: 8;
   margin-top: calc(50vh - 80px);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-  border: solid 1px var(--pale-grey);
+  border: solid 1px #e4e7ed;
   border-right: 0;
   background-color: #F7FAFF;
   text-align: center;
@@ -383,8 +383,8 @@ export default {
 }
 
 .button{
-  background-color: var(--vibrant-purple);
-  border: var(--vibrant-purple);
+  background-color: #8300bf;
+  border: #8300bf;
   color: white;
 }
 
@@ -427,7 +427,7 @@ export default {
   background-color: white !important;
 }
 .pagination>>>li.active{
-  color: var(--vibrant-purple);
+  color: #8300bf;
 }
 
 .error-feedback{
@@ -452,7 +452,7 @@ export default {
   width: 518px;
   height: calc(100vh - 20rem);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-  border: solid 1px var(--pale-grey);
+  border: solid 1px #e4e7ed;
   background-color: #ffffff;
   overflow-y: scroll;
 }
