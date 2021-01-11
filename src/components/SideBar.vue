@@ -409,7 +409,6 @@ export default {
 }
 
 .header {
-  height: 50px;
   border: solid 1px #292b66;
   background-color: #292b66;
   text-align: left;
