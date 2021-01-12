@@ -12,19 +12,20 @@
     <el-row class="icon-group" >
       <el-popover content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
-        <el-button class="header-icon" slot="reference" icon="el-icon-question" size="medium" type="text" @click="startHelp(activeId)"></el-button>
+        <img svg-inline slot="reference" class="header-icon" src='@/../assets/icons/tooltips.svg' @click="startHelp(activeId)"/>
       </el-popover>
       <el-popover content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="topLevelControls">
-        <el-button class="header-icon" slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
+        <img v-if="!isFullscreen" svg-inline slot="reference" class="header-icon" src='@/../assets/icons/fullScreen.svg' @click="onFullscreen"/>
+        <img v-if="isFullscreen" svg-inline slot="reference" class="header-icon" src='@/../assets/icons/closeFullScreen.svg' @click="onFullscreen"/>
       </el-popover>
       <el-popover content="Resize" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <el-button slot="reference" class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="!isDocked && showIcons">
+        <img svg-inline slot="reference" class="header-icon" src='@/../assets/icons/dock.svg' @click="maximise"/>
       </el-popover>
       <el-popover content="Dock" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <el-button class="header-icon" slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="isDocked && showIcons">
+        <img svg-inline slot="reference" class="header-icon" src='@/../assets/icons/undock.svg' @click="minimise"/>
       </el-popover>
       <el-popover
           ref="linkPopover"
@@ -61,13 +62,16 @@
         :open-delay="helpDelay" :appendToBody=false trigger="hover" 
         popper-class="header-popper"
         v-if="topLevelControls && shareLink">
-        <el-button v-popover:linkPopover class="header-icon" slot="reference"
-          icon="el-icon-link" size="medium" type="text" @click="getShareLink">
-        </el-button>
+        <img svg-inline 
+          v-popover:linkPopover 
+          slot="reference" 
+          class="header-icon" 
+          src='@/../assets/icons/permalink.svg' 
+          @click="getShareLink"/>
       </el-popover>
       <el-popover content="Close" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <el-button class="header-icon" slot="reference" icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
+        <img svg-inline slot="reference" class="header-icon" src='@/../assets/icons/close.svg' @click="close"/>
       </el-popover>
     </el-row>
   </div>
@@ -140,6 +144,8 @@ export default {
   },
   data: function() {
     return {
+      isFullscreen: false,
+      isDocked: true,
       helpDelay: 500,
       loadingLink: true
     }
@@ -153,12 +159,15 @@ export default {
     },
     onFullscreen: function() {
       this.$emit("onFullscreen");
+      this.isFullscreen = !this.isFullscreen;
     },
     maximise: function() {
       this.$emit("maximise");
+      this.isDocked = true
     },
     minimise: function() {
       this.$emit("minimise");
+      this.isDocked = false
     },
     close: function() {
       this.$emit("close");
@@ -172,6 +181,11 @@ export default {
     getShareLink: function() {
       this.loadingLink = true;
       EventBus.$emit("updateShareLinkRequested");
+    }
+  },
+  mounted: function(){
+    if(!this.topLevelControls){
+      this.isDocked = false;
     }
   }
 };
@@ -218,8 +232,8 @@ export default {
 
 .icon-group {
   position:absolute;
-  top:-2px;
-  right:16px;
+  top: 8px;
+  right:12px;
 }
 
 .icon-group >>> .el-button--text {
@@ -263,6 +277,7 @@ export default {
 
 .header-icon {
   padding-right:10px;
+  cursor: pointer;
 }
 
 .copy-button {

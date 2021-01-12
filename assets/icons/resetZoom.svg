@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>resetZoom</title>
+    <g id="resetZoom" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-13-Copy-2">
+            <circle id="Oval-Copy-2" fill="#8300BF" cx="12" cy="12" r="12"></circle>
+            <g id="Group-12" transform="translate(5.000000, 4.000000)" stroke="#FFFFFF" stroke-width="2">
+                <circle id="Oval" cx="5.5" cy="5.5" r="5.5"></circle>
+                <line x1="13.5833333" y1="13.5833333" x2="9.41666667" y2="9.41666667" id="Line-8" stroke-linecap="square"></line>
+            </g>
+            <g id="Group-4" transform="translate(7.500000, 7.000000)">
+                <path d="M3,5 C3.83613696,5 4.57640148,4.58952131 5.03027306,3.95908443 C5.19488093,3.73044075 5.32181864,3.47286529 5.40199763,3.19544657 C5.46580562,2.97467142 5.5,2.74132897 5.5,2.5 C5.5,2.26693547 5.46810753,2.04131982 5.40844867,1.82727914 C5.31560782,1.49418996 5.15552386,1.18913241 4.9437468,0.927656488 C4.48541251,0.361762414 3.78495332,0 3,0 C1.61928813,0 0.5,1.11928813 0.5,2.5 C0.5,3.88071187 1.61928813,5 3,5 Z" id="Oval" stroke="#FFFFFF"></path>
+                <rect id="Rectangle" fill="#8300BF" x="2.5" y="2" width="4" height="1"></rect>
+                <line x1="5.5" y1="1.5" x2="5.5" y2="0.5" id="Line-7" stroke="#FFFFFF" stroke-linecap="square"></line>
+                <line x1="4.5" y1="1.5" x2="5.5" y2="1.5" id="Line-7" stroke="#FFFFFF" stroke-linecap="square"></line>
+            </g>
+        </g>
+    </g>
+</svg>

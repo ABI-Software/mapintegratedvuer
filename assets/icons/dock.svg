@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>dock</title>
+    <g id="dock" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-8-Copy-2">
+            <circle id="Oval" fill="#8300BF" cx="12" cy="12" r="12"></circle>
+            <g id="Group-5" transform="translate(2.972940, 3.512563)" stroke="#FFFFFF" stroke-linecap="square" stroke-width="2">
+                <line x1="10.7289628" y1="7.03553391" x2="14.9716035" y2="2.79289322" id="Line"></line>
+                <g id="Group" transform="translate(14.264497, 3.500000) rotate(-315.000000) translate(-14.264497, -3.500000) translate(11.264497, 2.000000)">
+                    <line x1="2.27373675e-13" y1="2.82842712" x2="2.82842712" y2="0" id="Line"></line>
+                    <line x1="3" y1="0" x2="5.82842712" y2="2.82842712" id="Line"></line>
+                </g>
+                <line x1="7.53553391" y1="10.1584369" x2="3.29289322" y2="14.4010776" id="Line"></line>
+                <g id="Group" transform="translate(4.000000, 13.693971) rotate(-135.000000) translate(-4.000000, -13.693971) translate(1.000000, 12.193971)">
+                    <line x1="2.27373675e-13" y1="2.82842712" x2="2.82842712" y2="0" id="Line"></line>
+                    <line x1="3" y1="0" x2="5.82842712" y2="2.82842712" id="Line"></line>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
