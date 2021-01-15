@@ -2,7 +2,7 @@
   <el-container style="height:100%;background:white;">
     <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
-        :showFullscreenIcon="entries[findIndexOfId(activeDockedId)].mode!=='normal'"
+        :topLevelControls="entries[findIndexOfId(activeDockedId)].mode!=='normal'"
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
         @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose"
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
@@ -13,7 +13,10 @@
         <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
           @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)"
-          @close="dialogClose(item.id)"/>
+          @close="dialogClose(item.id)"
+          @resource-selected="resourceSelected"
+          @flatmapChanged="flatmapChanged"/>
+          <SideBar ref="sideBar" class="side-bar" :visible="sideBarVisibility"></SideBar>
       </div>
     </el-main>
   </el-container>
@@ -23,6 +26,7 @@
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
 import FloatingDialog from './FloatingDialog';
+import SideBar from './SideBar';
 import EventBus from './EventBus';
 import Vue from "vue";
 import {
@@ -33,7 +37,6 @@ import {
 Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
-
 
 var initialState = function() {
   return {
@@ -56,9 +59,12 @@ var initialState = function() {
         type: "MultiFlatmap",
         zIndex:1,
         mode: "main",
-        id: 1
+        id: 1,
+        state: undefined
       }
     ],
+    sideBarVisibility: false,
+    search: ''
   }
 }
 
@@ -69,7 +75,14 @@ export default {
   name: "FloatingFlow",
   components: {
     DialogToolbarContent,
-    FloatingDialog
+    FloatingDialog,
+    SideBar
+  },
+  props:{
+    state: {
+      type: Object,
+      default: undefined
+    },
   },
   methods: {
     /**
@@ -77,8 +90,10 @@ export default {
      */
     actionClick:function(action) {
       if (action) {
-        if (action.type == "URL") {
-          window.open(action.resource,'_blank');
+        if (action.type == "Search") {
+          // Line below filters by flatmap species (unused until more data is available)
+          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
+          this.$refs.sideBar.openSearch(action.label, [{facet: "All species", term:'species'}] )
         } else {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);
@@ -95,6 +110,7 @@ export default {
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex;
+      newEntry.state = undefined;
       this.entries.push(newEntry);
       return newEntry.id;
     },
@@ -205,13 +221,53 @@ export default {
       this.bringDialogToFront(id);
     },
     resetApp: function(){
-      Object.assign(this.$data, initialState());
-      var closeItems = document.querySelectorAll('.mapboxgl-popup-close-button');
-      closeItems.forEach( (item) => { item.click() });
+      this.setState(initialState());
+    },
+    setState: function(state){
+      this.mainTabName = state.mainTabName;
+      this.zIndex = state.zIndex;
+      this.showDialogIcons = state.showDialogIcons;
+      this.dockedArray = [];
+      Object.assign(this.dockedArray, state.dockedArray);
+      this.activeDockedId = state.activeDockedId;
+      this.currentCount = state.currentCount;
+      this.entries = [];
+      Object.assign(this.entries, state.entries);
+    },
+    getState: function() {
+      let state = JSON.parse(JSON.stringify(this.$data));
+      let dialogs = this.$refs["dialogs"];
+      if (state.entries.length === dialogs.length) {
+        for (let i = 0; i < dialogs.length; i++) {
+          state.entries[i].state = dialogs[i].getState();
+        }
+      }
+      return state;
+    },
+    resourceSelected: function(result) {
+      this.$emit("resource-selected", result);
+    },
+    flatmapChanged: function(){
+      this.$emit("flatmapChanged");
     }
   },
   data: function() {
     return initialState();
+  },
+  watch: {
+    state: {
+      handler: function(value) {
+        if (value) {
+          if (!this.externalStateSet)
+            this.setState(value);
+          this.externalStateSet = true;
+        }
+      },
+      immediate: true,
+    }
+  },
+  created: function() {
+    this.externalStateSet = false;
   },
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
