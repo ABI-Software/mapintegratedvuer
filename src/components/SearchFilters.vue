@@ -115,7 +115,6 @@ export default {
       })
     },
     getFacet: function (facet) {
-      console.log('>>> Facet: ' + facet);
       return new Promise((resolve) => {
         var facets = [`All ${facet}`];
         this.callSciCrunch(this.apiLocation, this.facetEndpoint, facet).then(
