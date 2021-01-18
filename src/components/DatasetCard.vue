@@ -105,7 +105,7 @@ export default {
     getScaffoldPath: function(discoverId, version, scaffoldPath){
       let id = discoverId
       let path = `${this.apiLocation}s3-resource/${id}/${version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
-      return path 
+      return path
     },
     getFileFromPath: function(discoverId, version, path){
       return  `${this.apiLocation}s3-resource/${discoverId}/${version}/files/${path}`
@@ -122,7 +122,7 @@ export default {
     getBanner: function () {
       let doi = this.splitDOI(this.entry.doi)
       fetch(`https://api.blackfynn.io/discover/datasets/doi/${doi[0]}/${doi[1]}`)
-        .then((response) =>{ 
+        .then((response) =>{
           if (!response.ok){
             throw Error(response.statusText)
           } else {
@@ -148,7 +148,7 @@ export default {
   },
   updated: function () {
   },
-  watch: { 
+  watch: {
     'entry.description': function() { // watch it
       this.cardOverflow = false
       this.expanded = false
@@ -205,14 +205,14 @@ export default {
   flex: 1.3;
 }
 
-.dataset-card .read-more { 
-  position: absolute; 
+.dataset-card .read-more {
+  position: absolute;
   z-index: 9;
-  bottom: 0; 
+  bottom: 0;
   left: 0;
-  width: 100%; 
+  width: 100%;
   height: 20px;
-  margin: 0; padding: 20px 66px; 
+  margin: 0; padding: 20px 66px;
   /* "transparent" only works here because == rgba(0,0,0,0) */
   background-image: linear-gradient(to bottom, transparent, white);
   pointer-events: none;

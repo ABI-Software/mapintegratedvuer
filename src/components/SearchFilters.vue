@@ -18,7 +18,7 @@
       <img svg-inline class="filter-icon" src='@/../assets/noun-filter.svg'/>
       Filter
      </div>
-    
+
     <span
         class="dataset-results-feedback"
       >{{this.numberOfDatasetsResultText}}</span>
@@ -100,11 +100,11 @@ export default {
         for(let i in this.facets){
           // Create a promise for each facet request
           promiseList.push(this.getFacet(this.facets[i]).then((labels)=>{
-            // Populate children of each facet with scicrunch's facets 
+            // Populate children of each facet with scicrunch's facets
             for(let j in labels){
               this.options[i].children.push({
                 value: value,
-                label: labels[j], 
+                label: labels[j],
               })
               value++;
             }
@@ -115,6 +115,7 @@ export default {
       })
     },
     getFacet: function (facet) {
+      console.log('>>> Facet: ' + facet);
       return new Promise((resolve) => {
         var facets = [`All ${facet}`];
         this.callSciCrunch(this.apiLocation, this.facetEndpoint, facet).then(
@@ -131,7 +132,7 @@ export default {
       // If filters have been cleared, send an empty object
       if(event[0] === undefined){
        this.$emit("filterResults", {});
-       return 
+       return
       }
       this.filters = []
       // event[0][1] contains the index of the latest addition
@@ -221,7 +222,7 @@ export default {
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  color: #292b66; 
+  color: #292b66;
   text-align: center;
   padding-bottom: 6px;
 }

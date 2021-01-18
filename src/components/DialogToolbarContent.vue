@@ -32,7 +32,7 @@
           width="400"
           :appendToBody=false
           trigger="click">
-          <el-row :gutter="20" 
+          <el-row :gutter="20"
             v-loading="loadingLink"
             element-loading-text="Creating link..."
             element-loading-spinner="el-icon-loading">
@@ -47,18 +47,18 @@
               </el-input>
             </el-col>
             <el-col :span="4">
-              <el-popover content="Copy link" placement="bottom-end" 
+              <el-popover content="Copy link" placement="bottom-end"
                 :open-delay="helpDelay" :appendToBody=false trigger="hover"
                 popper-class="header-popper">
-              <el-button slot="reference" class="copy-button" 
-                icon="el-icon-document-copy" size="mini" 
+              <el-button slot="reference" class="copy-button"
+                icon="el-icon-document-copy" size="mini"
                 @click="copyShareLink"></el-button>
               </el-popover>
             </el-col>
           </el-row>
       </el-popover>
-      <el-popover content="get permalink" placement="bottom-end" 
-        :open-delay="helpDelay" :appendToBody=false trigger="hover" 
+      <el-popover content="get permalink" placement="bottom-end"
+        :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
         v-if="topLevelControls && shareLink">
         <el-button v-popover:linkPopover class="header-icon" slot="reference"
@@ -290,9 +290,9 @@ export default {
 }
 
 >>>.el-loading-spinner i{
-  color: #8300bf;  
+  color: #8300bf;
 }
 >>>.el-loading-spinner .el-loading-text {
-  color: #8300bf; 
+  color: #8300bf;
 }
 </style>

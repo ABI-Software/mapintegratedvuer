@@ -86,7 +86,7 @@ Vue.use(Drawer);
 Vue.use(Pagination);
 Vue.use(Loading)
 
-// handleErrors: A custom fetch error handler to recieve messages from the server 
+// handleErrors: A custom fetch error handler to recieve messages from the server
 //    even when an error is found
 var handleErrors = async function(response) {
     if (!response.ok) {
@@ -214,7 +214,7 @@ export default {
       if(this.$refs.content){
         this.$refs.content.scroll({top:0, behavior:'smooth'})
         this.$refs.content.style['overflow-y'] = 'hidden'
-      } 
+      }
     },
     resetPageNavigation: function(){
       this.start = 0
@@ -232,7 +232,7 @@ export default {
           if(params[i].start){
             params[i].start = start
             params[i].size = size
-          } 
+          }
         }
       } else {
         params.start = start
@@ -263,7 +263,7 @@ export default {
             : undefined, // This processing only includes each gender once into 'sexes'
           organs: element.organs
             ? [...new Set(element.organs.map((v) => v.name))]
-            : undefined, 
+            : undefined,
           ages: element.samples
             ? "ageCategory" in element.samples[0]
               ? [...new Set(element.samples.map((v) => v.ageCategory.value))]
@@ -299,7 +299,7 @@ export default {
         } else {
           endpoint = endpoint + '?' + this.createfilterParams(params)
         }
-        
+
         fetch(endpoint)
           .then(handleErrors)
           .then((response) => response.json())
