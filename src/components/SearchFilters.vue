@@ -47,6 +47,10 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Cascader)
 
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 export default {
   name: "SearchFilters",
   components: {},
@@ -91,7 +95,7 @@ export default {
         for(let i in this.facets){
           this.options.push({
               value: value,
-              label: this.facets[i],
+              label: this.facets[i].capitalize(),
               children: []
             })
             value++;
@@ -104,7 +108,7 @@ export default {
             for(let j in labels){
               this.options[i].children.push({
                 value: value,
-                label: labels[j],
+                label: labels[j].capitalize(),
               })
               value++;
             }
