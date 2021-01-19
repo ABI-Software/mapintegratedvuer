@@ -273,17 +273,20 @@ export default {
   padding-top: 0.25em;
 }
 
-.filter-select >>> .el-select-dropdown__item.selected {
-  color: #8300bf;
+.el-select-dropdown__item {
   font-weight: normal;
   font-family: Asap !important;
+}
+
+.filter-select >>> .el-select-dropdown__item.selected {
+  color: #8300bf;
 }
 
 .search-filters {
   text-align: left;
 }
 
-.number-shown-select >>> .el-input__inner{
+.number-shown-select >>> .el-input__inner {
   width: 68px;
   height: 32px;
   color: #8300bf;
