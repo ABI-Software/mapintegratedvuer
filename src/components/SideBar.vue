@@ -19,7 +19,6 @@
       <div v-if="drawerOpen" @click="close" class="close-tab">
         <i class="el-icon-arrow-right"></i>
       </div>
-      <div class="splitter">
         <el-card class="box-card">
           <div slot="header" class="header">
             <el-input
@@ -30,23 +29,29 @@
               clearable
               @clear="clearSearchClicked"
             ></el-input>
-            <el-button @click="searchEvent">Search</el-button>
+            <el-button class="button" @click="searchEvent">Search</el-button>
           </div>
           <SearchFilters class="filters" ref="filtersRef" :entry="filterEntry" @filterResults="filterUpdate" @numberPerPage="numberPerPageUpdate"></SearchFilters>
-          <el-pagination class="pagination" :current-page.sync="page" hide-on-single-page small layout="prev, pager, next" :total="numberOfHits" @current-change="pageChange"></el-pagination>
           <div class="content scrollbar"  v-loading="loadingCards" ref="content">
-            <div class="card-container">
-              <span v-if="results.length === 0 && !loadingCards && !sciCrunchError" class="dataset-table-title">No results for <i>{{filterFacet}}, {{lastSearch}}</i></span>
-              <span v-if="sciCrunchError">{{sciCrunchError}}</span>
-              <span v-if="results.length > 0" class="dataset-table-title">Title</span>
-              <span v-if="results.length > 0" class="image-table-title">Image</span>
+            <div class="error-feedback" v-if="results.length === 0 && !loadingCards && !sciCrunchError">
+              No results found - Please change your search / filter criteria.
             </div>
+            <div class="error-feedback" v-if="sciCrunchError">{{sciCrunchError}}</div>
             <div v-for="o in results" :key="o.id" class="step-item">
               <DatasetCard :entry="o"></DatasetCard>
             </div>
+            <el-pagination 
+              class="pagination" 
+              :current-page.sync="page" 
+              hide-on-single-page 
+              large 
+              layout="prev, pager, next" 
+              :page-size="numberPerPage"
+              :total="numberOfHits"
+              @current-change="pageChange">
+            </el-pagination>
           </div>
         </el-card>
-      </div>
       </div>
     </el-drawer>
   </div>
@@ -319,7 +324,6 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<!-- Not that splitter flex is currently not working as width is defined by 'content' for some reason -->
 <style scoped>
 .side-bar{
   position: relative;
@@ -339,7 +343,7 @@ export default {
   top: calc(50vh - 80px);
   right: 0px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-  border: solid 1px var(--pale-grey);
+  border: solid 1px #e4e7ed;
   background-color: #F7FAFF;
   text-align: center;
   vertical-align: middle;
@@ -361,11 +365,6 @@ export default {
   pointer-events: auto;
 }
 
-.splitter{
-  display: flex;
-  flex-direction: row;
-}
-
 .close-tab{
   float: left;
   flex: 1;
@@ -374,13 +373,19 @@ export default {
   z-index: 8;
   margin-top: calc(50vh - 80px);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-  border: solid 1px var(--pale-grey);
+  border: solid 1px #e4e7ed;
   border-right: 0;
   background-color: #F7FAFF;
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
   pointer-events: auto;
+}
+
+.button{
+  background-color: #8300bf;
+  border: #8300bf;
+  color: white;
 }
 
 .box-card {
@@ -395,6 +400,7 @@ export default {
   margin-bottom: 18px;
   text-align: left;
 }
+
 .search-input {
   width: 298px;
   height: 40px;
@@ -403,78 +409,31 @@ export default {
 }
 
 .header {
-  height: 50px;
   border: solid 1px #292b66;
   background-color: #292b66;
   text-align: left;
 }
 
 .pagination {
-  padding-top: 10px;
-  background-color: #F7FAFF;
+  padding-bottom: 16px;
+  background-color: white;
 }
 
 .pagination>>>button{
-  background-color: #F7FAFF !important;
+  background-color: white !important;
 }
 .pagination>>>li{
-  background-color: #F7FAFF !important;
+  background-color: white !important;
 }
 .pagination>>>li.active{
-  color: var(--vibrant-purple);
+  color: #8300bf;
 }
 
-.dataset-results-feedback {
-  width: 215px;
-  height: 16px;
+.error-feedback{
   font-family: Asap;
   font-size: 14px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: #292b66;
-}
-
-.card-container {
-  display: flex;
-  position: sticky;
-  top:0;
-  background-color: white;
-  z-index: 8;
-  padding-top: 10px;
-  height: 20px;
-  border-bottom: 1px solid var(--pale-grey);
-}
-
-.dataset-table-title {
-  flex: 1.3;
-  height: 16px;
-  font-family: Asap;
-  text-align: left !important;
-  padding-left: 16px;
-  font-size: 14px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: var(--slate-grey);
-}
-
-.image-table-title {
-  flex: 1;
-  padding-left: 16px;
-  font-family: Asap;
-  text-align: left !important;
-  font-size: 14px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: var(--slate-grey);
+  font-style: italic;
+  padding-top: 15px;
 }
 
 >>> .el-card__header {
@@ -488,33 +447,13 @@ export default {
   overflow-y: hidden;
 }
 
-.wrapper{
-  display: flex;
-  flex-direction: row;
-}
-
-.el-icon-copy-document{
-  cursor: pointer;
-  font-size: 32px;
-  width: 16px;
-  height: 16px;
-  color: #f9f9fa;
-  padding-right: 32px;
-}
-
 .content {
   width: 518px;
-  height: calc(100vh - 19.5rem);
+  height: calc(100vh - 20rem);
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
-  border: solid 1px var(--pale-grey);
+  border: solid 1px #e4e7ed;
   background-color: #ffffff;
   overflow-y: scroll;
-}
-
-
-.active {
-  width: 380px !important;
-  height: 380px !important;
 }
 
 .scrollbar::-webkit-scrollbar-track {

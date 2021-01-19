@@ -1,30 +1,31 @@
 <template>
   <div class="filters">
     <transition name="el-zoom-in-top">
-      <div v-show="showFilters" class="search-filters transition-box">
+      <span v-show="showFilters" class="search-filters transition-box">
           <el-cascader
           class="cascader"
           v-model="cascadeSelected"
-          placeholder="Filter"
+          placeholder=""
+          :collapse-tags="true"
           :options="options"
           :props="props"
           @change="cascadeEvent($event)"
           :show-all-levels="false"
           :append-to-body="false">
         </el-cascader>
-      </div>
+        <div v-if="cascadeSelected.length === 0" class="filter-default-value"> 
+          <img svg-inline class="filter-icon-inside" src='@/../assets/noun-filter.svg'/>
+          Apply Filters
+        </div>
+      </span>
     </transition>
-    <div class="filter-collapsed" @click="showFilters = !showFilters">
-      <img svg-inline class="filter-icon" src='@/../assets/noun-filter.svg'/>
-      Filter
-     </div>
-    
-    <span
-        class="dataset-results-feedback"
-      >{{this.numberOfDatasetsResultText}}</span>
+  
       <el-select class="number-shown-select"  v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
         <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
       </el-select>
+      <span
+        class="dataset-results-feedback"
+      >{{this.numberOfResultsText}}</span>
   </div>
 </template>
 
@@ -47,6 +48,10 @@ Vue.use(Button);
 Vue.use(Select);
 Vue.use(Cascader)
 
+var capitalise = function(string){
+  return string.replace(/\b\w/g, v => v.toUpperCase())
+}
+
 export default {
   name: "SearchFilters",
   components: {},
@@ -59,11 +64,11 @@ export default {
   },
   data: function () {
     return {
-      showFilters: false,
+      showFilters: true,
       cascadeSelected: [],
       numberShown: 10,
       filters: [],
-      facets: ['species', 'gender', 'genotype'],
+      facets: ['Species', 'Gender', 'Genotype'],
       numberDatasetsShown: ["10", "20", "50"],
       props: { multiple: true },
       options: [{
@@ -75,12 +80,8 @@ export default {
     };
   },
   computed: {
-    numberOfDatasetsResultText: function(){
-      var searchTermConfirmation = ''
-      if (this.entry.lastSearch !== ''){
-        searchTermConfirmation = `for '${this.entry.lastSearch}'`
-      }
-      return `${this.entry.numberOfHits} Datasets ${searchTermConfirmation} | Showing`
+    numberOfResultsText: function(){
+      return `${this.entry.numberOfHits} results | Showing`
     }
   },
   methods: {
@@ -104,7 +105,7 @@ export default {
             for(let j in labels){
               this.options[i].children.push({
                 value: value,
-                label: labels[j], 
+                label: capitalise(labels[j]), // Capitalisation is to match design specs
               })
               value++;
             }
@@ -114,9 +115,10 @@ export default {
         Promise.allSettled(promiseList).then(()=>{resolve()})
       })
     },
-    getFacet: function (facet) {
+    getFacet: function (facetLabel) {
       return new Promise((resolve) => {
-        var facets = [`All ${facet}`];
+        var facets = [`All ${facetLabel}`];
+        let facet = facetLabel.toLowerCase()
         this.callSciCrunch(this.apiLocation, this.facetEndpoint, facet).then(
           (facet_terms) => {
             facet_terms.forEach((element) => {
@@ -127,6 +129,25 @@ export default {
         );
       })
     },
+    // switchFacetToRequest is used to set 'All' to lowercase. Api will not be case sensitive soon and this can be removed
+    switchFacetToRequest: function(facet){
+      if (!facet.includes('All')){
+        return facet.toLowerCase()
+      } else {
+        return facet
+      }
+    },
+    // switchTermToRequest is used to remove the count for sending a request to scicrunch
+    switchTermToRequest: function(term){
+      return term.split(' ')[0].toLowerCase()
+    },
+    updateLabels: function(counter){
+      for( let i in counter){
+        if( counter[i] > 0){
+          this.options[i].label = this.options[i].label.split(' ')[0] + ` (${counter[i]})`
+        }
+      }  
+    },
     cascadeEvent: function(event){
       // If filters have been cleared, send an empty object
       if(event[0] === undefined){
@@ -134,6 +155,9 @@ export default {
        return 
       }
       this.filters = []
+      // Label counts is used to show user how many are at each nested level. 
+      //    i.e.: if 3 species are selected it will show 'Species (3)' in the cascader
+      let labelCounts = [0,0,0]
       // event[0][1] contains the index of the latest addition
       for(let i in this.options){
         for(let j in this.options[i].children){
@@ -142,18 +166,16 @@ export default {
               var id = event[k][1]
               if(this.options[i].children[j].value == id){
                 let output = {}
-                output.facet = this.options[i].children[j].label
-                output.term = this.options[i].label
+                output.facet = this.switchFacetToRequest(this.options[i].children[j].label)
+                output.term = this.switchTermToRequest(this.options[i].label)
                 this.filters.push(output)
+                labelCounts[i] += 1
               }
             }
           }
         }
       }
-      // // Don't send a filter if all is selected
-      // if(output.facet.includes('All')){
-      //   output = {}
-      // }
+      this.updateLabels(labelCounts)
       this.$emit("filterResults", this.filters);
     },
     numberShownChanged: function (event){
@@ -176,7 +198,6 @@ export default {
           }
         }
       }
-      this.showFilters = true
     }
   },
   created: function() {
@@ -199,11 +220,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.filters{
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 10px;
-}
 
 .filter-icon{
   width: 12px;
@@ -211,6 +227,22 @@ export default {
   color: #292b66;
   transform: scale(2);
   bottom: -10px;
+}
+
+.filter-default-value{
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding-top: 10px;
+  padding-left: 16px;
+}
+
+.filter-icon-inside{
+  width: 12px;
+  height: 12px;
+  color: #292b66;
+  transform: scale(2);
 }
 
 .cascader {
@@ -226,58 +258,53 @@ export default {
   padding-bottom: 6px;
 }
 
+.cascader >>> .el-scrollbar__wrap{
+  overflow-x: hidden;
+  margin-bottom: 2px !important;
+}
+
+.cascader >>> li[aria-owns*="cascader"] > .el-checkbox {
+  display: none;
+}
+
 .dataset-results-feedback{
-  text-align: left;
-}
-
-.filter-collapsed {
-  font-family: Asap;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: normal;
-  letter-spacing: normal;
-  color: #292b66;
-  width: 100px;
   float: right;
-  cursor: pointer;
-}
-
-.filter-select {
-  width: 120px;
-  height: 40px;
-  margin-right: 16px;
-  border-radius: 4px;
-  border: solid 1px #8300bf;
-  background-color: var(--white);
+  text-align: right;
+  color: rgb(48, 49, 51);
+  font-family: Asap;
+  font-size: 18px;
   font-weight: 500;
-  color: #8300bf;
-}
-
-.filters-row-2 {
-  padding-top: 16px;
-}
-
-.filter-select >>> .el-input__inner {
-  color: #8300bf;
-  padding-top: 0.25em;
-}
-
-.filter-select >>> .el-select-dropdown__item.selected {
-  color: #8300bf;
-  font-weight: normal;
-  font-family: Asap !important;
+  padding-top: 8px;
 }
 
 .search-filters {
-  text-align: left;
+  position: relative;
+  float:left;
+  padding-right: 15px;
+  padding-bottom: 12px;
+}
+
+.number-shown-select{
+  float: right;
 }
 
 .number-shown-select >>> .el-input__inner{
   width: 68px;
-  height: 32px;
+  height: 40px;
+  color: rgb(48, 49, 51);
+}
+
+.search-filters >>> .el-cascader-node.is-active{
   color: #8300bf;
+}
+
+.search-filters >>> .el-cascader-node.in-active-path{
+  color: #8300bf;
+}
+
+.search-filters >>> .el-checkbox__input.is-checked > .el-checkbox__inner {
+  background-color: #8300bf;
+  border-color: #8300bf;
 }
 
 </style>

@@ -46,7 +46,7 @@ export default {
   line-height: normal;
   letter-spacing: 1.05px;
   text-align: center;
-  color: var(--vibrant-purple);;
+  color: #8300bf;;
 }
 .description {
   width: 426px;
@@ -57,7 +57,7 @@ export default {
   font-style: normal;
   line-height: 130%;
   letter-spacing: 1.35px;
-  color: var(--brownish-grey);
+  color: #666666;
 }
 .image {
   width: 92px;
