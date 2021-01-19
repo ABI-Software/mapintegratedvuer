@@ -67,7 +67,7 @@ export default {
       cascadeSelected: [],
       numberShown: 10,
       filters: [],
-      facets: ['species', 'gender', 'genotype'],
+      facets: ['species', 'gender', 'genotype', 'datasets'],
       numberDatasetsShown: ["10", "20", "50"],
       props: { multiple: true },
       options: [{
@@ -119,6 +119,11 @@ export default {
       })
     },
     getFacet: function (facet) {
+      if (facet === 'datasets') {
+        return new Promise((resolve) => {
+          resolve([...new Set([`All ${facet}`, "Scaffolds", "Simulations"])]);
+        });
+      }
       return new Promise((resolve) => {
         var facets = [`All ${facet}`];
         this.callSciCrunch(this.apiLocation, this.facetEndpoint, facet).then(
