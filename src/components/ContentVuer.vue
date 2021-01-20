@@ -17,6 +17,7 @@
         :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" :helpMode="helpMode" style="height: 200px"></PlotVuer>
+      <SimulationVuer v-else-if="entry.type === 'Simulation'"></SimulationVuer>
       <SideBar v-else-if="entry.type === 'Search'" :visbility="true" :isDrawer="false"  :entry="entry.entry" class="search"></SideBar>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
@@ -37,6 +38,8 @@ import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
 import { PlotVuer } from '@abi-software/plotvuer';
 import '@abi-software/plotvuer/dist/plotvuer.css';
 import { getInteractiveAction } from './SimulatedData.js';
+import { SimulationVuer } from '@abi-software/simulationvuer';
+import '@abi-software/simulationvuer/dist/simulationvuer.css';
 
 export default {
   name: "ContentVuer",
@@ -55,6 +58,7 @@ export default {
     MultiFlatmapVuer,
     ScaffoldVuer,
     PlotVuer,
+    SimulationVuer,
   },
   methods: {
     onResize: function () {
