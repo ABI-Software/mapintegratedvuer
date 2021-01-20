@@ -116,6 +116,8 @@ export default {
     },
     getFacet: function (facetLabel) {
       if (facetLabel === 'Datasets') {
+        // The datasets facet doesn't exist on SciCrunch yet, so manually set it
+        // for now.
         return new Promise((resolve) => {
           resolve([...new Set([`All ${facetLabel}`, "Scaffolds", "Simulations"])]);
         });
