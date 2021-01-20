@@ -14,13 +14,16 @@
           <div v-if="entry.contributors.length > 2" class="details">{{lastName(entry.contributors[0].name)}} <em>et al.</em></div>
           <div v-if="entry.numberSamples !== 0" class="details">{{entry.numberSamples}} sample(s)</div>
           <div>
-            <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">View dataset</el-button>
+            <el-button v-if="!entry.simulation" @click="openDataset" size="mini" class="button" icon="el-icon-coin">View dataset</el-button>
           </div>
           <div>
             <el-button v-if="entry.scaffold" @click="openScaffold" size="mini" class="button" icon="el-icon-view">View scaffold</el-button>
           </div>
           <div>
             <el-button v-if="hasCSVFile"  @click="openPlot" size="mini" class="button" icon="el-icon-view">View plot</el-button>
+          </div>
+          <div>
+            <el-button v-if="entry.simulation"  @click="openSimulation" size="mini" class="button" icon="el-icon-view">View simulation</el-button>
           </div>
         </div>
 
@@ -106,6 +109,9 @@ export default {
     openDataset: function(){
       window.open(this.dataLocation,'_blank');
     },
+    openSimulation: function() {
+      alert("To click on this button will eventually open the Simulation tab...");
+    },
     getScaffoldPath: function(discoverId, version, scaffoldPath){
       let id = discoverId
       let path = `${this.apiLocation}s3-resource/${id}/${version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
@@ -124,6 +130,15 @@ export default {
       return [doi.split('/')[doi.split('/').length-2], doi.split('/')[doi.split('/').length-1]]
     },
     getBanner: function () {
+      if (this.entry.simulation) {
+        // We are dealing with the Fabbri et al. model, so use the schematic on
+        // PMR.
+        this.thumbnail = "https://models.physiomeproject.org/workspace/486/@@rawfile/55879cbc485e2d4c41f3dc6d60424b849f94c4ee/hSAN%20schematic%20model.png"
+        this.discoverId = undefined
+        this.version = undefined
+        this.dataLocation = this.entry.url.uri
+        return
+      }
       let doi = this.splitDOI(this.entry.doi)
       fetch(`https://api.blackfynn.io/discover/datasets/doi/${doi[0]}/${doi[1]}`)
         .then((response) =>{
