@@ -12,7 +12,7 @@
           <div v-if="entry.contributors.length === 1" class="details">{{lastName(entry.contributors[0].name)}}</div>
           <div v-if="entry.contributors.length === 2" class="details">{{lastName(entry.contributors[0].name)}} &amp; {{lastName(entry.contributors[1].name)}}</div>
           <div v-if="entry.contributors.length > 2" class="details">{{lastName(entry.contributors[0].name)}} <em>et al.</em></div>
-          <div class="details">{{entry.numberSamples}} sample(s)</div>
+          <div v-if="entry.numberSamples !== 0" class="details">{{entry.numberSamples}} sample(s)</div>
           <div>
             <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">View dataset</el-button>
           </div>
