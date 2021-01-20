@@ -110,7 +110,13 @@ export default {
       window.open(this.dataLocation,'_blank');
     },
     openSimulation: function() {
-      alert("To click on this button will eventually open the Simulation tab...");
+      let action = {
+          label: "Fabbri et al.",
+          resource: undefined,
+          title: "View simulation",
+          type: "Simulation"
+        }
+        EventBus.$emit("PopoverActionClick", action)
     },
     getScaffoldPath: function(discoverId, version, scaffoldPath){
       let id = discoverId
