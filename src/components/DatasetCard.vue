@@ -146,7 +146,7 @@ export default {
         });
     },
     lastName: function(fullName){
-      return fullName.split(',')[0];
+      return fullName.split(',')[0]
     },
   },
   mounted: function(){
