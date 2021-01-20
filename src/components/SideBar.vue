@@ -292,7 +292,7 @@ export default {
         contributors: [{name: "Fabbri, Alan"}, {name: "Fantini, Matteo"}, {name: "Wilders, Ronald"}, {name: "Severi, Stefano"}],
         numberSamples: 0,
         sexes: undefined,
-        organs: [{name: "heart"}],
+        organs: ["heart"],
         ages: undefined,
         updated: undefined,
         url: {uri: "https://models.physiomeproject.org/e/611"},
