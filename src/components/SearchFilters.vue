@@ -149,6 +149,8 @@ export default {
       for( let i in counter){
         if( counter[i] > 0){
           this.options[i].label = this.options[i].label.split(' ')[0] + ` (${counter[i]})`
+        } else {
+          this.options[i].label = this.options[i].label.split(' ')[0]
         }
       }
     },
@@ -156,6 +158,7 @@ export default {
       // If filters have been cleared, send an empty object
       if(event[0] === undefined){
        this.$emit("filterResults", {});
+       this.updateLabels([0,0,0,0]) // reset label counts
        return
       }
       this.filters = []
@@ -195,13 +198,16 @@ export default {
       });
     },
     setCascader: function(tagName){
+      let labelCounts = [0,0,0,0]
       for(let i in this.options){
         for(let j in this.options[i].children){
           if(tagName === this.options[i].children[j].label){
             this.cascadeSelected = [[Number(i)+1,this.options[i].children[j].value]]
+            labelCounts[i] += 1
           }
         }
       }
+      this.updateLabels(labelCounts)
     }
   },
   created: function() {
