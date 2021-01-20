@@ -5,7 +5,7 @@
       <div class="card" >
         <span class="card-left">
           <img svg-inline class="banner-img" :src="thumbnail" @click="openDataset"/>
-          
+
         </span>
         <div class="card-right" >
           <div class="title" @click="cardClicked">{{entry.description}}</div>
@@ -21,7 +21,7 @@
             <el-button v-if="hasCSVFile"  @click="openPlot" size="mini" class="button" icon="el-icon-view">View plot</el-button>
           </div>
         </div>
-        
+
       </div>
         <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="read-more-button">Read more...</el-button></p>
     </div>

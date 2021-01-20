@@ -40,12 +40,12 @@
             <div v-for="o in results" :key="o.id" class="step-item">
               <DatasetCard :entry="o"></DatasetCard>
             </div>
-            <el-pagination 
-              class="pagination" 
-              :current-page.sync="page" 
-              hide-on-single-page 
-              large 
-              layout="prev, pager, next" 
+            <el-pagination
+              class="pagination"
+              :current-page.sync="page"
+              hide-on-single-page
+              large
+              layout="prev, pager, next"
               :page-size="numberPerPage"
               :total="numberOfHits"
               @current-change="pageChange">
