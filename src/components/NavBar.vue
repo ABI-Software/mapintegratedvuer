@@ -114,15 +114,15 @@ export default {
 }
 
 .el-menu--horizontal .el-menu-item:not(.is-disabled):hover{
-  color: var(--vibrant-purple);
+  color: #8300bf;
 }
 
 .el-submenu.is-opened >>> .el-submenu__title{
-  color: var(--vibrant-purple);
+  color: #8300bf;
 }
 
 .el-submenu__title:hover{
-  color: var(--vibrant-purple) !important;
+  color: #8300bf !important;
 }
 </style>
 <style scoped src='element-ui/lib/theme-chalk/menu.css'>

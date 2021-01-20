@@ -3,25 +3,27 @@
     <div v-bind:class=" expanded ? 'dataset-card-expanded' : 'dataset-card'"  ref="card">
       <div v-if="entry.id !== 0" class="seperator-path"></div>
       <div class="card" >
-        <span class="card-left" >
+        <span class="card-left">
+          <img svg-inline class="banner-img" :src="thumbnail" @click="openDataset"/>
+          
+        </span>
+        <div class="card-right" >
           <div class="title" @click="cardClicked">{{entry.description}}</div>
           <div class="details">{{entry.contributors[0].name}}; {{entry.contributors[1].name}}</div>
           <div class="details">{{entry.numberSamples}} sample(s)</div>
-          <div class="details"><template v-for="(organ, i) in entry.organs"><template v-if="i !== 0">, </template>{{organ}}</template></div>
-          <div class="details"><template v-for="(sex, i) in entry.sexes"><template v-if="i !== 0">, </template>{{sex}}</template></div>
-          <div v-if="entry.ages" class="details"><template v-for="(sex, i) in entry.ages"><template v-if="i !== 0">, </template>{{sex}}</template></div>
-          <div class="details">Last updated: {{entry.updated}}</div>
-        </span>
-        <span class="card-right">
-          <img svg-inline class="banner-img" :src="thumbnail" @click="openDataset"/>
-          <div v-if="entry.scaffold || hasCSVFile">
-            <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">Dataset</el-button>
-            <el-button v-if="entry.scaffold" @click="openScaffold" size="mini" class="button" icon="el-icon-view">Scaffold</el-button>
-            <el-button v-if="hasCSVFile"  @click="openPlot" size="mini" class="button" icon="el-icon-view">Plot</el-button>
+          <div>
+            <el-button @click="openDataset" size="mini" class="button" icon="el-icon-coin">View dataset</el-button>
           </div>
-        </span>
+          <div>
+            <el-button v-if="entry.scaffold" @click="openScaffold" size="mini" class="button" icon="el-icon-view">View scaffold</el-button>
+          </div>
+          <div>
+            <el-button v-if="hasCSVFile"  @click="openPlot" size="mini" class="button" icon="el-icon-view">View plot</el-button>
+          </div>
+        </div>
+        
       </div>
-        <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="button">Read more...</el-button></p>
+        <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="read-more-button">Read more...</el-button></p>
     </div>
   </div>
 </template>
@@ -168,23 +170,17 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .dataset-card {
-  height: 230px;
-  padding-left: 16px;
-  position: relative;
-  overflow: hidden;
-}
-.dataset-card-expanded {
   padding-left: 16px;
   position: relative;
 }
 .seperator-path {
   width: 486px;
   height: 0px;
-  border: solid 1px var(--pale-grey);
-  background-color: var(--pale-grey);
+  border: solid 1px #e4e7ed;
+  background-color: #e4e7ed;
 }
 .title {
-  padding-bottom: 20px;
+  padding-bottom: 5px;
   font-family: Asap;
   font-size: 14px;
   font-weight: bold;
@@ -196,13 +192,18 @@ export default {
   cursor: pointer;
 }
 .card {
-  padding-top: 22px;
+  padding-top: 18px;
   position: relative;
   display: flex;
 }
 
 .card-left{
+  flex: 1
+}
+
+.card-right {
   flex: 1.3;
+  padding-left: 6px;
 }
 
 .dataset-card .read-more {
@@ -218,7 +219,7 @@ export default {
   pointer-events: none;
 }
 
-.read-more .button{
+.read-more-button{
   width: 85px;
   height: 20px;
   font-family: Asap;
@@ -228,7 +229,7 @@ export default {
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  color: var(--vibrant-purple);
+  color: #8300bf;
   padding: 0px;
   pointer-events: all;
   cursor: pointer;
@@ -243,14 +244,13 @@ export default {
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  color: var(--vibrant-purple);
+  background-color: #8300bf;
+  border: #8300bf;
+  color: white;
   cursor: pointer;
+  margin-top: 8px;
 }
 
-.card-right {
-  flex: 1;
-  padding-left: 6px;
-}
 .banner-img {
   width: 128px;
   height: 128px;
