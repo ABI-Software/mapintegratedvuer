@@ -247,9 +247,29 @@ export default {
       return params
     },
     resultsProcessing: function (data) {
-      this.lastSearch = this.searchInput
+      // Manually add an entry for the Fabbri et al. model since it's not yet
+      // referenced by SciCrunch.
       this.results = [];
       let id = 0;
+      this.results.push({
+        description: "Computational analysis of the human sinus node action potential: model development and effects of mutations",
+        contributors: [{name: "Fabbri, Alan"}, {name: "Fantini, Matteo"}, {name: "Wilders, Ronald"}, {name: "Severi, Stefano"}],
+        numberSamples: 0,
+        sexes: undefined,
+        organs: ["heart"],
+        ages: undefined,
+        updated: undefined,
+        url: {uri: "https://models.physiomeproject.org/e/611"},
+        datasetId: undefined,
+        csvFiles: undefined,
+        id: id++,
+        doi: "https://doi.org/10.1113/jp273259",
+        scaffold: false,
+        scaffolds: false,
+        simulation: true
+      });
+      // Add the entries retrieved from SciCrunch.
+      this.lastSearch = this.searchInput
       this.numberOfHits = data.numberOfHits;
       if (data.results.length === 0){
         return
@@ -278,31 +298,11 @@ export default {
           url: element.uri[0],
           datasetId: element.identifier,
           csvFiles: element.csvFiles,
-          id: id,
+          id: id++,
           doi: element.doi,
           scaffold: element.scaffolds ? true : false,
           scaffolds: element.scaffolds ? element.scaffolds : false
         });
-        id++;
-      });
-      // Manually add an entry for the Fabbri et al. model since it's not yet
-      // referenced by SciCrunch.
-      this.results.push({
-        description: "Computational analysis of the human sinus node action potential: model development and effects of mutations",
-        contributors: [{name: "Fabbri, Alan"}, {name: "Fantini, Matteo"}, {name: "Wilders, Ronald"}, {name: "Severi, Stefano"}],
-        numberSamples: 0,
-        sexes: undefined,
-        organs: ["heart"],
-        ages: undefined,
-        updated: undefined,
-        url: {uri: "https://models.physiomeproject.org/e/611"},
-        datasetId: undefined,
-        csvFiles: undefined,
-        id: id,
-        doi: "https://doi.org/10.1113/jp273259",
-        scaffold: false,
-        scaffolds: false,
-        simulation: true
       });
     },
     createfilterParams: function(params){
