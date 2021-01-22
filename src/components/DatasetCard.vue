@@ -96,7 +96,7 @@ export default {
       let action = {
           label: capitalise(this.entry.organs[0]),
           resource: this.getFileFromPath(this.discoverId, this.version, this.entry.csvFiles[0].dataset.path),
-          title: "View 3D scaffold",
+          title: "View plot",
           type: "Plot"
         }
         EventBus.$emit("PopoverActionClick", action)
