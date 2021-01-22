@@ -14,7 +14,7 @@
           :append-to-body="false">
         </el-cascader>
         <div v-if="cascadeSelected.length === 0" class="filter-default-value"> 
-          <img svg-inline class="filter-icon-inside" src='@/../assets/noun-filter.svg'/>
+          <svg-icon icon="noun-filter" class="filter-icon-inside" />
           Apply Filters
         </div>
       </span>

@@ -1,6 +1,7 @@
 <template>
   
   <div id="app">
+    <svg-sprite />
     <el-popover
       placement="bottom"
       trigger="click"

@@ -12,20 +12,19 @@
     <el-row class="icon-group" >
       <el-popover content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
-        <img svg-inline slot="reference" class="header-icon" src='@/../assets/icons/tooltips.svg' @click="startHelp(activeId)"/>
+        <svg-icon icon="tooltips" slot="reference" class="header-icon" @click="startHelp(activeId)"/>
       </el-popover>
       <el-popover content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="topLevelControls">
-        <img v-if="!isFullscreen" svg-inline slot="reference" class="header-icon" src='@/../assets/icons/fullScreen.svg' @click="onFullscreen"/>
-        <img v-if="isFullscreen" svg-inline slot="reference" class="header-icon" src='@/../assets/icons/closeFullScreen.svg' @click="onFullscreen"/>
+        <svg-icon icon="fullScreen" v-if="!isFullscreen" svg-inline slot="reference" class="header-icon" @click="onFullscreen"/>
       </el-popover>
       <el-popover content="Resize" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="!isDocked && showIcons">
-        <img svg-inline slot="reference" class="header-icon" src='@/../assets/icons/dock.svg' @click="maximise"/>
+        <svg-icon icon="dock" slot="reference" class="header-icon" @click="maximise"/>
       </el-popover>
       <el-popover content="Dock" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="isDocked && showIcons">
-        <img svg-inline slot="reference" class="header-icon" src='@/../assets/icons/undock.svg' @click="minimise"/>
+        <svg-icon icon="undock" slot="reference" class="header-icon" @click="minimise"/>
       </el-popover>
       <el-popover
           ref="linkPopover"
@@ -62,16 +61,15 @@
         :open-delay="helpDelay" :appendToBody=false trigger="hover" 
         popper-class="header-popper"
         v-if="topLevelControls && shareLink">
-        <img svg-inline 
+        <svg-icon icon="permalink"
           v-popover:linkPopover 
           slot="reference" 
           class="header-icon" 
-          src='@/../assets/icons/permalink.svg' 
           @click="getShareLink"/>
       </el-popover>
       <el-popover content="Close" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <img svg-inline slot="reference" class="header-icon" src='@/../assets/icons/close.svg' @click="close"/>
+        <svg-icon icon="close" slot="reference" class="header-icon" @click="close"/>
       </el-popover>
     </el-row>
   </div>
@@ -91,6 +89,7 @@ import {
   Popover,
   Row
 } from "element-ui";
+
 Vue.use(Button);
 Vue.use(Col);
 Vue.use(Icon);
@@ -232,6 +231,9 @@ export default {
 
 .icon-group {
   position:absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   top: 8px;
   right:12px;
 }
@@ -276,6 +278,8 @@ export default {
 }
 
 .header-icon {
+  font-size: 1.8em;
+  color: #8300bf;
   padding-right:10px;
   cursor: pointer;
 }

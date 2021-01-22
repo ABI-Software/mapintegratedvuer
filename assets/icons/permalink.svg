@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>permalink</title>
-    <g id="permalink" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <circle id="Oval" fill="#8300BF" cx="12" cy="12" r="12"></circle>
-        <line x1="12.5" y1="9" x2="12.5" y2="15" id="Line-6-Copy-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" transform="translate(12.500000, 12.000000) rotate(45.000000) translate(-12.500000, -12.000000) "></line>
-        <path d="M17,13 L17,16.5 C17,18.9852814 14.9852814,21 12.5,21 C10.0147186,21 8,18.9852814 8,16.5 L8,13 L10,13 L10,16.5 C10,17.8807119 11.1192881,19 12.5,19 C13.8254834,19 14.9100387,17.9684641 14.9946823,16.6643757 L15,16.5 L15,13 L17,13 Z M12.5,3 C14.9852814,3 17,5.01471863 17,7.5 L17,11 L15,11 L15,7.5 C15,6.11928813 13.8807119,5 12.5,5 C11.1745166,5 10.0899613,6.03153594 10.0053177,7.33562431 L10,7.5 L10,11 L8,11 L8,7.5 C8,5.01471863 10.0147186,3 12.5,3 Z" id="Combined-Shape" fill="#FFFFFF" transform="translate(12.500000, 12.000000) rotate(45.000000) translate(-12.500000, -12.000000) "></path>
-    </g>
-</svg>
