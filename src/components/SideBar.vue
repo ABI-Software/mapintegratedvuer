@@ -454,6 +454,7 @@ export default {
   border: solid 1px #e4e7ed;
   background-color: #ffffff;
   overflow-y: scroll;
+  scrollbar-width: thin;
 }
 
 .scrollbar::-webkit-scrollbar-track {
