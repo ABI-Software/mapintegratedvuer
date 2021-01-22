@@ -10,19 +10,19 @@
       </div>
     </el-row>
     <el-row class="icon-group" >
-      <el-popover content="Help" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
         <el-button class="header-icon" slot="reference" icon="el-icon-question" size="medium" type="text" @click="startHelp(activeId)"></el-button>
       </el-popover>
-      <el-popover content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover class="tooltip" content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="topLevelControls">
         <el-button class="header-icon" slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
       </el-popover>
-      <el-popover content="Resize" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover class="tooltip" content="Resize" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button slot="reference" class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
       </el-popover>
-      <el-popover content="Dock" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover class="tooltip" content="Dock" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button class="header-icon" slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
       </el-popover>
@@ -47,7 +47,7 @@
               </el-input>
             </el-col>
             <el-col :span="4">
-              <el-popover content="Copy link" placement="bottom-end"
+              <el-popover class="tooltip" content="Copy link" placement="bottom-end"
                 :open-delay="helpDelay" :appendToBody=false trigger="hover"
                 popper-class="header-popper">
               <el-button slot="reference" class="copy-button"
@@ -57,7 +57,7 @@
             </el-col>
           </el-row>
       </el-popover>
-      <el-popover content="get permalink" placement="bottom-end"
+      <el-popover class="tooltip" content="Get permalink" placement="bottom-end"
         :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
         v-if="topLevelControls && shareLink">
@@ -65,7 +65,7 @@
           icon="el-icon-link" size="medium" type="text" @click="getShareLink">
         </el-button>
       </el-popover>
-      <el-popover content="Close" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover class="tooltip" content="Close" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
         <el-button class="header-icon" slot="reference" icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
       </el-popover>
@@ -287,6 +287,10 @@ export default {
 
 .link-input >>> .el-input__inner:focus {
   border-color:#8300bf;
+}
+
+.tooltip {
+  font-family: Asap;
 }
 
 >>>.el-loading-spinner i{
