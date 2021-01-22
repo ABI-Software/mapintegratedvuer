@@ -39,7 +39,7 @@ export default {
      */
     entry: Object
   },
-  data: function() { 
+  data: function() {
     return  {
       isActive: false,
       showHelp: true,

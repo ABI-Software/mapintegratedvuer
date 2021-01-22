@@ -5,7 +5,7 @@
       <div class="card" >
         <span class="card-left">
           <img svg-inline class="banner-img" :src="thumbnail" @click="openDataset"/>
-          
+
         </span>
         <div class="card-right" >
           <div class="title" @click="cardClicked">{{entry.description}}</div>
@@ -21,7 +21,7 @@
             <el-button v-if="hasCSVFile"  @click="openPlot" size="mini" class="button" icon="el-icon-view">View plot</el-button>
           </div>
         </div>
-        
+
       </div>
         <p v-if="(cardOverflow && !expanded)" class="read-more"><el-button @click="expand" class="read-more-button">Read more...</el-button></p>
     </div>
@@ -96,7 +96,7 @@ export default {
       let action = {
           label: capitalise(this.entry.organs[0]),
           resource: this.getFileFromPath(this.discoverId, this.version, this.entry.csvFiles[0].dataset.path),
-          title: "View 3D scaffold",
+          title: "View plot",
           type: "Plot"
         }
         EventBus.$emit("PopoverActionClick", action)
@@ -107,7 +107,7 @@ export default {
     getScaffoldPath: function(discoverId, version, scaffoldPath){
       let id = discoverId
       let path = `${this.apiLocation}s3-resource/${id}/${version}/files/${scaffoldPath}/${scaffoldMetaMap[id].meta_file}`
-      return path 
+      return path
     },
     getFileFromPath: function(discoverId, version, path){
       return  `${this.apiLocation}s3-resource/${discoverId}/${version}/files/${path}`
@@ -124,7 +124,7 @@ export default {
     getBanner: function () {
       let doi = this.splitDOI(this.entry.doi)
       fetch(`https://api.blackfynn.io/discover/datasets/doi/${doi[0]}/${doi[1]}`)
-        .then((response) =>{ 
+        .then((response) =>{
           if (!response.ok){
             throw Error(response.statusText)
           } else {
@@ -150,7 +150,7 @@ export default {
   },
   updated: function () {
   },
-  watch: { 
+  watch: {
     'entry.description': function() { // watch it
       this.cardOverflow = false
       this.expanded = false
@@ -206,14 +206,14 @@ export default {
   padding-left: 6px;
 }
 
-.dataset-card .read-more { 
-  position: absolute; 
+.dataset-card .read-more {
+  position: absolute;
   z-index: 9;
-  bottom: 0; 
+  bottom: 0;
   left: 0;
-  width: 100%; 
+  width: 100%;
   height: 20px;
-  margin: 0; padding: 20px 66px; 
+  margin: 0; padding: 20px 66px;
   /* "transparent" only works here because == rgba(0,0,0,0) */
   background-image: linear-gradient(to bottom, transparent, white);
   pointer-events: none;
