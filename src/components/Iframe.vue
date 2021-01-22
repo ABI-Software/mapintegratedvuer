@@ -9,7 +9,7 @@
 
 export default {
   name: "IframeVuer",
-  props: { 
+  props: {
     url: String,
   },
 

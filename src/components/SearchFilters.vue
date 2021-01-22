@@ -13,13 +13,13 @@
           :show-all-levels="false"
           :append-to-body="false">
         </el-cascader>
-        <div v-if="cascadeSelected.length === 0" class="filter-default-value"> 
+        <div v-if="cascadeSelected.length === 0" class="filter-default-value">
           <img svg-inline class="filter-icon-inside" src='@/../assets/noun-filter.svg'/>
           Apply Filters
         </div>
       </span>
     </transition>
-  
+
       <el-select class="number-shown-select"  v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
         <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
       </el-select>
@@ -101,7 +101,7 @@ export default {
         for(let i in this.facets){
           // Create a promise for each facet request
           promiseList.push(this.getFacet(this.facets[i]).then((labels)=>{
-            // Populate children of each facet with scicrunch's facets 
+            // Populate children of each facet with scicrunch's facets
             for(let j in labels){
               this.options[i].children.push({
                 value: value,
@@ -148,17 +148,17 @@ export default {
         } else {
           this.options[i].label = this.options[i].label.split(' ')[0]
         }
-      }  
+      }
     },
     cascadeEvent: function(event){
       // If filters have been cleared, send an empty object
       if(event[0] === undefined){
        this.$emit("filterResults", {});
        this.updateLabels([0,0,0]) // reset label counts
-       return 
+       return
       }
       this.filters = []
-      // Label counts is used to show user how many are at each nested level. 
+      // Label counts is used to show user how many are at each nested level.
       //    i.e.: if 3 species are selected it will show 'Species (3)' in the cascader
       let labelCounts = [0,0,0]
       // event[0][1] contains the index of the latest addition
@@ -259,7 +259,7 @@ export default {
   font-style: normal;
   line-height: normal;
   letter-spacing: normal;
-  color: #292b66; 
+  color: #292b66;
   text-align: center;
   padding-bottom: 6px;
 }

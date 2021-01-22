@@ -1,11 +1,11 @@
 <template>
-  <vue-draggable-resizable :style="style" :w="820" :h="545" :x="initialX" :y="initialY" :resizable="true" 
-    @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header" 
+  <vue-draggable-resizable :style="style" :w="820" :h="545" :x="initialX" :y="initialY" :resizable="true"
+    @dragstop="onDragstop" @resizing="onResize" :parent="true" drag-handle=".dialog-header"
     :class-name="className" class-name-handle="my-handle">
     <el-container direction="vertical" style="height:100%;background:white;">
       <el-header v-if="entry.mode==='normal'" class="dialog-header" height="40px">
-        <DialogToolbarContent :dialogTitles="[indexTitle]"  @maximise="onMaximise" @minimise="onMinimise" 
-          @close="onClose" :activeId="index"/>         
+        <DialogToolbarContent :dialogTitles="[indexTitle]"  @maximise="onMaximise" @minimise="onMinimise"
+          @close="onClose" :activeId="index"/>
       </el-header>
       <el-main class="dialog-main" :style="mainStyle">
         <ContentVuer :entry="entry" ref="content" @resource-selected="resourceSelected"
@@ -168,7 +168,7 @@ export default {
   line-height: 20px;
   border-bottom: solid 0.7px #dcdfe6;
   background-color: #f5f7fa;
-  text-align: left; 
+  text-align: left;
   font-size: 14px;
   padding:0;
 }

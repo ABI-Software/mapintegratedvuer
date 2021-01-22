@@ -55,8 +55,8 @@ export default {
     },
     openCard: function(event){
       if (this.entry.datasetImage || this.entry.datasetDescription) {
-        this.cardDisplayed = true;  
-        this.$refs.card.$el.style.left = event.layerX + 'px'; 
+        this.cardDisplayed = true;
+        this.$refs.card.$el.style.left = event.layerX + 'px';
         this.$refs.card.$el.style.top = event.layerY + 'px';
       } else {
         this.openDatasetUrl();
