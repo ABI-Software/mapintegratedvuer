@@ -19,6 +19,7 @@
         </div>
       </span>
     </transition>
+
       <el-select class="number-shown-select"  v-model="numberShown" placeholder="10" @change="numberShownChanged($event)">
         <el-option v-for="item in numberDatasetsShown" :key="item" :label="item" :value="item"></el-option>
       </el-select>
