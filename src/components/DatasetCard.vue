@@ -277,6 +277,11 @@ export default {
   margin-top: 8px;
 }
 
+.button:hover {
+  background-color: #8300bf;
+  color: white;
+}
+
 .banner-img {
   width: 128px;
   height: 128px;
