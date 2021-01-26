@@ -69,7 +69,7 @@
       </el-popover>
       <el-popover content="Close" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <svg-icon icon="close" slot="reference" class="header-icon" @click="close"/>
+        <svg-icon icon="close2" slot="reference" class="header-icon" @click="close"/>
       </el-popover>
     </el-row>
   </div>
@@ -169,6 +169,7 @@ export default {
       this.isDocked = false
     },
     close: function() {
+      console.log('close clicked')
       this.$emit("close");
     },
     copyShareLink: function() {
@@ -280,7 +281,7 @@ export default {
 .header-icon {
   font-size: 1.8em;
   color: #8300bf;
-  padding-right:10px;
+  margin-right:10px;
   cursor: pointer;
 }
 
