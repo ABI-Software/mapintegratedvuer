@@ -9,73 +9,73 @@
         </div>
       </div>
     </el-row>
+  
     <el-row class="icon-group" >
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
         <svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
       </el-popover>
-      <el-popover v-if="!isFullscreen && topLevelControls" class="tooltip" content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip" content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
           <svg-icon icon="fullScreen"  slot="reference" class="header-icon"
             @click.native="onFullscreen"/>
       </el-popover>
-      <el-popover v-if="isFullscreen && topLevelControls" class="tooltip" content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover v-show="isFullscreen && topLevelControls" class="tooltip" content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
           <svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
             @click.native="onFullscreen"/>
       </el-popover>
       <el-popover class="tooltip" content="Dock" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="!isDocked && showIcons">
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="!isDocked && showIcons">
         <svg-icon icon="dock" slot="reference" class="header-icon" @click.native="toggleDock"/>
       </el-popover>
       <el-popover class="tooltip" content="Undock" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="isDocked && showIcons">
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="isDocked && showIcons">
         <svg-icon icon="undock" slot="reference" class="header-icon" @click.native="toggleDock"/>
       </el-popover>
       <el-popover
-          ref="linkPopover"
-          placement="bottom-end"
-          width="400"
-          :appendToBody=false
-          trigger="click"
-          :value="showShareLink">
-          <el-row :gutter="20"
-            v-loading="loadingLink"
-            element-loading-text="Creating link..."
-            element-loading-spinner="el-icon-loading">
-            <el-col :span="20">
-              <el-input
-                class="link-input"
-                size="mini"
-                placeholder="Permanant Link Here"
-                :readonly=true
-                v-model="shareLink"
-                ref="linkInput">
-              </el-input>
-            </el-col>
-            <el-col :span="4">
-              <el-popover class="tooltip" content="Copy link" placement="bottom-end"
-                :open-delay="helpDelay" :appendToBody=false trigger="hover"
-                popper-class="header-popper">
-              <el-button slot="reference" class="copy-button"
-                icon="el-icon-document-copy" size="mini"
-                @click="copyShareLink"></el-button>
-              </el-popover>
-            </el-col>
-          </el-row>
+        ref="linkPopover"
+        placement="bottom-end"
+        width="400"
+        :appendToBody=false
+        trigger="click">
+        <el-row :gutter="20"
+          v-loading="loadingLink"
+          element-loading-text="Creating link..."
+          element-loading-spinner="el-icon-loading">
+          <el-col :span="20">
+            <el-input
+              class="link-input"
+              size="mini"
+              placeholder="Permanant Link Here"
+              :readonly=true
+              v-model="shareLink"
+              ref="linkInput">
+            </el-input>
+          </el-col>
+          <el-col :span="4">
+            <el-popover class="tooltip" content="Copy link" placement="bottom-end"
+              :open-delay="helpDelay" :appendToBody=false trigger="hover"
+              popper-class="header-popper">
+            <el-button slot="reference" class="copy-button"
+              icon="el-icon-document-copy" size="mini"
+              @click="copyShareLink"></el-button>
+            </el-popover>
+          </el-col>
+        </el-row>
       </el-popover>
-      <el-popover class="tooltip" content="Get permalink" placement="bottom-end"
+      <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
         :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
-        v-if="topLevelControls && shareLink">
+        v-show="topLevelControls && shareLink">
         <svg-icon icon="permalink"
           v-popover:linkPopover
-          slot="reference" 
           class="header-icon" 
-          @click.native="getShareLink2"/>
+          @click.native="getShareLink"
+          slot="reference"/>
       </el-popover>
       <el-popover class="tooltip" content="Close" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showIcons">
         <svg-icon icon="close" slot="reference" class="header-icon" @click.native="close"/>
       </el-popover>
     </el-row>
@@ -88,6 +88,8 @@
 import Vue from "vue";
 import EventBus from './EventBus';
 import store from '../store';
+import {SvgIcon} from '@abi-software/svg-sprite';
+
 import {
   Button,
   Col,
@@ -103,7 +105,7 @@ Vue.use(Icon);
 Vue.use(Input);
 Vue.use(Popover);
 Vue.use(Row);
-
+Vue.component('svg-icon', SvgIcon);
 /**
  * Cmponent for the header of differnt vuers.
  */
@@ -154,7 +156,7 @@ export default {
       isDocked: true,
       helpDelay: 500,
       loadingLink: true,
-      showShareLink: false
+      shareLinkDisplay: false,
     }
   },
   methods: {
@@ -186,10 +188,10 @@ export default {
       }
     },
     getShareLink: function() {
-      console.log("here")
       this.loadingLink = true;
+      this.shareLinkDisplay = true;
       EventBus.$emit("updateShareLinkRequested");
-    }
+    },
   },
   mounted: function(){
     if(!this.topLevelControls){
