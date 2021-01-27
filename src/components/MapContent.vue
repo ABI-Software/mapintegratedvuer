@@ -1,5 +1,6 @@
 <template>
     <div class="mapcontent" ref="MapApp">
+      <svg-sprite-color/>
       <FloatingFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
     </div>
 </template>
