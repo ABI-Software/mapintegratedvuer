@@ -1,8 +1,13 @@
-import Vue from 'vue'
-import App from './App.vue'
+import Vue from 'vue';
+import App from './App.vue';
 import VueRouter from 'vue-router';
+import {SvgSprite, SvgIcon, SvgSpriteColor} from '@abi-software/svg-sprite';
+
+Vue.component('svg-icon', SvgIcon);
+Vue.component('svg-sprite', SvgSprite);
+Vue.component('svg-sprite-color', SvgSpriteColor);
 Vue.use(VueRouter);
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 const routes = [
 ];
