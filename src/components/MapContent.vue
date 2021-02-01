@@ -1,6 +1,6 @@
 <template>
     <div class="mapcontent" ref="MapApp">
-      <svg-sprite-color/>
+      <SvgSpriteColor/>
       <FloatingFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
     </div>
 </template>
@@ -10,6 +10,7 @@
 import FloatingFlow from './FloatingFlow';
 import EventBus from './EventBus';
 import store from '../store';
+import {SvgSpriteColor} from '@abi-software/svg-sprite';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -18,6 +19,7 @@ export default {
   name: "MapContent",
   components: {
     FloatingFlow,
+    SvgSpriteColor,
   },
   props: {
     shareLink: {

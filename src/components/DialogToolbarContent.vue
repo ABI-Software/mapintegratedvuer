@@ -15,12 +15,13 @@
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
         <svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
       </el-popover>
-      <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip" content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip" 
+        content="Fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
-          <svg-icon icon="fullScreen"  slot="reference" class="header-icon"
-            @click.native="onFullscreen"/>
+          <svg-icon icon="fullScreen"  slot="reference" class="header-icon" @click.native="onFullscreen"/>
       </el-popover>
-      <el-popover v-show="isFullscreen && topLevelControls" class="tooltip" content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
+      <el-popover v-show="isFullscreen && topLevelControls" class="tooltip"
+        content="Exit fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
           <svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
             @click.native="onFullscreen"/>
