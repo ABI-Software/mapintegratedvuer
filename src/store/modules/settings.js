@@ -2,6 +2,7 @@
 const state = () => ({
   shareLink: undefined,
   api: undefined,
+  flatmapAPI: undefined,
 });
 
 const mutations = {
@@ -10,6 +11,9 @@ const mutations = {
   },
   updateAPI(state, api) {
     state.api = api;
+  },
+  updateFlatmapAPI(state, flatmapAPI) {
+    state.flatmapAPI = flatmapAPI;
   },
 };
 

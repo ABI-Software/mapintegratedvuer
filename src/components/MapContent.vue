@@ -33,6 +33,10 @@ export default {
     api: {
       type: String,
       default: undefined
+    },
+    flatmapAPI: {
+      type: String,
+      default: undefined
     }
   },
   methods: {
@@ -103,6 +107,9 @@ export default {
   beforeMount: function() {
     if (this.api) {
       store.commit("settings/updateAPI", this.api);
+    }
+    if (this.flatmapAPI) {
+      store.commit("settings/updateFlatmapAPI", this.flatmapAPI);
     }
   },
   mounted: function() {
