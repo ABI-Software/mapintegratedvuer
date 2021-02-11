@@ -5,7 +5,9 @@ import FloatingFlow from '../../src/components/FloatingFlow';
 const div = document.createElement('div');
 document.body.appendChild(div);
 const wrapper = shallowMount(MapContent, {
-  attachTo: div});
+  attachTo: div
+});
+
 
 describe('MapContent.vue', () => {
   it('FloatingFlow', () => {
