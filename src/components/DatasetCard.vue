@@ -5,7 +5,6 @@
       <div class="card" >
         <span class="card-left">
           <img svg-inline class="banner-img" :src="thumbnail" @click="openDataset"/>
-
         </span>
         <div class="card-right" >
           <div class="title" @click="cardClicked">{{entry.description}}</div>

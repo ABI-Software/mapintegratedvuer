@@ -6,15 +6,16 @@
         @flatmapChanged="flatmapChanged" @ready="flatmapReady" :state="entry.state"
         @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"
         style="height:100%;width:100%;" :initial="entry.resource" :helpMode="helpMode"
-        ref="multiflatmap" :displayMinimap=true />
+        ref="multiflatmap" :displayMinimap=true :flatmapAPI="flatmapAPI"/>
       <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :state="entry.state" :entry="entry.resource"
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
         style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
-        :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady" :displayMinimap=true />
+        :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady" :displayMinimap=true
+        :flatmapAPI="flatmapAPI" />
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
-        :displayMinimap=false :displayMarkers=false />
+        :render="entry.mode !== 'minimised'" :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
       <SideBar v-else-if="entry.type === 'Search'" :visbility="true" :isDrawer="false"  :entry="entry.entry" class="search"></SideBar>
@@ -37,6 +38,7 @@ import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
 import { PlotVuer } from '@abi-software/plotvuer';
 import '@abi-software/plotvuer/dist/plotvuer.css';
 import { getInteractiveAction } from './SimulatedData.js';
+import store from '../store';
 
 export default {
   name: "ContentVuer",
@@ -124,6 +126,11 @@ export default {
       },
       helpMode: false
     }
+  },
+  created: function() {
+    this.flatmapAPI = undefined;
+    if (store.state.settings.flatmapAPI)
+      this.flatmapAPI = store.state.settings.flatmapAPI;
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {

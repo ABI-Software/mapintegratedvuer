@@ -1,5 +1,6 @@
 <template>
     <div class="mapcontent" ref="MapApp">
+      <SvgSpriteColor/>
       <FloatingFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
     </div>
 </template>
@@ -9,6 +10,7 @@
 import FloatingFlow from './FloatingFlow';
 import EventBus from './EventBus';
 import store from '../store';
+import {SvgSpriteColor} from '@abi-software/svg-sprite';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -17,6 +19,7 @@ export default {
   name: "MapContent",
   components: {
     FloatingFlow,
+    SvgSpriteColor,
   },
   props: {
     shareLink: {
@@ -28,6 +31,10 @@ export default {
       default: undefined
     },
     api: {
+      type: String,
+      default: undefined
+    },
+    flatmapAPI: {
       type: String,
       default: undefined
     }
@@ -100,6 +107,9 @@ export default {
   beforeMount: function() {
     if (this.api) {
       store.commit("settings/updateAPI", this.api);
+    }
+    if (this.flatmapAPI) {
+      store.commit("settings/updateFlatmapAPI", this.flatmapAPI);
     }
   },
   mounted: function() {

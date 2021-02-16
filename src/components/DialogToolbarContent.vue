@@ -9,65 +9,75 @@
         </div>
       </div>
     </el-row>
+  
     <el-row class="icon-group" >
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showHelpIcon" >
-        <el-button class="header-icon" slot="reference" icon="el-icon-question" size="medium" type="text" @click="startHelp(activeId)"></el-button>
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
+        <svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
       </el-popover>
-      <el-popover class="tooltip" content="Toggle fullscreen" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="topLevelControls">
-        <el-button class="header-icon" slot="reference" icon="el-icon-full-screen" size="medium" type="text" @click="onFullscreen"></el-button>
+      <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip" 
+        content="Fullscreen" placement="bottom-end" :open-delay="helpDelay"
+        :appendToBody=false trigger="hover" popper-class="header-popper">
+          <svg-icon icon="fullScreen"  slot="reference" class="header-icon" @click.native="onFullscreen"/>
       </el-popover>
-      <el-popover class="tooltip" content="Resize" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <el-button slot="reference" class="icon-transform" icon="el-icon-copy-document" size="medium" type="text" @click="maximise"></el-button>
+      <el-popover v-show="isFullscreen && topLevelControls" class="tooltip"
+        content="Exit fullscreen" placement="bottom-end" :open-delay="helpDelay"
+        :appendToBody=false trigger="hover" popper-class="header-popper">
+          <svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
+            @click.native="onFullscreen"/>
       </el-popover>
       <el-popover class="tooltip" content="Dock" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <el-button class="header-icon" slot="reference" icon="el-icon-remove-outline" size="medium" type="text" @click="minimise"></el-button>
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="!isDocked && showIcons">
+        <svg-icon icon="dock" slot="reference" class="header-icon" @click.native="toggleDock"/>
+      </el-popover>
+      <el-popover class="tooltip" content="Undock" placement="bottom-end" :open-delay="helpDelay"
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="isDocked && showIcons">
+        <svg-icon icon="undock" slot="reference" class="header-icon" @click.native="toggleDock"/>
       </el-popover>
       <el-popover
-          ref="linkPopover"
-          placement="bottom-end"
-          width="400"
-          :appendToBody=false
-          trigger="click">
-          <el-row :gutter="20"
-            v-loading="loadingLink"
-            element-loading-text="Creating link..."
-            element-loading-spinner="el-icon-loading">
-            <el-col :span="20">
-              <el-input
-                class="link-input"
-                size="mini"
-                placeholder="Permanant Link Here"
-                :readonly=true
-                v-model="shareLink"
-                ref="linkInput">
-              </el-input>
-            </el-col>
-            <el-col :span="4">
-              <el-popover class="tooltip" content="Copy link" placement="bottom-end"
-                :open-delay="helpDelay" :appendToBody=false trigger="hover"
-                popper-class="header-popper">
-              <el-button slot="reference" class="copy-button"
-                icon="el-icon-document-copy" size="mini"
-                @click="copyShareLink"></el-button>
-              </el-popover>
-            </el-col>
-          </el-row>
+        ref="linkPopover"
+        placement="bottom-end"
+        width="400"
+        :appendToBody=false
+        trigger="click">
+        <el-row :gutter="20"
+          v-loading="loadingLink"
+          element-loading-text="Creating link..."
+          element-loading-spinner="el-icon-loading">
+          <el-col :span="20">
+            <el-input
+              class="link-input"
+              size="mini"
+              placeholder="Permanant Link Here"
+              :readonly=true
+              v-model="shareLink"
+              ref="linkInput">
+            </el-input>
+          </el-col>
+          <el-col :span="4">
+            <el-popover class="tooltip" content="Copy link" placement="bottom-end"
+              :open-delay="helpDelay" :appendToBody=false trigger="hover"
+              popper-class="header-popper">
+            <el-button slot="reference" class="copy-button"
+              icon="el-icon-document-copy" size="mini"
+              @click="copyShareLink"></el-button>
+            </el-popover>
+          </el-col>
+        </el-row>
       </el-popover>
-      <el-popover class="tooltip" content="Get permalink" placement="bottom-end"
+      <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
         :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
-        v-if="topLevelControls && shareLink">
-        <el-button v-popover:linkPopover class="header-icon" slot="reference"
-          icon="el-icon-link" size="medium" type="text" @click="getShareLink">
-        </el-button>
+        v-show="topLevelControls && shareLink">
+        <svg-icon icon="permalink"
+          v-popover:linkPopover
+          class="header-icon" 
+          @click.native="getShareLink"
+          slot="reference"/>
       </el-popover>
       <el-popover class="tooltip" content="Close" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-if="showIcons">
-        <el-button class="header-icon" slot="reference" icon="el-icon-close" size="medium" type="text" @click="close"></el-button>
+        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showIcons">
+        <svg-icon icon="close" slot="reference" class="header-icon" @click.native="close"/>
       </el-popover>
     </el-row>
   </div>
@@ -79,6 +89,8 @@
 import Vue from "vue";
 import EventBus from './EventBus';
 import store from '../store';
+import {SvgIcon} from '@abi-software/svg-sprite';
+
 import {
   Button,
   Col,
@@ -87,13 +99,14 @@ import {
   Popover,
   Row
 } from "element-ui";
+
 Vue.use(Button);
 Vue.use(Col);
 Vue.use(Icon);
 Vue.use(Input);
 Vue.use(Popover);
 Vue.use(Row);
-
+Vue.component('svg-icon', SvgIcon);
 /**
  * Cmponent for the header of differnt vuers.
  */
@@ -140,8 +153,11 @@ export default {
   },
   data: function() {
     return {
+      isFullscreen: false,
+      isDocked: true,
       helpDelay: 500,
-      loadingLink: true
+      loadingLink: true,
+      shareLinkDisplay: false,
     }
   },
   methods: {
@@ -153,12 +169,15 @@ export default {
     },
     onFullscreen: function() {
       this.$emit("onFullscreen");
+      this.isFullscreen = !this.isFullscreen;
     },
-    maximise: function() {
+    toggleDock: function() {
       this.$emit("maximise");
+      this.isDocked = true
     },
     minimise: function() {
       this.$emit("minimise");
+      this.isDocked = false
     },
     close: function() {
       this.$emit("close");
@@ -171,7 +190,13 @@ export default {
     },
     getShareLink: function() {
       this.loadingLink = true;
+      this.shareLinkDisplay = true;
       EventBus.$emit("updateShareLinkRequested");
+    },
+  },
+  mounted: function(){
+    if(!this.topLevelControls){
+      this.isDocked = false;
     }
   }
 };
@@ -218,8 +243,11 @@ export default {
 
 .icon-group {
   position:absolute;
-  top:-2px;
-  right:16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  top: 8px;
+  right:12px;
 }
 
 .icon-group >>> .el-button--text {
@@ -249,12 +277,13 @@ export default {
 }
 
 >>> .header-popper {
-  padding:9px 10px;
-  min-width:100px;
+  padding: 6px 4px;
   font-size:12px;
-  color: #fff;
-  background-color: #8300bf;
-  word-break:keep-all;
+  color: rgb(48, 49, 51);
+  background-color: #f3ecf6;
+  border: 1px solid rgb(131, 0, 191);
+  white-space: nowrap;
+  min-width: unset; 
 }
 
 >>> .header-popper .popper__arrow::after{
@@ -262,7 +291,10 @@ export default {
 }
 
 .header-icon {
-  padding-right:10px;
+  font-size: 1.8em;
+  color: #8300bf;
+  margin-right:10px;
+  cursor: pointer;
 }
 
 .copy-button {
