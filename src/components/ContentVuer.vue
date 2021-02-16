@@ -16,7 +16,7 @@
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
         :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
-      :plotType="entry.plotType" :helpMode="helpMode" style="height: 200px"></PlotVuer>
+      :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
       <SideBar v-else-if="entry.type === 'Search'" :visbility="true" :isDrawer="false"  :entry="entry.entry" class="search"></SideBar>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
