@@ -1,13 +1,15 @@
 <template>
     <div class="mapcontent" ref="MapApp">
       <SvgSpriteColor/>
-      <FloatingFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
+      <FloatingFlow v-if="floating" @onFullscreen="onFullscreen" :state="state" ref="flow"/>
+      <SplitFlow v-else @onFullscreen="onFullscreen" :state="state" ref="flow"/>
     </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import FloatingFlow from './FloatingFlow';
+import SplitFlow from './SplitFlow';
 import EventBus from './EventBus';
 import store from '../store';
 import {SvgSpriteColor} from '@abi-software/svg-sprite';
@@ -19,6 +21,7 @@ export default {
   name: "MapContent",
   components: {
     FloatingFlow,
+    SplitFlow,
     SvgSpriteColor,
   },
   props: {
@@ -37,6 +40,11 @@ export default {
     flatmapAPI: {
       type: String,
       default: undefined
+    }
+  },
+  data: function() {
+    return {
+      floating: false,
     }
   },
   methods: {
