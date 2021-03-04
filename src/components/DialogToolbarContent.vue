@@ -11,6 +11,32 @@
     </el-row>
   
     <el-row class="icon-group" >
+      <el-popover
+        ref="viewPopover"
+        placement="bottom"
+        width="133"
+        :appendToBody=false
+        trigger="click"
+        popper-class="view-icon-popover">
+        <el-row :gutter="20" v-for="item in viewIcons" :key="item.name" class="view-icon-row">
+          <el-col :span="4">
+            <svg-icon :icon="item.icon"
+              class="view-icon"/>
+          </el-col>
+          <el-col :offset="2" :span="18" class="view-text">
+            {{item.name}}
+          </el-col>
+        </el-row>
+      </el-popover>
+      <el-popover class="tooltip"  content="Change view" placement="bottom-end"
+        :open-delay="helpDelay" :appendToBody=false trigger="hover"
+        popper-class="header-popper"
+        v-show="topLevelControls">
+        <svg-icon :icon="activeView"
+          v-popover:viewPopover
+          class="header-icon" 
+          slot="reference"/>
+      </el-popover>
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
         <svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
@@ -158,6 +184,14 @@ export default {
       helpDelay: 500,
       loadingLink: true,
       shareLinkDisplay: false,
+      viewIcons: [
+        { icon: "singlepanel", name: "Single view" },
+        { icon: "2horpanel", name: "Horizontal split" },
+        { icon: "2vertpanel", name: "Vertical split" },
+        { icon: "3panel", name: "Three panes" },
+        { icon: "4panel", name: "Four panes" }
+      ],
+      activeView: "singlepanel"
     }
   },
   methods: {
@@ -287,7 +321,7 @@ export default {
 }
 
 >>> .header-popper .popper__arrow::after{
-  border-bottom-color: #8300bf !important;
+  border-bottom-color: #f3ecf6 !important;
 }
 
 .header-icon {
@@ -322,7 +356,40 @@ export default {
 }
 
 .tooltip {
-  font-family: Asap;
+  font-family: 'Asap', 'Avenir',  Arial, sans-serif;
+}
+
+>>> .view-icon-row {
+  height: 32px;
+  width: 133px;
+  border-radius: 4px;
+  border: 1px solid rgb(151, 151, 151);
+  font-size: 14px;
+  margin:8px 0px 0px 0px!important;
+  cursor: pointer;
+}
+
+.view-icon {
+  font-size: 1.7em;
+  color: #8300bf;
+  padding-top:3px;
+}
+
+.view-text {
+  letter-spacing:0px;
+  font-size:11px;
+  line-height:14px;
+  font-family:'Asap', 'Avenir',  Arial, sans-serif;
+  font-weight:600;
+  padding-top:7px;
+}
+
+>>> .view-icon-popover {
+  border: 1px solid rgb(131, 0, 191);
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
+  padding: 4px 8px 12px 8px;
+  min-width:unset!important;
+  cursor:default;
 }
 
 >>>.el-loading-spinner i{
@@ -331,4 +398,5 @@ export default {
 >>>.el-loading-spinner .el-loading-text {
   color: #8300bf;
 }
+
 </style>
