@@ -18,7 +18,12 @@
         :appendToBody=false
         trigger="click"
         popper-class="view-icon-popover">
-        <el-row :gutter="20" v-for="item in viewIcons" :key="item.name" class="view-icon-row">
+        <el-row :gutter="20"
+          v-for="item in viewIcons"
+          :key="item.name"
+          :class="[{ 'active': item.icon ==  activeView}, 'view-icon-row']"
+          @click.native="viewClicked(item.icon)"
+        >
           <el-col :span="4">
             <svg-icon :icon="item.icon"
               class="view-icon"/>
@@ -185,11 +190,11 @@ export default {
       loadingLink: true,
       shareLinkDisplay: false,
       viewIcons: [
-        { icon: "singlepanel", name: "Single view" },
-        { icon: "2horpanel", name: "Horizontal split" },
-        { icon: "2vertpanel", name: "Vertical split" },
-        { icon: "3panel", name: "Three panes" },
-        { icon: "4panel", name: "Four panes" }
+        { icon: "singlepanel", name: "Single view", min: 1 },
+        { icon: "2horpanel", name: "Horizontal split", min: 2 },
+        { icon: "2vertpanel", name: "Vertical split", min: 2 },
+        { icon: "3panel", name: "Three panes", min: 3 },
+        { icon: "4panel", name: "Four panes", min: 4 }
       ],
       activeView: "singlepanel"
     }
@@ -227,6 +232,9 @@ export default {
       this.shareLinkDisplay = true;
       EventBus.$emit("updateShareLinkRequested");
     },
+    viewClicked: function(view) {
+      this.activeView = view;
+    }
   },
   mounted: function(){
     if(!this.topLevelControls){
@@ -324,7 +332,7 @@ export default {
   border-bottom-color: rgb(131, 0, 191);
 }
 
->>> .el-popper[x-placement^=bottom] .popper__arrow:after{
+.header-icon >>> .el-popper[x-placement^=bottom] .popper__arrow:after{
   border-bottom-color: #f3ecf6 !important;
 }
 
@@ -363,7 +371,7 @@ export default {
   font-family: 'Asap', 'Avenir',  Arial, sans-serif;
 }
 
->>> .view-icon-row {
+.view-icon-row {
   height: 32px;
   width: 133px;
   border-radius: 4px;
@@ -371,6 +379,11 @@ export default {
   font-size: 14px;
   margin:8px 0px 0px 0px!important;
   cursor: pointer;
+}
+
+.view-icon-row.active {
+  border: 1px solid rgb(131, 0, 191);
+  background: rgba(131, 0, 191, 0.1);
 }
 
 .view-icon {
@@ -394,6 +407,10 @@ export default {
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
   cursor:default;
+}
+
+>>> .view-icon-popover .el-popper[x-placement^=bottom] .popper__arrow:after{
+  border-bottom-color: #fff !important;
 }
 
 >>>.el-loading-spinner i{
