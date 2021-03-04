@@ -286,8 +286,12 @@ export default {
   min-width: unset; 
 }
 
->>> .header-popper .popper__arrow::after{
-  border-bottom-color: #8300bf !important;
+>>> .el-popper[x-placement^=bottom] .popper__arrow {
+  border-bottom-color: rgb(131, 0, 191);
+}
+
+>>> .el-popper[x-placement^=bottom] .popper__arrow:after{
+  border-bottom-color: #f3ecf6 !important;
 }
 
 .header-icon {
