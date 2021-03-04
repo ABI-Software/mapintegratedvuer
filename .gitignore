@@ -1,2 +1,4 @@
 dist
 node_modules
+test_html
+.env.local
