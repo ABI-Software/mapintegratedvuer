@@ -70,7 +70,9 @@
         placement="bottom-end"
         width="400"
         :appendToBody=false
-        trigger="click">
+        trigger="click"
+        popper-class="link-popover"
+      >
         <el-row :gutter="20"
           v-loading="loadingLink"
           element-loading-text="Creating link..."
@@ -334,6 +336,10 @@ export default {
 
 .header-icon >>> .el-popper[x-placement^=bottom] .popper__arrow:after{
   border-bottom-color: #f3ecf6 !important;
+}
+
+>>> .link-popover {
+  border: 1px solid rgb(131, 0, 191);
 }
 
 .header-icon {
