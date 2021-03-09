@@ -21,7 +21,9 @@
         <el-row :gutter="20"
           v-for="item in viewIcons"
           :key="item.name"
-          :class="[{ 'active': item.icon ==  activeView}, 'view-icon-row']"
+          :class="[{ 'active': item.icon ==  activeView},
+            {'disabled': item.min > dialogTitles.length},
+            'view-icon-row']"
           @click.native="viewClicked(item.icon)"
         >
           <el-col :span="4">
@@ -178,6 +180,9 @@ export default {
     shareLink() {
       return store.state.settings.shareLink;
     },
+    activeView() {
+      return store.state.settings.activeView;
+    },
   },
   watch: {
     shareLink: function() {
@@ -198,7 +203,6 @@ export default {
         { icon: "3panel", name: "Three panes", min: 3 },
         { icon: "4panel", name: "Four panes", min: 4 }
       ],
-      activeView: "singlepanel"
     }
   },
   methods: {
@@ -235,7 +239,7 @@ export default {
       EventBus.$emit("updateShareLinkRequested");
     },
     viewClicked: function(view) {
-      this.activeView = view;
+      store.commit("settings/updateActiveView", view);
     }
   },
   mounted: function(){
@@ -392,10 +396,19 @@ export default {
   background: rgba(131, 0, 191, 0.1);
 }
 
+.view-icon-row.disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
 .view-icon {
   font-size: 1.7em;
   color: #8300bf;
   padding-top:3px;
+}
+
+.disabled .view-icon {
+  opacity:0.5;
 }
 
 .view-text {
@@ -405,6 +418,10 @@ export default {
   font-family:'Asap', 'Avenir',  Arial, sans-serif;
   font-weight:600;
   padding-top:7px;
+}
+
+.disabled .view-text {
+  opacity:0.5;
 }
 
 >>> .view-icon-popover {

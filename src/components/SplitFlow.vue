@@ -14,7 +14,11 @@
           @close="dialogClose(id)"
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"
-        />
+        >
+          <ContentVuer v-for="item in entries" :key="item.id" :slot="item.slot"
+            :entry="item" ref="content" @resource-selected="resourceSelected"
+            @flatmapChanged="flatmapChanged"/>
+        </SplitDialog>
         <SideBar ref="sideBar" class="side-bar" :visible="sideBarVisibility"></SideBar>
       </div>
     </el-main>
@@ -23,10 +27,11 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import ContentVuer from './ContentVuer';
 import DialogToolbarContent from './DialogToolbarContent';
+import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
 import SideBar from './SideBar';
-import EventBus from './EventBus';
 import Vue from "vue";
 import {
   Container,
@@ -59,7 +64,8 @@ var initialState = function() {
         zIndex:1,
         mode: "main",
         id: 1,
-        state: undefined
+        state: undefined,
+        slot: "one"
       }
     ],
     sideBarVisibility: false,
@@ -73,6 +79,7 @@ var initialState = function() {
 export default {
   name: "SplitFlow",
   components: {
+    ContentVuer,
     DialogToolbarContent,
     SplitDialog,
     SideBar
@@ -108,8 +115,21 @@ export default {
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex;
+      newEntry.zIndex = ++this.zIndex; 
       newEntry.state = undefined;
+      switch (this.entries.length) {
+        case 1:
+          newEntry.slot = "two";
+          break;
+        case 2:
+          newEntry.slot = "three";
+          break;
+        case 3:
+          newEntry.slot = "four";
+          break;
+        default:
+          newEntry.slot = "none";
+      }
       this.entries.push(newEntry);
       let title = newEntry.label + " " + newEntry.type;
       this.dockedArray.push({title: title, id:newEntry.id});

@@ -1,11 +1,34 @@
 <template>
   <div class="tab-container" ref="container">
-     <splitpanes class="default-theme" :horizontal="horizontal">
-      <pane v-for="item in entries" :index="item.id" ref="dialogs" :key="item.id">
-        <ContentVuer :entry="item" ref="content" @resource-selected="resourceSelected"
-          @flatmapChanged="flatmapChanged"/>
+    <splitpanes class="default-theme" :horizontal="horizontal">
+      <pane>
+        <splitpanes class="default-theme" :horizontal=true>
+          <pane key="one">
+            <slot name="one" />
+          </pane>
+          <pane v-if="four" key="four">
+            <slot name="four"/>
+          </pane>
+        </splitpanes>
+      </pane>
+      <pane v-if="two">
+        <keep-alive>
+        <splitpanes class="default-theme" :horizontal=true>
+          <pane key="two">
+            <slot name="two"/>
+          </pane>
+          <pane v-if="three" key="three">
+            <slot name="three"/>
+          </pane>
+        </splitpanes>
+        </keep-alive>
       </pane>
     </splitpanes>
+    <template>
+      <div key="none" style="visibility:hidden;">
+        <slot name="none" />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -13,12 +36,11 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { Splitpanes, Pane } from 'splitpanes';
-import ContentVuer from './ContentVuer';
+import store from '../store';
 
 export default {
   name: "SplitDialog",
   components: {
-    ContentVuer,
     Splitpanes,
     Pane
   },
@@ -41,9 +63,52 @@ export default {
       this.$emit("flatmapChanged");
     }
   },
+  computed: {
+    activeView() {
+      return store.state.settings.activeView;
+    },
+  },
   data: function() {
     return {
-      horizontal: false,
+      horizontal: true,
+      two: false,
+      three: false,
+      four: false
+    }
+  },
+  watch: {
+    activeView : function(val) {
+      switch(val) {
+        case '2horpanel':
+          this.horizontal = true;
+          this.two = true;
+          this.three = false;
+          this.four = false;
+          break;
+        case '2vertpanel':
+          this.horizontal = false;
+          this.two = true;
+          this.three = false;
+          this.four = false;
+          break;
+        case '3panel':
+          this.horizontal = false;
+          this.two = true;
+          this.three = true;
+          this.four = false;
+          break;
+        case '4panel':
+          this.horizontal = false;
+          this.two = true;
+          this.three = true;
+          this.four = true;
+          break;
+        case 'singlepanel':
+        default:
+          this.two = false;
+          this.three = false;
+          this.four = false;
+      }
     }
   },
 };
