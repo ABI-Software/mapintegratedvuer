@@ -436,6 +436,7 @@ export default {
 .pagination {
   padding-bottom: 16px;
   background-color: white;
+  text-align:center;
 }
 
 .pagination>>>button{
