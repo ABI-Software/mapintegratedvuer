@@ -181,7 +181,7 @@ export default {
       return store.state.settings.shareLink;
     },
     activeView() {
-      return store.state.settings.activeView;
+      return store.state.splitFlow.activeView;
     },
   },
   watch: {
@@ -239,7 +239,7 @@ export default {
       EventBus.$emit("updateShareLinkRequested");
     },
     viewClicked: function(view) {
-      store.commit("settings/updateActiveView", view);
+      store.commit("splitFlow/updateActiveView", view);
     }
   },
   mounted: function(){
@@ -255,11 +255,12 @@ export default {
 
 .content {
   width:calc(100% - 120px);
+  height:32px;
 }
 
 .title {
   width: 101px;
-  height: 38px;
+  height: 31px;
   border-right: solid 1px #dcdfe6;
   background-color: white;
   display:inline-block;
@@ -294,7 +295,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  top: 8px;
+  top: 4px;
   right:12px;
 }
 
@@ -314,6 +315,10 @@ export default {
   -ms-transform: rotate(90deg);
   transform: rotate(90deg);
   padding:10px;
+}
+
+.header {
+  height:32px;
 }
 
 .header:hover {

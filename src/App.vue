@@ -116,8 +116,8 @@ export default {
   position:absolute;
 }
 body {
+  margin:0px;
   font-family: "Asap",sans-serif;
-  line-height: 1.5rem;
 }
 .map-app {
   position:absolute;

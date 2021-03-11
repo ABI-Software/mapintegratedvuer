@@ -15,7 +15,7 @@
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
-        :render="entry.mode !== 'minimised'" :displayMinimap=false :displayMarkers=false />
+        :render="visible" :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
       <SideBar v-else-if="entry.type === 'Search'" :visbility="true" :isDrawer="false"  :entry="entry.entry" class="search"></SideBar>
@@ -48,6 +48,10 @@ export default {
      * the required viewing.
      */
     entry: Object,
+    visible: {
+      type: Boolean,
+      default: true
+    },
   },
   components: {
     DatasetHeader,
@@ -124,7 +128,7 @@ export default {
         width: "100%",
         bottom: "0px",
       },
-      helpMode: false
+      helpMode: false,
     }
   },
   created: function() {
@@ -141,6 +145,10 @@ export default {
     EventBus.$on("startHelp", (id) => {
       this.startHelp(id);
     })
+  },
+  deactivated: function() {
+    let state = this.getState();
+    this.$emit("stateUpdated", this.entry.id, state);
   },
 };
 </script>

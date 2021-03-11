@@ -1,56 +1,41 @@
 <template>
   <div class="tab-container" ref="container">
-    <splitpanes class="default-theme" :horizontal="horizontal">
-      <pane>
-        <splitpanes class="default-theme" :horizontal=true>
-          <pane key="one">
-            <slot name="one" />
-          </pane>
-          <pane v-if="four" key="four">
-            <slot name="four"/>
-          </pane>
-        </splitpanes>
-      </pane>
-      <pane v-if="two">
-        <keep-alive>
-        <splitpanes class="default-theme" :horizontal=true>
-          <pane key="two">
-            <slot name="two"/>
-          </pane>
-          <pane v-if="three" key="three">
-            <slot name="three"/>
-          </pane>
-        </splitpanes>
-        </keep-alive>
-      </pane>
-    </splitpanes>
-    <template>
-      <div key="none" style="visibility:hidden;">
-        <slot name="none" />
+    <div v-for="item in topInfo" :key="item.slot" :class="[getToolbarClass(item.slot), 'toolbar']">
+      <div class="toolbar-title">
+        Placeholder
       </div>
-    </template>
+    </div>
+    <div v-for="item in entries" :key="item.id" :class="[getClass(item.slot), 'contentvuer']">
+      <ContentVuer
+        :key="item.id"
+        :entry="item"
+        ref="content"
+        @resource-selected="resourceSelected"
+        @flatmapChanged="flatmapChanged"
+        :visible="isVisible(item.slot)"
+      />
+    </div>
   </div>
 </template>
 
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { Splitpanes, Pane } from 'splitpanes';
-import store from '../store';
+import ContentVuer from "./ContentVuer";
+import store from "../store";
 
 export default {
   name: "SplitDialog",
   components: {
-    Splitpanes,
-    Pane
+    ContentVuer
   },
   props: {
     entries: {
       type: Array,
-      default: function () {
+      default: function() {
         return [];
       }
-    },
+    }
   },
   methods: {
     /**
@@ -59,92 +44,267 @@ export default {
     resourceSelected: function(result) {
       this.$emit("resource-selected", result);
     },
-    flatmapChanged: function(){
+    flatmapChanged: function() {
       this.$emit("flatmapChanged");
-    }
-  },
-  computed: {
-    activeView() {
-      return store.state.settings.activeView;
     },
+    getClass: function(slot) {
+      if (slot == "first") {
+        switch (store.state.splitFlow.activeView) {
+          case "singlepanel":
+            return "singlepanel-1";
+          case "2horpanel":
+            return "twohorpanel-1";
+          case "2vertpanel":
+          case "3panel":
+            return "twovertpanel-1";
+          case "4panel":
+            return "fourpanel-1";
+        }
+      } else if (slot == "second") {
+        switch (store.state.splitFlow.activeView) {
+          case "2horpanel":
+            return "twohorpanel-2";
+          case "2vertpanel":
+            return "twovertpanel-2";
+          case "3panel":
+          case "4panel":
+            return "threepanel-2";
+        }
+      } else if (slot == "third") {
+        switch (store.state.splitFlow.activeView) {
+          case "3panel":
+          case "4panel":
+            return "threepanel-3";
+        }
+      } else if (slot == "fourth") {
+        switch (store.state.splitFlow.activeView) {
+          case "4panel":
+            return "fourpanel-4";
+        }
+      }
+      return "inactive";
+    },
+    isVisible: function(slot) {
+      if (slot == "first") {
+        return true;
+      } else if (slot == "second") {
+        switch (store.state.splitFlow.activeView) {
+          case "2horpanel":
+          case "2vertpanel":
+          case "3panel":
+          case "4panel":
+            return true;
+        }
+      } else if (slot == "third") {
+        switch (store.state.splitFlow.activeView) {
+          case "3panel":
+          case "4panel":
+            return true;
+        }
+      } else if (slot == "fourth") {
+        switch (store.state.splitFlow.activeView) {
+          case "4panel":
+            return true;
+        }
+      }
+      return false;
+    },
+    getToolbarClass: function(slot) {
+      if (slot == "first") {
+        switch (store.state.splitFlow.activeView) {
+          case "singlepanel":
+          case "2horpanel":
+            return "singlepanel-1";
+          case "2vertpanel":
+          case "3panel":
+            return "twovertpanel-1";
+          case "4panel":
+            return "fourpanel-1";
+        }
+      } else if (slot == "second") {
+        switch (store.state.splitFlow.activeView) {
+          case "2horpanel":
+            return "twohorpanel-2";
+          case "2vertpanel":
+          case "3panel":
+          case "4panel":
+            return "twovertpanel-2";
+        }
+      } else if (slot == "third") {
+        switch (store.state.splitFlow.activeView) {
+          case "3panel":
+          case "4panel":
+            return "threepanel-3";
+        }
+      } else if (slot == "fourth") {
+        switch (store.state.splitFlow.activeView) {
+          case "4panel":
+            return "fourpanel-4";
+        }
+      }
+      return "inactive";
+    }
   },
   data: function() {
     return {
-      horizontal: true,
-      two: false,
-      three: false,
-      four: false
-    }
-  },
-  watch: {
-    activeView : function(val) {
-      switch(val) {
-        case '2horpanel':
-          this.horizontal = true;
-          this.two = true;
-          this.three = false;
-          this.four = false;
-          break;
-        case '2vertpanel':
-          this.horizontal = false;
-          this.two = true;
-          this.three = false;
-          this.four = false;
-          break;
-        case '3panel':
-          this.horizontal = false;
-          this.two = true;
-          this.three = true;
-          this.four = false;
-          break;
-        case '4panel':
-          this.horizontal = false;
-          this.two = true;
-          this.three = true;
-          this.four = true;
-          break;
-        case 'singlepanel':
-        default:
-          this.two = false;
-          this.three = false;
-          this.four = false;
-      }
-    }
-  },
+      topInfo: [
+        { slot: "first" },
+        { slot: "second" },
+        { slot: "third" },
+        { slot: "fourth" }
+      ]
+    };
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .tab-container {
-  position:absolute;
-  width:100%!important;
-  height:100%!important;
-  left:0px!important;
-  top:0px!important;
-}
-
->>> .splitpanes.default-theme .splitpanes__pane {
-  background-color: white;
-  position:relative;
-}
-
->>> .splitpanes__splitter {
-  background: rgb(220, 223, 230);
-}
-
->>> .splitpanes--horizontal {
-  height: 1px;
-}
-
->>> .splitpanes--vertical {
-  width: 1px;
+  position: absolute;
+  width: 100% !important;
+  height: 100% !important;
+  left: 0px !important;
+  top: 0px !important;
 }
 
 .button-group {
   position: absolute;
-  top:1%;
-  right:1%;
+  top: 1%;
+  right: 1%;
+}
+
+.contentvuer {
+  position: absolute;
+  transition: all 1s ease;
+}
+
+.contentvuer.singlepanel-1 {
+  width: 100%;
+  height: calc(100% - 30px);
+  top: 30px;
+}
+
+.contentvuer.twohorpanel-1 {
+  width: 100%;
+  height: calc(50% - 30px);
+  top: 30px;
+}
+
+.contentvuer.twohorpanel-2 {
+  width: 100%;
+  height: calc(50% - 30px);
+  top: calc(50% + 30px);
+  border-top: 1px solid rgb(220, 223, 230);
+}
+
+.contentvuer.twovertpanel-1 {
+  width: 50%;
+  height: calc(100% - 30px);
+  top: 30px;
+}
+
+.contentvuer.twovertpanel-2 {
+  width: 50%;
+  height: calc(100% - 30px);
+  top: 30px;
+  left: 50%;
+  border-left: 1px solid rgb(220, 223, 230);
+}
+
+.contentvuer.threepanel-2 {
+  width: 50%;
+  height: calc(50% - 30px);
+  top: 30px;
+  left: 50%;
+  border-left: 1px solid rgb(220, 223, 230);
+}
+
+.contentvuer.threepanel-3 {
+  width: 50%;
+  height: calc(50% - 30px);
+  left: 50%;
+  top: calc(50% + 30px);
+  border-top: 1px solid rgb(220, 223, 230);
+  border-left: 1px solid rgb(220, 223, 230);
+}
+
+.contentvuer.fourpanel-1 {
+  width: 50%;
+  height: calc(50% - 30px);
+  top: 30px;
+}
+
+.contentvuer.fourpanel-4 {
+  width: 50%;
+  height: calc(50% - 30px);
+  top: calc(50% + 30px);
+  border-top: 1px solid rgb(220, 223, 230);
+}
+
+.contentvuer.inactive {
+  display: none;
+  width: 0%;
+  height: 0%;
+}
+
+.toolbar {
+  position: absolute;
+  transition: all 1s ease;
+  height: 29px;
+  border-bottom: 1px solid rgb(220, 223, 230);
+}
+
+.toolbar.singlepanel-1 {
+  width: 100%;
+}
+
+.toolbar.twohorpanel-2 {
+  width: 100%;
+  top: 50%;
+  border-top: 1px solid rgb(220, 223, 230);
+}
+
+.toolbar.twovertpanel-1 {
+  width: 50%;
+}
+
+.toolbar.twovertpanel-2 {
+  width: 50%;
+  left: 50%;
+  border-left: 1px solid rgb(220, 223, 230);
+}
+
+.toolbar.threepanel-3 {
+  width: 50%;
+  left: 50%;
+  top: 50%;
+  border-top: 1px solid rgb(220, 223, 230);
+  border-left: 1px solid rgb(220, 223, 230);
+}
+
+.toolbar.fourpanel-4 {
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  border-top: 1px solid rgb(220, 223, 230);
+}
+
+.toolbar.inactive {
+  display: none;
+  width: 0%;
+  height: 0%;
+}
+
+.toolbar-title {
+  width: 107px;
+  height: 20px;
+  color: rgb(131, 0, 191);
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 20px;
+  margin-left:11px;
+  margin-top:4px;
 }
 </style>
 

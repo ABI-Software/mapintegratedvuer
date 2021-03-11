@@ -1,6 +1,6 @@
 <template>
   <el-container style="height:100%;background:white;">
-    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="32px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
         :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
@@ -14,11 +14,7 @@
           @close="dialogClose(id)"
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"
-        >
-          <ContentVuer v-for="item in entries" :key="item.id" :slot="item.slot"
-            :entry="item" ref="content" @resource-selected="resourceSelected"
-            @flatmapChanged="flatmapChanged"/>
-        </SplitDialog>
+        />
         <SideBar ref="sideBar" class="side-bar" :visible="sideBarVisibility"></SideBar>
       </div>
     </el-main>
@@ -27,7 +23,6 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import ContentVuer from './ContentVuer';
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
@@ -65,7 +60,7 @@ var initialState = function() {
         mode: "main",
         id: 1,
         state: undefined,
-        slot: "one"
+        slot: "first"
       }
     ],
     sideBarVisibility: false,
@@ -79,7 +74,6 @@ var initialState = function() {
 export default {
   name: "SplitFlow",
   components: {
-    ContentVuer,
     DialogToolbarContent,
     SplitDialog,
     SideBar
@@ -119,13 +113,13 @@ export default {
       newEntry.state = undefined;
       switch (this.entries.length) {
         case 1:
-          newEntry.slot = "two";
+          newEntry.slot = "second";
           break;
         case 2:
-          newEntry.slot = "three";
+          newEntry.slot = "third";
           break;
         case 3:
-          newEntry.slot = "four";
+          newEntry.slot = "fourth";
           break;
         default:
           newEntry.slot = "none";
@@ -142,27 +136,6 @@ export default {
         }
       }
       return -1;
-    },
-    findIndexOfDockedArray: function(id) {
-      for (let i = 0; i < this.dockedArray.length; i++) {
-        if (this.dockedArray[i].id == id) {
-          return i;
-        }
-      }
-      return -1;
-    },
-    bringDialogToFront: function(id) {
-      /*About the z-index: Active background index = 1;
-        Inactive background index = 0;
-        Floating dialog z-index > 1;
-      */
-      let index = this.findIndexOfId(id);
-      if ((index > -1) && (this.entries[index].mode === "normal")) {
-        if (this.zIndex !== this.entries[index].zIndex) {
-          this.zIndex++;
-          this.entries[index].zIndex = this.zIndex;
-        }
-      }
     },
     destroyDialog: function(id) {
       let index = this.findIndexOfId(id);
@@ -270,7 +243,13 @@ export default {
     },
     flatmapChanged: function(){
       this.$emit("flatmapChanged");
-    }
+    },
+    entryStateUpdated: function(id, state) {
+      console.log(id, state)
+      let index = this.findIndexOfId(id);
+      if (index > -1)
+        this.entries[index].state = state;
+    },
   },
   data: function() {
     return initialState();
