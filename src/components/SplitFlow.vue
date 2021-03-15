@@ -27,6 +27,7 @@ import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
 import SideBar from './SideBar';
+import store from "../store";
 import Vue from "vue";
 import {
   Container,
@@ -60,7 +61,7 @@ var initialState = function() {
         mode: "main",
         id: 1,
         state: undefined,
-        slot: "first"
+        label: ""
       }
     ],
     sideBarVisibility: false,
@@ -95,8 +96,8 @@ export default {
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
           this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
         } else {
-          let newId = this.createNewEntry(action);
-          this.bringDialogToFront(newId);
+          this.createNewEntry(action);
+          //this.bringDialogToFront(newId);
         }
       }
     },
@@ -111,22 +112,17 @@ export default {
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex; 
       newEntry.state = undefined;
-      switch (this.entries.length) {
-        case 1:
-          newEntry.slot = "second";
-          break;
-        case 2:
-          newEntry.slot = "third";
-          break;
-        case 3:
-          newEntry.slot = "fourth";
-          break;
-        default:
-          newEntry.slot = "none";
-      }
       this.entries.push(newEntry);
+      let availableSlot = 
+        store.getters["splitFlow/getFirstAvailableSlot"]();
+      if (availableSlot) {
+        store.commit("splitFlow/assignIdToSlot",
+          {slot: availableSlot, id: newEntry.id});
+        store.commit("splitFlow/changeViewByAvailabilty");
+      }
       let title = newEntry.label + " " + newEntry.type;
       this.dockedArray.push({title: title, id:newEntry.id});
+
       return newEntry.id;
     },
     findIndexOfId: function(id) {

@@ -183,6 +183,9 @@ export default {
     activeView() {
       return store.state.splitFlow.activeView;
     },
+    viewIcons() {
+      return store.state.splitFlow.viewIcons;
+    }
   },
   watch: {
     shareLink: function() {
@@ -196,13 +199,6 @@ export default {
       helpDelay: 500,
       loadingLink: true,
       shareLinkDisplay: false,
-      viewIcons: [
-        { icon: "singlepanel", name: "Single view", min: 1 },
-        { icon: "2horpanel", name: "Horizontal split", min: 2 },
-        { icon: "2vertpanel", name: "Vertical split", min: 2 },
-        { icon: "3panel", name: "Three panes", min: 3 },
-        { icon: "4panel", name: "Four panes", min: 4 }
-      ],
     }
   },
   methods: {

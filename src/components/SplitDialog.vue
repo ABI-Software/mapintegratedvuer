@@ -1,18 +1,18 @@
 <template>
   <div class="tab-container" ref="container">
-    <div v-for="item in topInfo" :key="item.slot" :class="[getToolbarClass(item.slot), 'toolbar']">
+    <div v-for="item in slotInfo" :key="item.name" :class="[getToolbarClass(item.name), 'toolbar']">
       <div class="toolbar-title">
-        Placeholder
+        {{ getTitle(item)}}
       </div>
     </div>
-    <div v-for="item in entries" :key="item.id" :class="[getClass(item.slot), 'contentvuer']">
+    <div v-for="item in entries" :key="item.id" :class="[getClass(item.id), 'contentvuer']">
       <ContentVuer
         :key="item.id"
         :entry="item"
         ref="content"
         @resource-selected="resourceSelected"
         @flatmapChanged="flatmapChanged"
-        :visible="isVisible(item.slot)"
+        :visible="isVisible(item.id)"
       />
     </div>
   </div>
@@ -47,8 +47,9 @@ export default {
     flatmapChanged: function() {
       this.$emit("flatmapChanged");
     },
-    getClass: function(slot) {
-      if (slot == "first") {
+    getClass: function(id) {
+      let slot = store.getters["splitFlow/getSlotById"](id);
+      if (slot.name == "first") {
         switch (store.state.splitFlow.activeView) {
           case "singlepanel":
             return "singlepanel-1";
@@ -60,7 +61,7 @@ export default {
           case "4panel":
             return "fourpanel-1";
         }
-      } else if (slot == "second") {
+      } else if (slot.name == "second") {
         switch (store.state.splitFlow.activeView) {
           case "2horpanel":
             return "twohorpanel-2";
@@ -70,13 +71,13 @@ export default {
           case "4panel":
             return "threepanel-2";
         }
-      } else if (slot == "third") {
+      } else if (slot.name == "third") {
         switch (store.state.splitFlow.activeView) {
           case "3panel":
           case "4panel":
             return "threepanel-3";
         }
-      } else if (slot == "fourth") {
+      } else if (slot.name == "fourth") {
         switch (store.state.splitFlow.activeView) {
           case "4panel":
             return "fourpanel-4";
@@ -84,30 +85,9 @@ export default {
       }
       return "inactive";
     },
-    isVisible: function(slot) {
-      if (slot == "first") {
-        return true;
-      } else if (slot == "second") {
-        switch (store.state.splitFlow.activeView) {
-          case "2horpanel":
-          case "2vertpanel":
-          case "3panel":
-          case "4panel":
-            return true;
-        }
-      } else if (slot == "third") {
-        switch (store.state.splitFlow.activeView) {
-          case "3panel":
-          case "4panel":
-            return true;
-        }
-      } else if (slot == "fourth") {
-        switch (store.state.splitFlow.activeView) {
-          case "4panel":
-            return true;
-        }
-      }
-      return false;
+    isVisible: function(id) {
+      let slot = store.getters["splitFlow/getSlotById"](id);
+      return store.getters["splitFlow/isSlotActive"](slot);
     },
     getToolbarClass: function(slot) {
       if (slot == "first") {
@@ -143,18 +123,21 @@ export default {
         }
       }
       return "inactive";
+    },
+    getTitle: function(slot) {
+      let entry = this.entries.find(entry => entry.id === slot.id);
+      if (entry)
+        return entry.label + " " + entry.type;
+      else
+        return "Viewer";
     }
   },
-  data: function() {
-    return {
-      topInfo: [
-        { slot: "first" },
-        { slot: "second" },
-        { slot: "third" },
-        { slot: "fourth" }
-      ]
-    };
-  }
+  computed: {
+    // This computed property populates filter data's entry object with $data from this sidebar
+    slotInfo: function () {
+      return store.state.splitFlow.slotInfo;
+    },
+  },
 };
 </script>
 
@@ -177,18 +160,21 @@ export default {
 .contentvuer {
   position: absolute;
   transition: all 1s ease;
+  background: rgba(255, 255, 255, 1);
 }
 
 .contentvuer.singlepanel-1 {
   width: 100%;
   height: calc(100% - 30px);
   top: 30px;
+  z-index:2;
 }
 
 .contentvuer.twohorpanel-1 {
   width: 100%;
   height: calc(50% - 30px);
   top: 30px;
+  z-index:2;
 }
 
 .contentvuer.twohorpanel-2 {
@@ -202,6 +188,7 @@ export default {
   width: 50%;
   height: calc(100% - 30px);
   top: 30px;
+  z-index:2;
 }
 
 .contentvuer.twovertpanel-2 {
@@ -233,6 +220,7 @@ export default {
   width: 50%;
   height: calc(50% - 30px);
   top: 30px;
+  z-index:2;
 }
 
 .contentvuer.fourpanel-4 {
@@ -240,6 +228,7 @@ export default {
   height: calc(50% - 30px);
   top: calc(50% + 30px);
   border-top: 1px solid rgb(220, 223, 230);
+  z-index:2;
 }
 
 .contentvuer.inactive {

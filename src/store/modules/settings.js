@@ -3,7 +3,6 @@ const state = () => ({
   shareLink: undefined,
   api: undefined,
   flatmapAPI: undefined,
-  activeView: "singlepanel",
 });
 
 const mutations = {
@@ -15,9 +14,6 @@ const mutations = {
   },
   updateFlatmapAPI(state, flatmapAPI) {
     state.flatmapAPI = flatmapAPI;
-  },
-  updateActiveView(state, activeView) {
-    state.activeView = activeView;
   },
 };
 
