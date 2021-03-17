@@ -417,7 +417,7 @@ export default {
   font-size:11px;
   line-height:14px;
   font-family:'Asap', 'Avenir',  Arial, sans-serif;
-  font-weight:600;
+  font-weight:550;
   padding-top:7px;
 }
 

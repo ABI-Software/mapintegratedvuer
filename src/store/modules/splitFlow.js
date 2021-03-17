@@ -17,18 +17,26 @@ const state = () => ({
 });
 
 const getters = {
-  getSlotById: (state) => (id) => {
-    let slot = state.slotInfo.find(slotInfo => slotInfo.id === id);
-    return slot;
-  },
   getFirstAvailableSlot: (state) => () => {
-    return state.slotInfo.find(slotInfo => slotInfo.id === 0);
+    return state.slotInfo.find(slot => slot.id === 0);
   },
   getIdbySlotName: (state) => (name) => {
-    let slot = state.slotInfo.find(slotInfo => slotInfo.name === name);
+    let slot = state.slotInfo.find(slot => slot.name === name);
     return slot !== undefined ? slot.id : undefined;
   },
+  getSlotById: (state) => (id) => {
+    let slot = state.slotInfo.find(slot => slot.id === id);
+    return slot;
+  },
   isSlotActive: (state) => (slot) => {
+    if (slot) {
+      let view = state.viewIcons.find(view => state.activeView === view.icon);
+      return (view.min >= slot.activation);
+    }
+    return false;
+  },
+  isEntryActive: (state) => (entry) => {
+    let slot = state.slotInfo.find(slot => slot.id === entry.id);
     if (slot) {
       let view = state.viewIcons.find(view => state.activeView === view.icon);
       return (view.min >= slot.activation);
@@ -38,12 +46,15 @@ const getters = {
 }
 
 const mutations = {
-  updateActiveView(state, activeView) {
-    state.activeView = activeView;
-  },
   assignIdToSlot(state, payload)  {
     state.slotInfo.find(
       slotInfo => slotInfo.name === payload.slot.name).id = payload.id;
+  },
+  assignOrSwapIdToSlot(state, payload)  {
+    let targetSlot = state.slotInfo.find(slot => slot.id === payload.id);
+    if (targetSlot)
+      targetSlot.id = payload.slot.id;
+    payload.slot.id = payload.id;
   },
   changeViewByAvailabilty(state) {
     let count = 0;
@@ -54,6 +65,9 @@ const mutations = {
     let view = state.viewIcons.find(view => view.min === count);
     if (view)
       state.activeView = view.icon;
+  },
+  updateActiveView(state, activeView) {
+    state.activeView = activeView;
   },
 };
 
