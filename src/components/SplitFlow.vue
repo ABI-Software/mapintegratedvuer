@@ -115,11 +115,9 @@ export default {
       this.entries.push(newEntry);
       let availableSlot = 
         store.getters["splitFlow/getFirstAvailableSlot"]();
-      if (availableSlot) {
+      if (availableSlot)
         store.commit("splitFlow/assignIdToSlot",
           {slot: availableSlot, id: newEntry.id});
-        store.commit("splitFlow/changeViewByAvailabilty");
-      }
       let title = newEntry.label + " " + newEntry.type;
       this.dockedArray.push({title: title, id:newEntry.id});
 

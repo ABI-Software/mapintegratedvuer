@@ -19,7 +19,6 @@
         />
       </el-select>
     </div>
-
     <div v-for="entry in entries" :key="entry.id" :class="[getClass(entry.id), 'contentvuer']">
       <ContentVuer
         :key="entry.id"

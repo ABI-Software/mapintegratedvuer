@@ -1,5 +1,5 @@
 <template>
-  <div class="header">
+  <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
     <el-row class="content">
       <div class="title" v-for="title in dialogTitles" :key="title.id">
         <div  class="title-text-table" v-bind:class="{ highlightText : (title.id==activeId) }" v-on:click="titleClicked(title.id)">
@@ -41,7 +41,8 @@
         v-show="topLevelControls">
         <svg-icon :icon="activeView"
           v-popover:viewPopover
-          class="header-icon" 
+          :class="[{'disabled': 1 >= dialogTitles.length},
+            'header-icon']"
           slot="reference"/>
       </el-popover>
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
@@ -317,11 +318,11 @@ export default {
   height:32px;
 }
 
-.header:hover {
+.draggable.header:hover {
   cursor:grab;
 }
 
-.header:active {
+.draggable.header:active {
   cursor:grabbing;
 }
 
@@ -397,6 +398,7 @@ export default {
   background: rgba(131, 0, 191, 0.1);
 }
 
+.header-icon.disabled,
 .view-icon-row.disabled {
   cursor: default;
   pointer-events: none;
@@ -408,10 +410,6 @@ export default {
   padding-top:3px;
 }
 
-.disabled .view-icon {
-  opacity:0.5;
-}
-
 .view-text {
   letter-spacing:0px;
   font-size:11px;
@@ -421,6 +419,8 @@ export default {
   padding-top:7px;
 }
 
+.header-icon.disabled,
+.disabled .view-icon,
 .disabled .view-text {
   opacity:0.5;
 }
