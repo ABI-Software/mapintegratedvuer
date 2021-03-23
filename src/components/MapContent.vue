@@ -1,7 +1,7 @@
 <template>
     <div class="mapcontent" ref="MapApp">
       <SvgSpriteColor/>
-      <FloatingFlow v-if="floating" @onFullscreen="onFullscreen" :state="state" ref="flow"/>
+      <FloatingFlow v-if="floating" @onFullscreen="onFullscreen" :state="state" ref="floatingFlow"/>
       <SplitFlow v-else @onFullscreen="onFullscreen" :state="state" ref="flow"/>
     </div>
 </template>

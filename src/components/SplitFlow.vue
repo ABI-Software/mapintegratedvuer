@@ -61,7 +61,8 @@ var initialState = function() {
         mode: "main",
         id: 1,
         state: undefined,
-        label: ""
+        label: "",
+        discoverId: undefined
       }
     ],
     sideBarVisibility: false,
@@ -112,6 +113,7 @@ export default {
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex; 
       newEntry.state = undefined;
+      newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
       let availableSlot = 
         store.getters["splitFlow/getFirstAvailableSlot"]();
@@ -221,6 +223,7 @@ export default {
       this.currentCount = state.currentCount;
       this.entries = [];
       Object.assign(this.entries, state.entries);
+      store.commit("splitFlow/setState", state.splitFlow);  
     },
     getState: function() {
       let state = JSON.parse(JSON.stringify(this.$data));
@@ -230,6 +233,7 @@ export default {
           state.entries[i].state = dialogs[i].getState();
         }
       }
+      state.splitFlow = store.getters["splitFlow/getState"]();
       return state;
     },
     resourceSelected: function(result) {

@@ -144,8 +144,12 @@ export default {
       return "inactive";
     },
     getEntryTitle: function(entry) {
-      if (entry)
-        return entry.label + " " + entry.type;
+      if (entry) {
+        let title = entry.label + " " + entry.type;
+        if (entry.discoverId) 
+          title = title + " dataset " + entry.discoverId;
+        return title;
+      }
       return "Viewer";
     },
     getSlotTitle: function(slot) {
@@ -161,7 +165,7 @@ export default {
             for (let i = 0; i < this.$refs.content.length; i++) {
               this.$refs.content[i].onResize();
             }
-          }, 1100);
+          }, 1200);
         });
       }
     },
@@ -347,7 +351,7 @@ export default {
 }
 
 .select-box {
-  width: 120px;
+  width: 180px;
   border-radius: 4px;
   border: 1px solid rgb(144, 147, 153);
   background-color: var(--white);

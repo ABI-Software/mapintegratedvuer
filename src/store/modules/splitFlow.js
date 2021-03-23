@@ -43,6 +43,9 @@ const getters = {
     }
     return false;
   },
+  getState: (state) => () => {
+    return {activeView: state.activeView, slotInfo: state.slotInfo};
+  },
 }
 
 const mutations = {
@@ -68,6 +71,14 @@ const mutations = {
   },
   updateActiveView(state, activeView) {
     state.activeView = activeView;
+  },
+  setState(state, newState) {
+    if (newState) {
+      state.activeView = newState.activeView;
+      for (let i = 0; i < state.slotInfo.length; i++) {
+        state.slotInfo[i].id = newState.slotInfo[i].id;
+      }
+    }
   },
 };
 
