@@ -254,6 +254,7 @@ export default {
       if (data.results.length === 0){
         return
       }
+      window.data = data
       data.results.forEach((element) => {
         this.results.push({
           description: element.name,
@@ -266,7 +267,7 @@ export default {
               ? [...new Set(element.samples.map((v) => v.sex.value))]
               : undefined
             : undefined, // This processing only includes each gender once into 'sexes'
-          organs: element.organs
+          organs: element.organs?.length
             ? [...new Set(element.organs.map((v) => v.name))]
             : undefined,
           ages: element.samples
