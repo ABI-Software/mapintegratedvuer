@@ -154,6 +154,12 @@ export default {
       return "inactive";
     },
     getStyle: function(id) {
+      /* 
+        Set the style based on the position of the spltters 
+        Header is 30px in height and the splitter is 1px in
+        height/width. The width, height and positon of the 
+        viewer should take that into account.
+      */
       let style = {};
       let slot = store.getters["splitFlow/getSlotById"](id);
       if (slot) {
@@ -269,6 +275,12 @@ export default {
       return "inactive";
     },
     getToolbarStyle: function(slot) {
+      /* 
+        Set the toolbar style based on the position of the spltters 
+        The splitter is 1px in height/width. 
+        The width and position of the toolbar should
+        take that into account.
+      */
       let style = {};
       if (slot) {
         if (slot.name == "first") {
