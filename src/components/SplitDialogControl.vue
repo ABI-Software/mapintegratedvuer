@@ -4,7 +4,7 @@
       class="default-theme"
       :horizontal="horizontal"
       :dbl-click-splitter="false"
-      @resized="resized('first', $event)"
+      @resized="resized(1, $event)"
       @resize="resize"
     >
       <pane min-size="20" :size="splitter1">
@@ -12,7 +12,7 @@
           class="default-theme"
           :horizontal="true"
           :dbl-click-splitter="false"
-          @resized="resized('second', $event)"
+          @resized="resized(2, $event)"
           @resize="resize"
         >
           <pane key="one" min-size="20" :size="splitter2"></pane>
@@ -24,7 +24,7 @@
           class="default-theme"
           :horizontal="true"
           :dbl-click-splitter="false"
-          @resized="resized('third', $event)"
+          @resized="resized(3, $event)"
           @resize="resize"
         >
           <pane key="two" min-size="20" :size="splitter3"></pane>
@@ -226,14 +226,6 @@ export default {
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
     },
-    getContentsState: function() {
-      let states = [];
-      let contents = this.$refs["content"];
-      for (let i = 0; i < contents.length; i++) {
-        states.push(contents[i].getState());
-      }
-      return states;
-    },
     getToolbarClass: function(slot) {
       if (slot.name == "first") {
         switch (store.state.splitFlow.activeView) {
@@ -343,8 +335,13 @@ export default {
     resize: function() {
       this.__userResize__ = true;
     },
-    resized: function(splitterName, event) {
+    resized: function(splitter, event) {
       if (this.__userResize__) {
+        console.log("resized");
+        let splitterName = "first";
+        if (splitter == 1) splitterName = "first";
+        else if (splitter == 2) splitterName = "second";
+        else if (splitter == 3) splitterName = "third";
         store.commit("splitFlow/setSplitter", {
           name: splitterName,
           value: event[0].size
@@ -422,14 +419,14 @@ export default {
 }
 
 >>> .splitpanes--vertical > .splitpanes__splitter:before {
-  left: -3px;
+  left: -2px;
   width: 11px;
   height: 100%;
 }
 
 >>> .splitpanes--horizontal > .splitpanes__splitter:before {
   top: -2px;
-  height: 10px;
+  height: 11px;
   width: 100%;
 }
 
