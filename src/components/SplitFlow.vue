@@ -10,7 +10,7 @@
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
-        <SplitDialog :entries="entries" ref="splitpane"
+        <SplitDialog :entries="entries" ref="splitdialog"
           @close="dialogClose(id)"
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"
@@ -227,11 +227,11 @@ export default {
     },
     getState: function() {
       let state = JSON.parse(JSON.stringify(this.$data));
-      let splitpane = this.$refs.splitpane;
-      let panelStats = splitpane.getContentsState();
-      if (state.entries.length === panelStats.length) {
-        for (let i = 0; i < panelStats.length; i++) {
-          state.entries[i].state = panelStats[i];
+      let splitdialog = this.$refs.splitdialog;
+      let dialogStates = splitdialog.getContentsState();
+      if (state.entries.length === dialogStates.length) {
+        for (let i = 0; i < dialogStates.length; i++) {
+          state.entries[i].state = dialogStates[i];
         }
       }
       state.splitFlow = store.getters["splitFlow/getState"]();
