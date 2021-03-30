@@ -1,4 +1,5 @@
 /* eslint-disable no-alert, no-console */
+
 const state = () => ({
   activeView: "singlepanel",
   slotInfo: [
@@ -14,6 +15,7 @@ const state = () => ({
     { icon: "3panel", name: "Three panes", min: 3 },
     { icon: "4panel", name: "Four panes", min: 4 }
   ],
+  splitters: { "first": 50, "second": 50, "third": 50 }
 });
 
 const getters = {
@@ -26,6 +28,10 @@ const getters = {
   },
   getSlotById: (state) => (id) => {
     let slot = state.slotInfo.find(slot => slot.id === id);
+    return slot;
+  },
+  getSlotByName: (state) => (name) => {
+    let slot = state.slotInfo.find(slot => slot.name === name);
     return slot;
   },
   isSlotActive: (state) => (slot) => {
@@ -44,16 +50,19 @@ const getters = {
     return false;
   },
   getState: (state) => () => {
-    return {activeView: state.activeView, slotInfo: state.slotInfo};
+    return {
+      activeView: state.activeView, slotInfo: state.slotInfo,
+      splitters: state.splitters
+    };
   },
 }
 
 const mutations = {
-  assignIdToSlot(state, payload)  {
+  assignIdToSlot(state, payload) {
     state.slotInfo.find(
       slotInfo => slotInfo.name === payload.slot.name).id = payload.id;
   },
-  assignOrSwapIdToSlot(state, payload)  {
+  assignOrSwapIdToSlot(state, payload) {
     let targetSlot = state.slotInfo.find(slot => slot.id === payload.id);
     if (targetSlot)
       targetSlot.id = payload.slot.id;
@@ -72,11 +81,18 @@ const mutations = {
   updateActiveView(state, activeView) {
     state.activeView = activeView;
   },
+  setSplitter(state, payload) {
+    if (state.splitters[payload.name])
+      state.splitters[payload.name] = payload.value;   
+  },
   setState(state, newState) {
     if (newState) {
       state.activeView = newState.activeView;
       for (let i = 0; i < state.slotInfo.length; i++) {
         state.slotInfo[i].id = newState.slotInfo[i].id;
+      }
+      for (const [key, value] of Object.entries(newState.splitters)) {
+        state.splitters[key] = value;
       }
     }
   },
