@@ -16,7 +16,8 @@
           @close="dialogClose(item.id)"
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"/>
-          <SideBar ref="sideBar" class="side-bar" :visible="sideBarVisibility"></SideBar>
+          <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
+            :visible="sideBarVisibility" @actionClick="actionClick"></SideBar>
       </div>
     </el-main>
   </el-container>
@@ -25,9 +26,11 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
+import EventBus from "./EventBus"
 import FloatingDialog from './FloatingDialog';
-import SideBar from './SideBar';
-import EventBus from './EventBus';
+import { SideBar } from '@abi-software/map-side-bar';
+import '@abi-software/map-side-bar/dist/map-side-bar.css';
+import store from '../store';
 import Vue from "vue";
 import {
   Container,
@@ -272,7 +275,12 @@ export default {
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
-    });
+    })
+  },
+  computed: {
+    apiLocation: function() {
+      return store.state.settings.api;
+    }
   }
 };
 </script>
