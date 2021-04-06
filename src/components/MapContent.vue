@@ -128,12 +128,7 @@ export default {
   bottom: 30px;
   right: 30px;
 }
-.sidebar{
-  position: fixed;
-  z-index: 8;
-  bottom: 0px;
-  right: 30px;
-}
+
 .mapcontent {
   height: 100%;
   width:100%;
