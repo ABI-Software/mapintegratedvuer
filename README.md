@@ -61,3 +61,68 @@ npm run build-bundle
 
 ## Example
 The following pagedemonstrates the mapintegratedapp in action: https://mapcore-demo.org/current/sparc-app/maps
+
+
+## Testing mapintegratedvuer dependencies in [sparc-app](https://github.com/nih-sparc/sparc-app/)
+We will cover three options for updating nested dependencies. 
+
+### 1. Copy build files from `npm run build-bundle`
+This works by directly changing files in `node-modules/`, where node will look to resolve dependencies.
+
+```
+cd <your-dependency>
+npm run build-bundle 
+cp /dist <mapintegratedvuer-path>/node_modules/@<your-npmhandle>/<your-dependency>/dist
+cd <mapintegratedvuer-path>
+npm run build-bundle
+cp /dist <sparc-app-path>/node_modules/@abi-software/mapintegratedvuer/dist
+yarn dev
+```
+*Note: this assumes assets in the static folders shipped with the npm package will remain unchanged*
+### 2. Use `yarn link`
+This is a variant of option 1, where we use `yarn link` to create a symbolic link from mapintegratedvuer->spar-app
+It reduces the number of copies to 1, but still requires 3 builds
+```
+cd <your-dependency>
+npm run build-bundle 
+cp /dist <mapintegratedvuer-path>/node_modules/@<your-npmhandle>/<your-dependency>/dist
+cd <mapintegratedvuer-path>
+npm run build-bundle
+yarn link
+cd sparc-app
+yarn link @abi-software/mapintegratedvuer
+yarn dev
+```
+(npm link does not work without disabling es-lint, which we won't go into)
+
+### 3. Publish own version of mapintegratedvuer
+This method is the most time consuming and has the downside of populating the npm package's version history with builds. 
+Since it mimics the way `sparc-app` will use it, it's gauranteed to work.
+
+```
+cd <your-dependency>
+npm run build-bundle
+npm publish --tag alpha 
+cd mapintegratedvuer
+npm install @<your-npmhandle>/<your-dependency>@alpha
+```
+
+Edit mapintegratedvuer/package.json:
+Change `@abi-software/mapintegratedvuer` to `@<your-npm-handle>/mapintegratedvuer`
+
+```
+cd mapintegratedvuer
+npm run build-bundle
+npm publish --tag alpha 
+```
+
+Edit sparc-app/pages/maps/index.vue
+Change `@abi-software/mapintegratedvuer` to `@<your-npm-handle>/mapintegratedvuer`
+
+```
+cd sparc-app
+yarn add @<your-npm-handle>/mapintegratedvuer@alpha
+yarn dev
+```
+
+

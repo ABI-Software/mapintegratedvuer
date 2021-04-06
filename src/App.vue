@@ -1,6 +1,8 @@
 <template>
 
   <div id="app">
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap">
     <svg-sprite-color />
     <el-popover
       placement="bottom"
@@ -10,7 +12,7 @@
       :appendToBody=false
       >
       <div class="options-container">
-        <el-row :gutter="20">
+        <el-row class="row" :gutter="20">
           <el-button @click="saveSettings()" size="mini">Save Settings</el-button>
           <el-button @click="restoreSettings()" size="mini">Restore Settings</el-button>
           <el-button @click="getShareableURL()" size="mini">Get Link</el-button>
@@ -108,16 +110,14 @@ export default {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Asap&display=swap');
-
 #app {
   height:100%;
   width: 100%;
   position:absolute;
+  font-family: "Asap",sans-serif;
 }
 body {
-  margin:0px;
-  font-family: "Asap",sans-serif;
+  line-height: 1.5rem;
 }
 .map-app {
   position:absolute;
@@ -137,7 +137,7 @@ body {
   z-index:1000;
 }
 
-.el-row {
+.row {
   margin-bottom: 5px;
   &:last-child {
     margin-bottom: 0;
@@ -145,7 +145,6 @@ body {
 }
 
 .options-container{
-
   text-align: center;
 }
 </style>
