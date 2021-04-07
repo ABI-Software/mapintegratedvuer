@@ -259,7 +259,7 @@ export default {
         organs: ["heart"],
         ages: undefined,
         updated: undefined,
-        url: {uri: "https://models.physiomeproject.org/e/611"},
+        url: {uri: "https://models.physiomeproject.org/e/611/HumanSAN_Fabbri_Fantini_Wilders_Severi_2017.cellml/view"},
         datasetId: undefined,
         csvFiles: undefined,
         id: id++,
