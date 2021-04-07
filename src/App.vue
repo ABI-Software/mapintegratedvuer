@@ -116,9 +116,7 @@ export default {
   position:absolute;
   font-family: "Asap",sans-serif;
 }
-body {
-  line-height: 1.5rem;
-}
+
 .map-app {
   position:absolute;
   height: calc(100% - 104px);
