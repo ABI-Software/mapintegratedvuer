@@ -1,13 +1,7 @@
 <template>
   <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
-    <el-row class="content">
-      <div class="title" v-for="title in dialogTitles" :key="title.id">
-        <div  class="title-text-table" v-bind:class="{ highlightText : (title.id==activeId) }" v-on:click="titleClicked(title.id)">
-          <div class="title-text">
-            {{title.title}}
-          </div>
-        </div>
-      </div>
+    <el-row class="content"> 
+        <tabs :dialogTitles="dialogTitles" :activeId="activeId" @titleClicked="titleClicked"/>
     </el-row>
   
     <el-row class="icon-group" >
@@ -126,6 +120,7 @@ import Vue from "vue";
 import EventBus from './EventBus';
 import store from '../store';
 import {SvgIcon} from '@abi-software/svg-sprite';
+import Tabs from './Tabs'
 
 import {
   Button,
@@ -148,11 +143,15 @@ Vue.component('svg-icon', SvgIcon);
  */
 export default {
   name: "DialogToolbarContent",
+  components: { Tabs },
   props: {
     /**
      * Array of titles.
      */
-    dialogTitles: Array,
+    dialogTitles: {
+      type: Array,
+      default: () => []
+    },
     /**
      * Display icons for docking, undocking and etc.
      */
@@ -253,38 +252,6 @@ export default {
 .content {
   width:calc(100% - 120px);
   height:32px;
-}
-
-.title {
-  width: 101px;
-  height: 31px;
-  border-right: solid 1px #dcdfe6;
-  background-color: white;
-  display:inline-block;
-}
-
-.title:hover {
-  cursor: pointer;
-}
-
-.title-text {
-  text-align:center;
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.title-text-table {
-  display:table;
-  height: 100%;
-  width: 100%;
-}
-
-.parent-dialog:hover .title-text {
-  color:#8300bf;
-}
-
-.highlightText {
-  color:#8300bf;
 }
 
 .icon-group {

@@ -15,9 +15,17 @@
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"
         />
-        <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
-            :visible="sideBarVisibility" @actionClick="actionClick"></SideBar>
+        <SideBar ref="sideBar" class="side-bar" 
+          :apiLocation="apiLocation" 
+          :visible="sideBarVisibility" 
+          @actionClick="actionClick"
+        > 
+          <el-row class="tab-content" v-if="dockedArray.length > 1"> 
+            <tabs :dialogTitles="dockedArray" :activeId="activeDockedId" @titleClicked="titleClicked"/>
+          </el-row>
+        </SideBar>
       </div>
+      
     </el-main>
   </el-container>
 </template>
@@ -27,6 +35,7 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
+import Tabs from './Tabs'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/map-side-bar.css';
 import store from "../store";
@@ -80,7 +89,8 @@ export default {
   components: {
     DialogToolbarContent,
     SplitDialog,
-    SideBar
+    SideBar,
+    Tabs
   },
   props:{
     state: {
@@ -251,6 +261,7 @@ export default {
       if (index > -1)
         this.entries[index].state = state;
     },
+    titleClicked: function(){}
   },
   data: function() {
     return initialState();
@@ -298,20 +309,11 @@ export default {
   height:100%;
 }
 
-.heart-invis {
+.tab-content {
+  width:calc(100% - 120px);
+  height:80px;
   position: absolute;
-  right:40%;
-  top:75%;
-  height: 0px;
-  width: 0px;
-}
-
-.icn-invis {
-  position: absolute;
-  right:50%;
-  top:45%;
-  height: 0px;
-  width: 0px;
+  z-index: 10000;
 }
 
 </style>
