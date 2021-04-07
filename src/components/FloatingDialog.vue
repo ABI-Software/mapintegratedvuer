@@ -9,7 +9,7 @@
       </el-header>
       <el-main class="dialog-main" :style="mainStyle">
         <ContentVuer :entry="entry" ref="content" @resource-selected="resourceSelected"
-          @flatmapChanged="flatmapChanged"/>
+          @flatmapChanged="flatmapChanged" :visible="entry.mode !== 'minimised'"/>
       </el-main>
     </el-container>
     <!-- Below set the style of the resize cursor -->

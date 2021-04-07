@@ -1,5 +1,5 @@
 <template>
-  <div class="header">
+  <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
     <el-row class="content">
       <div class="title" v-for="title in dialogTitles" :key="title.id">
         <div  class="title-text-table" v-bind:class="{ highlightText : (title.id==activeId) }" v-on:click="titleClicked(title.id)">
@@ -11,6 +11,40 @@
     </el-row>
   
     <el-row class="icon-group" >
+      <el-popover
+        ref="viewPopover"
+        placement="bottom"
+        width="133"
+        :appendToBody=false
+        trigger="click"
+        popper-class="view-icon-popover">
+        <el-row :gutter="20"
+          v-for="item in viewIcons"
+          :key="item.name"
+          :class="[{ 'active': item.icon ==  activeView},
+            {'disabled': item.min > dialogTitles.length},
+            'view-icon-row']"
+          @click.native="viewClicked(item.icon)"
+        >
+          <el-col :span="4">
+            <svg-icon :icon="item.icon"
+              class="view-icon"/>
+          </el-col>
+          <el-col :offset="2" :span="18" class="view-text">
+            {{item.name}}
+          </el-col>
+        </el-row>
+      </el-popover>
+      <el-popover class="tooltip"  content="Change view" placement="bottom-end"
+        :open-delay="helpDelay" :appendToBody=false trigger="hover"
+        popper-class="header-popper"
+        v-show="topLevelControls">
+        <svg-icon :icon="activeView"
+          v-popover:viewPopover
+          :class="[{'disabled': 1 >= dialogTitles.length},
+            'header-icon']"
+          slot="reference"/>
+      </el-popover>
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
         <svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
@@ -147,6 +181,12 @@ export default {
     shareLink() {
       return store.state.settings.shareLink;
     },
+    activeView() {
+      return store.state.splitFlow.activeView;
+    },
+    viewIcons() {
+      return store.state.splitFlow.viewIcons;
+    }
   },
   watch: {
     shareLink: function() {
@@ -195,6 +235,9 @@ export default {
       this.shareLinkDisplay = true;
       EventBus.$emit("updateShareLinkRequested");
     },
+    viewClicked: function(view) {
+      store.commit("splitFlow/updateActiveView", view);
+    }
   },
   mounted: function(){
     if(!this.topLevelControls){
@@ -209,11 +252,12 @@ export default {
 
 .content {
   width:calc(100% - 120px);
+  height:32px;
 }
 
 .title {
   width: 101px;
-  height: 38px;
+  height: 31px;
   border-right: solid 1px #dcdfe6;
   background-color: white;
   display:inline-block;
@@ -248,7 +292,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  top: 8px;
+  top: 4px;
   right:12px;
 }
 
@@ -270,11 +314,15 @@ export default {
   padding:10px;
 }
 
-.header:hover {
+.header {
+  height:32px;
+}
+
+.draggable.header:hover {
   cursor:grab;
 }
 
-.header:active {
+.draggable.header:active {
   cursor:grabbing;
 }
 
@@ -292,7 +340,7 @@ export default {
   border-bottom-color: rgb(131, 0, 191);
 }
 
->>> .header-popper.el-popper[x-placement^=bottom] .popper__arrow:after{
+.header-icon >>> .el-popper[x-placement^=bottom] .popper__arrow:after{
   border-bottom-color: #f3ecf6 !important;
 }
 
@@ -332,7 +380,61 @@ export default {
 }
 
 .tooltip {
-  font-family: Asap;
+  font-family: 'Asap', 'Avenir',  Arial, sans-serif;
+}
+
+.view-icon-row {
+  height: 32px;
+  width: 133px;
+  border-radius: 4px;
+  border: 1px solid rgb(151, 151, 151);
+  font-size: 14px;
+  margin:8px 0px 0px 0px!important;
+  cursor: pointer;
+}
+
+.view-icon-row.active {
+  border: 1px solid rgb(131, 0, 191);
+  background: rgba(131, 0, 191, 0.1);
+}
+
+.header-icon.disabled,
+.view-icon-row.disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.view-icon {
+  font-size: 1.7em;
+  color: #8300bf;
+  padding-top:3px;
+}
+
+.view-text {
+  letter-spacing:0px;
+  font-size:11px;
+  line-height:14px;
+  font-family:'Asap', 'Avenir',  Arial, sans-serif;
+  font-weight:550;
+  padding-top:7px;
+}
+
+.header-icon.disabled,
+.disabled .view-icon,
+.disabled .view-text {
+  opacity:0.5;
+}
+
+>>> .view-icon-popover {
+  border: 1px solid rgb(131, 0, 191);
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
+  padding: 4px 8px 12px 8px;
+  min-width:unset!important;
+  cursor:default;
+}
+
+>>> .view-icon-popover .el-popper[x-placement^=bottom] .popper__arrow:after{
+  border-bottom-color: #fff !important;
 }
 
 >>>.el-loading-spinner i{
@@ -341,4 +443,5 @@ export default {
 >>>.el-loading-spinner .el-loading-text {
   color: #8300bf;
 }
+
 </style>

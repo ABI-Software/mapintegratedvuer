@@ -87,7 +87,8 @@ export default {
           label: capitalise(this.entry.organs[0]),
           resource: this.getScaffoldPath(this.discoverId, this.version, this.entry.scaffolds[0].dataset.path),
           title: "View 3D scaffold",
-          type: "Scaffold"
+          type: "Scaffold",
+          discoverId: this.discoverId,
         }
         EventBus.$emit("PopoverActionClick", action)
     },
@@ -96,7 +97,8 @@ export default {
           label: capitalise(this.entry.organs[0]),
           resource: this.getFileFromPath(this.discoverId, this.version, this.entry.csvFiles[0].dataset.path),
           title: "View plot",
-          type: "Plot"
+          type: "Plot",
+          discoverId: this.discoverId,
         }
         EventBus.$emit("PopoverActionClick", action)
     },

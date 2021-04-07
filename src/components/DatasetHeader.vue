@@ -97,13 +97,3 @@ export default {
   font-size: 10px;
 }
 </style>
-<style scoped src="element-ui/lib/theme-chalk/link.css">
-</style>
-<style scoped src="element-ui/lib/theme-chalk/icon.css">
-</style>
-<style scoped src="element-ui/lib/theme-chalk/card.css">
-</style>
-<style scoped src="element-ui/lib/theme-chalk/button.css">
-</style>
-<style scoped src="element-ui/lib/theme-chalk/select.css">
-</style>

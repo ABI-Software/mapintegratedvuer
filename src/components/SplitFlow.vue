@@ -1,8 +1,8 @@
 <template>
   <el-container style="height:100%;background:white;">
-    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="32px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
-        :topLevelControls="entries[findIndexOfId(activeDockedId)].mode!=='normal'"
+        :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
         @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose"
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
@@ -10,13 +10,12 @@
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
-        <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
-          :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
-          @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)"
-          @close="dialogClose(item.id)"
+        <SplitDialog :entries="entries" ref="splitdialog"
+          @close="dialogClose(id)"
           @resource-selected="resourceSelected"
-          @flatmapChanged="flatmapChanged"/>
-          <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
+          @flatmapChanged="flatmapChanged"
+        />
+        <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
             :visible="sideBarVisibility" @actionClick="actionClick"></SideBar>
       </div>
     </el-main>
@@ -26,11 +25,11 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
-import EventBus from "./EventBus"
-import FloatingDialog from './FloatingDialog';
+import EventBus from './EventBus';
+import SplitDialog from './SplitDialog';
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/map-side-bar.css';
-import store from '../store';
+import store from "../store";
 import Vue from "vue";
 import {
   Container,
@@ -63,7 +62,9 @@ var initialState = function() {
         zIndex:1,
         mode: "main",
         id: 1,
-        state: undefined
+        state: undefined,
+        label: "",
+        discoverId: undefined
       }
     ],
     sideBarVisibility: false,
@@ -75,10 +76,10 @@ var initialState = function() {
  * Component of the floating dialogs.
  */
 export default {
-  name: "FloatingFlow",
+  name: "SplitFlow",
   components: {
     DialogToolbarContent,
-    FloatingDialog,
+    SplitDialog,
     SideBar
   },
   props:{
@@ -98,8 +99,8 @@ export default {
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
           this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
         } else {
-          let newId = this.createNewEntry(action);
-          this.bringDialogToFront(newId);
+          this.createNewEntry(action);
+          //this.bringDialogToFront(newId);
         }
       }
     },
@@ -112,9 +113,18 @@ export default {
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex;
+      newEntry.zIndex = ++this.zIndex; 
       newEntry.state = undefined;
+      newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
+      let availableSlot = 
+        store.getters["splitFlow/getFirstAvailableSlot"]();
+      if (availableSlot)
+        store.commit("splitFlow/assignIdToSlot",
+          {slot: availableSlot, id: newEntry.id});
+      let title = newEntry.label + " " + newEntry.type;
+      this.dockedArray.push({title: title, id:newEntry.id});
+
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -124,27 +134,6 @@ export default {
         }
       }
       return -1;
-    },
-    findIndexOfDockedArray: function(id) {
-      for (let i = 0; i < this.dockedArray.length; i++) {
-        if (this.dockedArray[i].id == id) {
-          return i;
-        }
-      }
-      return -1;
-    },
-    bringDialogToFront: function(id) {
-      /*About the z-index: Active background index = 1;
-        Inactive background index = 0;
-        Floating dialog z-index > 1;
-      */
-      let index = this.findIndexOfId(id);
-      if ((index > -1) && (this.entries[index].mode === "normal")) {
-        if (this.zIndex !== this.entries[index].zIndex) {
-          this.zIndex++;
-          this.entries[index].zIndex = this.zIndex;
-        }
-      }
     },
     destroyDialog: function(id) {
       let index = this.findIndexOfId(id);
@@ -236,15 +225,18 @@ export default {
       this.currentCount = state.currentCount;
       this.entries = [];
       Object.assign(this.entries, state.entries);
+      store.commit("splitFlow/setState", state.splitFlow);  
     },
     getState: function() {
       let state = JSON.parse(JSON.stringify(this.$data));
-      let dialogs = this.$refs["dialogs"];
-      if (state.entries.length === dialogs.length) {
-        for (let i = 0; i < dialogs.length; i++) {
-          state.entries[i].state = dialogs[i].getState();
+      let splitdialog = this.$refs.splitdialog;
+      let dialogStates = splitdialog.getContentsState();
+      if (state.entries.length === dialogStates.length) {
+        for (let i = 0; i < dialogStates.length; i++) {
+          state.entries[i].state = dialogStates[i];
         }
       }
+      state.splitFlow = store.getters["splitFlow/getState"]();
       return state;
     },
     resourceSelected: function(result) {
@@ -252,7 +244,13 @@ export default {
     },
     flatmapChanged: function(){
       this.$emit("flatmapChanged");
-    }
+    },
+    entryStateUpdated: function(id, state) {
+      console.log(id, state)
+      let index = this.findIndexOfId(id);
+      if (index > -1)
+        this.entries[index].state = state;
+    },
   },
   data: function() {
     return initialState();

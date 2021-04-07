@@ -15,10 +15,9 @@
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
-        :render="entry.mode !== 'minimised'" :displayMinimap=false :displayMarkers=false />
+        :render="visible" :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
       :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
-      <SideBar v-else-if="entry.type === 'Search'" :visbility="true" :isDrawer="false"  :entry="entry.entry" class="search"></SideBar>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
   </div>
@@ -30,7 +29,6 @@ import EventBus from './EventBus';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
 import {getAvailableTermsForSpecies} from './SimulatedData.js';
-import SideBar from './SideBar'
 import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
@@ -48,11 +46,14 @@ export default {
      * the required viewing.
      */
     entry: Object,
+    visible: {
+      type: Boolean,
+      default: true
+    },
   },
   components: {
     DatasetHeader,
     IframeVuer,
-    SideBar,
     FlatmapVuer,
     MultiFlatmapVuer,
     ScaffoldVuer,
@@ -124,7 +125,7 @@ export default {
         width: "100%",
         bottom: "0px",
       },
-      helpMode: false
+      helpMode: false,
     }
   },
   created: function() {
@@ -141,6 +142,10 @@ export default {
     EventBus.$on("startHelp", (id) => {
       this.startHelp(id);
     })
+  },
+  deactivated: function() {
+    let state = this.getState();
+    this.$emit("stateUpdated", this.entry.id, state);
   },
 };
 </script>
@@ -166,4 +171,7 @@ export default {
   background: #fff;
 }
 
+</style>
+
+<style src="@/../assets/mapicon-species-style.css">
 </style>
