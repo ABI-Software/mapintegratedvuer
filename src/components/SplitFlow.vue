@@ -55,7 +55,6 @@ var initialState = function() {
     zIndex: 1,
     showDialogIcons: false,
     dockedArray: [{title: "Flatmap", id:1}, ],
-    contextCards: [null],
     activeDockedId: 1,
     currentCount: 1,
     entries: [
