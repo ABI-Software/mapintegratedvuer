@@ -17,8 +17,11 @@
         />
         <SideBar ref="sideBar" class="side-bar" 
           :apiLocation="apiLocation" 
-          :visible="sideBarVisibility" 
+          :visible="sideBarVisibility"
+          :tabs="dockedArray" 
+          :activeId="activeDockedId"
           @actionClick="actionClick"
+          @tabClicked="tabClicked"
         > 
         </SideBar>
       </div>
@@ -32,6 +35,7 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
+// import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/map-side-bar.css';
 import store from "../store";
@@ -51,6 +55,7 @@ var initialState = function() {
     zIndex: 1,
     showDialogIcons: false,
     dockedArray: [{title: "Flatmap", id:1}, ],
+    contextCards: [null],
     activeDockedId: 1,
     currentCount: 1,
     entries: [
@@ -128,8 +133,7 @@ export default {
         store.commit("splitFlow/assignIdToSlot",
           {slot: availableSlot, id: newEntry.id});
       let title = newEntry.label + " " + newEntry.type;
-      this.dockedArray.push({title: title, id:newEntry.id});
-
+      this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -256,7 +260,9 @@ export default {
       if (index > -1)
         this.entries[index].state = state;
     },
-    titleClicked: function(){}
+    tabClicked: function(id){
+      this.activeDockedId = id
+    }
   },
   data: function() {
     return initialState();
