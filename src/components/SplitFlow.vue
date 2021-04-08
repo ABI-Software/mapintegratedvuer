@@ -20,9 +20,6 @@
           :visible="sideBarVisibility" 
           @actionClick="actionClick"
         > 
-          <el-row class="tab-content" v-if="dockedArray.length > 1"> 
-            <tabs :dialogTitles="dockedArray" :activeId="activeDockedId" @titleClicked="titleClicked"/>
-          </el-row>
         </SideBar>
       </div>
       
@@ -35,7 +32,6 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
-import Tabs from './Tabs'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/map-side-bar.css';
 import store from "../store";
@@ -90,7 +86,6 @@ export default {
     DialogToolbarContent,
     SplitDialog,
     SideBar,
-    Tabs
   },
   props:{
     state: {
@@ -307,13 +302,6 @@ export default {
   padding:0px;
   width:100%;
   height:100%;
-}
-
-.tab-content {
-  width:calc(100% - 120px);
-  height:80px;
-  position: absolute;
-  z-index: 10000;
 }
 
 </style>

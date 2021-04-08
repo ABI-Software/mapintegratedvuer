@@ -8,14 +8,7 @@
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
         :showHelpIcon="true"/>
     </el-header>
-    <el-row class="tab-content"> 
-              <tabs :dialogTitles="dockedArray" :activeId="activeDockedId" @titleClicked="titleClicked"/>
-    </el-row>
     <el-main class="dialog-main">
-      
-      <el-row class="tab-content"> 
-              <tabs :dialogTitles="dockedArray" :activeId="activeDockedId" @titleClicked="titleClicked"/>
-          </el-row>
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
         <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
           :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
@@ -23,7 +16,6 @@
           @close="dialogClose(item.id)"
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"/>
-          
           <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
             :visible="sideBarVisibility" @actionClick="actionClick"></SideBar>
       </div>
@@ -36,7 +28,6 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from "./EventBus"
 import FloatingDialog from './FloatingDialog';
-import Tabs from './Tabs'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/map-side-bar.css';
 import store from '../store';
@@ -88,7 +79,6 @@ export default {
   components: {
     DialogToolbarContent,
     FloatingDialog,
-    Tabs,
     SideBar
   },
   props:{
