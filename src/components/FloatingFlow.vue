@@ -300,20 +300,6 @@ export default {
   height:100%;
 }
 
-.heart-invis {
-  position: absolute;
-  right:40%;
-  top:75%;
-  height: 0px;
-  width: 0px;
-}
 
-.icn-invis {
-  position: absolute;
-  right:50%;
-  top:45%;
-  height: 0px;
-  width: 0px;
-}
 
 </style>

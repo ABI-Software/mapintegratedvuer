@@ -15,9 +15,17 @@
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"
         />
-        <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
-            :visible="sideBarVisibility" @actionClick="actionClick"></SideBar>
+        <SideBar ref="sideBar" class="side-bar" 
+          :apiLocation="apiLocation" 
+          :visible="sideBarVisibility"
+          :tabs="dockedArray" 
+          :activeId="activeDockedId"
+          @actionClick="actionClick"
+          @tabClicked="tabClicked"
+        > 
+        </SideBar>
       </div>
+      
     </el-main>
   </el-container>
 </template>
@@ -27,6 +35,7 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
+// import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/map-side-bar.css';
 import store from "../store";
@@ -80,7 +89,7 @@ export default {
   components: {
     DialogToolbarContent,
     SplitDialog,
-    SideBar
+    SideBar,
   },
   props:{
     state: {
@@ -123,8 +132,7 @@ export default {
         store.commit("splitFlow/assignIdToSlot",
           {slot: availableSlot, id: newEntry.id});
       let title = newEntry.label + " " + newEntry.type;
-      this.dockedArray.push({title: title, id:newEntry.id});
-
+      this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -251,6 +259,9 @@ export default {
       if (index > -1)
         this.entries[index].state = state;
     },
+    tabClicked: function(id){
+      this.activeDockedId = id
+    }
   },
   data: function() {
     return initialState();
@@ -296,22 +307,6 @@ export default {
   padding:0px;
   width:100%;
   height:100%;
-}
-
-.heart-invis {
-  position: absolute;
-  right:40%;
-  top:75%;
-  height: 0px;
-  width: 0px;
-}
-
-.icn-invis {
-  position: absolute;
-  right:50%;
-  top:45%;
-  height: 0px;
-  width: 0px;
 }
 
 </style>
