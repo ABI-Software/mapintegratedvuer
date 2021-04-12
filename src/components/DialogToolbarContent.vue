@@ -54,14 +54,6 @@
           <svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
             @click.native="onFullscreen"/>
       </el-popover>
-      <el-popover class="tooltip" content="Dock" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="!isDocked && showIcons">
-        <svg-icon icon="dock" slot="reference" class="header-icon" @click.native="toggleDock"/>
-      </el-popover>
-      <el-popover class="tooltip" content="Undock" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="isDocked && showIcons">
-        <svg-icon icon="undock" slot="reference" class="header-icon" @click.native="toggleDock"/>
-      </el-popover>
       <el-popover
         ref="linkPopover"
         placement="bottom-end"
@@ -195,7 +187,6 @@ export default {
   data: function() {
     return {
       isFullscreen: false,
-      isDocked: true,
       helpDelay: 500,
       loadingLink: true,
       shareLinkDisplay: false,
@@ -211,14 +202,6 @@ export default {
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
-    },
-    toggleDock: function() {
-      this.$emit("maximise");
-      this.isDocked = true
-    },
-    minimise: function() {
-      this.$emit("minimise");
-      this.isDocked = false
     },
     close: function() {
       this.$emit("close");
@@ -238,11 +221,6 @@ export default {
       store.commit("splitFlow/updateActiveView", view);
     }
   },
-  mounted: function(){
-    if(!this.topLevelControls){
-      this.isDocked = false;
-    }
-  }
 };
 </script>
 

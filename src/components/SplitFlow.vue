@@ -4,7 +4,7 @@
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
         :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
-        @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose"
+        @close="dockedClose"
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
         :showHelpIcon="true"/>
     </el-header>
@@ -53,7 +53,7 @@ var initialState = function() {
   return {
     mainTabName: "Flatmap",
     zIndex: 1,
-    showDialogIcons: false,
+    showDialogIcons: false, 
     dockedArray: [{title: "Flatmap", id:1}, ],
     activeDockedId: 1,
     currentCount: 1,
@@ -199,18 +199,6 @@ export default {
     },
     dockedTitleClicked: function(id) {
       this.maximiseDialog(id);
-    },
-    dockedMaximise: function() {
-      let index = this.findIndexOfId(this.activeDockedId);
-      if (index > -1 && (this.entries[index].mode !== "main")) {
-        this.entries[index].mode = "normal";
-      }
-      this.undockDialog(this.activeDockedId);
-      this.activeDockedId = this.entries[0].id;
-    },
-    dockedMinimise: function() {
-      this.minimiseDialog(this.activeDockedId);
-      this.activeDockedId = this.entries[0].id;
     },
     dockedClose: function() {
       this.undockDialog(this.activeDockedId);
