@@ -1,9 +1,5 @@
 <template>
   <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
-    <el-row class="content"> 
-        <tabs :dialogTitles="dialogTitles" :activeId="activeId" @titleClicked="titleClicked"/>
-    </el-row>
-  
     <el-row class="icon-group" >
       <el-popover
         ref="viewPopover"
@@ -112,7 +108,6 @@ import Vue from "vue";
 import EventBus from './EventBus';
 import store from '../store';
 import {SvgIcon} from '@abi-software/svg-sprite';
-import Tabs from './Tabs'
 
 import {
   Button,
@@ -135,7 +130,7 @@ Vue.component('svg-icon', SvgIcon);
  */
 export default {
   name: "DialogToolbarContent",
-  components: { Tabs },
+
   props: {
     /**
      * Array of titles.
@@ -154,7 +149,7 @@ export default {
     },
     topLevelControls: {
       type: Boolean,
-      default: false
+      default: true
     },
     /**
      * The current active title.

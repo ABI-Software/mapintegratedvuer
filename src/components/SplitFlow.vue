@@ -158,24 +158,6 @@ export default {
         this.dockedArray.push({title: title, id:this.entries[index].id});
       }
     },
-    maximiseDialog: function(id) {
-      let index = this.findIndexOfId(id);
-      if (index > -1) {
-        this.minimiseDialog(this.activeDockedId);
-        if (this.entries[index].mode !== "main")
-          this.entries[index].mode = "maximised";
-        this.activeDockedId = id;
-        this.entries[index].zIndex = 1;
-      }
-    },
-    minimiseDialog: function(id) {
-      let index = this.findIndexOfId(id);
-      if (index > -1) {
-        if (this.entries[index].mode !== "main")
-          this.entries[index].mode = "minimised";
-        this.entries[index].zIndex = 0;
-      }
-    },
     undockDialog: function(id) {
       let dockedIndex = this.findIndexOfDockedArray(id);
       if (dockedIndex > -1) {
@@ -185,14 +167,6 @@ export default {
     },
     onFullscreen: function(val) {
       this.$emit("onFullscreen", val);
-    },
-    dialogMaximise: function(id) {
-      this.maximiseDialog(id);
-      this.dockDialog(id);
-    },
-    dialogMinimise: function(id) {
-      this.minimiseDialog(id);
-      this.dockDialog(id);
     },
     dialogClose: function(id) {
       this.destroyDialog(id);
@@ -204,9 +178,6 @@ export default {
       this.undockDialog(this.activeDockedId);
       this.destroyDialog(this.activeDockedId);
       this.activeDockedId = this.entries[0].id;
-    },
-    dialogClicked: function(id) {
-      this.bringDialogToFront(id);
     },
     resetApp: function(){
       this.setState(initialState());
