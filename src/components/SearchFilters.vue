@@ -39,6 +39,7 @@ import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 import EventBus from './EventBus';
 import store from '../store';
+import speciesMap from './species-map';
 
 locale.use(lang);
 Vue.use(Link);
@@ -50,6 +51,10 @@ Vue.use(Cascader)
 
 var capitalise = function(string){
   return string.replace(/\b\w/g, v => v.toUpperCase())
+}
+var getKeyByValue = function(object, value) {
+  let key = Object.keys(object).find(key => object[key] === value);
+  return (key === undefined) ? value : key;
 }
 
 export default {
@@ -105,7 +110,7 @@ export default {
             for(let j in labels){
               this.options[i].children.push({
                 value: value,
-                label: capitalise(labels[j]), // Capitalisation is to match design specs
+                label: capitalise(getKeyByValue(speciesMap, labels[j])), // Capitalisation is to match design specs
               })
               value++;
             }
@@ -139,7 +144,7 @@ export default {
     // switchFacetToRequest is used to set 'All' to lowercase. Api will not be case sensitive soon and this can be removed
     switchFacetToRequest: function(facet){
       if (!facet.includes('All')){
-        return facet.toLowerCase()
+        return ((facet in speciesMap) ? speciesMap[facet] : facet).toLowerCase()
       } else {
         return facet
       }
