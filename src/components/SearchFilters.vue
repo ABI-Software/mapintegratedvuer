@@ -13,7 +13,7 @@
           :show-all-levels="false"
           :append-to-body="false">
         </el-cascader>
-        <div v-if="cascadeSelected.length === 0" class="filter-default-value"> 
+        <div v-if="cascadeSelected.length === 0" class="filter-default-value">
           <svg-icon icon="noun-filter" class="filter-icon-inside" />
           Apply Filters
         </div>
