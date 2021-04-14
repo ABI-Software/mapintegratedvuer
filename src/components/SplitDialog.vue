@@ -622,7 +622,7 @@ export default {
 }
 
 .select-box >>> .el-input__inner {
-  color: rgb(48, 49, 51);
+  color: rgb(131, 0, 191);
   height: 24px;
   padding-left: 8px;
   padding-right: 8px;
