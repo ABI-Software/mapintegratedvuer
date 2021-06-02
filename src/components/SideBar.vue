@@ -287,7 +287,9 @@ export default {
               : undefined
             : undefined, // This processing only includes each gender once into 'sexes'
           organs: element.organs
-            ? [...new Set(element.organs.map((v) => v.name))]
+            ? Array.isArray(element.organs)
+              ? [...new Set(element.organs.map((v) => v.name))]
+              : undefined
             : undefined,
           ages: element.samples
             ? "ageCategory" in element.samples[0]
