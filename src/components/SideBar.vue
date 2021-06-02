@@ -304,6 +304,7 @@ export default {
           doi: element.doi,
           scaffold: element.scaffolds ? true : false,
           scaffolds: element.scaffolds ? element.scaffolds : false,
+          additionalLinks: element.additionalLinks,
           simulation: element.additionalLinks
             ? element.additionalLinks[0].description == 'Repository'
             : false
