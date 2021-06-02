@@ -303,7 +303,10 @@ export default {
           id: id,
           doi: element.doi,
           scaffold: element.scaffolds ? true : false,
-          scaffolds: element.scaffolds ? element.scaffolds : false
+          scaffolds: element.scaffolds ? element.scaffolds : false,
+          simulation: element.additionalLinks
+            ? element.additionalLinks[0].description == 'Repository'
+            : false
         });
         id++;
       });
