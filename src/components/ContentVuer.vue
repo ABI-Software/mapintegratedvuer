@@ -18,7 +18,7 @@
         :render="entry.mode !== 'minimised'" :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
         :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
-      <SimulationVuer v-else-if="entry.type === 'Simulation'"></SimulationVuer>
+      <SimulationVuer v-else-if="entry.type === 'Simulation'" :apiLocation="apiLocation" :resource="entry.resource"></SimulationVuer>
       <SideBar v-else-if="entry.type === 'Search'" :visbility="true" :isDrawer="false"  :entry="entry.entry" class="search"></SideBar>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
@@ -122,6 +122,7 @@ export default {
   },
   data: function() {
     return {
+      apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",

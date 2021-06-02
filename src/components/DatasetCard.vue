@@ -109,9 +109,19 @@ export default {
       window.open(this.dataLocation,'_blank');
     },
     openSimulation: function() {
+      let isSedmlResource = false;
+      let resource = undefined;
+      this.entry.additionalLinks.forEach(function(el) {
+        if (el.description == "SED-ML file") {
+          isSedmlResource = true;
+          resource = el.uri;
+        } else if (!isSedmlResource && (el.description == "CellML file")) {
+          resource = el.uri;
+        }
+      });
       let action = {
-          label: "Fabbri et al.",
-          resource: undefined,
+          label: undefined,
+          resource: resource,
           title: "View simulation",
           type: "Simulation"
         }
