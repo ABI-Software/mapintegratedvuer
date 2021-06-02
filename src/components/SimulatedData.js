@@ -34,8 +34,8 @@ function getGenericMarkerInfo(term ,label, dataset, scaffold, simulations) {
             plotType: "heatmap",
             datasetTitle: "Molecular Phenotype Distribution of Single Rat Intracardiac Neurons",
             datasetDescription: "Images collected from serial cryostat sectioning of a cryopreserved heart was used to reconstruct the 3D context. Transcriptional profiles taken from isolated single neurons and mapped back into the previously generated 3D context.",
-            datasetUrl: "https://discover.blackfynn.com/datasets/29",
-            datasetImage: "https://assets.discover.blackfynn.com/dataset-assets/29/6/revisions/1/banner.jpg"
+            datasetUrl: "https://discover.pennsieve.io/datasets/29",
+            datasetImage: "https://assets.discover.pennsieve.io/dataset-assets/29/6/revisions/1/banner.jpg"
           },
         };
         break;
@@ -234,8 +234,8 @@ function getRatData(term, label, dataset, scaffold, simulations) {
             plotType: "heatmap",
             datasetTitle: "Molecular Phenotype Distribution of Single Rat Intracardiac Neurons",
             datasetDescription: "Images collected from serial cryostat sectioning of a cryopreserved heart was used to reconstruct the 3D context. Transcriptional profiles taken from isolated single neurons and mapped back into the previously generated 3D context.",
-            datasetUrl: "https://discover.blackfynn.com/datasets/29",
-            datasetImage: "https://assets.discover.blackfynn.com/dataset-assets/29/6/revisions/1/banner.jpg"
+            datasetUrl: "https://discover.pennsieve.io/datasets/29",
+            datasetImage: "https://assets.discover.pennsieve.io/dataset-assets/29/6/revisions/1/banner.jpg"
           },
         };
         break;
