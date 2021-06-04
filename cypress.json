@@ -2,5 +2,7 @@
   "component": {
     "componentFolder": "cypress/integration/",
     "testFiles": "**/*.spec.js"
-  }
+  },
+  "viewportWidth": 1440,
+  "viewportHeight": 900
 }
