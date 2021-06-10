@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils'
 import FloatingFlow from '../../src/components/FloatingFlow';
 import DialogToolbarContent from '../../src/components/DialogToolbarContent';
 import FloatingDialog from '../../src/components/FloatingDialog';
-import SideBar from '../../src/components/SideBar';
+import { SideBar } from '@abi-software/map-side-bar';
 
 const testState = {
   "activeDockedId":3,

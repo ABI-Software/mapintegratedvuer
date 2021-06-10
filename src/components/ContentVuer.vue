@@ -19,7 +19,6 @@
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
         :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
       <SimulationVuer v-else-if="entry.type === 'Simulation'" :apiLocation="apiLocation" :resource="entry.resource"></SimulationVuer>
-      <SideBar v-else-if="entry.type === 'Search'" :visbility="true" :isDrawer="false"  :entry="entry.entry" class="search"></SideBar>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
   </div>
@@ -31,7 +30,6 @@ import EventBus from './EventBus';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
 import {getAvailableTermsForSpecies} from './SimulatedData.js';
-import SideBar from './SideBar'
 import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
 import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
@@ -55,7 +53,6 @@ export default {
   components: {
     DatasetHeader,
     IframeVuer,
-    SideBar,
     FlatmapVuer,
     MultiFlatmapVuer,
     ScaffoldVuer,
