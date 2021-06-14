@@ -242,6 +242,9 @@ export default {
       let dialogs = this.$refs["dialogs"];
       if (state.entries.length === dialogs.length) {
         for (let i = 0; i < dialogs.length; i++) {
+          //we dont need the contextcard information yet 
+          if (state.entries[i].contextCard)
+            delete state.entries[i]["contextCard"];
           state.entries[i].state = dialogs[i].getState();
         }
       }
