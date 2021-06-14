@@ -87,6 +87,11 @@ export default {
       }
       const result = {paneIndex: this.index, type: type, resource: resource};
       let returnedAction = getInteractiveAction(result, action);
+      if (action == 'search' && resource.feature) {
+        if (returnedAction === undefined)
+          returnedAction = { type: 'Search'};
+        returnedAction.label = this.idNamePair[resource.feature.models];          
+      }
       EventBus.$emit("PopoverActionClick", returnedAction);
       this.$emit("resource-selected", result);
     },
@@ -95,9 +100,27 @@ export default {
     },
     flatmapReady: function(component) {
       let map = component.mapImp;
-      let terms = getAvailableTermsForSpecies(map.describes);
-      for (let i = 0; i < terms.length; i++) {
-        map.addMarker(terms[i].id, terms[i].type);
+      if (this.api) {
+          fetch(`${this.api}/get-uberons`)
+          .then((response) => response.json())
+          .then((data) => {
+            data.uberon.array.forEach((pair) => {
+              this.idNamePair[pair.id.toUpperCase()] = 
+                pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
+              map.addMarker(pair.id.toUpperCase(), "simulation");
+            })
+          })
+          .catch(() => {
+            let terms = getAvailableTermsForSpecies(map.describes);
+            for (let i = 0; i < terms.length; i++) {
+              map.addMarker(terms[i].id, terms[i].type);
+            }
+          });
+      } else {
+        let terms = getAvailableTermsForSpecies(map.describes);
+        for (let i = 0; i < terms.length; i++) {
+          map.addMarker(terms[i].id, terms[i].type);
+        }
       }
     },
     startHelp: function(id){
@@ -121,13 +144,17 @@ export default {
         width: "100%",
         bottom: "0px",
       },
-      helpMode: false
+      helpMode: false,
+      idNamePair: {}
     }
   },
   created: function() {
     this.flatmapAPI = undefined;
+    this.api = undefined;
     if (store.state.settings.flatmapAPI)
       this.flatmapAPI = store.state.settings.flatmapAPI;
+    if (store.state.settings.api)
+      this.api = store.state.settings.api;
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
