@@ -18,7 +18,6 @@
         <SideBar ref="sideBar" class="side-bar" 
           :apiLocation="apiLocation" 
           :visible="sideBarVisibility"
-          :tabs="dockedArray" 
           :activeId="activeDockedId"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
