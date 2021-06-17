@@ -108,7 +108,6 @@ export default {
           this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
         } else {
           this.createNewEntry(action);
-          //this.bringDialogToFront(newId);
         }
       }
     },
@@ -130,7 +129,8 @@ export default {
       if (availableSlot)
         store.commit("splitFlow/assignIdToSlot",
           {slot: availableSlot, id: newEntry.id});
-      let title = newEntry.label + " " + newEntry.type;
+      let title = newEntry.label ? newEntry.label + " ": '';
+      title += newEntry.type;
       this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
     },
