@@ -48,7 +48,7 @@ export default {
       state: undefined,
       prefix: "/map",
       api: process.env.VUE_APP_API_LOCATION,
-      flatmapAPI: process.env.VUE_APP_FLATMAPAPI_LOCATION 
+      flatmapAPI: 'https://mapcore-demo.org/devel/flatmap/v1/'
     }
   },
   computed: {

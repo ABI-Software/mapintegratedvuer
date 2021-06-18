@@ -92,6 +92,7 @@ export default {
      * Callback when an action is performed (open new dialogs).
      */
     actionClick:function(action) {
+      console.log(action)
       if (action) {
         if (action.type == "Search") {
           // Line below filters by flatmap species (unused until more data is available)
@@ -104,7 +105,9 @@ export default {
           
         } else if (action.type == "URL"){
           window.open(action.resource, '_blank')
-        } 
+        } else if (action.type == "Neuron Search"){
+          this.$refs.sideBar.openNeuronSearch(action.resource)
+        }
         else {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);
