@@ -6,12 +6,12 @@
         @flatmapChanged="flatmapChanged" @ready="flatmapReady" :state="entry.state"
         @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"
         style="height:100%;width:100%;" :initial="entry.resource" :helpMode="helpMode"
-        ref="multiflatmap" :displayMinimap=true :flatmapAPI="flatmapAPI" @onActionClick="onActionClick"/>
+        ref="multiflatmap" :displayMinimap=true :flatmapAPI="flatmapAPI"/>
       <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :state="entry.state" :entry="entry.resource"
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
         style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
         :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady" :displayMinimap=true
-        :flatmapAPI="flatmapAPI"  @onActionClick="onActionClick" />
+        :flatmapAPI="flatmapAPI"/>
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
@@ -74,6 +74,13 @@ export default {
      * Callback when the vuers emit a selected event.
      */
     resourceSelected: function(type, resource) {
+
+      // Skip processing if resources already has actions
+      if (this.resourceHasAction(resource) ){
+        EventBus.$emit("PopoverActionClick", resource);
+        return
+      }
+
       let action = "none";
       if (type == "MultiFlatmap" || type == "Flatmap") {
         if (resource.eventType == "click") {
@@ -90,8 +97,8 @@ export default {
       EventBus.$emit("PopoverActionClick", returnedAction);
       this.$emit("resource-selected", result);
     },
-    onActionClick: function(action){
-      EventBus.$emit("PopoverActionClick", action);
+    resourceHasAction(resource){
+      return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search')
     },
     flatmapChanged: function() {
       this.$emit("flatmapChanged");
