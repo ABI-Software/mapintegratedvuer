@@ -11,7 +11,7 @@
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
         style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
         :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady" :displayMinimap=true
-        :flatmapAPI="flatmapAPI" />
+        :flatmapAPI="flatmapAPI"/>
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
@@ -29,8 +29,8 @@ import EventBus from './EventBus';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
 import {getAvailableTermsForSpecies} from './SimulatedData.js';
-import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
-import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
+import { FlatmapVuer, MultiFlatmapVuer } from '@tehsurfer/flatmapvuer';
+import '@tehsurfer/flatmapvuer/dist/flatmapvuer.css';
 import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
 import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
 import { PlotVuer } from '@abi-software/plotvuer';
@@ -74,6 +74,13 @@ export default {
      * Callback when the vuers emit a selected event.
      */
     resourceSelected: function(type, resource) {
+
+      // Skip processing if resources already has actions
+      if (this.resourceHasAction(resource) ){
+        EventBus.$emit("PopoverActionClick", resource);
+        return
+      }
+
       let action = "none";
       if (type == "MultiFlatmap" || type == "Flatmap") {
         if (resource.eventType == "click") {
@@ -89,6 +96,9 @@ export default {
       let returnedAction = getInteractiveAction(result, action);
       EventBus.$emit("PopoverActionClick", returnedAction);
       this.$emit("resource-selected", result);
+    },
+    resourceHasAction(resource){
+      return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search')
     },
     flatmapChanged: function() {
       this.$emit("flatmapChanged");

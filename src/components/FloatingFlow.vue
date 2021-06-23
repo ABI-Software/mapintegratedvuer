@@ -28,8 +28,8 @@
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from "./EventBus"
 import FloatingDialog from './FloatingDialog';
-import { SideBar } from '@abi-software/map-side-bar';
-import '@abi-software/map-side-bar/dist/map-side-bar.css';
+import { SideBar } from '@tehsurfer/map-side-bar';
+import '@tehsurfer/map-side-bar/dist/map-side-bar.css';
 import store from '../store';
 import Vue from "vue";
 import {
@@ -94,10 +94,18 @@ export default {
     actionClick:function(action) {
       if (action) {
         if (action.type == "Search") {
-          // Line below filters by flatmap species (unused until more data is available)
-          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
-          this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
-        } else {
+          if (action.nervePath){
+            this.$refs.sideBar.openSearch(action.label, [action.filter] )
+          } else {
+            this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
+          }
+          
+        } else if (action.type == "URL"){
+          window.open(action.resource, '_blank')
+        } else if (action.type == "Neuron Search"){
+          this.$refs.sideBar.openNeuronSearch(action.resource)
+        }
+        else {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);
         }
