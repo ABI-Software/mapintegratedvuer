@@ -1,6 +1,6 @@
 {
   "name": "@tehsurfer/mapintegratedvuer",
-  "version": "0.1.66",
+  "version": "0.1.68",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
@@ -28,7 +28,7 @@
     "@abi-software/svg-sprite": "^0.1.11",
     "@soda/get-current-script": "^1.0.2",
     "@tehsurfer/flatmapvuer": "^0.1.33-alpha-1",
-    "@tehsurfer/map-side-bar": "^2.0.3",
+    "@tehsurfer/map-side-bar": "^2.0.5",
     "core-js": "^3.3.2",
     "d3-time-format": "^3.0.0",
     "element-ui": "^2.13.0",

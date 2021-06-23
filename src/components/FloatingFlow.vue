@@ -92,11 +92,8 @@ export default {
      * Callback when an action is performed (open new dialogs).
      */
     actionClick:function(action) {
-      console.log(action)
       if (action) {
         if (action.type == "Search") {
-          // Line below filters by flatmap species (unused until more data is available)
-          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
           if (action.nervePath){
             this.$refs.sideBar.openSearch(action.label, [action.filter] )
           } else {
