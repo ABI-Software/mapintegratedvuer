@@ -42,11 +42,13 @@ import Vue from "vue";
 import {
   Container,
   Header,
-  Main
+  Main,
+  Message
 } from "element-ui";
 Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
+Vue.prototype.$message = Message;
 
 var initialState = function() {
   return {
@@ -131,6 +133,14 @@ export default {
           {slot: availableSlot, id: newEntry.id});
       let title = newEntry.label ? newEntry.label + " ": '';
       title += newEntry.type;
+      this.$message({
+        message: `New viewer ${title} has been created.`,
+        type: 'success',
+        showClose: true,
+        iconClass: 'el-icon-circle-check',
+        customClass: 'el-message--success',
+        duration: 5000
+      });
       this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
     },
