@@ -17,7 +17,8 @@
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
         :render="visible" :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
-      :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
+        :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
+      <SimulationVuer v-else-if="entry.type === 'Simulation'" :apiLocation="apiLocation" :resource="entry.resource"></SimulationVuer>
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
   </div>
@@ -36,6 +37,8 @@ import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
 import { PlotVuer } from '@abi-software/plotvuer';
 import '@abi-software/plotvuer/dist/plotvuer.css';
 import { getInteractiveAction } from './SimulatedData.js';
+import { SimulationVuer } from '@abi-software/simulationvuer';
+import '@abi-software/simulationvuer/dist/simulationvuer.css';
 import store from '../store';
 
 export default {
@@ -58,6 +61,7 @@ export default {
     MultiFlatmapVuer,
     ScaffoldVuer,
     PlotVuer,
+    SimulationVuer,
   },
   methods: {
     onResize: function () {
@@ -119,6 +123,7 @@ export default {
   },
   data: function() {
     return {
+      apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",
@@ -130,8 +135,11 @@ export default {
   },
   created: function() {
     this.flatmapAPI = undefined;
+    this.apiLocation = undefined;
     if (store.state.settings.flatmapAPI)
       this.flatmapAPI = store.state.settings.flatmapAPI;
+    if (store.state.settings.api)
+      this.apiLocation = store.state.settings.api;
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
