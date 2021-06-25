@@ -42,13 +42,11 @@ import Vue from "vue";
 import {
   Container,
   Header,
-  Main,
-  Message
+  Main
 } from "element-ui";
 Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
-Vue.prototype.$message = Message;
 
 var initialState = function() {
   return {
@@ -127,21 +125,8 @@ export default {
       newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
-      let availableSlot = 
-        store.getters["splitFlow/getFirstAvailableSlot"]();
-      if (availableSlot)
-        store.commit("splitFlow/assignIdToSlot",
-          {slot: availableSlot, id: newEntry.id});
       let title = newEntry.label ? newEntry.label + " ": '';
       title += newEntry.type;
-      this.$message({
-        message: `New viewer ${title} has been created.`,
-        type: 'success',
-        showClose: true,
-        iconClass: 'el-icon-circle-check',
-        customClass: 'el-message--success',
-        duration: 5000
-      });
       this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
     },
