@@ -486,6 +486,7 @@ export default {
   height: calc(50% - 31px);
   left: 0px;
   top: calc(50% + 32px);
+  z-index: 2;
 }
 
 .contentvuer.twovertpanel-1 {
@@ -501,6 +502,7 @@ export default {
   height: calc(100% - 30px);
   left: calc(50% + 2px);
   top: 30px;
+  z-index: 2;
 }
 
 .contentvuer.threepanel-2 {
