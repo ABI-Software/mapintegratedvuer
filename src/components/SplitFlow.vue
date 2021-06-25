@@ -109,7 +109,6 @@ export default {
           this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
         } else {
           this.createNewEntry(action);
-          //this.bringDialogToFront(newId);
         }
       }
     },
@@ -126,6 +125,7 @@ export default {
       newEntry.state = undefined;
       newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
+      store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
       let availableSlot = 
         store.getters["splitFlow/getFirstAvailableSlot"]();
       if (availableSlot)

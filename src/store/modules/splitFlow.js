@@ -93,9 +93,18 @@ const mutations = {
       }
       for (const [key, value] of Object.entries(newState.splitters)) {
         state.splitters[key] = value;
-      }
+      } 
     }
   },
+  setIdToPrimarySlot(state, id) {
+    let availableSlot = state.slotInfo.find(slot => slot.id === 0);
+    let primarySlot = state.slotInfo.find(
+      slotInfo => slotInfo.name === "first");
+    if (availableSlot) {
+      availableSlot.id = primarySlot.id;
+    }
+    primarySlot.id = id;
+  }
 };
 
 export default {

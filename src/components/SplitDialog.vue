@@ -80,6 +80,11 @@ import { Splitpanes, Pane } from "splitpanes";
 import store from "../store";
 import Vue from "vue";
 import "splitpanes/dist/splitpanes.css";
+import {
+  Popover
+} from "element-ui";
+Vue.use(Popover);
+
 
 export default {
   name: "SplitDialog",
