@@ -126,11 +126,6 @@ export default {
       newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
-      let availableSlot = 
-        store.getters["splitFlow/getFirstAvailableSlot"]();
-      if (availableSlot)
-        store.commit("splitFlow/assignIdToSlot",
-          {slot: availableSlot, id: newEntry.id});
       let title = newEntry.label + " " + newEntry.type;
       this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
