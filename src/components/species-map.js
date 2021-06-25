@@ -1,7 +1,10 @@
 export default {
-    'Human': 'homo sapiens',
-    'Rat': 'rattus norvegicus',
-    'Mouse': 'mus musculus',
-    'Pig': 'sus scrofa',
-    'Cat': 'felis catus'
+    'Human': 'human',
+    'Rat': 'rat',
+    'Mouse': 'mouse',
+    'Boar': 'sus scrofa',
+    'Cat': 'cat',
+    'Pig': 'sus scrofa domesticus',
+    'Dog': 'dog',
+    'Ferret': 'ferret'
 }
