@@ -101,7 +101,7 @@ export default {
     flatmapReady: function(component) {
       let map = component.mapImp;
       if (this.api) {
-          fetch(`${this.api}/get-uberons`)
+          fetch(`${this.api}/get-organ-curies`)
           .then((response) => response.json())
           .then((data) => {
             data.uberon.array.forEach((pair) => {
