@@ -1,6 +1,7 @@
 import { mount } from '@cypress/vue';
 import { MapContent } from '../../../src/components/index.js';
-import { StubResponses } from './StubResponse.js';
+import { StubResponses } from './StubResponse';
+import { ScaffoldResponse } from './ScaffoldResponse.js';
 
 describe('MapContent', () => {
   it('test something', () => {
@@ -31,7 +32,7 @@ describe('MapContent', () => {
 
     cy.intercept('/sparc-api/get-facets/gender', {statusCode: 200, body: StubResponses.genderResponse});
 
-    cy.intercept( '/sparc-api/get-facets/genotype', {statusCode: 200, body: StubResponses.genotypeResponse});
+    cy.intercept( '/sparc-api/get-facets/organ', {statusCode: 200, body: StubResponses.organResponse});
 
     cy.intercept('/sparc-api/filter-search/Heart/?facet=All+Species&term=species', {statusCode: 200, body: StubResponses.resultResponse});
 
@@ -46,5 +47,17 @@ describe('MapContent', () => {
     cy.wait('@finalResponse');
 
     cy.get('.el-card__body > .content').find('.card').should('have.length', 1);
+
+    cy.intercept('/sparc-api/s3-resource/32/3/files/derivative/H-4/scaffold/metadata.json', {statusCode: 200, body: ScaffoldResponse.metadata});
+  
+    cy.intercept('/sparc-api/s3-resource/32/3/files/derivative/H-4/scaffold/cube_2.json', {statusCode: 200, body: ScaffoldResponse.primitive1}).as("scaffoldResponse");;
+  
+    cy.get(':nth-child(6) > .el-button').should('be.visible').click({force: true});
+
+    cy.get('.scaffold-container').should('be.visible');
+
+    cy.wait('@scaffoldResponse');
+
+    cy.get('.traditional-container > .el-checkbox-group > .checkbox-group-inner > .el-row > .checkbox-container > .el-checkbox > .el-checkbox__label').contains('cube');
   })
 })
