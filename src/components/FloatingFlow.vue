@@ -17,7 +17,8 @@
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"/>
           <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
-            :visible="sideBarVisibility" @actionClick="actionClick"></SideBar>
+            :visible="sideBarVisibility" @actionClick="actionClick"
+            @search-changed="searchChanged($event)"></SideBar>
       </div>
     </el-main>
   </el-container>
@@ -101,6 +102,11 @@ export default {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);
         }
+      }
+    },
+    searchChanged: function(data) {
+      if (data && (data.type == "filter-update")) {
+        store.commit("settings/updateFacets", data.value);
       }
     },
     /**

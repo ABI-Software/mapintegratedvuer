@@ -3,14 +3,14 @@
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
-        @flatmapChanged="flatmapChanged" @ready="flatmapReady" :state="entry.state"
+        @flatmapChanged="flatmapChanged" @ready="updateMarkers" :state="entry.state"
         @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"
         style="height:100%;width:100%;" :initial="entry.resource" :helpMode="helpMode"
         ref="multiflatmap" :displayMinimap=true :flatmapAPI="flatmapAPI"/>
       <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :state="entry.state" :entry="entry.resource"
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
         style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
-        :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady" :displayMinimap=true
+        :pathControls="entry.pathControls" ref="flatmap" @ready="updateMarkers" :displayMinimap=true
         :flatmapAPI="flatmapAPI" />
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
@@ -98,10 +98,16 @@ export default {
     flatmapChanged: function() {
       this.$emit("flatmapChanged");
     },
-    flatmapReady: function(component) {
+    updateMarkers: function(component) {
       let map = component.mapImp;
+      console.log(map)
+      map.clearMarkers();
+      let params = [];
+      store.state.settings.facets.species.forEach(e => {
+        params.push(encodeURIComponent('species') + '=' + encodeURIComponent(e));
+      })
       if (this.api) {
-          fetch(`${this.api}/get-organ-curies`)
+          fetch(`${this.api}/get-organ-curies?${params.join('&')}`)
           .then((response) => response.json())
           .then((data) => {
             data.uberon.array.forEach((pair) => {
@@ -155,6 +161,21 @@ export default {
       this.flatmapAPI = store.state.settings.flatmapAPI;
     if (store.state.settings.api)
       this.api = store.state.settings.api;
+  },
+  computed: {
+    facetSpecies() {
+      return store.state.settings.facets.species;
+    },
+  },
+  watch: {
+    facetSpecies: function() {
+      console.log(store.state.settings.facets.species)
+      if (this.entry.type === 'Flatmap') {
+        this.updateMarkers(this.$refs.flatmap);
+      } else if (this.entry.type === 'MultiFlatmap') {
+        this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
+      }
+    }
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
