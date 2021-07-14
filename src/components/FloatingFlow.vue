@@ -95,9 +95,12 @@ export default {
     actionClick:function(action) {
       if (action) {
         if (action.type == "Search") {
-          // Line below filters by flatmap species (unused until more data is available)
-          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
-          this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
+          // Keep the species facets
+          let facets = [{facet: "All Species", term:'species'}];
+          store.state.settings.facets.species.forEach(e => {
+            facets.push({facet: e, term:'species'});
+          });
+          this.$refs.sideBar.openSearch(action.label, facets )
         } else {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);

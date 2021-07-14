@@ -100,28 +100,34 @@ export default {
     },
     updateMarkers: function(component) {
       let map = component.mapImp;
-      console.log(map)
       map.clearMarkers();
       let params = [];
-      store.state.settings.facets.species.forEach(e => {
-        params.push(encodeURIComponent('species') + '=' + encodeURIComponent(e));
-      })
       if (this.api) {
-          fetch(`${this.api}/get-organ-curies?${params.join('&')}`)
-          .then((response) => response.json())
-          .then((data) => {
-            data.uberon.array.forEach((pair) => {
-              this.idNamePair[pair.id.toUpperCase()] = 
-                pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
-              map.addMarker(pair.id.toUpperCase(), "simulation");
-            })
+        store.state.settings.facets.species.forEach(e => {
+          params.push(encodeURIComponent('species') + '=' + encodeURIComponent(e));
+        });
+        if (this._controller) 
+          this._controller.abort();
+        this._controller = new AbortController();
+        let signal = this._controller.signal;
+        fetch(`${this.api}/get-organ-curies?${params.join('&')}`, {signal})
+        .then((response) => response.json())
+        .then((data) => {
+          this._controller = undefined;
+          data.uberon.array.forEach((pair) => {
+            this.idNamePair[pair.id.toUpperCase()] = 
+              pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
+            map.addMarker(pair.id.toUpperCase(), "simulation");
           })
-          .catch(() => {
+        })
+        .catch(err=> {
+          if (err.name !== 'AbortError') {
             let terms = getAvailableTermsForSpecies(map.describes);
             for (let i = 0; i < terms.length; i++) {
               map.addMarker(terms[i].id, terms[i].type);
             }
-          });
+          }
+        });
       } else {
         let terms = getAvailableTermsForSpecies(map.describes);
         for (let i = 0; i < terms.length; i++) {
@@ -169,7 +175,6 @@ export default {
   },
   watch: {
     facetSpecies: function() {
-      console.log(store.state.settings.facets.species)
       if (this.entry.type === 'Flatmap') {
         this.updateMarkers(this.$refs.flatmap);
       } else if (this.entry.type === 'MultiFlatmap') {
