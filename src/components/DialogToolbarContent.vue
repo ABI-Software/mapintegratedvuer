@@ -25,7 +25,7 @@
           </el-col>
         </el-row>
       </el-popover>
-      <el-popover class="tooltip"  content="Change view" placement="bottom-end"
+      <el-popover class="tooltip"  content="Split screen" placement="bottom-end"
         :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
         v-show="topLevelControls">
