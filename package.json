@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "@abi-software/flatmapvuer": "^0.1.33",
-    "@abi-software/map-side-bar": "^1.1.1-beta.2",
+    "@abi-software/map-side-bar": "^1.1.1-beta.3",
     "@abi-software/maptooltip": "^0.1.13",
     "@abi-software/plotvuer": "^0.2.41",
     "@abi-software/scaffoldvuer": "^0.1.48",

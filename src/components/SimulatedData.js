@@ -193,7 +193,7 @@ function getRatData(term, label, dataset, scaffold, simulations) {
           data.actions = {
             search: {
               title: "Explore data",
-              label: "Bladder",
+              label: "Urinary Bladder",
               resource: "https://sparc.science/data?type=dataset&q=bladder",
               type: "Search"
             },

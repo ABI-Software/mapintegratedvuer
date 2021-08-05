@@ -15,10 +15,12 @@
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"
         />
-        <SideBar ref="sideBar" class="side-bar" 
+        <SideBar ref="sideBar"
           :apiLocation="apiLocation" 
           :visible="sideBarVisibility"
+          :class="['side-bar', {'start-up': startUp }]"
           :activeId="activeDockedId"
+          :open-at-start="startUp"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
         > 
@@ -75,8 +77,9 @@ var initialState = function() {
         discoverId: undefined
       }
     ],
-    sideBarVisibility: false,
-    search: ''
+    sideBarVisibility: true,
+    search: '',
+    startUp: true
   }
 }
 
@@ -106,6 +109,11 @@ export default {
           // Line below filters by flatmap species (unused until more data is available)
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
           this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
+        } else if (action.type == "Facet") {
+          // Line below filters by flatmap species (unused until more data is available)
+          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
+          this.$refs.sideBar.openSearch('', [{facet: "All Species", term:'species'}, 
+          {facet: action.label, term:'organ'}] )
         } else {
           this.createNewEntry(action);
         }
@@ -239,6 +247,12 @@ export default {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
     })
+    this.$nextTick(() => {
+      this.$refs.sideBar.close();
+      setTimeout(() => {
+        this.startUp = false;
+      }, 2500);
+    })
   },
   computed: {
     apiLocation: function() {
@@ -261,6 +275,18 @@ export default {
   padding:0px;
   width:100%;
   height:100%;
+}
+
+.start-up >>> .el-drawer__open .el-drawer.rtl {
+  animation: unset;
+}
+
+.start-up >>> .el-drawer.rtl {
+  animation: rtl-drawer-out 2.5s linear;
+}
+
+.start-up >>> .el-drawer__wrapper.side-bar {
+  display:block!important;
 }
 
 </style>

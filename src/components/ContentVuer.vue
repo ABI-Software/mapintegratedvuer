@@ -95,6 +95,13 @@ export default {
       }
       const result = {paneIndex: this.index, type: type, resource: resource};
       let returnedAction = getInteractiveAction(result, action);
+      if (type == "MultiFlatmap" || type == "Flatmap") {
+        if (resource.eventType == "click") {
+          if (resource.feature.type == "marker") {
+            returnedAction.type = "Facet";
+          }
+        }
+      }
       EventBus.$emit("PopoverActionClick", returnedAction);
       this.$emit("resource-selected", result);
     },
