@@ -3,15 +3,15 @@
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
-        @flatmapChanged="flatmapChanged" @ready="flatmapReady" :state="entry.state"
+        @flatmapChanged="flatmapChanged" @ready="updateMarkers" :state="entry.state"
         @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"
         style="height:100%;width:100%;" :initial="entry.resource" :helpMode="helpMode"
         ref="multiflatmap" :displayMinimap=true :flatmapAPI="flatmapAPI"/>
       <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :state="entry.state" :entry="entry.resource"
         @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
         style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
-        :pathControls="entry.pathControls" ref="flatmap" @ready="flatmapReady" :displayMinimap=true
-        :flatmapAPI="flatmapAPI"/>
+        :pathControls="entry.pathControls" ref="flatmap" @ready="updateMarkers" :displayMinimap=true
+        :flatmapAPI="flatmapAPI" />
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
@@ -94,6 +94,11 @@ export default {
       }
       const result = {paneIndex: this.index, type: type, resource: resource};
       let returnedAction = getInteractiveAction(result, action);
+      if (action == 'search' && resource.feature) {
+        if (returnedAction === undefined)
+          returnedAction = { type: 'Search'};
+        returnedAction.label = this.idNamePair[resource.feature.models];          
+      }
       EventBus.$emit("PopoverActionClick", returnedAction);
       this.$emit("resource-selected", result);
     },
@@ -103,11 +108,41 @@ export default {
     flatmapChanged: function() {
       this.$emit("flatmapChanged");
     },
-    flatmapReady: function(component) {
+    updateMarkers: function(component) {
       let map = component.mapImp;
-      let terms = getAvailableTermsForSpecies(map.describes);
-      for (let i = 0; i < terms.length; i++) {
-        map.addMarker(terms[i].id, terms[i].type);
+      map.clearMarkers();
+      let params = [];
+      if (this.api) {
+        store.state.settings.facets.species.forEach(e => {
+          params.push(encodeURIComponent('species') + '=' + encodeURIComponent(e));
+        });
+        if (this._controller) 
+          this._controller.abort();
+        this._controller = new AbortController();
+        let signal = this._controller.signal;
+        fetch(`${this.api}get-organ-curies?${params.join('&')}`, {signal})
+        .then((response) => response.json())
+        .then((data) => {
+          this._controller = undefined;
+          data.uberon.array.forEach((pair) => {
+            this.idNamePair[pair.id.toUpperCase()] = 
+              pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
+            map.addMarker(pair.id.toUpperCase(), "simulation");
+          })
+        })
+        .catch(err=> {
+          if (err.name !== 'AbortError') {
+            let terms = getAvailableTermsForSpecies(map.describes);
+            for (let i = 0; i < terms.length; i++) {
+              map.addMarker(terms[i].id, terms[i].type);
+            }
+          }
+        });
+      } else {
+        let terms = getAvailableTermsForSpecies(map.describes);
+        for (let i = 0; i < terms.length; i++) {
+          map.addMarker(terms[i].id, terms[i].type);
+        }
       }
     },
     startHelp: function(id){
@@ -131,13 +166,31 @@ export default {
         width: "100%",
         bottom: "0px",
       },
-      helpMode: false
+      helpMode: false,
+      idNamePair: {}
     }
   },
   created: function() {
     this.flatmapAPI = undefined;
+    this.api = undefined;
     if (store.state.settings.flatmapAPI)
       this.flatmapAPI = store.state.settings.flatmapAPI;
+    if (store.state.settings.api)
+      this.api = store.state.settings.api;
+  },
+  computed: {
+    facetSpecies() {
+      return store.state.settings.facets.species;
+    },
+  },
+  watch: {
+    facetSpecies: function() {
+      if (this.entry.type === 'Flatmap') {
+        this.updateMarkers(this.$refs.flatmap);
+      } else if (this.entry.type === 'MultiFlatmap') {
+        this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
+      }
+    }
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {

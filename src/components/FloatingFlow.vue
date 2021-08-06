@@ -17,7 +17,8 @@
           @resource-selected="resourceSelected"
           @flatmapChanged="flatmapChanged"/>
           <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
-            :visible="sideBarVisibility" @actionClick="actionClick"></SideBar>
+            :visible="sideBarVisibility" @actionClick="actionClick"
+            @search-changed="searchChanged($event)"></SideBar>
       </div>
     </el-main>
   </el-container>
@@ -95,11 +96,15 @@ export default {
       if (action) {
         if (action.type == "Search") {
           if (action.nervePath){
-            this.$refs.sideBar.openSearch(action.label, [action.filter] )
+            this.$refs.sideBar.openSearch(action.label, [action.filter] );
           } else {
-            this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
+            // Keep the species facets
+            let facets = [{facet: "All Species", term:'species'}];
+            store.state.settings.facets.species.forEach(e => {
+              facets.push({facet: e, term:'species'});
+            });
+            this.$refs.sideBar.openSearch(action.label, facets );
           }
-          
         } else if (action.type == "URL"){
           window.open(action.resource, '_blank')
         } else if (action.type == "Neuron Search"){
@@ -109,6 +114,11 @@ export default {
           let newId = this.createNewEntry(action);
           this.bringDialogToFront(newId);
         }
+      }
+    },
+    searchChanged: function(data) {
+      if (data && (data.type == "filter-update")) {
+        store.commit("settings/updateFacets", data.value);
       }
     },
     /**
