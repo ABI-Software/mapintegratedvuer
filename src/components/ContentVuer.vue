@@ -19,7 +19,7 @@
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
         :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
       <SimulationVuer v-else-if="entry.type === 'Simulation'"
-        :apiLocation="apiLocation" :resource="entry.resource" :dataset="entry.dataset" />
+        :apiLocation="apiLocation" :entry="entry" />
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
   </div>
