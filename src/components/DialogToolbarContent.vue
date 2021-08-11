@@ -212,7 +212,7 @@ export default {
 }
 
 .title {
-  width: 101px;
+  width: 121px;
   height: 38px;
   border-right: solid 1px #dcdfe6;
   background-color: white;
