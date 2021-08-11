@@ -158,6 +158,8 @@ export default {
         let title = this.entries[index].type;
         if (this.entries[index].label)
           title = this.entries[index].label + " " +this.entries[index].type;
+        if (this.entries[index].datasetId)
+          title = this.entries[index].type + " (" + this.entries[index].datasetId + ")";
         this.dockedArray.push({title: title, id:this.entries[index].id});
       }
     },

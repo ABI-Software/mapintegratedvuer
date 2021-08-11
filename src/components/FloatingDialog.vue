@@ -133,6 +133,8 @@ export default {
       this.className = "parent-dialog-full";
     if (this.entry.label)
       this.indexTitle.title = this.entry.label + " " + this.entry.type;
+    if (this.entry.datasetId)
+      this.indexTitle.title = this.entry.type + " (" + this.entry.datasetId + ")";
   },
   watch: {
     "entry.zIndex": {
