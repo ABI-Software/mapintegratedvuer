@@ -334,6 +334,9 @@ export default {
       if (entry) {
         let title = entry.label ? entry.label + " ": '';
           title += entry.type;
+        if (entry.datasetId) {
+          title += " (" + entry.datasetId + ")";
+        }
         if (entry.discoverId) title = title + " dataset " + entry.discoverId;
         return title;
       }

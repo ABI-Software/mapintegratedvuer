@@ -135,6 +135,9 @@ export default {
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
       let title = newEntry.label ? newEntry.label + " ": '';
       title += newEntry.type;
+      if (newEntry.datasetId) {
+        title += " (" + newEntry.datasetId + ")";
+      }
       this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
     },
