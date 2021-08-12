@@ -1,24 +1,32 @@
 <template>
   <el-container style="height:100%;background:white;">
-    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="40px" class="dialog-header">
+    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="32px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
-        :topLevelControls="entries[findIndexOfId(activeDockedId)].mode!=='normal'"
+        :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
-        @maximise="dockedMaximise" @minimise="dockedMinimise" @close="dockedClose"
+        @close="dockedClose"
         @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
         :showHelpIcon="true"/>
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
-        <FloatingDialog v-for="item in entries" :entry="item" :index="item.id" ref="dialogs"
-          :key="item.id" v-on:mousedown.native="dialogClicked(item.id)"
-          @maximise="dialogMaximise(item.id)" @minimise="dialogMinimise(item.id)"
-          @close="dialogClose(item.id)"
+        <SplitDialog :entries="entries" ref="splitdialog"
+          @close="dialogClose(id)"
           @resource-selected="resourceSelected"
-          @flatmapChanged="flatmapChanged"/>
-          <SideBar ref="sideBar" class="side-bar" :apiLocation="apiLocation" 
-            :visible="sideBarVisibility" @actionClick="actionClick"></SideBar>
+          @flatmapChanged="flatmapChanged"
+        />
+        <SideBar ref="sideBar"
+          :apiLocation="apiLocation" 
+          :visible="sideBarVisibility"
+          :class="['side-bar', {'start-up': startUp }]"
+          :activeId="activeDockedId"
+          :open-at-start="startUp"
+          @actionClick="actionClick"
+          @tabClicked="tabClicked"
+        > 
+        </SideBar>
       </div>
+      
     </el-main>
   </el-container>
 </template>
@@ -26,11 +34,12 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
-import EventBus from "./EventBus"
-import FloatingDialog from './FloatingDialog';
+import EventBus from './EventBus';
+import SplitDialog from './SplitDialog';
+// import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/map-side-bar.css';
-import store from '../store';
+import store from "../store";
 import Vue from "vue";
 import {
   Container,
@@ -45,7 +54,7 @@ var initialState = function() {
   return {
     mainTabName: "Flatmap",
     zIndex: 1,
-    showDialogIcons: false,
+    showDialogIcons: false, 
     dockedArray: [{title: "Flatmap", id:1}, ],
     activeDockedId: 1,
     currentCount: 1,
@@ -63,11 +72,14 @@ var initialState = function() {
         zIndex:1,
         mode: "main",
         id: 1,
-        state: undefined
+        state: undefined,
+        label: "",
+        discoverId: undefined
       }
     ],
-    sideBarVisibility: false,
-    search: ''
+    sideBarVisibility: true,
+    search: '',
+    startUp: true
   }
 }
 
@@ -75,11 +87,11 @@ var initialState = function() {
  * Component of the floating dialogs.
  */
 export default {
-  name: "FloatingFlow",
+  name: "SplitFlow",
   components: {
     DialogToolbarContent,
-    FloatingDialog,
-    SideBar
+    SplitDialog,
+    SideBar,
   },
   props:{
     state: {
@@ -97,9 +109,13 @@ export default {
           // Line below filters by flatmap species (unused until more data is available)
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
           this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
+        } else if (action.type == "Facet") {
+          // Line below filters by flatmap species (unused until more data is available)
+          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
+          this.$refs.sideBar.openSearch('', [{facet: "All Species", term:'species'}, 
+          {facet: action.label, term:'organ'}] )
         } else {
-          let newId = this.createNewEntry(action);
-          this.bringDialogToFront(newId);
+          this.createNewEntry(action);
         }
       }
     },
@@ -112,9 +128,14 @@ export default {
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex;
+      newEntry.zIndex = ++this.zIndex; 
       newEntry.state = undefined;
+      newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
+      store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
+      let title = newEntry.label ? newEntry.label + " ": '';
+      title += newEntry.type;
+      this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -124,27 +145,6 @@ export default {
         }
       }
       return -1;
-    },
-    findIndexOfDockedArray: function(id) {
-      for (let i = 0; i < this.dockedArray.length; i++) {
-        if (this.dockedArray[i].id == id) {
-          return i;
-        }
-      }
-      return -1;
-    },
-    bringDialogToFront: function(id) {
-      /*About the z-index: Active background index = 1;
-        Inactive background index = 0;
-        Floating dialog z-index > 1;
-      */
-      let index = this.findIndexOfId(id);
-      if ((index > -1) && (this.entries[index].mode === "normal")) {
-        if (this.zIndex !== this.entries[index].zIndex) {
-          this.zIndex++;
-          this.entries[index].zIndex = this.zIndex;
-        }
-      }
     },
     destroyDialog: function(id) {
       let index = this.findIndexOfId(id);
@@ -158,27 +158,7 @@ export default {
         let title = this.entries[index].type;
         if (this.entries[index].label)
           title = this.entries[index].label + " " +this.entries[index].type;
-        if (this.entries[index].datasetId)
-          title = this.entries[index].type + " (" + this.entries[index].datasetId + ")";
         this.dockedArray.push({title: title, id:this.entries[index].id});
-      }
-    },
-    maximiseDialog: function(id) {
-      let index = this.findIndexOfId(id);
-      if (index > -1) {
-        this.minimiseDialog(this.activeDockedId);
-        if (this.entries[index].mode !== "main")
-          this.entries[index].mode = "maximised";
-        this.activeDockedId = id;
-        this.entries[index].zIndex = 1;
-      }
-    },
-    minimiseDialog: function(id) {
-      let index = this.findIndexOfId(id);
-      if (index > -1) {
-        if (this.entries[index].mode !== "main")
-          this.entries[index].mode = "minimised";
-        this.entries[index].zIndex = 0;
       }
     },
     undockDialog: function(id) {
@@ -191,39 +171,16 @@ export default {
     onFullscreen: function(val) {
       this.$emit("onFullscreen", val);
     },
-    dialogMaximise: function(id) {
-      this.maximiseDialog(id);
-      this.dockDialog(id);
-    },
-    dialogMinimise: function(id) {
-      this.minimiseDialog(id);
-      this.dockDialog(id);
-    },
     dialogClose: function(id) {
       this.destroyDialog(id);
     },
     dockedTitleClicked: function(id) {
       this.maximiseDialog(id);
     },
-    dockedMaximise: function() {
-      let index = this.findIndexOfId(this.activeDockedId);
-      if (index > -1 && (this.entries[index].mode !== "main")) {
-        this.entries[index].mode = "normal";
-      }
-      this.undockDialog(this.activeDockedId);
-      this.activeDockedId = this.entries[0].id;
-    },
-    dockedMinimise: function() {
-      this.minimiseDialog(this.activeDockedId);
-      this.activeDockedId = this.entries[0].id;
-    },
     dockedClose: function() {
       this.undockDialog(this.activeDockedId);
       this.destroyDialog(this.activeDockedId);
       this.activeDockedId = this.entries[0].id;
-    },
-    dialogClicked: function(id) {
-      this.bringDialogToFront(id);
     },
     resetApp: function(){
       this.setState(initialState());
@@ -238,18 +195,18 @@ export default {
       this.currentCount = state.currentCount;
       this.entries = [];
       Object.assign(this.entries, state.entries);
+      store.commit("splitFlow/setState", state.splitFlow);  
     },
     getState: function() {
       let state = JSON.parse(JSON.stringify(this.$data));
-      let dialogs = this.$refs["dialogs"];
-      if (state.entries.length === dialogs.length) {
-        for (let i = 0; i < dialogs.length; i++) {
-          //we dont need the contextcard information yet 
-          if (state.entries[i].contextCard)
-            delete state.entries[i]["contextCard"];
-          state.entries[i].state = dialogs[i].getState();
+      let splitdialog = this.$refs.splitdialog;
+      let dialogStates = splitdialog.getContentsState();
+      if (state.entries.length === dialogStates.length) {
+        for (let i = 0; i < dialogStates.length; i++) {
+          state.entries[i].state = dialogStates[i];
         }
       }
+      state.splitFlow = store.getters["splitFlow/getState"]();
       return state;
     },
     resourceSelected: function(result) {
@@ -257,6 +214,15 @@ export default {
     },
     flatmapChanged: function(){
       this.$emit("flatmapChanged");
+    },
+    entryStateUpdated: function(id, state) {
+      console.log(id, state)
+      let index = this.findIndexOfId(id);
+      if (index > -1)
+        this.entries[index].state = state;
+    },
+    tabClicked: function(id){
+      this.activeDockedId = id
     }
   },
   data: function() {
@@ -280,6 +246,12 @@ export default {
   mounted: function() {
     EventBus.$on("PopoverActionClick", (payLoad) => {
       this.actionClick(payLoad);
+    })
+    this.$nextTick(() => {
+      this.$refs.sideBar.close();
+      setTimeout(() => {
+        this.startUp = false;
+      }, 2500);
     })
   },
   computed: {
@@ -305,6 +277,16 @@ export default {
   height:100%;
 }
 
+.start-up >>> .el-drawer__open .el-drawer.rtl {
+  animation: unset;
+}
 
+.start-up >>> .el-drawer.rtl {
+  animation: rtl-drawer-out 2.5s linear;
+}
+
+.start-up >>> .el-drawer__wrapper.side-bar {
+  display:block!important;
+}
 
 </style>

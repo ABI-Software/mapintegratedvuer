@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.31-fix-1",
+  "version": "0.1.32-integrated-demo-6",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
@@ -21,12 +21,12 @@
   ],
   "dependencies": {
     "@abi-software/flatmapvuer": "^0.1.33",
-    "@abi-software/map-side-bar": "^1.0.11",
+    "@abi-software/map-side-bar": "^1.1.1-beta.3",
     "@abi-software/maptooltip": "^0.1.13",
     "@abi-software/plotvuer": "^0.2.41",
     "@abi-software/scaffoldvuer": "^0.1.48",
     "@abi-software/simulationvuer": "^0.4.3",
-    "@abi-software/svg-sprite": "^0.1.11",
+    "@abi-software/svg-sprite": "^0.1.12",
     "@soda/get-current-script": "^1.0.2",
     "core-js": "^3.3.2",
     "d3-time-format": "^3.0.0",
@@ -35,7 +35,7 @@
     "lodash": "^4.17.21",
     "postcss-prefix-selector": "^1.7.2",
     "shepherd.js": "^7.1.5",
-    "splitpanes": "^2.2.1",
+    "splitpanes": "^2.3.6",
     "svg-inline-loader": "^0.8.2",
     "vue": "^2.6.10",
     "vue-cli-plugin-webpack-bundle-analyzer": "^2.0.0",
