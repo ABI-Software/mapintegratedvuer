@@ -333,11 +333,11 @@ export default {
     getEntryTitle: function(entry) {
       if (entry) {
         let title = entry.label ? entry.label + " ": '';
-          title += entry.type;
-        if (entry.datasetId) {
+        title += entry.type;
+        if (entry.datasetId)
           title += " (" + entry.datasetId + ")";
-        }
-        if (entry.discoverId) title = title + " dataset " + entry.discoverId;
+        else if (entry.discoverId)
+          title += " (" + entry.discoverId + ")";
         return title;
       }
       return "Viewer";
@@ -555,7 +555,7 @@ export default {
 }
 
 .toolbar {
-  background-color: white !important;
+  background-color: #f5f7fa !important;
   position: absolute;
   transition: all 1s ease;
   height: 29px;
