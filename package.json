@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.32-devel-flatmap-5",
+  "version": "0.1.32-devel-flatmap-6",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
@@ -20,7 +20,7 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.36-beta-features-7",
+    "@abi-software/flatmapvuer": "^0.1.36-beta-features-8",
     "@abi-software/map-side-bar": "^1.1.0-neuron-search-2",
     "@abi-software/plotvuer": "^0.2.41",
     "@abi-software/scaffoldvuer": "^0.1.47",
@@ -51,7 +51,7 @@
     "babel-eslint": "^10.0.3",
     "babel-plugin-component": "^1.1.1",
     "base64-inline-loader": "^1.1.1",
-    "canvas": "^2.6.1",
+    "canvas": "^2.8.0",
     "chai": "^4.1.2",
     "dom-parser": "^0.1.6",
     "eslint": "^5.16.0",
