@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.32-devel-flatmap-6",
+  "version": "0.1.32-devel-flatmap-7",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
@@ -20,7 +20,7 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.1.36-beta-features-8",
+    "@abi-software/flatmapvuer": "^0.1.36-beta-features-9",
     "@abi-software/map-side-bar": "^1.1.0-neuron-search-2",
     "@abi-software/plotvuer": "^0.2.41",
     "@abi-software/scaffoldvuer": "^0.1.47",
