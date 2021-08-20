@@ -187,14 +187,6 @@ export default {
   background: #fff;
 }
 
->>>.simulation-vuer .plot-vuer {
-  width: 99%;
-  -webkit-transition: none !important;
-  -moz-transition: none !important;
-  -o-transition: none !important;
-  transition: none !important;
-}
-
 </style>
 
 <style src="@/../assets/mapicon-species-style.css">
