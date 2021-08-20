@@ -108,11 +108,11 @@ export default {
         if (action.type == "Search") {
           // Line below filters by flatmap species (unused until more data is available)
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
-          this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
+          this.$refs.sideBar.openSearch(action.label, [{facet: "Show all", term:'species'}] )
         } else if (action.type == "Facet") {
           // Line below filters by flatmap species (unused until more data is available)
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
-          this.$refs.sideBar.openSearch('', [{facet: "All Species", term:'species'}, 
+          this.$refs.sideBar.openSearch('', [{facet: "Show all", term:'species'}, 
           {facet: action.label, term:'organ'}] )
         } else {
           this.createNewEntry(action);
