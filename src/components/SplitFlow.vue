@@ -219,7 +219,6 @@ export default {
       this.$emit("flatmapChanged");
     },
     entryStateUpdated: function(id, state) {
-      console.log(id, state)
       let index = this.findIndexOfId(id);
       if (index > -1)
         this.entries[index].state = state;
@@ -281,6 +280,10 @@ export default {
 }
 
 .start-up >>> .el-drawer__open .el-drawer.rtl {
+  animation: unset;
+}
+
+.start-up >>> .el-drawer-fade-leave-active {
   animation: unset;
 }
 
