@@ -4,8 +4,7 @@
       <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
         :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
-        @close="dockedClose"
-        @titleClicked="dockedTitleClicked" @onFullscreen="onFullscreen"
+        @onFullscreen="onFullscreen"
         :showHelpIcon="true"/>
     </el-header>
     <el-main class="dialog-main">
@@ -154,35 +153,8 @@ export default {
         this.entries.splice(index, 1);
       }
     },
-    dockDialog: function(id) {
-      let index = this.findIndexOfId(id);
-      if ((index > -1) && (this.findIndexOfDockedArray(id) == -1)) {
-        let title = this.entries[index].type;
-        if (this.entries[index].label)
-          title = this.entries[index].label + " " +this.entries[index].type;
-        this.dockedArray.push({title: title, id:this.entries[index].id});
-      }
-    },
-    undockDialog: function(id) {
-      let dockedIndex = this.findIndexOfDockedArray(id);
-      if (dockedIndex > -1) {
-        this.dockedArray.splice(dockedIndex, 1);
-        this.bringDialogToFront(id);
-      }
-    },
     onFullscreen: function(val) {
       this.$emit("onFullscreen", val);
-    },
-    dialogClose: function(id) {
-      this.destroyDialog(id);
-    },
-    dockedTitleClicked: function(id) {
-      this.maximiseDialog(id);
-    },
-    dockedClose: function() {
-      this.undockDialog(this.activeDockedId);
-      this.destroyDialog(this.activeDockedId);
-      this.activeDockedId = this.entries[0].id;
     },
     resetApp: function(){
       this.setState(initialState());
