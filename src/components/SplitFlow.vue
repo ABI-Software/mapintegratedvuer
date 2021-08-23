@@ -253,7 +253,7 @@ export default {
       this.$refs.sideBar.close();
       setTimeout(() => {
         this.startUp = false;
-      }, 2500);
+      }, 2000);
     })
   },
   computed: {
@@ -288,7 +288,7 @@ export default {
 }
 
 .start-up >>> .el-drawer.rtl {
-  animation: rtl-drawer-out 2.5s linear;
+  animation: rtl-drawer-out 2.0s linear;
 }
 
 .start-up >>> .el-drawer__wrapper.side-bar {
