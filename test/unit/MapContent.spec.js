@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
 import MapContent from '../../src/components/MapContent.vue';
-import FloatingFlow from '../../src/components/FloatingFlow';
+import SplitFlow from '../../src/components/SplitFlow';
 
 const div = document.createElement('div');
 document.body.appendChild(div);
@@ -10,7 +10,7 @@ const wrapper = shallowMount(MapContent, {
 
 
 describe('MapContent.vue', () => {
-  it('FloatingFlow', () => {
-    expect(wrapper.findComponent(FloatingFlow).exists()).to.be.true;
+  it('SplitFlow', () => {
+    expect(wrapper.findComponent(SplitFlow).exists()).to.be.true;
   })
 })
