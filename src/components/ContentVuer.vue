@@ -15,9 +15,11 @@
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
-        :render="entry.mode !== 'minimised'" :displayMinimap=false :displayMarkers=false />
+        :render="visible" :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
-      :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
+        :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
+      <SimulationVuer v-else-if="entry.type === 'Simulation'"
+        :apiLocation="apiLocation" :entry="entry" />
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
   </div>
@@ -36,6 +38,8 @@ import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
 import { PlotVuer } from '@abi-software/plotvuer';
 import '@abi-software/plotvuer/dist/plotvuer.css';
 import { getInteractiveAction } from './SimulatedData.js';
+import { SimulationVuer } from '@abi-software/simulationvuer';
+import '@abi-software/simulationvuer/dist/simulationvuer.css';
 import store from '../store';
 
 export default {
@@ -46,6 +50,10 @@ export default {
      * the required viewing.
      */
     entry: Object,
+    visible: {
+      type: Boolean,
+      default: true
+    },
   },
   components: {
     DatasetHeader,
@@ -54,6 +62,7 @@ export default {
     MultiFlatmapVuer,
     ScaffoldVuer,
     PlotVuer,
+    SimulationVuer,
   },
   methods: {
     onResize: function () {
@@ -87,6 +96,13 @@ export default {
       }
       const result = {paneIndex: this.index, type: type, resource: resource};
       let returnedAction = getInteractiveAction(result, action);
+      if (type == "MultiFlatmap" || type == "Flatmap") {
+        if (resource.eventType == "click") {
+          if (resource.feature.type == "marker") {
+            returnedAction.type = "Facet";
+          }
+        }
+      }
       EventBus.$emit("PopoverActionClick", returnedAction);
       this.$emit("resource-selected", result);
     },
@@ -115,19 +131,23 @@ export default {
   },
   data: function() {
     return {
+      apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",
         width: "100%",
         bottom: "0px",
       },
-      helpMode: false
+      helpMode: false,
     }
   },
   created: function() {
     this.flatmapAPI = undefined;
+    this.apiLocation = undefined;
     if (store.state.settings.flatmapAPI)
       this.flatmapAPI = store.state.settings.flatmapAPI;
+    if (store.state.settings.api)
+      this.apiLocation = store.state.settings.api;
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
@@ -138,6 +158,10 @@ export default {
     EventBus.$on("startHelp", (id) => {
       this.startHelp(id);
     })
+  },
+  deactivated: function() {
+    let state = this.getState();
+    this.$emit("stateUpdated", this.entry.id, state);
   },
 };
 </script>
@@ -163,4 +187,7 @@ export default {
   background: #fff;
 }
 
+</style>
+
+<style src="@/../assets/mapicon-species-style.css">
 </style>

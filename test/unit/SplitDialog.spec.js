@@ -1,10 +1,10 @@
 import { shallowMount } from '@vue/test-utils'
-import FloatingDialog from '../../src/components/FloatingDialog';
+import SplitDialog from '../../src/components/SplitDialog';
 import ContentVuer from '../../src/components/ContentVuer';
 
 const div = document.createElement('div');
 document.body.appendChild(div);
-const wrapper = shallowMount(FloatingDialog, {
+const wrapper = shallowMount(SplitDialog, {
   attachTo: div,
   propsData: {
     entry: {
@@ -20,8 +20,8 @@ const wrapper = shallowMount(FloatingDialog, {
 });
 
 
-describe('FloatingDialog', () => {
+describe('SplitDialog', () => {
   it('ContentVuer', () => {
-    expect(wrapper.findComponent(ContentVuer).exists()).to.be.true;
+    expect(wrapper.findComponent(ContentVuer).exists()).to.be.false;
   })
 })

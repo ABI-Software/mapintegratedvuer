@@ -1,13 +1,13 @@
 <template>
     <div class="mapcontent" ref="MapApp">
       <SvgSpriteColor/>
-      <FloatingFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
+      <SplitFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
     </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
-import FloatingFlow from './FloatingFlow';
+import SplitFlow from './SplitFlow';
 import EventBus from './EventBus';
 import store from '../store';
 import {SvgSpriteColor} from '@abi-software/svg-sprite';
@@ -18,7 +18,7 @@ import {SvgSpriteColor} from '@abi-software/svg-sprite';
 export default {
   name: "MapContent",
   components: {
-    FloatingFlow,
+    SplitFlow,
     SvgSpriteColor,
   },
   props: {
@@ -135,8 +135,6 @@ export default {
   z-index:1;
 }
 
-</style>
-<style src="@/../assets/mapicon-species-style.css">
 </style>
 <style src="@/../assets/styleguide.css">
 </style>
