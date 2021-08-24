@@ -111,7 +111,11 @@ export default {
         } else if (action.type == "Facet") {
           // Line below filters by flatmap species (unused until more data is available)
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
-          this.$refs.sideBar.openSearch('', [{facet: action.label, term:'organ'}])
+          this.$refs.sideBar.openSearch('',
+            [{facet: action.label, term:'organ'},
+            {facet: "show all", term:'species'},
+            {facet: "show all", term:'gender'},
+            {facet: "show all", term:'datasets'}]);
         } else {
           this.createNewEntry(action);
         }

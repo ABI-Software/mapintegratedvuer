@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.1.32-integrated-demo-8",
+  "version": "0.1.32-integrated-demo-10",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
@@ -21,7 +21,7 @@
   ],
   "dependencies": {
     "@abi-software/flatmapvuer": "^0.1.33",
-    "@abi-software/map-side-bar": "^1.1.1-beta.5",
+    "@abi-software/map-side-bar": "^1.1.2",
     "@abi-software/maptooltip": "^0.1.13",
     "@abi-software/plotvuer": "^0.2.41",
     "@abi-software/scaffoldvuer": "^0.1.48",
