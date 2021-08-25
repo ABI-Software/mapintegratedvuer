@@ -22,6 +22,7 @@
           :open-at-start="startUp"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
+          @search-changed="searchChanged($event)"
         > 
         </SideBar>
       </div>
@@ -116,17 +117,27 @@ export default {
           window.open(action.resource, '_blank')
         } else if (action.type == "Neuron Search"){
           this.$refs.sideBar.openNeuronSearch(action.resource)
-        } else if (action.type == "Facet") {
-          // Line below filters by flatmap species (unused until more data is available)
-          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
+        } else if (action.type == "Facet") { 
+          console.log("search")        
+          const speciesFacets = [];
+          store.state.settings.facets.species.forEach(e => {
+            speciesFacets.push({facet: e, term:'species'});
+          });
+          if (speciesFacets.length == 0)
+            speciesFacets.push({facet: "show all", term:'species'});
           this.$refs.sideBar.openSearch('',
-            [{facet: "show all", term:'species'},
+            [...speciesFacets,
             {facet: "show all", term:'gender'},
-            {facet: action.label, term:'organ'},
+            {facet: action.label.toLowerCase(), term:'organ'},
             {facet: "show all", term:'datasets'}]);
         } else {
           this.createNewEntry(action);
         }
+      }
+    },
+    searchChanged: function(data) {
+      if (data && (data.type == "filter-update")) {
+        store.commit("settings/updateFacets", data.value);
       }
     },
     /**
