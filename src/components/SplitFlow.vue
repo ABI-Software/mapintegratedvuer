@@ -107,7 +107,15 @@ export default {
         if (action.type == "Search") {
           // Line below filters by flatmap species (unused until more data is available)
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
-          this.$refs.sideBar.openSearch(action.label, [{facet: "Show all", term:'species'}] )
+          if (action.nervePath){
+            this.$refs.sideBar.openSearch(action.label, [action.filter] )
+          } else {
+            this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
+          }
+        } else if (action.type == "URL"){
+          window.open(action.resource, '_blank')
+        } else if (action.type == "Neuron Search"){
+          this.$refs.sideBar.openNeuronSearch(action.resource)
         } else if (action.type == "Facet") {
           // Line below filters by flatmap species (unused until more data is available)
           // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
