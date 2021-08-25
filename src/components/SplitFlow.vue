@@ -106,19 +106,21 @@ export default {
     actionClick:function(action) {
       if (action) {
         if (action.type == "Search") {
-          // Line below filters by flatmap species (unused until more data is available)
-          // this.$refs.sideBar.openSearch(action.label, [{facet: speciesMap[this.entries[0].resource], term:'species'}] )
           if (action.nervePath){
-            this.$refs.sideBar.openSearch(action.label, [action.filter] )
+            this.$refs.sideBar.openSearch(action.label, [action.filter] );
           } else {
-            this.$refs.sideBar.openSearch(action.label, [{facet: "All Species", term:'species'}] )
+            // Keep the species facets
+            let facets = [{facet: "All Species", term:'species'}];
+            store.state.settings.facets.species.forEach(e => {
+              facets.push({facet: e, term:'species'});
+            });
+            this.$refs.sideBar.openSearch(action.label, facets );
           }
         } else if (action.type == "URL"){
           window.open(action.resource, '_blank')
         } else if (action.type == "Neuron Search"){
           this.$refs.sideBar.openNeuronSearch(action.resource)
-        } else if (action.type == "Facet") { 
-          console.log("search")        
+        } else if (action.type == "Facet") {        
           const speciesFacets = [];
           store.state.settings.facets.species.forEach(e => {
             speciesFacets.push({facet: e, term:'species'});

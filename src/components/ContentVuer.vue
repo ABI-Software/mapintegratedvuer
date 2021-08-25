@@ -88,33 +88,27 @@ export default {
         EventBus.$emit("PopoverActionClick", resource);
         return;
       }
+
+      let returnedAction = undefined;
       let action = "none";
       if (type == "MultiFlatmap" || type == "Flatmap") {
         if (resource.eventType == "click") {
-          if (resource.feature.type == "marker")
-            action = "search";
-          else if (resource.feature.type == "feature")
+          if (resource.feature.type == "marker") {
+            returnedAction = {};
+            returnedAction.type = "Facet";
+            returnedAction.label = this.idNamePair[resource.feature.models];  
+          }
+          else if (resource.feature.type == "feature") {
             action = "scaffold";
+          } 
         }
       } else if (type == "Scaffold"){
         action = "search";
       }
       const result = {paneIndex: this.index, type: type, resource: resource};
-      let returnedAction = getInteractiveAction(result, action);
-      if (type == "MultiFlatmap" || type == "Flatmap") {
-        if (resource.eventType == "click") {
-          if (resource.feature.type == "marker") {
-            returnedAction.type = "Facet";
-          }
-        }
-        if (action == 'search' && resource.feature) {
-          if (returnedAction === undefined)
-            returnedAction = { type: 'Facet'};
-          returnedAction.label = this.idNamePair[resource.feature.models];          
-        }
-      }
+      if (returnedAction === undefined)
+        returnedAction = getInteractiveAction(result, action);
       if (returnedAction) {
-        console.log(returnedAction)
         EventBus.$emit("PopoverActionClick", returnedAction);
         this.$emit("resource-selected", result);
       }
@@ -196,6 +190,20 @@ export default {
       this.flatmapAPI = store.state.settings.flatmapAPI;
     if (store.state.settings.api)
       this.apiLocation = store.state.settings.api;
+  },
+  computed: {
+    facetSpecies() {
+      return store.state.settings.facets.species;
+    },
+  },
+  watch: {
+    facetSpecies: function() {
+      if (this.entry.type === 'Flatmap') {
+        this.updateMarkers(this.$refs.flatmap);
+      } else if (this.entry.type === 'MultiFlatmap') {
+        this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
+      }
+    }
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
