@@ -39,7 +39,7 @@ const mutations = {
             }
             break;
           case 'organ':
-            if (e.facet !== 'how all') {
+            if (e.facet !== 'show all') {
               facets.organ.push(e.facet);
               if (!state.facets.species.includes(e.facet))
                 state.facets.organ.push(e.facet);
