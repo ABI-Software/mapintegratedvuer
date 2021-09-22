@@ -72,7 +72,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
 .dataset-link{
   text-align:center;
 }
@@ -80,7 +80,6 @@ export default {
   padding: 3px;
 }
 .dataset-title{
-  font: HelveticaNeue-Medium;
   font-size: 16px;
   color: #606266;
 }

@@ -57,7 +57,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
 .step-item {
   font-size: 14px;
   margin-bottom: 18px;
@@ -75,7 +75,7 @@ export default {
 }
 
 .active {
-    width: 380px !important;
-    height: 380px !important;
+  width: 380px !important;
+  height: 380px !important;
 }
 </style>

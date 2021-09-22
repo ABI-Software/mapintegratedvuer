@@ -404,54 +404,55 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
->>> .splitpanes.default-theme .splitpanes__pane {
+<style scoped lang="scss">
+@import "@/assets/styles";
+@import "~element-ui/packages/theme-chalk/src/popover";
+
+::v-deep .splitpanes.default-theme .splitpanes__pane {
   background-color: #ccc !important;
   position: relative;
 }
 
->>> .splitpanes__splitter {
+::v-deep .splitpanes__splitter {
   margin: 0px 0px 0px 0px !important;
   z-index: 6 !important;
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: opacity 0.4s;
+    background-color: rgba(131, 0, 191, 0.3) !important;
+    opacity: 0;
+    z-index: 6 !important;
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
 
->>> .splitpanes--vertical > .splitpanes__splitter {
+::v-deep .splitpanes--horizontal > .splitpanes__splitter,
+::v-deep .splitpanes--vertical > .splitpanes__splitter {
   background-color: #ccc !important;
-  width: 1px;
   border-left: unset;
 }
 
->>> .splitpanes--horizontal > .splitpanes__splitter {
-  background-color: #ccc !important;
+::v-deep .splitpanes--horizontal > .splitpanes__splitter {
   height: 1px;
-  border-top: unset;
+  &::before {
+    top: -2px;
+    height: 10px;
+    width: 100%;
+  }
 }
 
->>> .splitpanes__splitter:before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  transition: opacity 0.4s;
-  background-color: rgba(131, 0, 191, 0.3) !important;
-  opacity: 0;
-  z-index: 6 !important;
-}
-
->>> .splitpanes__splitter:hover:before {
-  opacity: 1;
-}
-
->>> .splitpanes--vertical > .splitpanes__splitter:before {
-  left: -3px;
-  width: 11px;
-  height: 100%;
-}
-
->>> .splitpanes--horizontal > .splitpanes__splitter:before {
-  top: -2px;
-  height: 10px;
-  width: 100%;
+::v-deep .splitpanes--vertical > .splitpanes__splitter {
+  width: 1px;
+  &::before {
+    left: -3px;
+    width: 11px;
+    height: 100%;
+  }
 }
 
 .tab-container {
@@ -474,84 +475,86 @@ export default {
   background: rgba(255, 255, 255, 1);
 }
 
-.contentvuer.singlepanel-1 {
-  width: 100%;
-  height: calc(100% - 30px);
-  left: 0px;
-  top: 30px;
-  z-index: 2;
-}
+.contentvuer {
+  &.singlepanel-1 {
+    width: 100%;
+    height: calc(100% - 30px);
+    left: 0px;
+    top: 30px;
+    z-index: 2;
+ }
 
-.contentvuer.twohorpanel-1 {
-  width: 100%;
-  height: calc(50% - 31px);
-  left: 0px;
-  top: 30px;
-  z-index: 2;
-}
+ &.twohorpanel-1 {
+    width: 100%;
+    height: calc(50% - 31px);
+    left: 0px;
+    top: 30px;
+    z-index: 2;
+  }
 
-.contentvuer.twohorpanel-2 {
-  width: 100%;
-  height: calc(50% - 31px);
-  left: 0px;
-  top: calc(50% + 32px);
-  z-index: 2;
-}
+  &.twohorpanel-2 {
+    width: 100%;
+    height: calc(50% - 31px);
+    left: 0px;
+    top: calc(50% + 32px);
+    z-index: 2;
+  }
 
-.contentvuer.twovertpanel-1 {
-  width: calc(50% - 1px);
-  height: calc(100% - 30px);
-  left: 0px;
-  top: 30px;
-  z-index: 2;
-}
+  &.twovertpanel-1 {
+    width: calc(50% - 1px);
+    height: calc(100% - 30px);
+    left: 0px;
+    top: 30px;
+    z-index: 2;
+  }
 
-.contentvuer.twovertpanel-2 {
-  width: calc(50% - 1px);
-  height: calc(100% - 30px);
-  left: calc(50% + 2px);
-  top: 30px;
-  z-index: 2;
-}
+  &.twovertpanel-2 {
+    width: calc(50% - 1px);
+    height: calc(100% - 30px);
+    left: calc(50% + 2px);
+    top: 30px;
+    z-index: 2;
+  }
 
-.contentvuer.threepanel-2 {
-  width: calc(50% - 1px);
-  height: calc(50% - 32px);
-  left: calc(50% + 2px);
-  top: 30px;
-  z-index: 2;
-}
+  &.threepanel-2 {
+    width: calc(50% - 1px);
+    height: calc(50% - 32px);
+    left: calc(50% + 2px);
+    top: 30px;
+    z-index: 2;
+  }
 
-.contentvuer.threepanel-3 {
-  width: calc(50% - 1px);
-  height: calc(50% - 31px);
-  left: calc(50% + 2px);
-  top: calc(50% + 32px);
-  z-index: 1;
-}
+  &.threepanel-3 {
+    width: calc(50% - 1px);
+    height: calc(50% - 31px);
+    left: calc(50% + 2px);
+    top: calc(50% + 32px);
+    z-index: 1;
+  }
 
-.contentvuer.fourpanel-1 {
-  width: calc(50% - 1px);
-  height: calc(50% - 31px);
-  left: 0px;
-  top: 30px;
-  z-index: 4;
-}
+  &.fourpanel-1 {
+    width: calc(50% - 1px);
+    height: calc(50% - 31px);
+    left: 0px;
+    top: 30px;
+    z-index: 4;
+  }
 
-.contentvuer.fourpanel-4 {
-  width: calc(50% - 1px);
-  height: calc(50% - 31px);
-  left: 0px;
-  top: calc(50% + 32px);
-  z-index: 3;
-}
+  &.fourpanel-4 {
+    width: calc(50% - 1px);
+    height: calc(50% - 31px);
+    left: 0px;
+    top: calc(50% + 32px);
+    z-index: 3;
+  }
 
-.contentvuer.inactive {
-  display: none;
-  width: 0%;
-  height: 0%;
-  left: 0px;
-  top: 30px;
+  &.inactive {
+    display: none;
+    width: 0%;
+    height: 0%;
+    left: 0px;
+    top: 30px;
+  }
 }
 
 .toolbar {
@@ -561,59 +564,59 @@ export default {
   height: 29px;
   border-bottom: 1px solid rgb(220, 223, 230);
   z-index: 5;
-}
 
-.toolbar.singlepanel-1 {
-  left: 0px;
-  top: 0px;
-  width: 100%;
-}
+  &.singlepanel-1 {
+    left: 0px;
+    top: 0px;
+    width: 100%;
+  }
 
-.toolbar.twohorpanel-2 {
-  width: 100%;
-  left: 0px;
-  top: 50%;
-  border-top: 1px solid rgb(220, 223, 230);
-}
+  &.twohorpanel-2 {
+    width: 100%;
+    left: 0px;
+    top: 50%;
+    border-top: 1px solid rgb(220, 223, 230);
+  }
 
-.toolbar.twovertpanel-1 {
-  left: 0px;
-  top: 0px;
-  width: calc(50% - 1px);
-}
+  &.twovertpanel-1 {
+    left: 0px;
+    top: 0px;
+    width: calc(50% - 1px);
+  }
 
-.toolbar.twovertpanel-2 {
-  width: calc(50% - 1px);
-  left: calc(50% + 2px);
-  top: 0px;
-  border-left: 1px solid rgb(220, 223, 230);
-}
+  &.twovertpanel-2 {
+    width: calc(50% - 1px);
+    left: calc(50% + 2px);
+    top: 0px;
+    border-left: 1px solid rgb(220, 223, 230);
+  }
 
-.toolbar.threepanel-3 {
-  width: calc(50% - 1px);
-  left: calc(50% + 2px);
-  top: calc(50% + 2px);
-  border-top: 1px solid rgb(220, 223, 230);
-  border-left: 1px solid rgb(220, 223, 230);
-}
+  &.threepanel-3 {
+    width: calc(50% - 1px);
+    left: calc(50% + 2px);
+    top: calc(50% + 2px);
+    border-top: 1px solid rgb(220, 223, 230);
+    border-left: 1px solid rgb(220, 223, 230);
+  }
 
-.toolbar.fourpanel-4 {
-  width: calc(50% - 1px);
-  left: 0px;
-  top: calc(50% + 2px);
-  border-top: 1px solid rgb(220, 223, 230);
-}
+  &.fourpanel-4 {
+    width: calc(50% - 1px);
+    left: 0px;
+    top: calc(50% + 2px);
+    border-top: 1px solid rgb(220, 223, 230);
+  }
 
-.toolbar.inactive {
-  display: none;
-  left: 0px;
-  top: 0px;
+  &.inactive {
+    display: none;
+    left: 0px;
+    top: 0px;
+  }
 }
 
 .toolbar-title {
   width: 107px;
   height: 20px;
-  color: rgb(131, 0, 191);
+  color: $app-primary-color;
   font-size: 14px;
   font-weight: normal;
   line-height: 20px;
@@ -630,40 +633,38 @@ export default {
   color: rgb(48, 49, 51);
   margin-left: 8px;
   margin-top: 2px;
+
+  ::v-deep .el-input__inner {
+    color: $app-primary-color;
+    height: 24px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  ::v-deep .el-input__icon {
+    line-height: 24px;
+  }
+
+  ::v-deep .is-focus .el-input__inner {
+    border: 1px solid $app-primary-color;
+  }
 }
 
-.select-box >>> .el-input__inner {
-  color: rgb(131, 0, 191);
-  height: 24px;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-i .select-box >>> .el-input__icon {
+i .select-box ::v-deep .el-input__icon {
   color: rgb(48, 49, 51);
   height: 24px;
   padding-left: 8px;
   padding-right: 8px;
 }
 
-.select-box >>> .el-input__icon {
-  line-height: 24px;
-}
-
-.select-box >>> .is-focus .el-input__inner {
-  border: 1px solid #8300bf;
-}
-
 .viewer_dropdown {
   z-index: 5;
-}
-
-.viewer_dropdown .el-select-dropdown__item {
-  white-space: nowrap;
-  text-align: left;
-}
-
-.viewer_dropdown .el-select-dropdown__item.selected {
-  color: #8300bf;
-  font-weight: normal;
+  .el-select-dropdown__item {
+    white-space: nowrap;
+    text-align: left;
+    &.selected {
+      color: $app-primary-color;
+      font-weight: normal;
+    }
+  }
 }
 </style>

@@ -260,7 +260,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
 .dialog-header {
   color: #333;
@@ -275,20 +275,28 @@ export default {
   height:100%;
 }
 
-.start-up >>> .el-drawer__open .el-drawer.rtl {
-  animation: unset;
-}
+.start-up {
+  ::v-deep .el-drawer__open {
+    .el-drawer {
+      &.rtl {
+        animation: unset;
+      }
+    }
+  }
+  ::v-deep .el-drawer-fade-leave-active {
+    animation: unset;
+  }
+  ::v-deep .el-drawer {
+    &.rtl {
+      animation: rtl-drawer-out 2.0s linear;
+    }
+  }
 
-.start-up >>> .el-drawer-fade-leave-active {
-  animation: unset;
-}
-
-.start-up >>> .el-drawer.rtl {
-  animation: rtl-drawer-out 2.0s linear;
-}
-
-.start-up >>> .el-drawer__wrapper.side-bar {
-  display:block!important;
+  ::v-deep .el-drawer__wrapper {
+    &.side-bar {
+      display:block!important;
+    }
+  }
 }
 
 </style>

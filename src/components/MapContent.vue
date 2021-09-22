@@ -121,8 +121,9 @@ export default {
 
 </script>
 
-<style scoped>
-.map-help-dialog{
+<style scoped lang="scss">
+@import "@/assets/styles";
+.map-help-dialog {
   position: fixed;
   z-index: 20;
   bottom: 30px;

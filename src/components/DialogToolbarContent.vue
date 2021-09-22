@@ -220,7 +220,13 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+@import "@/assets/styles";
+@import "~element-ui/packages/theme-chalk/src/button";
+@import "~element-ui/packages/theme-chalk/src/icon";
+@import "~element-ui/packages/theme-chalk/src/input";
+@import "~element-ui/packages/theme-chalk/src/popover";
+@import "~element-ui/packages/theme-chalk/src/row";
 
 .content {
   width:calc(100% - 120px);
@@ -236,13 +242,14 @@ export default {
   right:12px;
 }
 
-.icon-group >>> .el-button--text {
-  color:#606266;
-  font-size: 1.5em;
-}
-
-.icon-group >>> .el-button--text:hover {
-  color:#8300bf;
+.icon-group {
+  ::v-deep .el-button--text {
+    color:#606266;
+    font-size: 1.5em;
+    &:hover {
+      color: $app-primary-color;
+    }
+  }
 }
 
 .icon-transform {
@@ -266,57 +273,52 @@ export default {
   cursor:grabbing;
 }
 
->>> .header-popper {
+::v-deep .header-popper {
   padding: 6px 4px;
   font-size:12px;
   color: rgb(48, 49, 51);
   background-color: #f3ecf6;
-  border: 1px solid rgb(131, 0, 191);
+  border: 1px solid $app-primary-color;
   white-space: nowrap;
   min-width: unset;
 }
 
->>> .el-popper[x-placement^=bottom] .popper__arrow {
-  border-bottom-color: rgb(131, 0, 191);
-}
-
-.header-icon >>> .el-popper[x-placement^=bottom] .popper__arrow:after{
-  border-bottom-color: #f3ecf6 !important;
-}
-
->>> .link-popover {
-  border: 1px solid rgb(131, 0, 191);
+::v-deep .link-popover {
+  border: 1px solid $app-primary-color;
 }
 
 .header-icon {
   font-size: 1.8em;
-  color: #8300bf;
+  color: $app-primary-color;
   margin-right:10px;
   cursor: pointer;
+  ::v-deep .el-popper[x-placement^=bottom] {
+    border-bottom-color: $app-primary-color;
+    .popper__arrow:after{
+      &::after { 
+        border-bottom-color: #f3ecf6 !important;
+      }
+    }
+  }
 }
 
 .copy-button {
   color:#FFFFFF;
-  background-color:#8300bf;
+  background-color:$app-primary-color;
+  &:hover, &:focus {
+    color:#FFFFFF;
+    background-color:$app-primary-color;
+    box-shadow: -3px 2px 4px #000000; 
+  }
 }
 
-.copy-button:hover {
-  color:#FFFFFF;
-  background-color:#8300bf;
-  box-shadow: -3px 2px 4px #000000;
-}
-.copy-button:focus {
-  color:#FFFFFF;
-  background-color:#8300bf;
-  box-shadow: -3px 2px 4px #000000;
-}
-
-.link-input >>> .el-input__inner {
-  color:#303133;
-}
-
-.link-input >>> .el-input__inner:focus {
-  border-color:#8300bf;
+.link-input {
+  ::v-deep .el-input__inner {
+    color:#303133;
+    &:focus {
+      border-color:$app-primary-color;
+    }
+  }
 }
 
 .tooltip {
@@ -331,12 +333,13 @@ export default {
   font-size: 14px;
   margin:8px 0px 0px 0px!important;
   cursor: pointer;
+
+  &.active {
+    border: 1px solid $app-primary-color;
+    background: rgba(131, 0, 191, 0.1);
+  }
 }
 
-.view-icon-row.active {
-  border: 1px solid rgb(131, 0, 191);
-  background: rgba(131, 0, 191, 0.1);
-}
 
 .header-icon.disabled,
 .view-icon-row.disabled {
@@ -346,7 +349,7 @@ export default {
 
 .view-icon {
   font-size: 1.7em;
-  color: #8300bf;
+  color: $app-primary-color;
   padding-top:3px;
 }
 
@@ -365,23 +368,17 @@ export default {
   opacity:0.5;
 }
 
->>> .view-icon-popover {
-  border: 1px solid rgb(131, 0, 191);
+::v-deep .view-icon-popover {
+  border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
   cursor:default;
-}
-
->>> .view-icon-popover .el-popper[x-placement^=bottom] .popper__arrow:after{
-  border-bottom-color: #fff !important;
-}
-
->>>.el-loading-spinner i{
-  color: #8300bf;
-}
->>>.el-loading-spinner .el-loading-text {
-  color: #8300bf;
+  .el-popper[x-placement^=bottom] {
+    .popper__arrow:after{
+      border-bottom-color: #fff !important;
+    }
+  }
 }
 
 </style>

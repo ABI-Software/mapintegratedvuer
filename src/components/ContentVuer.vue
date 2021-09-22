@@ -223,7 +223,9 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+
+@import '@abi-software/scaffoldvuer/src/assets/app';
 
 .dataset-header {
   height: 23px;
@@ -234,13 +236,15 @@ export default {
   width: 100%;
 }
 
->>>.flatmapvuer-popover .mapboxgl-popup-content {
-  border-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.1);
-  padding: 3em 1em 3em 1em;
-  pointer-events: auto;
-  width: 25em;
-  background: #fff;
+::v-deep .flatmapvuer-popover {
+  .mapboxgl-popup-content {
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+    padding: 3em 1em 3em 1em;
+    pointer-events: auto;
+    width: 25em;
+    background: #fff;
+  }
 }
 
 </style>

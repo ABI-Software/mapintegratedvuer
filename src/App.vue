@@ -1,5 +1,4 @@
 <template>
-
   <div id="app">
     <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap">
@@ -109,12 +108,18 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "@/assets/app";
+
 #app {
   height:100%;
   width: 100%;
   position:absolute;
   font-family: "Asap",sans-serif;
+}
+
+body {
+  margin: 0px;
 }
 
 .map-app {
