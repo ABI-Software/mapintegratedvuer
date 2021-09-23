@@ -31,10 +31,8 @@ import EventBus from './EventBus';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
 import {getAvailableTermsForSpecies} from './SimulatedData.js';
-import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
-import '@abi-software/flatmapvuer/dist/flatmapvuer.css';
-import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
-import '@abi-software/scaffoldvuer/dist/scaffoldvuer.css';
+import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer/src/components/index.js';
+import { ScaffoldVuer } from '@abi-software/scaffoldvuer/src/components/index.js';
 import { PlotVuer } from '@abi-software/plotvuer';
 import '@abi-software/plotvuer/dist/plotvuer.css';
 import { getInteractiveAction } from './SimulatedData.js';
@@ -224,9 +222,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-
-@import '@abi-software/scaffoldvuer/src/assets/app';
-
 .dataset-header {
   height: 23px;
 }

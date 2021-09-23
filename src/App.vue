@@ -30,9 +30,11 @@
 import MapContent from './components/MapContent.vue';
 import Vue from "vue";
 import {
+  Button,
   Popover,
   Row,
 } from 'element-ui';
+Vue.use(Button);
 Vue.use(Popover);
 Vue.use(Row);
 
@@ -109,7 +111,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/assets/app";
+@import "~element-ui/packages/theme-chalk/src/button";
+@import "~element-ui/packages/theme-chalk/src/popover";
+@import "~element-ui/packages/theme-chalk/src/row";
 
 #app {
   height:100%;

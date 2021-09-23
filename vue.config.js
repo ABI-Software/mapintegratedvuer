@@ -41,4 +41,12 @@ module.exports = {
       config.externals =  [ nodeExternals({allowlist: [/^element-ui/, /^@abi-software/]}) ];
     }
   },
+  css: {
+    //Import variables into all stylesheets.
+    loaderOptions: {
+      sass: {
+        prependData: `@import '@/assets/styles';`
+      }
+    }
+  }
 }

@@ -81,10 +81,13 @@ import store from "../store";
 import Vue from "vue";
 import "splitpanes/dist/splitpanes.css";
 import {
-  Popover
+  Option,
+  Popover,
+  Select
 } from "element-ui";
+Vue.use(Option);
 Vue.use(Popover);
-
+Vue.use(Select);
 
 export default {
   name: "SplitDialog",
@@ -405,8 +408,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "@/assets/styles";
+@import "~element-ui/packages/theme-chalk/src/option";
 @import "~element-ui/packages/theme-chalk/src/popover";
+@import "~element-ui/packages/theme-chalk/src/select";
 
 ::v-deep .splitpanes.default-theme .splitpanes__pane {
   background-color: #ccc !important;
