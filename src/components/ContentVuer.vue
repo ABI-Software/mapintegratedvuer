@@ -138,7 +138,6 @@ export default {
               pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
             map.addMarker(pair.id.toUpperCase(), "simulation");
           });
-          
         })
         .catch(err=> {
           if (err.name !== 'AbortError') {

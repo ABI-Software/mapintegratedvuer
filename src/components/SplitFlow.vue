@@ -1,7 +1,7 @@
 <template>
   <el-container style="height:100%;background:white;">
     <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="32px" class="dialog-header">
-      <DialogToolbarContent :activeId="activeDockedId" :dialogTitles="dockedArray"
+      <DialogToolbarContent :activeId="activeDockedId" :numberOfEntries="entries.length"
         :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
         @onFullscreen="onFullscreen"
@@ -55,7 +55,6 @@ var initialState = function() {
     mainTabName: "Flatmap",
     zIndex: 1,
     showDialogIcons: false, 
-    dockedArray: [{title: "Flatmap", id:1}, ],
     activeDockedId: 1,
     currentCount: 1,
     entries: [
@@ -156,12 +155,6 @@ export default {
       newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
-      let title = newEntry.label ? newEntry.label + " ": '';
-      title += newEntry.type;
-      if (newEntry.datasetId) {
-        title += " (" + newEntry.datasetId + ")";
-      }
-      this.dockedArray.push({title: title, id:newEntry.id, contextCard:newEntry.contextCard});
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -188,8 +181,6 @@ export default {
       this.mainTabName = state.mainTabName;
       this.zIndex = state.zIndex;
       this.showDialogIcons = state.showDialogIcons;
-      this.dockedArray = [];
-      Object.assign(this.dockedArray, state.dockedArray);
       this.activeDockedId = state.activeDockedId;
       this.currentCount = state.currentCount;
       this.entries = [];

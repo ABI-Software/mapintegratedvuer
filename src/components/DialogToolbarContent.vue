@@ -12,7 +12,7 @@
           v-for="item in viewIcons"
           :key="item.name"
           :class="[{ 'active': item.icon ==  activeView},
-            {'disabled': item.min > dialogTitles.length},
+            {'disabled': item.min > numberOfEntries},
             'view-icon-row']"
           @click.native="viewClicked(item.icon)"
         >
@@ -31,7 +31,7 @@
         v-show="topLevelControls">
         <svg-icon :icon="activeView"
           v-popover:viewPopover
-          :class="[{'disabled': 1 >= dialogTitles.length},
+          :class="[{'disabled': 1 >= numberOfEntries},
             'header-icon']"
           slot="reference"/>
       </el-popover>
@@ -135,9 +135,9 @@ export default {
     /**
      * Array of titles.
      */
-    dialogTitles: {
-      type: Array,
-      default: () => []
+    numberOfEntries: {
+      type: Number,
+      default: 0
     },
     /**
      * Display icons for docking, undocking and etc.
@@ -221,8 +221,8 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "@/assets/styles";
 @import "~element-ui/packages/theme-chalk/src/button";
+@import "~element-ui/packages/theme-chalk/src/loading";
 @import "~element-ui/packages/theme-chalk/src/icon";
 @import "~element-ui/packages/theme-chalk/src/input";
 @import "~element-ui/packages/theme-chalk/src/popover";
@@ -285,6 +285,12 @@ export default {
 
 ::v-deep .link-popover {
   border: 1px solid $app-primary-color;
+}
+
+::v-deep .el-loading-spinner {
+  i, .el-loading-text {
+    color: $app-primary-color;
+  }
 }
 
 .header-icon {
