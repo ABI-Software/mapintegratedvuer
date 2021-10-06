@@ -182,10 +182,14 @@ export default {
       this.zIndex = state.zIndex;
       this.showDialogIcons = state.showDialogIcons;
       this.activeDockedId = state.activeDockedId;
-      this.currentCount = state.currentCount;
       this.entries = [];
       Object.assign(this.entries, state.entries);
-      store.commit("splitFlow/setState", state.splitFlow);  
+      this.currentCount = state.currentCount;
+      //Support both old and new permalink.
+      if (state.splitFlow)
+        store.commit("splitFlow/setState", state.splitFlow);
+      else
+        this.entries.forEach(entry => store.commit("splitFlow/setIdToPrimarySlot", entry.id));
     },
     getState: function() {
       let state = JSON.parse(JSON.stringify(this.$data));
