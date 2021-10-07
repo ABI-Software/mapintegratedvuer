@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.2.3",
+  "version": "0.2.3-fixes-1",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
