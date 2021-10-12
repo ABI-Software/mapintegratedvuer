@@ -509,7 +509,7 @@ export default {
     height: calc(100% - 30px);
     left: 0px;
     top: 30px;
-    z-index: 2;
+    z-index: 3;
   }
 
   &.twovertpanel-2 {
@@ -533,7 +533,7 @@ export default {
     height: calc(50% - 31px);
     left: calc(50% + 2px);
     top: calc(50% + 32px);
-    z-index: 1;
+    z-index: 2;
   }
 
   &.fourpanel-1 {
