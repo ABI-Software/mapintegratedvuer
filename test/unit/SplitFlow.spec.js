@@ -7,10 +7,6 @@ import { SideBar } from '@abi-software/map-side-bar';
 const testState = {
   "activeDockedId":3,
   "currentCount":3,
-  "dockedArray":[
-    {"id":1,"title":"Flatmap"},
-    {"id":3,"title":"Stomach Scaffold"}
-  ],
   "entries":[
     {
       "availableSpecies":{"Cat":{"displayWarning":true,"iconClass":"icon-mapicon_cat","taxo":"NCBITaxon:9685"},
@@ -110,6 +106,6 @@ describe('SplitFlow.vue', () => {
   }),
   it('setState', () => {
     expect(wrapper.vm.setState(testState)).to.be.an('undefined');
-    expect(wrapper.vm.dockedArray).to.have.lengthOf(2);
+    expect(wrapper.vm.currentCount).to.equal(3);
   })
 })
