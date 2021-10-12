@@ -46,7 +46,24 @@ module.exports = {
       {
         test: /\.css$/,
         loaders: ['vue-style-loader', 'css-loader', 'resolve-url-loader'],
-      }
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              prependData: `@import '@/assets/styles';`
+            }
+          }
+        ]
+      },
+      {
+        test: /\.(vs|fs)$/i,
+        loaders: ['raw-loader'],
+      },
     ]
   },
   plugins: [

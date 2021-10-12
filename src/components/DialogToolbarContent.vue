@@ -1,21 +1,45 @@
 <template>
-  <div class="header">
-    <el-row class="content">
-      <div class="title" v-for="title in dialogTitles" :key="title.id">
-        <div  class="title-text-table" v-bind:class="{ highlightText : (title.id==activeId) }" v-on:click="titleClicked(title.id)">
-          <div class="title-text">
-            {{title.title}}
-          </div>
-        </div>
-      </div>
-    </el-row>
-  
+  <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
     <el-row class="icon-group" >
+      <el-popover
+        ref="viewPopover"
+        placement="bottom"
+        width="133"
+        :appendToBody=false
+        trigger="click"
+        popper-class="view-icon-popover">
+        <el-row :gutter="20"
+          v-for="item in viewIcons"
+          :key="item.name"
+          :class="[{ 'active': item.icon ==  activeView},
+            {'disabled': item.min > numberOfEntries},
+            'view-icon-row']"
+          @click.native="viewClicked(item.icon)"
+        >
+          <el-col :span="4">
+            <svg-icon :icon="item.icon"
+              class="view-icon"/>
+          </el-col>
+          <el-col :offset="2" :span="18" class="view-text">
+            {{item.name}}
+          </el-col>
+        </el-row>
+      </el-popover>
+      <el-popover class="tooltip"  content="Split screen" placement="bottom-end"
+        :open-delay="helpDelay" :appendToBody=false trigger="hover"
+        popper-class="header-popper"
+        v-show="topLevelControls">
+        <svg-icon :icon="activeView"
+          v-popover:viewPopover
+          :class="[{'disabled': 1 >= numberOfEntries},
+            'header-icon']"
+          slot="reference"/>
+      </el-popover>
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
         <svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
       </el-popover>
-      <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip" 
+      <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip"
         content="Fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
           <svg-icon icon="fullScreen"  slot="reference" class="header-icon" @click.native="onFullscreen"/>
@@ -25,14 +49,6 @@
         :appendToBody=false trigger="hover" popper-class="header-popper">
           <svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
             @click.native="onFullscreen"/>
-      </el-popover>
-      <el-popover class="tooltip" content="Dock" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="!isDocked && showIcons">
-        <svg-icon icon="dock" slot="reference" class="header-icon" @click.native="toggleDock"/>
-      </el-popover>
-      <el-popover class="tooltip" content="Undock" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="isDocked && showIcons">
-        <svg-icon icon="undock" slot="reference" class="header-icon" @click.native="toggleDock"/>
       </el-popover>
       <el-popover
         ref="linkPopover"
@@ -73,7 +89,7 @@
         v-show="topLevelControls && shareLink">
         <svg-icon icon="permalink"
           v-popover:linkPopover
-          class="header-icon" 
+          class="header-icon"
           @click.native="getShareLink"
           slot="reference"/>
       </el-popover>
@@ -114,11 +130,15 @@ Vue.component('svg-icon', SvgIcon);
  */
 export default {
   name: "DialogToolbarContent",
+
   props: {
     /**
      * Array of titles.
      */
-    dialogTitles: Array,
+    numberOfEntries: {
+      type: Number,
+      default: 0
+    },
     /**
      * Display icons for docking, undocking and etc.
      */
@@ -129,7 +149,7 @@ export default {
     },
     topLevelControls: {
       type: Boolean,
-      default: false
+      default: true
     },
     /**
      * The current active title.
@@ -147,6 +167,12 @@ export default {
     shareLink() {
       return store.state.settings.shareLink;
     },
+    activeView() {
+      return store.state.splitFlow.activeView;
+    },
+    viewIcons() {
+      return store.state.splitFlow.viewIcons;
+    }
   },
   watch: {
     shareLink: function() {
@@ -156,7 +182,6 @@ export default {
   data: function() {
     return {
       isFullscreen: false,
-      isDocked: true,
       helpDelay: 500,
       loadingLink: true,
       shareLinkDisplay: false,
@@ -173,14 +198,6 @@ export default {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
     },
-    toggleDock: function() {
-      this.$emit("maximise");
-      this.isDocked = true
-    },
-    minimise: function() {
-      this.$emit("minimise");
-      this.isDocked = false
-    },
     close: function() {
       this.$emit("close");
     },
@@ -195,52 +212,25 @@ export default {
       this.shareLinkDisplay = true;
       EventBus.$emit("updateShareLinkRequested");
     },
-  },
-  mounted: function(){
-    if(!this.topLevelControls){
-      this.isDocked = false;
+    viewClicked: function(view) {
+      store.commit("splitFlow/updateActiveView", view);
     }
-  }
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+@import "~element-ui/packages/theme-chalk/src/button";
+@import "~element-ui/packages/theme-chalk/src/loading";
+@import "~element-ui/packages/theme-chalk/src/icon";
+@import "~element-ui/packages/theme-chalk/src/input";
+@import "~element-ui/packages/theme-chalk/src/popover";
+@import "~element-ui/packages/theme-chalk/src/row";
 
 .content {
   width:calc(100% - 120px);
-}
-
-.title {
-  width: 101px;
-  height: 38px;
-  border-right: solid 1px #dcdfe6;
-  background-color: white;
-  display:inline-block;
-}
-
-.title:hover {
-  cursor: pointer;
-}
-
-.title-text {
-  text-align:center;
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.title-text-table {
-  display:table;
-  height: 100%;
-  width: 100%;
-}
-
-.parent-dialog:hover .title-text {
-  color:#8300bf;
-}
-
-.highlightText {
-  color:#8300bf;
+  height:32px;
 }
 
 .icon-group {
@@ -248,17 +238,18 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  top: 8px;
+  top: 4px;
   right:12px;
 }
 
-.icon-group >>> .el-button--text {
-  color:#606266;
-  font-size: 1.5em;
-}
-
-.icon-group >>> .el-button--text:hover {
-  color:#8300bf;
+.icon-group {
+  ::v-deep .el-button--text {
+    color:#606266;
+    font-size: 1.5em;
+    &:hover {
+      color: $app-primary-color;
+    }
+  }
 }
 
 .icon-transform {
@@ -270,75 +261,130 @@ export default {
   padding:10px;
 }
 
-.header:hover {
+.header {
+  height:32px;
+}
+
+.draggable.header:hover {
   cursor:grab;
 }
 
-.header:active {
+.draggable.header:active {
   cursor:grabbing;
 }
 
->>> .header-popper {
+::v-deep .header-popper {
   padding: 6px 4px;
   font-size:12px;
   color: rgb(48, 49, 51);
   background-color: #f3ecf6;
-  border: 1px solid rgb(131, 0, 191);
+  border: 1px solid $app-primary-color;
   white-space: nowrap;
-  min-width: unset; 
+  min-width: unset;
 }
 
->>> .el-popper[x-placement^=bottom] .popper__arrow {
-  border-bottom-color: rgb(131, 0, 191);
+::v-deep .link-popover {
+  border: 1px solid $app-primary-color;
 }
 
->>> .header-popper.el-popper[x-placement^=bottom] .popper__arrow:after{
-  border-bottom-color: #f3ecf6 !important;
-}
-
->>> .link-popover {
-  border: 1px solid rgb(131, 0, 191);
+::v-deep .el-loading-spinner {
+  i, .el-loading-text {
+    color: $app-primary-color;
+  }
 }
 
 .header-icon {
   font-size: 1.8em;
-  color: #8300bf;
+  color: $app-primary-color;
   margin-right:10px;
   cursor: pointer;
+  ::v-deep .el-popper[x-placement^=bottom] {
+    border-bottom-color: $app-primary-color;
+    .popper__arrow:after{
+      &::after { 
+        border-bottom-color: #f3ecf6 !important;
+      }
+    }
+  }
 }
 
 .copy-button {
   color:#FFFFFF;
-  background-color:#8300bf;
+  background-color:$app-primary-color;
+  &:hover, &:focus {
+    color:#FFFFFF;
+    background-color:$app-primary-color;
+    box-shadow: -3px 2px 4px #000000; 
+  }
 }
 
-.copy-button:hover {
-  color:#FFFFFF;
-  background-color:#8300bf;
-  box-shadow: -3px 2px 4px #000000;
-}
-.copy-button:focus {
-  color:#FFFFFF;
-  background-color:#8300bf;
-  box-shadow: -3px 2px 4px #000000;
-}
-
-.link-input >>> .el-input__inner {
-  color:#303133;
-}
-
-.link-input >>> .el-input__inner:focus {
-  border-color:#8300bf;
+.link-input {
+  ::v-deep .el-input__inner {
+    color:#303133;
+    &:focus {
+      border-color:$app-primary-color;
+    }
+  }
 }
 
 .tooltip {
-  font-family: Asap;
+  font-family: 'Asap', 'Avenir',  Arial, sans-serif;
 }
 
->>>.el-loading-spinner i{
-  color: #8300bf;
+.view-icon-row {
+  height: 32px;
+  width: 133px;
+  border-radius: 4px;
+  border: 1px solid rgb(151, 151, 151);
+  font-size: 14px;
+  margin:8px 0px 0px 0px!important;
+  cursor: pointer;
+
+  &.active {
+    border: 1px solid $app-primary-color;
+    background: rgba(131, 0, 191, 0.1);
+  }
 }
->>>.el-loading-spinner .el-loading-text {
-  color: #8300bf;
+
+
+.header-icon.disabled,
+.view-icon-row.disabled {
+  cursor: default;
+  pointer-events: none;
 }
+
+.view-icon {
+  font-size: 1.7em;
+  color: $app-primary-color;
+  padding-top:3px;
+}
+
+.view-text {
+  letter-spacing:0px;
+  font-size:11px;
+  line-height:14px;
+  font-family:'Asap', 'Avenir',  Arial, sans-serif;
+  font-weight:550;
+  padding-top:7px;
+}
+
+.header-icon.disabled,
+.disabled .view-icon,
+.disabled .view-text {
+  opacity:0.5;
+}
+
+::v-deep .view-icon-popover {
+  border: 1px solid $app-primary-color;
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
+  padding: 4px 8px 12px 8px;
+  min-width:unset!important;
+  cursor:default;
+  .el-popper[x-placement^=bottom] {
+    .popper__arrow:after{
+      border-bottom-color: #fff !important;
+    }
+  }
+}
+
 </style>

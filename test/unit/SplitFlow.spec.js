@@ -1,16 +1,12 @@
 import { shallowMount } from '@vue/test-utils'
-import FloatingFlow from '../../src/components/FloatingFlow';
+import SplitFlow from '../../src/components/SplitFlow';
 import DialogToolbarContent from '../../src/components/DialogToolbarContent';
-import FloatingDialog from '../../src/components/FloatingDialog';
+import SplitDialog from '../../src/components/SplitDialog';
 import { SideBar } from '@abi-software/map-side-bar';
 
 const testState = {
   "activeDockedId":3,
   "currentCount":3,
-  "dockedArray":[
-    {"id":1,"title":"Flatmap"},
-    {"id":3,"title":"Stomach Scaffold"}
-  ],
   "entries":[
     {
       "availableSpecies":{"Cat":{"displayWarning":true,"iconClass":"icon-mapicon_cat","taxo":"NCBITaxon:9685"},
@@ -48,7 +44,7 @@ const testState = {
 
 const div = document.createElement('div');
 document.body.appendChild(div);
-const wrapper = shallowMount(FloatingFlow, {
+const wrapper = shallowMount(SplitFlow, {
   attachTo: div});
 
 const data = [
@@ -81,15 +77,15 @@ const data = [
   },
 ];
 
-describe('FloatingFlow.vue', () => {
+describe('SplitFlow.vue', () => {
   it('DialogToolbarContent', () => {
     expect(wrapper.findComponent(DialogToolbarContent).exists()).to.be.true;
   }),
   it('dialog-header', () => {
     expect(wrapper.find(".dialog-header").exists()).to.be.true;
   }),
-  it('FloatingDialog', () => {
-    expect(wrapper.findComponent(FloatingDialog).exists()).to.be.true;
+  it('SplitDialog', () => {
+    expect(wrapper.findComponent(SplitDialog).exists()).to.be.true;
   }),
   it('SideBar', () => {
     expect(wrapper.findComponent(SideBar).exists()).to.be.true;
@@ -106,36 +102,10 @@ describe('FloatingFlow.vue', () => {
     expect(wrapper.vm.actionClick(data[0])).to.be.an('undefined');
   }),
   it('allDialogs', () => {
-    expect(wrapper.findAllComponents(FloatingDialog)).to.have.lengthOf(5);
-  }),
-  it('dialogMaximise', () => {
-    expect(wrapper.vm.dialogMaximise(2)).to.be.an('undefined');
-    expect(wrapper.vm.dockedArray).to.have.lengthOf(2);
-  }),
-  it('dockedMaximise', () => {
-    expect(wrapper.vm.dockedMaximise()).to.be.an('undefined');
-    expect(wrapper.vm.dockedArray).to.have.lengthOf(1);
-  }),
-  it('dialogMaximise', () => {
-    expect(wrapper.vm.dialogMaximise(3)).to.be.an('undefined');
-    expect(wrapper.vm.dockedArray).to.have.lengthOf(2);
-  }),
-  it('dockedMinimise', () => {
-    expect(wrapper.vm.dockedMinimise()).to.be.an('undefined');
-  }),
-  it('dockedTitleClicked', () => {
-    expect(wrapper.vm.dockedTitleClicked(3)).to.be.an('undefined');
-  }),
-  it('dockedClose', () => {
-    expect(wrapper.vm.dockedClose()).to.be.an('undefined');
-    expect(wrapper.vm.dockedArray).to.have.lengthOf(1);
-    expect(wrapper.vm.activeDockedId).to.equal(1);
-  }),
-  it('dialogClicked', () => {
-    expect(wrapper.vm.dialogClicked()).to.be.an('undefined');
+    expect(wrapper.findAllComponents(SplitDialog)).to.have.lengthOf(1);
   }),
   it('setState', () => {
     expect(wrapper.vm.setState(testState)).to.be.an('undefined');
-    expect(wrapper.vm.dockedArray).to.have.lengthOf(2);
+    expect(wrapper.vm.currentCount).to.equal(3);
   })
 })

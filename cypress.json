@@ -4,5 +4,6 @@
     "testFiles": "**/*.spec.js"
   },
   "viewportWidth": 1440,
-  "viewportHeight": 900
+  "viewportHeight": 900,
+  "nodeVersion": "system"
 }

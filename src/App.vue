@@ -1,5 +1,4 @@
 <template>
-
   <div id="app">
     <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap">
@@ -31,9 +30,11 @@
 import MapContent from './components/MapContent.vue';
 import Vue from "vue";
 import {
+  Button,
   Popover,
   Row,
 } from 'element-ui';
+Vue.use(Button);
 Vue.use(Popover);
 Vue.use(Row);
 
@@ -109,16 +110,22 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "~element-ui/packages/theme-chalk/src/button";
+@import "~element-ui/packages/theme-chalk/src/popover";
+@import "~element-ui/packages/theme-chalk/src/row";
+
 #app {
   height:100%;
   width: 100%;
   position:absolute;
   font-family: "Asap",sans-serif;
 }
+
 body {
-  line-height: 1.5rem;
+  margin: 0px;
 }
+
 .map-app {
   position:absolute;
   height: calc(100% - 104px);

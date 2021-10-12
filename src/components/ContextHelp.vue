@@ -3,7 +3,7 @@
     <el-card class="box-card"
       @mouseover.native="isActive = true"
       @mouseleave.native="isActive = false"
-      v-bind:class="{active: isActive}">
+      :class="{active: isActive}">
       <div slot="header" class="header">
         <span>Needing some help?</span>
         <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
@@ -57,7 +57,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
 .step-item {
   font-size: 14px;
   margin-bottom: 18px;
@@ -75,7 +75,7 @@ export default {
 }
 
 .active {
-    width: 380px !important;
-    height: 380px !important;
+  width: 380px !important;
+  height: 380px !important;
 }
 </style>
