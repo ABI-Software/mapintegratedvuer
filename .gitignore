@@ -5,3 +5,4 @@ test_html
 .env.local
 .yalc
 yalc.lock
+cypress/videos
