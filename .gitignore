@@ -6,3 +6,4 @@ test_html
 .yalc
 yalc.lock
 cypress/videos
+results

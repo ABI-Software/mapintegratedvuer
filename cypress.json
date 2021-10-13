@@ -5,5 +5,10 @@
   },
   "viewportWidth": 1440,
   "viewportHeight": 900,
-  "nodeVersion": "system"
+  "nodeVersion": "system",
+  "reporter": "junit",
+  "reporterOptions": {
+    "mochaFile": "results/cypress-report.xml",
+    "toConsole": true
+  }
 }
