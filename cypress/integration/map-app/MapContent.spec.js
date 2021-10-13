@@ -1,17 +1,29 @@
 import { mount } from '@cypress/vue';
 import { MapContent } from '../../../src/components/index.js';
-import { StubResponses } from './StubResponse';
-import { ScaffoldResponse } from './ScaffoldResponse.js';
 
 describe('MapContent', () => {
-  it('test something', () => {
-    cy.intercept('/sparc-api/get-facets/species', {statusCode: 200, body: StubResponses.speciesResponse});
 
-    cy.intercept('/sparc-api/get-facets/gender', {statusCode: 200, body: StubResponses.genderResponse});
+  before(() => {
+    cy.fixture('scaffoldMetadata.json').as('metadata');
+    cy.fixture('scaffoldPrimitive.json').as('primitive');
+    cy.fixture('stubResponse.json').as('stub');
+  })
+  
+  it('Workflow testing', () => {
 
-    cy.intercept( '/sparc-api/get-facets/organ', {statusCode: 200, body: StubResponses.organResponse});
+    cy.get('@stub').then((stub) => {
+      cy.intercept('/sparc-api/get-facets/species', {statusCode: 200, body: stub.speciesResponse});
 
-    cy.intercept('/sparc-api/filter-search/*', {statusCode: 200, body: StubResponses.noResponse});
+      cy.intercept('/sparc-api/get-facets/gender', {statusCode: 200, body: stub.genderResponse});
+
+      cy.intercept( '/sparc-api/get-facets/organ', {statusCode: 200, body: stub.organResponse});
+
+      cy.intercept('/sparc-api/filter-search/*', {statusCode: 200, body: stub.noResponse});
+    
+      cy.intercept('/sparc-api/get-organ-curies?', {statusCode: 200, body: stub.curiesResponse}).as("curieResponse");
+    })
+
+    cy.intercept('GET', 'https://mapcore-demo.org/current/flatmap/v2/**');
     
     mount(MapContent, {
       propsData: {
@@ -23,8 +35,6 @@ describe('MapContent', () => {
     cy.get('.mapcontent').invoke('attr', 'style', 'height: 880px').should(
       'have.attr', 'style', 'height: 880px');
 
-    cy.intercept('GET', 'https://mapcore-demo.org/current/flatmap/v2/**');
-
     cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask').should('exist');
 
     cy.get('.header').should('be.visible');
@@ -33,24 +43,25 @@ describe('MapContent', () => {
 
     cy.get('.open-tab > .el-icon-arrow-left').should('exist');
 
-    cy.intercept('/sparc-api/get-organ-curies?', {statusCode: 200, body: StubResponses.curiesResponse}).as("curieResponse");
-
     cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask', {timeout:20000}).should('not.exist');
 
     cy.wait('@curieResponse');
 
-    cy.intercept('/sparc-api/filter-search/?', {statusCode: 200, body: StubResponses.noResponse});
+    cy.get('@stub').then((stub) => {
+      cy.intercept('/sparc-api/filter-search/?', {statusCode: 200, body: stub.noResponse});
 
-    cy.intercept('/sparc-api/get-facets/species', {statusCode: 200, body: StubResponses.speciesResponse});
+      cy.intercept('/sparc-api/get-facets/species', {statusCode: 200, body: stub.speciesResponse});
 
-    cy.intercept('/sparc-api/get-facets/gender', {statusCode: 200, body: StubResponses.genderResponse});
+      cy.intercept('/sparc-api/get-facets/gender', {statusCode: 200, body: stub.genderResponse});
 
-    cy.intercept( '/sparc-api/get-facets/organ', {statusCode: 200, body: StubResponses.organResponse});
+      cy.intercept( '/sparc-api/get-facets/organ', {statusCode: 200, body: stub.organResponse});
 
-    cy.intercept('/sparc-api/filter-search/?term=organ&facet=heart*', {statusCode: 200, body: StubResponses.resultResponse});
+      cy.intercept('/sparc-api/filter-search/?term=organ&facet=heart*', {statusCode: 200, body: stub.resultResponse});
 
-    cy.intercept('/discover/datasets/doi/1111/11111', {statusCode: 200, body: StubResponses.datasetResult}).as("finalResponse");
+      cy.intercept('/discover/datasets/doi/1111/11111', {statusCode: 200, body: stub.datasetResult}).as("finalResponse");
+    });
 
+    //This get the heart marker then click on it. It is susceptible to map changes
     cy.get('[style="transform: translate(-50%, -50%) translate(707px, 558px) rotateX(0deg) rotateZ(0deg);"] > .flatmap-marker > svg > [fill-rule="nonzero"] > [transform="translate(3.0, 29.0)"] > [rx="4.5"]').should('be.visible').click({force: true});
 
     cy.get('.el-tag > span').contains('Heart');
@@ -61,10 +72,14 @@ describe('MapContent', () => {
 
     cy.get('.el-card__body > .content').find('.card').should('have.length', 1);
 
-    cy.intercept('/sparc-api/s3-resource/32/3/files/derivative/H-4/scaffold/metadata.json', {statusCode: 200, body: ScaffoldResponse.metadata});
-  
-    cy.intercept('/sparc-api/s3-resource/32/3/files/derivative/H-4/scaffold/cube_2.json', {statusCode: 200, body: ScaffoldResponse.primitive1}).as("scaffoldResponse");
-  
+    cy.get('@metadata').then((metadata) => {
+      cy.intercept('/sparc-api/s3-resource/32/3/files/derivative/H-4/scaffold/metadata.json', {statusCode: 200, body: metadata});
+    })
+
+    cy.get('@primitive').then((primitive) => {
+      cy.intercept('/sparc-api/s3-resource/32/3/files/derivative/H-4/scaffold/cube_2.json', {statusCode: 200, body: primitive}).as("scaffoldResponse");
+    })
+    
     cy.get(':nth-child(6) > .el-button').should('be.visible').click({force: true});
 
     cy.get('.scaffold-container').should('be.visible');
