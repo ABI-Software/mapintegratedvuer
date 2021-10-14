@@ -1,0 +1,10 @@
+[
+  {
+      "GroupName" : "cube",
+      "MorphColours" : false,
+      "MorphNormals" : false,
+      "MorphVertices" : false,
+      "Type" : "Surfaces",
+      "URL" : "cube_2.json"
+  }
+]
