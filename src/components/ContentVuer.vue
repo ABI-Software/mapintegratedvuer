@@ -20,7 +20,7 @@
         :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
       <SimulationVuer v-else-if="entry.type === 'Simulation'"
         :apiLocation="apiLocation" :entry="entry" />
-      <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
+      <IframeVuer v-else-if="isIframe()" :url="entry.resource.share_link" />
     </div>
   </div>
 </template>
@@ -76,6 +76,16 @@ export default {
         return this.$refs.flatmap.getState();
       }
       return undefined;
+    },
+    isIframe:function() {
+      switch (this.entry.type) {
+        case 'Biolucida':
+        case 'Iframe':
+        case 'Segmentation':
+          return true;
+        default:
+         return false;
+      }
     },
     /**
      * Callback when the vuers emit a selected event.
