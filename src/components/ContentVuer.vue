@@ -1,6 +1,9 @@
 <template>
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
+    <template v-if="activeView == 'singlepanel' && entry.type === 'MultiFlatmap' && (activeSpecies === 'Rat' || activeSpecies === 'Human')">
+      <el-button class="open-scaffold" @click="openScaffold()">Open 3D map</el-button>
+    </template>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
         @flatmapChanged="flatmapChanged" @ready="updateMarkers" :state="entry.state"
@@ -27,6 +30,8 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Vue from "vue";
+import { Button } from "element-ui";
 import EventBus from './EventBus';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
@@ -39,6 +44,11 @@ import { getInteractiveAction } from './SimulatedData.js';
 import { SimulationVuer } from '@abi-software/simulationvuer';
 import '@abi-software/simulationvuer/dist/simulationvuer.css';
 import store from '../store';
+import lang from "element-ui/lib/locale/lang/en";
+import locale from "element-ui/lib/locale";
+
+locale.use(lang);
+Vue.use(Button);
 
 export default {
   name: "ContentVuer",
@@ -63,6 +73,31 @@ export default {
     SimulationVuer,
   },
   methods: {
+    openScaffold:function() {
+      if (this.activeSpecies === "Rat") {
+        let action = {
+          contextCard: undefined,
+          discoverId: undefined,
+          label: "Rat Map",
+          resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
+          title: "View 3D scaffold",
+          layout: "2horpanel",
+          type: "SyncMap"
+        }
+        EventBus.$emit("PopoverActionClick", action);
+      } else if (this.activeSpecies === "Human") {
+        let action = {
+          contextCard: undefined,
+          discoverId: undefined,
+          label: "Human Map",
+          resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/humanBody/humanBody_syncmap_metadata.json",
+          title: "View 3D scaffold",
+          layout: "2vertpanel",
+          type: "SyncMap"
+        }
+        EventBus.$emit("PopoverActionClick", action);
+      }
+    },
     onResize: function () {
       if (this.entry.type === 'Scaffold')
         this.scaffoldCamera.onResize();
@@ -114,7 +149,8 @@ export default {
     resourceHasAction(resource){
       return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search')
     },
-    flatmapChanged: function() {
+    flatmapChanged: function(activeSpecies) {
+      this.activeSpecies = activeSpecies;
       this.$emit("flatmapChanged");
     },
     updateMarkers: function(component) {
@@ -170,6 +206,7 @@ export default {
   data: function() {
     return {
       apiLocation: process.env.VUE_APP_API_LOCATION,
+      activeSpecies: "Rat",
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",
@@ -191,6 +228,9 @@ export default {
   computed: {
     facetSpecies() {
       return store.state.settings.facets.species;
+    },
+    activeView() {
+      return store.state.splitFlow.activeView;
     },
   },
   watch: {
@@ -221,6 +261,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@import "~element-ui/packages/theme-chalk/src/button";
 .dataset-header {
   height: 23px;
 }
@@ -239,6 +280,13 @@ export default {
     width: 25em;
     background: #fff;
   }
+}
+
+.open-scaffold {
+  position: absolute;
+  left: calc(50% - 64px);
+  z-index: 2;
+  top: 8px;
 }
 
 </style>

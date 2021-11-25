@@ -126,11 +126,13 @@ export default {
           });
           if (speciesFacets.length == 0)
             speciesFacets.push({facet: "show all", term:'species'});
-          this.$refs.sideBar.openSearch('',
+            this.$refs.sideBar.openSearch('',
             [...speciesFacets,
             {facet: "show all", term:'gender'},
             {facet: action.label.toLowerCase(), term:'organ'},
             {facet: "show all", term:'datasets'}]);
+        } else if (action.type == "SyncMap") {     
+          this.activateSyncMap(action);   
         } else {
           this.createNewEntry(action);
         }
@@ -140,6 +142,29 @@ export default {
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
       }
+    },
+    /**
+     * Activate Synchronised workflow
+     */
+    activateSyncMap: function(data) {
+      let newEntry = {};
+      Object.assign(newEntry, data);
+      newEntry.mode = "normal";
+      newEntry.id = ++this.currentCount;
+      newEntry.zIndex = ++this.zIndex; 
+      newEntry.state = undefined;
+      newEntry.type = "Scaffold";
+      newEntry.discoverId = data.discoverId;
+      this.entries.push(newEntry);
+      let payload = {
+        id: newEntry.id,
+        slotName: "second"
+      };
+      store.commit("splitFlow/setIdToSlot", payload);
+      this.$nextTick(() => {
+        store.commit("splitFlow/updateActiveView", data.layout);
+      });
+      return newEntry.id;
     },
     /**
      * Add new entry which will sequentially create a

@@ -104,6 +104,17 @@ const mutations = {
       availableSlot.id = primarySlot.id;
     }
     primarySlot.id = id;
+  },
+  setIdToSlot(state, payload) {
+    let availableSlot = state.slotInfo.find(slot => slot.id === 0);
+    let slot = state.slotInfo.find(
+      slotInfo => slotInfo.name === payload.slotName);
+    if (slot) {
+      if (availableSlot) {
+        availableSlot.id = slot.id;
+      }
+      slot.id = payload.id;
+    }
   }
 };
 
