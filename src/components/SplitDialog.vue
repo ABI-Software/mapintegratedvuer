@@ -230,6 +230,16 @@ export default {
       }
       return style;
     },
+    getActiveContents: function() {
+      const activeContents = [];
+      const activeIds = store.getters["splitFlow/getActiveEntriesId"]();
+      const vuers = this.$refs['content'];
+      vuers.forEach(vuer => {
+        if (activeIds.includes(vuer.$vnode.key))
+          activeContents.push(vuer);
+      });
+      return activeContents;
+    },
     isSlotActive: function(name) {
       let slot = store.getters["splitFlow/getSlotByName"](name);
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
@@ -239,6 +249,12 @@ export default {
       let slot = store.getters["splitFlow/getSlotById"](id);
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
+    },
+    sendEventToActiveContents: function(resource) {
+      const activeContents = this.getActiveContents();
+      activeContents.forEach(content => {
+        content.receiveEvent(resource);
+      });
     },
     getContentsState: function() {
       let states = [];

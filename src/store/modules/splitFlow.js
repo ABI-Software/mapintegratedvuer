@@ -15,7 +15,8 @@ const state = () => ({
     { icon: "3panel", name: "Three panes", min: 3 },
     { icon: "4panel", name: "Four panes", min: 4 }
   ],
-  splitters: { "first": 50, "second": 50, "third": 50 }
+  splitters: { "first": 50, "second": 50, "third": 50 },
+  globalCallback: false
 });
 
 const getters = {
@@ -33,6 +34,15 @@ const getters = {
   getSlotByName: (state) => (name) => {
     let slot = state.slotInfo.find(slot => slot.name === name);
     return slot;
+  },
+  getActiveEntriesId: (state) => () => {
+    const ids = [];
+    const view = state.viewIcons.find(view => state.activeView === view.icon);
+    state.slotInfo.forEach(slot => {
+      if (view.min >= slot.activation)
+        ids.push(slot.id);
+    });
+    return ids;
   },
   isSlotActive: (state) => (slot) => {
     if (slot) {
@@ -77,6 +87,9 @@ const mutations = {
     let view = state.viewIcons.find(view => view.min === count);
     if (view)
       state.activeView = view.icon;
+  },
+  toggleGlobalCallback(state, flag) {
+    state.globalCallback = flag;
   },
   updateActiveView(state, activeView) {
     state.activeView = activeView;

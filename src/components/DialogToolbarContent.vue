@@ -1,5 +1,9 @@
 <template>
   <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
+    <el-radio-group class="radio-control" v-model="globalCallback" @change="callbackModeChange">
+      <el-radio label="0">Local callback</el-radio>
+      <el-radio label="1">Global callback</el-radio>
+    </el-radio-group>
     <el-row class="icon-group" >
       <el-popover
         ref="viewPopover"
@@ -115,6 +119,7 @@ import {
   Icon,
   Input,
   Popover,
+  Radio,
   Row
 } from "element-ui";
 
@@ -123,6 +128,7 @@ Vue.use(Col);
 Vue.use(Icon);
 Vue.use(Input);
 Vue.use(Popover);
+Vue.use(Radio);
 Vue.use(Row);
 Vue.component('svg-icon', SvgIcon);
 /**
@@ -185,6 +191,7 @@ export default {
       helpDelay: 500,
       loadingLink: true,
       shareLinkDisplay: false,
+      globalCallback: "0"
     }
   },
   methods: {
@@ -214,6 +221,10 @@ export default {
     },
     viewClicked: function(view) {
       store.commit("splitFlow/updateActiveView", view);
+    },
+    callbackModeChange : function(value) {
+      let flag = (value === "1");
+      store.commit("splitFlow/toggleGlobalCallback", flag);
     }
   },
 };
@@ -226,11 +237,19 @@ export default {
 @import "~element-ui/packages/theme-chalk/src/icon";
 @import "~element-ui/packages/theme-chalk/src/input";
 @import "~element-ui/packages/theme-chalk/src/popover";
+@import "~element-ui/packages/theme-chalk/src/radio";
 @import "~element-ui/packages/theme-chalk/src/row";
 
 .content {
   width:calc(100% - 120px);
   height:32px;
+}
+
+.radio-control {
+  position:absolute;
+  justify-content: center;
+  top: 4px;
+  left:12px;
 }
 
 .icon-group {

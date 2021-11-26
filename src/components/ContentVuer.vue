@@ -1,7 +1,7 @@
 <template>
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
-    <template v-if="activeView == 'singlepanel' && entry.type === 'MultiFlatmap' && (activeSpecies === 'Rat' || activeSpecies === 'Human')">
+    <template v-if="entry.type === 'MultiFlatmap' && (activeSpecies === 'Rat' || activeSpecies === 'Human')">
       <el-button class="open-scaffold" @click="openScaffold()">Open 3D map</el-button>
     </template>
     <div :style="mainStyle">
@@ -124,30 +124,64 @@ export default {
 
       let returnedAction = undefined;
       let action = "none";
+      let fireResourceSelected = false;
+      const result = {paneIndex: this.entry.id, type: type, resource: resource, internalName: undefined};
+
       if (type == "MultiFlatmap" || type == "Flatmap") {
+        result.internalName = this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           if (resource.feature.type == "marker") {
             returnedAction = {};
             returnedAction.type = "Facet";
-            returnedAction.label = this.idNamePair[resource.feature.models];  
+            returnedAction.label = this.idNamePair[resource.feature.models];
+            result.internalName = this.idNamePair[resource.feature.models];
+            fireResourceSelected = true;
+            if (type == "MultiFlatmap") {
+              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+              flatmap.clearSearchResults();
+            }
           }
           else if (resource.feature.type == "feature") {
             action = "scaffold";
-          } 
+          }
+        } else if (resource.eventType == "mouseenter"){
+          fireResourceSelected = true;
         }
       } else if (type == "Scaffold"){
+        if (resource && resource[0])
+          result.internalName = resource[0].data.id;
+        fireResourceSelected = true;
         action = "search";
       }
-      const result = {paneIndex: this.index, type: type, resource: resource};
       if (returnedAction === undefined)
         returnedAction = getInteractiveAction(result, action);
-      if (returnedAction) {
+      if (returnedAction)
         EventBus.$emit("PopoverActionClick", returnedAction);
+      if (fireResourceSelected)
         this.$emit("resource-selected", result);
-      }
     },
     resourceHasAction(resource){
       return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search')
+    },
+    receiveEvent(data) {
+      if (data.paneIndex !== this.entry.id) {
+        let name = data.internalName;
+        if (name === undefined && data.resource) 
+          name = data.resource.label;
+        if (this.entry.type === 'Scaffold') {
+          if (data.resource.eventType === "mouseenter") {
+            this.$refs.scaffold.changeHighlightedByName(name, false);
+          }
+          if (data.resource.eventType === "click") {
+            this.$refs.scaffold.changeActiveByName(name, false);
+          }
+        }
+        else if (this.entry.type === 'MultiFlatmap') {
+          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+          const results = flatmap.search(name);
+          flatmap.showSearchResults(results);
+        }
+      }
     },
     flatmapChanged: function(activeSpecies) {
       this.activeSpecies = activeSpecies;
@@ -201,7 +235,8 @@ export default {
       window.removeEventListener("mousedown", this.endHelp)
       this.helpMode = false;
       setTimeout(()=>{this.isInHelp = undefined}, 200);
-    }
+    },
+
   },
   data: function() {
     return {
