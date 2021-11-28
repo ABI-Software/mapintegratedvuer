@@ -1,5 +1,6 @@
 <template>
   <el-container style="height:100%;background:white;">
+    <information-dialog ref="information"></information-dialog>
     <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="32px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :numberOfEntries="entries.length"
         :topLevelControls=true
@@ -35,6 +36,7 @@
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
+import InformationDialog from './InformationDialog';
 import SplitDialog from './SplitDialog';
 // import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
@@ -89,6 +91,7 @@ export default {
   name: "SplitFlow",
   components: {
     DialogToolbarContent,
+    InformationDialog,
     SplitDialog,
     SideBar,
   },
@@ -229,6 +232,10 @@ export default {
       return state;
     },
     resourceSelected: function(result) {
+      if (result.resource.eventType === "click" &&
+       result.internalName === "Vagus nerve") {
+          this.$refs.information.display();
+      }
       this.$emit("resource-selected", result);
       if (store.state.splitFlow.globalCallback){
         this.$refs.splitdialog.sendEventToActiveContents(result);
