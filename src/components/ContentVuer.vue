@@ -2,7 +2,7 @@
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
     <template v-if="entry.type === 'MultiFlatmap' && (activeSpecies === 'Rat' || activeSpecies === 'Human')">
-      <el-button class="open-scaffold" @click="openScaffold()">Open 3D map</el-button>
+      <el-button type="primary" plain class="open-scaffold" @click="toggleScaffold()">{{ scaffoldMapText }}</el-button>
     </template>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
@@ -73,7 +73,8 @@ export default {
     SimulationVuer,
   },
   methods: {
-    openScaffold:function() {
+    toggleScaffold:function() {
+      this.scaffoldMapActive = true;
       if (this.activeSpecies === "Rat") {
         let action = {
           contextCard: undefined,
@@ -248,6 +249,7 @@ export default {
         width: "100%",
         bottom: "0px",
       },
+      scaffoldMapActive: false,
       helpMode: false,
       idNamePair: {}
     }
@@ -267,6 +269,12 @@ export default {
     activeView() {
       return store.state.splitFlow.activeView;
     },
+    scaffoldMapText() {
+      if (this.scaffoldMapActive)
+        return "Close 3D Map";
+      else
+        return "Open 3D Map";
+    }
   },
   watch: {
     facetSpecies: function() {
@@ -317,11 +325,24 @@ export default {
   }
 }
 
-.open-scaffold {
+.open-scaffold{
   position: absolute;
   left: calc(50% - 64px);
   z-index: 2;
   top: 8px;
+  font-size:16px;
+  padding-top:9px;
+  padding-bottom:9px;
+  &.el-button--primary.is-plain {
+    &:hover, &:active, &:focus {
+    color: #8300BF;
+    background: #f3e6f9;
+    border-color: #cd99e5;
+    }
+    &:hover {
+      box-shadow: -3px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+  }
 }
 
 </style>

@@ -21,6 +21,11 @@
           :value="entry.id"
         />
       </el-select>
+      <el-switch
+        v-model="value1"
+        active-text="Linked"
+        inactive-text="Independent">
+      </el-switch>
     </div>
   </div>
 </template>

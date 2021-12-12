@@ -6,7 +6,8 @@
         :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
         @onFullscreen="onFullscreen"
-        :showHelpIcon="true"/>
+        :showHelpIcon="true"
+      />
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
@@ -24,10 +25,8 @@
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
-        > 
-        </SideBar>
+        /> 
       </div>
-      
     </el-main>
   </el-container>
 </template>
