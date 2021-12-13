@@ -22,9 +22,10 @@
         />
       </el-select>
       <el-switch
-        v-model="value1"
-        active-text="Linked"
-        inactive-text="Independent">
+        class="switch"
+        v-model="independent"
+        active-text="Independent"
+        inactive-text="Linked">
       </el-switch>
     </div>
   </div>
@@ -35,13 +36,14 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import store from "../store";
-import { Option, Select } from "element-ui";
+import { Option, Select, Switch } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 
 locale.use(lang);
 Vue.use(Option);
 Vue.use(Select);
+Vue.use(Switch);
 
 export default {
   name: "SplitpanesBar",
@@ -65,6 +67,11 @@ export default {
       type: Number,
       default: 50
     },
+  },
+  data: function() {
+    return {
+      independent: true
+    }
   },
   computed: {
     // This computed property populates filter data's entry object with $data from this sidebar
@@ -196,6 +203,7 @@ export default {
 <style scoped lang="scss">
 @import "~element-ui/packages/theme-chalk/src/option";
 @import "~element-ui/packages/theme-chalk/src/select";
+@import "~element-ui/packages/theme-chalk/src/switch";
 
 .toolbar {
   background-color: #f5f7fa !important;
@@ -306,5 +314,52 @@ i .select-box ::v-deep .el-input__icon {
       font-weight: normal;
     }
   }
+}
+.switch {
+  width:200px;
+  top:5px;
+  left: calc(50% - 60px);
+  position: absolute;
+  ::v-deep .el-switch__label.is-active {
+    color: $purple;
+  }
+  ::v-deep .el-switch__core {
+    background: $cochlear;
+    border: 1px solid $lightGrey;
+    &::before {
+      content: "";
+      position:absolute;
+      top: 1px;
+      left: 1px;
+      border-radius: 100%;
+      -webkit-transition: all .3s;
+      transition: all .3s;
+      width: 16px;
+      height: 16px;
+      background-color: $app-primary-color;
+    }
+    &::after {
+      top: 7px;
+      left: 7px;
+      width: 4px;
+      height: 4px;
+      background-color: $cochlear;
+    }
+  }
+  ::v-deep &.is-checked {
+    .el-switch__core {
+      border: 1px solid $lightGrey;
+      background: $cochlear;
+      &::before {
+        left: 100%;
+        margin-left:-17px;
+      }    
+      &::after {
+        left: 100%;
+        margin-left: -11px;
+      }
+    }
+  }
+  
 }
 </style>
