@@ -2,7 +2,7 @@
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
     <template v-if="entry.type === 'MultiFlatmap' && (activeSpecies === 'Rat' || activeSpecies === 'Human')">
-      <el-button type="primary" plain class="open-scaffold" @click="toggleScaffold()">{{ scaffoldMapText }}</el-button>
+      <el-button type="primary" plain class="open-scaffold" @click="toggleSyncMode()">{{ syncModeText }}</el-button>
     </template>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
@@ -73,30 +73,34 @@ export default {
     SimulationVuer,
   },
   methods: {
-    toggleScaffold:function() {
-      this.scaffoldMapActive = true;
-      if (this.activeSpecies === "Rat") {
-        let action = {
-          contextCard: undefined,
-          discoverId: undefined,
-          label: "Rat Map",
-          resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
-          title: "View 3D scaffold",
-          layout: "2horpanel",
-          type: "SyncMap"
+    toggleSyncMode:function() {
+      if (this.syncMode == false) {
+        let action = undefined;
+        if (this.activeSpecies === "Rat") {
+          action = {
+            contextCard: undefined,
+            discoverId: undefined,
+            label: "Rat Map",
+            resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
+            title: "View 3D scaffold",
+            layout: "2horpanel",
+            type: "SyncMap"
+          }
+        } else if (this.activeSpecies === "Human") {
+          action = {
+            contextCard: undefined,
+            discoverId: undefined,
+            label: "Human Map",
+            resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/humanBody/humanBody_syncmap_metadata.json",
+            title: "View 3D scaffold",
+            layout: "2vertpanel",
+            type: "SyncMap"
+          }
         }
-        EventBus.$emit("PopoverActionClick", action);
-      } else if (this.activeSpecies === "Human") {
-        let action = {
-          contextCard: undefined,
-          discoverId: undefined,
-          label: "Human Map",
-          resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/humanBody/humanBody_syncmap_metadata.json",
-          title: "View 3D scaffold",
-          layout: "2vertpanel",
-          type: "SyncMap"
-        }
-        EventBus.$emit("PopoverActionClick", action);
+        if (action)
+          EventBus.$emit("SyncModeRequest", { flag: true, action: action });
+      } else {
+        EventBus.$emit("SyncModeRequest", {flag: false});
       }
     },
     onResize: function () {
@@ -249,18 +253,9 @@ export default {
         width: "100%",
         bottom: "0px",
       },
-      scaffoldMapActive: false,
       helpMode: false,
       idNamePair: {}
     }
-  },
-  created: function() {
-    this.flatmapAPI = undefined;
-    this.apiLocation = undefined;
-    if (store.state.settings.flatmapAPI)
-      this.flatmapAPI = store.state.settings.flatmapAPI;
-    if (store.state.settings.api)
-      this.apiLocation = store.state.settings.api;
   },
   computed: {
     facetSpecies() {
@@ -269,8 +264,11 @@ export default {
     activeView() {
       return store.state.splitFlow.activeView;
     },
-    scaffoldMapText() {
-      if (this.scaffoldMapActive)
+    syncMode() {
+      return store.state.splitFlow.syncMode;
+    },
+    syncModeText() {
+      if (this.syncMode)
         return "Close 3D Map";
       else
         return "Open 3D Map";
@@ -285,6 +283,14 @@ export default {
       }
     }
   },
+  created: function() {
+    this.flatmapAPI = undefined;
+    this.apiLocation = undefined;
+    if (store.state.settings.flatmapAPI)
+      this.flatmapAPI = store.state.settings.flatmapAPI;
+    if (store.state.settings.api)
+      this.apiLocation = store.state.settings.api;
+  },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
       this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
@@ -295,9 +301,8 @@ export default {
       this.startHelp(id);
     })
   },
-  deactivated: function() {
-    let state = this.getState();
-    this.$emit("stateUpdated", this.entry.id, state);
+  destroyed: function() {
+    console.log("beforeDestroy")
   },
 };
 </script>

@@ -133,8 +133,6 @@ export default {
             {facet: "show all", term:'gender'},
             {facet: action.label.toLowerCase(), term:'organ'},
             {facet: "show all", term:'datasets'}]);
-        } else if (action.type == "SyncMap") {     
-          this.activateSyncMap(action);   
         } else {
           this.createNewEntry(action);
         }
@@ -158,14 +156,8 @@ export default {
       newEntry.type = "Scaffold";
       newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
-      let payload = {
-        id: newEntry.id,
-        slotName: "second"
-      };
-      store.commit("splitFlow/setIdToSlot", payload);
-      this.$nextTick(() => {
-        store.commit("splitFlow/updateActiveView", data.layout);
-      });
+      store.commit("splitFlow/setSyncMode", { flag: true, newId: newEntry.id,
+        layout: data.layout });
       return newEntry.id;
     },
     /**
@@ -182,6 +174,9 @@ export default {
       newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
+      if (store.state.splitFlow.syncMode) {
+        store.commit("splitFlow/setSyncMode", { flag: false });
+      }
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -230,6 +225,16 @@ export default {
       state.splitFlow = store.getters["splitFlow/getState"]();
       return state;
     },
+    removeEntry: function(id) {
+      if (id !== 1) {
+        let index = -1;
+        for (let i = 0; this.entries.length && index === -1; i++) {
+          if (this.entries[i].id === id)
+            index = i;
+        }
+        this.entries.splice(index, 1);
+      }
+    },
     resourceSelected: function(result) {
       if (result.resource.eventType === "click" &&
        result.internalName === "Vagus nerve") {
@@ -243,13 +248,22 @@ export default {
     flatmapChanged: function(){
       this.$emit("flatmapChanged");
     },
-    entryStateUpdated: function(id, state) {
-      let index = this.findIndexOfId(id);
-      if (index > -1)
-        this.entries[index].state = state;
-    },
     tabClicked: function(id){
       this.activeDockedId = id
+    },
+    toggleSyncMode: function(payload) {
+      if (payload) {
+        if (payload.flag) {
+          if (payload.action) {
+            this.activateSyncMap(payload.action);
+          }
+        } else {
+          if (store.state.splitFlow.syncMode) {
+            store.commit("splitFlow/setSyncMode",
+              { flag: false, entries: this.entries });
+          }
+        }
+      }
     }
   },
   data: function() {
@@ -271,15 +285,21 @@ export default {
     this.externalStateSet = false;
   },
   mounted: function() {
-    EventBus.$on("PopoverActionClick", (payLoad) => {
-      this.actionClick(payLoad);
-    })
+    EventBus.$on("RemoveEntryRequest", (id) => {
+      this.removeEntry(id);
+    });
+    EventBus.$on("SyncModeRequest", (payload) => {
+      this.toggleSyncMode(payload);
+    });
+    EventBus.$on("PopoverActionClick", (payload) => {
+      this.actionClick(payload);
+    });
     this.$nextTick(() => {
       this.$refs.sideBar.close();
       setTimeout(() => {
         this.startUp = false;
       }, 2000);
-    })
+    });
   },
   computed: {
     apiLocation: function() {

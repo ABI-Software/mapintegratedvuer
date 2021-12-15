@@ -21,12 +21,14 @@
           :value="entry.id"
         />
       </el-select>
-      <el-switch
-        class="switch"
-        v-model="independent"
-        active-text="Independent"
-        inactive-text="Linked">
-      </el-switch>
+      <el-row class="icon-group">
+        <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :open-delay="helpDelay"
+          :appendToBody=false trigger="hover" popper-class="header-popper" >
+          <svg-icon icon="close" slot="reference" class="header-icon"
+            v-if="(activeView !== 'singlepanel')"
+            @click.native="closeAndRemove(slot)"/>
+        </el-popover>
+      </el-row>
     </div>
   </div>
 </template>
@@ -35,15 +37,19 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
+import EventBus from './EventBus';
 import store from "../store";
-import { Option, Select, Switch } from "element-ui";
+import {SvgIcon} from '@abi-software/svg-sprite';
+import { Option, Popover, Row, Select } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 
 locale.use(lang);
 Vue.use(Option);
 Vue.use(Select);
-Vue.use(Switch);
+Vue.use(Popover);
+Vue.use(Row);
+Vue.component('svg-icon', SvgIcon);
 
 export default {
   name: "SplitpanesBar",
@@ -68,18 +74,25 @@ export default {
       default: 50
     },
   },
-  data: function() {
-    return {
-      independent: true
-    }
-  },
   computed: {
     // This computed property populates filter data's entry object with $data from this sidebar
     slotInfo: function() {
       return store.state.splitFlow.slotInfo;
     },
+    helpDelay() {
+      return store.state.settings.helpDelay;
+    },
+    activeView: function() {
+      return store.state.splitFlow.activeView;
+    }
   },
   methods: {
+    closeAndRemove: function(slot) {
+      let id = slot.id;
+      store.commit("splitFlow/closeSlot", 
+        { slotName: slot.name , id: id, entries: this.entries});
+      EventBus.$emit("RemoveEntryRequest", id);
+    },
     getEntryTitle: function(entry) {
       if (entry) {
         let title = entry.label ? entry.label + " ": '';
@@ -98,7 +111,7 @@ export default {
     },
     getToolbarClass: function(slot) {
       if (slot.name == "first") {
-        switch (store.state.splitFlow.activeView) {
+        switch (this.activeView) {
           case "singlepanel":
           case "2horpanel":
             return "singlepanel-1";
@@ -108,7 +121,7 @@ export default {
             return "twovertpanel-1";
         }
       } else if (slot.name == "second") {
-        switch (store.state.splitFlow.activeView) {
+        switch (this.activeView) {
           case "2horpanel":
             return "twohorpanel-2";
           case "2vertpanel":
@@ -117,13 +130,13 @@ export default {
             return "twovertpanel-2";
         }
       } else if (slot.name == "third") {
-        switch (store.state.splitFlow.activeView) {
+        switch (this.activeView) {
           case "3panel":
           case "4panel":
             return "threepanel-3";
         }
       } else if (slot.name == "fourth") {
-        switch (store.state.splitFlow.activeView) {
+        switch (this.activeView) {
           case "4panel":
             return "fourpanel-4";
         }
@@ -140,7 +153,7 @@ export default {
       let style = {};
       if (slot) {
         if (slot.name == "first") {
-          switch (store.state.splitFlow.activeView) {
+          switch (this.activeView) {
             case "2vertpanel":
             case "3panel":
             case "4panel":
@@ -148,7 +161,7 @@ export default {
               break;
           }
         } else if (slot.name == "second") {
-          switch (store.state.splitFlow.activeView) {
+          switch (this.activeView) {
             case "2horpanel":
               style["top"] = "calc(" + this.splitter1.toString() + "% + 2px)";
               break;
@@ -161,7 +174,7 @@ export default {
               break;
           }
         } else if (slot.name == "third") {
-          switch (store.state.splitFlow.activeView) {
+          switch (this.activeView) {
             case "3panel":
             case "4panel":
               style["width"] =
@@ -171,7 +184,7 @@ export default {
               break;
           }
         } else if (slot.name == "fourth") {
-          switch (store.state.splitFlow.activeView) {
+          switch (this.activeView) {
             case "4panel":
               style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
               style["top"] = "calc(" + this.splitter2.toString() + "% + 2px)";
@@ -193,7 +206,7 @@ export default {
           }, 1200);
         });
       }
-    },
+    }
   }
 };
 </script>
@@ -203,7 +216,7 @@ export default {
 <style scoped lang="scss">
 @import "~element-ui/packages/theme-chalk/src/option";
 @import "~element-ui/packages/theme-chalk/src/select";
-@import "~element-ui/packages/theme-chalk/src/switch";
+@import "../assets/header-icon.scss";
 
 .toolbar {
   background-color: #f5f7fa !important;
@@ -315,51 +328,8 @@ i .select-box ::v-deep .el-input__icon {
     }
   }
 }
-.switch {
-  width:200px;
-  top:5px;
-  left: calc(50% - 60px);
-  position: absolute;
-  ::v-deep .el-switch__label.is-active {
-    color: $purple;
-  }
-  ::v-deep .el-switch__core {
-    background: $cochlear;
-    border: 1px solid $lightGrey;
-    &::before {
-      content: "";
-      position:absolute;
-      top: 1px;
-      left: 1px;
-      border-radius: 100%;
-      -webkit-transition: all .3s;
-      transition: all .3s;
-      width: 16px;
-      height: 16px;
-      background-color: $app-primary-color;
-    }
-    &::after {
-      top: 7px;
-      left: 7px;
-      width: 4px;
-      height: 4px;
-      background-color: $cochlear;
-    }
-  }
-  ::v-deep &.is-checked {
-    .el-switch__core {
-      border: 1px solid $lightGrey;
-      background: $cochlear;
-      &::before {
-        left: 100%;
-        margin-left:-17px;
-      }    
-      &::after {
-        left: 100%;
-        margin-left: -11px;
-      }
-    }
-  }
-  
+
+.icon-group {
+  font-size: 12px;
 }
 </style>
