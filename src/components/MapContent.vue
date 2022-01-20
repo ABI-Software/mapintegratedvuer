@@ -108,6 +108,7 @@ export default {
       this.options.algoliaKey ? store.commit("settings/updateAlgoliaKey", this.options.algoliaKey) : null
       this.options.algoliaId ? store.commit("settings/updateAlgoliaId", this.options.algoliaId) : null
       this.options.pennsieveApi ? store.commit("settings/updatePennsieveApi", this.options.pennsieveApi) : null
+      this.options.flatmapAPI ? store.commit("settings/updateFlatmapAPI", this.options.flatmapAPI) : null
     }
     if (this.flatmapAPI) {
       store.commit("settings/updateFlatmapAPI", this.flatmapAPI);
