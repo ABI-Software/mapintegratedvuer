@@ -15,7 +15,7 @@
           @flatmapChanged="flatmapChanged"
         />
         <SideBar ref="sideBar"
-          :apiLocation="apiLocation" 
+          :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', {'start-up': startUp }]"
           :activeId="activeDockedId"
@@ -37,8 +37,8 @@ import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
 // import contextCards from './context-cards'
-import { SideBar } from '@abi-software/map-side-bar';
-import '@abi-software/map-side-bar/dist/map-side-bar.css';
+import { SideBar } from '@tehsurfer/map-side-bar';
+import '@tehsurfer/map-side-bar/dist/map-side-bar.css';
 import store from "../store";
 import Vue from "vue";
 import {
@@ -248,8 +248,14 @@ export default {
     })
   },
   computed: {
-    apiLocation: function() {
-      return store.state.settings.api;
+    envVars: function() {
+      return {
+        API_LOCATION: store.state.settings.sparcApi,
+        ALGOLIA_INDEX: store.state.settings.algoliaIndex,
+        ALGOLIA_KEY: store.state.settings.algoliaKey,
+        ALGOLIA_ID: store.state.settings.algoliaId,
+        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi
+      }
     }
   }
 };

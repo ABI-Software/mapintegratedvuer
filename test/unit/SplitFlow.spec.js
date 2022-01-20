@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils'
 import SplitFlow from '../../src/components/SplitFlow';
 import DialogToolbarContent from '../../src/components/DialogToolbarContent';
 import SplitDialog from '../../src/components/SplitDialog';
-import { SideBar } from '@abi-software/map-side-bar';
+import { SideBar } from '@tehsurfer/map-side-bar';
 
 const testState = {
   "activeDockedId":3,
