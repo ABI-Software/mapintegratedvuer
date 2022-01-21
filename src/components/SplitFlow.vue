@@ -126,17 +126,17 @@ export default {
           });
           if (speciesFacets.length == 0)
             speciesFacets.push({facet: "show all", term:'species'});
-          this.$refs.sideBar.openSearch('',
-            [...speciesFacets,
-            {facet: "show all", term:'gender'},
-            {facet: action.label.toLowerCase(), term:'organ'},
-            {facet: "show all", term:'datasets'}]);
+          console.log(action)
+          this.$refs.sideBar.openSearch(
+            [{facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'}]);
         } else {
           this.createNewEntry(action);
         }
       }
     },
     searchChanged: function(data) {
+      console.log('search changed!')
+      window.datadata = data
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
       }

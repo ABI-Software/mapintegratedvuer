@@ -33,6 +33,7 @@ const mutations = {
     state.flatmapAPI = flatmapAPI;
   },
   updateFacets(state, facetsIn) {
+    window.fin = facetsIn
     // The following codes aim to minimise changes on the array
     let facets = {'species':[], 'gender':[], 'organ':[]};
     //First add missing item
