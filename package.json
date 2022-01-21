@@ -28,7 +28,7 @@
     "@abi-software/simulationvuer": "^0.4.6",
     "@abi-software/svg-sprite": "^0.1.12",
     "@soda/get-current-script": "^1.0.2",
-    "@tehsurfer/map-side-bar": "^1.2.5",
+    "@tehsurfer/map-side-bar": "^1.2.6",
     "core-js": "^3.3.2",
     "d3-time-format": "^3.0.0",
     "element-ui": "^2.13.0",

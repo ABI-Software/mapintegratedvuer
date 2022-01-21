@@ -127,8 +127,7 @@ export default {
           if (speciesFacets.length == 0)
             speciesFacets.push({facet: "show all", term:'species'});
           console.log(action)
-          this.$refs.sideBar.openSearch(
-            [{facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'}]);
+          this.$refs.sideBar.addFilter({facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'});
         } else {
           this.createNewEntry(action);
         }
