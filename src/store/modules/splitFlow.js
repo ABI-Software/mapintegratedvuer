@@ -15,7 +15,9 @@ const state = () => ({
     { icon: "3panel", name: "Three panes", min: 3 },
     { icon: "4panel", name: "Four panes", min: 4 }
   ],
-  splitters: { "first": 50, "second": 50, "third": 50 }
+  splitters: { "first": 50, "second": 50, "third": 50 },
+  globalCallback: false,
+  syncMode: false
 });
 
 const getters = {
@@ -33,6 +35,15 @@ const getters = {
   getSlotByName: (state) => (name) => {
     let slot = state.slotInfo.find(slot => slot.name === name);
     return slot;
+  },
+  getActiveEntriesId: (state) => () => {
+    const ids = [];
+    const view = state.viewIcons.find(view => state.activeView === view.icon);
+    state.slotInfo.forEach(slot => {
+      if (view.min >= slot.activation)
+        ids.push(slot.id);
+    });
+    return ids;
   },
   isSlotActive: (state) => (slot) => {
     if (slot) {
@@ -64,6 +75,17 @@ const mutations = {
   },
   assignOrSwapIdToSlot(state, payload) {
     let targetSlot = state.slotInfo.find(slot => slot.id === payload.id);
+    // Check if it is on syncMode
+    if (state.syncMode) {
+      if (targetSlot) {
+        //exit syncMod if the two panel in sync mode are not swapping
+        if (!((targetSlot.name == "first" && payload.slot.name == "second") ||
+        (targetSlot.name == "second" && payload.slot.name == "first"))) {
+          state.syncMode = false;
+          state.globalCallback = false;
+        }
+      }
+    }
     if (targetSlot)
       targetSlot.id = payload.slot.id;
     payload.slot.id = payload.id;
@@ -78,7 +100,20 @@ const mutations = {
     if (view)
       state.activeView = view.icon;
   },
+  toggleGlobalCallback(state, flag) {
+    state.globalCallback = flag;
+  },
   updateActiveView(state, activeView) {
+    if (state.syncMode) {
+      const view1 = state.viewIcons.find(
+        view => state.activeView === view.icon);
+      const view2 = state.viewIcons.find(
+        view => activeView === view.icon);
+      if (!(view1.min == 2 && view2.min == 2)) {
+        state.syncMode = false;
+        state.globalCallback = false;
+      }
+    }
     state.activeView = activeView;
   },
   setSplitter(state, payload) {
@@ -104,6 +139,163 @@ const mutations = {
       availableSlot.id = primarySlot.id;
     }
     primarySlot.id = id;
+  },
+  setIdToSlot(state, payload) {
+    let availableSlot = state.slotInfo.find(slot => slot.id === 0);
+    let slot = state.slotInfo.find(
+      slotInfo => slotInfo.name === payload.slotName);
+    if (slot) {
+      if (availableSlot) {
+        availableSlot.id = slot.id;
+      }
+      slot.id = payload.id;
+    }
+  },
+  setSyncMode(state, payload) {
+    if (payload) {
+      let secondSlot = state.slotInfo.find(slot => slot.name === "second");
+      if (payload.flag === true) {
+        let firstSlot = state.slotInfo.find(slot => slot.name === "first");
+        let firstSlotId = firstSlot.id;
+        let originalSlot = state.slotInfo.find(slot => slot.id === 1);
+        secondSlot.id = payload.newId;
+        if (originalSlot.name !== "first")
+          originalSlot.id = firstSlotId;
+        firstSlot.id = 1;
+        state.syncMode = true;
+        state.activeView = payload.layout;
+      } else {
+        if (payload.entries) {
+          let availableId = 0;
+          for (let i = 0; i < payload.entries.length && 
+            availableId == 0; i++) {
+            if (state.slotInfo.find(slot => slot.id === 
+              payload.entries[i].id) === undefined) {
+                availableId = payload.entries[i].id;
+            }
+          }
+          let thirdSlot = state.slotInfo.find(
+            slotInfo => slotInfo.name === "third");
+          let fourthSlot = state.slotInfo.find(
+            slotInfo => slotInfo.name === "fourth");
+          secondSlot.id = thirdSlot.id;
+          thirdSlot.id = fourthSlot.id;
+          fourthSlot.Id = availableId;
+          state.activeView = "singlepanel";
+        }
+        state.syncMode = false;
+        state.globalCallback = false;
+      }
+    }
+  },
+  closeSlot(state, payload) {
+    if (payload) {
+      state.syncMode = false;
+      state.globalCallback = false;
+      //Find the next available id to fill empty slot
+      //Set to 1 if the slot being closed is the primary
+      //view
+      let availableId = 0;
+      if (payload.id === 1) {
+        availableId = 1;
+      } else if (payload.entries) {
+        for (let i = 0; i < payload.entries.length && 
+          availableId == 0; i++) {
+          if (state.slotInfo.find(slot => slot.id === 
+            payload.entries[i].id) === undefined) {
+              availableId = payload.entries[i].id;
+            }
+        }
+      }
+      let slot = state.slotInfo.find(
+        slotInfo => slotInfo.name === payload.slotName);
+      let secondSlot = state.slotInfo.find(
+        slotInfo => slotInfo.name === "second");
+      let thirdSlot = state.slotInfo.find(
+        slotInfo => slotInfo.name === "third");
+      let fourthSlot = state.slotInfo.find(
+        slotInfo => slotInfo.name === "fourth");
+      switch (slot.name) {
+        case "first": {
+          switch (state.activeView) {
+            case "2horpanel":
+            case "2vertpanel": {
+              slot.id = secondSlot.Id;
+              secondSlot.id = availableId;
+            } break;
+            case "3panel": {
+              slot.id = secondSlot.Id;
+              secondSlot.Id = thirdSlot.id;
+              thirdSlot.id = availableId;
+            }  break;
+            case "4panel": {
+              slot.id = secondSlot.Id;
+              secondSlot.Id = thirdSlot.id;
+              thirdSlot.id = fourthSlot.id;
+              fourthSlot.id = availableId;
+            } break;
+            default:
+              break;
+          }
+        } break;
+        case "second": {
+          switch (state.activeView) {
+            case "2horpanel":
+            case "2vertpanel": {
+              slot.id = availableId;
+            } break;
+            case "3panel": {
+              slot.id = thirdSlot.id;
+              thirdSlot.id = fourthSlot.id;
+              fourthSlot.id = availableId;
+            }  break;
+            case "4panel": {
+              slot.id = thirdSlot.id;
+              thirdSlot.id = fourthSlot.id;
+              fourthSlot.id = availableId;
+            } break;
+            default:
+              break;
+          }
+        } break;
+        case "third": {
+          switch (state.activeView) {
+            case "3panel":
+            case "4panel":{
+              slot.id = fourthSlot.id;
+              fourthSlot.id = availableId;
+            } break;
+            default:
+              break;
+          }
+        } break;
+        case "fourth": {
+          switch (state.activeView) {
+            case "4panel": {
+              slot.id = availableId;
+            } break;
+            default:
+              break;
+          }
+        } break;
+        default:
+          break;
+      }
+      switch (state.activeView) {
+        case "2horpanel":
+        case "2vertpanel":
+          state.activeView = "singlepanel";
+          break;
+        case "3panel":
+          state.activeView = "2vertpanel";
+          break;
+        case "4panel":
+          state.activeView = "3panel";
+          break;
+        default:
+          break;
+      }
+    }
   }
 };
 

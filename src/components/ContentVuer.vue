@@ -1,6 +1,9 @@
 <template>
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
+    <template v-if="entry.type === 'MultiFlatmap' && (activeSpecies === 'Rat' || activeSpecies === 'Human')">
+      <el-button type="primary" plain class="open-scaffold" @click="toggleSyncMode()">{{ syncModeText }}</el-button>
+    </template>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
         @flatmapChanged="flatmapChanged" @ready="updateMarkers" :state="entry.state"
@@ -27,6 +30,8 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Vue from "vue";
+import { Button } from "element-ui";
 import EventBus from './EventBus';
 import DatasetHeader from './DatasetHeader';
 import IframeVuer from './Iframe';
@@ -39,6 +44,11 @@ import { getInteractiveAction } from './SimulatedData.js';
 import { SimulationVuer } from '@abi-software/simulationvuer';
 import '@abi-software/simulationvuer/dist/simulationvuer.css';
 import store from '../store';
+import lang from "element-ui/lib/locale/lang/en";
+import locale from "element-ui/lib/locale";
+
+locale.use(lang);
+Vue.use(Button);
 
 export default {
   name: "ContentVuer",
@@ -63,6 +73,36 @@ export default {
     SimulationVuer,
   },
   methods: {
+    toggleSyncMode:function() {
+      if (this.syncMode == false) {
+        let action = undefined;
+        if (this.activeSpecies === "Rat") {
+          action = {
+            contextCard: undefined,
+            discoverId: undefined,
+            label: "Rat Map",
+            resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
+            title: "View 3D scaffold",
+            layout: "2horpanel",
+            type: "SyncMap"
+          }
+        } else if (this.activeSpecies === "Human") {
+          action = {
+            contextCard: undefined,
+            discoverId: undefined,
+            label: "Human Map",
+            resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/humanBody/humanBody_syncmap_metadata.json",
+            title: "View 3D scaffold",
+            layout: "2vertpanel",
+            type: "SyncMap"
+          }
+        }
+        if (action)
+          EventBus.$emit("SyncModeRequest", { flag: true, action: action });
+      } else {
+        EventBus.$emit("SyncModeRequest", {flag: false});
+      }
+    },
     onResize: function () {
       if (this.entry.type === 'Scaffold')
         this.scaffoldCamera.onResize();
@@ -99,32 +139,67 @@ export default {
 
       let returnedAction = undefined;
       let action = "none";
+      let fireResourceSelected = false;
+      const result = {paneIndex: this.entry.id, type: type, resource: resource, internalName: undefined};
+
       if (type == "MultiFlatmap" || type == "Flatmap") {
+        result.internalName = this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           if (resource.feature.type == "marker") {
             returnedAction = {};
             returnedAction.type = "Facet";
-            returnedAction.label = this.idNamePair[resource.feature.models];  
+            returnedAction.label = this.idNamePair[resource.feature.models];
+            result.internalName = this.idNamePair[resource.feature.models];
+            fireResourceSelected = true;
+            if (type == "MultiFlatmap") {
+              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+              flatmap.clearSearchResults();
+            }
           }
           else if (resource.feature.type == "feature") {
             action = "scaffold";
-          } 
+          }
+        } else if (resource.eventType == "mouseenter"){
+          fireResourceSelected = true;
         }
       } else if (type == "Scaffold"){
+        if (resource && resource[0])
+          result.internalName = resource[0].data.id;
+        fireResourceSelected = true;
         action = "search";
       }
-      const result = {paneIndex: this.index, type: type, resource: resource};
       if (returnedAction === undefined)
         returnedAction = getInteractiveAction(result, action);
-      if (returnedAction) {
+      if (returnedAction)
         EventBus.$emit("PopoverActionClick", returnedAction);
+      if (fireResourceSelected)
         this.$emit("resource-selected", result);
-      }
     },
     resourceHasAction(resource){
       return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search')
     },
-    flatmapChanged: function() {
+    receiveEvent(data) {
+      if (data.paneIndex !== this.entry.id) {
+        let name = data.internalName;
+        if (name === undefined && data.resource) 
+          name = data.resource.label;
+        if (this.entry.type === 'Scaffold') {
+          if (data.resource.eventType === "mouseenter") {
+            this.$refs.scaffold.changeHighlightedByName(name, false);
+          }
+          if (data.resource.eventType === "click") {
+            this.$refs.scaffold.changeActiveByName(name, false);
+          }
+        }
+        else if (this.entry.type === 'MultiFlatmap') {
+          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+          const results = flatmap.search(name);
+          flatmap.showSearchResults(results);
+        }
+      }
+    },
+    flatmapChanged: function(activeSpecies) {
+      this.activeSpecies = activeSpecies;
       this.$emit("flatmapChanged");
     },
     updateMarkers: function(component) {
@@ -175,11 +250,13 @@ export default {
       window.removeEventListener("mousedown", this.endHelp)
       this.helpMode = false;
       setTimeout(()=>{this.isInHelp = undefined}, 200);
-    }
+    },
+
   },
   data: function() {
     return {
       apiLocation: process.env.VUE_APP_API_LOCATION,
+      activeSpecies: "Rat",
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",
@@ -190,18 +267,22 @@ export default {
       idNamePair: {}
     }
   },
-  created: function() {
-    this.flatmapAPI = undefined;
-    this.apiLocation = undefined;
-    if (store.state.settings.flatmapAPI)
-      this.flatmapAPI = store.state.settings.flatmapAPI;
-    if (store.state.settings.api)
-      this.apiLocation = store.state.settings.api;
-  },
   computed: {
     facetSpecies() {
       return store.state.settings.facets.species;
     },
+    activeView() {
+      return store.state.splitFlow.activeView;
+    },
+    syncMode() {
+      return store.state.splitFlow.syncMode;
+    },
+    syncModeText() {
+      if (this.syncMode)
+        return "Close 3D Map";
+      else
+        return "Open 3D Map";
+    }
   },
   watch: {
     facetSpecies: function() {
@@ -211,6 +292,14 @@ export default {
         this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
       }
     }
+  },
+  created: function() {
+    this.flatmapAPI = undefined;
+    this.apiLocation = undefined;
+    if (store.state.settings.flatmapAPI)
+      this.flatmapAPI = store.state.settings.flatmapAPI;
+    if (store.state.settings.api)
+      this.apiLocation = store.state.settings.api;
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
@@ -222,15 +311,15 @@ export default {
       this.startHelp(id);
     })
   },
-  deactivated: function() {
-    let state = this.getState();
-    this.$emit("stateUpdated", this.entry.id, state);
+  destroyed: function() {
+    console.log("beforeDestroy")
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@import "~element-ui/packages/theme-chalk/src/button";
 .dataset-header {
   height: 23px;
 }
@@ -248,6 +337,26 @@ export default {
     pointer-events: auto;
     width: 25em;
     background: #fff;
+  }
+}
+
+.open-scaffold{
+  position: absolute;
+  left: calc(50% - 64px);
+  z-index: 2;
+  top: 8px;
+  font-size:16px;
+  padding-top:9px;
+  padding-bottom:9px;
+  &.el-button--primary.is-plain {
+    &:hover, &:active, &:focus {
+    color: #8300BF;
+    background: #f3e6f9;
+    border-color: #cd99e5;
+    }
+    &:hover {
+      box-shadow: -3px 2px 4px rgba(0, 0, 0, 0.2);
+    }
   }
 }
 

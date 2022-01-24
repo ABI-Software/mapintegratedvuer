@@ -1,6 +1,13 @@
 <template>
   <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
-    <el-row class="icon-group" >
+    <el-switch
+      v-if="syncMode"
+      class="switch"
+      v-model="independent"
+      active-text="Independent"
+      inactive-text="Linked">
+    </el-switch>
+    <el-row class="icon-group">
       <el-popover
         ref="viewPopover"
         placement="bottom"
@@ -31,7 +38,7 @@
         v-show="topLevelControls">
         <svg-icon :icon="activeView"
           v-popover:viewPopover
-          :class="[{'disabled': 1 >= numberOfEntries},
+          :class="[{'disabled': (1 >= numberOfEntries)},
             'header-icon']"
           slot="reference"/>
       </el-popover>
@@ -115,7 +122,9 @@ import {
   Icon,
   Input,
   Popover,
-  Row
+  Radio,
+  Row,
+  Switch
 } from "element-ui";
 
 Vue.use(Button);
@@ -123,7 +132,9 @@ Vue.use(Col);
 Vue.use(Icon);
 Vue.use(Input);
 Vue.use(Popover);
+Vue.use(Radio);
 Vue.use(Row);
+Vue.use(Switch);
 Vue.component('svg-icon', SvgIcon);
 /**
  * Cmponent for the header of differnt vuers.
@@ -164,11 +175,17 @@ export default {
     },
   },
   computed: {
+    activeView() {
+      return store.state.splitFlow.activeView;
+    },
+    helpDelay() {
+      return store.state.settings.helpDelay;
+    },
     shareLink() {
       return store.state.settings.shareLink;
     },
-    activeView() {
-      return store.state.splitFlow.activeView;
+    syncMode() {
+      return store.state.splitFlow.syncMode;
     },
     viewIcons() {
       return store.state.splitFlow.viewIcons;
@@ -177,14 +194,19 @@ export default {
   watch: {
     shareLink: function() {
       this.loadingLink = false;
+    },
+    independent: function(value) {
+      let flag = !(value === true);
+      store.commit("splitFlow/toggleGlobalCallback", flag);
     }
   },
   data: function() {
     return {
       isFullscreen: false,
-      helpDelay: 500,
       loadingLink: true,
       shareLinkDisplay: false,
+      globalCallback: "0",
+      independent: true
     }
   },
   methods: {
@@ -226,30 +248,21 @@ export default {
 @import "~element-ui/packages/theme-chalk/src/icon";
 @import "~element-ui/packages/theme-chalk/src/input";
 @import "~element-ui/packages/theme-chalk/src/popover";
+@import "~element-ui/packages/theme-chalk/src/radio";
 @import "~element-ui/packages/theme-chalk/src/row";
+@import "~element-ui/packages/theme-chalk/src/switch";
+@import "../assets/header-icon.scss";
 
 .content {
   width:calc(100% - 120px);
   height:32px;
 }
 
-.icon-group {
+.radio-control {
   position:absolute;
-  display: flex;
-  flex-direction: row;
   justify-content: center;
   top: 4px;
-  right:12px;
-}
-
-.icon-group {
-  ::v-deep .el-button--text {
-    color:#606266;
-    font-size: 1.5em;
-    &:hover {
-      color: $app-primary-color;
-    }
-  }
+  left:12px;
 }
 
 .icon-transform {
@@ -273,16 +286,6 @@ export default {
   cursor:grabbing;
 }
 
-::v-deep .header-popper {
-  padding: 6px 4px;
-  font-size:12px;
-  color: rgb(48, 49, 51);
-  background-color: #f3ecf6;
-  border: 1px solid $app-primary-color;
-  white-space: nowrap;
-  min-width: unset;
-}
-
 ::v-deep .link-popover {
   border: 1px solid $app-primary-color;
 }
@@ -290,21 +293,6 @@ export default {
 ::v-deep .el-loading-spinner {
   i, .el-loading-text {
     color: $app-primary-color;
-  }
-}
-
-.header-icon {
-  font-size: 1.8em;
-  color: $app-primary-color;
-  margin-right:10px;
-  cursor: pointer;
-  ::v-deep .el-popper[x-placement^=bottom] {
-    border-bottom-color: $app-primary-color;
-    .popper__arrow:after{
-      &::after { 
-        border-bottom-color: #f3ecf6 !important;
-      }
-    }
   }
 }
 
@@ -327,10 +315,6 @@ export default {
   }
 }
 
-.tooltip {
-  font-family: 'Asap', 'Avenir',  Arial, sans-serif;
-}
-
 .view-icon-row {
   height: 32px;
   width: 133px;
@@ -344,13 +328,6 @@ export default {
     border: 1px solid $app-primary-color;
     background: rgba(131, 0, 191, 0.1);
   }
-}
-
-
-.header-icon.disabled,
-.view-icon-row.disabled {
-  cursor: default;
-  pointer-events: none;
 }
 
 .view-icon {
@@ -368,12 +345,6 @@ export default {
   padding-top:7px;
 }
 
-.header-icon.disabled,
-.disabled .view-icon,
-.disabled .view-text {
-  opacity:0.5;
-}
-
 ::v-deep .view-icon-popover {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
@@ -385,6 +356,54 @@ export default {
       border-bottom-color: #fff !important;
     }
   }
+}
+
+.switch {
+  width:200px;
+  top:5px;
+  left: calc(50% - 60px);
+  position: absolute;
+  ::v-deep .el-switch__label.is-active {
+    color: $purple;
+  }
+  ::v-deep .el-switch__core {
+    background: $cochlear;
+    border: 1px solid $lightGrey;
+    &::before {
+      content: "";
+      position:absolute;
+      top: 1px;
+      left: 1px;
+      border-radius: 100%;
+      -webkit-transition: all .3s;
+      transition: all .3s;
+      width: 16px;
+      height: 16px;
+      background-color: $app-primary-color;
+    }
+    &::after {
+      top: 7px;
+      left: 7px;
+      width: 4px;
+      height: 4px;
+      background-color: $cochlear;
+    }
+  }
+  ::v-deep &.is-checked {
+    .el-switch__core {
+      border: 1px solid $lightGrey;
+      background: $cochlear;
+      &::before {
+        left: 100%;
+        margin-left:-17px;
+      }    
+      &::after {
+        left: 100%;
+        margin-left: -11px;
+      }
+    }
+  }
+  
 }
 
 </style>
