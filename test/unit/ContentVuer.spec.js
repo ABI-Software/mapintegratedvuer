@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
 import ContentVuer from '../../src/components/ContentVuer';
-import { SideBar } from '@tehsurfer/map-side-bar';
+import { SideBar } from '@abi-software/map-side-bar';
 import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
 import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
 

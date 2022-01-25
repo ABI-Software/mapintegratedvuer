@@ -37,8 +37,8 @@ import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog';
 // import contextCards from './context-cards'
-import { SideBar } from '@tehsurfer/map-side-bar';
-import '@tehsurfer/map-side-bar/dist/map-side-bar.css';
+import { SideBar } from '@abi-software/map-side-bar';
+import '@abi-software/map-side-bar/dist/map-side-bar.css';
 import store from "../store";
 import Vue from "vue";
 import {

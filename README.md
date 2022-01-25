@@ -8,7 +8,7 @@ from organ-specific neural circuitry.
 
 mapintegratedvuer is available on npm and can be installed into your project with the following command:
 ```bash
-npm i @tehsurfer/mapintegratedvuer
+npm i @abi-software/mapintegratedvuer
 ```
 
 ## Project setup
@@ -22,11 +22,11 @@ npm run build-bundle
 ```
 
 ## How to use
-Install the package in your vue app project with the following command "npm i @tehsurfer/mapintegratedvuer".
+Install the package in your vue app project with the following command "npm i @abi-software/mapintegratedvuer".
 Import the package in your script as followed:
 ```javascript
-import '@tehsurfer/mapintegratedvuer';
-import '@tehsurfer/mapintegratedvuer/dist/mapintegratedvuer.css';
+import '@abi-software/mapintegratedvuer';
+import '@abi-software/mapintegratedvuer/dist/mapintegratedvuer.css';
 ```
 
 The codes above register the MapContent component in the global scope.
@@ -75,7 +75,7 @@ npm run build-bundle
 cp /dist <mapintegratedvuer-path>/node_modules/@<your-npmhandle>/<your-dependency>/dist
 cd <mapintegratedvuer-path>
 npm run build-bundle
-cp /dist <sparc-app-path>/node_modules/@tehsurfer/mapintegratedvuer/dist
+cp /dist <sparc-app-path>/node_modules/@abi-software/mapintegratedvuer/dist
 yarn dev
 ```
 *Note: this assumes assets in the static folders shipped with the npm package will remain unchanged*
@@ -90,7 +90,7 @@ cd <mapintegratedvuer-path>
 npm run build-bundle
 yarn link
 cd sparc-app
-yarn link @tehsurfer/mapintegratedvuer
+yarn link @abi-software/mapintegratedvuer
 yarn dev
 ```
 (npm link does not work without disabling es-lint, which we won't go into)
@@ -108,7 +108,7 @@ npm install @<your-npmhandle>/<your-dependency>@alpha
 ```
 
 Edit mapintegratedvuer/package.json:
-Change `@tehsurfer/mapintegratedvuer` to `@<your-npm-handle>/mapintegratedvuer`
+Change `@abi-software/mapintegratedvuer` to `@<your-npm-handle>/mapintegratedvuer`
 
 ```
 cd mapintegratedvuer
@@ -117,7 +117,7 @@ npm publish --tag alpha
 ```
 
 Edit sparc-app/pages/maps/index.vue
-Change `@tehsurfer/mapintegratedvuer` to `@<your-npm-handle>/mapintegratedvuer`
+Change `@abi-software/mapintegratedvuer` to `@<your-npm-handle>/mapintegratedvuer`
 
 ```
 cd sparc-app
