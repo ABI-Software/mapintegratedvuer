@@ -20,7 +20,7 @@
       <el-button icon="el-icon-setting" slot="reference">Options</el-button>
     </el-popover>
     <div class="map-app">
-      <MapContent ref="map" :api="api" :state="state" :shareLink="shareLink" :flatmapAPI="flatmapAPI" @updateShareLinkRequested="updateUUID"/>
+      <MapContent ref="map" :options="options" :state="state" :shareLink="shareLink" :flatmapAPI="flatmapAPI" @updateShareLinkRequested="updateUUID"/>
     </div>
   </div>
 </template>
@@ -57,6 +57,16 @@ export default {
       if (this.uuid)
         return this.prefix +"?id=" + this.uuid;
       return this.prefix;
+    },
+    options: function() {
+      return {
+        sparcApi: process.env.VUE_APP_API_LOCATION,
+        algoliaIndex: process.env.VUE_APP_ALGOLIA_INDEX,
+        algoliaKey: process.env.VUE_APP_ALGOLIA_KEY,
+        algoliaId: process.env.VUE_APP_ALGOLIA_ID,
+        pennsieveApi: process.env.VUE_APP_PENNSIEVE_API_LOCATION,
+        flatmapAPI: process.env.VUE_APP_FLATMAPAPI_LOCATION 
+      }
     }
   },
   methods: {

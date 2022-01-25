@@ -203,6 +203,7 @@ export default {
       this.$emit("flatmapChanged");
     },
     updateMarkers: function(component) {
+      console.log("update")
       let map = component.mapImp;
       map.clearMarkers();
       let params = [];
@@ -213,6 +214,7 @@ export default {
         if (this._controller) 
           this._controller.abort();
         this._controller = new AbortController();
+        console.log('calling: ', `${this.apiLocation}get-organ-curies?${params.join('&')}`)
         let signal = this._controller.signal;
         fetch(`${this.apiLocation}get-organ-curies?${params.join('&')}`, {signal})
         .then((response) => response.json())
@@ -267,6 +269,14 @@ export default {
       idNamePair: {}
     }
   },
+  created: function() {
+    this.flatmapAPI = undefined;
+    this.apiLocation = undefined;
+    if (store.state.settings.flatmapAPI)
+      this.flatmapAPI = store.state.settings.flatmapAPI;
+    if (store.state.settings.sparcApi)
+      this.apiLocation = store.state.settings.sparcApi;
+  },
   computed: {
     facetSpecies() {
       return store.state.settings.facets.species;
@@ -292,14 +302,6 @@ export default {
         this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
       }
     }
-  },
-  created: function() {
-    this.flatmapAPI = undefined;
-    this.apiLocation = undefined;
-    if (store.state.settings.flatmapAPI)
-      this.flatmapAPI = store.state.settings.flatmapAPI;
-    if (store.state.settings.api)
-      this.apiLocation = store.state.settings.api;
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
