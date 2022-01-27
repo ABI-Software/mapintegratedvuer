@@ -16,7 +16,9 @@
         :pathControls="entry.pathControls" ref="flatmap" @ready="updateMarkers" :displayMinimap=true
         :flatmapAPI="flatmapAPI" />
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
-        @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
+        @scaffold-selected="resourceSelected(entry.type, $event)"
+        @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
+        ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
         :render="visible" :displayMinimap=false :displayMarkers=false />
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
@@ -140,11 +142,14 @@ export default {
       let returnedAction = undefined;
       let action = "none";
       let fireResourceSelected = false;
-      const result = {paneIndex: this.entry.id, type: type, resource: resource, internalName: undefined};
+      const result = {paneIndex: this.entry.id, type: type,
+        resource: resource, internalName: undefined,
+        eventType: undefined};
 
       if (type == "MultiFlatmap" || type == "Flatmap") {
         result.internalName = this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
+          result.eventType = "selected";
           if (resource.feature.type == "marker") {
             returnedAction = {};
             returnedAction.type = "Facet";
@@ -160,11 +165,13 @@ export default {
             action = "scaffold";
           }
         } else if (resource.eventType == "mouseenter"){
+          result.eventType = "highlighted";
           fireResourceSelected = true;
         }
       } else if (type == "Scaffold"){
         if (resource && resource[0])
           result.internalName = resource[0].data.id;
+        result.eventType = "selected";
         fireResourceSelected = true;
         action = "search";
       }
@@ -184,18 +191,47 @@ export default {
         if (name === undefined && data.resource) 
           name = data.resource.label;
         if (this.entry.type === 'Scaffold') {
-          if (data.resource.eventType === "mouseenter") {
+          if (data.eventType === "highlighted") {
             this.$refs.scaffold.changeHighlightedByName(name, false);
           }
-          if (data.resource.eventType === "click") {
+          if (data.eventType === "selected") {
             this.$refs.scaffold.changeActiveByName(name, false);
+            this.$refs.scaffold.viewRegion(name);
           }
         }
         else if (this.entry.type === 'MultiFlatmap') {
           const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-          const results = flatmap.search(name);
-          flatmap.showSearchResults(results);
+          if (data.eventType === "highlighted") {
+            if (name) {
+              const results = flatmap.search(name);
+              if (results) {
+                flatmap.featureEvent('mouseenter', results.__featureIds[0]);
+              }
+            }
+          }
+          if (data.eventType === "selected") {
+            if (name) {
+              const results = flatmap.search(name);
+              flatmap.showSearchResults(results);
+            } else {
+              flatmap.clearSearchResults();
+            }
+          }
         }
+      }
+    },
+    /**
+     * Callback when the vuers emit a selected event.
+     */
+    scaffoldHighlighted: function(type, resource) {
+      const result = {paneIndex: this.entry.id, type: type, 
+        resource: resource, internalName: undefined};
+      if (type == "Scaffold"){
+        if (resource && resource[0]) {
+          result.internalName = resource[0].data.id;
+          result.eventType = "highlighted";
+        }
+        this.$emit("resource-selected", result);
       }
     },
     flatmapChanged: function(activeSpecies) {
