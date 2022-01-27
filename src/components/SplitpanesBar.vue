@@ -25,7 +25,7 @@
         <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :open-delay="helpDelay"
           :appendToBody=false trigger="hover" popper-class="header-popper" >
           <svg-icon icon="close" slot="reference" class="header-icon"
-            v-if="(activeView !== 'singlepanel')"
+            v-if="(activeView !== 'singlepanel') && (slot.name !== 'first')"
             @click.native="closeAndRemove(slot)"/>
         </el-popover>
       </el-row>
