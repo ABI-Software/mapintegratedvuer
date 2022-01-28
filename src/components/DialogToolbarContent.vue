@@ -17,7 +17,7 @@
           @click.native="viewClicked(item.icon)"
         >
           <el-col :span="4">
-            <svg-icon :icon="item.icon"
+            <map-svg-icon :icon="item.icon"
               class="view-icon"/>
           </el-col>
           <el-col :offset="2" :span="18" class="view-text">
@@ -29,7 +29,7 @@
         :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
         v-show="topLevelControls">
-        <svg-icon :icon="activeView"
+        <map-svg-icon :icon="activeView"
           v-popover:viewPopover
           :class="[{'disabled': 1 >= numberOfEntries},
             'header-icon']"
@@ -37,17 +37,17 @@
       </el-popover>
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
-        <svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
+        <map-svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
       </el-popover>
       <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip"
         content="Fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
-          <svg-icon icon="fullScreen"  slot="reference" class="header-icon" @click.native="onFullscreen"/>
+          <map-svg-icon icon="fullScreen"  slot="reference" class="header-icon" @click.native="onFullscreen"/>
       </el-popover>
       <el-popover v-show="isFullscreen && topLevelControls" class="tooltip"
         content="Exit fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
-          <svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
+          <map-svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
             @click.native="onFullscreen"/>
       </el-popover>
       <el-popover
@@ -87,7 +87,7 @@
         :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
         v-show="topLevelControls && shareLink">
-        <svg-icon icon="permalink"
+        <map-svg-icon icon="permalink"
           v-popover:linkPopover
           class="header-icon"
           @click.native="getShareLink"
@@ -95,7 +95,7 @@
       </el-popover>
       <el-popover class="tooltip" content="Close" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showIcons">
-        <svg-icon icon="close" slot="reference" class="header-icon" @click.native="close"/>
+        <map-svg-icon icon="close" slot="reference" class="header-icon" @click.native="close"/>
       </el-popover>
     </el-row>
   </div>
@@ -107,7 +107,7 @@
 import Vue from "vue";
 import EventBus from './EventBus';
 import store from '../store';
-import {SvgIcon} from '@abi-software/svg-sprite';
+import {MapSvgIcon} from '@abi-software/svg-sprite';
 
 import {
   Button,
@@ -124,13 +124,14 @@ Vue.use(Icon);
 Vue.use(Input);
 Vue.use(Popover);
 Vue.use(Row);
-Vue.component('svg-icon', SvgIcon);
 /**
  * Cmponent for the header of differnt vuers.
  */
 export default {
   name: "DialogToolbarContent",
-
+  components: {
+    MapSvgIcon,
+  },
   props: {
     /**
      * Array of titles.
