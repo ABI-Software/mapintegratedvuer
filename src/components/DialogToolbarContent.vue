@@ -1,12 +1,28 @@
 <template>
   <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
-    <el-switch
-      v-if="syncMode"
-      class="switch"
-      v-model="independent"
-      active-text="Independent"
-      inactive-text="Linked">
-    </el-switch>
+    <div class="switch-control">
+      <el-switch
+        v-if="syncMode"
+        class="switch"
+        v-model="independent"
+        active-text="Independent"
+        inactive-text="Linked">
+      </el-switch>
+      <el-popover v-if="syncMode" class="tooltip"
+        placement="bottom-end" :open-delay="helpDelay"
+        :appendToBody=false trigger="hover" popper-class="header-popper">
+        <div>
+            SyncMapText: "When in Linked mode thr two maps will
+            <br>
+            interact together. Select an organ in one and it will
+            <br>
+            be automatically selected in the other.
+            <br>
+            In Independent mode the maps will work separately."
+          </div>
+        <map-svg-icon icon="help"  slot="reference" class="sync-help header-icon"/>
+      </el-popover>
+    </div>
     <el-row class="icon-group">
       <el-popover
         ref="viewPopover"
@@ -207,7 +223,7 @@ export default {
       loadingLink: true,
       shareLinkDisplay: false,
       globalCallback: "0",
-      independent: true
+      independent: true,
     }
   },
   methods: {
@@ -359,11 +375,18 @@ export default {
   }
 }
 
-.switch {
-  width:200px;
-  top:5px;
+.switch-control {
+  width:250px;
+  top:2px;
   left: calc(50% - 60px);
   position: absolute;
+  .sync-help {
+    left:5px;
+  }
+}
+
+.switch {
+  vertical-align: baseline;
   ::v-deep .el-switch__label.is-active {
     color: $purple;
   }
@@ -404,7 +427,10 @@ export default {
       }
     }
   }
-  
+}
+
+.sync-help {
+  margin-left: 5px;
 }
 
 </style>
