@@ -1,6 +1,6 @@
 <template>
     <div class="mapcontent" ref="MapApp">
-      <SvgSpriteColor/>
+      <map-svg-sprite-color/>
       <SplitFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
     </div>
 </template>
@@ -10,7 +10,7 @@
 import SplitFlow from './SplitFlow';
 import EventBus from './EventBus';
 import store from '../store';
-import {SvgSpriteColor} from '@abi-software/svg-sprite';
+import {MapSvgSpriteColor} from '@abi-software/svg-sprite';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -19,7 +19,7 @@ export default {
   name: "MapContent",
   components: {
     SplitFlow,
-    SvgSpriteColor,
+    MapSvgSpriteColor,
   },
   props: {
     shareLink: {

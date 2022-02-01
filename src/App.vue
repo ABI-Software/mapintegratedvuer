@@ -2,7 +2,7 @@
   <div id="app">
     <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap">
-    <svg-sprite-color />
+    <map-svg-sprite-color />
     <el-popover
       placement="bottom"
       trigger="click"
