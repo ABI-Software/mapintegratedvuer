@@ -1,30 +1,81 @@
 <template>
   <div class="content-container">
-    <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
-    <template v-if="entry.type === 'MultiFlatmap' && (activeSpecies === 'Rat' || activeSpecies === 'Human')">
-      <el-button type="primary" plain class="open-scaffold" @click="toggleSyncMode()">{{ syncModeText }}</el-button>
+    <DatasetHeader
+      v-if="entry.datasetTitle"
+      class="dataset-header"
+      :entry="entry"
+    ></DatasetHeader>
+    <template
+      v-if="
+        entry.type === 'MultiFlatmap' &&
+        (activeSpecies === 'Rat' || activeSpecies === 'Human')
+      "
+    >
+      <el-button
+        type="primary"
+        plain
+        class="open-scaffold"
+        @click="toggleSyncMode()"
+        >{{ syncModeText }}</el-button
+      >
     </template>
     <div :style="mainStyle">
-      <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
-        @flatmapChanged="flatmapChanged" @ready="updateMarkers" :state="entry.state"
-        @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"
-        style="height:100%;width:100%;" :initial="entry.resource" :helpMode="helpMode"
-        ref="multiflatmap" :displayMinimap=true :flatmapAPI="flatmapAPI"/>
-      <FlatmapVuer v-else-if="entry.type === 'Flatmap'" :state="entry.state" :entry="entry.resource"
-        @resource-selected="resourceSelected(entry.type, $event)" :name="entry.resource"
-        style="height:100%;width:100%;" :minZoom="entry.minZoom" :helpMode="helpMode"
-        :pathControls="entry.pathControls" ref="flatmap" @ready="updateMarkers" :displayMinimap=true
-        :flatmapAPI="flatmapAPI" />
-      <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
+      <MultiFlatmapVuer
+        v-if="entry.type === 'MultiFlatmap'"
+        :availableSpecies="entry.availableSpecies"
+        @flatmapChanged="flatmapChanged"
+        @ready="updateMarkers"
+        :state="entry.state"
+        @resource-selected="resourceSelected(entry.type, $event)"
+        :name="entry.resource"
+        style="height: 100%; width: 100%"
+        :initial="entry.resource"
+        :helpMode="helpMode"
+        ref="multiflatmap"
+        :displayMinimap="true"
+        :flatmapAPI="flatmapAPI"
+      />
+      <FlatmapVuer
+        v-else-if="entry.type === 'Flatmap'"
+        :state="entry.state"
+        :entry="entry.resource"
+        @resource-selected="resourceSelected(entry.type, $event)"
+        :name="entry.resource"
+        style="height: 100%; width: 100%"
+        :minZoom="entry.minZoom"
+        :helpMode="helpMode"
+        :pathControls="entry.pathControls"
+        ref="flatmap"
+        @ready="updateMarkers"
+        :displayMinimap="true"
+        :flatmapAPI="flatmapAPI"
+      />
+      <ScaffoldVuer
+        v-else-if="entry.type === 'Scaffold'"
+        :state="entry.state"
+        :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)"
         @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
         ref="scaffold"
-        :backgroundToggle=true :traditional=true :helpMode="helpMode"
-        :render="visible" :displayMinimap=false :displayMarkers=false />
-      <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
-        :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
-      <SimulationVuer v-else-if="entry.type === 'Simulation'"
-        :apiLocation="apiLocation" :entry="entry" />
+        :backgroundToggle="true"
+        :traditional="true"
+        :helpMode="helpMode"
+        :render="visible"
+        :displayMinimap="false"
+        :displayMarkers="false"
+      />
+      <PlotVuer
+        v-else-if="entry.type === 'Plot'"
+        :url="entry.resource"
+        :plotType="entry.plotType"
+        :helpMode="helpMode"
+        style="overflow: hidden"
+      ></PlotVuer>
+      <SimulationVuer
+        v-else-if="entry.type === 'Simulation'"
+        :apiLocation="apiLocation"
+        :entry="entry"
+      />
       <IframeVuer v-else-if="isIframe()" :url="entry.resource.share_link" />
     </div>
   </div>
@@ -34,18 +85,21 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import { Button } from "element-ui";
-import EventBus from './EventBus';
-import DatasetHeader from './DatasetHeader';
-import IframeVuer from './Iframe';
-import {getAvailableTermsForSpecies} from './SimulatedData.js';
-import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer/src/components/index.js';
-import { ScaffoldVuer } from '@abi-software/scaffoldvuer/src/components/index.js';
-import { PlotVuer } from '@abi-software/plotvuer';
-import '@abi-software/plotvuer/dist/plotvuer.css';
-import { getInteractiveAction } from './SimulatedData.js';
-import { SimulationVuer } from '@abi-software/simulationvuer';
-import '@abi-software/simulationvuer/dist/simulationvuer.css';
-import store from '../store';
+import EventBus from "./EventBus";
+import DatasetHeader from "./DatasetHeader";
+import IframeVuer from "./Iframe";
+import { getAvailableTermsForSpecies } from "./SimulatedData.js";
+import {
+  FlatmapVuer,
+  MultiFlatmapVuer,
+} from "@abi-software/flatmapvuer/src/components/index.js";
+import { ScaffoldVuer } from "@abi-software/scaffoldvuer/src/components/index.js";
+import { PlotVuer } from "@abi-software/plotvuer";
+import "@abi-software/plotvuer/dist/plotvuer.css";
+import { getInteractiveAction } from "./SimulatedData.js";
+import { SimulationVuer } from "@abi-software/simulationvuer";
+import "@abi-software/simulationvuer/dist/simulationvuer.css";
+import store from "../store";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 
@@ -62,7 +116,7 @@ export default {
     entry: Object,
     visible: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
   components: {
@@ -75,7 +129,7 @@ export default {
     SimulationVuer,
   },
   methods: {
-    toggleSyncMode:function() {
+    toggleSyncMode: function () {
       if (this.syncMode == false) {
         let action = undefined;
         if (this.activeSpecies === "Rat") {
@@ -83,58 +137,59 @@ export default {
             contextCard: undefined,
             discoverId: undefined,
             label: "Rat Map",
-            resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
+            resource:
+              "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
             title: "View 3D scaffold",
             layout: "2horpanel",
-            type: "SyncMap"
-          }
+            type: "SyncMap",
+          };
         } else if (this.activeSpecies === "Human") {
           action = {
             contextCard: undefined,
             discoverId: undefined,
             label: "Human Map",
-            resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/humanBody/humanBody_syncmap_metadata.json",
+            resource:
+              "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/humanBody/humanBody_syncmap_metadata.json",
             title: "View 3D scaffold",
             layout: "2vertpanel",
-            type: "SyncMap"
-          }
+            type: "SyncMap",
+          };
         }
         if (action)
           EventBus.$emit("SyncModeRequest", { flag: true, action: action });
       } else {
-        EventBus.$emit("SyncModeRequest", {flag: false});
+        EventBus.$emit("SyncModeRequest", { flag: false });
       }
     },
     onResize: function () {
-      if (this.entry.type === 'Scaffold')
-        this.scaffoldCamera.onResize();
+      if (this.entry.type === "Scaffold") this.scaffoldCamera.onResize();
     },
-    getState: function() {
-      if (this.entry.type === 'Scaffold') {
+    getState: function () {
+      if (this.entry.type === "Scaffold") {
         return this.$refs.scaffold.getState();
-      } else if (this.entry.type === 'MultiFlatmap'){
+      } else if (this.entry.type === "MultiFlatmap") {
         return this.$refs.multiflatmap.getState();
-      } else if (this.entry.type === 'Flatmap'){
+      } else if (this.entry.type === "Flatmap") {
         return this.$refs.flatmap.getState();
       }
       return undefined;
     },
-    isIframe:function() {
+    isIframe: function () {
       switch (this.entry.type) {
-        case 'Biolucida':
-        case 'Iframe':
-        case 'Segmentation':
+        case "Biolucida":
+        case "Iframe":
+        case "Segmentation":
           return true;
         default:
-         return false;
+          return false;
       }
     },
     /**
      * Callback when the vuers emit a selected event.
      */
-    resourceSelected: function(type, resource) {
+    resourceSelected: function (type, resource) {
       // Skip processing if resources already has actions
-      if (this.resourceHasAction(resource) ){
+      if (this.resourceHasAction(resource)) {
         EventBus.$emit("PopoverActionClick", resource);
         return;
       }
@@ -142,9 +197,13 @@ export default {
       let returnedAction = undefined;
       let action = "none";
       let fireResourceSelected = false;
-      const result = {paneIndex: this.entry.id, type: type,
-        resource: resource, internalName: undefined,
-        eventType: undefined};
+      const result = {
+        paneIndex: this.entry.id,
+        type: type,
+        resource: resource,
+        internalName: undefined,
+        eventType: undefined,
+      };
 
       if (type == "MultiFlatmap" || type == "Flatmap") {
         result.internalName = this.idNamePair[resource.feature.models];
@@ -157,62 +216,74 @@ export default {
             result.internalName = this.idNamePair[resource.feature.models];
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
-              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+              const flatmap =
+                this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
               flatmap.clearSearchResults();
             }
-          }
-          else if (resource.feature.type == "feature") {
+          } else if (resource.feature.type == "feature") {
             action = "scaffold";
           }
-        } else if (resource.eventType == "mouseenter"){
+        } else if (resource.eventType == "mouseenter") {
           result.eventType = "highlighted";
           fireResourceSelected = true;
         }
-      } else if (type == "Scaffold"){
-        if (resource && resource[0])
-          result.internalName = resource[0].data.id;
+      } else if (type == "Scaffold") {
+        if (resource && resource[0]) result.internalName = resource[0].data.id;
         result.eventType = "selected";
         fireResourceSelected = true;
         action = "search";
       }
       if (returnedAction === undefined)
         returnedAction = getInteractiveAction(result, action);
-      if (returnedAction)
-        EventBus.$emit("PopoverActionClick", returnedAction);
-      if (fireResourceSelected)
-        this.$emit("resource-selected", result);
+      if (returnedAction) EventBus.$emit("PopoverActionClick", returnedAction);
+      if (fireResourceSelected) this.$emit("resource-selected", result);
     },
-    resourceHasAction(resource){
-      return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search')
+    resourceHasAction(resource) {
+      return (
+        resource.type === "URL" ||
+        resource.type === "Search" ||
+        resource.type === "Neuron Search"
+      );
     },
     receiveEvent(data) {
       if (data.paneIndex !== this.entry.id) {
         let name = data.internalName;
-        if (name === undefined && data.resource) 
-          name = data.resource.label;
-        if (this.entry.type === 'Scaffold') {
+        if (name === undefined && data.resource) name = data.resource.label;
+        if (name === "Urinary Bladder") {
+          name = "Bladder";
+        }
+        if (this.entry.type === "Scaffold") {
           if (data.eventType === "highlighted") {
             this.$refs.scaffold.changeHighlightedByName(name, false);
           }
           if (data.eventType === "selected") {
             this.$refs.scaffold.changeActiveByName(name, false);
-            this.$refs.scaffold.viewRegion(name);
           }
-        }
-        else if (this.entry.type === 'MultiFlatmap') {
+        } else if (this.entry.type === "MultiFlatmap") {
           const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+          if (name === "Bladder") {
+            name = "Urinary Bladder";
+          }
           if (data.eventType === "highlighted") {
             if (name) {
               const results = flatmap.search(name);
-              if (results) {
-                flatmap.featureEvent('mouseenter', results.__featureIds[0]);
+              if (results.featureIds[0]) {
+                flatmap.highlightFeatures([
+                  flatmap.modelForFeature(results.featureIds[0]),
+                ]);
               }
             }
           }
           if (data.eventType === "selected") {
             if (name) {
               const results = flatmap.search(name);
-              flatmap.showSearchResults(results);
+              if (results.featureIds.length) {
+                let externalId = flatmap.modelForFeature(results.featureIds[0]);
+                if (externalId)
+                  flatmap.selectFeatures(externalId);
+                else
+                  flatmap.clearSearchResults();
+              }
             } else {
               flatmap.clearSearchResults();
             }
@@ -223,10 +294,14 @@ export default {
     /**
      * Callback when the vuers emit a selected event.
      */
-    scaffoldHighlighted: function(type, resource) {
-      const result = {paneIndex: this.entry.id, type: type, 
-        resource: resource, internalName: undefined};
-      if (type == "Scaffold"){
+    scaffoldHighlighted: function (type, resource) {
+      const result = {
+        paneIndex: this.entry.id,
+        type: type,
+        resource: resource,
+        internalName: undefined,
+      };
+      if (type == "Scaffold") {
         if (resource && resource[0]) {
           result.internalName = resource[0].data.id;
           result.eventType = "highlighted";
@@ -234,42 +309,48 @@ export default {
         this.$emit("resource-selected", result);
       }
     },
-    flatmapChanged: function(activeSpecies) {
+    flatmapChanged: function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.$emit("flatmapChanged");
     },
-    updateMarkers: function(component) {
-      console.log("update")
+    updateMarkers: function (component) {
+      console.log("update");
       let map = component.mapImp;
       map.clearMarkers();
       let params = [];
       if (this.apiLocation) {
-        store.state.settings.facets.species.forEach(e => {
-          params.push(encodeURIComponent('species') + '=' + encodeURIComponent(e));
+        store.state.settings.facets.species.forEach((e) => {
+          params.push(
+            encodeURIComponent("species") + "=" + encodeURIComponent(e)
+          );
         });
-        if (this._controller) 
-          this._controller.abort();
+        if (this._controller) this._controller.abort();
         this._controller = new AbortController();
-        console.log('calling: ', `${this.apiLocation}get-organ-curies?${params.join('&')}`)
+        console.log(
+          "calling: ",
+          `${this.apiLocation}get-organ-curies?${params.join("&")}`
+        );
         let signal = this._controller.signal;
-        fetch(`${this.apiLocation}get-organ-curies?${params.join('&')}`, {signal})
-        .then((response) => response.json())
-        .then((data) => {
-          this._controller = undefined;
-          data.uberon.array.forEach((pair) => {
-            this.idNamePair[pair.id.toUpperCase()] = 
-              pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
-            map.addMarker(pair.id.toUpperCase(), "simulation");
-          });
+        fetch(`${this.apiLocation}get-organ-curies?${params.join("&")}`, {
+          signal,
         })
-        .catch(err=> {
-          if (err.name !== 'AbortError') {
-            let terms = getAvailableTermsForSpecies(map.describes);
-            for (let i = 0; i < terms.length; i++) {
-              map.addMarker(terms[i].id, terms[i].type);
+          .then((response) => response.json())
+          .then((data) => {
+            this._controller = undefined;
+            data.uberon.array.forEach((pair) => {
+              this.idNamePair[pair.id.toUpperCase()] =
+                pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
+              map.addMarker(pair.id.toUpperCase(), "simulation");
+            });
+          })
+          .catch((err) => {
+            if (err.name !== "AbortError") {
+              let terms = getAvailableTermsForSpecies(map.describes);
+              for (let i = 0; i < terms.length; i++) {
+                map.addMarker(terms[i].id, terms[i].type);
+              }
             }
-          }
-        });
+          });
       } else {
         let terms = getAvailableTermsForSpecies(map.describes);
         for (let i = 0; i < terms.length; i++) {
@@ -277,21 +358,22 @@ export default {
         }
       }
     },
-    startHelp: function(id){
-      if (this.entry.id === id && this.isInHelp === undefined){
+    startHelp: function (id) {
+      if (this.entry.id === id && this.isInHelp === undefined) {
         this.helpMode = true;
-        window.addEventListener("mousedown", this.endHelp)
+        window.addEventListener("mousedown", this.endHelp);
         this.isInHelp = true;
       }
     },
-    endHelp: function(){
-      window.removeEventListener("mousedown", this.endHelp)
+    endHelp: function () {
+      window.removeEventListener("mousedown", this.endHelp);
       this.helpMode = false;
-      setTimeout(()=>{this.isInHelp = undefined}, 200);
+      setTimeout(() => {
+        this.isInHelp = undefined;
+      }, 200);
     },
-
   },
-  data: function() {
+  data: function () {
     return {
       apiLocation: process.env.VUE_APP_API_LOCATION,
       activeSpecies: "Rat",
@@ -302,10 +384,10 @@ export default {
         bottom: "0px",
       },
       helpMode: false,
-      idNamePair: {}
-    }
+      idNamePair: {},
+    };
   },
-  created: function() {
+  created: function () {
     this.flatmapAPI = undefined;
     this.apiLocation = undefined;
     if (store.state.settings.flatmapAPI)
@@ -324,33 +406,33 @@ export default {
       return store.state.splitFlow.syncMode;
     },
     syncModeText() {
-      if (this.syncMode)
-        return "Close 3D Map";
-      else
-        return "Open 3D Map";
-    }
+      if (this.syncMode) return "Close 3D Map";
+      else return "Open 3D Map";
+    },
   },
   watch: {
-    facetSpecies: function() {
-      if (this.entry.type === 'Flatmap') {
+    facetSpecies: function () {
+      if (this.entry.type === "Flatmap") {
         this.updateMarkers(this.$refs.flatmap);
-      } else if (this.entry.type === 'MultiFlatmap') {
+      } else if (this.entry.type === "MultiFlatmap") {
         this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
       }
-    }
+    },
   },
-  mounted: function() {
-    if (this.entry.type === 'Scaffold') {
-      this.scaffoldCamera = this.$refs.scaffold.$module.scene.getZincCameraControls();
+  mounted: function () {
+    if (this.entry.type === "Scaffold") {
+      this.scaffoldCamera =
+        this.$refs.scaffold.$module.scene.getZincCameraControls();
       this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
-      document.querySelectorAll('.el-checkbox-group')[0].id = 'scaffold-checkbox-group-' + this.entry.id;
+      document.querySelectorAll(".el-checkbox-group")[0].id =
+        "scaffold-checkbox-group-" + this.entry.id;
     }
     EventBus.$on("startHelp", (id) => {
       this.startHelp(id);
-    })
+    });
   },
-  destroyed: function() {
-    console.log("beforeDestroy")
+  destroyed: function () {
+    console.log("beforeDestroy");
   },
 };
 </script>
@@ -370,7 +452,7 @@ export default {
 ::v-deep .flatmapvuer-popover {
   .mapboxgl-popup-content {
     border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0,0,0,.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     padding: 3em 1em 3em 1em;
     pointer-events: auto;
     width: 25em;
@@ -378,26 +460,27 @@ export default {
   }
 }
 
-.open-scaffold{
+.open-scaffold {
   position: absolute;
   left: calc(50% - 64px);
   z-index: 2;
   top: 8px;
-  font-size:16px;
-  padding-top:9px;
-  padding-bottom:9px;
+  font-size: 16px;
+  padding-top: 9px;
+  padding-bottom: 9px;
   &.el-button--primary.is-plain {
-    &:hover, &:active, &:focus {
-    color: #8300BF;
-    background: #f3e6f9;
-    border-color: #cd99e5;
+    &:hover,
+    &:active,
+    &:focus {
+      color: #8300bf;
+      background: #f3e6f9;
+      border-color: #cd99e5;
     }
     &:hover {
       box-shadow: -3px 2px 4px rgba(0, 0, 0, 0.2);
     }
   }
 }
-
 </style>
 
 <style src="@/../assets/mapicon-species-style.css">
