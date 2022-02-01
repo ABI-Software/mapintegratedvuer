@@ -24,7 +24,7 @@
       <el-row class="icon-group">
         <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :open-delay="helpDelay"
           :appendToBody=false trigger="hover" popper-class="header-popper" >
-          <svg-icon icon="close" slot="reference" class="header-icon"
+          <map-svg-icon icon="close" slot="reference" class="header-icon"
             v-if="(activeView !== 'singlepanel') && (slot.name !== 'first')"
             @click.native="closeAndRemove(slot)"/>
         </el-popover>
@@ -39,7 +39,7 @@
 import Vue from "vue";
 import EventBus from './EventBus';
 import store from "../store";
-import {SvgIcon} from '@abi-software/svg-sprite';
+import { MapSvgIcon } from '@abi-software/svg-sprite';
 import { Option, Popover, Row, Select } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -49,11 +49,12 @@ Vue.use(Option);
 Vue.use(Select);
 Vue.use(Popover);
 Vue.use(Row);
-Vue.component('svg-icon', SvgIcon);
 
 export default {
   name: "SplitpanesBar",
-  components: {},
+  components: {
+    MapSvgIcon,
+  },
   props: {
     entries: {
       type: Array,
