@@ -24,7 +24,7 @@
         v-if="entry.type === 'MultiFlatmap'"
         :availableSpecies="entry.availableSpecies"
         @flatmapChanged="flatmapChanged"
-        @ready="updateMarkers"
+        @ready="multiFlatmapReady"
         :state="entry.state"
         @resource-selected="resourceSelected(entry.type, $event)"
         :name="entry.resource"
@@ -34,6 +34,7 @@
         ref="multiflatmap"
         :displayMinimap="true"
         :flatmapAPI="flatmapAPI"
+        @pan-zoom-callback="flatmapPanZoomCallback"
       />
       <FlatmapVuer
         v-else-if="entry.type === 'Flatmap'"
@@ -184,6 +185,9 @@ export default {
           return false;
       }
     },
+    flatmapPanZoomCallback: function (payload) {
+      console.log(payload)
+    },
     /**
      * Callback when the vuers emit a selected event.
      */
@@ -258,6 +262,7 @@ export default {
           }
           if (data.eventType === "selected") {
             this.$refs.scaffold.changeActiveByName(name, false);
+            this.$refs.scaffold.viewRegion(name);
           }
         } else if (this.entry.type === "MultiFlatmap") {
           const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
@@ -279,8 +284,10 @@ export default {
               const results = flatmap.search(name);
               if (results.featureIds.length) {
                 let externalId = flatmap.modelForFeature(results.featureIds[0]);
-                if (externalId)
+                if (externalId) {
                   flatmap.selectFeatures(externalId);
+                  flatmap.zoomToFeatures(externalId);
+                }
                 else
                   flatmap.clearSearchResults();
               }
@@ -313,8 +320,11 @@ export default {
       this.activeSpecies = activeSpecies;
       this.$emit("flatmapChanged");
     },
+    multiFlatmapReady: function (component) {
+      this.updateMarkers(component);
+      //component.addPanZoomEvent();
+    },
     updateMarkers: function (component) {
-      console.log("update");
       let map = component.mapImp;
       map.clearMarkers();
       let params = [];
