@@ -12,9 +12,9 @@
         placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
         <div>
-            SyncMapText: "When in Linked mode thr two maps will
+            When in Linked mode the two maps will interact 
             <br>
-            interact together. Select an organ in one and it will
+            together. Select an organ in one and it will
             <br>
             be automatically selected in the other.
             <br>
@@ -206,6 +206,9 @@ export default {
     },
     viewIcons() {
       return store.state.splitFlow.viewIcons;
+    },
+    globalCallback() {
+      return store.state.splitFlow.globalCallback;
     }
   },
   watch: {
@@ -214,7 +217,13 @@ export default {
     },
     independent: function(value) {
       let flag = !(value === true);
-      store.commit("splitFlow/toggleGlobalCallback", flag);
+      if (this.globalCallback !== flag)
+        store.commit("splitFlow/toggleGlobalCallback", flag);
+    },
+    globalCallback: function(value) {
+      let flag = !(value === true);
+      if (flag !== this.independent)
+        this.independent = flag;
     }
   },
   data: function() {
@@ -222,7 +231,6 @@ export default {
       isFullscreen: false,
       loadingLink: true,
       shareLinkDisplay: false,
-      globalCallback: "0",
       independent: true,
     }
   },

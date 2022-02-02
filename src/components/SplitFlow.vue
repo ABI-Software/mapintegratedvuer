@@ -244,7 +244,7 @@ export default {
       }
       */
       this.$emit("resource-selected", result);
-      if (store.state.splitFlow.globalCallback){
+      if (store.state.splitFlow.globalCallback) {
         this.$refs.splitdialog.sendEventToActiveContents(result);
       }
     },

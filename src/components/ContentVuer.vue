@@ -225,7 +225,12 @@ export default {
               flatmap.clearSearchResults();
             }
           } else if (resource.feature.type == "feature") {
-            action = "scaffold";
+            // Do no open scaffold in sync map
+            if (this.syncMode) {
+              fireResourceSelected = true;
+            } else {
+              action = "scaffold";
+            }
           }
         } else if (resource.eventType == "mouseenter") {
           result.eventType = "highlighted";
@@ -252,7 +257,9 @@ export default {
     receiveEvent(data) {
       if (data.paneIndex !== this.entry.id) {
         let name = data.internalName;
-        if (name === undefined && data.resource) name = data.resource.label;
+        if (name === undefined && data.resource)
+          name = data.resource.label;
+        console.log(name)
         if (name === "Urinary Bladder") {
           name = "Bladder";
         }
