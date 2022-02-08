@@ -1,5 +1,7 @@
 <template>
-  <div class="content-container">
+  <div class="content-container" ref="container"
+    @mouseover="mouseHovered = true"
+    @mouseleave="mouseHovered = false">
     <DatasetHeader
       v-if="entry.datasetTitle"
       class="dataset-header"
@@ -57,6 +59,7 @@
         :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)"
         @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
+        @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
         ref="scaffold"
         :backgroundToggle="true"
         :traditional="true"
@@ -186,7 +189,13 @@ export default {
       }
     },
     flatmapPanZoomCallback: function (payload) {
-      console.log(payload)
+      const result = {
+        paneIndex: this.entry.id,
+        eventType: "panZoom",
+        payload: payload,
+        type: this.entry.type,
+      };
+      this.$emit("resource-selected", result);
     },
     /**
      * Callback when the vuers emit a selected event.
@@ -247,62 +256,110 @@ export default {
       if (returnedAction) EventBus.$emit("PopoverActionClick", returnedAction);
       if (fireResourceSelected) this.$emit("resource-selected", result);
     },
-    resourceHasAction(resource) {
+    resourceHasAction: function (resource) {
       return (
         resource.type === "URL" ||
         resource.type === "Search" ||
         resource.type === "Neuron Search"
       );
     },
-    receiveEvent(data) {
+    handlePanZoomEvent: function (data) {
+      //Prevent recursive callback
+      if (!this.mouseHovered) {
+        if (data.type !== this.entry.type) {
+          if (this.entry.type == "Scaffold") {
+            console.log('scaffold')
+              const origin = data.payload.origin;
+              const size = data.payload.size;
+              const center = [
+                (origin[0] + size[0]) / 2,
+                (origin[1] + size[1]) / 2,
+              ];
+              const convertedCenter = [
+                (center[0] - 0.5) * 1.4,
+                (0.5 - center[1]) * 1.4,
+              ];
+              const zoom = 1 / Math.max(size[0], size[1]);
+              this.$refs.scaffold.$module.setSyncControlCenterZoom(
+                convertedCenter,
+                zoom
+              );
+          } else if (this.entry.type == "MultiFlatmap") {
+            const zoom = data.payload.zoom;
+            const center = data.payload.target;
+            const height = this.$refs.container.clientHeight;
+            const width = this.$refs.container.clientWidth;
+            const max = Math.max(height, width);
+            const sW = width / max / zoom;
+            const sH = height / max / zoom;
+            const origin = [
+              center[0] / 2 + 0.5 - sW / 2,
+              0.5 - center[1] / 2 - sH / 2 + 0.1,
+            ];
+            this.$refs.multiflatmap
+              .getCurrentFlatmap()
+              .mapImp.panZoomTo(origin, [sW, sH]);
+          }
+        }
+      }
+    },
+    handleClickingEvent: function (data) {
+      let name = data.internalName;
+      if (name === undefined && data.resource) name = data.resource.label;
+      if (name === "Urinary Bladder") {
+        name = "Bladder";
+      }
+      if (this.entry.type === "Scaffold") {
+        if (data.eventType === "highlighted") {
+          this.$refs.scaffold.changeHighlightedByName(name, false);
+        }
+        if (data.eventType === "selected") {
+          this.$refs.scaffold.changeActiveByName(name, false);
+          //this.$refs.scaffold.viewRegion(name);
+        }
+      } else if (this.entry.type === "MultiFlatmap") {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+        if (name === "Bladder") {
+          name = "Urinary Bladder";
+        }
+        if (data.eventType === "highlighted") {
+          if (name) {
+            const results = flatmap.search(name);
+            if (results.featureIds[0]) {
+              flatmap.highlightFeatures([
+                flatmap.modelForFeature(results.featureIds[0]),
+              ]);
+            }
+          }
+        }
+        if (data.eventType === "selected") {
+          if (name) {
+            const results = flatmap.search(name);
+            if (results.featureIds.length) {
+              let externalId = flatmap.modelForFeature(results.featureIds[0]);
+              if (externalId) {
+                flatmap.selectFeatures(externalId);
+                //flatmap.zoomToFeatures(externalId);
+              } else flatmap.clearSearchResults();
+            }
+          } else {
+            flatmap.clearSearchResults();
+          }
+        }
+      }
+    },
+    receiveInteractiveEvent: function (data) {
       if (data.paneIndex !== this.entry.id) {
-        let name = data.internalName;
-        if (name === undefined && data.resource)
-          name = data.resource.label;
-        console.log(name)
-        if (name === "Urinary Bladder") {
-          name = "Bladder";
+        if (data.eventType == "panZoom") {
+          this.handlePanZoomEvent(data);
+        } else {
+          this.handleClickingEvent(data);
         }
-        if (this.entry.type === "Scaffold") {
-          if (data.eventType === "highlighted") {
-            this.$refs.scaffold.changeHighlightedByName(name, false);
-          }
-          if (data.eventType === "selected") {
-            this.$refs.scaffold.changeActiveByName(name, false);
-            this.$refs.scaffold.viewRegion(name);
-          }
-        } else if (this.entry.type === "MultiFlatmap") {
-          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-          if (name === "Bladder") {
-            name = "Urinary Bladder";
-          }
-          if (data.eventType === "highlighted") {
-            if (name) {
-              const results = flatmap.search(name);
-              if (results.featureIds[0]) {
-                flatmap.highlightFeatures([
-                  flatmap.modelForFeature(results.featureIds[0]),
-                ]);
-              }
-            }
-          }
-          if (data.eventType === "selected") {
-            if (name) {
-              const results = flatmap.search(name);
-              if (results.featureIds.length) {
-                let externalId = flatmap.modelForFeature(results.featureIds[0]);
-                if (externalId) {
-                  flatmap.selectFeatures(externalId);
-                  flatmap.zoomToFeatures(externalId);
-                }
-                else
-                  flatmap.clearSearchResults();
-              }
-            } else {
-              flatmap.clearSearchResults();
-            }
-          }
-        }
+      }
+    },
+    toggleInteractiveEvent: function (flag) {
+      if (this.entry.type === "Scaffold") {
+        this.$refs.scaffold.toggleSyncControl(flag);
       }
     },
     /**
@@ -322,6 +379,18 @@ export default {
         }
         this.$emit("resource-selected", result);
       }
+    },
+    /**
+     * Callback when the vuers emit a selected event.
+     */
+    scaffoldNavigated: function (type, resource) {
+      const result = {
+        paneIndex: this.entry.id,
+        eventType: "panZoom",
+        payload: resource,
+        type: type,
+      };
+      this.$emit("resource-selected", result);
     },
     flatmapChanged: function (activeSpecies) {
       this.activeSpecies = activeSpecies;
@@ -343,10 +412,6 @@ export default {
         });
         if (this._controller) this._controller.abort();
         this._controller = new AbortController();
-        console.log(
-          "calling: ",
-          `${this.apiLocation}get-organ-curies?${params.join("&")}`
-        );
         let signal = this._controller.signal;
         fetch(`${this.apiLocation}get-organ-curies?${params.join("&")}`, {
           signal,
@@ -402,6 +467,7 @@ export default {
       },
       helpMode: false,
       idNamePair: {},
+      mouseHovered: false,
     };
   },
   created: function () {
@@ -447,9 +513,6 @@ export default {
     EventBus.$on("startHelp", (id) => {
       this.startHelp(id);
     });
-  },
-  destroyed: function () {
-    console.log("beforeDestroy");
   },
 };
 </script>

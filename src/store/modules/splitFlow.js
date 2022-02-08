@@ -17,7 +17,7 @@ const state = () => ({
   ],
   splitters: { "first": 50, "second": 50, "third": 50 },
   globalCallback: false,
-  syncMode: false
+  syncMode: false,
 });
 
 const getters = {
@@ -80,7 +80,7 @@ const mutations = {
       if (targetSlot) {
         //exit syncMod if the two panel in sync mode are not swapping
         if (!((targetSlot.name == "first" && payload.slot.name == "second") ||
-        (targetSlot.name == "second" && payload.slot.name == "first"))) {
+          (targetSlot.name == "second" && payload.slot.name == "first"))) {
           state.syncMode = false;
           state.globalCallback = false;
         }
@@ -118,7 +118,7 @@ const mutations = {
   },
   setSplitter(state, payload) {
     if (state.splitters[payload.name])
-      state.splitters[payload.name] = payload.value;   
+      state.splitters[payload.name] = payload.value;
   },
   setState(state, newState) {
     if (newState) {
@@ -128,7 +128,7 @@ const mutations = {
       }
       for (const [key, value] of Object.entries(newState.splitters)) {
         state.splitters[key] = value;
-      } 
+      }
     }
   },
   setIdToPrimarySlot(state, id) {
@@ -167,11 +167,11 @@ const mutations = {
       } else {
         if (payload.entries) {
           let availableId = 0;
-          for (let i = 0; i < payload.entries.length && 
+          for (let i = 0; i < payload.entries.length &&
             availableId == 0; i++) {
-            if (state.slotInfo.find(slot => slot.id === 
+            if (state.slotInfo.find(slot => slot.id ===
               payload.entries[i].id) === undefined) {
-                availableId = payload.entries[i].id;
+              availableId = payload.entries[i].id;
             }
           }
           let thirdSlot = state.slotInfo.find(
@@ -199,12 +199,12 @@ const mutations = {
       if (payload.id === 1) {
         availableId = 1;
       } else if (payload.entries) {
-        for (let i = 0; i < payload.entries.length && 
+        for (let i = 0; i < payload.entries.length &&
           availableId == 0; i++) {
-          if (state.slotInfo.find(slot => slot.id === 
+          if (state.slotInfo.find(slot => slot.id ===
             payload.entries[i].id) === undefined) {
-              availableId = payload.entries[i].id;
-            }
+            availableId = payload.entries[i].id;
+          }
         }
       }
       let slot = state.slotInfo.find(
@@ -227,7 +227,7 @@ const mutations = {
               slot.id = secondSlot.Id;
               secondSlot.Id = thirdSlot.id;
               thirdSlot.id = availableId;
-            }  break;
+            } break;
             case "4panel": {
               slot.id = secondSlot.Id;
               secondSlot.Id = thirdSlot.id;
@@ -248,7 +248,7 @@ const mutations = {
               slot.id = thirdSlot.id;
               thirdSlot.id = fourthSlot.id;
               fourthSlot.id = availableId;
-            }  break;
+            } break;
             case "4panel": {
               slot.id = thirdSlot.id;
               thirdSlot.id = fourthSlot.id;
@@ -261,7 +261,7 @@ const mutations = {
         case "third": {
           switch (state.activeView) {
             case "3panel":
-            case "4panel":{
+            case "4panel": {
               slot.id = fourthSlot.id;
               fourthSlot.id = availableId;
             } break;
@@ -296,7 +296,7 @@ const mutations = {
           break;
       }
     }
-  }
+  },
 };
 
 export default {

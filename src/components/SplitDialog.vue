@@ -221,10 +221,12 @@ export default {
       const activeContents = [];
       const activeIds = store.getters["splitFlow/getActiveEntriesId"]();
       const vuers = this.$refs['content'];
-      vuers.forEach(vuer => {
-        if (activeIds.includes(vuer.$vnode.key))
-          activeContents.push(vuer);
-      });
+      if (vuers) {
+        vuers.forEach(vuer => {
+          if (activeIds.includes(vuer.$vnode.key))
+            activeContents.push(vuer);
+        });
+      }
       return activeContents;
     },
     isSlotActive: function(name) {
@@ -240,7 +242,7 @@ export default {
     sendEventToActiveContents: function(resource) {
       const activeContents = this.getActiveContents();
       activeContents.forEach(content => {
-        content.receiveEvent(resource);
+        content.receiveInteractiveEvent(resource);
       });
     },
     getContentsState: function() {
@@ -282,6 +284,9 @@ export default {
     },
     splitters() {
       return store.state.splitFlow.splitters;
+    },
+    globalCallback() {
+      return store.state.splitFlow.globalCallback;
     }
   },
   watch: {
@@ -290,6 +295,19 @@ export default {
         this.splitter1 = store.state.splitFlow.splitters.first;
         this.splitter2 = store.state.splitFlow.splitters.second;
         this.splitter3 = store.state.splitFlow.splitters.third;
+      },
+      immediate: true,
+      deep: true
+    },
+    globalCallback: {
+      handler: function(val) {
+        const contents = this.getActiveContents();
+
+        if (contents) {
+          contents.forEach(content => {
+            content.toggleInteractiveEvent(val);
+          });
+        }
       },
       immediate: true,
       deep: true
