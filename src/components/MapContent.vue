@@ -110,9 +110,6 @@ export default {
       this.options.pennsieveApi ? store.commit("settings/updatePennsieveApi", this.options.pennsieveApi) : null
       this.options.flatmapAPI ? store.commit("settings/updateFlatmapAPI", this.options.flatmapAPI) : null
     }
-    if (this.flatmapAPI) {
-      store.commit("settings/updateFlatmapAPI", this.flatmapAPI);
-    }
   },
   mounted: function() {
     EventBus.$on("updateShareLinkRequested", () => {
