@@ -126,7 +126,6 @@ export default {
           });
           if (speciesFacets.length == 0)
             speciesFacets.push({facet: "show all", term:'species'});
-          console.log(action)
           this.$refs.sideBar.addFilter({facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'});
         } else {
           this.createNewEntry(action);
@@ -134,8 +133,6 @@ export default {
       }
     },
     searchChanged: function(data) {
-      console.log('search changed!')
-      window.datadata = data
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
       }

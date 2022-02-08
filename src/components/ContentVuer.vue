@@ -128,7 +128,6 @@ export default {
         if (this._controller) 
           this._controller.abort();
         this._controller = new AbortController();
-        console.log('calling: ', `${this.apiLocation}get-organ-curies?${params.join('&')}`)
         let signal = this._controller.signal;
         fetch(`${this.apiLocation}get-organ-curies?${params.join('&')}`, {signal})
         .then((response) => response.json())
