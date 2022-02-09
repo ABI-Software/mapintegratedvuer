@@ -15,7 +15,7 @@
           @flatmapChanged="flatmapChanged"
         />
         <SideBar ref="sideBar"
-          :apiLocation="apiLocation" 
+          :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', {'start-up': startUp }]"
           :activeId="activeDockedId"
@@ -126,11 +126,7 @@ export default {
           });
           if (speciesFacets.length == 0)
             speciesFacets.push({facet: "show all", term:'species'});
-          this.$refs.sideBar.openSearch('',
-            [...speciesFacets,
-            {facet: "show all", term:'gender'},
-            {facet: action.label.toLowerCase(), term:'organ'},
-            {facet: "show all", term:'datasets'}]);
+          this.$refs.sideBar.addFilter({facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'});
         } else {
           this.createNewEntry(action);
         }
@@ -248,8 +244,14 @@ export default {
     })
   },
   computed: {
-    apiLocation: function() {
-      return store.state.settings.api;
+    envVars: function() {
+      return {
+        API_LOCATION: store.state.settings.sparcApi,
+        ALGOLIA_INDEX: store.state.settings.algoliaIndex,
+        ALGOLIA_KEY: store.state.settings.algoliaKey,
+        ALGOLIA_ID: store.state.settings.algoliaId,
+        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi
+      }
     }
   }
 };

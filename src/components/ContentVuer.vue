@@ -185,8 +185,8 @@ export default {
     this.apiLocation = undefined;
     if (store.state.settings.flatmapAPI)
       this.flatmapAPI = store.state.settings.flatmapAPI;
-    if (store.state.settings.api)
-      this.apiLocation = store.state.settings.api;
+    if (store.state.settings.sparcApi)
+      this.apiLocation = store.state.settings.sparcApi;
   },
   computed: {
     facetSpecies() {
