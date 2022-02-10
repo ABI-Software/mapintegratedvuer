@@ -189,6 +189,7 @@ export default {
       }
     },
     flatmapPanZoomCallback: function (payload) {
+      console.log("aasdad")
       const result = {
         paneIndex: this.entry.id,
         eventType: "panZoom",
@@ -268,22 +269,21 @@ export default {
       if (!this.mouseHovered) {
         if (data.type !== this.entry.type) {
           if (this.entry.type == "Scaffold") {
-            console.log('scaffold')
-              const origin = data.payload.origin;
-              const size = data.payload.size;
-              const center = [
-                (origin[0] + size[0]) / 2,
-                (origin[1] + size[1]) / 2,
-              ];
-              const convertedCenter = [
-                (center[0] - 0.5) * 1.4,
-                (0.5 - center[1]) * 1.4,
-              ];
-              const zoom = 1 / Math.max(size[0], size[1]);
-              this.$refs.scaffold.$module.setSyncControlCenterZoom(
-                convertedCenter,
-                zoom
-              );
+            const origin = data.payload.origin;
+            const size = data.payload.size;
+            const center = [
+              origin[0] + size[0] / 2,
+              origin[1] + size[1] / 2,
+            ];
+            const convertedCenter = [
+              (center[0] - 0.5) * 2,
+              (0.5 - center[1]) * 2,
+            ];
+            const zoom = 1 / Math.max(size[0], size[1]);
+            this.$refs.scaffold.$module.setSyncControlCenterZoom(
+              convertedCenter,
+              zoom
+            );
           } else if (this.entry.type == "MultiFlatmap") {
             const zoom = data.payload.zoom;
             const center = data.payload.target;
@@ -294,7 +294,7 @@ export default {
             const sH = height / max / zoom;
             const origin = [
               center[0] / 2 + 0.5 - sW / 2,
-              0.5 - center[1] / 2 - sH / 2 + 0.1,
+              0.5 - center[1] / 2 - sH / 2,
             ];
             this.$refs.multiflatmap
               .getCurrentFlatmap()
