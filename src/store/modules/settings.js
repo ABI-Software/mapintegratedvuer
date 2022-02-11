@@ -1,7 +1,11 @@
 /* eslint-disable no-alert, no-console */
 const state = () => ({
   shareLink: undefined,
-  api: undefined,
+  sparcApi: undefined,
+  algoliaIndex: 'k-core_dev_published_time_desc',
+  algoliaKey: undefined,
+  algoliaId: undefined,
+  pennsieveApi: undefined,
   flatmapAPI: undefined,
   facets: {'species':[], 'gender':[], 'organ':[]}
 });
@@ -10,8 +14,20 @@ const mutations = {
   updateShareLink(state, newLink) {
     state.shareLink = newLink;
   },
-  updateAPI(state, api) {
-    state.api = api;
+  updateSparcAPI(state, api) {
+    state.sparcApi = api;
+  },
+  updateAlgoliaIndex(state, algoliaIndex ) {
+    state.algoliaIndex = algoliaIndex 
+  },
+  updateAlgoliaKey(state, algoliaKey) {
+    state.algoliaKey = algoliaKey
+  },
+  updateAlgoliaId(state, algoliaId) {
+    state.algoliaId = algoliaId
+  },
+  updatePennsieveApi(state, pennsieveApi ) {
+    state.pennsieveApi = pennsieveApi 
   },
   updateFlatmapAPI(state, flatmapAPI) {
     state.flatmapAPI = flatmapAPI;

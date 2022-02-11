@@ -1,6 +1,6 @@
 <template>
     <div class="mapcontent" ref="MapApp">
-      <SvgSpriteColor/>
+      <map-svg-sprite-color/>
       <SplitFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
     </div>
 </template>
@@ -10,7 +10,7 @@
 import SplitFlow from './SplitFlow';
 import EventBus from './EventBus';
 import store from '../store';
-import {SvgSpriteColor} from '@abi-software/svg-sprite';
+import {MapSvgSpriteColor} from '@abi-software/svg-sprite';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -19,7 +19,7 @@ export default {
   name: "MapContent",
   components: {
     SplitFlow,
-    SvgSpriteColor,
+    MapSvgSpriteColor,
   },
   props: {
     shareLink: {
@@ -30,13 +30,9 @@ export default {
       type: Object,
       default: undefined
     },
-    api: {
-      type: String,
-      default: undefined
-    },
-    flatmapAPI: {
-      type: String,
-      default: undefined
+    options: {
+      type: Object, 
+      default: () => {}
     }
   },
   methods: {
@@ -105,11 +101,14 @@ export default {
     },
   },
   beforeMount: function() {
-    if (this.api) {
-      store.commit("settings/updateAPI", this.api);
-    }
-    if (this.flatmapAPI) {
-      store.commit("settings/updateFlatmapAPI", this.flatmapAPI);
+    if (this.options) {
+      // Split options prop up to commit to the store
+      this.options.sparcApi ? store.commit("settings/updateSparcAPI", this.options.sparcApi) : null
+      this.options.algoliaIndex ? store.commit("settings/updateAlgoliaIndex", this.options.algoliaIndex) : null
+      this.options.algoliaKey ? store.commit("settings/updateAlgoliaKey", this.options.algoliaKey) : null
+      this.options.algoliaId ? store.commit("settings/updateAlgoliaId", this.options.algoliaId) : null
+      this.options.pennsieveApi ? store.commit("settings/updatePennsieveApi", this.options.pennsieveApi) : null
+      this.options.flatmapAPI ? store.commit("settings/updateFlatmapAPI", this.options.flatmapAPI) : null
     }
   },
   mounted: function() {

@@ -1,11 +1,11 @@
 import Vue from 'vue';
 import App from './App.vue';
 import VueRouter from 'vue-router';
-import {SvgSprite, SvgIcon, SvgSpriteColor} from '@abi-software/svg-sprite';
+import {MapSvgSprite, MapSvgIcon, MapSvgSpriteColor} from '@abi-software/svg-sprite';
 
-Vue.component('svg-icon', SvgIcon);
-Vue.component('svg-sprite', SvgSprite);
-Vue.component('svg-sprite-color', SvgSpriteColor);
+Vue.component('map-svg-icon', MapSvgIcon);
+Vue.component('map-svg-sprite', MapSvgSprite);
+Vue.component('map-svg-sprite-color', MapSvgSpriteColor);
 Vue.use(VueRouter);
 Vue.config.productionTip = false;
 

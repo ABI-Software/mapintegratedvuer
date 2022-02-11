@@ -2,7 +2,7 @@
   <div id="app">
     <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap">
-    <svg-sprite-color />
+    <map-svg-sprite-color />
     <el-popover
       placement="bottom"
       trigger="click"
@@ -20,7 +20,7 @@
       <el-button icon="el-icon-setting" slot="reference">Options</el-button>
     </el-popover>
     <div class="map-app">
-      <MapContent ref="map" :api="api" :state="state" :shareLink="shareLink" :flatmapAPI="flatmapAPI" @updateShareLinkRequested="updateUUID"/>
+      <MapContent ref="map" :options="options" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
     </div>
   </div>
 </template>
@@ -49,7 +49,6 @@ export default {
       state: undefined,
       prefix: "/map",
       api: process.env.VUE_APP_API_LOCATION,
-      flatmapAPI: process.env.VUE_APP_FLATMAPAPI_LOCATION 
     }
   },
   computed: {
@@ -57,6 +56,16 @@ export default {
       if (this.uuid)
         return this.prefix +"?id=" + this.uuid;
       return this.prefix;
+    },
+    options: function() {
+      return {
+        sparcApi: process.env.VUE_APP_API_LOCATION,
+        algoliaIndex: process.env.VUE_APP_ALGOLIA_INDEX,
+        algoliaKey: process.env.VUE_APP_ALGOLIA_KEY,
+        algoliaId: process.env.VUE_APP_ALGOLIA_ID,
+        pennsieveApi: process.env.VUE_APP_PENNSIEVE_API_LOCATION,
+        flatmapAPI: process.env.VUE_APP_FLATMAPAPI_LOCATION 
+      }
     }
   },
   methods: {
