@@ -189,7 +189,6 @@ export default {
       }
     },
     flatmapPanZoomCallback: function (payload) {
-      console.log("aasdad")
       const result = {
         paneIndex: this.entry.id,
         eventType: "panZoom",
@@ -315,7 +314,7 @@ export default {
         }
         if (data.eventType === "selected") {
           this.$refs.scaffold.changeActiveByName(name, false);
-          //this.$refs.scaffold.viewRegion(name);
+          this.$refs.scaffold.viewRegion(name);
         }
       } else if (this.entry.type === "MultiFlatmap") {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
@@ -339,7 +338,7 @@ export default {
               let externalId = flatmap.modelForFeature(results.featureIds[0]);
               if (externalId) {
                 flatmap.selectFeatures(externalId);
-                //flatmap.zoomToFeatures(externalId);
+                flatmap.zoomToFeatures(externalId);
               } else flatmap.clearSearchResults();
             }
           } else {
@@ -354,6 +353,30 @@ export default {
           this.handlePanZoomEvent(data);
         } else {
           this.handleClickingEvent(data);
+        }
+      } else {
+        if (data.eventType == "selected") {
+          let name = data.internalName;
+          if (this.entry.type === "Scaffold") {
+            if (name === undefined && data.resource)
+              name = data.resource.label;
+            if (name === "Urinary Bladder") {
+              name = "Bladder";
+            }
+            this.$refs.scaffold.viewRegion(name);
+          } else if (this.entry.type === "MultiFlatmap") {
+            const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+            if (name === "Bladder") {
+              name = "Urinary Bladder";
+            }
+            const results = flatmap.search(name);
+            if (results.featureIds.length) {
+              let externalId = flatmap.modelForFeature(results.featureIds[0]);
+              if (externalId) {
+                flatmap.zoomToFeatures(externalId);
+              }
+            }
+          }
         }
       }
     },
