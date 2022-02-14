@@ -524,6 +524,10 @@ export default {
         this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
       }
     },
+    syncMode: function(val) {
+      if (this.entry.type === "MultiFlatmap")
+        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
+    }
   },
   mounted: function () {
     if (this.entry.type === "Scaffold") {
