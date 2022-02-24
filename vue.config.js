@@ -48,5 +48,6 @@ module.exports = {
         prependData: `@import '@/assets/styles';`
       }
     }
-  }
+  },
+  runtimeCompiler: true
 }
