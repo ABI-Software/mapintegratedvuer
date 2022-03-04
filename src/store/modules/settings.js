@@ -38,9 +38,9 @@ const mutations = {
     //First add missing item
     if (facetsIn) {
       facetsIn.forEach(e => {
-        switch (e.term) {
+        switch (e.term.toLowerCase()) {
           case 'species':
-            if (e.facet !== 'show all') {
+            if (e.facet.toLowerCase() !== 'show All') {
               facets.species.push(e.facet);
               if (!state.facets.species.includes(e.facet)) {
                 state.facets.species.push(e.facet);
@@ -48,14 +48,14 @@ const mutations = {
             }
             break;
           case 'gender':
-            if (e.facet !== 'show all') {
+            if (e.facet.toLowerCase() !== 'show all') {
               facets.gender.push(e.facet);
               if (!state.facets.species.includes(e.facet))
                 state.facets.gender.push(e.facet);
             }
             break;
           case 'organ':
-            if (e.facet !== 'show all') {
+            if (e.facet.toLowerCase() !== 'show all') {
               facets.organ.push(e.facet);
               if (!state.facets.species.includes(e.facet))
                 state.facets.organ.push(e.facet);
