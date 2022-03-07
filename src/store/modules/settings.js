@@ -40,11 +40,13 @@ const mutations = {
       facetsIn.forEach(e => {
         switch (e.term.toLowerCase()) {
           case 'species':
-            if (e.facet.toLowerCase() !== 'show All') {
+            if (e.facet.toLowerCase() !== 'show all') {
               facets.species.push(e.facet);
               if (!state.facets.species.includes(e.facet)) {
                 state.facets.species.push(e.facet);
               }
+            } else {
+              state.facets.species = []
             }
             break;
           case 'gender':
