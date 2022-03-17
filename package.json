@@ -33,6 +33,7 @@
     "d3-time-format": "^3.0.0",
     "element-ui": "^2.13.0",
     "es6-promise": "^4.2.8",
+    "jsonschema": "^1.4.0",
     "lodash": "^4.17.21",
     "postcss-prefix-selector": "^1.7.2",
     "shepherd.js": "^7.1.5",
