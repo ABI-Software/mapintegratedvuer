@@ -2,6 +2,7 @@
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
     <div :style="mainStyle">
+      <el-button style="position: absolute; left: 45%; top: 15px; z-index:9999999;" @click.stop="flatmapAreaSearch">Search this area</el-button>
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
         @flatmapChanged="flatmapChanged" @ready="updateMarkers" :state="entry.state"
         @resource-selected="resourceSelected(entry.type, $event)"  :name="entry.resource"
@@ -39,6 +40,7 @@ import { getInteractiveAction } from './SimulatedData.js';
 import { SimulationVuer } from '@abi-software/simulationvuer';
 import '@abi-software/simulationvuer/dist/simulationvuer.css';
 import store from '../store';
+import markerZoomLevels from './markerZoomLevels'
 
 export default {
   name: "ContentVuer",
@@ -118,7 +120,8 @@ export default {
       this.$emit("flatmapChanged");
     },
     updateMarkers: function(component) {
-      let map = component.mapImp;
+      let map = component.mapImp
+      let zoom = map.getZoom()['zoom']
       map.clearMarkers();
       let params = [];
       if (this.apiLocation) {
@@ -134,10 +137,16 @@ export default {
         .then((data) => {
           this._controller = undefined;
           data.uberon.array.forEach((pair) => {
-            this.idNamePair[pair.id.toUpperCase()] = 
-              pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
-            map.addMarker(pair.id.toUpperCase(), "simulation");
+            let id = pair.id.toUpperCase();
+            this.idNamePair[id] = pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
+            markerZoomLevels.map(el=>{
+              if (el.id === id && zoom >= el.showAtZoom) {
+                map.addMarker(id, "simulation")
+              }
+            })
           });
+          this.markers = this.idNamePair
+          setInterval(this.flatmapMarkerZoomUpdate, 1300)
         })
         .catch(err=> {
           if (err.name !== 'AbortError') {
@@ -154,6 +163,28 @@ export default {
         }
       }
     },
+    flatmapMarkerZoomUpdate(){
+      let flatmapImp = this.getFlatmapImp()
+      flatmapImp.clearMarkers()
+      let currentZoom = flatmapImp.getZoom()['zoom']
+      for (let id in this.markers) {
+        markerZoomLevels.map(el=>{
+          if (el.id === id && currentZoom >= el.showAtZoom) {
+            flatmapImp.addMarker(id, "simulation") 
+          }
+        })
+      }
+    },
+    flatmapAreaSearch(){
+      this.flatmapImp = this.getFlatmapImp()
+      let shownMarkers = this.flatmapImp.visibleMarkerAnatomicalIds()
+      let returnedAction = {
+        type: "Facets",
+        label: "Unused",
+        val: shownMarkers.map(marker=>this.idNamePair[marker])
+      }
+      EventBus.$emit("PopoverActionClick", returnedAction);
+    },
     startHelp: function(id){
       if (this.entry.id === id && this.isInHelp === undefined){
         this.helpMode = true;
@@ -165,6 +196,15 @@ export default {
       window.removeEventListener("mousedown", this.endHelp)
       this.helpMode = false;
       setTimeout(()=>{this.isInHelp = undefined}, 200);
+    },
+    getFlatmapImp: function() {
+      if (this.entry.type === 'Flatmap') {
+        return this.$refs.flatmap.mapImp
+      } else if (this.entry.type === 'MultiFlatmap') {
+        return this.$refs.multiflatmap.getCurrentFlatmap()['mapImp']
+      } else {
+        return undefined
+      }
     }
   },
   data: function() {

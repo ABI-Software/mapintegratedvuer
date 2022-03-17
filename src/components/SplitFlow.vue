@@ -125,8 +125,17 @@ export default {
             speciesFacets.push({facet: e, term:'species'});
           });
           if (speciesFacets.length == 0)
-            speciesFacets.push({facet: "show all", term:'species'});
+            speciesFacets.push({facet: "Show All", term:'species'});
           this.$refs.sideBar.addFilter({facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'});
+        } else if (action.type == "Facets") {
+          const facets = [];
+          store.state.settings.facets.species.forEach(e => {
+            facets.push({facet: e, term:'species', facetPropPath: 'anatomy.organ.name'});
+          });
+          if (facets.length == 0)
+            facets.push({facet: "Show All", term:'species', facetPropPath: 'anatomy.organ.name'});
+          facets.push(...action.val.map(val =>({facet: val, term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
+          this.$refs.sideBar.openSearch(facets, '');
         } else {
           this.createNewEntry(action);
         }
