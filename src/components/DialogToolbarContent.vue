@@ -282,6 +282,14 @@ export default {
   border: 1px solid $app-primary-color;
   white-space: nowrap;
   min-width: unset;
+  &.el-popper[x-placement^=bottom] {
+    .popper__arrow {
+      border-bottom-color: $app-primary-color !important;
+      &:after {
+        border-bottom-color: #f3ecf6 !important;
+      }
+    }
+  }
 }
 
 ::v-deep .link-popover {
@@ -299,14 +307,6 @@ export default {
   color: $app-primary-color;
   margin-right:10px;
   cursor: pointer;
-  ::v-deep .el-popper[x-placement^=bottom] {
-    border-bottom-color: $app-primary-color;
-    .popper__arrow:after{
-      &::after { 
-        border-bottom-color: #f3ecf6 !important;
-      }
-    }
-  }
 }
 
 .copy-button {
@@ -381,9 +381,12 @@ export default {
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
   cursor:default;
-  .el-popper[x-placement^=bottom] {
-    .popper__arrow:after{
-      border-bottom-color: #fff !important;
+  &.el-popper[x-placement^=bottom] {
+    .popper__arrow {
+      border-bottom-color: $app-primary-color !important;
+      &:after {
+        border-bottom-color: #fff !important;
+      }
     }
   }
 }
