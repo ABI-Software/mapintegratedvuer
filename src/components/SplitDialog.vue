@@ -39,6 +39,7 @@
       :class="[getToolbarClass(slot), 'toolbar']"
     >
       <el-select
+        v-if="entries.length > 1"
         :popper-append-to-body="false"
         :value="slot.id"
         placeholder="Select"
@@ -53,6 +54,9 @@
           :value="entry.id"
         />
       </el-select>
+      <div v-else class="text-title">
+        {{ getEntryTitle(entries[0]) }}
+      </div>
     </div>
     <div
       v-for="entry in entries"
@@ -336,7 +340,10 @@ export default {
     getEntryTitle: function(entry) {
       if (entry) {
         let title = entry.label ? entry.label + " ": '';
-        title += entry.type;
+        let type = entry.type;
+        if (type == "Scaffold")
+          type = "Scaffold 3D";
+        title += type;
         if (entry.datasetId)
           title += " (" + entry.datasetId + ")";
         else if (entry.discoverId)
@@ -641,7 +648,7 @@ export default {
   ::v-deep .el-input__inner {
     color: $app-primary-color;
     height: 24px;
-    padding-left: 8px;
+    padding-left: 4px;
     padding-right: 8px;
   }
   ::v-deep .el-input__icon {
@@ -651,6 +658,18 @@ export default {
   ::v-deep .is-focus .el-input__inner {
     border: 1px solid $app-primary-color;
   }
+}
+
+.text-title {
+  width: 140px;
+  color: $app-primary-color;
+  margin-left: 8px;
+  margin-top: 6px;
+  font-weight: 500;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 i .select-box ::v-deep .el-input__icon {
