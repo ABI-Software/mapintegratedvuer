@@ -1,6 +1,7 @@
 <template>
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
+    <div style="position: absolute;top:0;left:0;z-index:999999999;">view url:{{entry.viewURL}}</div>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
         @flatmapChanged="flatmapChanged" @ready="updateMarkers" :state="entry.state"
@@ -15,7 +16,7 @@
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
-        :render="visible" :displayMinimap=false :displayMarkers=false />
+        :render="visible" :displayMinimap=false :displayMarkers=false :view-u-r-l="entry.viewURL"/>
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
         :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
       <SimulationVuer v-else-if="entry.type === 'Simulation'"

@@ -104,6 +104,7 @@ export default {
      */
     actionClick:function(action) {
       if (action) {
+        console.log(action)
         if (action.type == "Search") {
           if (action.nervePath){
             this.$refs.sideBar.openSearch(action.label, [action.filter] );
@@ -127,7 +128,10 @@ export default {
           if (speciesFacets.length == 0)
             speciesFacets.push({facet: "show all", term:'species'});
           this.$refs.sideBar.addFilter({facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'});
-        } else {
+        } else if (action.type == "Scaffold View"){
+          this.updateEntry(action)
+        }
+          else {
           this.createNewEntry(action);
         }
       }
@@ -136,6 +140,10 @@ export default {
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
       }
+    },
+
+    updateEntry(data){
+      Object.assign(this.entries[this.activeDockedId], data);
     },
     /**
      * Add new entry which will sequentially create a
