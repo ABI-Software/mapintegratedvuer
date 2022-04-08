@@ -143,7 +143,24 @@ export default {
     },
 
     updateEntry(data){
-      Object.assign(this.entries[this.activeDockedId], data);
+      console.log('updating entry')
+      console.log('old: ', this.entries[this.activeDockedId])
+      
+      console.log('id:',this.activeDockedId)
+
+      window.entries = this.entries
+      window.data = data
+      window.activeDockedId = this.activeDockedId
+      data.type = data.type === "Scaffold View" ? "Scaffold" : data.type
+      for (let i in this.entries){
+        if (this.entries[i].resource === data.resource){
+          console.log('found entry id! it is:', i)
+          this.entries[i].viewUrl = data.viewUrl
+        }
+      }
+      // this.entries[this.activeDockedId].viewUrl = data.viewUrl
+      // Object.assign(this.entries[this.activeDockedId], data);
+      console.log('new:',  this.entries[this.activeDockedId])
     },
     /**
      * Add new entry which will sequentially create a
