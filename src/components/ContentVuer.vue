@@ -201,6 +201,11 @@ export default {
       } else if (this.entry.type === 'MultiFlatmap') {
         this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
       }
+    },
+    // Comment out the function below to try testing scaffoldviewer reactivity
+    'entry.viewUrl': function(){
+      this.entry.type = "Scaffold View"
+      setTimeout(()=>this.entry.type = "Scaffold",300)
     }
   },
   mounted: function() {
@@ -212,7 +217,7 @@ export default {
     EventBus.$on("startHelp", (id) => {
       this.startHelp(id);
     })
-    setInterval(()=> console.log('view url: ', this.entry.viewUrl), 3000)
+    setInterval(()=> console.log('view url: ', this.entry.viewUrl, 'entry type: ', this.entry.type), 3000)
   },
   deactivated: function() {
     let state = this.getState();

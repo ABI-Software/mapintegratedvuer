@@ -156,8 +156,10 @@ export default {
         if (this.entries[i].resource === data.resource){
           console.log('found entry id! it is:', i)
           this.entries[i].viewUrl = data.viewUrl
+          // Vue.set(this.entries, i, this.entries[i])
         }
       }
+      
       // this.entries[this.activeDockedId].viewUrl = data.viewUrl
       // Object.assign(this.entries[this.activeDockedId], data);
       console.log('new:',  this.entries[this.activeDockedId])
@@ -174,6 +176,7 @@ export default {
       newEntry.zIndex = ++this.zIndex; 
       newEntry.state = undefined;
       newEntry.discoverId = data.discoverId;
+      newEntry.viewUrl = undefined
       this.entries.push(newEntry);
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
       return newEntry.id;
