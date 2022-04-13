@@ -38,24 +38,36 @@
       :style="getToolbarStyle(slot)"
       :class="[getToolbarClass(slot), 'toolbar']"
     >
-      <el-select
-        v-if="entries.length > 1"
-        :popper-append-to-body="false"
-        :value="slot.id"
-        placeholder="Select"
-        class="select-box"
-        popper-class="viewer_dropdown"
-        @change="viewerChanged(slot , $event)"
-      >
-        <el-option
-          v-for="entry in entries"
-          :key="entry.id"
-          :label="getEntryTitle(entry)"
-          :value="entry.id"
-        />
-      </el-select>
-      <div v-else class="text-title">
-        {{ getEntryTitle(entries[0]) }}
+      <div class="toolbar-flex-container">
+        <el-select
+          v-if="entries.length > 1"
+          :popper-append-to-body="false"
+          :value="slot.id"
+          placeholder="Select"
+          class="select-box"
+          popper-class="viewer_dropdown"
+          @change="viewerChanged(slot , $event)"
+        >
+          <el-option
+            v-for="entry in entries"
+            :key="entry.id"
+            :label="getEntryTitle(entry)"
+            :value="entry.id"
+          />
+        </el-select>
+        <div v-else class="text title">
+          {{ getEntryTitle(entries[0]) }}
+        </div>
+        <template v-if="isFlatmap[slot.name]">
+          <div class="text search-text">
+            Search within display
+          </div>
+          <el-input class="search-box" placeholder="Search"
+            v-model="searchText[slot.id]"
+            @keyup.enter.native="search(slot, searchText[slot.id])">
+          </el-input>
+          <map-svg-icon icon="magnifyingGlass" class="magnify" @click.native="search(slot, searchText[slot.id])"/>
+        </template>
       </div>
     </div>
     <div
@@ -80,15 +92,18 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import ContentVuer from "./ContentVuer";
+import { MapSvgIcon } from '@abi-software/svg-sprite';
 import { Splitpanes, Pane } from "splitpanes";
 import store from "../store";
 import Vue from "vue";
 import "splitpanes/dist/splitpanes.css";
 import {
+  Input,
   Option,
   Popover,
   Select
 } from "element-ui";
+Vue.use(Input);
 Vue.use(Option);
 Vue.use(Popover);
 Vue.use(Select);
@@ -97,6 +112,7 @@ export default {
   name: "SplitDialog",
   components: {
     ContentVuer,
+    MapSvgIcon,
     Splitpanes,
     Pane
   },
@@ -113,6 +129,13 @@ export default {
       splitter1: 50,
       splitter2: 50,
       splitter3: 50,
+      searchText: [],
+      isFlatmap: {
+        first: true,
+        second: false,
+        third: false,
+        fourth: false
+      }
     }
   },
   methods: {
@@ -244,6 +267,20 @@ export default {
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
     },
+    search: function(slot, term) {
+      const content = this.getContentsWithId(slot.id);
+      if (content)
+        content.search(term);
+    },
+    getContentsWithId: function(id) {
+      let contents = this.$refs["content"];
+      for (let i = 0; i < contents.length; i++) {
+        if (contents[i].getId() == id) {
+          return contents[i];
+        }
+      }
+      return undefined;
+    },
     getContentsState: function() {
       let states = [];
       let contents = this.$refs["content"];
@@ -356,6 +393,19 @@ export default {
       let entry = this.entries.find(entry => entry.id === slot.id);
       return this.getEntryTitle(entry);
     },
+    updateIsFlatmapSlot: function(slot) {
+      let entry = this.entries.find(entry => entry.id === slot.id);
+      if (entry) {
+        if (entry.type == "Flatmap" || entry.type == "MultiFlatmap") {
+          this.isFlatmap[slot.name] = true;
+        } else {
+          this.isFlatmap[slot.name] = false;
+        }
+      }
+    },
+    updateIsFlatmap: function() {
+      this.slotInfo.forEach( slot => this.updateIsFlatmapSlot(slot));
+    },
     viewerChanged: function(slot, value) {
       if (slot.id && slot.id != value) {
         store.commit("splitFlow/assignOrSwapIdToSlot", {
@@ -363,6 +413,7 @@ export default {
           id: value
         });
         Vue.nextTick(() => {
+          this.updateIsFlatmapSlot(slot);
           setTimeout(() => {
             for (let i = 0; i < this.$refs.content.length; i++) {
               this.$refs.content[i].onResize();
@@ -409,12 +460,19 @@ export default {
       immediate: true,
       deep: true
     },
-  } 
+    slotInfo: {
+      handler: function() {
+        this.updateIsFlatmap();
+      },
+      deep: true
+    }
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@import "~element-ui/packages/theme-chalk/src/input";
 @import "~element-ui/packages/theme-chalk/src/option";
 @import "~element-ui/packages/theme-chalk/src/popover";
 @import "~element-ui/packages/theme-chalk/src/select";
@@ -572,7 +630,7 @@ export default {
   background-color: #f5f7fa !important;
   position: absolute;
   transition: all 1s ease;
-  height: 29px;
+  height: 32px;
   border-bottom: 1px solid rgb(220, 223, 230);
   z-index: 5;
 
@@ -624,59 +682,98 @@ export default {
   }
 }
 
-.toolbar-title {
-  width: 107px;
-  height: 20px;
-  color: $app-primary-color;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 20px;
-  margin-left: 11px;
-  margin-top: 4px;
-}
+.toolbar-flex-container {
+  display:flex;
+  flex-direction: row;
 
-.select-box {
-  width: 180px;
-  border-radius: 4px;
-  border: 1px solid rgb(144, 147, 153);
-  background-color: var(--white);
-  font-weight: 500;
-  color: rgb(48, 49, 51);
-  margin-left: 8px;
-  margin-top: 2px;
+  .select-box {
+    width: 200px;
+    border-radius: 4px;
+    border: 1px solid rgb(144, 147, 153);
+    background-color: $background;
+    font-weight: 500;
+    color: rgb(48, 49, 51);
+    margin-left: 8px;
+    margin-top: 3px;
+    margin-bottom: 2px;
 
-  ::v-deep .el-input__inner {
-    color: $app-primary-color;
+    ::v-deep .el-input__inner {
+      width:177px;
+      color: $app-primary-color;
+      height: 24px;
+      padding-left: 4px;
+      padding-right: 8px;
+      background-color: $background;
+      border-style: none;
+    }
+    
+    ::v-deep .el-input__icon {
+      line-height: 24px;
+      color: $lightGrey;
+    }
+  }
+
+  i .select-box ::v-deep .el-input__icon {
+    color: rgb(48, 49, 51);
     height: 24px;
-    padding-left: 4px;
+    padding-left: 8px;
     padding-right: 8px;
   }
-  ::v-deep .el-input__icon {
-    line-height: 24px;
+
+  .text {
+    margin-left: 8px;
+    margin-top: 7px;
+    font-weight: 500;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 
-  ::v-deep .is-focus .el-input__inner {
-    border: 1px solid $app-primary-color;
+  .title {
+    width: 140px;
+    color: $app-primary-color;
   }
-}
 
-.text-title {
-  width: 140px;
-  color: $app-primary-color;
-  margin-left: 8px;
-  margin-top: 6px;
-  font-weight: 500;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
+  .search-text {
+    margin-top: 8px;
+    color: $grey;
+    font-size: 14px;
+    margin-left: 1rem;
+  }
 
-i .select-box ::v-deep .el-input__icon {
-  color: rgb(48, 49, 51);
-  height: 24px;
-  padding-left: 8px;
-  padding-right: 8px;
+  .search-box {
+    margin-top: 2px;
+    margin-left:0.5rem;
+    height:28px;
+    width:137px;
+    padding-top:1px;
+    ::v-deep .el-input__inner {
+      background-color: $background;
+      height:28px;
+      line-height:28px;
+      border: 1px solid rgb(144, 147, 153);
+      border-radius: 4px;
+      &:focus {
+        border-color: $app-primary-color;
+      }
+    }
+  }
+
+  .magnify {
+    margin-top: 1px;
+    margin-left:0.5rem;
+    background: #8300bf;
+    border: 1px solid #8300bf;
+    border-radius: 4px;
+    height:28px;
+    width:28px;
+    color: #fff;
+    cursor: pointer;
+    &:hover {
+      box-shadow: -3px 2px 4px 0 rgba(0,0,0,0.25);
+    }
+  }
 }
 
 .viewer_dropdown {
