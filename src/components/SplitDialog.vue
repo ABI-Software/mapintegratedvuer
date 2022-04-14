@@ -747,7 +747,6 @@ export default {
     margin-left:0.5rem;
     height:28px;
     width:137px;
-    padding-top:1px;
     ::v-deep .el-input__inner {
       background-color: $background;
       height:28px;
@@ -761,10 +760,9 @@ export default {
   }
 
   .magnify {
-    margin-top: 1px;
+    margin-top: 2px;
     margin-left:0.5rem;
     background: #8300bf;
-    border: 1px solid #8300bf;
     border-radius: 4px;
     height:28px;
     width:28px;
