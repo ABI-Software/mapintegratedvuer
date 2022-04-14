@@ -6,6 +6,7 @@
         class="switch"
         v-model="independent"
         active-text="Independent"
+        width=30
         inactive-text="Linked">
       </el-switch>
       <el-popover v-if="syncMode" class="tooltip"
@@ -445,25 +446,26 @@ export default {
     color: $purple;
   }
   ::v-deep .el-switch__core {
-    background: $cochlear;
+    background: $app-primary-color;
     border: 1px solid $lightGrey;
+    height: 14px;
     &::before {
       content: "";
       position:absolute;
-      top: 1px;
-      left: 1px;
+      top: -3px;
+      left: -1px;
       border-radius: 100%;
       -webkit-transition: all .3s;
       transition: all .3s;
-      width: 16px;
-      height: 16px;
+      width: 19px;
+      height: 19px;
       background-color: $app-primary-color;
     }
     &::after {
-      top: 7px;
-      left: 7px;
-      width: 4px;
-      height: 4px;
+      top: -2px;
+      left: 0px;
+      width: 17px;
+      height: 17px;
       background-color: $cochlear;
     }
   }
@@ -477,7 +479,7 @@ export default {
       }    
       &::after {
         left: 100%;
-        margin-left: -11px;
+        margin-left: -16px;
       }
     }
   }
