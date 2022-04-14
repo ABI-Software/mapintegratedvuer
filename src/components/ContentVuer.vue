@@ -1,7 +1,10 @@
 <template>
-  <div class="content-container" ref="container"
+  <div
+    class="content-container"
+    ref="container"
     @mouseover="mouseHovered = true"
-    @mouseleave="mouseHovered = false">
+    @mouseleave="mouseHovered = false"
+  >
     <DatasetHeader
       v-if="entry.datasetTitle"
       class="dataset-header"
@@ -60,6 +63,7 @@
         @scaffold-selected="resourceSelected(entry.type, $event)"
         @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
         @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
+        @on-ready="scaffoldIsReady"
         ref="scaffold"
         :backgroundToggle="true"
         :traditional="true"
@@ -168,11 +172,11 @@ export default {
     onResize: function () {
       if (this.entry.type === "Scaffold") this.scaffoldCamera.onResize();
     },
-    getId: function() {
+    getId: function () {
       return this.entry.id;
     },
-    getState: function() {
-      if (this.entry.type === 'Scaffold') {
+    getState: function () {
+      if (this.entry.type === "Scaffold") {
         return this.$refs.scaffold.getState();
       } else if (this.entry.type === "MultiFlatmap") {
         return this.$refs.multiflatmap.getState();
@@ -200,12 +204,22 @@ export default {
       };
       this.$emit("resource-selected", result);
     },
-    search: function(term) {
-      if (this.entry.type === 'Flatmap') {
+    search: function (term) {
+      if (this.entry.type === "Flatmap") {
         this.$refs.flatmap.searchAndShowResult(term);
-      } else if (this.entry.type === 'MultiFlatmap') {
+      } else if (this.entry.type === "MultiFlatmap") {
         this.$refs.multiflatmap.getCurrentFlatmap().searchAndShowResult(term);
+      } else if (this.entry.type === "Scaffold") {
+        let capitalised = term.charAt(0).toUpperCase() + term.slice(1);
+        this.$refs.scaffold.changeActiveByName(capitalised, "", false);
+        this.$refs.scaffold.viewRegion(capitalised);
       }
+    },
+    scaffoldIsReady: function () {
+      if (this.entry.type === "Scaffold")
+        this.$refs.scaffold.toggleSyncControl(
+          store.state.splitFlow.globalCallback
+        );
     },
     /**
      * Callback when the vuers emit a selected event.
@@ -280,10 +294,7 @@ export default {
           if (this.entry.type == "Scaffold") {
             const origin = data.payload.origin;
             const size = data.payload.size;
-            const center = [
-              origin[0] + size[0] / 2,
-              origin[1] + size[1] / 2,
-            ];
+            const center = [origin[0] + size[0] / 2, origin[1] + size[1] / 2];
             const convertedCenter = [
               (center[0] - 0.5) * 2,
               (0.5 - center[1]) * 2,
@@ -320,10 +331,10 @@ export default {
       }
       if (this.entry.type === "Scaffold") {
         if (data.eventType === "highlighted") {
-          this.$refs.scaffold.changeHighlightedByName(name, false);
+          this.$refs.scaffold.changeHighlightedByName(name, "", false);
         }
         if (data.eventType === "selected") {
-          this.$refs.scaffold.changeActiveByName(name, false);
+          this.$refs.scaffold.changeActiveByName(name, "", false);
           this.$refs.scaffold.viewRegion(name);
         }
       } else if (this.entry.type === "MultiFlatmap") {
@@ -368,8 +379,7 @@ export default {
         if (data.eventType == "selected") {
           let name = data.internalName;
           if (this.entry.type === "Scaffold") {
-            if (name === undefined && data.resource)
-              name = data.resource.label;
+            if (name === undefined && data.resource) name = data.resource.label;
             if (name === "Urinary Bladder") {
               name = "Bladder";
             }
@@ -534,16 +544,15 @@ export default {
         this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
       }
     },
-    syncMode: function(val) {
+    syncMode: function (val) {
       if (this.entry.type === "MultiFlatmap")
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
-    }
+    },
   },
   mounted: function () {
     if (this.entry.type === "Scaffold") {
       this.scaffoldCamera =
         this.$refs.scaffold.$module.scene.getZincCameraControls();
-      this.tooltipCoords = this.$refs.scaffold.getDynamicSelectedCoordinates();
       document.querySelectorAll(".el-checkbox-group")[0].id =
         "scaffold-checkbox-group-" + this.entry.id;
     }

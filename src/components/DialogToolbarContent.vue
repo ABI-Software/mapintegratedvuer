@@ -436,6 +436,10 @@ export default {
 }
 
 .switch {
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgb(220, 223, 230);
   vertical-align: baseline;
   ::v-deep .el-switch__label.is-active {
     color: $purple;

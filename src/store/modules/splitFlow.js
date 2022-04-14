@@ -164,6 +164,7 @@ const mutations = {
         firstSlot.id = 1;
         state.syncMode = true;
         state.activeView = payload.layout;
+        state.globalCallback = true;
       } else {
         if (payload.entries) {
           let availableId = 0;

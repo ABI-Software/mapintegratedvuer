@@ -256,6 +256,13 @@ export default {
       });
     },
     search: function(payload) {
+      if (store.state.splitFlow.globalCallback &&
+        store.state.splitFlow.syncMode) {
+        const activeContents = this.getActiveContents();
+        activeContents.forEach(content => {
+          content.search(payload.term);
+        });
+      }
       const content = this.getContentsWithId(payload.slot.id);
       if (content)
         content.search(payload.term);
