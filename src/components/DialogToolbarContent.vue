@@ -287,7 +287,21 @@ export default {
   position:absolute;
   justify-content: center;
   top: 4px;
-  left:12px;
+  right:12px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.icon-group {
+  ::v-deep .el-button--text {
+    color:#606266;
+    font-size: 1.5em;
+    &:hover {
+      color: $app-primary-color;
+    }
+  }
 }
 
 .icon-transform {
@@ -311,6 +325,24 @@ export default {
   cursor:grabbing;
 }
 
+::v-deep .header-popper {
+  padding: 6px 4px;
+  font-size:12px;
+  color: rgb(48, 49, 51);
+  background-color: #f3ecf6;
+  border: 1px solid $app-primary-color;
+  white-space: nowrap;
+  min-width: unset;
+  &.el-popper[x-placement^=bottom] {
+    .popper__arrow {
+      border-bottom-color: $app-primary-color !important;
+      &:after {
+        border-bottom-color: #f3ecf6 !important;
+      }
+    }
+  }
+}
+
 ::v-deep .link-popover {
   border: 1px solid $app-primary-color;
 }
@@ -319,6 +351,13 @@ export default {
   i, .el-loading-text {
     color: $app-primary-color;
   }
+}
+
+.header-icon {
+  font-size: 1.8em;
+  color: $app-primary-color;
+  margin-right:10px;
+  cursor: pointer;
 }
 
 .copy-button {
@@ -376,9 +415,12 @@ export default {
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
   cursor:default;
-  .el-popper[x-placement^=bottom] {
-    .popper__arrow:after{
-      border-bottom-color: #fff !important;
+  &.el-popper[x-placement^=bottom] {
+    .popper__arrow {
+      border-bottom-color: $app-primary-color !important;
+      &:after {
+        border-bottom-color: #fff !important;
+      }
     }
   }
 }

@@ -20,7 +20,7 @@
       <el-button icon="el-icon-setting" slot="reference">Options</el-button>
     </el-popover>
     <div class="map-app">
-      <MapContent ref="map" :options="options" :state="state" :shareLink="shareLink" :flatmapAPI="flatmapAPI" @updateShareLinkRequested="updateUUID"/>
+      <MapContent ref="map" :options="options" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
     </div>
   </div>
 </template>
@@ -49,7 +49,6 @@ export default {
       state: undefined,
       prefix: "/map",
       api: process.env.VUE_APP_API_LOCATION,
-      flatmapAPI: process.env.VUE_APP_FLATMAPAPI_LOCATION 
     }
   },
   computed: {

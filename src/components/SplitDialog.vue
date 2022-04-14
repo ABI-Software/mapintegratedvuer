@@ -38,6 +38,7 @@
       :splitter2="splitter2"
       :splitter3="splitter3"
       @chooser-changed="viewerChanged"
+      @local-search="search"
       />
     <div
       v-for="entry in entries"
@@ -67,10 +68,12 @@ import store from "../store";
 import Vue from "vue";
 import "splitpanes/dist/splitpanes.css";
 import {
+  Input,
   Option,
   Popover,
   Select
 } from "element-ui";
+Vue.use(Input);
 Vue.use(Option);
 Vue.use(Popover);
 Vue.use(Select);
@@ -96,6 +99,13 @@ export default {
       splitter1: 50,
       splitter2: 50,
       splitter3: 50,
+      searchText: [],
+      isFlatmap: {
+        first: true,
+        second: false,
+        third: false,
+        fourth: false
+      }
     }
   },
   methods: {
@@ -245,6 +255,20 @@ export default {
         content.receiveInteractiveEvent(resource);
       });
     },
+    search: function(payload) {
+      const content = this.getContentsWithId(payload.slot.id);
+      if (content)
+        content.search(payload.term);
+    },
+    getContentsWithId: function(id) {
+      let contents = this.$refs["content"];
+      for (let i = 0; i < contents.length; i++) {
+        if (contents[i].getId() == id) {
+          return contents[i];
+        }
+      }
+      return undefined;
+    },
     getContentsState: function() {
       let states = [];
       let contents = this.$refs["content"];
@@ -312,12 +336,12 @@ export default {
       immediate: true,
       deep: true
     },
-  } 
+  }
 };
 </script>
-
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@import "~element-ui/packages/theme-chalk/src/input";
 @import "~element-ui/packages/theme-chalk/src/option";
 @import "~element-ui/packages/theme-chalk/src/popover";
 @import "~element-ui/packages/theme-chalk/src/select";

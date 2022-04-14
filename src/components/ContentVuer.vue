@@ -168,8 +168,11 @@ export default {
     onResize: function () {
       if (this.entry.type === "Scaffold") this.scaffoldCamera.onResize();
     },
-    getState: function () {
-      if (this.entry.type === "Scaffold") {
+    getId: function() {
+      return this.entry.id;
+    },
+    getState: function() {
+      if (this.entry.type === 'Scaffold') {
         return this.$refs.scaffold.getState();
       } else if (this.entry.type === "MultiFlatmap") {
         return this.$refs.multiflatmap.getState();
@@ -196,6 +199,13 @@ export default {
         type: this.entry.type,
       };
       this.$emit("resource-selected", result);
+    },
+    search: function(term) {
+      if (this.entry.type === 'Flatmap') {
+        this.$refs.flatmap.searchAndShowResult(term);
+      } else if (this.entry.type === 'MultiFlatmap') {
+        this.$refs.multiflatmap.getCurrentFlatmap().searchAndShowResult(term);
+      }
     },
     /**
      * Callback when the vuers emit a selected event.
