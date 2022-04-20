@@ -381,6 +381,7 @@ export default {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    line-height:18px;
   }
   .title {
     width: 140px;
