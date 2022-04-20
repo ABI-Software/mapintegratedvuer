@@ -63,7 +63,9 @@ const getters = {
   getState: (state) => () => {
     return {
       activeView: state.activeView, slotInfo: state.slotInfo,
-      splitters: state.splitters
+      splitters: state.splitters,
+      globalCallback: state.globalCallback,
+      syncMode: state.syncMode,
     };
   },
 }
@@ -122,7 +124,12 @@ const mutations = {
   },
   setState(state, newState) {
     if (newState) {
-      state.activeView = newState.activeView;
+      if (newState.activeView)
+        state.activeView = newState.activeView;
+      if (newState.globalCallback)
+        state.globalCallback = newState.globalCallback;
+      if (newState.syncMode)
+        state.syncMode = newState.syncMode;
       for (let i = 0; i < state.slotInfo.length; i++) {
         state.slotInfo[i].id = newState.slotInfo[i].id;
       }
