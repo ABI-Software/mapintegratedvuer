@@ -64,7 +64,9 @@ export default {
         algoliaKey: process.env.VUE_APP_ALGOLIA_KEY,
         algoliaId: process.env.VUE_APP_ALGOLIA_ID,
         pennsieveApi: process.env.VUE_APP_PENNSIEVE_API_LOCATION,
-        flatmapAPI: process.env.VUE_APP_FLATMAPAPI_LOCATION 
+        flatmapAPI: process.env.VUE_APP_FLATMAPAPI_LOCATION,
+        nlLinkPrefix: process.env.VUE_APP_NL_LINK_PREFIX,
+        rootUrl: process.env.VUE_APP_ROOT_URL,
       }
     }
   },
