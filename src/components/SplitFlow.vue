@@ -137,7 +137,6 @@ export default {
       }
     },
     searchChanged: function(data) {
-      console.log('search changed!')
       window.datadata = data
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
@@ -310,7 +309,9 @@ export default {
         ALGOLIA_INDEX: store.state.settings.algoliaIndex,
         ALGOLIA_KEY: store.state.settings.algoliaKey,
         ALGOLIA_ID: store.state.settings.algoliaId,
-        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi
+        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi,
+        NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
+        ROOT_URL: store.state.settings.rootUrl
       }
     }
   }
