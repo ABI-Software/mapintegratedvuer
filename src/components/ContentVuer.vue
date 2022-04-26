@@ -1,7 +1,6 @@
 <template>
   <div class="content-container">
     <DatasetHeader v-if="entry.datasetTitle" class="dataset-header" :entry="entry"></DatasetHeader>
-    <div style="position: absolute;top:0;left:0;z-index:999999999;">view url:{{entry.viewUrl}}</div>
     <div :style="mainStyle">
       <MultiFlatmapVuer v-if="entry.type === 'MultiFlatmap'" :availableSpecies="entry.availableSpecies"
         @flatmapChanged="flatmapChanged" @ready="updateMarkers" :state="entry.state"
@@ -202,11 +201,6 @@ export default {
         this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
       }
     },
-    // Comment out the function below to try testing scaffoldviewer reactivity
-    'entry.viewUrl': function(){
-      this.entry.type = "Scaffold View"
-      setTimeout(()=>this.entry.type = "Scaffold",300)
-    }
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
@@ -217,7 +211,6 @@ export default {
     EventBus.$on("startHelp", (id) => {
       this.startHelp(id);
     })
-    setInterval(()=> console.log('view url: ', this.entry.viewUrl, 'entry type: ', this.entry.type), 3000)
   },
   deactivated: function() {
     let state = this.getState();

@@ -104,7 +104,6 @@ export default {
      */
     actionClick:function(action) {
       if (action) {
-        console.log(action)
         if (action.type == "Search") {
           if (action.nervePath){
             this.$refs.sideBar.openSearch(action.label, [action.filter] );
@@ -141,28 +140,18 @@ export default {
         store.commit("settings/updateFacets", data.value);
       }
     },
-
+    // updateEntry: Updates entry a scaffold entry with a viewUrl
     updateEntry(data){
-      console.log('updating entry')
-      console.log('old: ', this.entries[this.activeDockedId])
-      
-      console.log('id:',this.activeDockedId)
-
-      window.entries = this.entries
-      window.data = data
-      window.activeDockedId = this.activeDockedId
+      // 'Scaffold view' is sent in as 'Scaffold' to scaffoldvuer
       data.type = data.type === "Scaffold View" ? "Scaffold" : data.type
+
+      // Update the scaffold with a view url
       for (let i in this.entries){
         if (this.entries[i].resource === data.resource){
-          console.log('found entry id! it is:', i)
-          this.entries[i].viewUrl = data.viewUrl
-          // Vue.set(this.entries, i, this.entries[i])
+          this.entries[i].viewUrl = data.viewUrl 
+          Vue.set(this.entries, i, this.entries[i]) // Need this to keep arrays reactive
         }
       }
-      
-      // this.entries[this.activeDockedId].viewUrl = data.viewUrl
-      // Object.assign(this.entries[this.activeDockedId], data);
-      console.log('new:',  this.entries[this.activeDockedId])
     },
     /**
      * Add new entry which will sequentially create a
