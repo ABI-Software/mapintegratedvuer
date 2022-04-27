@@ -128,7 +128,7 @@ export default {
             speciesFacets.push({facet: "show all", term:'species'});
           this.$refs.sideBar.addFilter({facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'});
         } else if (action.type == "Scaffold View"){
-          this.updateEntry(action)
+          this.updateEntry(action);
         }
           else {
           this.createNewEntry(action);
@@ -143,13 +143,13 @@ export default {
     // updateEntry: Updates entry a scaffold entry with a viewUrl
     updateEntry(data){
       // 'Scaffold view' is sent in as 'Scaffold' to scaffoldvuer
-      data.type = data.type === "Scaffold View" ? "Scaffold" : data.type
+      data.type = data.type === "Scaffold View" ? "Scaffold" : data.type;
 
       // Update the scaffold with a view url
       for (let i in this.entries){
         if (this.entries[i].resource === data.resource){
-          this.entries[i].viewUrl = data.viewUrl 
-          Vue.set(this.entries, i, this.entries[i]) // Need this to keep arrays reactive
+          this.entries[i].viewUrl = data.viewUrl ;
+          Vue.set(this.entries, i, this.entries[i]); // Need this to keep arrays reactive
         }
       }
     },
@@ -165,7 +165,7 @@ export default {
       newEntry.zIndex = ++this.zIndex; 
       newEntry.state = undefined;
       newEntry.discoverId = data.discoverId;
-      newEntry.viewUrl = undefined
+      newEntry.viewUrl = undefined;
       this.entries.push(newEntry);
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
       return newEntry.id;
