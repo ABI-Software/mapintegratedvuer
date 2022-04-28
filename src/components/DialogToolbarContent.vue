@@ -241,6 +241,10 @@ export default {
   justify-content: center;
   top: 4px;
   right:12px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .icon-group {
