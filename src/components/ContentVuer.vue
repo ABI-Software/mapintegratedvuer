@@ -15,7 +15,7 @@
       <ScaffoldVuer v-else-if="entry.type === 'Scaffold'" :state="entry.state" :url="entry.resource"
         @scaffold-selected="resourceSelected(entry.type, $event)" ref="scaffold"
         :backgroundToggle=true :traditional=true :helpMode="helpMode"
-        :render="visible" :displayMinimap=false :displayMarkers=false />
+        :render="visible" :displayMinimap=false :displayMarkers=false :view-u-r-l="entry.viewUrl"/>
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
         :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
       <SimulationVuer v-else-if="entry.type === 'Simulation'"
@@ -200,7 +200,7 @@ export default {
       } else if (this.entry.type === 'MultiFlatmap') {
         this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
       }
-    }
+    },
   },
   mounted: function() {
     if (this.entry.type === 'Scaffold') {
