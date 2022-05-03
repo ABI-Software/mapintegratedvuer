@@ -71,6 +71,7 @@
         :render="visible"
         :displayMinimap="false"
         :displayMarkers="false"
+        :view-u-r-l="entry.viewUrl"
       />
       <PlotVuer
         v-else-if="entry.type === 'Plot'"
