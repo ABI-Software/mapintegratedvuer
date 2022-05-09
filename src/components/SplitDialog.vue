@@ -249,10 +249,10 @@ export default {
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
     },
-    sendEventToActiveContents: function(resource) {
+    sendSynchronisedEvent: function(resource) {
       const activeContents = this.getActiveContents();
       activeContents.forEach(content => {
-        content.receiveInteractiveEvent(resource);
+        content.receiveSynchronisedEvent(resource);
       });
     },
     search: function(payload) {
@@ -336,7 +336,7 @@ export default {
 
         if (contents) {
           contents.forEach(content => {
-            content.toggleInteractiveEvent(val);
+            content.toggleSynchronisedEvent(val);
           });
         }
       },

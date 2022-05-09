@@ -288,7 +288,7 @@ export default {
         resource.type === "Neuron Search"
       );
     },
-    handlePanZoomEvent: function (data) {
+    handleSyncPanZoomEvent: function (data) {
       //Prevent recursive callback
       if (!this.mouseHovered) {
         if (data.type !== this.entry.type) {
@@ -324,84 +324,82 @@ export default {
         }
       }
     },
-    handleClickingEvent: function (data) {
-      let name = data.internalName;
-      if (name === undefined && data.resource) name = data.resource.label;
-      if (name === "Urinary Bladder") {
-        name = "Bladder";
-      }
+    zoomToFeatures: function(name, forceSelect) {
       if (this.entry.type === "Scaffold") {
-        if (data.eventType === "highlighted") {
-          this.$refs.scaffold.changeHighlightedByName(name, "", false);
-        }
-        if (data.eventType === "selected") {
+        if (forceSelect) {
           this.$refs.scaffold.changeActiveByName(name, "", false);
-          this.$refs.scaffold.viewRegion(name);
         }
+        this.$refs.scaffold.viewRegion(name);
       } else if (this.entry.type === "MultiFlatmap") {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+        if (name) {
+          const results = flatmap.search(name);
+          if (results.featureIds.length) {
+            let externalId = flatmap.modelForFeature(results.featureIds[0]);
+            if (externalId) {
+              if (forceSelect) {
+                flatmap.selectFeatures(externalId);
+              }
+              flatmap.zoomToFeatures(externalId);
+            } else flatmap.clearSearchResults();
+          }
+        } else {
+          flatmap.clearSearchResults();
+        }
+      }
+    },
+    highlightFeatures: function(name) {
+      if (this.entry.type === "Scaffold") {
+        this.$refs.scaffold.changeHighlightedByName(name, "", false);
+      } else if (this.entry.type === "MultiFlatmap") {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+        if (name) {
+          const results = flatmap.search(name);
+          if (results.featureIds[0]) {
+            flatmap.highlightFeatures([
+              flatmap.modelForFeature(results.featureIds[0]),
+            ]);
+          }
+        }
+      }
+    },
+    getOrganNameFromSyncData: function(data) {
+      let name = data.internalName;
+      if (this.entry.type === "Scaffold") {
+        if (name === undefined && data.resource) name = data.resource.label;
+        if (name === "Urinary Bladder") {
+          name = "Bladder";
+        }
+      } else if (this.entry.type === "MultiFlatmap") {
         if (name === "Bladder") {
           name = "Urinary Bladder";
         }
-        if (data.eventType === "highlighted") {
-          if (name) {
-            const results = flatmap.search(name);
-            if (results.featureIds[0]) {
-              flatmap.highlightFeatures([
-                flatmap.modelForFeature(results.featureIds[0]),
-              ]);
-            }
-          }
-        }
-        if (data.eventType === "selected") {
-          if (name) {
-            const results = flatmap.search(name);
-            if (results.featureIds.length) {
-              let externalId = flatmap.modelForFeature(results.featureIds[0]);
-              if (externalId) {
-                flatmap.selectFeatures(externalId);
-                flatmap.zoomToFeatures(externalId);
-              } else flatmap.clearSearchResults();
-            }
-          } else {
-            flatmap.clearSearchResults();
-          }
-        }
+      }
+      return name;
+    },
+    handleSyncMouseEvent: function (data) {
+      let name = this.getOrganNameFromSyncData(data);
+      if (data.eventType === "highlighted") {
+        this.highlightFeatures(name);
+      } else if (data.eventType === "selected") {
+        this.zoomToFeatures(name, true);
       }
     },
-    receiveInteractiveEvent: function (data) {
+    receiveSynchronisedEvent: function (data) {
       if (data.paneIndex !== this.entry.id) {
         if (data.eventType == "panZoom") {
-          this.handlePanZoomEvent(data);
+          this.handleSyncPanZoomEvent(data);
         } else {
-          this.handleClickingEvent(data);
+          this.handleSyncMouseEvent(data);
         }
       } else {
         if (data.eventType == "selected") {
-          let name = data.internalName;
-          if (this.entry.type === "Scaffold") {
-            if (name === undefined && data.resource) name = data.resource.label;
-            if (name === "Urinary Bladder") {
-              name = "Bladder";
-            }
-            this.$refs.scaffold.viewRegion(name);
-          } else if (this.entry.type === "MultiFlatmap") {
-            const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-            if (name === "Bladder") {
-              name = "Urinary Bladder";
-            }
-            const results = flatmap.search(name);
-            if (results.featureIds.length) {
-              let externalId = flatmap.modelForFeature(results.featureIds[0]);
-              if (externalId) {
-                flatmap.zoomToFeatures(externalId);
-              }
-            }
-          }
+          let name = this.getOrganNameFromSyncData(data);
+          this.zoomToFeatures(name, false);
         }
       }
     },
-    toggleInteractiveEvent: function (flag) {
+    toggleSynchronisedEvent: function (flag) {
       if (this.entry.type === "Scaffold") {
         this.$refs.scaffold.toggleSyncControl(flag);
       }

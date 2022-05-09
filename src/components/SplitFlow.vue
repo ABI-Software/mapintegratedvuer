@@ -260,7 +260,7 @@ export default {
       */
       this.$emit("resource-selected", result);
       if (store.state.splitFlow.globalCallback) {
-        this.$refs.splitdialog.sendEventToActiveContents(result);
+        this.$refs.splitdialog.sendSynchronisedEvent(result);
       }
     },
     flatmapChanged: function(){
