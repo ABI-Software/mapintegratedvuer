@@ -51,7 +51,6 @@
         :entry="entry"
         ref="content"
         @resource-selected="resourceSelected"
-        @flatmapChanged="flatmapChanged"
         :visible="isVisible(entry.id)"
       />
     </div>
@@ -109,9 +108,6 @@ export default {
     }
   },
   methods: {
-    flatmapChanged: function() {
-      this.$emit("flatmapChanged");
-    },
     /**
      * Callback when the vuers emit a selected event.
      */

@@ -16,7 +16,6 @@
         <SplitDialog :entries="entries" ref="splitdialog"
           @close="dialogClose(id)"
           @resource-selected="resourceSelected"
-          @flatmapChanged="flatmapChanged"
         />
         <SideBar ref="sideBar"
           :envVars="envVars"
@@ -262,9 +261,6 @@ export default {
       if (store.state.splitFlow.globalCallback) {
         this.$refs.splitdialog.sendSynchronisedEvent(result);
       }
-    },
-    flatmapChanged: function(){
-      this.$emit("flatmapChanged");
     },
     tabClicked: function(id){
       this.activeDockedId = id

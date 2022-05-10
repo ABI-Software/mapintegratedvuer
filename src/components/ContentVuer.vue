@@ -465,6 +465,8 @@ export default {
     },
     flatmapChanged: function (activeSpecies) {
       this.activeSpecies = activeSpecies;
+      if (this.syncMode == true)
+        this.toggleSyncMode();
       this.$emit("flatmapChanged");
     },
     multiFlatmapReady: function (component) {
@@ -499,7 +501,6 @@ export default {
           }
         );
       }
-
       //Previous attempt fails, use the hardcoded list
       let terms = getAvailableTermsForSpecies();
       for (let i = 0; i < terms.length; i++) {
