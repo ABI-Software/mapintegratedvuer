@@ -6,7 +6,7 @@
         class="switch"
         v-model="independent"
         active-text="Independent"
-        width=30
+        :width=30
         inactive-text="Linked">
       </el-switch>
       <el-popover v-if="syncMode" class="tooltip"

@@ -97,7 +97,7 @@ import { Button } from "element-ui";
 import EventBus from "./EventBus";
 import DatasetHeader from "./DatasetHeader";
 import IframeVuer from "./Iframe";
-import { getAvailableTermsForSpecies } from "./SimulatedData.js";
+import { getAvailableTermsForSpecies, getParentsRegion } from "./SimulatedData.js";
 import {
   FlatmapVuer,
   MultiFlatmapVuer,
@@ -324,7 +324,8 @@ export default {
         }
       }
     },
-    zoomToFeatures: function(name, forceSelect) {
+    zoomToFeatures: function(info, forceSelect) {
+      let name = info.name;
       if (this.entry.type === "Scaffold") {
         if (forceSelect) {
           this.$refs.scaffold.changeActiveByName(name, "", false);
@@ -348,7 +349,8 @@ export default {
         }
       }
     },
-    highlightFeatures: function(name) {
+    highlightFeatures: function(info) {
+      let name = info.name;
       if (this.entry.type === "Scaffold") {
         this.$refs.scaffold.changeHighlightedByName(name, "", false);
       } else if (this.entry.type === "MultiFlatmap") {
@@ -363,29 +365,55 @@ export default {
         }
       }
     },
-    getOrganNameFromSyncData: function(data) {
+    getNameAndIdFromSyncData: async function(data) {
       let name = data.internalName;
+      if (name === undefined && data.resource) {
+        name = data.resource.label;
+      }
+      let id = undefined;
+      if (data.resource && data.resource.resource) {
+        id = data.resource.resource[0];
+      }
       if (this.entry.type === "Scaffold") {
-        if (name === undefined && data.resource) name = data.resource.label;
-        if (name === "Urinary Bladder") {
-          name = "Bladder";
+        const objects = this.$refs.scaffold.findObjectsWithGroupName(name);
+        // If a region is not found use a hardcoded list to determine
+        // its parents region first
+        if (objects.length === 0) {
+          let matched = getParentsRegion(name);
+          if (matched) {
+            return matched;
+          }
+          // Hardcoded list failed - use an endpoint to find its parents
+          if (id && data.eventType === "selected") {
+            return fetch(`${this.apiLocation}get-related-terms/${id}`)
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.uberon.array.length > 0) {
+                  name = data.uberon.array[0].name.charAt(0).toUpperCase() + data.uberon.array[0].name.slice(1);
+                  id = data.uberon.array[0].id.toUpperCase();
+                  return {id, name};
+                }
+              }
+            );
+          }
         }
       } else if (this.entry.type === "MultiFlatmap") {
         if (name === "Bladder") {
           name = "Urinary Bladder";
         }
       }
-      return name;
+
+      return {id, name};
     },
-    handleSyncMouseEvent: function (data) {
-      let name = this.getOrganNameFromSyncData(data);
+    handleSyncMouseEvent: async function (data) {
+      let info = await this.getNameAndIdFromSyncData(data);
       if (data.eventType === "highlighted") {
-        this.highlightFeatures(name);
+        this.highlightFeatures(info);
       } else if (data.eventType === "selected") {
-        this.zoomToFeatures(name, true);
+        this.zoomToFeatures(info, true);
       }
     },
-    receiveSynchronisedEvent: function (data) {
+    receiveSynchronisedEvent: async function (data) {
       if (data.paneIndex !== this.entry.id) {
         if (data.eventType == "panZoom") {
           this.handleSyncPanZoomEvent(data);
@@ -394,14 +422,15 @@ export default {
         }
       } else {
         if (data.eventType == "selected") {
-          let name = this.getOrganNameFromSyncData(data);
-          this.zoomToFeatures(name, false);
+          let info = await this.getNameAndIdFromSyncData(data);
+          this.zoomToFeatures(info, false);
         }
       }
     },
     toggleSynchronisedEvent: function (flag) {
       if (this.entry.type === "Scaffold") {
         this.$refs.scaffold.toggleSyncControl(flag);
+        window.scaffold = this.$refs.scaffold;
       }
     },
     /**
@@ -466,20 +495,16 @@ export default {
                 pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
               map.addMarker(pair.id.toUpperCase(), "simulation");
             });
-          })
-          .catch((err) => {
-            if (err.name !== "AbortError") {
-              let terms = getAvailableTermsForSpecies(map.describes);
-              for (let i = 0; i < terms.length; i++) {
-                map.addMarker(terms[i].id, terms[i].type);
-              }
-            }
-          });
-      } else {
-        let terms = getAvailableTermsForSpecies(map.describes);
-        for (let i = 0; i < terms.length; i++) {
-          map.addMarker(terms[i].id, terms[i].type);
-        }
+            return;
+          }
+        );
+      }
+
+      //Previous attempt fails, use the hardcoded list
+      let terms = getAvailableTermsForSpecies();
+      for (let i = 0; i < terms.length; i++) {
+        map.addMarker(terms[i].id, terms[i].type);
+        this.idNamePair[terms[i].id] = terms[i].name;
       }
     },
     startHelp: function (id) {
