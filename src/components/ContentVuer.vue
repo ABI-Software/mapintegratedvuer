@@ -207,14 +207,21 @@ export default {
     },
     search: function (term) {
       if (this.entry.type === "Flatmap") {
-        this.$refs.flatmap.searchAndShowResult(term);
+        return this.$refs.flatmap.searchAndShowResult(term);
       } else if (this.entry.type === "MultiFlatmap") {
-        this.$refs.multiflatmap.getCurrentFlatmap().searchAndShowResult(term);
+        return this.$refs.multiflatmap.getCurrentFlatmap().searchAndShowResult(term);
       } else if (this.entry.type === "Scaffold") {
         let capitalised = term.charAt(0).toUpperCase() + term.slice(1);
-        this.$refs.scaffold.changeActiveByName(capitalised, "", false);
-        this.$refs.scaffold.viewRegion(capitalised);
+        const objects = this.$refs.scaffold.findObjectsWithGroupName(capitalised);
+        if (objects.length > 0) {
+          this.$refs.scaffold.changeActiveByName(capitalised, "", false);
+          this.$refs.scaffold.viewRegion(capitalised);
+          return true
+        } else {
+          return false;
+        }
       }
+      return false;
     },
     scaffoldIsReady: function () {
       if (this.entry.type === "Scaffold")
@@ -467,7 +474,6 @@ export default {
       this.activeSpecies = activeSpecies;
       if (this.syncMode == true)
         this.toggleSyncMode();
-      this.$emit("flatmapChanged");
     },
     multiFlatmapReady: function (component) {
       this.updateMarkers(component);

@@ -173,24 +173,7 @@ const mutations = {
         state.activeView = payload.layout;
         state.globalCallback = true;
       } else {
-        if (payload.entries) {
-          let availableId = 0;
-          for (let i = 0; i < payload.entries.length &&
-            availableId == 0; i++) {
-            if (state.slotInfo.find(slot => slot.id ===
-              payload.entries[i].id) === undefined) {
-              availableId = payload.entries[i].id;
-            }
-          }
-          let thirdSlot = state.slotInfo.find(
-            slotInfo => slotInfo.name === "third");
-          let fourthSlot = state.slotInfo.find(
-            slotInfo => slotInfo.name === "fourth");
-          secondSlot.id = thirdSlot.id;
-          thirdSlot.id = fourthSlot.id;
-          fourthSlot.Id = availableId;
-          state.activeView = "singlepanel";
-        }
+        state.activeView = "singlepanel";
         state.syncMode = false;
         state.globalCallback = false;
       }

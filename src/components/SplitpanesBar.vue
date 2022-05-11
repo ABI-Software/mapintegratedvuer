@@ -38,6 +38,9 @@
           <map-svg-icon icon="magnifyingGlass" class="magnify"
             @click.native="$emit('local-search', {slot: slot, 
               term: searchText[slot.id]})"/>
+          <div v-if="failedSearch[slot.name]" class="text not-found-text">
+            '{{failedSearch[slot.name]}}' not found
+          </div>
         </template>
       </div>
       <el-row class="icon-group">
@@ -94,6 +97,17 @@ export default {
       type: Number,
       default: 50
     },
+    failedSearch: {
+      type: Object,
+      default: function() {
+        return {
+          first: undefined,
+          second: undefined,
+          third: undefined,
+          fourth: undefined,
+        };
+      }
+    }
   },
   data: function() {
     return {
@@ -103,7 +117,7 @@ export default {
         second: false,
         third: false,
         fourth: false
-      }
+      },
     }
   },
   computed: {
@@ -128,7 +142,10 @@ export default {
     getEntryTitle: function(entry) {
       if (entry) {
         let title = entry.label ? entry.label + " ": '';
-        title += entry.type;
+        let type = entry.type;
+        if (type == "Scaffold")
+          type = "Scaffold 3D";
+        title += type;
         if (entry.datasetId)
           title += " (" + entry.datasetId + ")";
         else if (entry.discoverId)
@@ -259,7 +276,7 @@ export default {
         this.updateIsFlatmap();
       },
       deep: true
-    }
+    },
   } 
 };
 </script>
@@ -392,6 +409,12 @@ export default {
     color: $grey;
     font-size: 14px;
     margin-left: 1rem;
+  }
+  .not-found-text {
+    margin-top: 8px;
+    color: $warning;
+    font-size: 10px;
+    margin-left: 0.5rem;
   }
   .search-box {
     margin-top: 2px;

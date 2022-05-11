@@ -39,6 +39,7 @@
       :splitter3="splitter3"
       @chooser-changed="viewerChanged"
       @local-search="search"
+      :failed-search="failedSearch"
       />
     <div
       v-for="entry in entries"
@@ -104,6 +105,12 @@ export default {
         second: false,
         third: false,
         fourth: false
+      },
+      failedSearch: {
+        first: undefined,
+        second: undefined,
+        third: undefined,
+        fourth: undefined,
       }
     }
   },
@@ -252,16 +259,24 @@ export default {
       });
     },
     search: function(payload) {
+      let searchFound = false;
       if (store.state.splitFlow.globalCallback &&
         store.state.splitFlow.syncMode) {
         const activeContents = this.getActiveContents();
         activeContents.forEach(content => {
-          content.search(payload.term);
+          if (content.search(payload.term)) {
+            searchFound = true;
+          }
         });
       }
       const content = this.getContentsWithId(payload.slot.id);
-      if (content)
-        content.search(payload.term);
+      if (content) {
+        searchFound = content.search(payload.term);
+      }
+      if (searchFound)
+        this.failedSearch[payload.slot.name] = undefined;
+      else
+        this.failedSearch[payload.slot.name] = payload.term;
     },
     getContentsWithId: function(id) {
       let contents = this.$refs["content"];
