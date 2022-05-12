@@ -94,11 +94,11 @@ export default {
           if (resource.feature.type == "marker") {
             returnedAction = {};
             returnedAction.type = "Facet";
-            returnedAction.label = this.idNamePair[resource.feature.models];  
+            returnedAction.label = this.idNamePair[resource.feature.models];
           }
           else if (resource.feature.type == "feature") {
             action = "scaffold";
-          } 
+          }
         }
       } else if (type == "Scaffold"){
         action = "search";
@@ -125,7 +125,7 @@ export default {
         store.state.settings.facets.species.forEach(e => {
           params.push(encodeURIComponent('species') + '=' + encodeURIComponent(e));
         });
-        if (this._controller) 
+        if (this._controller)
           this._controller.abort();
         this._controller = new AbortController();
         let signal = this._controller.signal;
@@ -134,7 +134,7 @@ export default {
         .then((data) => {
           this._controller = undefined;
           data.uberon.array.forEach((pair) => {
-            this.idNamePair[pair.id.toUpperCase()] = 
+            this.idNamePair[pair.id.toUpperCase()] =
               pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
             map.addMarker(pair.id.toUpperCase(), "simulation");
           });
