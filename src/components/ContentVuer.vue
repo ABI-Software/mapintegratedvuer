@@ -18,8 +18,7 @@
         :render="visible" :displayMinimap=false :displayMarkers=false :view-u-r-l="entry.viewUrl"/>
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
         :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
-      <SimulationVuer v-else-if="entry.type === 'Simulation'"
-        :apiLocation="apiLocation" :entry="entry" />
+      <SimulationVuer v-else-if="entry.type === 'Simulation'" :id="entry.discoverId" />
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
   </div>
@@ -94,11 +93,11 @@ export default {
           if (resource.feature.type == "marker") {
             returnedAction = {};
             returnedAction.type = "Facet";
-            returnedAction.label = this.idNamePair[resource.feature.models];  
+            returnedAction.label = this.idNamePair[resource.feature.models];
           }
           else if (resource.feature.type == "feature") {
             action = "scaffold";
-          } 
+          }
         }
       } else if (type == "Scaffold"){
         action = "search";
@@ -125,7 +124,7 @@ export default {
         store.state.settings.facets.species.forEach(e => {
           params.push(encodeURIComponent('species') + '=' + encodeURIComponent(e));
         });
-        if (this._controller) 
+        if (this._controller)
           this._controller.abort();
         this._controller = new AbortController();
         let signal = this._controller.signal;
@@ -134,7 +133,7 @@ export default {
         .then((data) => {
           this._controller = undefined;
           data.uberon.array.forEach((pair) => {
-            this.idNamePair[pair.id.toUpperCase()] = 
+            this.idNamePair[pair.id.toUpperCase()] =
               pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
             map.addMarker(pair.id.toUpperCase(), "simulation");
           });
