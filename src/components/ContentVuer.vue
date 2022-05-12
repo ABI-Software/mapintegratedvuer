@@ -18,8 +18,7 @@
         :render="visible" :displayMinimap=false :displayMarkers=false :view-u-r-l="entry.viewUrl"/>
       <PlotVuer v-else-if="entry.type === 'Plot'" :url="entry.resource"
         :plotType="entry.plotType" :helpMode="helpMode" style="overflow: hidden"></PlotVuer>
-      <SimulationVuer v-else-if="entry.type === 'Simulation'"
-        :apiLocation="apiLocation" :entry="entry" />
+      <SimulationVuer v-else-if="entry.type === 'Simulation'" :id="entry.discoverId" />
       <IframeVuer v-else-if="entry.type === 'Iframe'" :url="entry.resource" />
     </div>
   </div>
