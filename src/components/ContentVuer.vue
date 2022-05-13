@@ -112,7 +112,7 @@ export default {
       }
     },
     resourceHasAction(resource){
-      return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search')
+      return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search' || resource.type == 'Facet' || resource.type == 'Facets')
     },
     flatmapChanged: function() {
       this.$emit("flatmapChanged");
