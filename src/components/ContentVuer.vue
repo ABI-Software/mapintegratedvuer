@@ -75,9 +75,9 @@
       />
       <PlotVuer
         v-else-if="entry.type === 'Plot'"
-        :url="entry.resource"
-        :plotType="entry.plotType"
-        :helpMode="helpMode"
+        :data-source="entry.resource.dataSource"
+        :metadata="entry.resource.metadata"
+        :supplemental-data="entry.resource.supplementalData"
         style="overflow: hidden"
       ></PlotVuer>
       <SimulationVuer
