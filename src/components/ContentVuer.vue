@@ -82,6 +82,7 @@
       ></PlotVuer>
       <SimulationVuer
         v-else-if="entry.type === 'Simulation'"
+        :apiLocation="apiLocation"
         :id="entry.discoverId"
       />
       <IframeVuer v-else-if="isIframe()" :url="entry.resource.share_link" />
