@@ -128,14 +128,14 @@ const mutations = {
         state.activeView = newState.activeView;
       if (newState.globalCallback)
         state.globalCallback = newState.globalCallback;
-      if (newState.syncMode)
-        state.syncMode = newState.syncMode;
       for (let i = 0; i < state.slotInfo.length; i++) {
         state.slotInfo[i].id = newState.slotInfo[i].id;
       }
       for (const [key, value] of Object.entries(newState.splitters)) {
         state.splitters[key] = value;
       }
+      if (newState.syncMode)
+        state.syncMode = newState.syncMode;
     }
   },
   setIdToPrimarySlot(state, id) {

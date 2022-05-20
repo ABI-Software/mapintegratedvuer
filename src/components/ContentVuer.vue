@@ -223,12 +223,6 @@ export default {
       }
       return false;
     },
-    scaffoldIsReady: function () {
-      if (this.entry.type === "Scaffold")
-        this.$refs.scaffold.toggleSyncControl(
-          store.state.splitFlow.globalCallback
-        );
-    },
     /**
      * Callback when the vuers emit a selected event.
      */
@@ -434,10 +428,16 @@ export default {
         }
       }
     },
-    toggleSynchronisedEvent: function (flag) {
+    scaffoldIsReady: function () {
       if (this.entry.type === "Scaffold") {
+        this.scaffoldLoaded = true;
+        if (this.isVisible())
+          this.$refs.scaffold.toggleSyncControl(store.state.splitFlow.globalCallback);
+      }
+    },
+    requestSynchronisedEvent: function (flag) {
+      if (this.entry.type === "Scaffold" && this.scaffoldLoaded) {
         this.$refs.scaffold.toggleSyncControl(flag);
-        window.scaffold = this.$refs.scaffold;
       }
     },
     /**
@@ -472,10 +472,14 @@ export default {
     },
     flatmapChanged: function (activeSpecies) {
       this.activeSpecies = activeSpecies;
-      if (this.syncMode == true)
-        this.toggleSyncMode();
+      if (!(this.entry.state && (this.entry.state.species === this.activeSpecies))) {
+        if (this.syncMode == true)
+          this.toggleSyncMode();
+      }
     },
     multiFlatmapReady: function (component) {
+      if (this.syncMode == true) 
+        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true);
       this.updateMarkers(component);
       //component.addPanZoomEvent();
     },
@@ -521,6 +525,11 @@ export default {
         this.isInHelp = true;
       }
     },
+    isVisible: function() {
+      let slot = store.getters["splitFlow/getSlotById"](this.entry.id);
+      if (slot) return store.getters["splitFlow/isSlotActive"](slot);
+      return false;
+    },
     endHelp: function () {
       window.removeEventListener("mousedown", this.endHelp);
       this.helpMode = false;
@@ -542,6 +551,8 @@ export default {
       helpMode: false,
       idNamePair: {},
       mouseHovered: false,
+      scaffoldLoaded: false,
+
     };
   },
   created: function () {
@@ -576,9 +587,9 @@ export default {
       }
     },
     syncMode: function (val) {
-      if (this.entry.type === "MultiFlatmap")
+      if (this.entry.type === "MultiFlatmap" && this.$refs.multiflatmap.getCurrentFlatmap())
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
-    },
+    }
   },
   mounted: function () {
     if (this.entry.type === "Scaffold") {

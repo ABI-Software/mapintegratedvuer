@@ -52,7 +52,7 @@
         :entry="entry"
         ref="content"
         @resource-selected="resourceSelected"
-        :visible="isVisible(entry.id)"
+        :visible="isIdVisible(entry.id)"
       />
     </div>
   </div>
@@ -247,7 +247,7 @@ export default {
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
     },
-    isVisible: function(id) {
+    isIdVisible: function(id) {
       let slot = store.getters["splitFlow/getSlotById"](id);
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
@@ -344,10 +344,9 @@ export default {
     globalCallback: {
       handler: function(val) {
         const contents = this.getActiveContents();
-
         if (contents) {
           contents.forEach(content => {
-            content.toggleSynchronisedEvent(val);
+            content.requestSynchronisedEvent(val);
           });
         }
       },
