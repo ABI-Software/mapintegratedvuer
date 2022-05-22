@@ -39,6 +39,7 @@
         ref="multiflatmap"
         :displayMinimap="true"
         :flatmapAPI="flatmapAPI"
+        :sparcAPI="apiLocation"
         @pan-zoom-callback="flatmapPanZoomCallback"
       />
       <FlatmapVuer
@@ -282,13 +283,6 @@ export default {
       if (returnedAction) EventBus.$emit("PopoverActionClick", returnedAction);
       if (fireResourceSelected) this.$emit("resource-selected", result);
     },
-    resourceHasAction: function (resource) {
-      return (
-        resource.type === "URL" ||
-        resource.type === "Search" ||
-        resource.type === "Neuron Search"
-      );
-    },
     handleSyncPanZoomEvent: function (data) {
       //Prevent recursive callback
       if (!this.mouseHovered) {
@@ -476,6 +470,9 @@ export default {
         if (this.syncMode == true)
           this.toggleSyncMode();
       }
+    },
+    resourceHasAction(resource){
+      return (resource.type === 'URL' || resource.type === 'Search' || resource.type === 'Neuron Search' || resource.type == 'Facet' || resource.type == 'Facets')
     },
     multiFlatmapReady: function (component) {
       if (this.syncMode == true) 
