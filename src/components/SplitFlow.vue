@@ -104,7 +104,6 @@ export default {
      */
     actionClick:function(action) {
       if (action) {
-        console.log('action fired')
         if (action.type == "Search") {
           if (action.nervePath){
             this.$refs.sideBar.openSearch(action.label, [action.filter] );
