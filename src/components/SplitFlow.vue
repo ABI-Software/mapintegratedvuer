@@ -104,6 +104,7 @@ export default {
      */
     actionClick:function(action) {
       if (action) {
+        console.log('action fired')
         if (action.type == "Search") {
           if (action.nervePath){
             this.$refs.sideBar.openSearch(action.label, [action.filter] );
@@ -127,6 +128,13 @@ export default {
           if (speciesFacets.length == 0)
             speciesFacets.push({facet: "show all", term:'species'});
           this.$refs.sideBar.addFilter({facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'});
+        } else if (action.type == "Facets") {        
+          let filters = [] 
+          if (action.labels && Array.isArray(action.labels)){
+            filters = action.labels.map(label=>({facet: label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'}))
+          }
+          this.$refs.sideBar.openSearch(filters);
+          
         } else if (action.type == "Scaffold View"){
           this.updateEntry(action);
         }
