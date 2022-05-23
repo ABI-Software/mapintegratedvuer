@@ -36,7 +36,6 @@
 /* eslint-disable no-alert, no-console */
 import DialogToolbarContent from './DialogToolbarContent';
 import EventBus from './EventBus';
-//import InformationDialog from './InformationDialog';
 import SplitDialog from './SplitDialog';
 // import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
@@ -91,7 +90,6 @@ export default {
   name: "SplitFlow",
   components: {
     DialogToolbarContent,
-    //InformationDialog,
     SplitDialog,
     SideBar,
   },
