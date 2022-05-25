@@ -138,6 +138,9 @@ export default {
     SimulationVuer,
   },
   methods: {
+    /**
+     * Toggle sync mode on/off depending on species and current state
+     */
     toggleSyncMode: function () {
       if (this.syncMode == false) {
         let action = undefined;
@@ -205,6 +208,9 @@ export default {
       };
       this.$emit("resource-selected", result);
     },
+    /**
+     * Perform a local search on this contentvuer
+     */
     search: function (term) {
       if (this.entry.type === "Flatmap") {
         return this.$refs.flatmap.searchAndShowResult(term);
@@ -252,7 +258,6 @@ export default {
             returnedAction = {};
             returnedAction.type = "Facet";
             returnedAction.label = this.idNamePair[resource.feature.models];
-            result.internalName = this.idNamePair[resource.feature.models];
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
               const flatmap =
@@ -289,6 +294,9 @@ export default {
         resource.type === "Neuron Search"
       );
     },
+    /**
+     * Handle sync pan zoom event
+     */
     handleSyncPanZoomEvent: function (data) {
       //Prevent recursive callback
       if (!this.mouseHovered) {
@@ -366,6 +374,11 @@ export default {
         }
       }
     },
+    /**
+     * Get the term to zoom/highlight in a synchronisation event,
+     * if it cannot be found in the map, it will perform several
+     * calls to try to ge a valid name/id.
+     */
     getNameAndIdFromSyncData: async function(data) {
       let name = data.internalName;
       if (name === undefined && data.resource) {
@@ -487,6 +500,12 @@ export default {
       let map = component.mapImp;
       map.clearMarkers();
       let params = [];
+      //Use the default list of uberons before we get the response
+      let terms = getAvailableTermsForSpecies();
+      for (let i = 0; i < terms.length; i++) {
+        map.addMarker(terms[i].id, terms[i].type);
+        this.idNamePair[terms[i].id] = terms[i].name;
+      }
       if (this.apiLocation) {
         store.state.settings.facets.species.forEach((e) => {
           params.push(
@@ -510,12 +529,6 @@ export default {
             return;
           }
         );
-      }
-      //Previous attempt fails, use the hardcoded list
-      let terms = getAvailableTermsForSpecies();
-      for (let i = 0; i < terms.length; i++) {
-        map.addMarker(terms[i].id, terms[i].type);
-        this.idNamePair[terms[i].id] = terms[i].name;
       }
     },
     startHelp: function (id) {

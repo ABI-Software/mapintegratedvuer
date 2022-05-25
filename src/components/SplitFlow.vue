@@ -1,8 +1,5 @@
 <template>
   <el-container style="height:100%;background:white;">
-    <!--
-    <information-dialog ref="information"></information-dialog>
-    -->
     <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="32px" class="dialog-header">
       <DialogToolbarContent :activeId="activeDockedId" :numberOfEntries="entries.length"
         :topLevelControls=true
@@ -249,12 +246,6 @@ export default {
       }
     },
     resourceSelected: function(result) {
-      /**
-      if (result.resource.eventType === "click" &&
-       result.internalName === "Vagus nerve") {
-          this.$refs.information.display();
-      }
-      */
       this.$emit("resource-selected", result);
       if (store.state.splitFlow.globalCallback) {
         this.$refs.splitdialog.sendSynchronisedEvent(result);

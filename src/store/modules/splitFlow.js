@@ -106,6 +106,8 @@ const mutations = {
     state.globalCallback = flag;
   },
   updateActiveView(state, activeView) {
+    //Deactivate sync mode if current or future view
+    //is not in 2 split panels/
     if (state.syncMode) {
       const view1 = state.viewIcons.find(
         view => state.activeView === view.icon);
@@ -160,6 +162,8 @@ const mutations = {
   },
   setSyncMode(state, payload) {
     if (payload) {
+      //Force the second slot to be the new viewer in payload and change the 
+      //view to the payload's layout
       let secondSlot = state.slotInfo.find(slot => slot.name === "second");
       if (payload.flag === true) {
         let firstSlot = state.slotInfo.find(slot => slot.name === "first");
@@ -183,15 +187,14 @@ const mutations = {
     if (payload) {
       state.syncMode = false;
       state.globalCallback = false;
-      //Find the next available id to fill empty slot
-      //Set to 1 if the slot being closed is the primary
-      //view
       let availableId = 0;
+      //Primary id cannot be changed
       if (payload.id === 1) {
         availableId = 1;
       } else if (payload.entries) {
         for (let i = 0; i < payload.entries.length &&
           availableId == 0; i++) {
+          //Find the entry not currently in use
           if (state.slotInfo.find(slot => slot.id ===
             payload.entries[i].id) === undefined) {
             availableId = payload.entries[i].id;
@@ -206,22 +209,24 @@ const mutations = {
         slotInfo => slotInfo.name === "third");
       let fourthSlot = state.slotInfo.find(
         slotInfo => slotInfo.name === "fourth");
+      // The following move the entry id to the appropriate slot
+      // and remove the target id
       switch (slot.name) {
         case "first": {
           switch (state.activeView) {
             case "2horpanel":
             case "2vertpanel": {
-              slot.id = secondSlot.Id;
+              slot.id = secondSlot.id;
               secondSlot.id = availableId;
             } break;
             case "3panel": {
-              slot.id = secondSlot.Id;
-              secondSlot.Id = thirdSlot.id;
+              slot.id = secondSlot.dd;
+              secondSlot.id = thirdSlot.id;
               thirdSlot.id = availableId;
             } break;
             case "4panel": {
-              slot.id = secondSlot.Id;
-              secondSlot.Id = thirdSlot.id;
+              slot.id = secondSlot.id;
+              secondSlot.id = thirdSlot.id;
               thirdSlot.id = fourthSlot.id;
               fourthSlot.id = availableId;
             } break;
@@ -272,6 +277,7 @@ const mutations = {
         default:
           break;
       }
+      //Then switch the view
       switch (state.activeView) {
         case "2horpanel":
         case "2vertpanel":

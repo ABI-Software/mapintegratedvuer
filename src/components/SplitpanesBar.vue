@@ -47,7 +47,7 @@
         <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :open-delay="helpDelay"
           :appendToBody=false trigger="hover" popper-class="header-popper" >
           <map-svg-icon icon="close" slot="reference" class="header-icon"
-            v-if="(activeView !== 'singlepanel') && (slot.name !== 'first') && (isFlatmap[slot.name] == false)"
+            v-if="(activeView !== 'singlepanel') && (isFlatmap[slot.name] == false)"
             @click.native="closeAndRemove(slot)"/>
         </el-popover>
       </el-row>
