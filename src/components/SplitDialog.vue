@@ -342,11 +342,22 @@ export default {
     },
     globalCallback: {
       handler: function(val) {
-        const contents = this.getActiveContents();
-        if (contents) {
-          contents.forEach(content => {
-            content.requestSynchronisedEvent(val);
-          });
+        //Only activate for active
+        if (val) {
+          const contents = this.getActiveContents();
+          if (contents) {
+            contents.forEach(content => {
+              content.requestSynchronisedEvent(val);
+            });
+          }
+        } else {
+          //Turn sync off, this can be requested for all contents
+          const contents = this.$refs['content'];
+          if (contents) {
+            contents.forEach(content => {
+              content.requestSynchronisedEvent(false);
+            });
+          }
         }
       },
       immediate: true,
