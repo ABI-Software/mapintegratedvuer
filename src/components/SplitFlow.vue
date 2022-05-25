@@ -134,7 +134,6 @@ export default {
       }
     },
     searchChanged: function(data) {
-      window.datadata = data
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
       }
