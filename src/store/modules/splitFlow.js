@@ -36,15 +36,6 @@ const getters = {
     let slot = state.slotInfo.find(slot => slot.name === name);
     return slot;
   },
-  getActiveEntriesId: (state) => () => {
-    const ids = [];
-    const view = state.viewIcons.find(view => state.activeView === view.icon);
-    state.slotInfo.forEach(slot => {
-      if (view.min >= slot.activation)
-        ids.push(slot.id);
-    });
-    return ids;
-  },
   isSlotActive: (state) => (slot) => {
     if (slot) {
       let view = state.viewIcons.find(view => state.activeView === view.icon);
@@ -148,17 +139,6 @@ const mutations = {
       availableSlot.id = primarySlot.id;
     }
     primarySlot.id = id;
-  },
-  setIdToSlot(state, payload) {
-    let availableSlot = state.slotInfo.find(slot => slot.id === 0);
-    let slot = state.slotInfo.find(
-      slotInfo => slotInfo.name === payload.slotName);
-    if (slot) {
-      if (availableSlot) {
-        availableSlot.id = slot.id;
-      }
-      slot.id = payload.id;
-    }
   },
   setSyncMode(state, payload) {
     if (payload) {
