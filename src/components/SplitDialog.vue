@@ -259,6 +259,7 @@ export default {
     },
     search: function(payload) {
       let searchFound = false;
+      //Search all active viewers when global callback is on
       if (store.state.splitFlow.globalCallback &&
         store.state.splitFlow.syncMode) {
         const activeContents = this.getActiveContents();
@@ -267,10 +268,11 @@ export default {
             searchFound = true;
           }
         });
-      }
-      const content = this.getContentsWithId(payload.slot.id);
-      if (content) {
-        searchFound = content.search(payload.term);
+      } else {
+        const content = this.getContentsWithId(payload.slot.id);
+        if (content) {
+          searchFound = content.search(payload.term);
+        }
       }
       if (searchFound)
         this.failedSearch[payload.slot.name] = undefined;
