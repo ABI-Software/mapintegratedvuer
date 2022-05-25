@@ -232,11 +232,10 @@ export default {
     },
     getActiveContents: function() {
       const activeContents = [];
-      const activeIds = store.getters["splitFlow/getActiveEntriesId"]();
       const vuers = this.$refs['content'];
       if (vuers) {
         vuers.forEach(vuer => {
-          if (activeIds.includes(vuer.$vnode.key))
+          if (vuer.isVisible())
             activeContents.push(vuer);
         });
       }
