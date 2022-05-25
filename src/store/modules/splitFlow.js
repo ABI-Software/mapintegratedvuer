@@ -220,7 +220,7 @@ const mutations = {
               secondSlot.id = availableId;
             } break;
             case "3panel": {
-              slot.id = secondSlot.dd;
+              slot.id = secondSlot.id;
               secondSlot.id = thirdSlot.id;
               thirdSlot.id = availableId;
             } break;
