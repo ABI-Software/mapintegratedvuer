@@ -5,14 +5,14 @@
         :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
         @onFullscreen="onFullscreen"
-        :showHelpIcon="true"/>
+        :showHelpIcon="true"
+      />
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
         <SplitDialog :entries="entries" ref="splitdialog"
           @close="dialogClose(id)"
           @resource-selected="resourceSelected"
-          @flatmapChanged="flatmapChanged"
         />
         <SideBar ref="sideBar"
           :envVars="envVars"
@@ -23,10 +23,8 @@
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
-        > 
-        </SideBar>
+        /> 
       </div>
-      
     </el-main>
   </el-container>
 </template>
@@ -154,6 +152,23 @@ export default {
       }
     },
     /**
+     * Activate Synchronised workflow
+     */
+    activateSyncMap: function(data) {
+      let newEntry = {};
+      Object.assign(newEntry, data);
+      newEntry.mode = "normal";
+      newEntry.id = ++this.currentCount;
+      newEntry.zIndex = ++this.zIndex; 
+      newEntry.state = undefined;
+      newEntry.type = "Scaffold";
+      newEntry.discoverId = data.discoverId;
+      this.entries.push(newEntry);
+      store.commit("splitFlow/setSyncMode", { flag: true, newId: newEntry.id,
+        layout: data.layout });
+      return newEntry.id;
+    },
+    /**
      * Add new entry which will sequentially create a
      * new dialog.
      */
@@ -168,6 +183,9 @@ export default {
       newEntry.viewUrl = undefined;
       this.entries.push(newEntry);
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
+      if (store.state.splitFlow.syncMode) {
+        store.commit("splitFlow/setSyncMode", { flag: false });
+      }
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -216,19 +234,38 @@ export default {
       state.splitFlow = store.getters["splitFlow/getState"]();
       return state;
     },
+    removeEntry: function(id) {
+      if (id !== 1) {
+        let index = -1;
+        for (let i = 0; this.entries.length && index === -1; i++) {
+          if (this.entries[i].id === id)
+            index = i;
+        }
+        this.entries.splice(index, 1);
+      }
+    },
     resourceSelected: function(result) {
       this.$emit("resource-selected", result);
-    },
-    flatmapChanged: function(){
-      this.$emit("flatmapChanged");
-    },
-    entryStateUpdated: function(id, state) {
-      let index = this.findIndexOfId(id);
-      if (index > -1)
-        this.entries[index].state = state;
+      if (store.state.splitFlow.globalCallback) {
+        this.$refs.splitdialog.sendSynchronisedEvent(result);
+      }
     },
     tabClicked: function(id){
       this.activeDockedId = id
+    },
+    toggleSyncMode: function(payload) {
+      if (payload) {
+        if (payload.flag) {
+          if (payload.action) {
+            this.activateSyncMap(payload.action);
+          }
+        } else {
+          if (store.state.splitFlow.syncMode) {
+            store.commit("splitFlow/setSyncMode",
+              { flag: false, entries: this.entries });
+          }
+        }
+      }
     }
   },
   data: function() {
@@ -250,15 +287,21 @@ export default {
     this.externalStateSet = false;
   },
   mounted: function() {
-    EventBus.$on("PopoverActionClick", (payLoad) => {
-      this.actionClick(payLoad);
-    })
+    EventBus.$on("RemoveEntryRequest", (id) => {
+      this.removeEntry(id);
+    });
+    EventBus.$on("SyncModeRequest", (payload) => {
+      this.toggleSyncMode(payload);
+    });
+    EventBus.$on("PopoverActionClick", (payload) => {
+      this.actionClick(payload);
+    });
     this.$nextTick(() => {
       this.$refs.sideBar.close();
       setTimeout(() => {
         this.startUp = false;
       }, 2000);
-    })
+    });
   },
   computed: {
     envVars: function() {
@@ -267,7 +310,9 @@ export default {
         ALGOLIA_INDEX: store.state.settings.algoliaIndex,
         ALGOLIA_KEY: store.state.settings.algoliaKey,
         ALGOLIA_ID: store.state.settings.algoliaId,
-        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi
+        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi,
+        NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
+        ROOT_URL: store.state.settings.rootUrl
       }
     }
   }

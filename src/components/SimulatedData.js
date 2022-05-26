@@ -433,28 +433,36 @@ function simulatedData(term, taxonomy, label, dataset, scaffold, simulations) {
 
 function getRatTerms() {
   return [
-    {id: "UBERON:0000948", type:"simulation"},
-    {id: "UBERON:0001156", type:"simulation"},
-    {id: "UBERON:0001255", type:"simulation"},
-    {id: "UBERON:0000945", type:"simulation"},
-    {id: "UBERON:0001759", type:"simulation"},
-    {id: "UBERON:0002108", type:"simulation"},
+    {id: "UBERON:0000948", name: "Heart", type:"simulation"},
+    {id: "UBERON:0001156", name: "Colon", type:"simulation"},
+    {id: "UBERON:0001255", name: "Bladder", type:"simulation"},
+    {id: "UBERON:0000945", name: "Stomach", type:"simulation"},
+    {id: "UBERON:0001759", name: "Vagus nerve", type:"simulation"},
+    {id: "UBERON:0002108", name: "Small intestines", type:"simulation"},
+    {id: "UBERON:0002107", name: "Liver", type:"simulation"},
   ];
 }
 
-export function getAvailableTermsForSpecies(taxonomy) {
-  switch (taxonomy) {
-    case "NCBITaxon:9606":
-      return {};
-      case "NCBITaxon:9823":
-        return {};
-    case "NCBITaxon:10090":
-      return {};
-    case "NCBITaxon:10114":
-      return getRatTerms();
-    default:
-      return {};
+export function getAvailableTermsForSpecies() {
+  return getRatTerms();
+}
+
+export function getParentsRegion(name) {
+  if (name) {
+    const lName = name.toLowerCase()
+    if (lName.includes('heart')) {
+      return {id: 'UBERON:0000948', name: 'Heart'};
+    } else if (lName.includes('liver')) {
+      return {id: 'UBERON:0002107', name: 'Liver'};
+    } else if (lName.includes('stomach')) {
+      return {id: 'UBERON:0000945', name: 'Stomach'};
+    } else if (lName.includes('colon')) {
+      return {id: 'UBERON:0001156', name: 'Colon'};
+    } else if (lName.includes('bladder')) {
+      return {id: 'UBERON:0001255', name: 'Bladder'};
+    }
   }
+  return undefined;
 }
 
 export function getInteractiveAction(result, action) {

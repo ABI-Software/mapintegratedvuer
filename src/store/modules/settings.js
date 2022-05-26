@@ -7,6 +7,8 @@ const state = () => ({
   algoliaId: undefined,
   pennsieveApi: undefined,
   flatmapAPI: undefined,
+  nlLinkPrefix: undefined,
+  rootUrl: undefined,
   facets: {'species':[], 'gender':[], 'organ':[]}
 });
 
@@ -32,6 +34,13 @@ const mutations = {
   updateFlatmapAPI(state, flatmapAPI) {
     state.flatmapAPI = flatmapAPI;
   },
+  updateNLLinkPrefix(state, nlLinkPrefix ) {
+    state.nlLinkPrefix = nlLinkPrefix;
+  },
+  updateRootUrl(state, rootUrl) {
+    state.rootUrl = rootUrl;
+  },
+
   updateFacets(state, facetsIn) {
     // The following codes aim to minimise changes on the array
     let facets = {'species':[], 'gender':[], 'organ':[]};
