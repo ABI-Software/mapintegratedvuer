@@ -413,7 +413,7 @@ export default {
   .not-found-text {
     margin-top: 8px;
     color: $warning;
-    font-size: 10px;
+    font-size: 0.8rem;
     margin-left: 0.5rem;
   }
   .search-box {
