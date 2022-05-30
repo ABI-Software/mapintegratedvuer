@@ -21,8 +21,8 @@ export default {
     },
   },
   mounted: function () {
-    EventBus.$on("startHelp", (id) => {
-      this.startHelp(id);
+    EventBus.$on("startHelp", () => {
+      this.startHelp();
     });
   },
   methods: {
@@ -231,8 +231,8 @@ export default {
     onResize: function () {
       return;
     },
-    startHelp: function (id) {
-      if (this.entry.id === id && this.isInHelp === undefined) {
+    startHelp: function () {
+      if (this.isInHelp === false) {
         this.helpMode = true;
         window.addEventListener("mousedown", this.endHelp);
         this.isInHelp = true;
@@ -242,7 +242,7 @@ export default {
       window.removeEventListener("mousedown", this.endHelp);
       this.helpMode = false;
       setTimeout(() => {
-        this.isInHelp = undefined;
+        this.isInHelp = false;
       }, 200);
     },
   },
@@ -260,6 +260,7 @@ export default {
       idNamePair: {},
       mouseHovered: false,
       scaffoldLoaded: false,
+      isInHelp: false
     };
   },
   created: function () {

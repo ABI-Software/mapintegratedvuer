@@ -41,7 +41,6 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import { Button } from "element-ui";
-import EventBus from "./EventBus";
 import DatasetHeader from "./DatasetHeader";
 import Flatmap from "./viewers/Flatmap";
 import Iframe from "./viewers/Iframe";
@@ -117,9 +116,6 @@ export default {
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
     },
-    endHelp: function () {
-      this.$refs.viewer.endHelp();
-    },
     onResize: function () {
       this.$refs.viewer.onResize();
     },
@@ -153,11 +149,6 @@ export default {
           return this.entry.type;
       }
     },
-  },
-  mounted: function () {
-    EventBus.$on("startHelp", (id) => {
-      this.startHelp(id);
-    });
   },
 };
 </script>

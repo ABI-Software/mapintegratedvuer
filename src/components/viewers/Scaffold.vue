@@ -140,10 +140,8 @@ export default {
   mounted: function () {
     this.scaffoldCamera =
       this.$refs.scaffold.$module.scene.getZincCameraControls();
-    document.querySelectorAll(".el-checkbox-group")[0].id =
-      "scaffold-checkbox-group-" + this.entry.id;
-    EventBus.$on("startHelp", (id) => {
-      this.startHelp(id);
+    EventBus.$on("startHelp", () => {
+      this.startHelp();
     });
   },
 };
