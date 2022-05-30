@@ -1,18 +1,16 @@
 <template>
   <div class="map-iframe-container">
-      <iframe class="my-iframe"  :src="url"></iframe>
+      <iframe class="my-iframe"  :src="entry.resource.share_link"></iframe>
   </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
+import ContentMixin from "../../mixins/ContentMixin";
 
 export default {
-  name: "IframeVuer",
-  props: {
-    url: String,
-  },
-
+  name: "Iframe",
+  mixins: [ ContentMixin ],
 };
 </script>
 
