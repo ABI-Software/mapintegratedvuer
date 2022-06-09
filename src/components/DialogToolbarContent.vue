@@ -61,7 +61,7 @@
       </el-popover>
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
-        <map-svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
+        <map-svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp()"/>
       </el-popover>
       <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip"
         content="Fullscreen" placement="bottom-end" :open-delay="helpDelay"
@@ -239,8 +239,8 @@ export default {
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
-    startHelp: function(id){
-      EventBus.$emit("startHelp", id);
+    startHelp: function(){
+      EventBus.$emit("startHelp");
     },
     onFullscreen: function() {
       this.$emit("onFullscreen");
