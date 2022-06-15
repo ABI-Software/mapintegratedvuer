@@ -25,7 +25,9 @@ describe('MapContent', () => {
 
       //cy.intercept('/sparc-api/filter-search/*', {statusCode: 200, body: stub.noResponse});
 
-      cy.intercept('/sparc-api/dataset_info/using_multiple_dois/?dois=*', {statusCode: 200, body: stub.noResponse});
+      cy.intercept('/sparc-api/dataset_info/using_multiple_dois/*', {statusCode: 200, body: stub.noResponse});
+
+      cy.intercept('/sparc-api/dataset_info/using_multiple_dois/?dois=*', {statusCode: 200, body: stub.resultResponse}).as("mouseScaffold");
     
       cy.intercept('/sparc-api/get-organ-curies?', {statusCode: 200, body: stub.curiesResponse}).as("curieResponse");
     })
@@ -80,93 +82,26 @@ describe('MapContent', () => {
 
     cy.get('.open-tab > .el-icon-arrow-left').should('exist').click();
 
-    //cy.waitUntil(function() {
-    //  return cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask').should('not.exist');
-    //})
+    cy.get('.search-input > .el-input__inner').should('exist').type('76 generic');
 
+    cy.get('.header > .el-button').should('exist').click();
 
-    //Wait for the curie response before continuing
+    cy.get('.content-container').should('have.length', 2);
 
-    /*
-    //Stub more responses with preloaded fixture
-    cy.get('@stub').then((stub) => {
-      cy.intercept('/sparc-api/filter-search/?', {statusCode: 200, body: stub.noResponse});
+    cy.wait('@mouseScaffold', {timeout: 20000});
 
-      cy.intercept('/sparc-api/get-facets/species', {statusCode: 200, body: stub.speciesResponse});
+    cy.get('.box-card .container button').should('have.length', 3);
 
-      cy.intercept('/sparc-api/get-facets/gender', {statusCode: 200, body: stub.genderResponse});
+    cy.get('.box-card .container button').contains('Scaffolds (3)').click();
 
-      cy.intercept( '/sparc-api/get-facets/organ', {statusCode: 200, body: stub.organResponse});
+    cy.get('.gallery-strip').contains('54-8_metadata.json').should("exist");
 
-      cy.intercept('/sparc-api/filter-search/?term=organ&facet=heart*', {statusCode: 200, body: stub.resultResponse});
+    cy.get('.box-card :nth-child(1) > .details .el-button').click();
 
-      cy.intercept('/discover/datasets/doi/1111/11111', {statusCode: 200, body: stub.datasetResult}).as("finalResponse");
-    });
+    cy.get('.singlepanel-1.contentvuer').should('have.length', 1);
 
-    //Two markers should be visible at this stage, click on the first one (heart)
-    cy.get('.flatmap-marker:visible').should('have.length', 2).first().click({force: true});
+    cy.get('.singlepanel-1 .el-input__inner').should('exist').click();
 
-    //Sidebar should be visbile now
-    cy.get('.el-drawer.rtl.my-drawer').should('be.visible');
-
-    //Close tab button should exist now
-    cy.get('.close-tab ').should('exist');
-
-    //Check the toggled tag on the sidebar is heart
-    cy.get('.el-tag > span').contains('Heart');
-
-    //Wait for the final stub response
-    cy.wait('@finalResponse');
-
-    //Only one card on the sidebar
-    cy.get('.el-card__body > .content').find('.card').should('have.length', 1);
-
-    //Intercept the request and stub it with preloaded fixture
-    cy.get('@metadata').then((metadata) => {
-      cy.intercept('/sparc-api/s3-resource/32/3/files/derivative/H-4/scaffold/metadata.json', {statusCode: 200, body: metadata});
-    })
-
-    //Intercept the request and stub it with preloaded fixture
-    cy.get('@primitive').then((primitive) => {
-      cy.intercept('/sparc-api/s3-resource/32/3/files/derivative/H-4/scaffold/cube_2.json', {statusCode: 200, body: primitive}).as("scaffoldResponse");
-    })
-    
-    //Click on the View scaffold button
-    cy.get('.el-button').contains('View scaffold').should('be.visible').click({force: true});
-
-    //Scaffold container should be visible now
-    cy.get('.scaffold-container').should('be.visible');
-
-    //Wait for the scaffold response to finish
-    cy.wait('@scaffoldResponse');
-
-    //Check if cube is loaded in
-    cy.get('.traditional-container > .el-checkbox-group > .checkbox-group-inner > .el-row > .checkbox-container > .el-checkbox > .el-checkbox__label').contains('cube');
-
-    //Close the sidebar
-    cy.get('.close-tab > .el-icon-arrow-right').should('be.visible').click({force: true});
-
-    //Sidebar should not be visbile
-    cy.get('.el-drawer.rtl.my-drawer').should('not.be.visible');
-
-    //Click on the content chooser
-    cy.get('.singlepanel-1.toolbar > .el-select > .el-input > .el-input__inner').should('be.visible').click({force: true});
-
-    //There should be two items in the drop down menu, one fo them should be MultiFlatmap and click on it
-    cy.get('.singlepanel-1.toolbar .el-select-dropdown__item').should('have.length', 2).contains('MultiFlatmap').should('be.visible').click({force: true});
-
-    //This should click on the split screen button
-    cy.get('.icon-group .tooltip').contains('Split screen').parent().parent().find('.icon').should('be.visible').click({force: true});
-
-    //There should be five items in the drop down list, one fo them should be Vertical split and click on it
-    cy.get('.view-text').should('have.length', 5).contains('Vertical split').should('be.visible').click({force: true});
-    
-    //There should two active tab toolbar
-    cy.get('.tab-container').find('.toolbar').not('.inactive').should('have.length', 2);
-
-    //There should two active tab toolbar
-    cy.get('.contentvuer').should('have.length', 2);
-
-    */
+    cy.get('.singlepanel-1 .el-scrollbar__view >').should('have.length', 3);
   })
 })

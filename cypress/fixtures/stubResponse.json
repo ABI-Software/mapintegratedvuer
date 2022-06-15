@@ -6,134 +6,598 @@
   "resultResponse": {
     "numberOfHits": 1,
     "results": [
-      {
-        "scaffolds": [
-          {
-            "anatomy": {
-              "curie": "UBERON:0000948"
-            },
-            "file": {
-              "name": "scaffold"
-            },
-            "dataset": {
-              "id": "dataset:111111111",
-              "path": "derivative/H-4/scaffold/metadata.json"
-            },
-            "description": "Test dataset",
-            "organism": {
-              "species": {
-                "curie": "NCBITaxon:10090"
-              }
-            },
-            "remote": {
-              "id": "collection:111111"
-            },
-            "distributions": {
-              "api": [
+        {
+            "abi-contextual-information": [],
+            "abi-scaffold-metadata-file": [
                 {
-                  "uri": "https://api.blackfynn.io/collections/N:collection:111111"
-                }
-              ],
-              "current": [
+                    "additional_mimetype": {
+                        "name": "application/x.vnd.abi.scaffold.meta+json"
+                    },
+                    "datacite": {
+                        "describes": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "hasMetadata": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDerivedFrom": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDescribedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isMetadataFor": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSourceOf": {
+                            "path": [
+                                "derivative/sub-54-8/scaffold/54-8_view.json"
+                            ],
+                            "relative": {
+                                "path": [
+                                    "54-8_view.json"
+                                ]
+                            }
+                        },
+                        "isSupplementTo": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSupplementedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "supplemental_json_metadata": {
+                            "description": ""
+                        }
+                    },
+                    "dataset": {
+                        "identifier": "dataset:a59a7c4casdfsaf",
+                        "path": "derivative/sub-54-8/scaffold/54-8_metadata.json"
+                    },
+                    "description": "",
+                    "file_type": {
+                        "name": ""
+                    },
+                    "identifier": "package:casdfsaf",
+                    "mimetype": {
+                        "name": "application/json"
+                    },
+                    "name": "54-8_metadata.json"
+                },
                 {
-                  "uri": "https://app.blackfynn.io/N:organization:111111/datasets/N:dataset:1111111111/files/N:collection:111111111"
-                }
-              ]
-            },
-            "mimetype": "inode/vnd.abi.scaffold+file"
-          }
-        ],
-        "samples": [
-          {
-            "sex": {
-              "value": "male"
-            },
-            "ageCategory": {
-              "value": "prime adult stage"
-            }
-          }
-        ],
-        "name": "Test this",
-        "identifier": "N:dataset:1111111",
-        "uri": [
-          {
-            "uri": "https://app.blackfynn.io/N:organization:11111/datasets/N:dataset:1111111111"
-          }
-        ],
-        "updated": [
-          {
-            "timestamp": "2021-06-02"
-          }
-        ],
-        "organs": [
-          {
-            "name": "heart",
-            "matchingStatus": "approved",
-            "curie": "ilx:0732254",
-            "parents": [
-              {
-                "term1_ilx": "ilx:0777104",
-                "term1_label": "crux cordis",
-                "curie": "ilx:0732254",
-                "name": "heart"
-              }
-            ]
-          }
-        ],
-        "contributors": [
-          {
-            "name": "Tester, Iam",
-            "curie": "ORCID:0000-1234-5678-9012",
-            "uri": "https://orcid.org/0000-1234-5678-9012"
-          }
-        ],
-        "doi": "https://doi.org/1111/11111",
-        "csvFiles": [],
-        "abi-scaffold-metadata-file": [
-          {
-            "name": "ratHeart_metadata.json",
-            "description": "3d scaffolds metadata file",
-            "distributions": {
-              "api": [
+                    "additional_mimetype": {
+                        "name": "application/x.vnd.abi.scaffold.meta+json"
+                    },
+                    "datacite": {
+                        "describes": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "hasMetadata": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDerivedFrom": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDescribedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isMetadataFor": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSourceOf": {
+                            "path": [
+                                "derivative/sub-54-5/scaffold/54-5_view.json"
+                            ],
+                            "relative": {
+                                "path": [
+                                    "54-5_view.json"
+                                ]
+                            }
+                        },
+                        "isSupplementTo": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSupplementedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "supplemental_json_metadata": {
+                            "description": ""
+                        }
+                    },
+                    "dataset": {
+                        "identifier": "dataset:casfddsfa",
+                        "path": "derivative/sub-54-5/scaffold/54-5_metadata.json"
+                    },
+                    "description": "",
+                    "file_type": {
+                        "name": ""
+                    },
+                    "identifier": "package:sdvscvasdf4824f6cac54",
+                    "mimetype": {
+                        "name": "application/json"
+                    },
+                    "name": "54-5_metadata.json"
+                },
                 {
-                  "uri": "https://api.pennsieve.io/packages/N:package:719c952e-85a5-4eda-9afe-53bd018b13ff/files/1231759"
+                    "additional_mimetype": {
+                        "name": "application/x.vnd.abi.scaffold.meta+json"
+                    },
+                    "datacite": {
+                        "describes": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "hasMetadata": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDerivedFrom": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDescribedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isMetadataFor": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSourceOf": {
+                            "path": [
+                                "derivative/integrated-scaffold/integrated_view.json"
+                            ],
+                            "relative": {
+                                "path": [
+                                    "integrated_view.json"
+                                ]
+                            }
+                        },
+                        "isSupplementTo": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSupplementedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "supplemental_json_metadata": {
+                            "description": ""
+                        }
+                    },
+                    "dataset": {
+                        "identifier": "dataset:a523dd24218b5c7b31",
+                        "path": "derivative/integrated-scaffold/integrated_metadata.json"
+                    },
+                    "description": "",
+                    "file_type": {
+                        "name": ""
+                    },
+                    "identifier": "package:ea671asdf12515-bfcff90ec9b9",
+                    "mimetype": {
+                        "name": "application/json"
+                    },
+                    "name": "integrated_metadata.json"
                 }
-              ],
-              "current": [
-                {
-                  "uri": "https://app.pennsieve.io/N:organization:618e8dd9-f8d2-4dc4-9abb-c6aaab2e78a0/datasets/N:dataset:47225c7d-8fb9-4e32-b46a-152d06069bf4/files/v/N:package:719c952e-85a5-4eda-9afe-53bd018b13ff"
-                }
-              ]
-            },
-            "mimetype": {
-              "name": "application/json"
-            },
-            "checksums": [
-              {
-                "hex": "71471eccc7b6f85f25fc77918305dbf2063d400e32d4e47be5e646787ac6a649",
-                "cypher": "sha256"
-              }
             ],
-            "dataset": {
-              "path": "derivative/H-4/scaffold/metadata.json",
-              "identifier": "dataset:47225c7d-8fb9-4e32-b46a-152d06069bf4"
-            },
-            "additional_mimetype": {
-              "name": "inode/vnd.abi.scaffold+file"
-            },
-            "file_type": {
-              "name": "json"
-            },
-            "identifier": "package:719c952e-85a5-4eda-9afe-53bd018b13ff",
-            "updated": {
-              "timestamp": "2021-05-26T05:30:35,714317Z"
-            },
-            "bytes": {
-              "count": "2630"
-            }
-          }
-        ]
-      }
+            "additionalLinks": false,
+            "biolucida-3d": [
+                {
+                    "additional_mimetype": {
+                        "name": ""
+                    },
+                    "datacite": {
+                        "describes": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "hasMetadata": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDerivedFrom": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDescribedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isMetadataFor": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSourceOf": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSupplementTo": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSupplementedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "supplemental_json_metadata": {
+                            "description": ""
+                        }
+                    },
+                    "dataset": {
+                        "identifier": "dataset:a523453f2-93218b5c7b31",
+                        "path": "primary/sub-54-8/sam-TJU-3Scan-ratheart-54-8/TJU_3Scan_ratheart_54-8.jpx"
+                    },
+                    "description": "Image file associated with the accompanying subject 54-8 xml file, viewable in Tissue Mapper",
+                    "file_type": {
+                        "name": ".jpx"
+                    },
+                    "identifier": "package:170d03342134e214e5cd3cf61a",
+                    "mimetype": {
+                        "name": "image/jpx"
+                    },
+                    "name": "TJU_3Scan_ratheart_54-8.jpx"
+                }
+            ],
+            "contributors": [
+                {
+                    "affiliations": [
+                        {
+                            "description": "Test"
+                        }
+                    ],
+                    "curie": "ORCID:xxxxxxxx",
+                    "first": {
+                        "name": "xxxx"
+                    },
+                    "last": {
+                        "name": "xxxxxxx"
+                    },
+                    "name": "Test, User",
+                    "uri": "https://orcid.org/xxxxxxxx"
+                }
+            ],
+            "dataset_identifier": "999",
+            "dataset_revision": "",
+            "dataset_version": "3",
+            "description": "Test this",
+            "doi": "https://doi.org/10.26275/234fd-12312sd",
+            "identifier": "N:dataset:a59a7c4c-0234534e24b31",
+            "mbf-segmentation": [
+                {
+                    "additional_mimetype": {
+                        "name": "application/vnd.mbfbioscience.metadata+xml"
+                    },
+                    "datacite": {
+                        "describes": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "hasMetadata": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDerivedFrom": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isDescribedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isMetadataFor": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSourceOf": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSupplementTo": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "isSupplementedBy": {
+                            "path": [
+                                ""
+                            ],
+                            "relative": {
+                                "path": [
+                                    ""
+                                ]
+                            }
+                        },
+                        "supplemental_json_metadata": {
+                            "description": ""
+                        }
+                    },
+                    "dataset": {
+                        "identifier": "dataset:a59a7c4c-0978-45er2414b5c7b31",
+                        "path": "derivative/sub-54-8/sam-TJU-3Scan-ratheart-54-8/M54-8_03_20_20_Final.xml"
+                    },
+                    "description": "XML file associated with the accompanying subject 54-8 jpx file, which illustrates the spatial distribution and location of marked neurons in context of segmented cardiac features denoted by different colored contours, created in and viewable in Tissue Mapper (SCR_017321)",
+                    "file_type": {
+                        "name": ".xml"
+                    },
+                    "identifier": "package:25fab6d9-cf21-234d245124e74a359",
+                    "mimetype": {
+                        "name": "application/xml"
+                    },
+                    "name": "M54-8_03_20_20_Final.xml"
+                }
+            ],
+            "name": "Generic mouse colon scaffold",
+            "organisms": [
+                {
+                    "species": {
+                        "curie": "NCBITaxon:10116",
+                        "matchingStatus": "Exact Match",
+                        "name": "Rat",
+                        "originalName": "Rattus norvegicus",
+                        "parents": [
+                            {
+                                "curie": "ilx:0109662",
+                                "name": "Rattus"
+                            }
+                        ]
+                    },
+                    "strain": {
+                        "name": "Fischer 344/NHsd",
+                        "rrid": "RRID:RGD_61109",
+                        "uri": "https://scicrunch.org/resolver/RRID:RGD_61109"
+                    }
+                }
+            ],
+            "organs": [
+                {
+                    "curie": "UBERON:0000948",
+                    "matchingStatus": "Exact Match",
+                    "name": "heart"
+                }
+            ],
+            "publishDate": "2030-05-08T20:08:27.881107Z",
+            "readme": "**Study purpose:**  Recently, we have established an approach to comprehensively map the rat intrinsic cardiac nervous system (ICN) and herein apply this strategy for the comparison of the neuroanatomical organization of the ICN within and between sexes. Understanding the principle organization of the ICN across individuals will provide a structural basis for targeted physiological studies on the ICN in normal cardiac function and in pathological conditions. \n\n**Data collection:** This dataset contains two components. 1) 3D spatially tracked ICN neurons contextualized within the whole heart by the segmentation of cardiac anatomy for seven Fischer 344 (F344) rat hearts, four males, and three females (sub-54-5, sub-54-8, sub-54-9, sub-54-10, and sub-54-6, sub-54-11, sub-54-14). The 3D mapping data for each rat heart presented in this study were derived from their respective image volumes and were saved as XML files. 2) Image volumes corresponding to each of the seven rat hearts were all digitized and acquired by a Knife Edge Scanning Microscope (KESM) and were saved as JPX files. The image volumes for sub-54-5, sub-54-8, sub-54-6, sub-54-11 were compiled from coronal sectioned hearts, while the image volumes for sub-54-9 and 54-14 were transverse sectioned, and lastly, the image volume for sub-54-10 was sagittal sectioned. All XML files and associated JPX files are viewable through Tissue Mapper.\n\n**Primary conclusion:** The pattern, distribution, and clustering of ICN neurons across male and female rat hearts are highly conserved and demonstrates a consistent organizational plan with distinct clusters being localized around the hilum of the pulmonary veins and left atrium, superior vena cava, and right atrium, left atrioventricular sulcus, and the anterior interatrial sulcus. Female rat hearts were observed to have fewer neurons, lower packing density, and slightly reduced distribution but ICN were also localized in the same four anatomical regions. Lastly, the registration of the ICN from two animals first onto individual scaffolds then followed by integration into one generic scaffold provides a framework for the future incorporation of different experimental results in one common coordinate space. \n\n---\n\n**Curator's Notes**\n\n**Experimental Design:** Rat hearts were first fixed and stained with Cresyl Echt Violet to visualize the ICN neurons. The whole hearts were then sectioned and imaged in three different orientations with a Knife Edge Scanning Microscope (KESM). The resulting image tiles were stitched together to assemble 7 image stacks. Afterward, single neurons were mapped, and cardiac anatomy was segmented on select sections of the image stacks with Tissue Mapper software (from MBF Bioscience). The spatial distribution of individually marked neurons and annotated heart anatomy were then visualized in a 3D reconstructed model of the heart.\n\n**Completeness:** Batch.  See also https://sparc.science/datasets/37\n\n**Subjects & Samples:** The subjects for this study were 3 normal male and 4 normal female Fischer 344 rats. Samples were derived from each rat heart.\n\n**Primary vs derivative:** The primary folder contains microscopic images (jpx) from each subject in the study (sub-54-6, sub-54-8, sub-54-9, sub-54-10, sub-54-11, sub-54-13, sub-54-14) except for sub-54-5. Primary image data for sub-54-5 is contained in the previous preliminary dataset (https://sparc.science/datasets/37). The derivative folder contains segmentation data (xml) of mapped ICN neurons and cardiac anatomy delineations from the following subjects: sub-54-5, sub-54-6, sub-54-8, sub-54-9, sub-54-10, sub-54-11, sub-54-14. Segmentation data was created in and can be viewed in MBF Bioscience software. The derivative folder also contains integrated scaffold files (JSON) for sub-54-5 and sub-54-8 experimental data that can be viewed and interacted with through the portal viewer.\n\n**Code Availability:** Not Applicable\n\n",
+            "s3uri": "s3://pennsieve-prod-discover-publish-use1/9999/3/",
+            "sampleSize": "200",
+            "subjectSize": "200",
+            "title": "Test",
+            "took": 3,
+            "updated": [
+                {
+                    "timestamp": "2022-05-16T19:19:05,641000Z"
+                }
+            ],
+            "uri": false,
+            "version": "1.1.5"
+        }
     ]
   },
   "datasetResult": {
