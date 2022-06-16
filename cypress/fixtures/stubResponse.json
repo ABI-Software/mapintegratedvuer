@@ -14,56 +14,6 @@
                         "name": "application/x.vnd.abi.scaffold.meta+json"
                     },
                     "datacite": {
-                        "describes": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "hasMetadata": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isDerivedFrom": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isDescribedBy": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isMetadataFor": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
                         "isSourceOf": {
                             "path": [
                                 "derivative/sub-54-8/scaffold/54-8_view.json"
@@ -73,29 +23,6 @@
                                     "54-8_view.json"
                                 ]
                             }
-                        },
-                        "isSupplementTo": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isSupplementedBy": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "supplemental_json_metadata": {
-                            "description": ""
                         }
                     },
                     "dataset": {
@@ -113,211 +40,83 @@
                     "name": "54-8_metadata.json"
                 },
                 {
-                    "additional_mimetype": {
-                        "name": "application/x.vnd.abi.scaffold.meta+json"
-                    },
-                    "datacite": {
-                        "describes": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "hasMetadata": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isDerivedFrom": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isDescribedBy": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isMetadataFor": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isSourceOf": {
-                            "path": [
-                                "derivative/sub-54-5/scaffold/54-5_view.json"
-                            ],
-                            "relative": {
-                                "path": [
-                                    "54-5_view.json"
-                                ]
-                            }
-                        },
-                        "isSupplementTo": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isSupplementedBy": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "supplemental_json_metadata": {
-                            "description": ""
-                        }
-                    },
-                    "dataset": {
-                        "identifier": "dataset:casfddsfa",
-                        "path": "derivative/sub-54-5/scaffold/54-5_metadata.json"
-                    },
-                    "description": "",
-                    "file_type": {
-                        "name": ""
-                    },
-                    "identifier": "package:sdvscvasdf4824f6cac54",
-                    "mimetype": {
-                        "name": "application/json"
-                    },
-                    "name": "54-5_metadata.json"
-                },
+                  "additional_mimetype": {
+                      "name": "application/x.vnd.abi.scaffold.meta+json"
+                  },
+                  "datacite": {
+                      "isSourceOf": {
+                          "path": [
+                              "derivative/sub-54-5/scaffold/54-5_view.json"
+                          ],
+                          "relative": {
+                              "path": [
+                                  "54-5_view.json"
+                              ]
+                          }
+                      }
+                  },
+                  "dataset": {
+                      "identifier": "dataset:a59a7c4casdfsaf",
+                      "path": "derivative/sub-54-5/scaffold/54-5_metadata.json"
+                  },
+                  "description": "",
+                  "file_type": {
+                      "name": ""
+                  },
+                  "identifier": "package:casdfsaf",
+                  "mimetype": {
+                      "name": "application/json"
+                  },
+                  "name": "54-5_metadata.json"
+              }
+            ],
+            "abi-simulation-file": [
                 {
                     "additional_mimetype": {
-                        "name": "application/x.vnd.abi.scaffold.meta+json"
+                        "name": "application/x.vnd.abi.simulation+json"
                     },
                     "datacite": {
-                        "describes": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "hasMetadata": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isDerivedFrom": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isDescribedBy": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isMetadataFor": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isSourceOf": {
-                            "path": [
-                                "derivative/integrated-scaffold/integrated_view.json"
-                            ],
-                            "relative": {
-                                "path": [
-                                    "integrated_view.json"
-                                ]
-                            }
-                        },
-                        "isSupplementTo": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isSupplementedBy": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "supplemental_json_metadata": {
-                            "description": ""
-                        }
+
                     },
                     "dataset": {
-                        "identifier": "dataset:a523dd24218b5c7b31",
-                        "path": "derivative/integrated-scaffold/integrated_metadata.json"
+                        "identifier": "dataset:cvasdfsafsdf",
+                        "path": "primary/simulation.json"
                     },
-                    "description": "",
+                    "description": "Information to configure and run a simulation",
                     "file_type": {
-                        "name": ""
+                        "name": ".json"
                     },
-                    "identifier": "package:ea671asdf12515-bfcff90ec9b9",
+                    "identifier": "package:xcadasda",
                     "mimetype": {
                         "name": "application/json"
                     },
-                    "name": "integrated_metadata.json"
+                    "name": "simulation.json"
                 }
+            ],
+            "abi-plot": [
+              {
+                  "additional_mimetype": {
+                      "name": "text/vnd.abi.plot+csv"
+                  },
+                  "datacite": {
+                      "supplemental_json_metadata": {
+                          "description": "{\"version\": \"1.2.0\", \"type\": \"plot\", \"attrs\": {\"style\": \"heatmap\", \"logScale\": true, \"layout\": {\"margin\": {\"t\": 55, \"l\": 200, \"r\": 55, \"b\": 200, \"pad\": 4}}}}"
+                      }
+                  },
+                  "dataset": {
+                      "identifier": "dataset:xcafdasdad",
+                      "path": "derivative/RAGP_4subs_negdct.csv"
+                  },
+                  "description": "Negative dct values for 415 samples across 4 RAGP and all genes that passed QC in any one animal",
+                  "file_type": {
+                      "name": ".csv"
+                  },
+                  "identifier": "package:asdasdadadas",
+                  "mimetype": {
+                      "name": "text/csv"
+                  },
+                  "name": "RAGP_4subs_negdct.csv"
+              }
             ],
             "additionalLinks": false,
             "biolucida-3d": [
@@ -326,89 +125,6 @@
                         "name": ""
                     },
                     "datacite": {
-                        "describes": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "hasMetadata": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isDerivedFrom": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isDescribedBy": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isMetadataFor": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isSourceOf": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isSupplementTo": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "isSupplementedBy": {
-                            "path": [
-                                ""
-                            ],
-                            "relative": {
-                                "path": [
-                                    ""
-                                ]
-                            }
-                        },
-                        "supplemental_json_metadata": {
-                            "description": ""
-                        }
                     },
                     "dataset": {
                         "identifier": "dataset:a523453f2-93218b5c7b31",
