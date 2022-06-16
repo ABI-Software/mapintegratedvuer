@@ -74,7 +74,7 @@ describe('MapContent', () => {
     cy.get('.not-found-text').should('exist');
 
     //Search for Vague nerve, expect not-found text to be gone
-    cy.get('.search-box > .el-input__inner').should('exist').type("'Vagus Nerve");
+    cy.get('.search-box > .el-input__inner').should('exist').clear().type("'Vagus Nerve'");
     cy.get('.toolbar-flex-container > .map-icon > use').should('exist').click();
     cy.get('.not-found-text').should('not.exist');
 
