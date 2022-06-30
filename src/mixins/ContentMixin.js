@@ -60,6 +60,7 @@ export default {
       };
 
       if (type == "MultiFlatmap" || type == "Flatmap") {
+        console.log(resource)
         result.internalName = this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
@@ -100,7 +101,9 @@ export default {
       return (
         resource.type === "URL" ||
         resource.type === "Search" ||
-        resource.type === "Neuron Search"
+        resource.type === "Neuron Search" || 
+        resource.type == 'Facet' || 
+        resource.type == 'Facets'
       );
     },
     /**

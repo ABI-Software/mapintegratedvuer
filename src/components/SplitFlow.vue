@@ -132,7 +132,7 @@ export default {
           });
           if (facets.length == 0)
             facets.push({facet: "Show All", term:'species', facetPropPath: 'anatomy.organ.name'});
-          facets.push(...action.val.map(val =>({facet: val, term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
+          facets.push(...action.labels.map(val =>({facet: val, term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
           this.$refs.sideBar.openSearch(facets, '');
         } else if (action.type == "Scaffold View"){
           this.updateEntry(action);
