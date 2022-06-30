@@ -14,10 +14,6 @@ module.exports = {
         .use('raw-loader')
           .loader('raw-loader')
           .end()
-      config.module
-        .rule('vue')
-        .use("vue-svg-inline-loader")
-        .loader("vue-svg-inline-loader");
       const fontsRule = config.module.rule('fonts')
       fontsRule.uses.clear()
       config.module

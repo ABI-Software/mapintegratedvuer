@@ -1,6 +1,30 @@
 <template>
   <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
-    <el-row class="icon-group" >
+    <div class="switch-control">
+      <el-switch
+        v-if="syncMode"
+        class="switch"
+        v-model="independent"
+        active-text="Independent"
+        :width=30
+        inactive-text="Linked">
+      </el-switch>
+      <el-popover v-if="syncMode" class="tooltip"
+        placement="bottom-end" :open-delay="helpDelay"
+        :appendToBody=false trigger="hover" popper-class="header-popper">
+        <div>
+            When in Linked mode the two maps will interact 
+            <br>
+            together. Select an organ in one and it will
+            <br>
+            be automatically selected in the other.
+            <br>
+            In Independent mode the maps will work separately."
+          </div>
+        <map-svg-icon icon="help"  slot="reference" class="sync-help header-icon"/>
+      </el-popover>
+    </div>
+    <el-row class="icon-group">
       <el-popover
         ref="viewPopover"
         placement="bottom"
@@ -31,13 +55,13 @@
         v-show="topLevelControls">
         <map-svg-icon :icon="activeView"
           v-popover:viewPopover
-          :class="[{'disabled': 1 >= numberOfEntries},
+          :class="[{'disabled': (1 >= numberOfEntries)},
             'header-icon']"
           slot="reference"/>
       </el-popover>
       <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
-        <map-svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp(activeId)"/>
+        <map-svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp()"/>
       </el-popover>
       <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip"
         content="Fullscreen" placement="bottom-end" :open-delay="helpDelay"
@@ -115,7 +139,9 @@ import {
   Icon,
   Input,
   Popover,
-  Row
+  Radio,
+  Row,
+  Switch
 } from "element-ui";
 
 Vue.use(Button);
@@ -123,7 +149,9 @@ Vue.use(Col);
 Vue.use(Icon);
 Vue.use(Input);
 Vue.use(Popover);
+Vue.use(Radio);
 Vue.use(Row);
+Vue.use(Switch);
 /**
  * Cmponent for the header of differnt vuers.
  */
@@ -165,35 +193,54 @@ export default {
     },
   },
   computed: {
-    shareLink() {
-      return store.state.settings.shareLink;
-    },
     activeView() {
       return store.state.splitFlow.activeView;
     },
+    helpDelay() {
+      return store.state.settings.helpDelay;
+    },
+    shareLink() {
+      return store.state.settings.shareLink;
+    },
+    syncMode() {
+      return store.state.splitFlow.syncMode;
+    },
     viewIcons() {
       return store.state.splitFlow.viewIcons;
+    },
+    globalCallback() {
+      return store.state.splitFlow.globalCallback;
     }
   },
   watch: {
     shareLink: function() {
       this.loadingLink = false;
+    },
+    independent: function(value) {
+      let flag = !(value === true);
+      if (this.globalCallback !== flag)
+        store.commit("splitFlow/toggleGlobalCallback", flag);
+    },
+    globalCallback: function(value) {
+      let flag = !(value === true);
+      if (flag !== this.independent)
+        this.independent = flag;
     }
   },
   data: function() {
     return {
       isFullscreen: false,
-      helpDelay: 500,
       loadingLink: true,
       shareLinkDisplay: false,
+      independent: true,
     }
   },
   methods: {
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
-    startHelp: function(id){
-      EventBus.$emit("startHelp", id);
+    startHelp: function(){
+      EventBus.$emit("startHelp");
     },
     onFullscreen: function() {
       this.$emit("onFullscreen");
@@ -227,20 +274,25 @@ export default {
 @import "~element-ui/packages/theme-chalk/src/icon";
 @import "~element-ui/packages/theme-chalk/src/input";
 @import "~element-ui/packages/theme-chalk/src/popover";
+@import "~element-ui/packages/theme-chalk/src/radio";
 @import "~element-ui/packages/theme-chalk/src/row";
+@import "~element-ui/packages/theme-chalk/src/switch";
+@import "../assets/header-icon.scss";
 
 .content {
   width:calc(100% - 120px);
   height:32px;
 }
 
-.icon-group {
+.radio-control {
   position:absolute;
-  display: flex;
-  flex-direction: row;
   justify-content: center;
   top: 4px;
   right:12px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .icon-group {
@@ -282,6 +334,14 @@ export default {
   border: 1px solid $app-primary-color;
   white-space: nowrap;
   min-width: unset;
+  &.el-popper[x-placement^=bottom] {
+    .popper__arrow {
+      border-bottom-color: $app-primary-color !important;
+      &:after {
+        border-bottom-color: #f3ecf6 !important;
+      }
+    }
+  }
 }
 
 ::v-deep .link-popover {
@@ -299,14 +359,6 @@ export default {
   color: $app-primary-color;
   margin-right:10px;
   cursor: pointer;
-  ::v-deep .el-popper[x-placement^=bottom] {
-    border-bottom-color: $app-primary-color;
-    .popper__arrow:after{
-      &::after { 
-        border-bottom-color: #f3ecf6 !important;
-      }
-    }
-  }
 }
 
 .copy-button {
@@ -328,10 +380,6 @@ export default {
   }
 }
 
-.tooltip {
-  font-family: 'Asap', 'Avenir',  Arial, sans-serif;
-}
-
 .view-icon-row {
   height: 32px;
   width: 133px;
@@ -345,13 +393,6 @@ export default {
     border: 1px solid $app-primary-color;
     background: rgba(131, 0, 191, 0.1);
   }
-}
-
-
-.header-icon.disabled,
-.view-icon-row.disabled {
-  cursor: default;
-  pointer-events: none;
 }
 
 .view-icon {
@@ -369,23 +410,83 @@ export default {
   padding-top:7px;
 }
 
-.header-icon.disabled,
-.disabled .view-icon,
-.disabled .view-text {
-  opacity:0.5;
-}
-
 ::v-deep .view-icon-popover {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
   cursor:default;
-  .el-popper[x-placement^=bottom] {
-    .popper__arrow:after{
-      border-bottom-color: #fff !important;
+  &.el-popper[x-placement^=bottom] {
+    .popper__arrow {
+      border-bottom-color: $app-primary-color !important;
+      &:after {
+        border-bottom-color: #fff !important;
+      }
     }
   }
+}
+
+.switch-control {
+  width:250px;
+  top:2px;
+  left: calc(50% - 60px);
+  position: absolute;
+  .sync-help {
+    left:5px;
+  }
+}
+
+.switch {
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgb(220, 223, 230);
+  vertical-align: baseline;
+  ::v-deep .el-switch__label.is-active {
+    color: $purple;
+  }
+  ::v-deep .el-switch__core {
+    background: $app-primary-color;
+    border: 1px solid $lightGrey;
+    height: 14px;
+    &::before {
+      content: "";
+      position:absolute;
+      top: -3px;
+      left: -1px;
+      border-radius: 100%;
+      -webkit-transition: all .3s;
+      transition: all .3s;
+      width: 19px;
+      height: 19px;
+      background-color: $app-primary-color;
+    }
+    &::after {
+      top: -2px;
+      left: 0px;
+      width: 17px;
+      height: 17px;
+      background-color: $cochlear;
+    }
+  }
+  ::v-deep &.is-checked {
+    .el-switch__core {
+      border: 1px solid $lightGrey;
+      background: $cochlear;
+      &::before {
+        left: 100%;
+        margin-left:-17px;
+      }    
+      &::after {
+        left: 100%;
+        margin-left: -16px;
+      }
+    }
+  }
+}
+
+.sync-help {
+  margin-left: 5px;
 }
 
 </style>

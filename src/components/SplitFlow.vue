@@ -5,14 +5,14 @@
         :topLevelControls=true
         :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
         @onFullscreen="onFullscreen"
-        :showHelpIcon="true"/>
+        :showHelpIcon="true"
+      />
     </el-header>
     <el-main class="dialog-main">
       <div style="width:100%;height:100%;position:relative;overflow:hidden;">
         <SplitDialog :entries="entries" ref="splitdialog"
           @close="dialogClose(id)"
           @resource-selected="resourceSelected"
-          @flatmapChanged="flatmapChanged"
         />
         <SideBar ref="sideBar"
           :envVars="envVars"
@@ -23,10 +23,8 @@
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
-        > 
-        </SideBar>
+        /> 
       </div>
-      
     </el-main>
   </el-container>
 </template>
@@ -61,11 +59,11 @@ var initialState = function() {
       {
         resource: "Rat",
         availableSpecies : {
-          "Human":{taxo: "NCBITaxon:9606", iconClass:"icon-mapicon_human", displayWarning: true},
-          "Rat":{taxo: "NCBITaxon:10114", iconClass:"icon-mapicon_rat", displayWarning: false},
-          "Mouse":{taxo: "NCBITaxon:10090", iconClass:"icon-mapicon_mouse", displayWarning: true},
-          "Pig":{taxo: "NCBITaxon:9823", iconClass:"icon-mapicon_pig", displayWarning: true},
-          "Cat":{taxo: "NCBITaxon:9685", iconClass:"icon-mapicon_cat", displayWarning: true},
+          "Human":{taxo: "NCBITaxon:9606", iconClass:"mapicon-icon_human", displayWarning: true},
+          "Rat":{taxo: "NCBITaxon:10114", iconClass:"mapicon-icon_rat", displayWarning: false},
+          "Mouse":{taxo: "NCBITaxon:10090", iconClass:"mapicon-icon_mouse", displayWarning: true},
+          "Pig":{taxo: "NCBITaxon:9823", iconClass:"mapicon-icon_pig", displayWarning: true},
+          "Cat":{taxo: "NCBITaxon:9685", iconClass:"mapicon-icon_cat", displayWarning: true},
         },
         type: "MultiFlatmap",
         zIndex:1,
@@ -136,7 +134,10 @@ export default {
             facets.push({facet: "Show All", term:'species', facetPropPath: 'anatomy.organ.name'});
           facets.push(...action.val.map(val =>({facet: val, term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
           this.$refs.sideBar.openSearch(facets, '');
-        } else {
+        } else if (action.type == "Scaffold View"){
+          this.updateEntry(action);
+        }
+          else {
           this.createNewEntry(action);
         }
       }
@@ -145,6 +146,36 @@ export default {
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
       }
+    },
+    // updateEntry: Updates entry a scaffold entry with a viewUrl
+    updateEntry(data){
+      // 'Scaffold view' is sent in as 'Scaffold' to scaffoldvuer
+      data.type = data.type === "Scaffold View" ? "Scaffold" : data.type;
+
+      // Update the scaffold with a view url
+      for (let i in this.entries){
+        if (this.entries[i].resource === data.resource){
+          this.entries[i].viewUrl = data.viewUrl ;
+          Vue.set(this.entries, i, this.entries[i]); // Need this to keep arrays reactive
+        }
+      }
+    },
+    /**
+     * Activate Synchronised workflow
+     */
+    activateSyncMap: function(data) {
+      let newEntry = {};
+      Object.assign(newEntry, data);
+      newEntry.mode = "normal";
+      newEntry.id = ++this.currentCount;
+      newEntry.zIndex = ++this.zIndex; 
+      newEntry.state = undefined;
+      newEntry.type = "Scaffold";
+      newEntry.discoverId = data.discoverId;
+      this.entries.push(newEntry);
+      store.commit("splitFlow/setSyncMode", { flag: true, newId: newEntry.id,
+        layout: data.layout });
+      return newEntry.id;
     },
     /**
      * Add new entry which will sequentially create a
@@ -158,8 +189,12 @@ export default {
       newEntry.zIndex = ++this.zIndex; 
       newEntry.state = undefined;
       newEntry.discoverId = data.discoverId;
+      newEntry.viewUrl = undefined;
       this.entries.push(newEntry);
       store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
+      if (store.state.splitFlow.syncMode) {
+        store.commit("splitFlow/setSyncMode", { flag: false });
+      }
       return newEntry.id;
     },
     findIndexOfId: function(id) {
@@ -208,19 +243,38 @@ export default {
       state.splitFlow = store.getters["splitFlow/getState"]();
       return state;
     },
+    removeEntry: function(id) {
+      if (id !== 1) {
+        let index = -1;
+        for (let i = 0; this.entries.length && index === -1; i++) {
+          if (this.entries[i].id === id)
+            index = i;
+        }
+        this.entries.splice(index, 1);
+      }
+    },
     resourceSelected: function(result) {
       this.$emit("resource-selected", result);
-    },
-    flatmapChanged: function(){
-      this.$emit("flatmapChanged");
-    },
-    entryStateUpdated: function(id, state) {
-      let index = this.findIndexOfId(id);
-      if (index > -1)
-        this.entries[index].state = state;
+      if (store.state.splitFlow.globalCallback) {
+        this.$refs.splitdialog.sendSynchronisedEvent(result);
+      }
     },
     tabClicked: function(id){
       this.activeDockedId = id
+    },
+    toggleSyncMode: function(payload) {
+      if (payload) {
+        if (payload.flag) {
+          if (payload.action) {
+            this.activateSyncMap(payload.action);
+          }
+        } else {
+          if (store.state.splitFlow.syncMode) {
+            store.commit("splitFlow/setSyncMode",
+              { flag: false, entries: this.entries });
+          }
+        }
+      }
     }
   },
   data: function() {
@@ -242,15 +296,21 @@ export default {
     this.externalStateSet = false;
   },
   mounted: function() {
-    EventBus.$on("PopoverActionClick", (payLoad) => {
-      this.actionClick(payLoad);
-    })
+    EventBus.$on("RemoveEntryRequest", (id) => {
+      this.removeEntry(id);
+    });
+    EventBus.$on("SyncModeRequest", (payload) => {
+      this.toggleSyncMode(payload);
+    });
+    EventBus.$on("PopoverActionClick", (payload) => {
+      this.actionClick(payload);
+    });
     this.$nextTick(() => {
       this.$refs.sideBar.close();
       setTimeout(() => {
         this.startUp = false;
       }, 2000);
-    })
+    });
   },
   computed: {
     envVars: function() {
@@ -259,7 +319,9 @@ export default {
         ALGOLIA_INDEX: store.state.settings.algoliaIndex,
         ALGOLIA_KEY: store.state.settings.algoliaKey,
         ALGOLIA_ID: store.state.settings.algoliaId,
-        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi
+        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi,
+        NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
+        ROOT_URL: store.state.settings.rootUrl
       }
     }
   }
