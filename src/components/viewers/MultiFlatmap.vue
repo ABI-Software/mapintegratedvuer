@@ -170,6 +170,7 @@ export default {
         fetch(`${this.apiLocation}get-organ-curies?${params.join('&')}`, {signal})
         .then((response) => response.json())
         .then((data) => {
+          this.idNamePair = {}
           this._controller = undefined;
           data.uberon.array.forEach((pair) => {
             let id = pair.id.toUpperCase();
@@ -180,7 +181,8 @@ export default {
               }
             })
           });
-          this.markers = this.idNamePair
+          this.markers = {...this.idNamePair}
+          store.commit("settings/updateMarkers", Object.keys(this.markers))
           setInterval(this.flatmapMarkerZoomUpdate, 1300)
         })
         .catch(err=> {
@@ -202,13 +204,14 @@ export default {
       let flatmapImp = this.getFlatmapImp()
       flatmapImp.clearMarkers()
       let currentZoom = flatmapImp.getZoom()['zoom']
-      for (let id in this.markers) {
+      let markers = store.state.settings.markers
+      markers.forEach(id=>{
         markerZoomLevels.map(el=>{
           if (el.id === id && currentZoom >= el.showAtZoom) {
             flatmapImp.addMarker(id, "simulation") 
           }
         })
-      }
+      })
     },
     getFlatmapImp: function() {
       if (this.entry.type === 'Flatmap') {
@@ -236,9 +239,10 @@ export default {
     },
   },
   watch: {
-    facetSpecies: function () {
-      this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
-    },
+    // disable this now that we pull directly from the sidebar
+    // facetSpecies: function () {
+    //   this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
+    // },
     syncMode: function (val) {
       if (this.$refs.multiflatmap.getCurrentFlatmap())
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);

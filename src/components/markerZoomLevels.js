@@ -1,3 +1,8 @@
+// Set zoom values for micro and mesoscopic
+let microscopic = 7
+let mesoscopic = 5
+
+// Set what level each uberon shows at
 export default [
   {
       "id": "UBERON:0000948",
@@ -168,5 +173,41 @@ export default [
       "id": "UBERON:0000044",
       "name": "Dorsal root ganglion",
       "showAtZoom": 5
-  }
+  },
+  // New levels from Keeran
+  {
+      "id": "UBERON:0001736",
+      "name": "Submandibular gland",
+      "showAtZoom": microscopic
+  },
+  {
+      "id": "UBERON:0001103",
+      "name": "Diaphragm",
+      "showAtZoom": mesoscopic
+  },
+  {
+      "id": "UBERON:0001160",
+      "name": "Fundus of stomach",
+      "showAtZoom": mesoscopic
+  },
+  {
+      "id": "UBERON:0000955",
+      "name": "Brain",
+      "showAtZoom": mesoscopic
+  },
+  {
+      "id": "UBERON:0003708",
+      "name": "Carotid sinus",
+      "showAtZoom": microscopic
+  },
+  {
+      "id": "UBERON:0002079",
+      "name": "Left cardiac atrium",
+      "showAtZoom": mesoscopic
+  },
+  {
+      "id": "ILX:0485722",
+      "name": "Nodose ganglion",
+      "showAtZoom": microscopic
+  },
 ]

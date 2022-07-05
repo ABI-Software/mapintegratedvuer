@@ -146,6 +146,10 @@ export default {
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
       }
+      if (data && data.type == "keyword-update") {
+        console.log('starting keyword update with: ', data.value)
+        store.commit("settings/updateMarkers", data.value)
+      }
     },
     // updateEntry: Updates entry a scaffold entry with a viewUrl
     updateEntry(data){
