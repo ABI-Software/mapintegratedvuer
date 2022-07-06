@@ -41,11 +41,11 @@ export default {
             discoverId: undefined,
             label: "Rat Map",
             resource:
-              "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
-              //"https://mapcore-bucket1.s3.us-west-2.amazonaws.com/nerves_sync/nerve_pathways_metadata.json",
+              //"https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
+              "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/nerves_sync/nerve_pathways_metadata.json",
             title: "View 3D scaffold",
-            layout: "2horpanel",
-            //layout: "2vertpanel",
+            //layout: "2horpanel",
+            layout: "2vertpanel",
             type: "SyncMap",
           };
         } else if (this.activeSpecies === "Human") {
