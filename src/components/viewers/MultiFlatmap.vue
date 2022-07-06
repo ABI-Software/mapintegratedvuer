@@ -42,8 +42,10 @@ export default {
             label: "Rat Map",
             resource:
               "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
+              //"https://mapcore-bucket1.s3.us-west-2.amazonaws.com/nerves_sync/nerve_pathways_metadata.json",
             title: "View 3D scaffold",
             layout: "2horpanel",
+            //layout: "2vertpanel",
             type: "SyncMap",
           };
         } else if (this.activeSpecies === "Human") {
@@ -68,13 +70,15 @@ export default {
       return this.$refs.multiflatmap.getState();
     },
     flatmapPanZoomCallback: function (payload) {
-      const result = {
-        paneIndex: this.entry.id,
-        eventType: "panZoom",
-        payload: payload,
-        type: this.entry.type,
-      };
-      this.$emit("resource-selected", result);
+      if (this.mouseHovered) {
+        const result = {
+          paneIndex: this.entry.id,
+          eventType: "panZoom",
+          payload: payload,
+          type: this.entry.type,
+        };
+        this.$emit("resource-selected", result);
+      }
     },
     /**
      * Perform a local search on this contentvuer
@@ -93,8 +97,8 @@ export default {
           const center = data.payload.target;
           const height = this.$el.clientHeight;
           const width = this.$el.clientWidth;
-          const max = Math.max(height, width);
-          const sW = width / max / zoom;
+          const max = Math.max(width, height);
+          let sW = width / max / zoom;
           const sH = height / max / zoom;
           const origin = [
             center[0] / 2 + 0.5 - sW / 2,

@@ -28,6 +28,7 @@
       <Component
         :is="viewerType"
         :entry="entry"
+        :mouseHovered="mouseHovered"
         :visible="visible"
         ref="viewer"
         @resource-selected="resourceSelected"

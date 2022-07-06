@@ -163,6 +163,9 @@ export default {
       newEntry.state = undefined;
       newEntry.type = "Scaffold";
       newEntry.discoverId = data.discoverId;
+      newEntry.rotation = "free";
+      if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
+      else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
       this.entries.push(newEntry);
       store.commit("splitFlow/setSyncMode", { flag: true, newId: newEntry.id,
         layout: data.layout });
