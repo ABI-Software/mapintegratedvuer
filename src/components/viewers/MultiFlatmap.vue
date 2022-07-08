@@ -76,6 +76,7 @@ export default {
         payload: payload,
         type: this.entry.type,
       };
+      this.handleSyncPanZoomEvent(result)
       this.$emit("resource-selected", result);
     },
     /**
@@ -106,8 +107,7 @@ export default {
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
         }
-        // currently this function is not firing, but once it is we can use the line below as opposed to a setTimeout
-        // this.flatmapMarkerZoomUpdate() 
+        this.flatmapMarkerZoomUpdate() 
       }
     },
     zoomToFeatures: function(info, forceSelect) {
@@ -149,8 +149,7 @@ export default {
       }
     },
     multiFlatmapReady: function (component) {
-      if (this.syncMode == true) 
-        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true);
+      this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true); // Use zoom events for dynamic markers
       this.updateMarkers(component);
       //component.addPanZoomEvent();
     },
@@ -183,7 +182,6 @@ export default {
           });
           this.markers = {...this.idNamePair}
           store.commit("settings/updateMarkers", Object.keys(this.markers))
-          setInterval(this.flatmapMarkerZoomUpdate, 1300)
         })
         .catch(err=> {
           if (err.name !== 'AbortError') {
