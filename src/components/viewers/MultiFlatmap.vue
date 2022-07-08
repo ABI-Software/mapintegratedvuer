@@ -252,16 +252,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @import "~element-ui/packages/theme-chalk/src/button";
-::v-deep .flatmapvuer-popover {
-  .mapboxgl-popup-content {
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    padding: 3em 1em 3em 1em;
-    pointer-events: auto;
-    width: 25em;
-    background: #fff;
-  }
-}
 </style>
 
 <style src="@/../assets/mapicon-species-style.css">
