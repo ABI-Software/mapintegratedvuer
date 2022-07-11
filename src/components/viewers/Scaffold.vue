@@ -89,6 +89,7 @@ export default {
     },
     scaffoldIsReady: function () {
       this.scaffoldLoaded = true;
+      this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
       if (this.isVisible()) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
