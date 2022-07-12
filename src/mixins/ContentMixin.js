@@ -1,5 +1,6 @@
 import { getAvailableTermsForSpecies, getInteractiveAction, getParentsRegion } from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
+import markerZoomLevels from '../components/markerZoomLevels'
 import store from "../store";
 
 /* eslint-disable no-alert, no-console */
@@ -65,9 +66,28 @@ export default {
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
-            returnedAction = {};
-            returnedAction.type = "Facet";
-            returnedAction.label = this.idNamePair[resource.feature.models];
+            let label = this.idNamePair[resource.feature.models]
+            window.label = label
+            window.id = resource.feature.models
+            let hardcodedAnnotation = markerZoomLevels.filter(mz=>mz.id === resource.feature.models)
+            window.ha = hardcodedAnnotation
+            if( hardcodedAnnotation.filter(h=>h.keyword).length > 0){
+              // Keyword searches do not contain labels, so switch to keyword search if no label exists
+              returnedAction = {
+                type: "Search",
+                term: 'http://purl.obolibrary.org/obo/' + resource.feature.models.replace(':','_')
+              };
+              window.ra = returnedAction
+            } else {
+            // Facet search on anatomy if it is not a keyword search
+              returnedAction = {
+                type: "Facet",
+                facet: label,
+                facetPropPath: 'anatomy.organ.name', 
+                term: 'Anatomical structure' 
+              };
+            }
+
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
               const flatmap =

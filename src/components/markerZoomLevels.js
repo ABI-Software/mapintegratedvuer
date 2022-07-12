@@ -178,36 +178,43 @@ export default [
   {
       "id": "UBERON:0001736",
       "name": "Submandibular gland",
-      "showAtZoom": microscopic
+      "showAtZoom": microscopic,
+      "keyword": true
   },
   {
       "id": "UBERON:0001103",
       "name": "Diaphragm",
-      "showAtZoom": mesoscopic
+      "showAtZoom": mesoscopic,
+      "keyword": true
   },
   {
       "id": "UBERON:0001160",
       "name": "Fundus of stomach",
-      "showAtZoom": mesoscopic
+      "showAtZoom": mesoscopic,
+      "keyword": true
   },
   {
       "id": "UBERON:0000955",
       "name": "Brain",
-      "showAtZoom": mesoscopic
+      "showAtZoom": mesoscopic,
+      "keyword": true
   },
   {
       "id": "UBERON:0003708",
       "name": "Carotid sinus",
-      "showAtZoom": microscopic
+      "showAtZoom": microscopic,
+      "keyword": true
   },
   {
       "id": "UBERON:0002079",
       "name": "Left cardiac atrium",
-      "showAtZoom": mesoscopic
+      "showAtZoom": mesoscopic,
+      "keyword": true
   },
   {
       "id": "ILX:0485722",
       "name": "Nodose ganglion",
-      "showAtZoom": microscopic
+      "showAtZoom": microscopic,
+      "keyword": true
   },
 ]

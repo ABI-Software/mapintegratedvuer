@@ -155,7 +155,6 @@ export default {
     },
       updateMarkers: function(component) {
       let map = component.mapImp
-      let zoom = map.getZoom()['zoom']
       map.clearMarkers();
       let params = [];
       if (this.apiLocation) {
@@ -174,11 +173,6 @@ export default {
           data.uberon.array.forEach((pair) => {
             let id = pair.id.toUpperCase();
             this.idNamePair[id] = pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
-            markerZoomLevels.map(el=>{
-              if (el.id === id && zoom >= el.showAtZoom) {
-                map.addMarker(id, "simulation")
-              }
-            })
           });
           this.markers = {...this.idNamePair}
           store.commit("settings/updateMarkers", Object.keys(this.markers))

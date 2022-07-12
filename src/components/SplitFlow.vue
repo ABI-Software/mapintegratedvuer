@@ -104,37 +104,28 @@ export default {
       if (action) {
         if (action.type == "Search") {
           if (action.nervePath){
-            this.$refs.sideBar.openSearch(action.label, [action.filter] );
+            this.$refs.sideBar.openSearch([action.filter], action.label);
           } else {
-            // Keep the species facets
-            let facets = [{facet: "All Species", term:'species'}];
-            store.state.settings.facets.species.forEach(e => {
-              facets.push({facet: e, term:'species'});
-            });
-            this.$refs.sideBar.openSearch(action.label, facets );
+            // Keep the species facets currently unused
+            // let facets = [{facet: "All species", facetPropPath: 'anatomy.organ.name', term:'species'}];
+            // store.state.settings.facets.species.forEach(e => {
+            //   facets.push({facet: e, facetPropPath: 'anatomy.organ.name', term:'species'});
+            // });
+            this.$refs.sideBar.openSearch([], action.term);
           }
         } else if (action.type == "URL"){
           window.open(action.resource, '_blank')
-        } else if (action.type == "Neuron Search"){
-          this.$refs.sideBar.openNeuronSearch(action.resource)
-        } else if (action.type == "Facet") {        
-          const speciesFacets = [];
-          store.state.settings.facets.species.forEach(e => {
-            speciesFacets.push({facet: e, term:'species'});
-          });
-          if (speciesFacets.length == 0)
-            speciesFacets.push({facet: "Show All", term:'species'});
-          console.log('opening sidebar and adding:', {facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'})
-          this.$refs.sideBar.addFilter({facet: action.label, term:'Anatomical structure', facetPropPath: 'anatomy.organ.name'});
+        } else if (action.type == "Facet") {       
+          console.log('action', action) 
+          this.$refs.sideBar.addFilter(action);
         } else if (action.type == "Facets") {
           const facets = [];
           store.state.settings.facets.species.forEach(e => {
-            facets.push({facet: e, term:'species', facetPropPath: 'anatomy.organ.name'});
+            facets.push({facet: e, term:'Species', facetPropPath: 'anatomy.organ.name'});
           });
           if (facets.length == 0)
-            facets.push({facet: "Show All", term:'species', facetPropPath: 'anatomy.organ.name'});
+            facets.push({facet: "Show All", term:'Species', facetPropPath: 'anatomy.organ.name'});
           facets.push(...action.labels.map(val =>({facet: val, term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
-          console.log('opening sidebar with:', facets)
           this.$refs.sideBar.openSearch(facets, '');
         } else if (action.type == "Scaffold View"){
           this.updateEntry(action);
