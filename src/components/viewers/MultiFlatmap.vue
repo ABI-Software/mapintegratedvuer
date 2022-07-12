@@ -153,7 +153,7 @@ export default {
       this.updateMarkers(component);
       //component.addPanZoomEvent();
     },
-      updateMarkers: function(component) {
+    updateMarkers: function(component) {
       let map = component.mapImp
       map.clearMarkers();
       let params = [];
@@ -175,7 +175,7 @@ export default {
             this.idNamePair[id] = pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
           });
           this.markers = {...this.idNamePair}
-          store.commit("settings/updateMarkers", Object.keys(this.markers))
+          this.flatmapMarkerZoomUpdate()
         })
         .catch(err=> {
           if (err.name !== 'AbortError') {
