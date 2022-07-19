@@ -30,6 +30,12 @@ export default {
   components: {
     MultiFlatmapVuer,
   },
+  data: function(){ 
+    return {
+      zoomLevel: 6,
+      flatmapReady: false
+    }
+  },
   methods: {
     /**
      * Toggle sync mode on/off depending on species and current state
@@ -76,7 +82,13 @@ export default {
         payload: payload,
         type: this.entry.type,
       };
-      this.handleSyncPanZoomEvent(result)
+      let flatmapImp = this.getFlatmapImp();
+      let currentZoom = flatmapImp.getZoom()['zoom'];
+      if (this.zoomLevel !== currentZoom) {
+        this.zoomLevel = currentZoom;
+        this.flatmapMarkerZoomUpdate();
+      }
+      this.handleSyncPanZoomEvent(result);
       this.$emit("resource-selected", result);
     },
     /**
@@ -107,7 +119,6 @@ export default {
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
         }
-        this.flatmapMarkerZoomUpdate() 
       }
     },
     zoomToFeatures: function(info, forceSelect) {
@@ -151,6 +162,7 @@ export default {
     multiFlatmapReady: function (component) {
       this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true); // Use zoom events for dynamic markers
       this.updateMarkers(component);
+      this.flatmapReady = true
       //component.addPanZoomEvent();
     },
     updateMarkers: function(component) {
@@ -168,14 +180,14 @@ export default {
         fetch(`${this.apiLocation}get-organ-curies?${params.join('&')}`, {signal})
         .then((response) => response.json())
         .then((data) => {
-          this.idNamePair = {}
+          this.idNamePair = {};
           this._controller = undefined;
           data.uberon.array.forEach((pair) => {
             let id = pair.id.toUpperCase();
             this.idNamePair[id] = pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
           });
-          this.markers = {...this.idNamePair}
-          this.flatmapMarkerZoomUpdate()
+          this.markers = {...this.idNamePair};
+          this.flatmapMarkerZoomUpdate();
         })
         .catch(err=> {
           if (err.name !== 'AbortError') {
@@ -193,14 +205,14 @@ export default {
       }
     },
     flatmapMarkerZoomUpdate(){
-      let flatmapImp = this.getFlatmapImp()
-      flatmapImp.clearMarkers()
-      let currentZoom = flatmapImp.getZoom()['zoom']
+      if (!this.flatmapReady) return
+      let flatmapImp = this.getFlatmapImp();
+      flatmapImp.clearMarkers();
       let markers = store.state.settings.markers
       markers.forEach(id=>{
         markerZoomLevels.map(el=>{
-          if (el.id === id && currentZoom >= el.showAtZoom) {
-            flatmapImp.addMarker(id, "simulation") 
+          if (el.id === id && this.zoomLevel >= el.showAtZoom) {
+            flatmapImp.addMarker(id, "simulation");
           }
         })
       })
@@ -240,6 +252,11 @@ export default {
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
     }
   },
+  mounted: function() {
+    EventBus.$on('markerUpdate', ()=>{
+      this.flatmapMarkerZoomUpdate()
+    })
+  }
 };
 </script>
 

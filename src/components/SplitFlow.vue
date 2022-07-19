@@ -107,24 +107,23 @@ export default {
             this.$refs.sideBar.openSearch([action.filter], action.label);
           } else {
             // Keep the species facets currently unused
-            // let facets = [{facet: "All species", facetPropPath: 'anatomy.organ.name', term:'species'}];
+            // let facets = [{facet: "All species", facetPropPath: 'organisms.primary.species.name', term:'species'}];
             // store.state.settings.facets.species.forEach(e => {
-            //   facets.push({facet: e, facetPropPath: 'anatomy.organ.name', term:'species'});
+            //   facets.push({facet: e, facetPropPath: 'organisms.primary.species.name', term:'species'});
             // });
             this.$refs.sideBar.openSearch([], action.term);
           }
         } else if (action.type == "URL"){
           window.open(action.resource, '_blank')
         } else if (action.type == "Facet") {       
-          console.log('action', action) 
           this.$refs.sideBar.addFilter(action);
         } else if (action.type == "Facets") {
           const facets = [];
           store.state.settings.facets.species.forEach(e => {
-            facets.push({facet: e, term:'Species', facetPropPath: 'anatomy.organ.name'});
+            facets.push({facet: e, term:'Species', facetPropPath: 'organisms.primary.species.name'});
           });
           if (facets.length == 0)
-            facets.push({facet: "Show All", term:'Species', facetPropPath: 'anatomy.organ.name'});
+            facets.push({facet: "Show All", term:'Species', facetPropPath: 'organisms.primary.species.name'});
           facets.push(...action.labels.map(val =>({facet: val, term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
           this.$refs.sideBar.openSearch(facets, '');
         } else if (action.type == "Scaffold View"){
@@ -140,8 +139,8 @@ export default {
         store.commit("settings/updateFacets", data.value);
       }
       if (data && data.type == "keyword-update") {
-        console.log('starting keyword update with: ', data.value)
         store.commit("settings/updateMarkers", data.value)
+        EventBus.$emit('markerUpdate')
       }
     },
     // updateEntry: Updates entry a scaffold entry with a viewUrl

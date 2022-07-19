@@ -61,23 +61,20 @@ export default {
       };
 
       if (type == "MultiFlatmap" || type == "Flatmap") {
-        console.log(resource)
         result.internalName = this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
-            let label = this.idNamePair[resource.feature.models]
-            window.label = label
-            window.id = resource.feature.models
-            let hardcodedAnnotation = markerZoomLevels.filter(mz=>mz.id === resource.feature.models)
-            window.ha = hardcodedAnnotation
+            let label = this.idNamePair[resource.feature.models];
+            let hardcodedAnnotation = markerZoomLevels.filter(mz=>mz.id === resource.feature.models);
+
+            // if it matches our stored keywords, it is a keyword search
             if( hardcodedAnnotation.filter(h=>h.keyword).length > 0){
               // Keyword searches do not contain labels, so switch to keyword search if no label exists
               returnedAction = {
                 type: "Search",
                 term: 'http://purl.obolibrary.org/obo/' + resource.feature.models.replace(':','_')
               };
-              window.ra = returnedAction
             } else {
             // Facet search on anatomy if it is not a keyword search
               returnedAction = {
