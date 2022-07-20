@@ -115,7 +115,7 @@ export default {
           }
         } else if (action.type == "URL"){
           window.open(action.resource, '_blank')
-        } else if (action.type == "Facet") {       
+        } else if (action.type == "Facet") {
           this.$refs.sideBar.addFilter(action);
         } else if (action.type == "Facets") {
           const facets = [];
@@ -139,8 +139,8 @@ export default {
         store.commit("settings/updateFacets", data.value);
       }
       if (data && data.type == "keyword-update") {
-        store.commit("settings/updateMarkers", data.value)
-        EventBus.$emit('markerUpdate')
+        store.commit("settings/updateMarkers", data.value);
+        EventBus.$emit('markerUpdate');
       }
     },
     // updateEntry: Updates entry a scaffold entry with a viewUrl
