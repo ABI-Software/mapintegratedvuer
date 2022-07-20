@@ -22,8 +22,8 @@ import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import store from "../../store";
-import markerZoomLevels from '../markerZoomLevels'
-import {getAvailableTermsForSpecies} from '../SimulatedData.js';
+import markerZoomLevels from '../markerZoomLevels';
+
 export default {
   name: "MultiFlatmap",
   mixins: [ ContentMixin ],
@@ -82,13 +82,7 @@ export default {
         payload: payload,
         type: this.entry.type,
       };
-      let flatmapImp = this.getFlatmapImp();
-      let currentZoom = flatmapImp.getZoom()['zoom'];
-      if (this.zoomLevel !== currentZoom) {
-        this.zoomLevel = currentZoom;
-        this.flatmapMarkerZoomUpdate();
-      }
-      this.handleSyncPanZoomEvent(result);
+      this.flatmapMarkerZoomUpdate(false);
       this.$emit("resource-selected", result);
     },
     /**
@@ -118,6 +112,7 @@ export default {
           this.$refs.multiflatmap
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
+          this.flatmapMarkerZoomUpdate(false);
         }
       }
     },
@@ -162,60 +157,30 @@ export default {
     multiFlatmapReady: function (component) {
       this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true); // Use zoom events for dynamic markers
       this.updateMarkers(component);
-      this.flatmapReady = true
+      this.flatmapReady = true;
       //component.addPanZoomEvent();
     },
-    updateMarkers: function(component) {
-      let map = component.mapImp
-      map.clearMarkers();
-      let params = [];
-      if (this.apiLocation) {
-        store.state.settings.facets.species.forEach(e => {
-          params.push(encodeURIComponent('species') + '=' + encodeURIComponent(e));
-        });
-        if (this._controller) 
-          this._controller.abort();
-        this._controller = new AbortController();
-        let signal = this._controller.signal;
-        fetch(`${this.apiLocation}get-organ-curies?${params.join('&')}`, {signal})
-        .then((response) => response.json())
-        .then((data) => {
-          this.idNamePair = {};
-          this._controller = undefined;
-          data.uberon.array.forEach((pair) => {
-            let id = pair.id.toUpperCase();
-            this.idNamePair[id] = pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
-          });
-          this.markers = {...this.idNamePair};
-          this.flatmapMarkerZoomUpdate();
-        })
-        .catch(err=> {
-          if (err.name !== 'AbortError') {
-            let terms = getAvailableTermsForSpecies(map.describes);
-            for (let i = 0; i < terms.length; i++) {
-              map.addMarker(terms[i].id, terms[i].type);
-            }
-          }
-        });
-      } else {
-        let terms = getAvailableTermsForSpecies(map.describes);
-        for (let i = 0; i < terms.length; i++) {
-          map.addMarker(terms[i].id, terms[i].type);
-        }
-      }
-    },
-    flatmapMarkerZoomUpdate(){
-      if (!this.flatmapReady) return
+    /**
+     * Function used for updating the flatmap markers.
+     * It will only update the markers if zoom level has changed or
+     * the force flag is true.
+     */
+    flatmapMarkerZoomUpdate(force) {
+      if (!this.flatmapReady) return;
       let flatmapImp = this.getFlatmapImp();
-      flatmapImp.clearMarkers();
-      let markers = store.state.settings.markers
-      markers.forEach(id=>{
-        markerZoomLevels.map(el=>{
-          if (el.id === id && this.zoomLevel >= el.showAtZoom) {
-            flatmapImp.addMarker(id, "simulation");
-          }
+      let currentZoom = flatmapImp.getZoom()['zoom'];
+      if (force || (this.zoomLevel !== currentZoom)) {
+        this.zoomLevel = currentZoom;
+        flatmapImp.clearMarkers();
+        let markers = store.state.settings.markers
+        markers.forEach(id=>{
+          markerZoomLevels.map(el=>{
+            if (el.id === id && this.zoomLevel >= el.showAtZoom) {
+              flatmapImp.addMarker(id, "simulation");
+            }
+          })
         })
-      })
+      }
     },
     getFlatmapImp: function() {
       if (this.entry.type === 'Flatmap') {
@@ -254,7 +219,7 @@ export default {
   },
   mounted: function() {
     EventBus.$on('markerUpdate', ()=>{
-      this.flatmapMarkerZoomUpdate()
+      this.flatmapMarkerZoomUpdate(true);
     })
   }
 };

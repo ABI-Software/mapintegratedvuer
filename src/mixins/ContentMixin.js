@@ -243,10 +243,14 @@ export default {
                 pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
               map.addMarker(pair.id.toUpperCase(), "simulation");
             });
+            this.flatmapMarkerZoomUpdate();
             return;
           }
         );
       }
+    },
+    flatmapMarkerZoomUpdate(){
+      return;
     },
     onResize: function () {
       return;
