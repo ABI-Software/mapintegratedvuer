@@ -80,6 +80,13 @@ var initialState = function() {
   }
 }
 
+const capitalise = term =>  {
+  if (term)
+    return term.charAt(0).toUpperCase() + term.slice(1);
+  return term;
+};
+  
+
 /**
  * Component of the floating dialogs.
  */
@@ -120,11 +127,11 @@ export default {
         } else if (action.type == "Facets") {
           const facets = [];
           store.state.settings.facets.species.forEach(e => {
-            facets.push({facet: e, term:'Species', facetPropPath: 'organisms.primary.species.name'});
+            facets.push({facet: capitalise(e), term:'Species', facetPropPath: 'organisms.primary.species.name'});
           });
           if (facets.length == 0)
             facets.push({facet: "Show All", term:'Species', facetPropPath: 'organisms.primary.species.name'});
-          facets.push(...action.labels.map(val =>({facet: val, term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
+          facets.push(...action.labels.map(val =>({facet: capitalise(val), term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
           this.$refs.sideBar.openSearch(facets, '');
         } else if (action.type == "Scaffold View"){
           this.updateEntry(action);
