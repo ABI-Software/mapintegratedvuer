@@ -22,11 +22,19 @@ import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import store from "../../store";
+import markerZoomLevels from '../markerZoomLevels';
+
 export default {
   name: "MultiFlatmap",
   mixins: [ ContentMixin ],
   components: {
     MultiFlatmapVuer,
+  },
+  data: function(){ 
+    return {
+      zoomLevel: 6,
+      flatmapReady: false
+    }
   },
   methods: {
     /**
@@ -74,6 +82,7 @@ export default {
         payload: payload,
         type: this.entry.type,
       };
+      this.flatmapMarkerZoomUpdate(false);
       this.$emit("resource-selected", result);
     },
     /**
@@ -103,6 +112,7 @@ export default {
           this.$refs.multiflatmap
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
+          this.flatmapMarkerZoomUpdate(false);
         }
       }
     },
@@ -145,10 +155,51 @@ export default {
       }
     },
     multiFlatmapReady: function (component) {
-      if (this.syncMode == true) 
-        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true);
+      this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true); // Use zoom events for dynamic markers
       this.updateMarkers(component);
+      this.flatmapReady = true;
       //component.addPanZoomEvent();
+    },
+    /**
+     * Function used for updating the flatmap markers.
+     * It will only update the markers if zoom level has changed or
+     * the force flag is true.
+     */
+    flatmapMarkerZoomUpdate(force) {
+      if (!this.flatmapReady) return;
+      let flatmapImp = this.getFlatmapImp();
+      let currentZoom = flatmapImp.getZoom()['zoom'];
+      if (force || (this.zoomLevel !== currentZoom)) {
+        this.zoomLevel = currentZoom;
+        flatmapImp.clearMarkers();
+        let markers = store.state.settings.markers
+        markers.forEach(id=>{
+          markerZoomLevels.map(el=>{
+            if (el.id === id && this.zoomLevel >= el.showAtZoom) {
+              flatmapImp.addMarker(id, "simulation");
+            }
+          })
+        })
+      }
+    },
+    getFlatmapImp: function() {
+      if (this.entry.type === 'Flatmap') {
+        return this.$refs.flatmap.mapImp
+      } else if (this.entry.type === 'MultiFlatmap') {
+        return this.$refs.multiflatmap.getCurrentFlatmap()['mapImp']
+      } else {
+        return undefined
+      }
+    },
+    flatmapAreaSearch(){
+      this.flatmapImp = this.getFlatmapImp()
+      let shownMarkers = this.flatmapImp.visibleMarkerAnatomicalIds()
+      let returnedAction = {
+        type: "Facets",
+        label: "Unused",
+        val: shownMarkers.map(marker=>this.idNamePair[marker])
+      }
+      EventBus.$emit("PopoverActionClick", returnedAction);
     },
   },
   computed: {
@@ -157,30 +208,26 @@ export default {
     },
   },
   watch: {
-    facetSpecies: function () {
-      this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
-    },
+    // disable this now that we pull directly from the sidebar
+    // facetSpecies: function () {
+    //   this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
+    // },
     syncMode: function (val) {
       if (this.$refs.multiflatmap.getCurrentFlatmap())
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
     }
   },
+  mounted: function() {
+    EventBus.$on('markerUpdate', ()=>{
+      this.flatmapMarkerZoomUpdate(true);
+    })
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @import "~element-ui/packages/theme-chalk/src/button";
-::v-deep .flatmapvuer-popover {
-  .mapboxgl-popup-content {
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    padding: 3em 1em 3em 1em;
-    pointer-events: auto;
-    width: 25em;
-    background: #fff;
-  }
-}
 </style>
 
 <style src="@/../assets/mapicon-species-style.css">
