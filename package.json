@@ -1,6 +1,6 @@
 {
-  "name": "@tehsurfer/mapintegratedvuer",
-  "version": "0.3.1-dynamic-12",
+  "name": "@abi-software/mapintegratedvuer",
+  "version": "0.3.2",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build --mode prod",
