@@ -60,7 +60,7 @@ var initialState = function() {
         resource: "Rat",
         availableSpecies : {
           "Human":{taxo: "NCBITaxon:9606", iconClass:"mapicon-icon_human", displayWarning: true},
-          "Rat":{taxo: "NCBITaxon:10114", iconClass:"mapicon-icon_rat", displayWarning: false},
+          "Rat":{taxo: "NCBITaxon:10114", iconClass:"mapicon-icon_rat", displayLatestChanges: true},
           "Mouse":{taxo: "NCBITaxon:10090", iconClass:"mapicon-icon_mouse", displayWarning: true},
           "Pig":{taxo: "NCBITaxon:9823", iconClass:"mapicon-icon_pig", displayWarning: true},
           "Cat":{taxo: "NCBITaxon:9685", iconClass:"mapicon-icon_cat", displayWarning: true},
