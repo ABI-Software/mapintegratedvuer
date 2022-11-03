@@ -102,7 +102,6 @@ export default {
   },
   data: function() {
     return {
-      searchText: [],
       isFlatmap: {
         first: true,
         second: false,
