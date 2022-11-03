@@ -40,6 +40,12 @@ export default {
       return false;
     },
     /**
+     * Get a list of search suggestions on this contentvuer
+     */
+     searchSuggestions: function () {
+      return;
+    },
+    /**
      * Callback when the vuers emit a selected event.
      */
     resourceSelected: function (type, resource) {
