@@ -92,6 +92,20 @@ export default {
       return this.$refs.multiflatmap.getCurrentFlatmap().searchAndShowResult(term);
     },
     /**
+     * Append the list of suggested terms to suggestions
+     */
+    searchSuggestions: function (term, suggestions) {
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      if (term && flatmap.mapImp) {
+        const results = flatmap.mapImp.search(term);
+        results.__featureIds.forEach(id => {
+          const annotation = flatmap.mapImp.annotation(id);
+          if (annotation && annotation.label)
+            suggestions.push(annotation.label);
+        });
+      }
+    },
+    /**
      * Handle sync pan zoom event
      */
     handleSyncPanZoomEvent: function (data) {
