@@ -36,6 +36,19 @@ export default {
     search: function (term) {
       return this.$refs.flatmap.searchAndShowResult(term);
     },
+    /**
+     * Append the list of suggested terms to suggestions
+     */
+    searchSuggestions: function (term, suggestions) {
+      if (term && this.$refs.flatmap.mapImp) {
+        const results = this.$refs.flatmap.mapImp.search(term);
+        results.__featureIds.forEach(id => {
+          const annotation = this.$refs.flatmap.mapImp.annotation(id);
+          if (annotation && annotation.label)
+            suggestions.push(annotation.label);
+        });
+      }
+    },
     zoomToFeatures: function(info, forceSelect) {
       let name = info.name;
       const flatmap = this.$refs.flatmap.mapImp;

@@ -102,6 +102,12 @@ export default {
     search: function (term) {
       return this.$refs.viewer.search(term);
     },
+    /**
+     * Push the suggested terms into the suggestions array
+     */
+    searchSuggestions: function(term, suggestions) {
+      this.$refs.viewer.searchSuggestions(term, suggestions);
+    },
     receiveSynchronisedEvent: async function (data) {
       this.$refs.viewer.receiveSynchronisedEvent(data);
     },
