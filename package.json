@@ -21,10 +21,10 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.3.3",
+    "@abi-software/flatmapvuer": "^0.3.6-fccb-1",
     "@abi-software/map-side-bar": "^1.3.31",
     "@abi-software/plotvuer": "^0.3.9",
-    "@abi-software/scaffoldvuer": "^0.1.53",
+    "@abi-software/scaffoldvuer": "^0.1.54",
     "@abi-software/simulationvuer": "^0.5.9",
     "@abi-software/svg-sprite": "^0.1.15",
     "@soda/get-current-script": "^1.0.2",
