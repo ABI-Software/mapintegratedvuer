@@ -1,8 +1,10 @@
 import { shallowMount } from '@vue/test-utils'
 import ContentVuer from '../../src/components/ContentVuer';
 import { SideBar } from '@abi-software/map-side-bar';
-import { FlatmapVuer, MultiFlatmapVuer } from '@abi-software/flatmapvuer';
-import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
+import Flatmap from "../../src/components/viewers/Flatmap";
+import MultiFlatmap from "../../src/components/viewers/MultiFlatmap";
+import Scaffold from "../../src/components/viewers/Scaffold";
+
 
 const div = document.createElement('div');
 document.body.appendChild(div);
@@ -29,13 +31,13 @@ const wrapper = shallowMount(ContentVuer, {
 
 describe('ContentVuer', () => {
   it('MultiFlatmapVuer', () => {
-    expect(wrapper.findComponent(MultiFlatmapVuer).exists()).to.be.true;
+    expect(wrapper.findComponent(MultiFlatmap).exists()).to.be.true;
   }),
   it('FlatmapVuer', () => {
-    expect(wrapper.findComponent(FlatmapVuer).exists()).to.be.false;
+    expect(wrapper.findComponent(Flatmap).exists()).to.be.false;
   }),
   it('ScaffoldVuer', () => {
-    expect(wrapper.findComponent(ScaffoldVuer).exists()).to.be.false;
+    expect(wrapper.findComponent(Scaffold).exists()).to.be.false;
   }),
   it('SideBar', () => {
     expect(wrapper.findComponent(SideBar).exists()).to.be.false;

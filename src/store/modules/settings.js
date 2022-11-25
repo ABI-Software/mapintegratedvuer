@@ -9,7 +9,8 @@ const state = () => ({
   flatmapAPI: undefined,
   nlLinkPrefix: undefined,
   rootUrl: undefined,
-  facets: {'species':[], 'gender':[], 'organ':[]}
+  facets: {'species':[], 'gender':[], 'organ':[]},
+  markers: []
 });
 
 const mutations = {
@@ -40,6 +41,9 @@ const mutations = {
   updateRootUrl(state, rootUrl) {
     state.rootUrl = rootUrl;
   },
+  updateMarkers(state, markers) {
+    state.markers = markers
+  },
 
   updateFacets(state, facetsIn) {
     // The following codes aim to minimise changes on the array
@@ -47,24 +51,26 @@ const mutations = {
     //First add missing item
     if (facetsIn) {
       facetsIn.forEach(e => {
-        switch (e.term) {
+        switch (e.term.toLowerCase()) {
           case 'species':
-            if (e.facet !== 'show all') {
+            if (e.facet.toLowerCase() !== 'show all') {
               facets.species.push(e.facet);
               if (!state.facets.species.includes(e.facet)) {
                 state.facets.species.push(e.facet);
               }
+            } else {
+              state.facets.species = []
             }
             break;
           case 'gender':
-            if (e.facet !== 'show all') {
+            if (e.facet.toLowerCase() !== 'show all') {
               facets.gender.push(e.facet);
               if (!state.facets.species.includes(e.facet))
                 state.facets.gender.push(e.facet);
             }
             break;
           case 'organ':
-            if (e.facet !== 'show all') {
+            if (e.facet.toLowerCase() !== 'show all') {
               facets.organ.push(e.facet);
               if (!state.facets.species.includes(e.facet))
                 state.facets.organ.push(e.facet);

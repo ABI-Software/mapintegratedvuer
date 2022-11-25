@@ -1,6 +1,7 @@
 import { getAvailableTermsForSpecies, getInteractiveAction, getNerveNames, getParentsRegion }
   from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
+import markerZoomLevels from '../components/markerZoomLevels'
 import store from "../store";
 
 /* eslint-disable no-alert, no-console */
@@ -44,6 +45,12 @@ export default {
       return false;
     },
     /**
+     * Get a list of search suggestions on this contentvuer
+     */
+     searchSuggestions: function () {
+      return;
+    },
+    /**
      * Callback when the vuers emit a selected event.
      */
     resourceSelected: function (type, resource) {
@@ -69,9 +76,26 @@ export default {
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
-            returnedAction = {};
-            returnedAction.type = "Facet";
-            returnedAction.label = this.idNamePair[resource.feature.models];
+            let label = this.idNamePair[resource.feature.models];
+            let hardcodedAnnotation = markerZoomLevels.filter(mz=>mz.id === resource.feature.models);
+
+            // if it matches our stored keywords, it is a keyword search
+            if( hardcodedAnnotation.filter(h=>h.keyword).length > 0){
+              // Keyword searches do not contain labels, so switch to keyword search if no label exists
+              returnedAction = {
+                type: "Search",
+                term: 'http://purl.obolibrary.org/obo/' + resource.feature.models.replace(':','_')
+              };
+            } else {
+            // Facet search on anatomy if it is not a keyword search
+              returnedAction = {
+                type: "Facet",
+                facet: label,
+                facetPropPath: 'anatomy.organ.name', 
+                term: 'Anatomical structure' 
+              };
+            }
+
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
               const flatmap =
@@ -105,7 +129,9 @@ export default {
       return (
         resource.type === "URL" ||
         resource.type === "Search" ||
-        resource.type === "Neuron Search"
+        resource.type === "Neuron Search" || 
+        resource.type == 'Facet' || 
+        resource.type == 'Facets'
       );
     },
     /**
@@ -238,10 +264,14 @@ export default {
                 pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
               map.addMarker(pair.id.toUpperCase(), "simulation");
             });
+            this.flatmapMarkerZoomUpdate();
             return;
           }
         );
       }
+    },
+    flatmapMarkerZoomUpdate(){
+      return;
     },
     onResize: function () {
       return;
