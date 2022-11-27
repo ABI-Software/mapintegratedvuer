@@ -55,7 +55,7 @@ export default {
             layout: "2horpanel",
             type: "SyncMap",
           };
-        } else if (this.activeSpecies === "Human") {
+        } else if ((this.activeSpecies === "Human Male") || (this.activeSpecies === "Human Female")) {
           action = {
             contextCard: undefined,
             discoverId: undefined,
