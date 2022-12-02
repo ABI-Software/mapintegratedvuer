@@ -73,24 +73,34 @@ export default {
       }
     },
     zoomToFeatures: function(info, forceSelect) {
-      let name = info.name;
+      let names = undefined;
+      if (Array.isArray(info)) names = info;
+      else names = [ info.name ];
       if (forceSelect) {
-        this.$refs.scaffold.changeActiveByName(name, "", false);
+        this.$refs.scaffold.changeActiveByName(names, "", false);
       }
-      this.$refs.scaffold.viewRegion(name);
+      this.$refs.scaffold.viewRegion(names);
     },
     highlightFeatures: function(info) {
-      let name = info.name;
-      this.$refs.scaffold.changeHighlightedByName(name, "", false);
+      let names = undefined;
+      if (Array.isArray(info)) names = info;
+      else names = [ info.name ];
+      this.$refs.scaffold.changeHighlightedByName(names, "", false);
     },
     scaffoldIsReady: function () {
       this.scaffoldLoaded = true;
-      if (this.isVisible())
-        this.$refs.scaffold.toggleSyncControl(store.state.splitFlow.globalCallback);
+      this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
+      if (this.isVisible()) {
+        let rotation = "free";
+        if (this.entry.rotation) rotation = this.entry.rotation;
+        this.$refs.scaffold.toggleSyncControl(store.state.splitFlow.globalCallback, rotation);
+      }
     },
     requestSynchronisedEvent: function (flag) {
       if (this.scaffoldLoaded) {
-        this.$refs.scaffold.toggleSyncControl(flag);
+        let rotation = "free";
+        if (this.entry.rotation) rotation = this.entry.rotation;
+        this.$refs.scaffold.toggleSyncControl(flag, rotation);
       }
     },
     /**
@@ -113,13 +123,15 @@ export default {
      * Callback when the vuers emit a selected event.
      */
     scaffoldNavigated: function (type, resource) {
-      const result = {
-        paneIndex: this.entry.id,
-        eventType: "panZoom",
-        payload: resource,
-        type: type,
-      };
-      this.$emit("resource-selected", result);
+      if (this.mouseHovered) {
+        const result = {
+          paneIndex: this.entry.id,
+          eventType: "panZoom",
+          payload: resource,
+          type: type,
+        };
+        this.$emit("resource-selected", result);
+      }
     },
     /**
      * Check if this viewer is currently visible

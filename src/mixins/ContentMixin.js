@@ -1,4 +1,5 @@
-import { getAvailableTermsForSpecies, getInteractiveAction, getParentsRegion } from "../components/SimulatedData.js";
+import { getAvailableTermsForSpecies, getInteractiveAction, getNerveNames, getParentsRegion }
+  from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
 import markerZoomLevels from '../components/markerZoomLevels'
 import store from "../store";
@@ -15,6 +16,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    mouseHovered: {
+      type: Boolean,
+      default: false,
+    }
   },
   computed: {
     syncMode() {
@@ -156,6 +161,12 @@ export default {
         // If a region is not found use a hardcoded list to determine
         // its parents region first
         if (objects.length === 0) {
+          //Use nerve mapping
+          if (data.resource && data.resource.feature) {
+            matched = getNerveNames(data.resource.feature.models)
+            if (matched.length > 0)
+              return matched;
+          }
           let matched = getParentsRegion(name);
           if (matched) {
             return matched;
@@ -177,6 +188,10 @@ export default {
       } else if (this.entry.type === "MultiFlatmap") {
         if (name === "Bladder") {
           name = "Urinary Bladder";
+        } else {
+          const matched = getNerveNames(name)
+          if (matched.length > 0)
+            name = matched[0];
         }
       }
       return {id, name};
@@ -195,7 +210,7 @@ export default {
     /**
      * Handle sync pan zoom event
      */
-     handleSyncPanZoomEvent: function () {
+    handleSyncPanZoomEvent: function () {
       return;
     },
     highlightFeatures: function() {
@@ -288,7 +303,6 @@ export default {
       },
       helpMode: false,
       idNamePair: {},
-      mouseHovered: false,
       scaffoldLoaded: false,
       isInHelp: false
     };

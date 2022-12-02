@@ -13,7 +13,7 @@
     <template
       v-if="
         entry.type === 'MultiFlatmap' &&
-        (activeSpecies === 'Rat' || activeSpecies === 'Human')
+        (activeSpecies === 'Rat' || activeSpecies === 'Human Male' || activeSpecies === 'Human Female')
       "
     >
       <el-button
@@ -28,6 +28,7 @@
       <Component
         :is="viewerType"
         :entry="entry"
+        :mouseHovered="mouseHovered"
         :visible="visible"
         ref="viewer"
         @resource-selected="resourceSelected"
