@@ -36,6 +36,18 @@ export default {
     search: function (term) {
       return this.$refs.flatmap.searchAndShowResult(term);
     },
+    highlightFeatures: function(info) {
+      let name = info.name;
+      const flatmap = this.$refs.flatmap.mapImp;
+      if (name) {
+        const results = flatmap.search(name);
+        if (results.featureIds[0]) {
+          flatmap.highlightFeatures([
+            flatmap.modelForFeature(results.featureIds[0]),
+          ]);
+        }
+      }
+    },
     /**
      * Append the list of suggested terms to suggestions
      */

@@ -59,7 +59,8 @@ var initialState = function() {
       {
         resource: "Rat",
         availableSpecies : {
-          "Human":{taxo: "NCBITaxon:9606", iconClass:"mapicon-icon_human", displayWarning: true},
+          "Human Female":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000383", iconClass:"mapicon-icon_human", displayWarning:true},
+          "Human Male":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000384", iconClass:"mapicon-icon_human", displayWarning:true},
           "Rat":{taxo: "NCBITaxon:10114", iconClass:"mapicon-icon_rat", displayLatestChanges: true},
           "Mouse":{taxo: "NCBITaxon:10090", iconClass:"mapicon-icon_mouse", displayWarning: true},
           "Pig":{taxo: "NCBITaxon:9823", iconClass:"mapicon-icon_pig", displayWarning: true},
@@ -175,6 +176,9 @@ export default {
       newEntry.state = undefined;
       newEntry.type = "Scaffold";
       newEntry.discoverId = data.discoverId;
+      newEntry.rotation = "free";
+      if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
+      else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
       this.entries.push(newEntry);
       store.commit("splitFlow/setSyncMode", { flag: true, newId: newEntry.id,
         layout: data.layout });
