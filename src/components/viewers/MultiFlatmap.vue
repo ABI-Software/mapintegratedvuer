@@ -1,11 +1,10 @@
 <template>
   <MultiFlatmapVuer
-    :availableSpecies="entry.availableSpecies"
+    :availableSpecies="availableSpecies"
     @flatmapChanged="flatmapChanged"
     @ready="multiFlatmapReady"
     :state="entry.state"
     @resource-selected="resourceSelected(entry.type, $event)"
-    :name="entry.resource"
     style="height: 100%; width: 100%"
     :initial="entry.resource"
     :helpMode="helpMode"
@@ -33,7 +32,15 @@ export default {
   data: function(){ 
     return {
       zoomLevel: 6,
-      flatmapReady: false
+      flatmapReady: false,
+      availableSpecies : {
+        "Human Female":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000383", iconClass:"mapicon-icon_human", displayWarning:true},
+        "Human Male":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000384", iconClass:"mapicon-icon_human", displayWarning:true},
+        "Rat":{taxo: "NCBITaxon:10114", iconClass:"mapicon-icon_rat", displayLatestChanges: true},
+        "Mouse":{taxo: "NCBITaxon:10090", iconClass:"mapicon-icon_mouse", displayWarning: true},
+        "Pig":{taxo: "NCBITaxon:9823", iconClass:"mapicon-icon_pig", displayWarning: true},
+        "Cat":{taxo: "NCBITaxon:9685", iconClass:"mapicon-icon_cat", displayWarning: true},
+      }
     }
   },
   methods: {
@@ -201,21 +208,21 @@ export default {
     },
     getFlatmapImp: function() {
       if (this.entry.type === 'Flatmap') {
-        return this.$refs.flatmap.mapImp
+        return this.$refs.flatmap.mapImp;
       } else if (this.entry.type === 'MultiFlatmap') {
-        return this.$refs.multiflatmap.getCurrentFlatmap()['mapImp']
+        return this.$refs.multiflatmap.getCurrentFlatmap()['mapImp'];
       } else {
-        return undefined
+        return undefined;
       }
     },
     flatmapAreaSearch(){
       this.flatmapImp = this.getFlatmapImp()
-      let shownMarkers = this.flatmapImp.visibleMarkerAnatomicalIds()
+      let shownMarkers = this.flatmapImp.visibleMarkerAnatomicalIds();
       let returnedAction = {
         type: "Facets",
         label: "Unused",
         val: shownMarkers.map(marker=>this.idNamePair[marker])
-      }
+      };
       EventBus.$emit("PopoverActionClick", returnedAction);
     },
   },
