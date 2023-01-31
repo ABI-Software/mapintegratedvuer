@@ -37,6 +37,7 @@ import SplitDialog from './SplitDialog';
 // import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/map-side-bar.css';
+import { capitalise, initialState } from './scripts/utilities.js';
 import store from "../store";
 import Vue from "vue";
 import {
@@ -47,38 +48,6 @@ import {
 Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
-
-var initialState = function() {
-  return {
-    mainTabName: "Flatmap",
-    zIndex: 1,
-    showDialogIcons: false, 
-    activeDockedId: 1,
-    currentCount: 1,
-    entries: [
-      {
-        resource: "Rat",
-        type: "MultiFlatmap",
-        zIndex:1,
-        mode: "main",
-        id: 1,
-        state: undefined,
-        label: "",
-        discoverId: undefined
-      }
-    ],
-    sideBarVisibility: true,
-    search: '',
-    startUp: true
-  }
-}
-
-const capitalise = term =>  {
-  if (term)
-    return term.charAt(0).toUpperCase() + term.slice(1);
-  return term;
-};
-  
 
 /**
  * Component of the floating dialogs.
@@ -96,6 +65,21 @@ export default {
       default: undefined
     },
   },
+  data: function() {
+    return initialState();
+  },
+  watch: {
+    state: {
+      handler: function(value) {
+        if (value) {
+          if (!this._externalStateSet)
+            this.setState(value);
+          this._externalStateSet = true;
+        }
+      },
+      immediate: true,
+    }
+  },
   methods: {
     /**
      * Callback when an action is performed (open new dialogs).
@@ -104,14 +88,9 @@ export default {
       if (action) {
         if (action.type == "Search") {
           if (action.nervePath){
-            this.$refs.sideBar.openSearch([action.filter], action.label);
+            this.openSearch([action.filter], action.label);
           } else {
-            // Keep the species facets currently unused
-            // let facets = [{facet: "All species", facetPropPath: 'organisms.primary.species.name', term:'species'}];
-            // store.state.settings.facets.species.forEach(e => {
-            //   facets.push({facet: e, facetPropPath: 'organisms.primary.species.name', term:'species'});
-            // });
-            this.$refs.sideBar.openSearch([], action.term);
+            this.openSearch([], action.term);
           }
         } else if (action.type == "URL"){
           window.open(action.resource, '_blank')
@@ -128,13 +107,15 @@ export default {
           this.$refs.sideBar.openSearch(facets, '');
         } else if (action.type == "Scaffold View"){
           this.updateEntry(action);
-        }
-          else {
+        } else {
           this.createNewEntry(action);
         }
       }
     },
     searchChanged: function(data) {
+      if (data && (data.type == "query-update")){
+        this.search = data.value;
+      }
       if (data && (data.type == "filter-update")) {
         store.commit("settings/updateFacets", data.value);
       }
@@ -182,15 +163,15 @@ export default {
      */
     createNewEntry: function(data) {
       let newEntry = {};
+      newEntry.viewUrl = undefined;
+      newEntry.state = undefined;
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
       newEntry.zIndex = ++this.zIndex; 
-      newEntry.state = undefined;
       newEntry.discoverId = data.discoverId;
-      newEntry.viewUrl = undefined;
       this.entries.push(newEntry);
-      store.commit("splitFlow/setIdToPrimarySlot", newEntry.id);
+      this.setIdToPrimarySlot(newEntry.id);
       if (store.state.splitFlow.syncMode) {
         store.commit("splitFlow/setSyncMode", { flag: false });
       }
@@ -210,11 +191,24 @@ export default {
         this.entries.splice(index, 1);
       }
     },
+    openSearch: function(facets, query) {
+      // Keep the species facets currently unused
+      // let facets = [{facet: "All species", facetPropPath: 'organisms.primary.species.name', term:'species'}];
+      // store.state.settings.facets.species.forEach(e => {
+      //   facets.push({facet: e, facetPropPath: 'organisms.primary.species.name', term:'species'});
+      // });
+      this.search = query;
+      this.$refs.sideBar.openSearch(facets, query);
+      this.startUp = false;
+    }, 
     onFullscreen: function(val) {
       this.$emit("onFullscreen", val);
     },
     resetApp: function(){
       this.setState(initialState());
+    },
+    setIdToPrimarySlot: function(id) {
+      store.commit("splitFlow/setIdToPrimarySlot", id);
     },
     setState: function(state){
       this.mainTabName = state.mainTabName;
@@ -228,7 +222,7 @@ export default {
       if (state.splitFlow)
         store.commit("splitFlow/setState", state.splitFlow);
       else
-        this.entries.forEach(entry => store.commit("splitFlow/setIdToPrimarySlot", entry.id));
+        this.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
     },
     getState: function() {
       let state = JSON.parse(JSON.stringify(this.$data));
@@ -236,7 +230,13 @@ export default {
       let dialogStates = splitdialog.getContentsState();
       if (state.entries.length === dialogStates.length) {
         for (let i = 0; i < dialogStates.length; i++) {
-          state.entries[i].state = dialogStates[i];
+          const entry = state.entries[i];
+          entry.state = dialogStates[i];
+          //We do not want to serialise the following properties
+          if (entry.type === "Scaffold" && ("viewUrl" in entry))
+            delete entry.viewUrl;
+          if (entry.type === "MultiFlatmap" && ("uberonId" in entry))
+            delete entry.uberonId;
         }
       }
       state.splitFlow = store.getters["splitFlow/getState"]();
@@ -276,23 +276,8 @@ export default {
       }
     }
   },
-  data: function() {
-    return initialState();
-  },
-  watch: {
-    state: {
-      handler: function(value) {
-        if (value) {
-          if (!this.externalStateSet)
-            this.setState(value);
-          this.externalStateSet = true;
-        }
-      },
-      immediate: true,
-    }
-  },
   created: function() {
-    this.externalStateSet = false;
+    this._externalStateSet = false;
   },
   mounted: function() {
     EventBus.$on("RemoveEntryRequest", (id) => {
@@ -305,10 +290,15 @@ export default {
       this.actionClick(payload);
     });
     this.$nextTick(() => {
-      this.$refs.sideBar.close();
-      setTimeout(() => {
-        this.startUp = false;
-      }, 2000);
+      if (this.search === "") {
+        this.$refs.sideBar.close();
+        setTimeout(() => {
+          this.startUp = false;
+        }, 2000);
+      }
+      else
+        this.openSearch([], this.search);
+
     });
   },
   computed: {

@@ -132,9 +132,10 @@ const mutations = {
     }
   },
   setIdToPrimarySlot(state, id) {
-    let availableSlot = state.slotInfo.find(slot => slot.id === 0);
-    let primarySlot = state.slotInfo.find(
-      slotInfo => slotInfo.name === "first");
+    let availableSlot = state.slotInfo.find(slot => slot.id === id);
+    if (!availableSlot)
+      availableSlot = state.slotInfo.find(slot => slot.id === 0);
+    let primarySlot = state.slotInfo.find(slotInfo => slotInfo.name === "first");
     if (availableSlot) {
       availableSlot.id = primarySlot.id;
     }

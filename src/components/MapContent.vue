@@ -10,6 +10,7 @@
 import SplitFlow from './SplitFlow';
 import EventBus from './EventBus';
 import store from '../store';
+import { findSpeciesKey } from './scripts/utilities.js';
 import {MapSvgSpriteColor} from '@abi-software/svg-sprite';
 
 /**
@@ -91,6 +92,43 @@ export default {
     getState: function(){
       return this.$refs.flow.getState();
     },
+    setCurrentEntry: function(state) {
+      if (state && state.type) {
+        if (state.type === "Scaffold" && state.url) {
+          const newView = {
+            type: state.type,
+            label: state.label,
+            region: state.region,
+            resource: state.url,
+            viewUrl: state.viewUrl
+          };
+          this.$refs.flow.createNewEntry(newView);
+        } else if (state.type === "MultiFlatmap") {
+          const key = findSpeciesKey(state);
+          if (key) {
+            const currentState = this.getState();
+            if (currentState && currentState.entries) {
+              for (let i = 0; i < currentState.entries.length; i++) {
+                const entry =  currentState.entries[i];
+                if (entry.type === "MultiFlatmap") {
+                  entry.resource = key;
+                  entry.state = {species: key};
+                  if (state.organ)
+                    entry.state.state = { searchTerm: state.organ};
+                  currentState.activeDockedId = entry.id;
+                  this.$refs.flow.setState(currentState);
+                  this.$refs.flow.setIdToPrimarySlot(entry.id);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      } 
+    },
+    openSearch: function(facets, query) {
+      return this.$refs.flow.openSearch(facets, query);
+    }
   },
   watch: {
     "shareLink" : {

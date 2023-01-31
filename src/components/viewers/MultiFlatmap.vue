@@ -17,6 +17,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { availableSpecies } from '../scripts/utilities.js';
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index.js";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
@@ -33,14 +34,7 @@ export default {
     return {
       zoomLevel: 6,
       flatmapReady: false,
-      availableSpecies : {
-        "Human Female":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000383", iconClass:"mapicon-icon_human", displayWarning:true},
-        "Human Male":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000384", iconClass:"mapicon-icon_human", displayWarning:true},
-        "Rat":{taxo: "NCBITaxon:10114", iconClass:"mapicon-icon_rat", displayLatestChanges: true},
-        "Mouse":{taxo: "NCBITaxon:10090", iconClass:"mapicon-icon_mouse", displayWarning: true},
-        "Pig":{taxo: "NCBITaxon:9823", iconClass:"mapicon-icon_pig", displayWarning: true},
-        "Cat":{taxo: "NCBITaxon:9685", iconClass:"mapicon-icon_cat", displayWarning: true},
-      }
+      availableSpecies: availableSpecies()
     }
   },
   methods: {
@@ -81,7 +75,10 @@ export default {
       }
     },
     getState: function () {
-      return this.$refs.multiflatmap.getState();
+      if (this.flatmapReady)
+        return this.$refs.multiflatmap.getState();
+      else
+        return undefined;
     },
     flatmapPanZoomCallback: function (payload) {
       if (this.mouseHovered) {
@@ -99,7 +96,9 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      return this.$refs.multiflatmap.getCurrentFlatmap().searchAndShowResult(term);
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      //First search and show the result
+      return flatmap.searchAndShowResult(term, true);
     },
     /**
      * Append the list of suggested terms to suggestions
@@ -138,6 +137,15 @@ export default {
             .mapImp.panZoomTo(origin, [sW, sH]);
           this.flatmapMarkerZoomUpdate(false);
         }
+      }
+    },
+    displayTooltip: function(info) {
+      let name = info.name;
+      if (name) {
+        this.search(name);
+      } else {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.mapImp.clearSearchResults();
       }
     },
     zoomToFeatures: function(info, forceSelect) {
@@ -239,7 +247,7 @@ export default {
     syncMode: function (val) {
       if (this.$refs.multiflatmap.getCurrentFlatmap())
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
-    }
+    },
   },
   mounted: function() {
     EventBus.$on('markerUpdate', ()=>{
@@ -252,6 +260,82 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @import "~element-ui/packages/theme-chalk/src/button";
+::v-deep .region-popup {
+  .mapboxgl-popup-tip {
+    display: none;
+  }
+  .mapboxgl-popup-content {
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+    display: none;
+    background: #fff;
+    font-family: "Asap",sans-serif;
+    font-size: 12pt;
+    color: $app-primary-color;
+    border: 1px solid $app-primary-color;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &::after,
+    &::before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      flex-shrink: 0;
+    }
+    .mapboxgl-popup-close-button {
+      display: none;
+    }
+  }
+  &.mapboxgl-popup-anchor-bottom {
+    .mapboxgl-popup-content {
+      margin-bottom: 12px;
+      &::after,
+      &::before {
+        top: 100%;
+        border-width: 12px;
+      }
+      /* this border color controlls the color of the triangle (what looks like the fill of the triangle) */
+      &::after {
+        margin-top: -1px;
+        border-color: rgb(255, 255, 255) transparent transparent transparent;
+      }
+      /* this border color controlls the outside, thin border */
+      &::before {
+        margin: 0 auto;
+        border-color: $app-primary-color transparent transparent transparent;
+      }
+    }
+  }
+  &.mapboxgl-popup-anchor-top {
+    .mapboxgl-popup-content {
+      margin-top: 18px;
+      &::after,
+      &::before {
+        top: calc(-100% + 6px);
+        border-width: 12px;
+      }
+      /* this border color controlls the color of the triangle (what looks like the fill of the triangle) */
+      &::after {
+        margin-top: 1px;
+        border-color: transparent transparent rgb(255, 255, 255) transparent;
+      }
+      &::before {
+        margin: 0 auto;
+        border-color: transparent transparent $app-primary-color transparent;
+      }
+    }
+  }
+}
+
 </style>
 
 <style src="@/../assets/mapicon-species-style.css">
