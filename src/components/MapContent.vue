@@ -100,6 +100,7 @@ export default {
             label: state.label,
             region: state.region,
             resource: state.url,
+            state: state.state,
             viewUrl: state.viewUrl
           };
           this.$refs.flow.createNewEntry(newView);
