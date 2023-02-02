@@ -92,6 +92,12 @@ export default {
     getState: function(){
       return this.$refs.flow.getState();
     },
+    /**
+     * Provide a away to set the current view, this is currently limited
+     * to setting scaffold or the multiflatmap.
+     * In the case of the multiflatmap, it will not create a new entry and
+     * instead change the current entry by setting the state.
+     */
     setCurrentEntry: function(state) {
       if (state && state.type) {
         if (state.type === "Scaffold" && state.url) {
@@ -127,6 +133,9 @@ export default {
         }
       } 
     },
+    /**
+     * Open the sidebar with the specified facets and query.
+     */
     openSearch: function(facets, query) {
       return this.$refs.flow.openSearch(facets, query);
     }
