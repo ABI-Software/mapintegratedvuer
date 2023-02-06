@@ -1,3 +1,6 @@
+/*
+ * Initial state for the split flow
+ */
 const initialState = () => {
   return {
     mainTabName: "Flatmap",
@@ -29,6 +32,9 @@ const capitalise = term =>  {
   return term;
 };
 
+/*
+ * Provide a list of available species for the flatmap
+ */
 const availableSpecies = () => {
   return {
     "Human Female":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000383", iconClass:"mapicon-icon_human", displayWarning:true},
@@ -40,6 +46,9 @@ const availableSpecies = () => {
   }
 }
 
+/*
+ * Look for the key in availableSpecies with the provided condition
+ */
 const findSpeciesKey = condition => {
   if (condition) {
     const list = availableSpecies();
