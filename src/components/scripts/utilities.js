@@ -52,14 +52,13 @@ const availableSpecies = () => {
 const findSpeciesKey = condition => {
   if (condition) {
     const list = availableSpecies();
-    const keys = Object.keys(list);
-    for (let i = 0; i < keys.length; i++) {
-      if (condition.taxo === list[keys[i]].taxo) {
-        if (condition.biologicalSex) {
-          if (condition.biologicalSex === list[keys[i]].biologicalSex)
-            return keys[i];
+    for (let key in list) {
+      if (condition.taxo === list[key].taxo) {
+        if (condition.biologicalSex && list[key].biologicalSex) {
+          if (condition.biologicalSex === list[key].biologicalSex)
+            return key;
         } else {
-          return keys[i];
+          return key;
         }
       }
     }

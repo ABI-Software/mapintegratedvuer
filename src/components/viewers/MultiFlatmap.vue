@@ -140,12 +140,14 @@ export default {
       }
     },
     displayTooltip: function(info) {
-      let name = info.name;
-      if (name) {
-        this.search(name);
-      } else {
-        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        flatmap.mapImp.clearSearchResults();
+      if (info) {
+        let name = info.name;
+        if (name) {
+          this.search(name);
+        } else {
+          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+          flatmap.mapImp.clearSearchResults();
+        }
       }
     },
     zoomToFeatures: function(info, forceSelect) {
