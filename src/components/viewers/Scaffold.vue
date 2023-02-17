@@ -2,6 +2,7 @@
   <ScaffoldVuer
     :state="entry.state"
     :url="entry.resource"
+    :region="entry.region"
     @scaffold-selected="resourceSelected(entry.type, $event)"
     @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
     @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
@@ -20,6 +21,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
+import { capitalise} from '../scripts/utilities.js';
 import { ScaffoldVuer } from "@abi-software/scaffoldvuer/src/components/index.js";
 import ContentMixin from "../../mixins/ContentMixin";
 import store from "../../store";
@@ -41,7 +43,7 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      let capitalised = term.charAt(0).toUpperCase() + term.slice(1);
+      let capitalised = capitalise(term);
       const objects = this.$refs.scaffold.findObjectsWithGroupName(capitalised);
       if (objects.length > 0) {
         this.$refs.scaffold.changeActiveByName(capitalised, "", false);

@@ -10,6 +10,7 @@
 import SplitFlow from './SplitFlow';
 import EventBus from './EventBus';
 import store from '../store';
+import { findSpeciesKey } from './scripts/utilities.js';
 import {MapSvgSpriteColor} from '@abi-software/svg-sprite';
 
 /**
@@ -91,6 +92,69 @@ export default {
     getState: function(){
       return this.$refs.flow.getState();
     },
+    /**
+     * Provide a way to set the current view, this is currently limited
+     * to setting view for scaffold or the multiflatmap.
+     * In the case of the multiflatmap, it will not create a new entry and
+     * instead change the current entry by setting the state.
+     */
+    setCurrentEntry: function(state) {
+      if (state && state.type) {
+        if (state.type === "Scaffold" && state.url) {
+          //State for scaffold containing the following items:
+          //  label - Setting the name of the dialog
+          //  region - Which region/group currently focusing on
+          //  resource - the url to metadata
+          //  state - state to restore (viewport)
+          //  viewUrl - relative path of the view file to metadata 
+          const newView = {
+            type: state.type,
+            label: state.label,
+            region: state.region,
+            resource: state.url,
+            state: state.state,
+            viewUrl: state.viewUrl
+          };
+          this.$refs.flow.createNewEntry(newView);
+        } else if (state.type === "MultiFlatmap") {
+          //State for scaffold containing the following items:
+          //  label - Setting the name of the dialog
+          //  taxo - taxo of species to set
+          //  biologicalSex - biological sex to be displayed (PATO)
+          //  organ - Target organ, flatmap will conduct a local search 
+          //          using this
+
+          //Look for the key in the available species array
+          const key = findSpeciesKey(state);
+          if (key) {
+            const currentState = this.getState();
+            if (currentState && currentState.entries) {
+              for (let i = 0; i < currentState.entries.length; i++) {
+                const entry =  currentState.entries[i];
+                if (entry.type === "MultiFlatmap") {
+                  entry.resource = key;
+                  entry.state = {species: key};
+                  if (state.organ)
+                    entry.state.state = { searchTerm: state.organ};
+                  currentState.activeDockedId = entry.id;
+                  this.$refs.flow.setState(currentState);
+                  //Do not create a new entry, instead set the multiflatmap viewer
+                  //to the primary slot
+                  this.$refs.flow.setIdToPrimarySlot(entry.id);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      } 
+    },
+    /**
+     * Open the sidebar with the specified facets and query.
+     */
+    openSearch: function(facets, query) {
+      return this.$refs.flow.openSearch(facets, query);
+    }
   },
   watch: {
     "shareLink" : {

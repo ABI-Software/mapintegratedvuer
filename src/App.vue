@@ -16,6 +16,11 @@
           <el-button @click="restoreSettings()" size="mini">Restore Settings</el-button>
           <el-button @click="getShareableURL()" size="mini">Get Link</el-button>
         </el-row>
+        <el-row class="row" :gutter="20">
+          <el-button @click="setMultiFlatmap()" size="mini">Set MultiFlatmap</el-button>
+          <el-button @click="setScaffold()" size="mini">Set To Scaffold</el-button>
+          <el-button @click="setSearch()" size="mini">Set Search</el-button>
+        </el-row>
       </div>
       <el-button icon="el-icon-setting" slot="reference">Options</el-button>
     </el-popover>
@@ -31,10 +36,12 @@ import MapContent from './components/MapContent.vue';
 import Vue from "vue";
 import {
   Button,
+  Col,
   Popover,
   Row,
 } from 'element-ui';
 Vue.use(Button);
+Vue.use(Col);
 Vue.use(Popover);
 Vue.use(Row);
 
@@ -49,6 +56,7 @@ export default {
       state: undefined,
       prefix: "/map",
       api: process.env.VUE_APP_API_LOCATION,
+      mapSettings: [],
     }
   },
   computed: {
@@ -72,11 +80,11 @@ export default {
   },
   methods: {
     saveSettings: function() {
-      this._mapSettings.push(this.$refs.map.getState());
+      this.mapSettings.push(this.$refs.map.getState());
     },
     restoreSettings: function() {
-      if (this._mapSettings.length > 0)
-        this.$refs.map.setState(this._mapSettings.pop());
+      if (this.mapSettings.length > 0)
+        this.$refs.map.setState(this.mapSettings.pop());
     },
     updateUUID: function() {
       let xmlhttp = new XMLHttpRequest();
@@ -93,7 +101,31 @@ export default {
       }
       xmlhttp.send(JSON.stringify({"state": state}));
 
-    }
+    },
+    setMultiFlatmap: function() {
+      console.log("setMultiFlatmap")
+      this.$refs.map.setCurrentEntry(
+        {
+          type: "MultiFlatmap",
+          taxo: "NCBITaxon:9606",
+          biologicalSex: "PATO:0000384",
+          organ: "heart"
+        }
+      );
+    },
+    setScaffold: function() {
+      this.$refs.map.setCurrentEntry(
+        {
+          type: "Scaffold",
+          label: "Colon",
+          url: "https://mapcore-demo.org/current/sparc-api-v2/s3-resource/221/3/files/derivative/Scaffolds/mouse_colon_metadata.json",
+          viewUrl: "M16_view.json"
+        }
+      );
+    },
+    setSearch: function() {
+      this.$refs.map.openSearch([], "10.26275/1uno-tynt");
+    },
   },
   created: function() {
     this.uuid = this.$route.query.id;
@@ -116,7 +148,10 @@ export default {
     }
   },
   mounted: function() {
-    this._mapSettings = [];
+    //this.setMultiFlatmap();
+    //this.setScaffold();
+    //window.map = this.$refs.map
+    //this.setSearch();
   },
 }
 </script>

@@ -17,6 +17,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { availableSpecies } from '../scripts/utilities.js';
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index.js";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
@@ -33,14 +34,7 @@ export default {
     return {
       zoomLevel: 6,
       flatmapReady: false,
-      availableSpecies : {
-        "Human Female":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000383", iconClass:"mapicon-icon_human", displayWarning:true},
-        "Human Male":{taxo: "NCBITaxon:9606", biologicalSex: "PATO:0000384", iconClass:"mapicon-icon_human", displayWarning:true},
-        "Rat":{taxo: "NCBITaxon:10114", iconClass:"mapicon-icon_rat", displayLatestChanges: true},
-        "Mouse":{taxo: "NCBITaxon:10090", iconClass:"mapicon-icon_mouse", displayWarning: true},
-        "Pig":{taxo: "NCBITaxon:9823", iconClass:"mapicon-icon_pig", displayWarning: true},
-        "Cat":{taxo: "NCBITaxon:9685", iconClass:"mapicon-icon_cat", displayWarning: true},
-      }
+      availableSpecies: availableSpecies()
     }
   },
   methods: {
@@ -81,7 +75,10 @@ export default {
       }
     },
     getState: function () {
-      return this.$refs.multiflatmap.getState();
+      if (this.flatmapReady)
+        return this.$refs.multiflatmap.getState();
+      else
+        return undefined;
     },
     flatmapPanZoomCallback: function (payload) {
       if (this.mouseHovered) {
@@ -99,7 +96,9 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      return this.$refs.multiflatmap.getCurrentFlatmap().searchAndShowResult(term);
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      //First search and show the result
+      return flatmap.searchAndShowResult(term, true);
     },
     /**
      * Append the list of suggested terms to suggestions
@@ -137,6 +136,17 @@ export default {
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
           this.flatmapMarkerZoomUpdate(false);
+        }
+      }
+    },
+    displayTooltip: function(info) {
+      if (info) {
+        let name = info.name;
+        if (name) {
+          this.search(name);
+        } else {
+          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+          flatmap.mapImp.clearSearchResults();
         }
       }
     },
@@ -239,7 +249,7 @@ export default {
     syncMode: function (val) {
       if (this.$refs.multiflatmap.getCurrentFlatmap())
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
-    }
+    },
   },
   mounted: function() {
     EventBus.$on('markerUpdate', ()=>{
