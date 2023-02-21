@@ -18,6 +18,7 @@
         </el-row>
         <el-row class="row" :gutter="20">
           <el-button @click="setMultiFlatmap()" size="mini">Set MultiFlatmap</el-button>
+          <el-button @click="setLegacyMultiFlatmap()" size="mini">Set Legacy MultiFlatmap</el-button>
           <el-button @click="setScaffold()" size="mini">Set To Scaffold</el-button>
           <el-button @click="setSearch()" size="mini">Set Search</el-button>
         </el-row>
@@ -102,8 +103,16 @@ export default {
       xmlhttp.send(JSON.stringify({"state": state}));
 
     },
+    setLegacyMultiFlatmap: function() {
+      this.$refs.map.setCurrentEntry(
+        {
+          type: "MultiFlatmap",
+          taxo: "NCBITaxon:10114",
+          uuid: "01fedbf9-d783-509c-a10c-827941ab13da",
+        }
+      );
+    },
     setMultiFlatmap: function() {
-      console.log("setMultiFlatmap")
       this.$refs.map.setCurrentEntry(
         {
           type: "MultiFlatmap",

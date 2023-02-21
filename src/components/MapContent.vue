@@ -124,7 +124,8 @@ export default {
           //  organ - Target organ, flatmap will conduct a local search 
           //          using this
 
-          //Look for the key in the available species array
+          //Look for the key in the available species array,
+          //it will use the taxo and biologicalSex as hints.
           const key = findSpeciesKey(state);
           if (key) {
             const currentState = this.getState();
@@ -134,8 +135,12 @@ export default {
                 if (entry.type === "MultiFlatmap") {
                   entry.resource = key;
                   entry.state = {species: key};
-                  if (state.organ)
-                    entry.state.state = { searchTerm: state.organ};
+                  if (state.organ || state.uuid) {
+                    entry.state.state = { searchTerm: state.organ, uuid: state.uuid };
+                    //if it contains an uuid, use the taxo to help identify if the uuid
+                    //is current
+                    if (state.uuid) entry.state.state.entry = state.taxo;
+                  }
                   currentState.activeDockedId = entry.id;
                   this.$refs.flow.setState(currentState);
                   //Do not create a new entry, instead set the multiflatmap viewer
