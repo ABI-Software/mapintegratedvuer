@@ -45,7 +45,8 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
           break;
         }
       }
-      // Did not match
+      // Did not match, add it regardless so we do not lose any
+      // markers.
       if (!foundInArray)
         flatmapImp.addMarker(id, "simulation");
     });
