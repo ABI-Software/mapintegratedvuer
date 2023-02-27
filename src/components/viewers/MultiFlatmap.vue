@@ -25,17 +25,17 @@ import store from "../../store";
 import markerZoomLevels from '../markerZoomLevels';
 
 /*
- * Function to check markers visibility at zoom level.
+ * Function to check markers visibility at the given zoom level.
  * I have modified it to make sure the marker is displayed
  * if the uberon is not present in the hardcoded zoom-level list.
  */
 
 const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
   if (markers) {
-    markers.forEach(id=>{
+    markers.forEach(id => {
       let foundInArray = false;
-      //First check if uberon is in the list, check for zoom level 
-      //if true. Note: markerZoomLevels is imported.
+      // First check if uberon is in the list, check for zoom level 
+      // if true. Note: markerZoomLevels is imported.
       for (let i = 0; i < markerZoomLevels.length; i++) {
         if (markerZoomLevels[i].id === id) {
           foundInArray = true;
@@ -221,7 +221,6 @@ export default {
       this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true); // Use zoom events for dynamic markers
       this.flatmapReady = true;
       this.flatmapMarkerZoomUpdate(true);
-      //component.addPanZoomEvent();
     },
     /**
      * Function used for updating the flatmap markers.
