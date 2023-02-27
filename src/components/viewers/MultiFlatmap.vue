@@ -24,6 +24,35 @@ import EventBus from "../EventBus";
 import store from "../../store";
 import markerZoomLevels from '../markerZoomLevels';
 
+/*
+ * Function to check markers visibility at the given zoom level.
+ * I have modified it to make sure the marker is displayed
+ * if the uberon is not present in the hardcoded zoom-level list.
+ */
+
+const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
+  if (markers) {
+    markers.forEach(id => {
+      let foundInArray = false;
+      // First check if uberon is in the list, check for zoom level 
+      // if true. Note: markerZoomLevels is imported.
+      for (let i = 0; i < markerZoomLevels.length; i++) {
+        if (markerZoomLevels[i].id === id) {
+          foundInArray = true;
+          if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
+            flatmapImp.addMarker(id, "simulation");
+          }
+          break;
+        }
+      }
+      // Did not match, add it regardless so we do not lose any
+      // markers.
+      if (!foundInArray)
+        flatmapImp.addMarker(id, "simulation");
+    });
+  }
+}
+
 export default {
   name: "MultiFlatmap",
   mixins: [ ContentMixin ],
@@ -188,11 +217,10 @@ export default {
           this.toggleSyncMode();
       }
     },
-    multiFlatmapReady: function (component) {
+    multiFlatmapReady: function () {
       this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true); // Use zoom events for dynamic markers
-      this.updateMarkers(component);
       this.flatmapReady = true;
-      //component.addPanZoomEvent();
+      this.flatmapMarkerZoomUpdate(true);
     },
     /**
      * Function used for updating the flatmap markers.
@@ -206,14 +234,8 @@ export default {
       if (force || (this.zoomLevel !== currentZoom)) {
         this.zoomLevel = currentZoom;
         flatmapImp.clearMarkers();
-        let markers = store.state.settings.markers
-        markers.forEach(id=>{
-          markerZoomLevels.map(el=>{
-            if (el.id === id && this.zoomLevel >= el.showAtZoom) {
-              flatmapImp.addMarker(id, "simulation");
-            }
-          })
-        })
+        let markers = store.state.settings.markers;
+        checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel);
       }
     },
     getFlatmapImp: function() {
