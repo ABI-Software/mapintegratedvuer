@@ -233,27 +233,18 @@ export default {
     requestSynchronisedEvent: function () {
       return;
     },
-    updateMarkers: function (component) {
-      let map = component.mapImp;
-      map.clearMarkers();
-      let params = [];
+    getAvailableTerms: function () {
       //Use the default list of uberons before we get the list from
       //the api
       let terms = getAvailableTermsForSpecies();
       for (let i = 0; i < terms.length; i++) {
-        map.addMarker(terms[i].id, terms[i].type);
         this.idNamePair[terms[i].id] = terms[i].name;
       }
       if (this.apiLocation) {
-        store.state.settings.facets.species.forEach((e) => {
-          params.push(
-            encodeURIComponent("species") + "=" + encodeURIComponent(e)
-          );
-        });
         if (this._controller) this._controller.abort();
         this._controller = new AbortController();
         let signal = this._controller.signal;
-        fetch(`${this.apiLocation}get-organ-curies?${params.join("&")}`, {
+        fetch(`${this.apiLocation}get-organ-curies`, {
           signal,
         })
           .then((response) => response.json())
@@ -262,9 +253,7 @@ export default {
             data.uberon.array.forEach((pair) => {
               this.idNamePair[pair.id.toUpperCase()] =
                 pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
-              map.addMarker(pair.id.toUpperCase(), "simulation");
             });
-            this.flatmapMarkerZoomUpdate();
             return;
           }
         );

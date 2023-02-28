@@ -9,7 +9,7 @@
     :helpMode="helpMode"
     :pathControls="entry.pathControls"
     ref="flatmap"
-    @ready="updateMarkers"
+    @ready="getAvailableTerms"
     :displayMinimap="true"
     :flatmapAPI="flatmapAPI"
   />
@@ -85,10 +85,8 @@ export default {
       return store.state.settings.facets.species;
     },
   },
-  watch: {
-    facetSpecies: function () {
-      this.updateMarkers(this.$refs.flatmap);
-    }
+  mounted: function() {
+    this.getAvailableTerms();
   },
 };
 </script>
