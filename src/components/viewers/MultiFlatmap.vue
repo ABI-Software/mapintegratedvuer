@@ -29,7 +29,6 @@ import markerZoomLevels from '../markerZoomLevels';
  * I have modified it to make sure the marker is displayed
  * if the uberon is not present in the hardcoded zoom-level list.
  */
-
 const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
   if (markers) {
     markers.forEach(id => {
@@ -264,16 +263,13 @@ export default {
     },
   },
   watch: {
-    // disable this now that we pull directly from the sidebar
-    // facetSpecies: function () {
-    //   this.updateMarkers(this.$refs.multiflatmap.getCurrentFlatmap());
-    // },
     syncMode: function (val) {
       if (this.$refs.multiflatmap.getCurrentFlatmap())
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
     },
   },
   mounted: function() {
+    this.getAvailableTerms();
     EventBus.$on('markerUpdate', ()=>{
       this.flatmapMarkerZoomUpdate(true);
     })
