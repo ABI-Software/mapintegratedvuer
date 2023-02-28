@@ -263,10 +263,6 @@ export default {
     },
   },
   watch: {
-    // disable this now that we pull directly from the sidebar
-    // facetSpecies: function () {
-    //   this.getAvailableTerms();
-    // },
     syncMode: function (val) {
       if (this.$refs.multiflatmap.getCurrentFlatmap())
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
