@@ -17,53 +17,56 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { availableSpecies } from '../scripts/utilities.js';
+import { availableSpecies } from "../scripts/utilities.js";
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index.js";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import store from "../../store";
-import markerZoomLevels from '../markerZoomLevels';
+import markerZoomLevels from "../markerZoomLevels";
+
+import YellowStar from "../../icons/yellowstar"
 
 /*
  * Function to check markers visibility at the given zoom level.
  * I have modified it to make sure the marker is displayed
  * if the uberon is not present in the hardcoded zoom-level list.
  */
-const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
+const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel, featured) => {
   if (markers) {
     markers.forEach(id => {
       let foundInArray = false;
-      // First check if uberon is in the list, check for zoom level 
+      // First check if uberon is in the list, check for zoom level
       // if true. Note: markerZoomLevels is imported.
       for (let i = 0; i < markerZoomLevels.length; i++) {
         if (markerZoomLevels[i].id === id) {
           foundInArray = true;
-          if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
-            flatmapImp.addMarker(id, "simulation");
+          if (featured) {
+            console.log("add featured.");
+          } else if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
+            flatmapImp.addMarker(id);
           }
           break;
         }
       }
       // Did not match, add it regardless so we do not lose any
       // markers.
-      if (!foundInArray)
-        flatmapImp.addMarker(id, "simulation");
+      if (!foundInArray) flatmapImp.addMarker(id);
     });
   }
-}
+};
 
 export default {
   name: "MultiFlatmap",
-  mixins: [ ContentMixin ],
+  mixins: [ContentMixin],
   components: {
     MultiFlatmapVuer,
   },
-  data: function(){ 
+  data: function () {
     return {
       zoomLevel: 6,
       flatmapReady: false,
-      availableSpecies: availableSpecies()
-    }
+      availableSpecies: availableSpecies(),
+    };
   },
   methods: {
     /**
@@ -79,12 +82,15 @@ export default {
             label: "Rat Map",
             resource:
               "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
-              //"https://mapcore-bucket1.s3.us-west-2.amazonaws.com/nerves_sync/nerve_pathways_metadata.json",
+            //"https://mapcore-bucket1.s3.us-west-2.amazonaws.com/nerves_sync/nerve_pathways_metadata.json",
             title: "View 3D scaffold",
             layout: "2horpanel",
             type: "SyncMap",
           };
-        } else if ((this.activeSpecies === "Human Male") || (this.activeSpecies === "Human Female")) {
+        } else if (
+          this.activeSpecies === "Human Male" ||
+          this.activeSpecies === "Human Female"
+        ) {
           action = {
             contextCard: undefined,
             discoverId: undefined,
@@ -103,10 +109,8 @@ export default {
       }
     },
     getState: function () {
-      if (this.flatmapReady)
-        return this.$refs.multiflatmap.getState();
-      else
-        return undefined;
+      if (this.flatmapReady) return this.$refs.multiflatmap.getState();
+      else return undefined;
     },
     flatmapPanZoomCallback: function (payload) {
       if (this.mouseHovered) {
@@ -167,7 +171,7 @@ export default {
         }
       }
     },
-    displayTooltip: function(info) {
+    displayTooltip: function (info) {
       if (info) {
         let name = info.name;
         if (name) {
@@ -178,7 +182,7 @@ export default {
         }
       }
     },
-    zoomToFeatures: function(info, forceSelect) {
+    zoomToFeatures: function (info, forceSelect) {
       let name = info.name;
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
       if (name) {
@@ -196,7 +200,7 @@ export default {
         flatmap.clearSearchResults();
       }
     },
-    highlightFeatures: function(info) {
+    highlightFeatures: function (info) {
       let name = info.name;
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
       if (name) {
@@ -211,9 +215,10 @@ export default {
     flatmapChanged: function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.$emit("species-changed", activeSpecies);
-      if (!(this.entry.state && (this.entry.state.species === this.activeSpecies))) {
-        if (this.syncMode == true)
-          this.toggleSyncMode();
+      if (
+        !(this.entry.state && this.entry.state.species === this.activeSpecies)
+      ) {
+        if (this.syncMode == true) this.toggleSyncMode();
       }
     },
     multiFlatmapReady: function () {
@@ -229,37 +234,74 @@ export default {
     flatmapMarkerZoomUpdate(force) {
       if (!this.flatmapReady) return;
       let flatmapImp = this.getFlatmapImp();
-      let currentZoom = flatmapImp.getZoom()['zoom'];
-      if (force || (this.zoomLevel !== currentZoom)) {
+      let currentZoom = flatmapImp.getZoom()["zoom"];
+      if (force || this.zoomLevel !== currentZoom) {
         this.zoomLevel = currentZoom;
         flatmapImp.clearMarkers();
         let markers = store.state.settings.markers;
         checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel);
+        console.log("secondary restore featured markers.");
+        this.restoreFeaturedMarkers();
       }
     },
-    getFlatmapImp: function() {
-      if (this.entry.type === 'Flatmap') {
+    getFlatmapImp: function () {
+      if (this.entry.type === "Flatmap") {
         return this.$refs.flatmap.mapImp;
-      } else if (this.entry.type === 'MultiFlatmap') {
-        return this.$refs.multiflatmap.getCurrentFlatmap()['mapImp'];
+      } else if (this.entry.type === "MultiFlatmap") {
+        return this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"];
       } else {
         return undefined;
       }
     },
-    flatmapAreaSearch(){
-      this.flatmapImp = this.getFlatmapImp()
+    flatmapAreaSearch() {
+      this.flatmapImp = this.getFlatmapImp();
       let shownMarkers = this.flatmapImp.visibleMarkerAnatomicalIds();
       let returnedAction = {
         type: "Facets",
         label: "Unused",
-        val: shownMarkers.map(marker=>this.idNamePair[marker])
+        val: shownMarkers.map(marker => this.idNamePair[marker]),
       };
+      console.log("returned action");
+      console.log(returnedAction);
       EventBus.$emit("PopoverActionClick", returnedAction);
+    },
+    restoreFeaturedMarkers: function () {
+      store.commit("settings/resetFeaturedMarkerIdentifier");
+      const markers = store.state.settings.featuredMarkers;
+      this.updateFeatureMarkers(markers);
+    },
+    updateFeatureMarkers: function (markers) {
+      for (let index = 0; index < markers.length; ++index) {
+        if (markers[index]) {
+          const markerIdentifier =
+            store.state.settings.featuredMarkerIdentifiers[index];
+          if (!markerIdentifier) {
+            this.addFeaturedMarker(markers[index], index);
+          }
+        }
+      }
+    },
+    addFeaturedMarker: function (marker, index) {
+      const flatmapImp = this.getFlatmapImp();
+      let wrapperElement = document.createElement("div");
+      wrapperElement.innerHTML = YellowStar;
+      // Serosa of intestine: "UBERON:0001243"
+      const markerIdentifier = flatmapImp.addMarker(
+        marker,
+        wrapperElement
+      );
+      store.commit("settings/updateFeaturedMarkerIdentifier", {
+        index,
+        markerIdentifier,
+      });
     },
   },
   computed: {
     facetSpecies() {
       return store.state.settings.facets.species;
+    },
+    featuredMarkers() {
+      return store.state.settings.featuredMarkers;
     },
   },
   watch: {
@@ -267,13 +309,23 @@ export default {
       if (this.$refs.multiflatmap.getCurrentFlatmap())
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
     },
+    featuredMarkers: function (markers) {
+      console.log("featured markers");
+      if (!this.flatmapReady) {
+        return;
+      }
+
+      this.updateFeatureMarkers(markers);
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.getAvailableTerms();
-    EventBus.$on('markerUpdate', ()=>{
+    this.getFeaturedDatasets();
+
+    EventBus.$on("markerUpdate", () => {
       this.flatmapMarkerZoomUpdate(true);
-    })
-  }
+    });
+  },
 };
 </script>
 
@@ -282,5 +334,4 @@ export default {
 @import "~element-ui/packages/theme-chalk/src/button";
 </style>
 
-<style src="@/../assets/mapicon-species-style.css">
-</style>
+<style src="@/../assets/mapicon-species-style.css"></style>
