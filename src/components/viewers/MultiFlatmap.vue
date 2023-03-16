@@ -279,14 +279,15 @@ export default {
     addFeaturedMarker: function (marker, index) {
       const markerSpecies =
         store.getters["settings/featuredMarkerSpecies"](index);
-      if (!this.activeSpecies.startsWith(markerSpecies)) {
+      if (markerSpecies && !this.activeSpecies.startsWith(markerSpecies)) {
         return;
       }
 
       const flatmapImp = this.getFlatmapImp();
+
       let wrapperElement = document.createElement("div");
       wrapperElement.innerHTML = YellowStar;
-      // Serosa of intestine: "UBERON:0001243"
+
       const markerIdentifier = flatmapImp.addMarker(marker, wrapperElement);
       store.commit("settings/updateFeaturedMarkerIdentifier", {
         index,
