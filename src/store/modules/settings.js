@@ -15,8 +15,25 @@ const state = () => ({
   markers: [],
   featuredMarkers: [],
   featuredMarkerIdentifiers: [],
+  featuredMarkerDois: [],
+  featuredMarkerSpecies: [],
   featuredDatasetIdentifiers: [],
 });
+
+const getters = {
+  isFeaturedMarkerIdentifier: state => identifier => {
+    return state.featuredMarkerIdentifiers.includes(identifier);
+  },
+  featuredMarkerDoi: state => identifier => {
+    const index = state.featuredMarkerIdentifiers.findIndex(
+      element => element == identifier
+    );
+    return state.featuredMarkerDois[index];
+  },
+  featuredMarkerSpecies: state => index => {
+    return state.featuredMarkerSpecies[index];
+  }
+};
 
 const mutations = {
   updateShareLink(state, newLink) {
@@ -52,6 +69,8 @@ const mutations = {
   updateFeatured(state, datasetIdentifiers) {
     state.featuredMarkerIdentifiers = new Array(datasetIdentifiers.length);
     state.featuredMarkers = new Array(datasetIdentifiers.length);
+    state.featuredMarkerDois = new Array(datasetIdentifiers.length);
+    state.featuredMarkerSpecies = new Array(datasetIdentifiers.length);
     state.featuredDatasetIdentifiers = datasetIdentifiers;
   },
   updateFeaturedMarker(state, payload) {
@@ -59,6 +78,8 @@ const mutations = {
       element => element == payload.identifier
     );
     Vue.set(state.featuredMarkers, index, payload.marker);
+    state.featuredMarkerDois[index] = payload.doi;
+    state.featuredMarkerSpecies[index] = payload.species;
   },
   updateFeaturedMarkerIdentifier(state, payload) {
     state.featuredMarkerIdentifiers[payload.index] = payload.markerIdentifier;
@@ -121,5 +142,6 @@ const mutations = {
 export default {
   namespaced: true,
   state,
+  getters,
   mutations,
 };

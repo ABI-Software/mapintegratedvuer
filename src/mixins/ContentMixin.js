@@ -85,8 +85,20 @@ export default {
               mz => mz.id === resource.feature.models
             );
 
-            // if it matches our stored keywords, it is a keyword search
-            if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
+            if (
+              store.getters["settings/isFeaturedMarkerIdentifier"](
+                resource.feature.id
+              )
+            ) {
+              // It is a featured dataset search for DOI.
+              returnedAction = {
+                type: "Search",
+                term: store.getters["settings/featuredMarkerDoi"](
+                  resource.feature.id
+                ),
+              };
+            } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
+              // if it matches our stored keywords, it is a keyword search
               // Keyword searches do not contain labels, so switch to keyword search if no label exists
               returnedAction = {
                 type: "Search",
@@ -207,9 +219,23 @@ export default {
       fetch(`${this.apiLocation}dataset_info/anatomy?identifier=${identifier}`)
         .then(response => response.json())
         .then(data => {
+          let markerCurie = undefined;
+          try {
+            markerCurie = data.result[0].anatomy.organ[0].curie;
+          } catch (error) {}
+          let markerDoi = undefined;
+          try {
+            markerDoi = data.result[0].item.curie;
+          } catch (error) {}
+          let markerSpecies = undefined;
+          try {
+            markerSpecies = data.result[0].organisms.subject[0].species.name;
+          } catch (error) {}
           store.commit("settings/updateFeaturedMarker", {
             identifier,
-            marker: data.result[0].anatomy.organ[0].curie,
+            marker: markerCurie,
+            doi: markerDoi,
+            species: markerSpecies,
           });
         });
     },

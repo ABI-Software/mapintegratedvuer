@@ -24,14 +24,14 @@ import EventBus from "../EventBus";
 import store from "../../store";
 import markerZoomLevels from "../markerZoomLevels";
 
-import YellowStar from "../../icons/yellowstar"
+import YellowStar from "../../icons/yellowstar";
 
 /*
  * Function to check markers visibility at the given zoom level.
  * I have modified it to make sure the marker is displayed
  * if the uberon is not present in the hardcoded zoom-level list.
  */
-const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel, featured) => {
+const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
   if (markers) {
     markers.forEach(id => {
       let foundInArray = false;
@@ -40,9 +40,7 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel, featured) => {
       for (let i = 0; i < markerZoomLevels.length; i++) {
         if (markerZoomLevels[i].id === id) {
           foundInArray = true;
-          if (featured) {
-            console.log("add featured.");
-          } else if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
+          if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
             flatmapImp.addMarker(id);
           }
           break;
@@ -240,7 +238,6 @@ export default {
         flatmapImp.clearMarkers();
         let markers = store.state.settings.markers;
         checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel);
-        console.log("secondary restore featured markers.");
         this.restoreFeaturedMarkers();
       }
     },
@@ -261,8 +258,6 @@ export default {
         label: "Unused",
         val: shownMarkers.map(marker => this.idNamePair[marker]),
       };
-      console.log("returned action");
-      console.log(returnedAction);
       EventBus.$emit("PopoverActionClick", returnedAction);
     },
     restoreFeaturedMarkers: function () {
@@ -282,14 +277,17 @@ export default {
       }
     },
     addFeaturedMarker: function (marker, index) {
+      const markerSpecies =
+        store.getters["settings/featuredMarkerSpecies"](index);
+      if (!this.activeSpecies.startsWith(markerSpecies)) {
+        return;
+      }
+
       const flatmapImp = this.getFlatmapImp();
       let wrapperElement = document.createElement("div");
       wrapperElement.innerHTML = YellowStar;
       // Serosa of intestine: "UBERON:0001243"
-      const markerIdentifier = flatmapImp.addMarker(
-        marker,
-        wrapperElement
-      );
+      const markerIdentifier = flatmapImp.addMarker(marker, wrapperElement);
       store.commit("settings/updateFeaturedMarkerIdentifier", {
         index,
         markerIdentifier,
@@ -310,7 +308,6 @@ export default {
         this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
     },
     featuredMarkers: function (markers) {
-      console.log("featured markers");
       if (!this.flatmapReady) {
         return;
       }

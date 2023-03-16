@@ -134,8 +134,6 @@ export default {
       }
     },
     searchChanged: function (data) {
-      console.log("search changed:");
-      console.log(data);
       if (data && data.type == "query-update") {
         this.search = data.value;
       }
