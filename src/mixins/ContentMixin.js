@@ -219,18 +219,24 @@ export default {
       fetch(`${this.apiLocation}dataset_info/anatomy?identifier=${identifier}`)
         .then(response => response.json())
         .then(data => {
-          let markerCurie = undefined;
+          let markerCurie;
           try {
             markerCurie = data.result[0].anatomy.organ[0].curie;
-          } catch (error) {}
-          let markerDoi = undefined;
+          } catch (error) {
+            markerCurie = undefined;
+          }
+          let markerDoi;
           try {
             markerDoi = data.result[0].item.curie;
-          } catch (error) {}
-          let markerSpecies = undefined;
+          } catch (error) {
+            markerDoi = undefined;
+          }
+          let markerSpecies;
           try {
             markerSpecies = data.result[0].organisms.subject[0].species.name;
-          } catch (error) {}
+          } catch (error) {
+            markerSpecies = undefined;
+          }
           store.commit("settings/updateFeaturedMarker", {
             identifier,
             marker: markerCurie,
