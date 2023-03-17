@@ -220,15 +220,19 @@ export default {
         .then(response => response.json())
         .then(data => {
           const resultPayload = data.result[0];
-          let markerCurie = undefined;
+          let markerCurie;
           try {
             markerCurie = resultPayload.anatomy.organ[0].curie;
-          } catch (error) {}
-          let markerDoi = undefined;
+          } catch (error) {
+            markerCurie = undefined;
+          }
+          let markerDoi;
           try {
             markerDoi = resultPayload.item.curie;
-          } catch (error) {}
-          let markerSpecies = undefined;
+          } catch (error) {
+            markerDoi = undefined;
+          }
+          let markerSpecies;
           try {
             let index = 0;
             let found = false;
@@ -240,7 +244,9 @@ export default {
               }
               index += 1;
             }
-          } catch (error) {}
+          } catch (error) {
+            markerSpecies = undefined;
+          }
           store.commit("settings/updateFeaturedMarker", {
             identifier,
             marker: markerCurie,
