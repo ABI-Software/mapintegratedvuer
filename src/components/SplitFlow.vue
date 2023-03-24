@@ -1,29 +1,41 @@
 <template>
-  <el-container style="height:100%;background:white;">
-    <el-header ref="header" style="text-align: left; font-size: 14px;padding:0" height="32px" class="dialog-header">
-      <DialogToolbarContent :activeId="activeDockedId" :numberOfEntries="entries.length"
-        :topLevelControls=true
-        :showIcons="entries[findIndexOfId(activeDockedId)].mode!=='main'"
+  <el-container style="height: 100%; background: white">
+    <el-header
+      ref="header"
+      style="text-align: left; font-size: 14px; padding: 0"
+      height="32px"
+      class="dialog-header"
+    >
+      <DialogToolbarContent
+        :activeId="activeDockedId"
+        :numberOfEntries="entries.length"
+        :topLevelControls="true"
+        :showIcons="entries[findIndexOfId(activeDockedId)].mode !== 'main'"
         @onFullscreen="onFullscreen"
         :showHelpIcon="true"
       />
     </el-header>
     <el-main class="dialog-main">
-      <div style="width:100%;height:100%;position:relative;overflow:hidden;">
-        <SplitDialog :entries="entries" ref="splitdialog"
+      <div
+        style="width: 100%; height: 100%; position: relative; overflow: hidden"
+      >
+        <SplitDialog
+          :entries="entries"
+          ref="splitdialog"
           @close="dialogClose(id)"
           @resource-selected="resourceSelected"
         />
-        <SideBar ref="sideBar"
+        <SideBar
+          ref="sideBar"
           :envVars="envVars"
           :visible="sideBarVisibility"
-          :class="['side-bar', {'start-up': startUp }]"
+          :class="['side-bar', { 'start-up': startUp }]"
           :activeId="activeDockedId"
           :open-at-start="startUp"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
-        /> 
+        />
       </div>
     </el-main>
   </el-container>
@@ -31,20 +43,16 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import DialogToolbarContent from './DialogToolbarContent';
-import EventBus from './EventBus';
-import SplitDialog from './SplitDialog';
+import DialogToolbarContent from "./DialogToolbarContent";
+import EventBus from "./EventBus";
+import SplitDialog from "./SplitDialog";
 // import contextCards from './context-cards'
-import { SideBar } from '@abi-software/map-side-bar';
-import '@abi-software/map-side-bar/dist/map-side-bar.css';
-import { capitalise, initialState } from './scripts/utilities.js';
+import { SideBar } from "@abi-software/map-side-bar";
+import "@abi-software/map-side-bar/dist/map-side-bar.css";
+import { capitalise, initialState } from "./scripts/utilities.js";
 import store from "../store";
 import Vue from "vue";
-import {
-  Container,
-  Header,
-  Main
-} from "element-ui";
+import { Container, Header, Main } from "element-ui";
 Vue.use(Container);
 Vue.use(Header);
 Vue.use(Main);
@@ -59,80 +67,93 @@ export default {
     SplitDialog,
     SideBar,
   },
-  props:{
+  props: {
     state: {
       type: Object,
-      default: undefined
+      default: undefined,
     },
   },
-  data: function() {
+  data: function () {
     return initialState();
   },
   watch: {
     state: {
-      handler: function(value) {
+      handler: function (value) {
         if (value) {
-          if (!this._externalStateSet)
-            this.setState(value);
+          if (!this._externalStateSet) this.setState(value);
           this._externalStateSet = true;
         }
       },
       immediate: true,
-    }
+    },
   },
   methods: {
     /**
      * Callback when an action is performed (open new dialogs).
      */
-    actionClick:function(action) {
+    actionClick: function (action) {
       if (action) {
         if (action.type == "Search") {
-          if (action.nervePath){
+          if (action.nervePath) {
             this.openSearch([action.filter], action.label);
           } else {
             this.openSearch([], action.term);
           }
-        } else if (action.type == "URL"){
-          window.open(action.resource, '_blank')
+        } else if (action.type == "URL") {
+          window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           this.$refs.sideBar.addFilter(action);
         } else if (action.type == "Facets") {
           const facets = [];
           store.state.settings.facets.species.forEach(e => {
-            facets.push({facet: capitalise(e), term:'Species', facetPropPath: 'organisms.primary.species.name'});
+            facets.push({
+              facet: capitalise(e),
+              term: "Species",
+              facetPropPath: "organisms.primary.species.name",
+            });
           });
           if (facets.length == 0)
-            facets.push({facet: "Show All", term:'Species', facetPropPath: 'organisms.primary.species.name'});
-          facets.push(...action.labels.map(val =>({facet: capitalise(val), term: 'Anatomical structure', facetPropPath: 'anatomy.organ.name'})))
-          this.$refs.sideBar.openSearch(facets, '');
-        } else if (action.type == "Scaffold View"){
+            facets.push({
+              facet: "Show All",
+              term: "Species",
+              facetPropPath: "organisms.primary.species.name",
+            });
+          facets.push(
+            ...action.labels.map(val => ({
+              facet: capitalise(val),
+              term: "Anatomical structure",
+              facetPropPath: "anatomy.organ.name",
+            }))
+          );
+          this.$refs.sideBar.openSearch(facets, "");
+        } else if (action.type == "Scaffold View") {
           this.updateEntry(action);
         } else {
           this.createNewEntry(action);
         }
       }
     },
-    searchChanged: function(data) {
-      if (data && (data.type == "query-update")){
+    searchChanged: function (data) {
+      if (data && data.type == "query-update") {
         this.search = data.value;
       }
-      if (data && (data.type == "filter-update")) {
+      if (data && data.type == "filter-update") {
         store.commit("settings/updateFacets", data.value);
       }
       if (data && data.type == "keyword-update") {
         store.commit("settings/updateMarkers", data.value);
-        EventBus.$emit('markerUpdate');
+        EventBus.$emit("markerUpdate");
       }
     },
     // updateEntry: Updates entry a scaffold entry with a viewUrl
-    updateEntry(data){
+    updateEntry(data) {
       // 'Scaffold view' is sent in as 'Scaffold' to scaffoldvuer
       data.type = data.type === "Scaffold View" ? "Scaffold" : data.type;
 
       // Update the scaffold with a view url
-      for (let i in this.entries){
-        if (this.entries[i].resource === data.resource){
-          this.entries[i].viewUrl = data.viewUrl ;
+      for (let i in this.entries) {
+        if (this.entries[i].resource === data.resource) {
+          this.entries[i].viewUrl = data.viewUrl;
           Vue.set(this.entries, i, this.entries[i]); // Need this to keep arrays reactive
         }
       }
@@ -140,12 +161,12 @@ export default {
     /**
      * Activate Synchronised workflow
      */
-    activateSyncMap: function(data) {
+    activateSyncMap: function (data) {
       let newEntry = {};
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex; 
+      newEntry.zIndex = ++this.zIndex;
       newEntry.state = undefined;
       newEntry.type = "Scaffold";
       newEntry.discoverId = data.discoverId;
@@ -153,22 +174,25 @@ export default {
       if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
       else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
       this.entries.push(newEntry);
-      store.commit("splitFlow/setSyncMode", { flag: true, newId: newEntry.id,
-        layout: data.layout });
+      store.commit("splitFlow/setSyncMode", {
+        flag: true,
+        newId: newEntry.id,
+        layout: data.layout,
+      });
       return newEntry.id;
     },
     /**
      * Add new entry which will sequentially create a
      * new dialog.
      */
-    createNewEntry: function(data) {
+    createNewEntry: function (data) {
       let newEntry = {};
       newEntry.viewUrl = undefined;
       newEntry.state = undefined;
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex; 
+      newEntry.zIndex = ++this.zIndex;
       newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
       this.setIdToPrimarySlot(newEntry.id);
@@ -177,7 +201,7 @@ export default {
       }
       return newEntry.id;
     },
-    findIndexOfId: function(id) {
+    findIndexOfId: function (id) {
       for (let i = 0; i < this.entries.length; i++) {
         if (this.entries[i].id == id) {
           return i;
@@ -185,13 +209,13 @@ export default {
       }
       return -1;
     },
-    destroyDialog: function(id) {
+    destroyDialog: function (id) {
       let index = this.findIndexOfId(id);
       if (index > -1) {
         this.entries.splice(index, 1);
       }
     },
-    openSearch: function(facets, query) {
+    openSearch: function (facets, query) {
       // Keep the species facets currently unused
       // let facets = [{facet: "All species", facetPropPath: 'organisms.primary.species.name', term:'species'}];
       // store.state.settings.facets.species.forEach(e => {
@@ -200,17 +224,17 @@ export default {
       this.search = query;
       this.$refs.sideBar.openSearch(facets, query);
       this.startUp = false;
-    }, 
-    onFullscreen: function(val) {
+    },
+    onFullscreen: function (val) {
       this.$emit("onFullscreen", val);
     },
-    resetApp: function(){
+    resetApp: function () {
       this.setState(initialState());
     },
-    setIdToPrimarySlot: function(id) {
+    setIdToPrimarySlot: function (id) {
       store.commit("splitFlow/setIdToPrimarySlot", id);
     },
-    setState: function(state){
+    setState: function (state) {
       this.mainTabName = state.mainTabName;
       this.zIndex = state.zIndex;
       this.showDialogIcons = state.showDialogIcons;
@@ -219,12 +243,10 @@ export default {
       Object.assign(this.entries, state.entries);
       this.currentCount = state.currentCount;
       //Support both old and new permalink.
-      if (state.splitFlow)
-        store.commit("splitFlow/setState", state.splitFlow);
-      else
-        this.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
+      if (state.splitFlow) store.commit("splitFlow/setState", state.splitFlow);
+      else this.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
     },
-    getState: function() {
+    getState: function () {
       let state = JSON.parse(JSON.stringify(this.$data));
       let splitdialog = this.$refs.splitdialog;
       let dialogStates = splitdialog.getContentsState();
@@ -233,35 +255,34 @@ export default {
           const entry = state.entries[i];
           entry.state = dialogStates[i];
           //We do not want to serialise the following properties
-          if (entry.type === "Scaffold" && ("viewUrl" in entry))
+          if (entry.type === "Scaffold" && "viewUrl" in entry)
             delete entry.viewUrl;
-          if (entry.type === "MultiFlatmap" && ("uberonId" in entry))
+          if (entry.type === "MultiFlatmap" && "uberonId" in entry)
             delete entry.uberonId;
         }
       }
       state.splitFlow = store.getters["splitFlow/getState"]();
       return state;
     },
-    removeEntry: function(id) {
+    removeEntry: function (id) {
       if (id !== 1) {
         let index = -1;
         for (let i = 0; this.entries.length && index === -1; i++) {
-          if (this.entries[i].id === id)
-            index = i;
+          if (this.entries[i].id === id) index = i;
         }
         this.entries.splice(index, 1);
       }
     },
-    resourceSelected: function(result) {
+    resourceSelected: function (result) {
       this.$emit("resource-selected", result);
       if (store.state.splitFlow.globalCallback) {
         this.$refs.splitdialog.sendSynchronisedEvent(result);
       }
     },
-    tabClicked: function(id){
-      this.activeDockedId = id
+    tabClicked: function (id) {
+      this.activeDockedId = id;
     },
-    toggleSyncMode: function(payload) {
+    toggleSyncMode: function (payload) {
       if (payload) {
         if (payload.flag) {
           if (payload.action) {
@@ -269,24 +290,26 @@ export default {
           }
         } else {
           if (store.state.splitFlow.syncMode) {
-            store.commit("splitFlow/setSyncMode",
-              { flag: false, entries: this.entries });
+            store.commit("splitFlow/setSyncMode", {
+              flag: false,
+              entries: this.entries,
+            });
           }
         }
       }
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this._externalStateSet = false;
   },
-  mounted: function() {
-    EventBus.$on("RemoveEntryRequest", (id) => {
+  mounted: function () {
+    EventBus.$on("RemoveEntryRequest", id => {
       this.removeEntry(id);
     });
-    EventBus.$on("SyncModeRequest", (payload) => {
+    EventBus.$on("SyncModeRequest", payload => {
       this.toggleSyncMode(payload);
     });
-    EventBus.$on("PopoverActionClick", (payload) => {
+    EventBus.$on("PopoverActionClick", payload => {
       this.actionClick(payload);
     });
     this.$nextTick(() => {
@@ -295,14 +318,11 @@ export default {
         setTimeout(() => {
           this.startUp = false;
         }, 2000);
-      }
-      else
-        this.openSearch([], this.search);
-
+      } else this.openSearch([], this.search);
     });
   },
   computed: {
-    envVars: function() {
+    envVars: function () {
       return {
         API_LOCATION: store.state.settings.sparcApi,
         ALGOLIA_INDEX: store.state.settings.algoliaIndex,
@@ -310,15 +330,14 @@ export default {
         ALGOLIA_ID: store.state.settings.algoliaId,
         PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi,
         NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
-        ROOT_URL: store.state.settings.rootUrl
-      }
-    }
-  }
+        ROOT_URL: store.state.settings.rootUrl,
+      };
+    },
+  },
 };
 </script>
 
 <style scoped lang="scss">
-
 .dialog-header {
   color: #333;
   line-height: 20px;
@@ -327,9 +346,9 @@ export default {
 }
 
 .dialog-main {
-  padding:0px;
-  width:100%;
-  height:100%;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
 }
 
 .start-up {
@@ -345,15 +364,14 @@ export default {
   }
   ::v-deep .el-drawer {
     &.rtl {
-      animation: rtl-drawer-out 2.0s linear;
+      animation: rtl-drawer-out 2s linear;
     }
   }
 
   ::v-deep .el-drawer__wrapper {
     &.side-bar {
-      display:block!important;
+      display: block !important;
     }
   }
 }
-
 </style>

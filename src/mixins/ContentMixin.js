@@ -1,7 +1,11 @@
-import { getAvailableTermsForSpecies, getInteractiveAction, getNerveNames, getParentsRegion }
-  from "../components/SimulatedData.js";
+import {
+  getAvailableTermsForSpecies,
+  getInteractiveAction,
+  getNerveNames,
+  getParentsRegion,
+} from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
-import markerZoomLevels from '../components/markerZoomLevels'
+import markerZoomLevels from "../components/markerZoomLevels";
 import store from "../store";
 
 /* eslint-disable no-alert, no-console */
@@ -19,7 +23,7 @@ export default {
     mouseHovered: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   computed: {
     syncMode() {
@@ -47,7 +51,7 @@ export default {
     /**
      * Get a list of search suggestions on this contentvuer
      */
-     searchSuggestions: function () {
+    searchSuggestions: function () {
       return;
     },
     /**
@@ -77,22 +81,38 @@ export default {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
             let label = this.idNamePair[resource.feature.models];
-            let hardcodedAnnotation = markerZoomLevels.filter(mz=>mz.id === resource.feature.models);
+            let hardcodedAnnotation = markerZoomLevels.filter(
+              mz => mz.id === resource.feature.models
+            );
 
-            // if it matches our stored keywords, it is a keyword search
-            if( hardcodedAnnotation.filter(h=>h.keyword).length > 0){
+            if (
+              store.getters["settings/isFeaturedMarkerIdentifier"](
+                resource.feature.id
+              )
+            ) {
+              // It is a featured dataset search for DOI.
+              returnedAction = {
+                type: "Search",
+                term: store.getters["settings/featuredMarkerDoi"](
+                  resource.feature.id
+                ),
+              };
+            } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
+              // if it matches our stored keywords, it is a keyword search
               // Keyword searches do not contain labels, so switch to keyword search if no label exists
               returnedAction = {
                 type: "Search",
-                term: 'http://purl.obolibrary.org/obo/' + resource.feature.models.replace(':','_')
+                term:
+                  "http://purl.obolibrary.org/obo/" +
+                  resource.feature.models.replace(":", "_"),
               };
             } else {
-            // Facet search on anatomy if it is not a keyword search
+              // Facet search on anatomy if it is not a keyword search
               returnedAction = {
                 type: "Facet",
                 facet: label,
-                facetPropPath: 'anatomy.organ.name', 
-                term: 'Anatomical structure' 
+                facetPropPath: "anatomy.organ.name",
+                term: "Anatomical structure",
               };
             }
 
@@ -129,15 +149,15 @@ export default {
       return (
         resource.type === "URL" ||
         resource.type === "Search" ||
-        resource.type === "Neuron Search" || 
-        resource.type == 'Facet' || 
-        resource.type == 'Facets'
+        resource.type === "Neuron Search" ||
+        resource.type == "Facet" ||
+        resource.type == "Facets"
       );
     },
     /**
      * Check if this viewer is currently visible
      */
-    isVisible: function() {
+    isVisible: function () {
       let slot = store.getters["splitFlow/getSlotById"](this.entry.id);
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
@@ -147,7 +167,7 @@ export default {
      * if it cannot be found in the map, it will perform several
      * calls to try to ge a valid name/id.
      */
-    getNameAndIdFromSyncData: async function(data) {
+    getNameAndIdFromSyncData: async function (data) {
       let name = data.internalName;
       if (name === undefined && data.resource) {
         name = data.resource.label;
@@ -163,9 +183,8 @@ export default {
         if (objects.length === 0) {
           //Use nerve mapping
           if (data.resource && data.resource.feature) {
-            matched = getNerveNames(data.resource.feature.models)
-            if (matched.length > 0)
-              return matched;
+            matched = getNerveNames(data.resource.feature.models);
+            if (matched.length > 0) return matched;
           }
           let matched = getParentsRegion(name);
           if (matched) {
@@ -174,29 +193,83 @@ export default {
           // Hardcoded list failed - use an endpoint to find its parents
           if (id && data.eventType === "selected") {
             return fetch(`${this.apiLocation}get-related-terms/${id}`)
-              .then((response) => response.json())
-              .then((data) => {
+              .then(response => response.json())
+              .then(data => {
                 if (data.uberon.array.length > 0) {
-                  name = data.uberon.array[0].name.charAt(0).toUpperCase() + data.uberon.array[0].name.slice(1);
+                  name =
+                    data.uberon.array[0].name.charAt(0).toUpperCase() +
+                    data.uberon.array[0].name.slice(1);
                   id = data.uberon.array[0].id.toUpperCase();
-                  return {id, name};
+                  return { id, name };
                 }
-              }
-            );
+              });
           }
         }
       } else if (this.entry.type === "MultiFlatmap") {
         if (name === "Bladder") {
           name = "Urinary Bladder";
         } else {
-          const matched = getNerveNames(name)
-          if (matched.length > 0)
-            name = matched[0];
+          const matched = getNerveNames(name);
+          if (matched.length > 0) name = matched[0];
         }
       }
-      return {id, name};
+      return { id, name };
     },
-    zoomToFeatures: function() {
+    getDatasetAnatomyInfo: function (identifier) {
+      fetch(`${this.apiLocation}dataset_info/anatomy?identifier=${identifier}`)
+        .then(response => response.json())
+        .then(data => {
+          const resultPayload = data.result[0];
+          let markerCurie;
+          try {
+            markerCurie = resultPayload.anatomy.organ[0].curie;
+          } catch (error) {
+            markerCurie = undefined;
+          }
+          let markerDoi;
+          try {
+            markerDoi = resultPayload.item.curie;
+          } catch (error) {
+            markerDoi = undefined;
+          }
+          let markerSpecies;
+          try {
+            let index = 0;
+            let found = false;
+            while (!found && index < resultPayload.organisms.subject.length) {
+              const entry = resultPayload.organisms.subject[index];
+              if (entry.species) {
+                markerSpecies = entry.species.name;
+                found = true;
+              }
+              index += 1;
+            }
+          } catch (error) {
+            markerSpecies = undefined;
+          }
+          store.commit("settings/updateFeaturedMarker", {
+            identifier,
+            marker: markerCurie,
+            doi: markerDoi,
+            species: markerSpecies,
+          });
+        });
+    },
+    /**
+     * Get a list of featured datasets to display.
+     */
+    getFeaturedDatasets: function () {
+      const local_this = this;
+      fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
+        .then(response => response.json())
+        .then(data => {
+          store.commit("settings/updateFeatured", data.identifiers);
+          data.identifiers.forEach(element => {
+            local_this.getDatasetAnatomyInfo(element);
+          });
+        });
+    },
+    zoomToFeatures: function () {
       return;
     },
     handleSyncMouseEvent: async function (data) {
@@ -213,7 +286,7 @@ export default {
     handleSyncPanZoomEvent: function () {
       return;
     },
-    highlightFeatures: function() {
+    highlightFeatures: function () {
       return;
     },
     receiveSynchronisedEvent: async function (data) {
@@ -247,19 +320,18 @@ export default {
         fetch(`${this.apiLocation}get-organ-curies`, {
           signal,
         })
-          .then((response) => response.json())
-          .then((data) => {
+          .then(response => response.json())
+          .then(data => {
             this._controller = undefined;
-            data.uberon.array.forEach((pair) => {
+            data.uberon.array.forEach(pair => {
               this.idNamePair[pair.id.toUpperCase()] =
                 pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
             });
             return;
-          }
-        );
+          });
       }
     },
-    flatmapMarkerZoomUpdate(){
+    flatmapMarkerZoomUpdate() {
       return;
     },
     onResize: function () {
@@ -293,7 +365,7 @@ export default {
       helpMode: false,
       idNamePair: {},
       scaffoldLoaded: false,
-      isInHelp: false
+      isInHelp: false,
     };
   },
   created: function () {
@@ -304,4 +376,4 @@ export default {
     if (store.state.settings.sparcApi)
       this.apiLocation = store.state.settings.sparcApi;
   },
-}
+};
