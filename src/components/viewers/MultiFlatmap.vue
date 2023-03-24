@@ -18,7 +18,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { availableSpecies } from '../scripts/utilities.js';
-import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index.js";
+import { MultiFlatmapVuer } from "@tehsurfer/flatmapvuer/src/components/index.js";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import store from "../../store";

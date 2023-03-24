@@ -17,7 +17,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { FlatmapVuer } from "@abi-software/flatmapvuer/src/components/index.js";
+import { FlatmapVuer } from "@tehsurfer/flatmapvuer/src/components/index.js";
 import ContentMixin from "../../mixins/ContentMixin";
 import store from "../../store";
 export default {
