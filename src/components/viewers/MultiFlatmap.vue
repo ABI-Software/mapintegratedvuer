@@ -63,12 +63,15 @@ const extractS3BucketName = uri => {
 }
 
 const getBodyScaffold = async(sparcApi, species) => {
+  //Get body scaffold information
   const response = await fetch(`${sparcApi}get_body_scaffold_info/${species}`);
   if (response.ok) {
     const data = await response.json();
+    //Construct the url endpoint for downloading the scaffold
     const bucket = extractS3BucketName(data.s3uri);
     return `${sparcApi}s3-resource/${data.id}/${data.version}/files/${data.path}?s3BucketName=${bucket}`;
   } else {
+    //Use default url if data is not found for any reason
     if (species === "rat") {
       return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json";
     } else if (species === "human") {
@@ -109,7 +112,7 @@ export default {
             type: "SyncMap",
           };
         } else if ((this.activeSpecies === "Human Male") || (this.activeSpecies === "Human Female")) {
-          //Dynamically construct the whole body scaffold for human.
+          //Dynamically construct the whole body scaffold for human and store it
           if (!("human" in this.scaffoldResource)) {
             this.scaffoldResource["human"] = await getBodyScaffold(store.state.settings.sparcApi, "human");
           }
