@@ -30,7 +30,8 @@ import markerZoomLevels from '../markerZoomLevels';
  * if the uberon is not present in the hardcoded zoom-level list.
  */
 const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
-  if (markers) {
+  if (markers === 'ok') {
+    console.log('makers', markers)
     markers.forEach(id => {
       let foundInArray = false;
       // First check if uberon is in the list, check for zoom level 
