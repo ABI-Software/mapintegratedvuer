@@ -288,7 +288,9 @@ export default {
       let wrapperElement = document.createElement("div");
       wrapperElement.innerHTML = YellowStar;
 
-      const markerIdentifier = flatmapImp.addMarker(marker, wrapperElement);
+      const markerIdentifier = flatmapImp.addMarker(marker, {
+        element: wrapperElement,
+      });
       store.commit("settings/updateFeaturedMarkerIdentifier", {
         index,
         markerIdentifier,
