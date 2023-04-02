@@ -96,6 +96,7 @@ export default {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
         this.$refs.scaffold.toggleSyncControl(store.state.splitFlow.globalCallback, rotation);
+        if (store.state.splitFlow.syncMode) this.$refs.scaffold.fitWindow();
       }
     },
     requestSynchronisedEvent: function (flag) {
