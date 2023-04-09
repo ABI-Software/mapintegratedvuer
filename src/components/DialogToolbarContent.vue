@@ -354,13 +354,6 @@ export default {
   }
 }
 
-.header-icon {
-  font-size: 1.8em;
-  color: $app-primary-color;
-  margin-right:10px;
-  cursor: pointer;
-}
-
 .copy-button {
   color:#FFFFFF;
   background-color:$app-primary-color;

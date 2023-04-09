@@ -104,11 +104,10 @@ export default {
   .magnify {
     margin-top: 2px;
     margin-left:0.5rem;
-    background: #8300bf;
+    background: $app-primary-color;
     border-radius: 4px;
     height:28px;
     width:28px;
-    color: #fff;
     cursor: pointer;
     &:hover {
       box-shadow: -3px 2px 4px 0 rgba(0,0,0,0.25);

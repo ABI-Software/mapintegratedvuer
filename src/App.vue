@@ -209,4 +209,8 @@ body {
 .options-container{
   text-align: center;
 }
+
+.map-icon {
+  color: $app-primary-color!important;
+}
 </style>
