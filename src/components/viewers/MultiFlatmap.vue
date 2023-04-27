@@ -9,7 +9,7 @@
     :initial="entry.resource"
     :helpMode="helpMode"
     ref="multiflatmap"
-    :displayMinimap="true"
+    :displayMinimap="false"
     :flatmapAPI="flatmapAPI"
     @pan-zoom-callback="flatmapPanZoomCallback"
   />
@@ -76,7 +76,7 @@ const getBodyScaffold = async(sparcApi, species) => {
     if (species === "rat") {
       return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json";
     } else if (species === "human") {
-      return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/24-11-2022-human/humanBody_metadata.json";
+      return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/27-4-23-human/human_body_metadata.json";
     }
   }
 }

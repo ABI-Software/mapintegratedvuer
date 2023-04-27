@@ -20,6 +20,7 @@
           <el-button @click="setMultiFlatmap()" size="mini">Set MultiFlatmap</el-button>
           <el-button @click="setLegacyMultiFlatmap()" size="mini">Set Legacy MultiFlatmap</el-button>
           <el-button @click="setScaffold()" size="mini">Set To Scaffold</el-button>
+          <el-button @click="setFlatmap()" size="mini">Set Flatmap</el-button>
           <el-button @click="setSearch()" size="mini">Set Search</el-button>
         </el-row>
       </div>
@@ -102,6 +103,15 @@ export default {
       }
       xmlhttp.send(JSON.stringify({"state": state}));
 
+    },
+    setFlatmap: function() {
+      this.$refs.map.setCurrentEntry(
+        {
+          type: "Flatmap",
+          resource: "FunctionalConnectivity",
+          label: "Functional"
+        }
+      );
     },
     setLegacyMultiFlatmap: function() {
       this.$refs.map.setCurrentEntry(

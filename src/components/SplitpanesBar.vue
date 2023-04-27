@@ -134,7 +134,7 @@ export default {
         let title = entry.label ? entry.label + " ": '';
         let type = entry.type;
         if (type == "Scaffold")
-          type = "Scaffold 3D";
+          type = "3D Scaffold";
         title += type;
         if (entry.datasetId)
           title += " (" + entry.datasetId + ")";

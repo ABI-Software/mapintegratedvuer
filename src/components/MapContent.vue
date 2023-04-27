@@ -152,6 +152,21 @@ export default {
             }
           }
         }
+        else if (state.type === "Flatmap") {
+          //State for scaffold containing the following items:
+          //  label - Setting the name of the dialog
+          //  region - Which region/group currently focusing on
+          //  resource - the url to metadata
+          //  state - state to restore (viewport)
+          //  viewUrl - relative path of the view file to metadata 
+          const newView = {
+            type: state.type,
+            resource: state.resource,
+            state: state.state,
+            label: state.label
+          };
+          this.$refs.flow.createNewEntry(newView);
+        } 
       } 
     },
     /**
