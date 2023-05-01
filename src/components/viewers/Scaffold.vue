@@ -74,6 +74,24 @@ export default {
         }
       }
     },
+    displayTooltip: function(info) {
+      let names = undefined;
+      if (info) {
+        if (Array.isArray(info)) names = info;
+        else names = [ info.name ];
+      }
+      this.$refs.scaffold.changeActiveByName(names, "", false);
+      if (names) {
+        for (let i = 0; i < names.length; i++) {
+          if (this.$refs.scaffold.showRegionTooltip(names[i], true)) {
+            //Find a region
+            return;
+          }
+        }
+      } else {
+        this.$refs.scaffold.hideRegionTooltip();
+      }
+    },
     zoomToFeatures: function(info, forceSelect) {
       let names = undefined;
       if (Array.isArray(info)) names = info;
