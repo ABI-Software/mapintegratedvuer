@@ -53,6 +53,7 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
   }
 };
 
+/*
 const extractS3BucketName = uri => {
   if (uri) {
     const substring = uri.split("//")[1]
@@ -62,6 +63,7 @@ const extractS3BucketName = uri => {
   }
   return undefined
 }
+*/
 
 const getBodyScaffold = async(sparcApi, species) => {
   if (species === "rat") {
