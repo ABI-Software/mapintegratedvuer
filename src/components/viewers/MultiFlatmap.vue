@@ -64,7 +64,13 @@ const extractS3BucketName = uri => {
 }
 
 const getBodyScaffold = async(sparcApi, species) => {
+  if (species === "rat") {
+    return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json";
+  } else if (species === "human") {
+    return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/27-4-23-human/human_body_metadata.json";
+  }
   //Get body scaffold information
+  /*
   const response = await fetch(`${sparcApi}get_body_scaffold_info/${species}`);
   if (response.ok) {
     const data = await response.json();
@@ -79,6 +85,7 @@ const getBodyScaffold = async(sparcApi, species) => {
       return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/27-4-23-human/human_body_metadata.json";
     }
   }
+  */
 }
 
 export default {
