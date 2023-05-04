@@ -163,7 +163,7 @@
             "dataset_revision": "",
             "dataset_version": "3",
             "description": "Test this",
-            "doi": "https://doi.org/10.26275/234fd-12312sd",
+            "doi": "https://doi.org/10.26275/z1ga-dflp",
             "identifier": "N:dataset:a59a7c4c-0234534e24b31",
             "mbf-segmentation": [
                 {
@@ -234,6 +234,15 @@
     ]
   },
   "datasetResult": {
+    "anatomy": {
+      "organ": [
+        {
+          "curie":"UBERON:0001255",
+          "matchingStatus":"Exact Match",
+          "name":"urinary bladder"
+        }
+      ]
+    },
     "id": 32,
     "sourceDatasetId": 98,
     "name": "Test dataset",
@@ -333,5 +342,8 @@
         }
       ]
     }
+  },
+  "featuredDatasetResponse": {
+    "identifiers":["130"]
   }
 }
