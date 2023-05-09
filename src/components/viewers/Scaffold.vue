@@ -43,14 +43,18 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      this.$refs.scaffold.search(term);
+      //Remove first and last letter if they are double quote
+      const parsed = term.replace(/(^"|"$)/g, '')
+      return this.$refs.scaffold.search(parsed, true);
     },
     searchSuggestions: function(term, suggestions){
-      if (term === "" || !this.$refs.scaffold && !this.$refs.scaffold.fetchSuggestions) {
-        return suggestions
-      } else {
-        return [...suggestions, ...this.$refs.scaffold.fetchSuggestions(term).map((item) => item.suggestion)] // add the suggestions to the list
+      if (term === "" || !this.$refs.scaffold) {
+        return suggestions;
       }
+      const items = this.$refs.scaffold.fetchSuggestions(term);
+      items.forEach(item => {
+        if (item.suggestion) suggestions.push(item.suggestion);
+      });
     },
     /**
      * Handle sync pan zoom event
@@ -80,14 +84,8 @@ export default {
         if (Array.isArray(info)) names = info;
         else names = [ info.name ];
       }
-      this.$refs.scaffold.changeActiveByName(names, "", false);
       if (names) {
-        for (let i = 0; i < names.length; i++) {
-          if (this.$refs.scaffold.showRegionTooltip(names[i], true)) {
-            //Find a region
-            return;
-          }
-        }
+        this.$refs.scaffold.search(names, true);
       } else {
         this.$refs.scaffold.hideRegionTooltip();
       }
