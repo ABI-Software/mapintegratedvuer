@@ -1,5 +1,12 @@
 <template>
-    <div class="mapcontent" ref="MapApp">
+    <div
+      ref="MapApp"
+      v-loading="!isReady"
+      class="mapcontent"
+      element-loading-text="Loading..."
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.3)"
+    >
       <map-svg-sprite-color/>
       <SplitFlow 
         v-if="isReady"
@@ -12,12 +19,19 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Vue from "vue";
 import SplitFlow from './SplitFlow';
 import EventBus from './EventBus';
 import store from '../store';
 import { findSpeciesKey } from './scripts/utilities.js';
 import {MapSvgSpriteColor} from '@abi-software/svg-sprite';
 import { initialState } from "./scripts/utilities.js";
+import { Loading } from "element-ui";
+import lang from "element-ui/lib/locale/lang/en";
+import locale from "element-ui/lib/locale";
+
+locale.use(lang);
+Vue.use(Loading.directive);
 
 /**
  * Content of the app. More work flows will be added here.
@@ -234,6 +248,15 @@ export default {
 
 <style scoped lang="scss">
 @import "@/assets/styles";
+@import "~element-ui/packages/theme-chalk/src/loading";
+
+
+::v-deep .el-loading-spinner {
+  i, .el-loading-text {
+    color: $app-primary-color;
+  }
+}
+
 .map-help-dialog {
   position: fixed;
   z-index: 20;
