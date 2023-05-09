@@ -8,12 +8,13 @@
     @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
     @on-ready="scaffoldIsReady"
     ref="scaffold"
-    :backgroundToggle="true"
+    :background-toggle="true"
     :traditional="true"
-    :helpMode="helpMode"
+    :help-mode="helpMode"
     :render="visible"
-    :displayMinimap="false"
-    :displayMarkers="false"
+    :display-latest-message="true"
+    :display-minimap="false"
+    :display-markers="false"
     :view-u-r-l="entry.viewUrl"
   />
 </template>

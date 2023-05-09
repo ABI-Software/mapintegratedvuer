@@ -27,7 +27,7 @@
       <el-button icon="el-icon-setting" slot="reference">Options</el-button>
     </el-popover>
     <div class="map-app">
-      <MapContent ref="map" :options="options" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
+      <MapContent ref="map" :startingMap="startingMap" :options="options" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
     </div>
   </div>
 </template>
@@ -59,6 +59,7 @@ export default {
       prefix: "/map",
       api: process.env.VUE_APP_API_LOCATION,
       mapSettings: [],
+      startingMap: "WholeBody"
     }
   },
   computed: {
@@ -165,12 +166,6 @@ export default {
       }
       xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
     }
-  },
-  mounted: function() {
-    //this.setMultiFlatmap();
-    //this.setScaffold();
-    //window.map = this.$refs.map
-    //this.setSearch();
   },
 }
 </script>
