@@ -48,7 +48,7 @@ export default {
       if (term === "" || !this.$refs.scaffold && !this.$refs.scaffold.fetchSuggestions) {
         return suggestions
       } else {
-        return [...suggestions, ...this.$refs.scaffold.fetchSuggestions(term).map((item) => item.suggestion)] // add the suggestions to the list
+        this.$refs.scaffold.fetchSuggestions(term).forEach((item) => suggestions.push(item.suggestion)) // add the suggestions to the list
       }
     },
     /**
