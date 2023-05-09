@@ -44,7 +44,7 @@ export default {
      */
     search: function (term) {
       //Remove first and last letter if they are double quote
-      const parsed = term.replace(/(^"|"$)/g, '')
+      const parsed = term.replace(/(^"|"$)/g, '');
       return this.$refs.scaffold.search(parsed, true);
     },
     searchSuggestions: function(term, suggestions){

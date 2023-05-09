@@ -11,6 +11,7 @@
     ref="flatmap"
     @ready="getAvailableTerms"
     :displayMinimap="false"
+    :displayWarning="true"
     :flatmapAPI="flatmapAPI"
   />
 </template>

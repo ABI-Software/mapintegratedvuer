@@ -59,7 +59,7 @@ export default {
       prefix: "/map",
       api: process.env.VUE_APP_API_LOCATION,
       mapSettings: [],
-      startingMap: "WholeBody"
+      startingMap: "AC"
     }
   },
   computed: {
