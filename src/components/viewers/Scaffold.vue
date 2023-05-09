@@ -22,7 +22,6 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
-import { capitalise} from '../scripts/utilities.js';
 import { ScaffoldVuer } from "@abi-software/scaffoldvuer/src/components/index.js";
 import ContentMixin from "../../mixins/ContentMixin";
 import store from "../../store";
@@ -44,14 +43,14 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      let capitalised = capitalise(term);
-      const objects = this.$refs.scaffold.findObjectsWithGroupName(capitalised);
-      if (objects.length > 0) {
-        this.$refs.scaffold.changeActiveByName(capitalised, "", false);
-        this.$refs.scaffold.viewRegion(capitalised);
-        return true
+      this.$refs.scaffold.search(term);
+    },
+    searchSuggestions: function(term, suggestions){
+      if (term === "" || !this.$refs.scaffold && !this.$refs.scaffold.fetchSuggestions) {
+        return suggestions
+      } else {
+        return [...suggestions, ...this.$refs.scaffold.fetchSuggestions(term).map((item) => item.suggestion)] // add the suggestions to the list
       }
-      return false;
     },
     /**
      * Handle sync pan zoom event
