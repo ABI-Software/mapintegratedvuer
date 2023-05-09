@@ -48,7 +48,7 @@ import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog";
 // import contextCards from './context-cards'
 import { SideBar } from "@abi-software/map-side-bar/src/components/index.js";
-import { capitalise, initialState } from "./scripts/utilities.js";
+import { capitalise, initialDefaultState } from "./scripts/utilities.js";
 import store from "../store";
 import Vue from "vue";
 import { Container, Header, Main } from "element-ui";
@@ -70,10 +70,10 @@ export default {
     state: {
       type: Object,
       default: undefined,
-    },
+    }
   },
   data: function () {
-    return initialState();
+    return initialDefaultState();
   },
   watch: {
     state: {
@@ -228,7 +228,7 @@ export default {
       this.$emit("onFullscreen", val);
     },
     resetApp: function () {
-      this.setState(initialState());
+      this.setState(initialDefaultState());
     },
     setIdToPrimarySlot: function (id) {
       store.commit("splitFlow/setIdToPrimarySlot", id);

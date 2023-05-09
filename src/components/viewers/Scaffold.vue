@@ -8,12 +8,13 @@
     @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
     @on-ready="scaffoldIsReady"
     ref="scaffold"
-    :backgroundToggle="true"
+    :background-toggle="true"
     :traditional="true"
-    :helpMode="helpMode"
+    :help-mode="helpMode"
     :render="visible"
-    :displayMinimap="false"
-    :displayMarkers="false"
+    :display-latest-message="true"
+    :display-minimap="false"
+    :display-markers="false"
     :view-u-r-l="entry.viewUrl"
   />
 </template>
@@ -42,14 +43,18 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      this.$refs.scaffold.search(term);
+      //Remove first and last letter if they are double quote
+      const parsed = term.replace(/(^"|"$)/g, '');
+      return this.$refs.scaffold.search(parsed, true);
     },
     searchSuggestions: function(term, suggestions){
-      if (term === "" || !this.$refs.scaffold && !this.$refs.scaffold.fetchSuggestions) {
-        return suggestions
-      } else {
-        this.$refs.scaffold.fetchSuggestions(term).forEach((item) => suggestions.push(item.suggestion)) // add the suggestions to the list
+      if (term === "" || !this.$refs.scaffold) {
+        return suggestions;
       }
+      const items = this.$refs.scaffold.fetchSuggestions(term);
+      items.forEach(item => {
+        if (item.suggestion) suggestions.push(item.suggestion);
+      });
     },
     /**
      * Handle sync pan zoom event
@@ -71,6 +76,18 @@ export default {
             zoom
           );
         }
+      }
+    },
+    displayTooltip: function(info) {
+      let names = undefined;
+      if (info) {
+        if (Array.isArray(info)) names = info;
+        else names = [ info.name ];
+      }
+      if (names) {
+        this.$refs.scaffold.search(names, true);
+      } else {
+        this.$refs.scaffold.hideRegionTooltip();
       }
     },
     zoomToFeatures: function(info, forceSelect) {

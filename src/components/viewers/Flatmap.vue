@@ -7,10 +7,11 @@
     style="height: 100%; width: 100%"
     :minZoom="entry.minZoom"
     :helpMode="helpMode"
-    :pathControls="entry.pathControls"
+    :pathControls="true"
     ref="flatmap"
     @ready="getAvailableTerms"
-    :displayMinimap="true"
+    :displayMinimap="false"
+    :displayWarning="true"
     :flatmapAPI="flatmapAPI"
   />
 </template>
