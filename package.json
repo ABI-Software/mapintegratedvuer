@@ -10,7 +10,9 @@
     "build-bundle": "vue-cli-service build --target lib --name mapintegratedvuer ./src/components/index.js",
     "build-static": "vue-cli-service build --dest test_html --mode static",
     "start": "vue-cli-service serve",
-    "cypress": "cypress"
+    "cypress": "cypress",
+    "report:merge": "mochawesome-merge cypress/results/json/*json > cypress/results/mochawesome-bundle.json",
+    "report:generate": "marge cypress/results/mochawesome-bundle.json -o cypress/reports/html"
   },
   "repository": {
     "type": "git",
@@ -64,6 +66,7 @@
     "canvas": "^2.8.0",
     "chai": "^4.1.2",
     "cypress": "^12.11.0",
+    "cypress-multi-reporters": "^1.6.3",
     "cypress-wait-until": "^1.7.1",
     "dom-parser": "^0.1.6",
     "eslint": "^5.16.0",
@@ -74,6 +77,9 @@
     "jsdom-global": "^3.0.2",
     "mocha": "^8.1.3",
     "mochapack": "^2.1.4",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.3.0",
+    "mochawesome-report-generator": "^6.2.0",
     "node-loader": "^0.6.0",
     "node-sass": "^4.14.1",
     "raw-loader": "^0.5.1",

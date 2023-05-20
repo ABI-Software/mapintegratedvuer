@@ -7,12 +7,10 @@ module.exports = defineConfig({
   reporter: "junit",
   experimentalMemoryManagement: true,
   numTestsKeptInMemory: 0,
-
+  reporter: "cypress-multi-reporters",
   reporterOptions: {
-    mochaFile: "results/cypress-report.xml",
-    toConsole: true,
+    "configFile": "reporter-config.json"
   },
-
   e2e: {
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
