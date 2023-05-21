@@ -181,6 +181,5 @@ describe('MapContent', () => {
     cy.get('.icon-group.el-row .el-popover:visible .el-row').should('have.length', 5);
     cy.get('.icon-group.el-row .el-popover:visible .el-row').contains('Four panes').should('exist').click();
     cy.get('.content-container:visible').should('have.length', 4);
-
   })
 })

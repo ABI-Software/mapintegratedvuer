@@ -9,7 +9,7 @@ module.exports = defineConfig({
   numTestsKeptInMemory: 0,
   reporter: "cypress-multi-reporters",
   reporterOptions: {
-    "configFile": "reporter-config.json"
+    configFile: "reporter-config.json"
   },
   e2e: {
     // We've imported your old cypress plugins here.
