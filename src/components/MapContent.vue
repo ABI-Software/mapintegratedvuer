@@ -1,17 +1,37 @@
 <template>
-    <div class="mapcontent" ref="MapApp">
+    <div
+      ref="MapApp"
+      v-loading="!isReady"
+      class="mapcontent"
+      element-loading-text="Loading..."
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.3)"
+    >
       <map-svg-sprite-color/>
-      <SplitFlow @onFullscreen="onFullscreen" :state="state" ref="flow"/>
+      <SplitFlow 
+        v-if="isReady"
+        @onFullscreen="onFullscreen"
+        :state="stateToSet"
+        ref="flow"
+      />
     </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Vue from "vue";
 import SplitFlow from './SplitFlow';
 import EventBus from './EventBus';
 import store from '../store';
 import { findSpeciesKey } from './scripts/utilities.js';
 import {MapSvgSpriteColor} from '@abi-software/svg-sprite';
+import { initialState } from "./scripts/utilities.js";
+import { Loading } from "element-ui";
+import lang from "element-ui/lib/locale/lang/en";
+import locale from "element-ui/lib/locale";
+
+locale.use(lang);
+Vue.use(Loading.directive);
 
 /**
  * Content of the app. More work flows will be added here.
@@ -34,6 +54,17 @@ export default {
     options: {
       type: Object, 
       default: () => {}
+    },
+    //New option to start the map in AC, FC or WholeBody
+    startingMap: {
+      type: String,
+      default: "AC"
+    }
+  },
+  data: function () {
+    return {
+      isReady: false,
+      initialState: undefined,
     }
   },
   methods: {
@@ -72,7 +103,6 @@ export default {
           document.msExitFullscreen();
         }
       }
-
     },
     goFullscreen: function(){
       let mapApp = this.$refs.MapApp;
@@ -94,11 +124,12 @@ export default {
     },
     /**
      * Provide a way to set the current view, this is currently limited
-     * to setting view for scaffold or the multiflatmap.
+     * to setting view for flatmapm, multiflatmap or scaffold.
      * In the case of the multiflatmap, it will not create a new entry and
      * instead change the current entry by setting the state.
+     * 
      */
-    setCurrentEntry: function(state) {
+    setCurrentEntry: function(state, ) {
       if (state && state.type) {
         if (state.type === "Scaffold" && state.url) {
           //State for scaffold containing the following items:
@@ -176,6 +207,11 @@ export default {
       return this.$refs.flow.openSearch(facets, query);
     }
   },
+  computed: {
+    stateToSet() {
+      return this.state ? this.state : this.initialState;
+    },
+  },
   watch: {
     "shareLink" : {
       handler: function (newLink) {
@@ -197,10 +233,14 @@ export default {
       this.options.rootUrl ? store.commit("settings/updateRootUrl", this.options.rootUrl) : null
     }
   },
-  mounted: function() {
+  mounted: async function() {
     EventBus.$on("updateShareLinkRequested", () => {
       this.$emit("updateShareLinkRequested");
     });
+    if (!this.state && this.startingMap !== "AC" ) {
+      this.initialState = await initialState(this.startingMap, this.options.sparcApi);
+    }
+    this.isReady = true;
   }
 }
 
@@ -208,6 +248,15 @@ export default {
 
 <style scoped lang="scss">
 @import "@/assets/styles";
+@import "~element-ui/packages/theme-chalk/src/loading";
+
+
+::v-deep .el-loading-spinner {
+  i, .el-loading-text {
+    color: $app-primary-color;
+  }
+}
+
 .map-help-dialog {
   position: fixed;
   z-index: 20;

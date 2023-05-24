@@ -8,12 +8,13 @@
     @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
     @on-ready="scaffoldIsReady"
     ref="scaffold"
-    :backgroundToggle="true"
+    :background-toggle="true"
     :traditional="true"
-    :helpMode="helpMode"
+    :help-mode="helpMode"
     :render="visible"
-    :displayMinimap="false"
-    :displayMarkers="false"
+    :display-latest-message="true"
+    :display-minimap="false"
+    :display-markers="false"
     :view-u-r-l="entry.viewUrl"
   />
 </template>
@@ -21,7 +22,6 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
-import { capitalise} from '../scripts/utilities.js';
 import { ScaffoldVuer } from "@abi-software/scaffoldvuer/src/components/index.js";
 import ContentMixin from "../../mixins/ContentMixin";
 import store from "../../store";
@@ -43,14 +43,18 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      let capitalised = capitalise(term);
-      const objects = this.$refs.scaffold.findObjectsWithGroupName(capitalised);
-      if (objects.length > 0) {
-        this.$refs.scaffold.changeActiveByName(capitalised, "", false);
-        this.$refs.scaffold.viewRegion(capitalised);
-        return true
+      //Remove first and last letter if they are double quote
+      const parsed = term.replace(/(^"|"$)/g, '');
+      return this.$refs.scaffold.search(parsed, true);
+    },
+    searchSuggestions: function(term, suggestions){
+      if (term === "" || !this.$refs.scaffold) {
+        return suggestions;
       }
-      return false;
+      const items = this.$refs.scaffold.fetchSuggestions(term);
+      items.forEach(item => {
+        if (item.suggestion) suggestions.push(item.suggestion);
+      });
     },
     /**
      * Handle sync pan zoom event
@@ -80,14 +84,8 @@ export default {
         if (Array.isArray(info)) names = info;
         else names = [ info.name ];
       }
-      this.$refs.scaffold.changeActiveByName(names, "", false);
       if (names) {
-        for (let i = 0; i < names.length; i++) {
-          if (this.$refs.scaffold.showRegionTooltip(names[i], true)) {
-            //Find a region
-            return;
-          }
-        }
+        this.$refs.scaffold.search(names, true);
       } else {
         this.$refs.scaffold.hideRegionTooltip();
       }

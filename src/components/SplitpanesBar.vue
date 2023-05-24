@@ -26,7 +26,7 @@
         <div v-else class="text title">
           {{ getEntryTitle(entries[0]) }}
         </div>
-        <template v-if="isFlatmap[slot.name]">
+        <template v-if="isSearchable[slot.name]">
           <search-controls 
             @search="$emit('local-search', {term: $event, slot: slot});"
             @fetch-suggestions="$emit('fetch-suggestions', {data: $event, slot: slot});"
@@ -38,7 +38,7 @@
         <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :open-delay="helpDelay"
           :appendToBody=false trigger="hover" popper-class="header-popper" >
           <map-svg-icon icon="close" slot="reference" class="header-icon"
-            v-if="(activeView !== 'singlepanel') && (isFlatmap[slot.name] == false)"
+            v-if="(activeView !== 'singlepanel') && (isSearchable[slot.name] == false)"
             @click.native="closeAndRemove(slot)"/>
         </el-popover>
       </el-row>
@@ -102,7 +102,7 @@ export default {
   },
   data: function() {
     return {
-      isFlatmap: {
+      isSearchable: {
         first: true,
         second: false,
         third: false,
@@ -233,18 +233,18 @@ export default {
       }
       return style;
     },
-    updateIsFlatmapSlot: function(slot) {
+    updateisSearchableSlot: function(slot) {
       let entry = this.entries.find(entry => entry.id === slot.id);
       if (entry) {
-        if (entry.type == "Flatmap" || entry.type == "MultiFlatmap") {
-          this.isFlatmap[slot.name] = true;
+        if (entry.type == "Flatmap" || entry.type == "MultiFlatmap" || entry.type == "Scaffold") {
+          this.isSearchable[slot.name] = true;
         } else {
-          this.isFlatmap[slot.name] = false;
+          this.isSearchable[slot.name] = false;
         }
       }
     },
-    updateIsFlatmap: function() {
-      this.slotInfo.forEach( slot => this.updateIsFlatmapSlot(slot));
+    updateisSearchable: function() {
+      this.slotInfo.forEach( slot => this.updateisSearchableSlot(slot));
     },
     viewerChanged: function(slot, value) {
       if (slot.id && slot.id != value) {
@@ -263,7 +263,7 @@ export default {
   watch: {
     slotInfo: {
       handler: function() {
-        this.updateIsFlatmap();
+        this.updateisSearchable();
       },
       deep: true
     },
