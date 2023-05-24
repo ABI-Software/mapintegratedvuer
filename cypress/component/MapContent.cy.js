@@ -149,7 +149,7 @@ describe('MapContent', () => {
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
     cy.get('.singlepanel-1.contentvuer').should('have.length', 1);
     cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .el-scrollbar__view >').should('have.length', 3);
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 3);
 
     //Check for segmentations and open it, should have four items in select now
     cy.get('.box-card .container button').contains('Segmentations (1)').click();
@@ -158,7 +158,7 @@ describe('MapContent', () => {
     cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should("exist");
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
     cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .el-scrollbar__view >').should('have.length', 4);
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 4);
 
     cy.get('@simulation_ui').then((simulation_ui) => {
       cy.intercept('/sparc-api//sim/dataset/999',
@@ -169,7 +169,7 @@ describe('MapContent', () => {
     cy.get('.box-card .container button').contains('Simulations (1)').click();
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
     cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .el-scrollbar__view >').should('have.length', 5);
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 5);
 
     //Close the sidebar
     cy.get('.close-tab').should('exist').click();
