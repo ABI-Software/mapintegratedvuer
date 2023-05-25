@@ -12,7 +12,10 @@
     "start": "vue-cli-service serve",
     "cypress": "cypress",
     "report:merge": "mochawesome-merge cypress/results/json/*json > cypress/results/mochawesome-bundle.json",
-    "report:generate": "marge cypress/results/mochawesome-bundle.json -o cypress/reports/html"
+    "report:generate": "marge cypress/results/mochawesome-bundle.json -o cypress/reports/html",
+    "release:beta": "npm version prerelease --preid=beta; npm publish --tag beta",
+    "release:minor": "npm version minor; npm publish",
+    "release:patch": "npm version patch;  npm publish"
   },
   "repository": {
     "type": "git",
