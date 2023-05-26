@@ -1,6 +1,5 @@
 /* eslint-disable no-alert, no-console */
-import { mount } from '@cypress/vue';
-import { MapContent } from '../../../src/components/index.js';
+import { MapContent } from '../../src/components/index.js';
 
 describe('MapContent', () => {
 
@@ -10,6 +9,7 @@ describe('MapContent', () => {
     cy.fixture('scaffoldMetadata.json').as('metadata');
     cy.fixture('scaffoldPrimitive.json').as('primitive');
     cy.fixture('stubResponse.json').as('stub');
+    cy.fixture('simulation_ui.json').as('simulation_ui');
   })
   
   it('Workflow testing', () => {
@@ -21,12 +21,20 @@ describe('MapContent', () => {
 
       cy.intercept('/sparc-api/dataset_info/using_multiple_dois/?dois=*', {statusCode: 200, body: stub.resultResponse}).as("mouseDataset");
     
-      cy.intercept('/sparc-api/get-organ-curies?', {statusCode: 200, body: stub.curiesResponse}).as("curieResponse");
+      cy.intercept('/sparc-api/get-organ-curies', {statusCode: 200, body: stub.curiesResponse}).as("curieResponse");
+
+      cy.intercept('/sparc-api/get_featured_datasets_identifiers', {statusCode: 200, body: stub.featuredDatasetResponse}).as("featuredDatasetResponse");
+
+      const anatomy_dataset = {
+        "result": [stub.datasetResult]
+      };
+
+      cy.intercept('/sparc-api/dataset_info/anatomy?identifier=130', {statusCode: 200, body: anatomy_dataset}).as("anatomyResponse");
     })
 
     //cy.intercept('GET', 'https://mapcore-demo.org/current/flatmap/v2/**');
     
-    mount(MapContent, {
+    cy.mount(MapContent, {
       propsData: {
         options: {
           sparcApi: "https://mock-test/sparc-api/",
@@ -68,14 +76,23 @@ describe('MapContent', () => {
     //Wait for curie response
     cy.wait('@curieResponse', {timeout: 20000});
 
+    //Wait for curie response
+    cy.wait('@featuredDatasetResponse', {timeout: 20000});
+
+    //Wait for curie response
+    cy.wait('@anatomyResponse', {timeout: 20000});
+
+    cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask', {timeout: 30000}).should('not.exist');
+
     //Search for non existance feature, expect not-found text
-    cy.get('.search-box > .el-input__inner').should('exist').type("NON_EXISTANCE");
-    cy.get('.toolbar-flex-container > .map-icon > use').should('exist').click();
+    cy.get('.el-autocomplete > .el-input > .el-input__inner').should('exist').type("NON_EXISTANCE");
+    cy.get('.search-container > .map-icon > use').should('exist').click();
     cy.get('.not-found-text').should('exist');
 
     //Search for Vague nerve, expect not-found text to be gone
-    cy.get('.search-box > .el-input__inner').should('exist').clear().type("'Vagus Nerve'");
-    cy.get('.toolbar-flex-container > .map-icon > use').should('exist').click();
+    cy.get('.el-autocomplete > .el-input > .el-input__inner').should('exist').clear();
+    cy.get('.el-autocomplete > .el-input > .el-input__inner').should('exist').type("'Vagus Nerve'");
+    cy.get('.search-container > .map-icon > use').should('exist').click();
     cy.get('.not-found-text').should('not.exist');
 
     //Intercept the request and stub it with preloaded fixture
@@ -91,10 +108,10 @@ describe('MapContent', () => {
     })
     
     //Click on the Open 3D Scaffold button
-    cy.get('.content-container > .el-button').should('be.visible').click();
+    cy.get('.open-scaffold').should('be.visible').click();
 
     //Check for two content containers
-    cy.get('.content-container').should('have.length', 2);
+    cy.get('.contentvuer').should('be.visible').should('have.length', 2);
 
     //Wait for the mouse dataset request
     cy.wait('@mouseDataset', {timeout: 20000});
@@ -112,7 +129,7 @@ describe('MapContent', () => {
     cy.get('.dataset-card').should('have.length', 1);
 
     //Check how many tags in the dataset
-    cy.get('.box-card .container button').should('have.length', 5);
+    cy.get('.box-card .container button').should('have.length', 6);
 
     //Intercept the request and stub it with preloaded fixture
     cy.get('@metadata').then((metadata) => {
@@ -132,7 +149,7 @@ describe('MapContent', () => {
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
     cy.get('.singlepanel-1.contentvuer').should('have.length', 1);
     cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .el-scrollbar__view >').should('have.length', 3);
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 3);
 
     //Check for segmentations and open it, should have four items in select now
     cy.get('.box-card .container button').contains('Segmentations (1)').click();
@@ -141,13 +158,18 @@ describe('MapContent', () => {
     cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should("exist");
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
     cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .el-scrollbar__view >').should('have.length', 4);
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 4);
+
+    cy.get('@simulation_ui').then((simulation_ui) => {
+      cy.intercept('/sparc-api//sim/dataset/999',
+        {statusCode: 200, body: simulation_ui});
+    })
 
     //Check for simulations and open it, should have five items in select now
     cy.get('.box-card .container button').contains('Simulations (1)').click();
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
     cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .el-scrollbar__view >').should('have.length', 5);
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 5);
 
     //Close the sidebar
     cy.get('.close-tab').should('exist').click();
@@ -159,6 +181,5 @@ describe('MapContent', () => {
     cy.get('.icon-group.el-row .el-popover:visible .el-row').should('have.length', 5);
     cy.get('.icon-group.el-row .el-popover:visible .el-row').contains('Four panes').should('exist').click();
     cy.get('.content-container:visible').should('have.length', 4);
-
   })
 })

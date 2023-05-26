@@ -162,6 +162,9 @@ export default {
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
     },
+    displayTooltip: function() {
+      return;
+    },
     /**
      * Get the term to zoom/highlight in a synchronisation event,
      * if it cannot be found in the map, it will perform several
@@ -277,7 +280,8 @@ export default {
       if (data.eventType === "highlighted") {
         this.highlightFeatures(info);
       } else if (data.eventType === "selected") {
-        this.zoomToFeatures(info, true);
+        this.displayTooltip(info);
+        //this.zoomToFeatures(info, true);
       }
     },
     /**
@@ -292,7 +296,7 @@ export default {
     receiveSynchronisedEvent: async function (data) {
       if (data.paneIndex !== this.entry.id) {
         if (data.eventType == "panZoom") {
-          this.handleSyncPanZoomEvent(data);
+          //this.handleSyncPanZoomEvent(data);
         } else {
           this.handleSyncMouseEvent(data);
         }

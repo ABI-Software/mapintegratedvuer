@@ -7,3 +7,5 @@ test_html
 yalc.lock
 cypress/videos
 results
+cypress/screenshots/
+cypress/reports/

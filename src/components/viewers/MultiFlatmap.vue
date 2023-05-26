@@ -9,7 +9,7 @@
     :initial="entry.resource"
     :helpMode="helpMode"
     ref="multiflatmap"
-    :displayMinimap="true"
+    :displayMinimap="false"
     :flatmapAPI="flatmapAPI"
     @pan-zoom-callback="flatmapPanZoomCallback"
   />
@@ -23,6 +23,7 @@ import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import store from "../../store";
 import markerZoomLevels from "../markerZoomLevels";
+import { getBodyScaffold } from "../scripts/utilities";
 
 import YellowStar from "../../icons/yellowstar";
 
@@ -52,34 +53,6 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
     });
   }
 };
-
-const extractS3BucketName = uri => {
-  if (uri) {
-    const substring = uri.split("//")[1]
-    if (substring) {
-      return substring.split("/")[0]
-    }
-  }
-  return undefined
-}
-
-const getBodyScaffold = async(sparcApi, species) => {
-  //Get body scaffold information
-  const response = await fetch(`${sparcApi}get_body_scaffold_info/${species}`);
-  if (response.ok) {
-    const data = await response.json();
-    //Construct the url endpoint for downloading the scaffold
-    const bucket = extractS3BucketName(data.s3uri);
-    return `${sparcApi}s3-resource/${data.id}/${data.version}/files/${data.path}?s3BucketName=${bucket}`;
-  } else {
-    //Use default url if data is not found for any reason
-    if (species === "rat") {
-      return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json";
-    } else if (species === "human") {
-      return "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/24-11-2022-human/humanBody_metadata.json";
-    }
-  }
-}
 
 export default {
   name: "MultiFlatmap",
