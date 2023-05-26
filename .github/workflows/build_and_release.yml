@@ -17,9 +17,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-       VUE_APP_ALGOLIA_KEY: ${{secrets.algolia_key}}
-       VUE_APP_ALGOLIA_ID: ${{secrets.algolia_id}}
+    environment: Build and release
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -32,6 +30,7 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    environment: Build and release
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
