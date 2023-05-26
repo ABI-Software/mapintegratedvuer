@@ -16,7 +16,6 @@ on:
         
 jobs:
   test:
-    needs: build
     runs-on: ubuntu-latest
     env:
        VUE_APP_ALGOLIA_KEY: ${{secrets.algolia_key}}
