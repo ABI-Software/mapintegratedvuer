@@ -1,0 +1,39 @@
+# This workflow will build, run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: MapIntegratedVuer Release
+
+on: 
+  workflow_dispatch:
+    inputs:
+      name:
+        type: choice
+        description: What type of releases
+        options: 
+        - beta
+        - patch
+        - minor
+        
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12.13.0
+      - run: npm run build-bundle 
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+       VUE_APP_ALGOLIA_KEY: ${{secrets.algolia_key}}
+       VUE_APP_ALGOLIA_ID: ${{secrets.algolia_id}}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12.13.0
+      - run: npm run test-unit
+      - run: npm run cypress run-ct
