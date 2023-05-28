@@ -6,10 +6,11 @@ name: MapIntegratedVuer Release
 on: 
   workflow_dispatch:
     inputs:
-      name:
+      release_type:
         type: choice
         description: What type of releases
-        options: 
+        options:
+        - Test only
         - beta
         - patch
         - minor
@@ -39,4 +40,27 @@ jobs:
         with:
           node-version: 12.13.0
       - run: npm install 
-      - run: npm run build-bundle 
+      - run: npm run build-bundle
+      - uses: actions/upload-artifact@master
+        with:
+          name: dist
+          path: dist/
+          
+  publish:
+    needs: build
+    if: ${{ github.event.inputs.release_type }} != 'Test only'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12.13.0
+      - name: Download dist
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+      - name: "Release ${{ github.event.inputs.release_type }}"
+        run: npm run release:${{ github.event.inputs.release_type }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
