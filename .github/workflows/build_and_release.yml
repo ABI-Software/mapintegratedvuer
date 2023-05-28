@@ -10,7 +10,7 @@ on:
         type: choice
         description: What type of releases
         options:
-        - Test only
+        - Test-only
         - beta
         - patch
         - minor
@@ -48,7 +48,7 @@ jobs:
           
   publish:
     needs: build
-    if: ${{ github.event.inputs.release_type }} != 'Test only'
+    if: ${{ github.event.inputs.release_type }} != 'Test-only'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
