@@ -13,9 +13,9 @@
     "cypress": "cypress",
     "report:merge": "mochawesome-merge cypress/results/json/*json > cypress/results/mochawesome-bundle.json",
     "report:generate": "marge cypress/results/mochawesome-bundle.json -o cypress/reports/html",
-    "release:beta": "npm version prerelease --preid=beta; npm publish --tag beta",
-    "release:minor": "npm version minor; npm publish",
-    "release:patch": "npm version patch;  npm publish"
+    "release:beta": "npm version prerelease --preid=beta; npm publish --access public --tag beta",
+    "release:minor": "npm version minor; npm publish --access public",
+    "release:patch": "npm version patch;  npm publish --access public"
   },
   "repository": {
     "type": "git",
