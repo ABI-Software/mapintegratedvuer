@@ -60,7 +60,12 @@ jobs:
         with:
           name: dist
       - name: "Release ${{ github.event.inputs.release_type }}"
-        run: npm run release:${{ github.event.inputs.release_type }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          npm run release:${{ github.event.inputs.release_type }}
+          git push
+          git push --tag
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
