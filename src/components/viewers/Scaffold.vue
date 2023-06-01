@@ -13,6 +13,7 @@
     :help-mode="helpMode"
     :render="visible"
     :display-latest-message="true"
+    :warning-message="warningMessage"
     :display-minimap="false"
     :display-markers="false"
     :view-u-r-l="entry.viewUrl"
@@ -159,6 +160,15 @@ export default {
       let slot = store.getters["splitFlow/getSlotById"](this.entry.id);
       if (slot) return store.getters["splitFlow/isSlotActive"](slot);
       return false;
+    },
+  },
+  computed: {
+    warningMessage: function() {
+      if (this.entry.isBodyScaffold) {
+        return "This map displays the anatomical location and connectivity of nerves, through which the neuron populations from the ApiNATOMY models available in SCKAN can be routed.";
+      } else {
+        return "Under active development";
+      }
     },
   },
   data: function () {

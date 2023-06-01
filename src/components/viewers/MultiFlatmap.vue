@@ -98,6 +98,7 @@ export default {
             title: "View 3D scaffold",
             layout: "2vertpanel",
             type: "SyncMap",
+            isBodyScaffold: true,
           };
         }
         if (action)

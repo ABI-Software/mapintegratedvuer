@@ -39,6 +39,7 @@ const initialState = async (type, sparcApi) => {
     state.entries[0].resource = url;
     state.entries[0].type = "Scaffold";
     state.entries[0].label = "Human";
+    state.entries[0].isBodyScaffold = true;
   }
 
   return state;
