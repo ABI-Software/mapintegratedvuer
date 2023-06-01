@@ -187,3 +187,10 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="scss">
+::v-deep .scaffold-popper {
+  white-space: unset;
+  max-width: 200px;
+}
+</style>
