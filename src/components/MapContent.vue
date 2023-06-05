@@ -13,6 +13,7 @@
         @onFullscreen="onFullscreen"
         :state="stateToSet"
         ref="flow"
+        @hook:mounted="flowMounted"
       />
     </div>
 </template>
@@ -129,7 +130,7 @@ export default {
      * instead change the current entry by setting the state.
      * 
      */
-    setCurrentEntry: function(state, ) {
+    setCurrentEntry: function(state) {
       if (state && state.type) {
         if (state.type === "Scaffold" && state.url) {
           //State for scaffold containing the following items:
@@ -205,7 +206,10 @@ export default {
      */
     openSearch: function(facets, query) {
       return this.$refs.flow.openSearch(facets, query);
-    }
+    },
+    flowMounted: function () {
+      this.$emit("isReady");
+    },
   },
   computed: {
     stateToSet() {
