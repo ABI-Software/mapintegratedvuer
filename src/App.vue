@@ -129,7 +129,8 @@ export default {
           type: "MultiFlatmap",
           taxo: "NCBITaxon:9606",
           biologicalSex: "PATO:0000384",
-          organ: "heart"
+          //organ: "heart"
+          organ: "'Pelvic splanchnic nerve'"
         }
       );
     },
