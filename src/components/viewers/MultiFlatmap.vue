@@ -9,7 +9,7 @@
     :initial="entry.resource"
     :helpMode="helpMode"
     ref="multiflatmap"
-    :displayMinimap="false"
+    :displayMinimap="true"
     :flatmapAPI="flatmapAPI"
     @pan-zoom-callback="flatmapPanZoomCallback"
   />
