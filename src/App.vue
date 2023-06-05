@@ -27,7 +27,7 @@
       <el-button icon="el-icon-setting" slot="reference">Options</el-button>
     </el-popover>
     <div class="map-app">
-      <MapContent ref="map" :startingMap="startingMap" :options="options" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID"/>
+      <MapContent ref="map" :startingMap="startingMap" :options="options" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID" @isReady="mapIsReady"/>
     </div>
   </div>
 </template>
@@ -130,7 +130,7 @@ export default {
           taxo: "NCBITaxon:9606",
           biologicalSex: "PATO:0000384",
           //organ: "heart"
-          organ: "'Pelvic splanchnic nerve'"
+          organ: "UBERON:0018675"
         }
       );
     },
@@ -147,6 +147,9 @@ export default {
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
     },
+    mapIsReady: function() {
+      console.log("map is ready")
+    }
   },
   created: function() {
     this.uuid = this.$route.query.id;
