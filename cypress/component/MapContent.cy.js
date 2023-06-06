@@ -84,6 +84,9 @@ describe('MapContent', () => {
 
     cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask', {timeout: 30000}).should('not.exist');
 
+    //Test the existence of the minimap
+    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').should('exist');
+
     //Search for non existance feature, expect not-found text
     cy.get('.el-autocomplete > .el-input > .el-input__inner').should('exist').type("NON_EXISTANCE");
     cy.get('.search-container > .map-icon > use').should('exist').click();
@@ -94,6 +97,12 @@ describe('MapContent', () => {
     cy.get('.el-autocomplete > .el-input > .el-input__inner').should('exist').type("'Vagus Nerve'");
     cy.get('.search-container > .map-icon > use').should('exist').click();
     cy.get('.not-found-text').should('not.exist');
+
+    //Test searching with uberon id wich should display a pop up with anatomical name
+    cy.get('.el-autocomplete > .el-input > .el-input__inner').should('exist').clear();
+    cy.get('.el-autocomplete > .el-input > .el-input__inner').should('exist').type("UBERON:0018675");
+    cy.get('.search-container > .map-icon > use').should('exist').click();
+    cy.get('.maplibregl-popup-content').should('exist').contains('pelvic splanchnic nerve');
 
     //Intercept the request and stub it with preloaded fixture
     cy.get('@metadata').then((metadata) => {
