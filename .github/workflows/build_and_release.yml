@@ -13,7 +13,6 @@ on:
         options:
         - Test-only
         - beta
-        - fixes
         - patch
         - minor
         

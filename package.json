@@ -15,7 +15,6 @@
     "report:generate": "marge cypress/results/mochawesome-bundle.json -o cypress/reports/html",
     "changelog": "auto-changelog -p --output CHANGELOG.md --template keepachangelog",
     "release:beta": "npm version prerelease --preid=beta; npm publish --access public --tag beta",
-    "release:fixes": "npm version --preid=fixes; npm publish --access public",
     "release:minor": "npm version minor; npm publish --access public",
     "release:patch": "npm version patch;  npm publish --access public",
     "version": "npm run changelog; git add CHANGELOG.md"
