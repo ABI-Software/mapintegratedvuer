@@ -95,7 +95,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 ::v-deep .flatmapvuer-popover {
-  .mapboxgl-popup-content {
+  .maplibregl-popup-content {
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     pointer-events: auto;

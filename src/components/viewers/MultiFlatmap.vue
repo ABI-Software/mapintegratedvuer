@@ -9,7 +9,7 @@
     :initial="entry.resource"
     :helpMode="helpMode"
     ref="multiflatmap"
-    :displayMinimap="false"
+    :displayMinimap="true"
     :flatmapAPI="flatmapAPI"
     @pan-zoom-callback="flatmapPanZoomCallback"
   />
@@ -98,6 +98,7 @@ export default {
             title: "View 3D scaffold",
             layout: "2vertpanel",
             type: "SyncMap",
+            isBodyScaffold: true,
           };
         }
         if (action)
