@@ -51,7 +51,7 @@
     "shepherd.js": "^7.1.5",
     "splitpanes": "^2.3.6",
     "svg-inline-loader": "^0.8.2",
-    "vue": "^2.7.14",
+    "vue": "2.6.10",
     "vue-cli-plugin-webpack-bundle-analyzer": "^4.0.0",
     "vue-draggable-resizable": "2.3.0",
     "vue-router": "^3.6.5",
@@ -91,7 +91,7 @@
     "raw-loader": "^0.5.1",
     "resolve-url-loader": "^3.1.2",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.7.14"
+    "vue-template-compiler": "2.6.10"
   },
   "eslintConfig": {
     "root": true,
