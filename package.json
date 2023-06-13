@@ -33,14 +33,14 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^0.5.1-beta.0",
-    "@abi-software/map-side-bar": "^1.4.1-beta.0",
+    "@abi-software/flatmapvuer": "^0.5.1-beta.1",
+    "@abi-software/map-side-bar": "^1.4.1-beta.1",
     "@abi-software/plotvuer": "^0.3.9",
-    "@abi-software/scaffoldvuer": "^0.2.1-beta.0",
-    "@abi-software/simulationvuer": "^0.6.6-beta.0",
+    "@abi-software/scaffoldvuer": "^0.2.1-beta.1",
+    "@abi-software/simulationvuer": "^0.6.5",
     "@abi-software/svg-sprite": "^0.2.0",
     "@soda/get-current-script": "^1.0.2",
-    "core-js": "^3.30.1",
+    "core-js": "^3.3.2",
     "d3-time-format": "^3.0.0",
     "element-ui": "^2.13.0",
     "es6-promise": "^4.2.8",
@@ -50,7 +50,7 @@
     "shepherd.js": "^7.1.5",
     "splitpanes": "^2.3.6",
     "svg-inline-loader": "^0.8.2",
-    "vue": "^2.7.14",
+    "vue": "^2.6.10",
     "vue-cli-plugin-webpack-bundle-analyzer": "^2.0.0",
     "vue-draggable-resizable": "2.1.0",
     "vue-router": "^3.4.9",
@@ -91,7 +91,7 @@
     "raw-loader": "^0.5.1",
     "resolve-url-loader": "^3.1.2",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.7.14"
+    "vue-template-compiler": "^2.6.12"
   },
   "eslintConfig": {
     "root": true,
