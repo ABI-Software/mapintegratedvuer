@@ -13,6 +13,7 @@
     :displayMinimap="false"
     :displayWarning="true"
     :flatmapAPI="flatmapAPI"
+    :sparcAPI="apiLocation"
   />
 </template>
 
