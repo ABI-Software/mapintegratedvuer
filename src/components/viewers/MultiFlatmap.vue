@@ -11,6 +11,7 @@
     ref="multiflatmap"
     :displayMinimap="true"
     :flatmapAPI="flatmapAPI"
+    :sparcAPI="apiLocation"
     @pan-zoom-callback="flatmapPanZoomCallback"
   />
 </template>

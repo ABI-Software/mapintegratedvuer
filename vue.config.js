@@ -34,7 +34,11 @@ module.exports = {
     if(process.env.NODE_ENV === 'production') {
       //By including element-ui and all abi projects, the problem with element-ui
       //stylesheet can be avoided.
+<<<<<<< HEAD
       config.externals =  [ nodeExternals({allowlist: [/^element-ui/, /^@abi-software/]}) ];
+=======
+      config.externals =  [ nodeExternals({allowlist: [/^element-ui/, /^@abi-software/, /^marked/ ]}) ];
+>>>>>>> 23591fba1ff9bad23bcaec47011181c2fc7f50b2
     }
   },
   css: {
