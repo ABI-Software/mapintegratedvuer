@@ -142,13 +142,13 @@ describe('MapContent', () => {
 
     //Intercept the request and stub it with preloaded fixture
     cy.get('@metadata').then((metadata) => {
-      cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-8/scaffold/54-8_metadata.json',
+      cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-8/scaffold/54-8_metadata.json?s3BucketName=pennsieve-prod-discover-publish-use1',
         {statusCode: 200, body: metadata});
     })
     
     //Intercept the request and stub it with preloaded fixture
     cy.get('@primitive').then((primitive) => {
-      cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-8/scaffold/cube_2.json',
+      cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-8/scaffold/cube_2.json?s3BucketName=pennsieve-prod-discover-publish-use1',
         {statusCode: 200, body: primitive}).as("scaffoldResponse");
     })
 
