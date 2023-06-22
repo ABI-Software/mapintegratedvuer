@@ -1,0 +1,79 @@
+# This workflow will build, run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: MapIntegratedVuer Release
+run-name: "Build and release ${{ github.event.inputs.release_type }}"
+
+on: 
+  workflow_dispatch:
+    inputs:
+      release_type:
+        type: choice
+        description: What type of releases
+        options:
+        - Test-only
+        - beta
+        - patch
+        - minor
+        
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12.13.0
+      - run: npm install 
+      - run: npm run test-unit
+      - name: "Run Cypress"
+        run: npm run cypress run-ct
+        env:
+          CYPRESS_ALGOLIA_ID: ${{ secrets.ALGOLIA_ID }}
+          CYPRESS_ALGOLIA_KEY: ${{ secrets.ALGOLIA_KEY }}
+      
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12.13.0
+      - run: npm install 
+      - run: npm run build-bundle
+      - uses: actions/upload-artifact@master
+        with:
+          name: dist
+          path: dist/
+          
+  publish:
+    needs: build
+    if: github.event.inputs.release_type != 'Test-only'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Get tags
+        run: git fetch --tags origin
+      - uses: actions/setup-node@v3
+        with:
+          registry-url: 'https://registry.npmjs.org'
+          node-version: 12.13.0
+      - name: Download dist
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist/
+      - name: "Release ${{ github.event.inputs.release_type }}"
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          npm install
+          npm run release:${{ github.event.inputs.release_type }}
+          git push
+          git push --tag
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+

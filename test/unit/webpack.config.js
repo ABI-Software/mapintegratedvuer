@@ -64,6 +64,11 @@ module.exports = {
         test: /\.(vs|fs)$/i,
         loaders: ['raw-loader'],
       },
+      {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
+      }
     ]
   },
   plugins: [

@@ -1,0 +1,88 @@
+{
+  "input": [
+    {
+      "defaultValue": 0.01,
+      "id": "dt",
+      "maximumValue": 0.02,
+      "minimumValue": 0.001,
+      "name": "Time step",
+      "stepValue": 0.001
+    },
+    {
+      "defaultValue": 1000,
+      "id": "T",
+      "maximumValue": 3000,
+      "minimumValue": 1,
+      "name": "Max time"
+    },
+    {
+      "defaultValue": 0,
+      "id": "forcing_factor",
+      "maximumValue": 10,
+      "minimumValue": 0,
+      "name": "Forcing factor"
+    }
+  ],
+  "output": {
+    "data": [
+      {
+        "id": "time",
+        "name": "0"
+      },
+      {
+        "id": "rate",
+        "name": "1"
+      },
+      {
+        "id": "demand",
+        "name": "2"
+      },
+      {
+        "id": "sympathetic_efferent",
+        "name": "3"
+      }
+    ],
+    "plots": [
+      {
+        "xAxisTitle": "Time (s)",
+        "xValue": "time",
+        "yAxisTitle": "Rate",
+        "yValue": "rate"
+      },
+      {
+        "xAxisTitle": "Time (s)",
+        "xValue": "time",
+        "yAxisTitle": "Demand",
+        "yValue": "demand"
+      },
+      {
+        "xAxisTitle": "Time (s)",
+        "xValue": "time",
+        "yAxisTitle": "Sympathetic efferent",
+        "yValue": "sympathetic_efferent"
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "name": "dt",
+      "value": "dt"
+    },
+    {
+      "name": "T",
+      "value": "T"
+    },
+    {
+      "name": "forcing_factor",
+      "value": "forcing_factor"
+    }
+  ],
+  "simulation": {
+    "solvers": [
+      {
+        "name": "simcore/services/comp/kember-cardiac-model",
+        "version": "1.0.0"
+      }
+    ]
+  }
+}
