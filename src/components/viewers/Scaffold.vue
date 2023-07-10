@@ -7,6 +7,7 @@
     @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
     @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
     @on-ready="scaffoldIsReady"
+    @open-map="openMap"
     ref="scaffold"
     :background-toggle="true"
     :traditional="true"
@@ -16,6 +17,7 @@
     :warning-message="warningMessage"
     :display-minimap="false"
     :display-markers="false"
+    :enableOpenMapUI="entry.isBodyScaffold"
     :view-u-r-l="entry.viewUrl"
   />
 </template>

@@ -42,6 +42,9 @@ export default {
     getState: function () {
       return undefined;
     },
+    openMap: function (type) {
+      EventBus.$emit("OpenNewMap", type);
+    },
     /**
      * Perform a local search on this contentvuer
      */

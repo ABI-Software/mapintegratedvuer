@@ -48,7 +48,7 @@ import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog";
 // import contextCards from './context-cards'
 import { SideBar } from "@abi-software/map-side-bar/src/components/index.js";
-import { capitalise, initialDefaultState } from "./scripts/utilities.js";
+import { capitalise, getNewMapEntry, initialDefaultState } from "./scripts/utilities.js";
 import store from "../store";
 import Vue from "vue";
 import { Container, Header, Main } from "element-ui";
@@ -214,6 +214,10 @@ export default {
         this.entries.splice(index, 1);
       }
     },
+    openNewMap: async function (type) {
+      const entry = await getNewMapEntry(type, store.state.settings.sparcApi);
+      this.createNewEntry(entry);
+    },
     openSearch: function (facets, query) {
       // Keep the species facets currently unused
       // let facets = [{facet: "All species", facetPropPath: 'organisms.primary.species.name', term:'species'}];
@@ -310,6 +314,9 @@ export default {
     });
     EventBus.$on("PopoverActionClick", payload => {
       this.actionClick(payload);
+    });
+    EventBus.$on("OpenNewMap", type => {
+      this.openNewMap(type);
     });
     this.$nextTick(() => {
       if (this.search === "") {

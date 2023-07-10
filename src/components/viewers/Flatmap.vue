@@ -12,8 +12,10 @@
     @ready="getAvailableTerms"
     :displayMinimap="false"
     :displayWarning="true"
+    :enableOpenMapUI="true"
     :flatmapAPI="flatmapAPI"
     :sparcAPI="apiLocation"
+    @open-map="openMap"
   />
 </template>
 

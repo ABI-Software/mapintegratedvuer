@@ -10,9 +10,11 @@
     :helpMode="helpMode"
     ref="multiflatmap"
     :displayMinimap="true"
+    :enableOpenMapUI="true"
     :flatmapAPI="flatmapAPI"
     :sparcAPI="apiLocation"
     @pan-zoom-callback="flatmapPanZoomCallback"
+    @open-map="openMap"
   />
 </template>
 
