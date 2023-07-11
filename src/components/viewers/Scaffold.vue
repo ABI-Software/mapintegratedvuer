@@ -82,12 +82,12 @@ export default {
       }
     },
     displayTooltip: function(info) {
-      let names = undefined;
+      let name = undefined;
       if (info) {
-        names = info.name;
+        name = info.name;
       }
-      if (names) {
-        this.$refs.scaffold.search(names, true);
+      if (name) {
+        this.$refs.scaffold.search(name, true);
       } else {
         this.$refs.scaffold.hideRegionTooltip();
       }
