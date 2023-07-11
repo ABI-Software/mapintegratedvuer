@@ -84,8 +84,7 @@ export default {
     displayTooltip: function(info) {
       let names = undefined;
       if (info) {
-        if (Array.isArray(info)) names = info;
-        else names = [ info.name ];
+        names = info.name;
       }
       if (names) {
         this.$refs.scaffold.search(names, true);
