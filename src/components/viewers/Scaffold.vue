@@ -190,7 +190,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-::v-deep .scaffold-popper {
+::v-deep .message-popper {
   white-space: unset;
   max-width: 200px;
 }

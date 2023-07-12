@@ -10,20 +10,6 @@
       class="dataset-header"
       :entry="entry"
     ></DatasetHeader>
-    <template
-      v-if="
-        entry.type === 'MultiFlatmap' &&
-        (activeSpecies === 'Rat' || activeSpecies === 'Human Male' || activeSpecies === 'Human Female')
-      "
-    >
-      <el-button
-        type="primary"
-        plain
-        class="open-scaffold"
-        @click="toggleSyncMode()"
-        >{{ syncModeText }}</el-button
-      >
-    </template>
     <div :style="mainStyle">
       <Component
         :is="viewerType"
@@ -141,10 +127,6 @@ export default {
   computed: {
     syncMode() {
       return store.state.splitFlow.syncMode;
-    },
-    syncModeText() {
-      if (this.syncMode) return "Close 3D Map";
-      else return "Open 3D Map";
     },
     viewerType() {
       switch (this.entry.type) {

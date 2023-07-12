@@ -43,7 +43,11 @@ export default {
       return undefined;
     },
     openMap: function (type) {
-      EventBus.$emit("OpenNewMap", type);
+      if (type === "SYNC") {
+        this.toggleSyncMode();
+      } else {
+        EventBus.$emit("OpenNewMap", type);
+      }
     },
     /**
      * Perform a local search on this contentvuer
