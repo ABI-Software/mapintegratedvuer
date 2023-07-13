@@ -38,9 +38,6 @@
       :splitter2="splitter2"
       :splitter3="splitter3"
       @chooser-changed="viewerChanged"
-      @local-search="search"
-      @fetch-suggestions="fetchSuggestions"
-      :failed-search="failedSearch"
       />
     <div
       v-for="entry in entries"
@@ -107,12 +104,6 @@ export default {
         third: false,
         fourth: false
       },
-      failedSearch: {
-        first: undefined,
-        second: undefined,
-        third: undefined,
-        fourth: undefined,
-      }
     }
   },
   methods: {
@@ -257,47 +248,6 @@ export default {
       activeContents.forEach(content => {
         content.receiveSynchronisedEvent(resource);
       });
-    },
-    search: function(payload) {
-      let searchFound = false;
-      //Search all active viewers when global callback is on
-      if (store.state.splitFlow.globalCallback &&
-        store.state.splitFlow.syncMode) {
-        const activeContents = this.getActiveContents();
-        activeContents.forEach(content => {
-          if (content.search(payload.term)) {
-            searchFound = true;
-          }
-        });
-      } else {
-        const content = this.getContentsWithId(payload.slot.id);
-        if (content) {
-          searchFound = content.search(payload.term);
-        }
-      }
-      if (searchFound)
-        this.failedSearch[payload.slot.name] = undefined;
-      else
-        this.failedSearch[payload.slot.name] = payload.term;
-    },
-    fetchSuggestions: function(payload) {
-      const suggestions = [];
-      //Search all active viewers when global callback is on
-      if (store.state.splitFlow.globalCallback &&
-        store.state.splitFlow.syncMode) {
-        const activeContents = this.getActiveContents();
-        //Push new suggestions into the pre-existing suggestions array
-        activeContents.forEach(content => content.searchSuggestions(payload.data.term, suggestions));
-      } else {
-        const content = this.getContentsWithId(payload.slot.id, suggestions);
-        if (content) content.searchSuggestions(payload.data.term, suggestions);
-      }
-      const unique = new Set(suggestions);
-      suggestions.length = 0;
-      for (const item of unique) {
-        suggestions.push({"value": "\"" + item +"\""});
-      }
-      payload.data.cb(suggestions);
     },
     getContentsWithId: function(id) {
       let contents = this.$refs["content"];

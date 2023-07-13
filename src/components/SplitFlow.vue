@@ -13,6 +13,9 @@
         :showIcons="entries[findIndexOfId(activeDockedId)].mode !== 'main'"
         @onFullscreen="onFullscreen"
         :showHelpIcon="true"
+        @local-search="onDisplaySearch"
+        @fetch-suggestions="fetchSuggestions"
+        ref="dialogToolbar"
       />
     </el-header>
     <el-main class="dialog-main">
@@ -131,6 +134,34 @@ export default {
           this.createNewEntry(action);
         }
       }
+    },
+    onDisplaySearch: function (payload) {
+      let searchFound = false;
+      //Search all active viewers when global callback is on
+      let splitdialog = this.$refs.splitdialog;
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+        activeContents.forEach(content => {
+          if (content.search(payload.term)) {
+            searchFound = true;
+          }
+        });
+      }
+      this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
+    },
+    fetchSuggestions: function(payload) {
+      const suggestions = [];
+      //Search all active viewers when global callback is on
+      let splitdialog = this.$refs.splitdialog;
+      const activeContents = splitdialog.getActiveContents();
+      //Push new suggestions into the pre-existing suggestions array
+      activeContents.forEach(content => content.searchSuggestions(payload.data.term, suggestions));
+      const unique = new Set(suggestions);
+      suggestions.length = 0;
+      for (const item of unique) {
+        suggestions.push({"value": "\"" + item +"\""});
+      }
+      payload.data.cb(suggestions);
     },
     searchChanged: function (data) {
       if (data && data.type == "query-update") {

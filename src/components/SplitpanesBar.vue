@@ -26,13 +26,6 @@
         <div v-else class="text title">
           {{ getEntryTitle(entries[0]) }}
         </div>
-        <template v-if="isSearchable[slot.name]">
-          <search-controls 
-            @search="$emit('local-search', {term: $event, slot: slot});"
-            @fetch-suggestions="$emit('fetch-suggestions', {data: $event, slot: slot});"
-            :failedSearch="failedSearch[slot.name]"
-          />
-        </template>
       </div>
       <el-row class="icon-group">
         <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :open-delay="helpDelay"
@@ -52,7 +45,6 @@
 import Vue from "vue";
 import EventBus from './EventBus';
 import store from "../store";
-import SearchControls from './SearchControls';
 import { Input, Option, Popover, Row, Select } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -67,7 +59,6 @@ Vue.use(Row);
 export default {
   name: "SplitpanesBar",
   components: {
-    SearchControls,
   },
   props: {
     entries: {
@@ -88,17 +79,6 @@ export default {
       type: Number,
       default: 50
     },
-    failedSearch: {
-      type: Object,
-      default: function() {
-        return {
-          first: undefined,
-          second: undefined,
-          third: undefined,
-          fourth: undefined,
-        };
-      }
-    }
   },
   data: function() {
     return {
