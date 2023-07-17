@@ -222,7 +222,7 @@ export default {
       // });
       this.search = query;
       this.$refs.sideBar.openSearch(facets, query);
-      this.startUp = false;
+      this.startUp = true;
     },
     onFullscreen: function (val) {
       this.$emit("onFullscreen", val);
