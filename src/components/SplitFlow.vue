@@ -221,8 +221,11 @@ export default {
       //   facets.push({facet: e, facetPropPath: 'organisms.primary.species.name', term:'species'});
       // });
       this.search = query;
-      this.$refs.sideBar.openSearch(facets, query);
-      this.startUp = true;
+      this._facets = facets;
+      if (this.$refs && this.$refs.sideBar) {
+        this.$refs.sideBar.openSearch(facets, query);
+      }
+      this.startUp = false;
     },
     onFullscreen: function (val) {
       this.$emit("onFullscreen", val);
@@ -299,6 +302,7 @@ export default {
     },
   },
   created: function () {
+    this._facets = [];
     this._externalStateSet = false;
   },
   mounted: function () {
@@ -312,12 +316,12 @@ export default {
       this.actionClick(payload);
     });
     this.$nextTick(() => {
-      if (this.search === "") {
+      if (this.search === "" && this._facets.length === 0) {
         this.$refs.sideBar.close();
         setTimeout(() => {
           this.startUp = false;
         }, 2000);
-      } else this.openSearch([], this.search);
+      } else this.openSearch(this._facets, this.search);
     });
   },
   computed: {
