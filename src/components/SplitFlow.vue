@@ -9,7 +9,6 @@
       <DialogToolbarContent
         :activeId="activeDockedId"
         :numberOfEntries="entries.length"
-        :topLevelControls="true"
         :showIcons="entries[findIndexOfId(activeDockedId)].mode !== 'main'"
         @onFullscreen="onFullscreen"
         :showHelpIcon="true"

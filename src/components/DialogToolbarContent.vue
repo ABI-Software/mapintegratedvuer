@@ -1,5 +1,5 @@
 <template>
-  <div :class="[{'draggable':  topLevelControls ==  false}, 'header']">
+  <div class='header'>
     <div class="switch-control">
       <el-switch
         v-if="syncMode"
@@ -52,7 +52,7 @@
       <el-popover class="tooltip"  content="Split screen" placement="bottom-end"
         :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
-        v-show="topLevelControls">
+      >
         <map-svg-icon :icon="activeView"
           v-popover:viewPopover
           :class="[{'disabled': (1 >= numberOfEntries)},
@@ -63,12 +63,12 @@
         :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
         <map-svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp()"/>
       </el-popover>
-      <el-popover v-show="!isFullscreen && topLevelControls" class="tooltip"
+      <el-popover v-show="!isFullscreen" class="tooltip"
         content="Fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
           <map-svg-icon icon="fullScreen"  slot="reference" class="header-icon" @click.native="onFullscreen"/>
       </el-popover>
-      <el-popover v-show="isFullscreen && topLevelControls" class="tooltip"
+      <el-popover v-show="isFullscreen" class="tooltip"
         content="Exit fullscreen" placement="bottom-end" :open-delay="helpDelay"
         :appendToBody=false trigger="hover" popper-class="header-popper">
           <map-svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
@@ -110,7 +110,7 @@
       <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
         :open-delay="helpDelay" :appendToBody=false trigger="hover"
         popper-class="header-popper"
-        v-show="topLevelControls && shareLink">
+        v-show="shareLink">
         <map-svg-icon icon="permalink"
           v-popover:linkPopover
           class="header-icon"
@@ -175,10 +175,6 @@ export default {
       type: Boolean,
       default: true
 
-    },
-    topLevelControls: {
-      type: Boolean,
-      default: true
     },
     /**
      * The current active title.
@@ -316,14 +312,6 @@ export default {
 
 .header {
   height:32px;
-}
-
-.draggable.header:hover {
-  cursor:grab;
-}
-
-.draggable.header:active {
-  cursor:grabbing;
 }
 
 ::v-deep .header-popper {
