@@ -120,7 +120,7 @@ export default {
           payload: payload,
           type: this.entry.type,
         };
-        this.flatmapMarkerZoomUpdate(false);
+        this.flatmapMarkerZoomUpdate(false, undefined);
         this.$emit("resource-selected", result);
       }
     },
@@ -167,7 +167,7 @@ export default {
           this.$refs.multiflatmap
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
-          this.flatmapMarkerZoomUpdate(false);
+          this.flatmapMarkerZoomUpdate(false, undefined);
         }
       }
     },
@@ -220,40 +220,47 @@ export default {
           await this.toggleSyncMode();
       }
     },
-    multiFlatmapReady: function () {
-      this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(true); // Use zoom events for dynamic markers
-      this.flatmapReady = true;
-      this.flatmapMarkerZoomUpdate(true);
+    multiFlatmapReady: function (flatmap) {
+      if (flatmap) {
+        flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
+        this.flatmapReady = true;
+        const flatmapImp = flatmap.mapImp;
+        this.flatmapMarkerZoomUpdate(true, flatmapImp);
+      }
     },
     /**
      * Function used for updating the flatmap markers.
      * It will only update the markers if zoom level has changed or
      * the force flag is true.
      */
-    flatmapMarkerZoomUpdate(force) {
+    flatmapMarkerZoomUpdate(force, flatmap) {
       if (!this.flatmapReady) return;
-      let flatmapImp = this.getFlatmapImp();
-      let currentZoom = flatmapImp.getZoom()["zoom"];
-      if (force || this.zoomLevel !== currentZoom) {
-        this.zoomLevel = currentZoom;
-        flatmapImp.clearMarkers();
-        let markers = store.state.settings.markers;
-        checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel);
-        this.restoreFeaturedMarkers();
+
+      let flatmapImp = flatmap;
+      if (!flatmapImp)
+        flatmapImp = this.getFlatmapImp();
+
+      if (flatmapImp) {
+        let currentZoom = flatmapImp.getZoom()["zoom"];
+        if (force || this.zoomLevel !== currentZoom) {
+          this.zoomLevel = currentZoom;
+          flatmapImp.clearMarkers();
+          let markers = store.state.settings.markers;
+          checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel);
+          this.restoreFeaturedMarkers(flatmapImp);
+        }
       }
     },
     getFlatmapImp: function () {
-      if (this.entry.type === "Flatmap") {
-        return this.$refs.flatmap.mapImp;
-      } else if (this.entry.type === "MultiFlatmap") {
+      if (this.entry.type === "MultiFlatmap") {
         return this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"];
       } else {
         return undefined;
       }
     },
     flatmapAreaSearch() {
-      this.flatmapImp = this.getFlatmapImp();
-      let shownMarkers = this.flatmapImp.visibleMarkerAnatomicalIds();
+      const flatmapImp = this.getFlatmapImp();
+      let shownMarkers = flatmapImp.visibleMarkerAnatomicalIds();
       let returnedAction = {
         type: "Facets",
         label: "Unused",
@@ -261,41 +268,47 @@ export default {
       };
       EventBus.$emit("PopoverActionClick", returnedAction);
     },
-    restoreFeaturedMarkers: function () {
+    restoreFeaturedMarkers: function (flatmap) {
       store.commit("settings/resetFeaturedMarkerIdentifier");
       const markers = store.state.settings.featuredMarkers;
-      this.updateFeatureMarkers(markers);
+      this.updateFeatureMarkers(markers, flatmap);
     },
-    updateFeatureMarkers: function (markers) {
+    updateFeatureMarkers: function (markers, flatmap) {
       for (let index = 0; index < markers.length; ++index) {
         if (markers[index]) {
           const markerIdentifier =
             store.state.settings.featuredMarkerIdentifiers[index];
           if (!markerIdentifier) {
-            this.addFeaturedMarker(markers[index], index);
+            this.addFeaturedMarker(markers[index], index, flatmap);
           }
         }
       }
     },
-    addFeaturedMarker: function (marker, index) {
+    addFeaturedMarker: function (marker, index, flatmap) {
       const markerSpecies =
         store.getters["settings/featuredMarkerSpecies"](index);
       if (markerSpecies && !this.activeSpecies.startsWith(markerSpecies)) {
-        return;
+        return false;
+      }
+      let flatmapImp = flatmap;
+      if (!flatmapImp) {
+        flatmapImp = this.getFlatmapImp();
       }
 
-      const flatmapImp = this.getFlatmapImp();
+      if (flatmapImp) {
+        let wrapperElement = document.createElement("div");
+        wrapperElement.innerHTML = YellowStar;
 
-      let wrapperElement = document.createElement("div");
-      wrapperElement.innerHTML = YellowStar;
-
-      const markerIdentifier = flatmapImp.addMarker(marker, {
-        element: wrapperElement,
-      });
-      store.commit("settings/updateFeaturedMarkerIdentifier", {
-        index,
-        markerIdentifier,
-      });
+        const markerIdentifier = flatmapImp.addMarker(marker, {
+          element: wrapperElement,
+        });
+        store.commit("settings/updateFeaturedMarkerIdentifier", {
+          index,
+          markerIdentifier,
+        });
+        return true;
+      }
+      return false;
     },
   },
   computed: {
@@ -316,7 +329,7 @@ export default {
         return;
       }
 
-      this.updateFeatureMarkers(markers);
+      this.updateFeatureMarkers(markers, undefined);
     },
   },
   mounted: function () {
@@ -324,7 +337,7 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.$on("markerUpdate", () => {
-      this.flatmapMarkerZoomUpdate(true);
+      this.flatmapMarkerZoomUpdate(true, undefined);
     });
   },
 };
