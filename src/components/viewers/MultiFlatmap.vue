@@ -43,6 +43,7 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
         if (markerZoomLevels[i].id === id) {
           foundInArray = true;
           if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
+            console.log("Marker found in array: " + id);
             flatmapImp.addMarker(id);
           }
           break;
@@ -50,7 +51,10 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
       }
       // Did not match, add it regardless so we do not lose any
       // markers.
-      if (!foundInArray) flatmapImp.addMarker(id);
+      if (!foundInArray) {
+        console.log("Marker not found in array: " + id);
+ flatmapImp.addMarker(id);
+      }
     });
   }
 };
@@ -221,6 +225,7 @@ export default {
       }
     },
     multiFlatmapReady: function (flatmap) {
+      console.log("MultiFlatmap ready", flatmap);
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;

@@ -62,6 +62,7 @@ const availableSpecies = () => {
     "Mouse": { taxo: "NCBITaxon:10090", iconClass: "mapicon-icon_mouse", displayLatestChanges: true, displayWarning: true },
     "Pig": { taxo: "NCBITaxon:9823", iconClass: "mapicon-icon_pig", displayLatestChanges: true, displayWarning: true },
     "Cat": { taxo: "NCBITaxon:9685", iconClass: "mapicon-icon_cat", displayLatestChanges: true, displayWarning: true },
+    "Functional Connectivity":{taxo: "FunctionalConnectivity", displayWarning:true}
   }
 }
 
