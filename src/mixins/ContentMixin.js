@@ -310,12 +310,6 @@ export default {
     requestSynchronisedEvent: function () {
       return;
     },
-    flatmapReadyCall: function (flatmap) {
-      this.getAvailableTerms();
-      if (this.entry.resource === "FunctionalConnectivity"){
-        this.flatmapReadyForMarkerUpdates(flatmap);
-      }
-    },
     getAvailableTerms: function () {
       //Use the default list of uberons before we get the list from
       //the api

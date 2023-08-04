@@ -44,6 +44,12 @@ export default {
     getFlatmapImp() {
       return this.$refs.flatmap.mapImp;
     },
+    flatmapReadyCall: function (flatmap) {
+      this.getAvailableTerms();
+      if (this.entry.resource === "FunctionalConnectivity"){
+        this.flatmapReadyForMarkerUpdates(flatmap);
+      }
+    },
     highlightFeatures: function(info) {
       let name = info.name;
       const flatmap = this.$refs.flatmap.mapImp;
