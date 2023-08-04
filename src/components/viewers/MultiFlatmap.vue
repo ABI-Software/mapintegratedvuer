@@ -23,45 +23,14 @@ import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import store from "../../store";
-import markerZoomLevels from "../markerZoomLevels";
 import { getBodyScaffold } from "../scripts/utilities";
+import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
 import YellowStar from "../../icons/yellowstar";
 
-/*
- * Function to check markers visibility at the given zoom level.
- * I have modified it to make sure the marker is displayed
- * if the uberon is not present in the hardcoded zoom-level list.
- */
-const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
-  if (markers) {
-    markers.forEach(id => {
-      let foundInArray = false;
-      // First check if uberon is in the list, check for zoom level
-      // if true. Note: markerZoomLevels is imported.
-      for (let i = 0; i < markerZoomLevels.length; i++) {
-        if (markerZoomLevels[i].id === id) {
-          foundInArray = true;
-          if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
-            console.log("Marker found in array: " + id);
-            flatmapImp.addMarker(id);
-          }
-          break;
-        }
-      }
-      // Did not match, add it regardless so we do not lose any
-      // markers.
-      if (!foundInArray) {
-        console.log("Marker not found in array: " + id);
- flatmapImp.addMarker(id);
-      }
-    });
-  }
-};
-
 export default {
   name: "MultiFlatmap",
-  mixins: [ContentMixin],
+  mixins: [ContentMixin, DyncamicMarkerMixin],
   components: {
     MultiFlatmapVuer,
   },
@@ -225,35 +194,11 @@ export default {
       }
     },
     multiFlatmapReady: function (flatmap) {
-      console.log("MultiFlatmap ready", flatmap);
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerZoomUpdate(true, flatmapImp);
-      }
-    },
-    /**
-     * Function used for updating the flatmap markers.
-     * It will only update the markers if zoom level has changed or
-     * the force flag is true.
-     */
-    flatmapMarkerZoomUpdate(force, flatmap) {
-      if (!this.flatmapReady) return;
-
-      let flatmapImp = flatmap;
-      if (!flatmapImp)
-        flatmapImp = this.getFlatmapImp();
-
-      if (flatmapImp) {
-        let currentZoom = flatmapImp.getZoom()["zoom"];
-        if (force || this.zoomLevel !== currentZoom) {
-          this.zoomLevel = currentZoom;
-          flatmapImp.clearMarkers();
-          let markers = store.state.settings.markers;
-          checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel);
-          this.restoreFeaturedMarkers(flatmapImp);
-        }
       }
     },
     getFlatmapImp: function () {

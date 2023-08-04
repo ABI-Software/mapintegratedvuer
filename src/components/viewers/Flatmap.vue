@@ -3,13 +3,14 @@
     :state="entry.state"
     :entry="entry.resource"
     @resource-selected="resourceSelected(entry.type, $event)"
+    @pan-zoom-callback="flatmapPanZoomCallback"
     :name="entry.resource"
     style="height: 100%; width: 100%"
     :minZoom="entry.minZoom"
     :helpMode="helpMode"
     :pathControls="true"
     ref="flatmap"
-    @ready="getAvailableTerms"
+    @ready="flatmapReadyCall"
     :displayMinimap="false"
     :displayWarning="true"
     :flatmapAPI="flatmapAPI"
@@ -20,11 +21,13 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { FlatmapVuer } from "@abi-software/flatmapvuer/src/components/index.js";
+import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
+import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 import store from "../../store";
 export default {
   name: "Flatmap",
-  mixins: [ ContentMixin ],
+  mixins: [ ContentMixin, DynamicMarkerMixin ],
   components: {
     FlatmapVuer,
   },
@@ -37,6 +40,9 @@ export default {
      */
     search: function (term) {
       return this.$refs.flatmap.searchAndShowResult(term);
+    },
+    getFlatmapImp() {
+      return this.$refs.flatmap.mapImp;
     },
     highlightFeatures: function(info) {
       let name = info.name;
@@ -89,6 +95,9 @@ export default {
   },
   mounted: function() {
     this.getAvailableTerms();
+    EventBus.$on("markerUpdate", () => {
+      this.flatmapMarkerZoomUpdate(true, undefined);
+    });
   },
 };
 </script>

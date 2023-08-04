@@ -310,6 +310,10 @@ export default {
     requestSynchronisedEvent: function () {
       return;
     },
+    flatmapReadyCall: function (flatmap) {
+      this.getAvailableTerms();
+      this.flatmapReadyForMarkerUpdates(flatmap);
+    },
     getAvailableTerms: function () {
       //Use the default list of uberons before we get the list from
       //the api
