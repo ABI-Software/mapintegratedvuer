@@ -312,7 +312,9 @@ export default {
     },
     flatmapReadyCall: function (flatmap) {
       this.getAvailableTerms();
-      this.flatmapReadyForMarkerUpdates(flatmap);
+      if (this.entry.resource === "FunctionalConnectivity"){
+        this.flatmapReadyForMarkerUpdates(flatmap);
+      }
     },
     getAvailableTerms: function () {
       //Use the default list of uberons before we get the list from
