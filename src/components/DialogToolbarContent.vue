@@ -1,5 +1,10 @@
 <template>
-  <div class='header'>
+  <div class="header">
+    <search-controls
+      @search="$emit('local-search', {term: $event});"
+      @fetch-suggestions="$emit('fetch-suggestions', {data: $event});"
+      :failedSearch="failedSearch"
+    />
     <div class="switch-control">
       <el-switch
         v-if="syncMode"
@@ -132,6 +137,7 @@ import Vue from "vue";
 import EventBus from './EventBus';
 import store from '../store';
 import {MapSvgIcon} from '@abi-software/svg-sprite';
+import SearchControls from './SearchControls';
 
 import {
   Button,
@@ -159,6 +165,7 @@ export default {
   name: "DialogToolbarContent",
   components: {
     MapSvgIcon,
+    SearchControls,
   },
   props: {
     /**
@@ -229,6 +236,7 @@ export default {
       loadingLink: true,
       shareLinkDisplay: false,
       independent: true,
+      failedSearch: undefined,
     }
   },
   methods: {
@@ -250,6 +258,9 @@ export default {
         this.$refs.linkInput.$el.querySelector("input").select();
         document.execCommand('copy');
       }
+    },
+    setFailedSearch: function(result) {
+      this.failedSearch = result;
     },
     getShareLink: function() {
       this.loadingLink = true;

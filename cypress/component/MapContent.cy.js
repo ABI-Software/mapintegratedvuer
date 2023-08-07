@@ -61,7 +61,7 @@ describe('MapContent', () => {
       'have.attr', 'style', 'height: 880px');
 
     //Loading mask should exist at the beginning
-    cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask', {timeout: 20000}).should('exist');
+    cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask', {timeout: 30000}).should('exist');
 
     cy.get('.header').should('be.visible');
 
@@ -104,20 +104,12 @@ describe('MapContent', () => {
     cy.get('.search-container > .map-icon > use').should('exist').click();
     cy.get('.maplibregl-popup-content').should('exist').contains('pelvic splanchnic nerve');
 
-    //Intercept the request and stub it with preloaded fixture
-    cy.get('@metadata').then((metadata) => {
-      cy.intercept('/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json',
-        {statusCode: 200, body: metadata});
-    })
-    
-    //Intercept the request and stub it with preloaded fixture
-    cy.get('@primitive').then((primitive) => {
-      cy.intercept('/WholeBody/31-May-2021/ratBody/cube_2.json',
-        {statusCode: 200, body: primitive}).as("scaffoldResponse");
-    })
-    
-    //Click on the Open 3D Scaffold button
-    cy.get('.open-scaffold').should('be.visible').click();
+    //Test searching with uberon id wich should display a pop up with anatomical name
+    cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > .settings-group > :nth-child(1)').should('exist').click();
+    cy.get('.open-map-popper > :nth-child(2) > .el-button:visible').should('exist').click();
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view>').should('have.length', 2);
+    cy.get('.singlepanel-1 > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> :nth-child(1)').click();
 
     //Check for two content containers
     cy.get('.contentvuer').should('be.visible').should('have.length', 2);

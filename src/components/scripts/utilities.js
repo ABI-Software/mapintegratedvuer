@@ -23,6 +23,41 @@ const initialDefaultState = () => {
   };
 }
 
+const getNewMapEntry = async (type, sparcApi) => {
+  let entry = { };
+  if (type === "AC") {
+    entry = {
+      resource: "Rat",
+      type: "MultiFlatmap",
+      mode: "main",
+      state: undefined,
+      label: "",
+      discoverId: undefined
+    };
+  } else if (type === "FC") {
+    entry = {
+      resource: "FunctionalConnectivity",
+      type: "Flatmap",
+      mode: "main",
+      state: undefined,
+      label: "Functional",
+      discoverId: undefined
+    }
+  } else if (type === "3D") {
+    const url = await getBodyScaffold(sparcApi, "human");
+    entry = {
+      resource: url,
+      type: "Scaffold",
+      mode: "main",
+      state: undefined,
+      label: "Human",
+      isBodyScaffold: true
+    };
+  }
+
+  return entry;
+}
+
 /*
  * Initial state for the split flow
  */
@@ -119,3 +154,4 @@ exports.findSpeciesKey = findSpeciesKey;
 exports.initialState = initialState;
 exports.initialDefaultState = initialDefaultState;
 exports.getBodyScaffold = getBodyScaffold;
+exports.getNewMapEntry = getNewMapEntry;

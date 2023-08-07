@@ -10,9 +10,12 @@
     :helpMode="helpMode"
     ref="multiflatmap"
     :displayMinimap="true"
+    :enableOpenMapUI="true"
+    :openMapOptions="openMapOptions"
     :flatmapAPI="flatmapAPI"
     :sparcAPI="apiLocation"
     @pan-zoom-callback="flatmapPanZoomCallback"
+    @open-map="openMap"
   />
 </template>
 
@@ -28,6 +31,36 @@ import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
 import YellowStar from "../../icons/yellowstar";
 
+const getOpenMapOptions = (species) => {
+  const options = [
+    {
+      display: "Open AC Map",
+      key: "AC"
+    },
+    {
+      display: "Open FC Map",
+      key: "FC"
+    },
+    {
+      display: "Open 3D Human Map", 
+      key: "3D"
+    },
+  ]
+  switch (species) {
+    case "Human Male":
+    case "Human Female":
+    case "Rat":
+      options.push({
+        display: "Open Sync Map", 
+        key: "SYNC"
+      });
+      break;
+    default:
+      break;
+  }
+  return options;
+}
+
 export default {
   name: "MultiFlatmap",
   mixins: [ContentMixin, DyncamicMarkerMixin],
@@ -40,6 +73,7 @@ export default {
       flatmapReady: false,
       availableSpecies: availableSpecies(),
       scaffoldResource: { },
+      openMapOptions: getOpenMapOptions("Rat")
     }
   },
   methods: {
@@ -187,6 +221,7 @@ export default {
     },
     flatmapChanged: async function (activeSpecies) {
       this.activeSpecies = activeSpecies;
+      this.openMapOptions = getOpenMapOptions(activeSpecies);
       this.$emit("species-changed", activeSpecies);
       if (!(this.entry.state && (this.entry.state.species === this.activeSpecies))) {
         if (this.syncMode == true)
