@@ -46,7 +46,6 @@
     "es6-promise": "^4.2.8",
     "jsonschema": "^1.4.0",
     "lodash": "^4.17.21",
-    "maplibre-gl": "^3.0.1",
     "postcss-prefix-selector": "^1.7.2",
     "shepherd.js": "^7.1.5",
     "splitpanes": "^2.3.6",
