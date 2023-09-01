@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-container" ref="container">
+  <div class="tab-container" ref="tabContainer">
     <splitpanes
       class="default-theme"
       :horizontal="horizontal"
@@ -34,6 +34,7 @@
     </splitpanes>
     <splitpanes-bar
       :entries="entries" 
+      :container="container"
       :splitter1="splitter1"
       :splitter2="splitter2"
       :splitter3="splitter3"
@@ -98,6 +99,7 @@ export default {
       splitter2: 50,
       splitter3: 50,
       searchText: [],
+      container: undefined,
       isFlatmap: {
         first: true,
         second: false,
@@ -335,6 +337,9 @@ export default {
       immediate: true,
       deep: true
     },
+  },
+  mounted() {
+    this.container = this.$refs.tabContainer;
   }
 };
 </script>

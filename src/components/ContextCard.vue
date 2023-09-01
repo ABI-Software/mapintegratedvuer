@@ -1,60 +1,60 @@
 <template>
   <div class="context-card-container"  ref="container">
     <div v-show="showContextCard">
-      <div v-show="showDetails" class="hide" @click="showDetails = !showDetails">Hide information<i class="el-icon-arrow-up"></i></div>
-      <div v-show="!showDetails" class="hide" @click="showDetails = !showDetails">Show information<i class="el-icon-arrow-down"></i></div>
       <div v-if="showDetails && Object.keys(contextData).length !== 0" v-loading="loading" class="context-card" >
         <div class="card-left">
           <img :src="banner" class="context-image">
         </div>
         <div class="card-right scrollbar">
-          <div class="title">{{contextData.heading}}</div>
-          <div v-html="parseMarkdown(contextData.description)"/>
-          <br/>
+          <div style="margin-right: 8px;">
+            <div class="title">{{contextData.heading}}</div>
+            <div v-html="parseMarkdown(contextData.description)"/>
+            <br/>
 
-          <!-- Show sampeles and views seperately if they do not match -->
-          <template v-if="!samplesUnderViews">
-            <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
-            <template v-for="(view, i) in contextData.views">
-              <div v-bind:key="i+'_1'" @click="openViewFile(view)" class="context-card-view">
-                <img class="view-image" :src="getFileFromPath(view.thumbnail)"> 
-                <div class="view-description">{{view.description}}</div>
-              </div>
-              <div v-bind:key="i" class="padding"/>
+            <!-- Show sampeles and views seperately if they do not match -->
+            <template v-if="!samplesUnderViews">
+              <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
+              <template v-for="(view, i) in contextData.views">
+                <div v-bind:key="i+'_1'" @click="openViewFile(view)" class="context-card-view">
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"> 
+                  <div class="view-description">{{view.description}}</div>
+                </div>
+                <div v-bind:key="i" class="padding"/>
+              </template>
+              <div style="margin-bottom: 16px;"/>
+              <div v-if="contextData.samples && contextData.samples.length > 0" class="subtitle">Samples on Scaffold</div>
+              <template v-for="(sample, i) in contextData.samples">
+                  <span v-bind:key="i+'_3'" class="context-card-item cursor-pointer" @click="toggleSampleDetails(i)">
+                    <div v-bind:key="i+'_6'" style="display: flex">
+                      <div v-if="sample.color" class="color-box" :style="'background-color:'+ sample.color"></div>
+                      <img class="key-image" v-else-if="sample.thumbnail" :src="getFileFromPath(sample.thumbnail)">
+                      {{sample.heading}}
+                      <i class="el-icon-warning-outline info"></i>
+                    </div>
+                  </span>
+                  <div v-bind:key="i+'_4'" v-if="sampleDetails[i]" v-html="sample.description"/>
+                  <a v-bind:key="i+'_5'" v-if="sampleDetails[i] && sample.path" :href="generateFileLink(sample)" target="_blank">View Source</a>
+                  <div v-bind:key="i+'_2'" class="padding"/>
+              </template>
             </template>
-            <div style="margin-bottom: 16px;"/>
-            <div v-if="contextData.samples && contextData.samples.length > 0" class="subtitle">Samples on Scaffold</div>
-            <template v-for="(sample, i) in contextData.samples">
-                <span v-bind:key="i+'_3'" class="context-card-item cursor-pointer" @click="toggleSampleDetails(i)">
-                  <div v-bind:key="i+'_6'" style="display: flex">
-                    <div v-if="sample.color" class="color-box" :style="'background-color:'+ sample.color"></div>
-                    <img class="key-image" v-else-if="sample.thumbnail" :src="getFileFromPath(sample.thumbnail)">
-                    {{sample.heading}}
-                    <i class="el-icon-warning-outline info"></i>
-                  </div>
+
+            <!-- Show samples under views if the ids match -->
+            <template v-else>
+              <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
+              <template v-for="(view, i) in contextData.views">
+                <span :key="i+'_1'" @click="viewClicked(view, i)" class="context-card-view">
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"/> 
+                  <div class="view-description">{{view.description}}<i class="el-icon-warning-outline info"></i> </div>
                 </span>
-                <div v-bind:key="i+'_4'" v-if="sampleDetails[i]" v-html="sample.description"/>
-                <a v-bind:key="i+'_5'" v-if="sampleDetails[i] && sample.path" :href="generateFileLink(sample)" target="_blank">View Source</a>
-                <div v-bind:key="i+'_2'" class="padding"/>
-            </template>
-          </template>
+                <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description" :key="i+'_2'"/>
+                <a v-bind:key="i+'_5'" v-if="sampleDetails[i] && samplesMatching(view.id).path" :href="generateFileLink(samplesMatching(view.id))" target="_blank">View Source</a>
+                <div :key="i" class="padding"/>
 
-          <!-- Show samples under views if the ids match -->
-          <template v-else>
-            <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
-            <template v-for="(view, i) in contextData.views">
-              <span :key="i+'_1'" @click="viewClicked(view, i)" class="context-card-view">
-                <img class="view-image" :src="getFileFromPath(view.thumbnail)"/> 
-                <div class="view-description">{{view.description}}<i class="el-icon-warning-outline info"></i> </div>
-              </span>
-              <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description" :key="i+'_2'"/>
-              <a v-bind:key="i+'_5'" v-if="sampleDetails[i] && samplesMatching(view.id).path" :href="generateFileLink(samplesMatching(view.id))" target="_blank">View Source</a>
-              <div :key="i" class="padding"/>
-
-              <!-- Extra padding if sample details is open -->
-              <div :key="i+'_6'" v-if="sampleDetails[i]" class="padding"/>
+                <!-- Extra padding if sample details is open -->
+                <div :key="i+'_6'" v-if="sampleDetails[i]" class="padding"/>
+              </template>
             </template>
-          </template>
+          </div>
         </div>
       </div>
     </div>
@@ -305,7 +305,6 @@ export default {
 .context-card{
   background-color: white;
   max-height: 10  50px;
-  padding: 8px;
   font-size: 14px;
   position: relative;
   display: flex;
@@ -315,7 +314,7 @@ export default {
 
 .context-card-view{
   cursor: pointer;
-  padding-bottom: 8px;
+  margin-bottom: 8px;
   display: flex;
 }
 
@@ -323,7 +322,6 @@ export default {
   width: 34px;
   height: 34px;
   flex: 1;
-  margin-right: 4px;
 }
 
 .view-descriptions {
@@ -331,7 +329,7 @@ export default {
 }
 
 .context-card ::v-deep .el-card__body {
-  padding: 0px;
+  margin: 0px;
   display: flex;
   width: 516px;
 }
@@ -350,12 +348,12 @@ export default {
 }
 
 .card-left{
-  flex: 1
+  flex: 0.8
 }
 
 .card-right {
-  flex: 1.3;
-  padding-left: 6px;
+  flex: 1.5;
+  word-break: normal !important;
   overflow-y: scroll;
   scrollbar-width: thin;
 }
@@ -371,7 +369,7 @@ export default {
 }
 
 .padding {
-  padding-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 .title{

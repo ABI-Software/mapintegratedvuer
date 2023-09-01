@@ -34,23 +34,32 @@
             v-if="(activeView !== 'singlepanel') && (isSearchable[slot.name] == false)"
             @click.native="closeAndRemove(slot)"/>
         </el-popover>
+
+        <div v-show="contextCardEntry !== undefined && contextCardVisible" class="hide" @click="contextCardVisible = false">
+          Hide information
+          <i class="el-icon-arrow-up"></i>
+        </div>
+        <div v-show="!contextCardVisible" class="hide" @click="contextCardVisible = true">
+          Show information
+          <i class="el-icon-arrow-down"></i>
+        </div>
         <el-popover
-          content="Info"
-          placement="top"
+          v-if="container != undefined"
+          placement="bottom"
           :appendToBody="false"
           trigger="manual"
-          width="350"
+          width="450"
+          offset=0
           class="context-card-popover"
+          :popper-options="popperOptions"
           v-model="contextCardVisible"
         >
-          <template @mouseover="contextCardVisible = true" @mouseout="contextCardVisible = true">
+          <template>
             <context-card v-if="contextCardEntry" :entry="contextCardEntry" :envVars="envVars" class="context-card"></context-card>
           </template>
           <div class="el-icon-info info-icon"
               slot="reference"
-              @click="contextCardVisible = true"
-              @mouseover="contextCardVisible = true"
-              @mouseout="contextCardVisible = true">
+              @click="contextCardVisible = !contextCardVisible">
           </div>
         </el-popover>
       </el-row>
@@ -88,6 +97,10 @@ export default {
         return [];
       }
     },
+    container: {
+      type: HTMLElement,
+      default: undefined
+    },
     splitter1: {
       type: Number,
       default: 50
@@ -104,6 +117,7 @@ export default {
   data: function() {
     return {
       contextCardVisible: false,
+      showDetails: true,
       contextCardEntry: {
         apiLocation: "https://api.sparc.science/",
         banner: "https://assets.discover.pennsieve.io/dataset-assets/99/6/banner.jpg",
@@ -146,6 +160,19 @@ export default {
         ROOT_URL: store.state.settings.rootUrl,
       };
     },
+    boundary: function () {
+      let b = document.querySelector(".tab-container")
+      console.log("boundary", b);
+      return b;
+    },
+    popperOptions: function() { 
+      return { 
+        preventOverflow: {
+          enabled: true,
+          boundariesElement: this.boundary,
+        }
+      }
+    }
   },
   methods: {
     closeAndRemove: function(slot) {
@@ -439,6 +466,13 @@ export default {
   }
 }
 
+.hide{
+  color: $app-primary-color;
+  cursor: pointer;
+  margin-right: 6px;
+  margin-top: 3px;
+}
+
 .icon-group {
   font-size: 12px;
 }
@@ -451,6 +485,11 @@ export default {
 }
 
 .context-card {
-  width: 350px;
+  width: 440px;
+}
+
+.context-card-popover ::v-deep .el-popover{
+  max-width: calc(100vw - 100px);
+  padding-right: 0px;
 }
 </style>
