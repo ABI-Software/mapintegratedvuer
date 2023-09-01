@@ -37,6 +37,7 @@
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
+          @contextUpdate="contextUpdate($event)"
         />
       </div>
     </el-main>
@@ -334,6 +335,9 @@ export default {
         }
       }
     },
+    contextUpdate: function (payload) {
+      EventBus.$emit("contextUpdate", payload);
+    }
   },
   created: function () {
     this._facets = [];

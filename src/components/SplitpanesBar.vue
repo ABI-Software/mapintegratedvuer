@@ -34,6 +34,25 @@
             v-if="(activeView !== 'singlepanel') && (isSearchable[slot.name] == false)"
             @click.native="closeAndRemove(slot)"/>
         </el-popover>
+        <el-popover
+          content="Info"
+          placement="top"
+          :appendToBody="false"
+          trigger="manual"
+          width="350"
+          class="context-card-popover"
+          v-model="contextCardVisible"
+        >
+          <template @mouseover="contextCardVisible = true" @mouseout="contextCardVisible = true">
+            <context-card v-if="contextCardEntry" :entry="contextCardEntry" :envVars="envVars" class="context-card"></context-card>
+          </template>
+          <div class="el-icon-info info-icon"
+              slot="reference"
+              @click="contextCardVisible = true"
+              @mouseover="contextCardVisible = true"
+              @mouseout="contextCardVisible = true">
+          </div>
+        </el-popover>
       </el-row>
     </div>    
   </div>
@@ -45,6 +64,7 @@
 import Vue from "vue";
 import EventBus from './EventBus';
 import store from "../store";
+import ContextCard from "./ContextCard";
 import { Input, Option, Popover, Row, Select } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -59,6 +79,7 @@ Vue.use(Row);
 export default {
   name: "SplitpanesBar",
   components: {
+    ContextCard
   },
   props: {
     entries: {
@@ -82,11 +103,24 @@ export default {
   },
   data: function() {
     return {
+      contextCardVisible: false,
+      contextCardEntry: {
+        apiLocation: "https://api.sparc.science/",
+        banner: "https://assets.discover.pennsieve.io/dataset-assets/99/6/banner.jpg",
+        contextCardUrl: "https://api.sparc.science/s3-resource/99/6/files/derivative/scaffold_context_info.json?s3BucketName=pennsieve-prod-discover-publish-use1",
+        discoverId: 99,
+        label: "Heart",
+        resource: "https://api.sparc.science/s3-resource/99/6/files/derivative/rat_heart_metadata.json?s3BucketName=pennsieve-prod-discover-publish-use1",
+        s3uri: "s3://pennsieve-prod-discover-publish-use1/99/6/",
+        title: "View 3D scaffold",
+        type: "Scaffold",
+        version: 6,
+      },
       isSearchable: {
         first: true,
         second: false,
         third: false,
-        fourth: false
+        fourth: false,
       },
     }
   },
@@ -100,7 +134,18 @@ export default {
     },
     activeView: function() {
       return store.state.splitFlow.activeView;
-    }
+    },
+    envVars: function () {
+      return {
+        API_LOCATION: store.state.settings.sparcApi,
+        ALGOLIA_INDEX: store.state.settings.algoliaIndex,
+        ALGOLIA_KEY: store.state.settings.algoliaKey,
+        ALGOLIA_ID: store.state.settings.algoliaId,
+        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi,
+        NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
+        ROOT_URL: store.state.settings.rootUrl,
+      };
+    },
   },
   methods: {
     closeAndRemove: function(slot) {
@@ -247,7 +292,13 @@ export default {
       },
       deep: true
     },
-  } 
+  },
+  mounted: function() {
+    EventBus.$on("contextUpdate", entry => {
+      this.contextCardEntry = entry;
+      this.contextCardVisible = true;
+    });
+  }
 };
 </script>
 
@@ -390,5 +441,16 @@ export default {
 
 .icon-group {
   font-size: 12px;
+}
+
+.info-icon {
+  margin-right: 8px;
+  font-size: 28px;
+  color: $app-primary-color;
+  cursor: pointer;
+}
+
+.context-card {
+  width: 350px;
 }
 </style>
