@@ -174,6 +174,9 @@ export default {
         store.commit("settings/updateMarkers", data.value);
         EventBus.$emit("markerUpdate");
       }
+      if (data && data.type == "filter-label-update") {
+        store.commit("settings/updateFacetLabels", data.value);
+      }
     },
     // updateEntry: Updates entry a scaffold entry with a viewUrl
     updateEntry(data) {

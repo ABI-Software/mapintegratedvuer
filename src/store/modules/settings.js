@@ -12,6 +12,7 @@ const state = () => ({
   nlLinkPrefix: undefined,
   rootUrl: undefined,
   facets: { species: [], gender: [], organ: [] },
+  facetLabels: [],
   markers: [],
   featuredMarkers: [],
   featuredMarkerIdentifiers: [],
@@ -137,6 +138,9 @@ const mutations = {
       }
     }
   },
+  updateFacetLabels(state, facetLabels) {
+    state.facetLabels = facetLabels;
+  }
 };
 
 export default {
