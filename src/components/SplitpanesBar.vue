@@ -531,6 +531,10 @@ export default {
   font-size: 28px;
   color: $app-primary-color;
   cursor: pointer;
+  &::before { // since the icon is a font, we need to adjust the vertical alignment
+    position: relative;
+    top: -2px; 
+  }
 }
 
 .flatmap-context-card {
