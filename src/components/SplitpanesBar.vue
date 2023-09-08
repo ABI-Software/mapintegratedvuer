@@ -35,11 +35,12 @@
             @click.native="closeAndRemove(slot)"/>
         </el-popover>
 
-        <div v-show="contextCardEntry !== undefined && contextCardVisible" class="hide" @click="contextCardVisible = false">
+        
+        <div v-show="contextCardVisible[slot.name]" class="hide" @click="contextCardVisible[slot.name] = false">
           Hide information
           <i class="el-icon-arrow-up"></i>
         </div>
-        <div v-show="!contextCardVisible" class="hide" @click="contextCardVisible = true">
+        <div v-show="!contextCardVisible[slot.name]" class="hide" @click="contextCardVisible[slot.name] = true">
           Show information
           <i class="el-icon-arrow-down"></i>
         </div>
@@ -52,14 +53,14 @@
           offset=0
           class="context-card-popover"
           :popper-options="popperOptions"
-          v-model="contextCardVisible"
+          v-model="contextCardVisible[slot.name]"
         >
-          <template>
-            <context-card v-if="contextCardEntry" :entry="contextCardEntry" :envVars="envVars" class="context-card"></context-card>
+          <template v-for="(contextCardEntry, i) in contextCardEntries">
+            <context-card :key="'contextCard'+i" v-if="contextCardEntry.id === slot.id" :entry="contextCardEntry" :envVars="envVars" class="context-card"></context-card>
           </template>
           <div class="el-icon-info info-icon"
               slot="reference"
-              @click="contextCardVisible = !contextCardVisible">
+              @click="contextCardVisible[slot.name] = !contextCardVisible[slot.name]">
           </div>
         </el-popover>
       </el-row>
@@ -116,20 +117,14 @@ export default {
   },
   data: function() {
     return {
-      contextCardVisible: false,
-      showDetails: true,
-      contextCardEntry: {
-        apiLocation: "https://api.sparc.science/",
-        banner: "https://assets.discover.pennsieve.io/dataset-assets/99/6/banner.jpg",
-        contextCardUrl: "https://api.sparc.science/s3-resource/99/6/files/derivative/scaffold_context_info.json?s3BucketName=pennsieve-prod-discover-publish-use1",
-        discoverId: 99,
-        label: "Heart",
-        resource: "https://api.sparc.science/s3-resource/99/6/files/derivative/rat_heart_metadata.json?s3BucketName=pennsieve-prod-discover-publish-use1",
-        s3uri: "s3://pennsieve-prod-discover-publish-use1/99/6/",
-        title: "View 3D scaffold",
-        type: "Scaffold",
-        version: 6,
+      contextCardVisible: {
+        first: false,
+        second: false,
+        third: false,
+        fourth: false, 
       },
+      showDetails: true,
+      contextCardEntries: [],
       isSearchable: {
         first: true,
         second: false,
@@ -322,8 +317,12 @@ export default {
   },
   mounted: function() {
     EventBus.$on("contextUpdate", entry => {
-      this.contextCardEntry = entry;
-      this.contextCardVisible = true;
+      console.log(this.entries)
+      let contextEntry = entry;
+      let id = this.entries[this.entries.length-1].id; // we always open card on a new pane
+      contextEntry.id = id;
+      this.contextCardEntries.push(contextEntry);
+      this.contextCardVisible.first = true;
     });
   }
 };
