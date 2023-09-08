@@ -47,6 +47,7 @@ export default {
       return this.$refs.flatmap.mapImp;
     },
     flatmapReadyCall: function (flatmap) {
+      EventBus.$emit("mapImp", this.getFlatmapImp());
       this.getAvailableTerms();
       if (this.entry.resource === "FunctionalConnectivity"){
         this.flatmapReadyForMarkerUpdates(flatmap);

@@ -234,6 +234,7 @@ export default {
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerZoomUpdate(true, flatmapImp);
+        EventBus.$emit("mapImp", flatmapImp); // send mapimp to the context card for provenance
       }
     },
     getFlatmapImp: function () {
