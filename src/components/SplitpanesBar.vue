@@ -132,6 +132,7 @@ export default {
         third: false,
         fourth: false, 
       },
+      boundariesElement: null, // this is set @hook:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntries: [],
       flatmapContextCardEntries: [],
@@ -165,15 +166,11 @@ export default {
         ROOT_URL: store.state.settings.rootUrl,
       };
     },
-    boundary: function () {
-      let b = document.querySelector(".tab-container")
-      return b;
-    },
     popperOptions: function() { 
       return { 
         preventOverflow: {
           enabled: true,
-          boundariesElement: this.boundary,
+          boundariesElement: this.boundariesElement,
         }
       }
     }
@@ -327,6 +324,9 @@ export default {
           return "440px";
         }
       }
+    },
+    setBoundary: function(boundaryElement){
+      this.boundariesElement = boundaryElement;
     },
     setUpContextUpdaters: function(){
       // scaffold context update

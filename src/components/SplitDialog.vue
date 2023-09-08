@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-container" ref="container">
+  <div class="tab-container" ref="tabContainer">
     <splitpanes
       class="default-theme"
       :horizontal="horizontal"
@@ -33,11 +33,13 @@
       </pane>
     </splitpanes>
     <splitpanes-bar
+      ref="splitpanesbar"
       :entries="entries" 
       :splitter1="splitter1"
       :splitter2="splitter2"
       :splitter3="splitter3"
       @chooser-changed="viewerChanged"
+      @hook:mounted="setPanesBoundary"
       />
     <div
       v-for="entry in entries"
@@ -265,6 +267,9 @@ export default {
         states.push(contents[i].getState());
       }
       return states;
+    },
+    setPanesBoundary: function() {
+      this.$refs.splitpanesbar.setBoundary(this.$refs.tabContainer)
     },
     viewerChanged: function() {
       for (let i = 0; i < this.$refs.content.length; i++) {
