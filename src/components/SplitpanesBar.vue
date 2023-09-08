@@ -157,7 +157,6 @@ export default {
     },
     boundary: function () {
       let b = document.querySelector(".tab-container")
-      console.log("boundary", b);
       return b;
     },
     popperOptions: function() { 
@@ -317,7 +316,6 @@ export default {
   },
   mounted: function() {
     EventBus.$on("contextUpdate", entry => {
-      console.log(this.entries)
       let contextEntry = entry;
       let id = this.entries[this.entries.length-1].id; // we always open card on a new pane
       contextEntry.id = id;
