@@ -21,9 +21,6 @@ import { Link, Icon, Card, Button, Select, Input } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 
-// import { marked } from 'marked'
-// import xss from 'xss'
-
 locale.use(lang);
 Vue.use(Link);
 Vue.use(Icon);
@@ -38,7 +35,7 @@ export default {
   props: {
     /**
      * Object containing information for
-     * the required viewing.
+     * the required viewing. Can be retrieved from a flatmap
      */
     mapImp: Object,
   },

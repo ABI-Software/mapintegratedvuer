@@ -312,9 +312,11 @@ export default {
         });
       }
     },
+    // check if a context card exists for a given pane
     contextCardExists: function(paneId) {
       return this.contextCardEntries.some(entry => entry.id === paneId);
     },
+    // setPopper with is needed as the flatmap context card does not have an image and has smaller with
     setPopperWidth: function(slotId) {
       let entry = this.entries.find(entry => entry.id === slotId);
       if (entry) {
@@ -325,6 +327,7 @@ export default {
         }
       }
     },
+    // Set the boundaries element for the popper
     setBoundary: function(boundaryElement){
       this.boundariesElement = boundaryElement;
     },
@@ -336,7 +339,7 @@ export default {
         contextEntry.id = id;
         contextEntry.type = 'scaffold';
         this.contextCardEntries.push(contextEntry);
-        this.contextCardVisible.first = true;
+        this.contextCardVisible.first = true; // Show the context card once it loads
       });
 
       // flatmap context update
@@ -359,7 +362,7 @@ export default {
             type: 'flatmap'
           };
           this.contextCardEntries.push(contextEntry);
-          this.contextCardVisible.first = false;
+          this.contextCardVisible.first = false; // only want to show the flatmap card onclick (As it covers the minimap)
         }
       });
     }
