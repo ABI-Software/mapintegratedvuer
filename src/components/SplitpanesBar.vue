@@ -98,10 +98,6 @@ export default {
         return [];
       }
     },
-    container: {
-      type: HTMLElement,
-      default: undefined
-    },
     splitter1: {
       type: Number,
       default: 50
