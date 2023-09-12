@@ -170,12 +170,10 @@ export default {
       if (data && data.type == "filter-update") {
         store.commit("settings/updateFacets", data.value);
       }
-      if (data && data.type == "keyword-update") {
-        store.commit("settings/updateMarkers", data.value);
+      if (data && data.type == "available-facets") {
+        store.commit("settings/updateFacetLabels", data.value.labels);
+        store.commit("settings/updateMarkers", data.value.uberons);
         EventBus.$emit("markerUpdate");
-      }
-      if (data && data.type == "filter-label-update") {
-        store.commit("settings/updateFacetLabels", data.value);
       }
     },
     // updateEntry: Updates entry a scaffold entry with a viewUrl
