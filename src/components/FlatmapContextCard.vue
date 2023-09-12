@@ -37,7 +37,7 @@ export default {
      * Object containing information for
      * the required viewing. Can be retrieved from a flatmap
      */
-    mapImp: Object,
+    mapImpProv: Object,
   },
   data: function () {
     return {
@@ -51,8 +51,8 @@ export default {
   computed: {
     flatmapPublishedDisplay: function() {
       let flatmapPublished = "Unknown"
-      if(this.mapImp && this.mapImp.provenance){
-        flatmapPublished = new Date(this.mapImp.provenance.created).toLocaleDateString('en-US', {
+      if(this.mapImpProv){
+        flatmapPublished = new Date(this.mapImpProv.created).toLocaleDateString('en-US', {
             day: '2-digit',
             month: 'long',
             year: 'numeric',
@@ -62,8 +62,8 @@ export default {
     },
     skanReleaseDisplay: function() {
       let skanRelease = "Unknown"
-      if(this.mapImp && this.mapImp.provenance){
-        let isoTime = this.mapImp.provenance.sckan.created.replace(',', '.') // Date time does not accept commas but Sckan uses them
+      if(this.mapImpProv){
+        let isoTime = this.mapImpProv.sckan.created.replace(',', '.') // Date time does not accept commas but Sckan uses them
         skanRelease = new Date(isoTime).toLocaleDateString('en-US', {
             day: '2-digit',
             month: 'long',
@@ -74,15 +74,15 @@ export default {
     },
     skanReleaseLink: function() {
       let skanRelease = "Unknown"
-      if(this.mapImp && this.mapImp.provenance){
-        skanRelease = this.mapImp.provenance.sckan.release
+      if(this.mapImpProv){
+        skanRelease = this.mapImpProv.sckan.release
       }
       return skanRelease 
     },
     flatmapSource: function() {
       let flatmapSource = "Unknown"
-      if(this.mapImp && this.mapImp.provenance){
-        flatmapSource = this.mapImp.provenance.source
+      if(this.mapImpProv){
+        flatmapSource = this.mapImpProv.source
       }
       return flatmapSource
     },

@@ -55,23 +55,25 @@
           v-model="contextCardVisible[slot.name]"
         >
           <template v-for="(contextCardEntry, i) in contextCardEntries">
-              <flatmap-context-card 
-                class="flatmap-context-card"
-                :key="'flatmapContextCard'+i" 
-                v-if="contextCardEntry.id === slot.id && contextCardEntry.type == 'flatmap'" 
-                :mapImp="contextCardEntry.mapImp"
-              />
-              <context-card 
-                :key="'contextCard'+i"
-                v-if="contextCardEntry.id === slot.id && contextCardEntry.type == 'scaffold'"
-                :entry="contextCardEntry"
-                :envVars="envVars"
-                class="context-card"
-              />
+            <flatmap-context-card 
+              class="flatmap-context-card"
+              :key="'flatmapContextCard'+i" 
+              v-if="contextCardEntry.id === slot.id && contextCardEntry.type == 'flatmap'" 
+              :mapImpProv="contextCardEntry.mapImpProv"
+            />
+            <context-card 
+              :key="'contextCard'+i"
+              v-if="contextCardEntry.id === slot.id && contextCardEntry.type == 'scaffold'"
+              :entry="contextCardEntry"
+              :envVars="envVars"
+              class="context-card"
+            />
           </template>
           <div class="el-icon-info info-icon"
-              slot="reference"
-              @click="contextCardVisible[slot.name] = !contextCardVisible[slot.name]">
+            slot="reference"
+            @click="contextCardVisible[slot.name] = !contextCardVisible[slot.name]"
+            v-show="contextCardEntries.length > 0"
+          >
           </div>
         </el-popover>
       </el-row>
@@ -310,6 +312,9 @@ export default {
             this.$emit("chooser-changed");
           }, 1200);
         });
+        for(let key in this.contextCardVisible){
+          this.contextCardVisible[key] = false; // Hide all context cards when switching viewers
+        }
       }
     },
     // check if a context card exists for a given pane
@@ -334,6 +339,7 @@ export default {
     setUpContextUpdaters: function(){
       // scaffold context update
       EventBus.$on("contextUpdate", entry => {
+        this.contextCardVisible.first = false; // hide the context card while it loads
         let contextEntry = entry;
         let id = this.entries[this.entries.length-1].id; // we always open card on a new pane
         contextEntry.id = id;
@@ -343,22 +349,26 @@ export default {
       });
 
       // flatmap context update
-      EventBus.$on("mapImp", mapImp => {
+      EventBus.$on("mapImpProv", mapImpProv => {
 
         // check if we have a flatmap card
         let currentFlatmapCard = this.contextCardEntries.filter(entry => entry.type === 'flatmap');
 
         // if we do, modify it as opposed to adding a new one
         if (currentFlatmapCard.length > 0){
+          const slot = store.state.splitFlow.getSlotById(currentFlatmapCard[0].id);
+          this.contextCardVisible[slot.name] = false; // Hide flatmap card while it loads
           this.contextCardEntries[this.contextCardEntries.indexOf(currentFlatmapCard[0])] = {
-            mapImp: mapImp,
+            id: currentFlatmapCard[0].id,
+            mapImpProv: mapImpProv,
             type: 'flatmap'
           }
         } else {
+          // if we don't have a flatmap context card, add a new one
           let id = this.entries[this.entries.length-1].id;
           let contextEntry = {
             id: id,
-            mapImp: mapImp,
+            mapImpProv: mapImpProv,
             type: 'flatmap'
           };
           this.contextCardEntries.push(contextEntry);

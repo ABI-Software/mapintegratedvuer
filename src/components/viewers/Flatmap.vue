@@ -47,7 +47,8 @@ export default {
       return this.$refs.flatmap.mapImp;
     },
     flatmapReadyCall: function (flatmap) {
-      EventBus.$emit("mapImp", this.getFlatmapImp());
+      let provClone = {...this.getFlatmapImp().provenance} //create clone of provenance
+      EventBus.$emit("mapImpProv", provClone); // send clone to context card
       this.getAvailableTerms();
       if (this.entry.resource === "FunctionalConnectivity"){
         this.flatmapReadyForMarkerUpdates(flatmap);
