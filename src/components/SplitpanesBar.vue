@@ -100,6 +100,11 @@ Vue.use(Select);
 Vue.use(Popover);
 Vue.use(Row);
 
+// remove duplicates by stringifying the objects
+const removeDuplicates = function(arrayOfAnything){
+  return [...new Set(arrayOfAnything.map(e => JSON.stringify(e)))].map(e => JSON.parse(e)) 
+}
+
 export default {
   name: "SplitpanesBar",
   components: {
@@ -346,6 +351,7 @@ export default {
         contextEntry.type = 'scaffold';
         this.contextCardEntries.push(contextEntry);
         this.contextCardVisible.first = true; // Show the context card once it loads
+        this.contextCardEntries = removeDuplicates(this.contextCardEntries); // remove duplicates
       });
 
       // flatmap context update
@@ -373,6 +379,7 @@ export default {
           };
           this.contextCardEntries.push(contextEntry);
           this.contextCardVisible.first = false; // only want to show the flatmap card onclick (As it covers the minimap)
+          this.contextCardEntries = removeDuplicates(this.contextCardEntries); // remove duplicates
         }
       });
     }
