@@ -58,12 +58,12 @@
             <flatmap-context-card 
               class="flatmap-context-card"
               :key="'flatmapContextCard'+i" 
-              v-if="contextCardEntry.id === slot.id && contextCardEntry.type == 'flatmap'" 
+              v-if="contextCardEntry.id === slot.id && contextCardEntry.type.toLowerCase() == 'flatmap'" 
               :mapImpProv="contextCardEntry.mapImpProv"
             />
             <context-card 
               :key="'contextCard'+i"
-              v-if="contextCardEntry.id === slot.id && contextCardEntry.type == 'scaffold'"
+              v-if="contextCardEntry.id === slot.id && contextCardEntry.type .toLowerCase() == 'scaffold'"
               :entry="contextCardEntry"
               :envVars="envVars"
               class="context-card"

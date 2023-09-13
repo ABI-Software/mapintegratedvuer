@@ -272,7 +272,7 @@ export default {
     },
     openViewFile: function(view){
       // note that we assume that the view file is in the same directory as the scaffold (viewUrls take relative paths)
-      this.entry.viewUrl = `${this.envVars.API_LOCATION}s3-resource/${this.entry.discoverId}/${this.entry.version}/${view.path}${this.getS3Args()}`
+      this.entry.viewUrl = this.getFileFromPath(view.path)
       this.entry.type = 'Scaffold View'
       EventBus.$emit("PopoverActionClick", this.entry)
     }
