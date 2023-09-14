@@ -19,6 +19,7 @@
     :display-markers="false"
     :enableOpenMapUI="entry.isBodyScaffold"
     :view-u-r-l="entry.viewUrl"
+    :markerLabels="markerLabels"
   />
 </template>
 
@@ -170,6 +171,9 @@ export default {
       } else {
         return "Under active development";
       }
+    },
+    markerLabels: function () {
+      return store.state.settings.facetLabels;
     },
   },
   data: function () {

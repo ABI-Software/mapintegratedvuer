@@ -229,11 +229,14 @@ export default {
       }
     },
     multiFlatmapReady: function (flatmap) {
+      let newMapImp = this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"]; // get latest map
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerZoomUpdate(true, flatmapImp);
+        let provClone = {...newMapImp.provenance}; //create clone of provenance
+        EventBus.$emit("mapImpProv", provClone); // send provenance close to the context card for display
       }
     },
     getFlatmapImp: function () {

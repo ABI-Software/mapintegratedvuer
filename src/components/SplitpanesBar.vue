@@ -34,6 +34,48 @@
             v-if="(activeView !== 'singlepanel') && (isSearchable[slot.name] == false)"
             @click.native="closeAndRemove(slot)"/>
         </el-popover>
+
+        
+        <div v-show="contextCardExists(slot.id) && contextCardVisible[slot.name]" class="hide" @click="contextCardVisible[slot.name] = false">
+          Hide information
+          <i class="el-icon-arrow-up"></i>
+        </div>
+        <div v-show="contextCardExists(slot.id) && !contextCardVisible[slot.name]" class="hide" @click="contextCardVisible[slot.name] = true">
+          Show information
+          <i class="el-icon-arrow-down"></i>
+        </div>
+        <el-popover
+          placement="bottom"
+          :appendToBody="false"
+          trigger="manual"
+          :width="setPopperWidth(slot.id)"
+          offset=0
+          class="context-card-popover"
+          :popper-options="popperOptions"
+          v-model="contextCardVisible[slot.name]"
+        >
+          <template v-for="(contextCardEntry, i) in contextCardEntries">
+            <flatmap-context-card 
+              class="flatmap-context-card"
+              :key="'flatmapContextCard'+i" 
+              v-if="contextCardEntry.id === slot.id && contextCardEntry.type.toLowerCase() == 'flatmap'" 
+              :mapImpProv="contextCardEntry.mapImpProv"
+            />
+            <context-card 
+              :key="'contextCard'+i"
+              v-if="contextCardEntry.id === slot.id && contextCardEntry.type .toLowerCase() == 'scaffold'"
+              :entry="contextCardEntry"
+              :envVars="envVars"
+              class="context-card"
+            />
+          </template>
+          <div class="el-icon-info info-icon"
+            slot="reference"
+            @click="contextCardVisible[slot.name] = !contextCardVisible[slot.name]"
+            v-show="contextCardEntries.length > 0"
+          >
+          </div>
+        </el-popover>
       </el-row>
     </div>    
   </div>
@@ -45,6 +87,8 @@
 import Vue from "vue";
 import EventBus from './EventBus';
 import store from "../store";
+import ContextCard from "./ContextCard";
+import FlatmapContextCard from './FlatmapContextCard.vue';
 import { Input, Option, Popover, Row, Select } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -56,9 +100,16 @@ Vue.use(Select);
 Vue.use(Popover);
 Vue.use(Row);
 
+// remove duplicates by stringifying the objects
+const removeDuplicates = function(arrayOfAnything){
+  return [...new Set(arrayOfAnything.map(e => JSON.stringify(e)))].map(e => JSON.parse(e)) 
+}
+
 export default {
   name: "SplitpanesBar",
   components: {
+    ContextCard,
+    FlatmapContextCard
   },
   props: {
     entries: {
@@ -82,11 +133,21 @@ export default {
   },
   data: function() {
     return {
+      contextCardVisible: {
+        first: false,
+        second: false,
+        third: false,
+        fourth: false, 
+      },
+      boundariesElement: null, // this is set @hook:mounted by the parent component via the 'setBoundary' method
+      showDetails: true,
+      contextCardEntries: [],
+      flatmapContextCardEntries: [],
       isSearchable: {
         first: true,
         second: false,
         third: false,
-        fourth: false
+        fourth: false,
       },
     }
   },
@@ -100,6 +161,25 @@ export default {
     },
     activeView: function() {
       return store.state.splitFlow.activeView;
+    },
+    envVars: function () {
+      return {
+        API_LOCATION: store.state.settings.sparcApi,
+        ALGOLIA_INDEX: store.state.settings.algoliaIndex,
+        ALGOLIA_KEY: store.state.settings.algoliaKey,
+        ALGOLIA_ID: store.state.settings.algoliaId,
+        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi,
+        NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
+        ROOT_URL: store.state.settings.rootUrl,
+      };
+    },
+    popperOptions: function() { 
+      return { 
+        preventOverflow: {
+          enabled: true,
+          boundariesElement: this.boundariesElement,
+        }
+      }
     }
   },
   methods: {
@@ -237,7 +317,71 @@ export default {
             this.$emit("chooser-changed");
           }, 1200);
         });
+        for(let key in this.contextCardVisible){
+          this.contextCardVisible[key] = false; // Hide all context cards when switching viewers
+        }
       }
+    },
+    // check if a context card exists for a given pane
+    contextCardExists: function(paneId) {
+      return this.contextCardEntries.some(entry => entry.id === paneId);
+    },
+    // setPopper with is needed as the flatmap context card does not have an image and has smaller with
+    setPopperWidth: function(slotId) {
+      let entry = this.entries.find(entry => entry.id === slotId);
+      if (entry) {
+        if (entry.type == "Flatmap" || entry.type == "MultiFlatmap") {
+          return "240px";
+        } else {
+          return "440px";
+        }
+      }
+    },
+    // Set the boundaries element for the popper
+    setBoundary: function(boundaryElement){
+      this.boundariesElement = boundaryElement;
+    },
+    setUpContextUpdaters: function(){
+      // scaffold context update
+      EventBus.$on("contextUpdate", entry => {
+        this.contextCardVisible.first = false; // hide the context card while it loads
+        let contextEntry = entry;
+        let id = this.entries[this.entries.length-1].id; // we always open card on a new pane
+        contextEntry.id = id;
+        contextEntry.type = 'scaffold';
+        this.contextCardEntries.push(contextEntry);
+        this.contextCardVisible.first = true; // Show the context card once it loads
+        this.contextCardEntries = removeDuplicates(this.contextCardEntries); // remove duplicates
+      });
+
+      // flatmap context update
+      EventBus.$on("mapImpProv", mapImpProv => {
+
+        // check if we have a flatmap card
+        let currentFlatmapCard = this.contextCardEntries.filter(entry => entry.type === 'flatmap');
+
+        // if we do, modify it as opposed to adding a new one
+        if (currentFlatmapCard.length > 0){
+          const slot = store.state.splitFlow.getSlotById(currentFlatmapCard[0].id);
+          this.contextCardVisible[slot.name] = false; // Hide flatmap card while it loads
+          this.contextCardEntries[this.contextCardEntries.indexOf(currentFlatmapCard[0])] = {
+            id: currentFlatmapCard[0].id,
+            mapImpProv: mapImpProv,
+            type: 'flatmap'
+          }
+        } else {
+          // if we don't have a flatmap context card, add a new one
+          let id = this.entries[this.entries.length-1].id;
+          let contextEntry = {
+            id: id,
+            mapImpProv: mapImpProv,
+            type: 'flatmap'
+          };
+          this.contextCardEntries.push(contextEntry);
+          this.contextCardVisible.first = false; // only want to show the flatmap card onclick (As it covers the minimap)
+          this.contextCardEntries = removeDuplicates(this.contextCardEntries); // remove duplicates
+        }
+      });
     }
   },
   watch: {
@@ -247,7 +391,10 @@ export default {
       },
       deep: true
     },
-  } 
+  },
+  mounted: function() {
+    this.setUpContextUpdaters();
+  }
 };
 </script>
 
@@ -388,7 +535,38 @@ export default {
   }
 }
 
+.hide{
+  color: $app-primary-color;
+  cursor: pointer;
+  margin-right: 6px;
+  margin-top: 3px;
+}
+
 .icon-group {
   font-size: 12px;
+}
+
+.info-icon {
+  margin-right: 8px;
+  font-size: 28px;
+  color: $app-primary-color;
+  cursor: pointer;
+  &::before { // since the icon is a font, we need to adjust the vertical alignment
+    position: relative;
+    top: -2px; 
+  }
+}
+
+.flatmap-context-card {
+  width: 240px;
+}
+
+.context-card {
+  width: 440px;
+}
+
+.context-card-popover ::v-deep .el-popover{
+  max-width: calc(100vw - 100px);
+  padding-right: 0px;
 }
 </style>

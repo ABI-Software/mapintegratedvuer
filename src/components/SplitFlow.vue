@@ -37,6 +37,7 @@
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
+          @contextUpdate="contextUpdate($event)"
         />
       </div>
     </el-main>
@@ -169,8 +170,9 @@ export default {
       if (data && data.type == "filter-update") {
         store.commit("settings/updateFacets", data.value);
       }
-      if (data && data.type == "keyword-update") {
-        store.commit("settings/updateMarkers", data.value);
+      if (data && data.type == "available-facets") {
+        store.commit("settings/updateFacetLabels", data.value.labels);
+        store.commit("settings/updateMarkers", data.value.uberons);
         EventBus.$emit("markerUpdate");
       }
     },
@@ -334,6 +336,9 @@ export default {
         }
       }
     },
+    contextUpdate: function (payload) {
+      EventBus.$emit("contextUpdate", payload);
+    }
   },
   created: function () {
     this._facets = [];
