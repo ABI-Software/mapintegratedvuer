@@ -356,13 +356,14 @@ export default {
 
       // flatmap context update
       EventBus.$on("mapImpProv", mapImpProv => {
+        console.log('mapImpProv', mapImpProv);
 
         // check if we have a flatmap card
         let currentFlatmapCard = this.contextCardEntries.filter(entry => entry.type === 'flatmap');
 
         // if we do, modify it as opposed to adding a new one
         if (currentFlatmapCard.length > 0){
-          const slot = store.state.splitFlow.getSlotById(currentFlatmapCard[0].id);
+          const slot = store.getters["splitFlow/getSlotById"](currentFlatmapCard[0].id);
           this.contextCardVisible[slot.name] = false; // Hide flatmap card while it loads
           this.contextCardEntries[this.contextCardEntries.indexOf(currentFlatmapCard[0])] = {
             id: currentFlatmapCard[0].id,
