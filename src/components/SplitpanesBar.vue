@@ -59,7 +59,6 @@
               class="flatmap-context-card"
               :key="'flatmapContextCard'+i" 
               v-if="contextCardEntry.id === slot.id &&
-                    contextCardEntry.slot.name == slot.name &&
                     (contextCardEntry.type == 'Flatmap' || 
                     contextCardEntry.type == 'MultiFlatmap')" 
               :mapImpProv="contextCardEntry.mapImpProv"
@@ -67,7 +66,6 @@
             <context-card 
               :key="'contextCard'+i"
               v-if="contextCardEntry.id === slot.id &&
-                    contextCardEntry.slot.name == slot.name &&
                     contextCardEntry.type.toLowerCase() == 'scaffold'"
               :entry="contextCardEntry"
               :envVars="envVars"
@@ -313,7 +311,6 @@ export default {
       this.slotInfo.forEach( slot => this.updateisSearchableSlot(slot));
     },
     viewerChanged: function(slot, value) {
-      console.log("viewerChanged", slot, value);
       if (slot.id && slot.id != value) {
         store.commit("splitFlow/assignOrSwapIdToSlot", {
           slot: slot,
@@ -363,8 +360,6 @@ export default {
 
       // flatmap context update
       EventBus.$on("mapImpProv", mapImpProv => {
-        console.log('mapImpProv', mapImpProv);
-        window.entries = this.entries;
         // The below logic works by storing the entries info in the contextCardEntries array.
         //   These two can be compared to see if the resource has changed.
 
