@@ -363,26 +363,19 @@ export default {
         // The below logic works by storing the entries info in the contextCardEntries array.
         //   These two can be compared to see if the resource has changed.
 
+        let slot = store.getters["splitFlow/getSlotById"](mapImpProv.id); 
+        this.contextCardVisible[slot.name] = false; // hide the context card when new map loads
+
         // Add card if we have more entries than before
-        if (this.entries.length > this.contextCardEntries.length){
-          let contextEntry = Object.assign({mapImpProv: mapImpProv}, this.entries[this.entries.length-1]);
+        if (this.entries.length > this.contextCardEntries.length || this.contextCardEntries.length == 0){
+          let contextEntry = Object.assign({mapImpProv: mapImpProv.prov}, this.entries[this.entries.length-1]);
           this.contextCardEntries.push(contextEntry);
-          let slot = store.getters["splitFlow/getSlotById"](contextEntry.id); 
-          this.contextCardVisible[slot] = false; // only want to show the flatmap card onclick (As it covers the minimap)
-          this.contextCardEntries.slot = slot
 
         // Check if the resource has changed and update the mapImpProv
         } else if ( this.entries.length == this.contextCardEntries.length) { 
-          for (let i in this.entries) {
-            for (let j in this.contextCardEntries){
-              if ( this.entries[i].id == this.contextCardEntries[j].id){
-                if ( this.entries[i].resource != this.contextCardEntries[j].resource){
-                  this.contextCardEntries[j] = Object.assign({mapImpProv: mapImpProv}, this.entries[i]); // update card
-                  let slot = store.getters["splitFlow/getSlotById"](this.entries[i].id); 
-                  this.contextCardVisible[slot] = false; // only want to show the flatmap card onclick (As it covers the minimap)
-                  this.contextCardEntries.slot = slot
-                }
-              }
+          for (let i in this.contextCardEntries){
+            if ( mapImpProv.id == this.contextCardEntries[i].id){
+              this.contextCardEntries[i] = Object.assign({mapImpProv: mapImpProv.prov}, this.entries.filter(ent=>ent.id==mapImpProv.id)[0]); // update card
             }
           }
         }
