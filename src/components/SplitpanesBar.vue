@@ -145,8 +145,6 @@ export default {
       boundariesElement: null, // this is set @hook:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntries: [],
-      flatmapContextCardEntries: [],
-      previousEntries: [],
       isSearchable: {
         first: true,
         second: false,
