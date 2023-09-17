@@ -208,7 +208,18 @@ export default {
       return this.$refs.flow.openSearch(facets, query);
     },
     flowMounted: function () {
+      this._flowMounted = true;
+      this.setContextCardForInitialState();
       this.$emit("isReady");
+    },
+    setContextCardForInitialState: function() {
+      if (this.isReady && this._flowMounted) {
+        if (this.initialState && this.initialState.entries &&
+          (this.initialState.entries.length > 0) && 
+          this.initialState.entries[0].contextCard) {
+          EventBus.$emit("contextUpdate", this.initialState.entries[0].contextCard);
+        }
+      }
     },
   },
   computed: {
@@ -245,6 +256,7 @@ export default {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
     this.isReady = true;
+    this.setContextCardForInitialState();
   }
 }
 
