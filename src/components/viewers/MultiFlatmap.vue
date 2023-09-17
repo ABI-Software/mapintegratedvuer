@@ -235,7 +235,7 @@ export default {
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerZoomUpdate(true, flatmapImp);
-        let provClone = {...newMapImp.provenance}; //create clone of provenance
+        let provClone = {id: this.entry.id, prov: newMapImp.provenance}; //create clone of provenance
         EventBus.$emit("mapImpProv", provClone); // send provenance close to the context card for display
       }
     },
