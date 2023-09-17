@@ -58,12 +58,15 @@
             <flatmap-context-card 
               class="flatmap-context-card"
               :key="'flatmapContextCard'+i" 
-              v-if="contextCardEntry.id === slot.id && contextCardEntry.type.toLowerCase() == 'flatmap'" 
+              v-if="contextCardEntry.id === slot.id &&
+                    (contextCardEntry.type == 'Flatmap' || 
+                    contextCardEntry.type == 'MultiFlatmap')" 
               :mapImpProv="contextCardEntry.mapImpProv"
             />
             <context-card 
               :key="'contextCard'+i"
-              v-if="contextCardEntry.id === slot.id && contextCardEntry.type .toLowerCase() == 'scaffold'"
+              v-if="contextCardEntry.id === slot.id &&
+                    contextCardEntry.type.toLowerCase() == 'scaffold'"
               :entry="contextCardEntry"
               :envVars="envVars"
               class="context-card"
@@ -142,7 +145,6 @@ export default {
       boundariesElement: null, // this is set @hook:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntries: [],
-      flatmapContextCardEntries: [],
       isSearchable: {
         first: true,
         second: false,
@@ -356,30 +358,24 @@ export default {
 
       // flatmap context update
       EventBus.$on("mapImpProv", mapImpProv => {
+        // The below logic works by storing the entries info in the contextCardEntries array.
+        //   These two can be compared to see if the resource has changed.
 
-        // check if we have a flatmap card
-        let currentFlatmapCard = this.contextCardEntries.filter(entry => entry.type === 'flatmap');
+        let slot = store.getters["splitFlow/getSlotById"](mapImpProv.id); 
+        this.contextCardVisible[slot.name] = false; // hide the context card when new map loads
 
-        // if we do, modify it as opposed to adding a new one
-        if (currentFlatmapCard.length > 0){
-          const slot = store.state.splitFlow.getSlotById(currentFlatmapCard[0].id);
-          this.contextCardVisible[slot.name] = false; // Hide flatmap card while it loads
-          this.contextCardEntries[this.contextCardEntries.indexOf(currentFlatmapCard[0])] = {
-            id: currentFlatmapCard[0].id,
-            mapImpProv: mapImpProv,
-            type: 'flatmap'
-          }
-        } else {
-          // if we don't have a flatmap context card, add a new one
-          let id = this.entries[this.entries.length-1].id;
-          let contextEntry = {
-            id: id,
-            mapImpProv: mapImpProv,
-            type: 'flatmap'
-          };
+        // Add card if we have more entries than before
+        if (this.entries.length > this.contextCardEntries.length || this.contextCardEntries.length == 0){
+          let contextEntry = Object.assign({mapImpProv: mapImpProv.prov}, this.entries[this.entries.length-1]);
           this.contextCardEntries.push(contextEntry);
-          this.contextCardVisible.first = false; // only want to show the flatmap card onclick (As it covers the minimap)
-          this.contextCardEntries = removeDuplicates(this.contextCardEntries); // remove duplicates
+
+        // Check if the resource has changed and update the mapImpProv
+        } else if ( this.entries.length == this.contextCardEntries.length) { 
+          for (let i in this.contextCardEntries){
+            if ( mapImpProv.id == this.contextCardEntries[i].id){
+              this.contextCardEntries[i] = Object.assign({mapImpProv: mapImpProv.prov}, this.entries.filter(ent=>ent.id==mapImpProv.id)[0]); // update card
+            }
+          }
         }
       });
     }
