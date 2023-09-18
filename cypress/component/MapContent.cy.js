@@ -177,7 +177,7 @@ describe('MapContent', () => {
     cy.get('.sidebar-container').should('not.be.visible');
 
     //Change from single panel to four panels and check for it
-    cy.get('.icon-group > :nth-child(2)').should('exist').click();
+    cy.get('.icon-group > :nth-child(2) > .el-popover__reference-wrapper').should('exist').click();
     cy.get('.icon-group.el-row .el-popover:visible').should('exist');
     cy.get('.icon-group.el-row .el-popover:visible .el-row').should('have.length', 5);
     cy.get('.icon-group.el-row .el-popover:visible .el-row').contains('Four panes').should('exist').click();

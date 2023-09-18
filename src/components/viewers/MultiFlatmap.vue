@@ -26,7 +26,7 @@ import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import store from "../../store";
-import { getBodyScaffold } from "../scripts/utilities";
+import { getBodyScaffoldInfo } from "../scripts/utilities";
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
 import YellowStar from "../../icons/yellowstar";
@@ -96,13 +96,13 @@ export default {
         } else if ((this.activeSpecies === "Human Male") || (this.activeSpecies === "Human Female")) {
           //Dynamically construct the whole body scaffold for human and store it
           if (!("human" in this.scaffoldResource)) {
-            this.scaffoldResource["human"] = await getBodyScaffold(store.state.settings.sparcApi, "human");
+            this.scaffoldResource["human"] = await getBodyScaffoldInfo(store.state.settings.sparcApi, "human");
           }
           action = {
-            contextCard: undefined,
+            contextCard: this.scaffoldResource["human"].contextualInfo,
             discoverId: undefined,
             label: "Human Body",
-            resource: this.scaffoldResource["human"],
+            resource: this.scaffoldResource["human"].url,
             title: "View 3D scaffold",
             layout: "2vertpanel",
             type: "SyncMap",

@@ -249,6 +249,9 @@ export default {
     openNewMap: async function (type) {
       const entry = await getNewMapEntry(type, store.state.settings.sparcApi);
       this.createNewEntry(entry);
+      if (entry.contextCard) {
+        EventBus.$emit("contextUpdate", entry.contextCard);
+      }
     },
     openSearch: function (facets, query) {
       // Keep the species facets currently unused
