@@ -8,6 +8,10 @@ import EventBus from "../components/EventBus";
 import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
 import store from "../store";
 
+function capitalise(text) {
+  return text[0].toUpperCase() + text.substring(1)
+}
+
 /* eslint-disable no-alert, no-console */
 export default {
   props: {
@@ -142,7 +146,18 @@ export default {
           fireResourceSelected = true;
         }
       } else if (type == "Scaffold") {
-        if (resource && resource[0]) result.internalName = resource[0].data.id;
+        if (resource && resource[0]) {
+          result.internalName = resource[0].data.id;
+          // Facet search if marker is clicked
+          if (resource[0].data.lastActionOnMarker === true) {
+            returnedAction = {
+              type: "Facet",
+              facet: capitalise(resource[0].data.id),
+              facetPropPath: "anatomy.organ.name",
+              term: "Anatomical structure",
+            };
+          }
+        }
         result.eventType = "selected";
         fireResourceSelected = true;
         action = "search";
