@@ -2,7 +2,7 @@
   <div v-loading="loading" class="flatmap-context-card" >
     <div class="card-right scrollbar">
       <div class="title">Flatmap Provenance</div>
-        SKAN version: <a :href="skanReleaseLink" target="_blank"> {{skanReleaseDisplay}} </a>
+        SCKAN version: <a :href="sckanReleaseLink" target="_blank"> {{sckanReleaseDisplay}} </a>
         <br>
         Published on:
         {{flatmapPublishedDisplay}}
@@ -60,24 +60,24 @@ export default {
       }
       return flatmapPublished 
     },
-    skanReleaseDisplay: function() {
-      let skanRelease = "Unknown"
+    sckanReleaseDisplay: function() {
+      let sckanRelease = "Unknown"
       if(this.mapImpProv){
         let isoTime = this.mapImpProv.sckan.created.replace(',', '.') // Date time does not accept commas but Sckan uses them
-        skanRelease = new Date(isoTime).toLocaleDateString('en-US', {
+        sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
             day: '2-digit',
             month: 'long',
             year: 'numeric',
         })
       }
-      return skanRelease 
+      return sckanRelease 
     },
-    skanReleaseLink: function() {
-      let skanRelease = "Unknown"
+    sckanReleaseLink: function() {
+      let sckanRelease = "Unknown"
       if(this.mapImpProv){
-        skanRelease = this.mapImpProv.sckan.release
+        sckanRelease = this.mapImpProv.sckan.release
       }
-      return skanRelease 
+      return sckanRelease 
     },
     flatmapSource: function() {
       let flatmapSource = "Unknown"
