@@ -7,9 +7,8 @@
       class="dialog-header"
     >
       <DialogToolbarContent
-        :activeId="activeDockedId"
-        :numberOfEntries="entries.length"
-        :showIcons="entries[findIndexOfId(activeDockedId)].mode !== 'main'"
+        :numberOfEntries="viewerState.entries.length"
+        :showIcons="viewerState.entries[findIndexOfId(viewerState.activeDockedId)].mode !== 'main'"
         @onFullscreen="onFullscreen"
         :showHelpIcon="true"
         @local-search="onDisplaySearch"
@@ -22,7 +21,7 @@
         style="width: 100%; height: 100%; position: relative; overflow: hidden"
       >
         <SplitDialog
-          :entries="entries"
+          :entries="viewerState.entries"
           ref="splitdialog"
           @resource-selected="resourceSelected"
         />
@@ -31,7 +30,7 @@
           :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
-          :activeId="activeDockedId"
+          :activeId="viewerState.activeDockedId"
           :open-at-start="startUp"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
@@ -75,7 +74,12 @@ export default {
     }
   },
   data: function () {
-    return initialDefaultState();
+    return {
+      sideBarVisibility: true,
+      startUp: true,
+      search: '',
+      viewerState: initialDefaultState(),
+    }
   },
   watch: {
     state: {
@@ -181,10 +185,10 @@ export default {
       data.type = data.type === "Scaffold View" ? "Scaffold" : data.type;
 
       // Update the scaffold with a view url
-      for (let i in this.entries) {
-        if (this.entries[i].resource === data.resource) {
-          this.entries[i].viewUrl = data.viewUrl;
-          Vue.set(this.entries, i, this.entries[i]); // Need this to keep arrays reactive
+      for (let i in this.viewerState.entries) {
+        if (this.viewerState.entries[i].resource === data.resource) {
+          this.viewerState.entries[i].viewUrl = data.viewUrl;
+          Vue.set(this.viewerState.entries, i, this.viewerState.entries[i]); // Need this to keep arrays reactive
         }
       }
     },
@@ -195,14 +199,14 @@ export default {
       let newEntry = {};
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
-      newEntry.id = ++this.currentCount;
+      newEntry.id = ++this.viewerState.currentCount;
       newEntry.state = undefined;
       newEntry.type = "Scaffold";
       newEntry.discoverId = data.discoverId;
       newEntry.rotation = "free";
       if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
       else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
-      this.entries.push(newEntry);
+      this.viewerState.entries.push(newEntry);
       store.commit("splitFlow/setSyncMode", {
         flag: true,
         newId: newEntry.id,
@@ -220,9 +224,9 @@ export default {
       newEntry.state = undefined;
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
-      newEntry.id = ++this.currentCount;
+      newEntry.id = ++this.viewerState.currentCount;
       newEntry.discoverId = data.discoverId;
-      this.entries.push(newEntry);
+      this.viewerState.entries.push(newEntry);
       this.setIdToPrimarySlot(newEntry.id);
       if (store.state.splitFlow.syncMode) {
         store.commit("splitFlow/setSyncMode", { flag: false });
@@ -230,8 +234,8 @@ export default {
       return newEntry.id;
     },
     findIndexOfId: function (id) {
-      for (let i = 0; i < this.entries.length; i++) {
-        if (this.entries[i].id == id) {
+      for (let i = 0; i < this.viewerState.entries.length; i++) {
+        if (this.viewerState.entries[i].id == id) {
           return i;
         }
       }
@@ -240,7 +244,7 @@ export default {
     destroyDialog: function (id) {
       let index = this.findIndexOfId(id);
       if (index > -1) {
-        this.entries.splice(index, 1);
+        this.viewerState.entries.splice(index, 1);
       }
     },
     openNewMap: async function (type) {
@@ -273,18 +277,16 @@ export default {
       store.commit("splitFlow/setIdToPrimarySlot", id);
     },
     setState: function (state) {
-      this.mainTabName = state.mainTabName;
-      this.showDialogIcons = state.showDialogIcons;
-      this.activeDockedId = state.activeDockedId;
-      this.entries = [];
-      Object.assign(this.entries, state.entries);
-      this.currentCount = state.currentCount;
+      this.viewerState.activeDockedId = state.activeDockedId;
+      this.viewerState.entries = [];
+      Object.assign(this.viewerState.entries, state.entries);
+      this.viewerState.currentCount = state.currentCount;
       //Support both old and new permalink.
       if (state.splitFlow) store.commit("splitFlow/setState", state.splitFlow);
-      else this.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
+      else this.viewerState.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
     },
     getState: function () {
-      let state = JSON.parse(JSON.stringify(this.$data));
+      let state = JSON.parse(JSON.stringify(this.viewerState));
       let splitdialog = this.$refs.splitdialog;
       let dialogStates = splitdialog.getContentsState();
       if (state.entries.length === dialogStates.length) {
@@ -304,10 +306,10 @@ export default {
     removeEntry: function (id) {
       if (id !== 1) {
         let index = -1;
-        for (let i = 0; this.entries.length && index === -1; i++) {
-          if (this.entries[i].id === id) index = i;
+        for (let i = 0; this.viewerState.entries.length && index === -1; i++) {
+          if (this.viewerState.entries[i].id === id) index = i;
         }
-        this.entries.splice(index, 1);
+        this.viewerState.entries.splice(index, 1);
       }
     },
     resourceSelected: function (result) {
@@ -317,7 +319,7 @@ export default {
       }
     },
     tabClicked: function (id) {
-      this.activeDockedId = id;
+      this.viewerState.activeDockedId = id;
     },
     toggleSyncMode: function (payload) {
       if (payload) {
@@ -329,7 +331,7 @@ export default {
           if (store.state.splitFlow.syncMode) {
             store.commit("splitFlow/setSyncMode", {
               flag: false,
-              entries: this.entries,
+              entries: this.viewerState.entries,
             });
           }
         }

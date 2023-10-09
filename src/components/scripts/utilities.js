@@ -1,15 +1,11 @@
 const initialDefaultState = () => {
   return {
-    mainTabName: "Flatmap",
-    zIndex: 1,
-    showDialogIcons: false,
     activeDockedId: 1,
     currentCount: 1,
     entries: [
       {
         resource: "Rat",
         type: "MultiFlatmap",
-        zIndex: 1,
         mode: "main",
         id: 1,
         state: undefined,
@@ -17,9 +13,6 @@ const initialDefaultState = () => {
         discoverId: undefined
       }
     ],
-    sideBarVisibility: true,
-    search: '',
-    startUp: true
   };
 }
 
@@ -65,13 +58,11 @@ const getNewMapEntry = async (type, sparcApi) => {
 const initialState = async (type, sparcApi) => {
   const state = initialDefaultState();
   if (type === "FC") {
-    state.mainTabName = "Flatmap";
     state.entries[0].resource = "FunctionalConnectivity";
     state.entries[0].type = "Flatmap";
     state.entries[0].label = "Functional";
   } else if (type === "WholeBody") {
     const data = await getBodyScaffoldInfo(sparcApi, "human");
-    state.mainTabName = "Scaffold";
     state.entries[0].resource = data.url;
     state.entries[0].contextCard = data.contextualInfo;
     state.entries[0].type = "Scaffold";
