@@ -24,7 +24,6 @@
         <SplitDialog
           :entries="entries"
           ref="splitdialog"
-          @close="dialogClose(id)"
           @resource-selected="resourceSelected"
         />
         <SideBar
@@ -197,7 +196,6 @@ export default {
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex;
       newEntry.state = undefined;
       newEntry.type = "Scaffold";
       newEntry.discoverId = data.discoverId;
@@ -223,7 +221,6 @@ export default {
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
       newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex;
       newEntry.discoverId = data.discoverId;
       this.entries.push(newEntry);
       this.setIdToPrimarySlot(newEntry.id);
@@ -277,7 +274,6 @@ export default {
     },
     setState: function (state) {
       this.mainTabName = state.mainTabName;
-      this.zIndex = state.zIndex;
       this.showDialogIcons = state.showDialogIcons;
       this.activeDockedId = state.activeDockedId;
       this.entries = [];
