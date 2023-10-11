@@ -1,7 +1,5 @@
 const initialDefaultState = () => {
   return {
-    activeDockedId: 1,
-    currentCount: 1,
     entries: [
       {
         resource: "Rat",

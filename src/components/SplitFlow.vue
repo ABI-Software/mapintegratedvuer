@@ -8,7 +8,6 @@
     >
       <DialogToolbarContent
         :numberOfEntries="viewerState.entries.length"
-        :showIcons="viewerState.entries[findIndexOfId(viewerState.activeDockedId)].mode !== 'main'"
         @onFullscreen="onFullscreen"
         :showHelpIcon="true"
         @local-search="onDisplaySearch"
@@ -30,7 +29,7 @@
           :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
-          :activeId="viewerState.activeDockedId"
+          :activeId="activeDockedId"
           :open-at-start="startUp"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
@@ -78,6 +77,7 @@ export default {
       sideBarVisibility: true,
       startUp: true,
       search: '',
+      activeDockedId : 1,
       viewerState: initialDefaultState(),
     }
   },
@@ -192,6 +192,12 @@ export default {
         }
       }
     },
+    getNewEntryId: function() {
+      if (this.viewerState.entries.length) {
+        return (this.viewerState.entries[this.viewerState.entries.length - 1]).id + 1;
+      }
+      return 1;
+    },
     /**
      * Activate Synchronised workflow
      */
@@ -199,7 +205,7 @@ export default {
       let newEntry = {};
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
-      newEntry.id = ++this.viewerState.currentCount;
+      newEntry.id = this.getNewEntryId();
       newEntry.state = undefined;
       newEntry.type = "Scaffold";
       newEntry.discoverId = data.discoverId;
@@ -224,7 +230,7 @@ export default {
       newEntry.state = undefined;
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
-      newEntry.id = ++this.viewerState.currentCount;
+      newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
       this.viewerState.entries.push(newEntry);
       this.setIdToPrimarySlot(newEntry.id);
@@ -277,10 +283,8 @@ export default {
       store.commit("splitFlow/setIdToPrimarySlot", id);
     },
     setState: function (state) {
-      this.viewerState.activeDockedId = state.activeDockedId;
       this.viewerState.entries = [];
       Object.assign(this.viewerState.entries, state.entries);
-      this.viewerState.currentCount = state.currentCount;
       //Support both old and new permalink.
       if (state.splitFlow) store.commit("splitFlow/setState", state.splitFlow);
       else this.viewerState.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
@@ -319,7 +323,7 @@ export default {
       }
     },
     tabClicked: function (id) {
-      this.viewerState.activeDockedId = id;
+      this.activeDockedId = id;
     },
     toggleSyncMode: function (payload) {
       if (payload) {
