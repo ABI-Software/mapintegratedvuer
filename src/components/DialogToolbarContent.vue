@@ -180,7 +180,7 @@ export default {
      */
     showIcons: {
       type: Boolean,
-      default: true
+      default: false
 
     },
     showHelpIcon: {

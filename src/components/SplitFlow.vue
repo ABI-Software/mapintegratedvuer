@@ -7,7 +7,7 @@
       class="dialog-header"
     >
       <DialogToolbarContent
-        :numberOfEntries="viewerState.entries.length"
+        :numberOfEntries="entries.length"
         @onFullscreen="onFullscreen"
         :showHelpIcon="true"
         @local-search="onDisplaySearch"
@@ -20,7 +20,7 @@
         style="width: 100%; height: 100%; position: relative; overflow: hidden"
       >
         <SplitDialog
-          :entries="viewerState.entries"
+          :entries="entries"
           ref="splitdialog"
           @resource-selected="resourceSelected"
         />
@@ -78,7 +78,6 @@ export default {
       startUp: true,
       search: '',
       activeDockedId : 1,
-      viewerState: initialDefaultState(),
     }
   },
   watch: {
@@ -132,7 +131,7 @@ export default {
           );
           this.$refs.sideBar.openSearch(facets, "");
         } else if (action.type == "Scaffold View") {
-          this.updateEntry(action);
+          store.commit("entries/updateScaffoldViewEntry", action);
         } else {
           this.createNewEntry(action);
         }
@@ -179,22 +178,9 @@ export default {
         EventBus.$emit("markerUpdate");
       }
     },
-    // updateEntry: Updates entry a scaffold entry with a viewUrl
-    updateEntry(data) {
-      // 'Scaffold view' is sent in as 'Scaffold' to scaffoldvuer
-      data.type = data.type === "Scaffold View" ? "Scaffold" : data.type;
-
-      // Update the scaffold with a view url
-      for (let i in this.viewerState.entries) {
-        if (this.viewerState.entries[i].resource === data.resource) {
-          this.viewerState.entries[i].viewUrl = data.viewUrl;
-          Vue.set(this.viewerState.entries, i, this.viewerState.entries[i]); // Need this to keep arrays reactive
-        }
-      }
-    },
     getNewEntryId: function() {
-      if (this.viewerState.entries.length) {
-        return (this.viewerState.entries[this.viewerState.entries.length - 1]).id + 1;
+      if (this.entries.length) {
+        return (this.entries[this.entries.length - 1]).id + 1;
       }
       return 1;
     },
@@ -212,7 +198,7 @@ export default {
       newEntry.rotation = "free";
       if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
       else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
-      this.viewerState.entries.push(newEntry);
+      store.commit("entries/addNewEntry", newEntry);
       store.commit("splitFlow/setSyncMode", {
         flag: true,
         newId: newEntry.id,
@@ -232,26 +218,12 @@ export default {
       newEntry.mode = "normal";
       newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
-      this.viewerState.entries.push(newEntry);
+      store.commit("entries/addNewEntry", newEntry);
       this.setIdToPrimarySlot(newEntry.id);
       if (store.state.splitFlow.syncMode) {
         store.commit("splitFlow/setSyncMode", { flag: false });
       }
       return newEntry.id;
-    },
-    findIndexOfId: function (id) {
-      for (let i = 0; i < this.viewerState.entries.length; i++) {
-        if (this.viewerState.entries[i].id == id) {
-          return i;
-        }
-      }
-      return -1;
-    },
-    destroyDialog: function (id) {
-      let index = this.findIndexOfId(id);
-      if (index > -1) {
-        this.viewerState.entries.splice(index, 1);
-      }
     },
     openNewMap: async function (type) {
       const entry = await getNewMapEntry(type, store.state.settings.sparcApi);
@@ -283,14 +255,13 @@ export default {
       store.commit("splitFlow/setIdToPrimarySlot", id);
     },
     setState: function (state) {
-      this.viewerState.entries = [];
-      Object.assign(this.viewerState.entries, state.entries);
+      store.commit("entries/setAll", state.entries);
       //Support both old and new permalink.
       if (state.splitFlow) store.commit("splitFlow/setState", state.splitFlow);
-      else this.viewerState.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
+      else this.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
     },
     getState: function () {
-      let state = JSON.parse(JSON.stringify(this.viewerState));
+      let state = JSON.parse(JSON.stringify(store.getters["entries/state"]()));
       let splitdialog = this.$refs.splitdialog;
       let dialogStates = splitdialog.getContentsState();
       if (state.entries.length === dialogStates.length) {
@@ -308,13 +279,8 @@ export default {
       return state;
     },
     removeEntry: function (id) {
-      if (id !== 1) {
-        let index = -1;
-        for (let i = 0; this.viewerState.entries.length && index === -1; i++) {
-          if (this.viewerState.entries[i].id === id) index = i;
-        }
-        this.viewerState.entries.splice(index, 1);
-      }
+      let index = store.getters["entries/findIndexOfId"](id);
+      store.commit("entries/destroyEntry", index);
     },
     resourceSelected: function (result) {
       this.$emit("resource-selected", result);
@@ -335,7 +301,7 @@ export default {
           if (store.state.splitFlow.syncMode) {
             store.commit("splitFlow/setSyncMode", {
               flag: false,
-              entries: this.viewerState.entries,
+              entries: this.entries,
             });
           }
         }
@@ -382,6 +348,9 @@ export default {
         NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
         ROOT_URL: store.state.settings.rootUrl,
       };
+    },
+    entries: function() {
+      return store.state.entries.entries;
     },
   },
 };
