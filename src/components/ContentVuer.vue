@@ -175,7 +175,7 @@ export default {
   transition: all 1s ease;
   height: 32px;
   border-bottom: 1px solid rgb(220, 223, 230);
-  z-index: 11;
+  z-index: 2001;
 }
 
 .component-container {
