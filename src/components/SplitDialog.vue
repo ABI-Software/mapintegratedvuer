@@ -32,6 +32,7 @@
         </splitpanes>
       </pane>
     </splitpanes>
+    <!--
     <splitpanes-bar
       ref="splitpanesbar"
       :entries="entries" 
@@ -41,6 +42,7 @@
       @chooser-changed="viewerChanged"
       @hook:mounted="setPanesBoundary"
       />
+      -->
     <div
       v-for="entry in entries"
       :key="entry.id"
@@ -62,7 +64,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import ContentVuer from "./ContentVuer";
-import SplitpanesBar from "./SplitpanesBar";
+//import SplitpanesBar from "./SplitpanesBar";
 import { Splitpanes, Pane } from "splitpanes";
 import store from "../store";
 import Vue from "vue";
@@ -83,7 +85,7 @@ export default {
   components: {
     ContentVuer,
     Splitpanes,
-    SplitpanesBar,
+//    SplitpanesBar,
     Pane
   },
   props: {
@@ -168,7 +170,7 @@ export default {
         if (slot.name == "first") {
           switch (store.state.splitFlow.activeView) {
             case "2horpanel":
-              style["height"] = "calc(" + this.splitter1.toString() + "% - 31px)";
+              style["height"] = this.splitter1.toString() + "%";
               break;
             case "2vertpanel":
             case "3panel":
@@ -176,27 +178,27 @@ export default {
               break;
             case "4panel":
               style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
-              style["height"] = "calc(" + this.splitter2.toString() + "% - 31px)";
+              style["height"] = this.splitter2.toString() + "%";
               break;
           }
         } else if (slot.name == "second") {
           switch (store.state.splitFlow.activeView) {
             case "2horpanel":
               style["height"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 31px)";
-              style["top"] = "calc(" + this.splitter1.toString() + "% + 32px)";
+                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
+              style["top"] = "calc(" + this.splitter1.toString() + "% + 2px)";
               break;
             case "2vertpanel":
               style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 1px)";
+                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
               style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
               break;
             case "3panel":
             case "4panel":
               style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 1px)";
+                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
               style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              style["height"] = "calc(" + this.splitter3.toString() + "% - 31px)";
+              style["height"] = this.splitter3.toString() + "%";
               break;
           }
         } else if (slot.name == "third") {
@@ -204,11 +206,11 @@ export default {
             case "3panel":
             case "4panel":
               style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 1px)";
+                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
               style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
               style["height"] =
-                "calc(" + (100 - this.splitter3).toString() + "% - 31px)";
-              style["top"] = "calc(" + this.splitter3.toString() + "% + 32px)";
+                "calc(" + (100 - this.splitter3).toString() + "% - 2px)";
+              style["top"] = "calc(" + this.splitter3.toString() + "% + 2px)";
               break;
           }
         } else if (slot.name == "fourth") {
@@ -216,8 +218,8 @@ export default {
             case "4panel":
               style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
               style["height"] =
-                "calc(" + (100 - this.splitter2).toString() + "% - 31px)";
-              style["top"] = "calc(" + this.splitter2.toString() + "% + 32px)";
+                "calc(" + (100 - this.splitter2).toString() + "% - 2px)";
+              style["top"] = "calc(" + this.splitter2.toString() + "% + 2px)";
               break;
           }
         }
@@ -420,73 +422,73 @@ export default {
 .contentvuer {
   &.singlepanel-1 {
     width: 100%;
-    height: calc(100% - 30px);
+    height: 100%;
+    top: 0px;
     left: 0px;
-    top: 30px;
     z-index: 2;
  }
 
  &.twohorpanel-1 {
     width: 100%;
-    height: calc(50% - 31px);
+    height: calc(50% - 1px);
     left: 0px;
-    top: 30px;
     z-index: 2;
+    top: 0;
   }
 
   &.twohorpanel-2 {
     width: 100%;
-    height: calc(50% - 31px);
+    height: calc(50% - 1px);
     left: 0px;
-    top: calc(50% + 32px);
+    top: 50%;
     z-index: 2;
   }
 
   &.twovertpanel-1 {
     width: calc(50% - 1px);
-    height: calc(100% - 30px);
+    height: 100%;
     left: 0px;
-    top: 30px;
+    top: 0px;
     z-index: 3;
   }
 
   &.twovertpanel-2 {
     width: calc(50% - 1px);
-    height: calc(100% - 30px);
+    height: 100%;
     left: calc(50% + 2px);
-    top: 30px;
+    top: 0px;
     z-index: 2;
   }
 
   &.threepanel-2 {
     width: calc(50% - 1px);
-    height: calc(50% - 32px);
+    height: 50%;
     left: calc(50% + 2px);
-    top: 30px;
     z-index: 2;
+    top: 0;
   }
 
   &.threepanel-3 {
     width: calc(50% - 1px);
-    height: calc(50% - 31px);
+    height: calc(50% - 1px);
     left: calc(50% + 2px);
-    top: calc(50% + 32px);
+    top: calc(50% + 2px);
     z-index: 2;
   }
 
   &.fourpanel-1 {
     width: calc(50% - 1px);
-    height: calc(50% - 31px);
+    height: 50%;
     left: 0px;
-    top: 30px;
+    top: 0px;
     z-index: 4;
   }
 
   &.fourpanel-4 {
     width: calc(50% - 1px);
-    height: calc(50% - 31px);
+    height: calc(50% - 1px);
     left: 0px;
-    top: calc(50% + 32px);
+    top: calc(50% + 2px);
     z-index: 3;
   }
 

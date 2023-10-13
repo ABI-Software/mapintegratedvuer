@@ -31,17 +31,11 @@ const mutations = {
     state.entries = [];
     Object.assign(state.entries, newEntries);
   },
-  updateScaffoldViewEntry(state, data) {
-    // 'Scaffold view' is sent in as 'Scaffold' to scaffoldvuer
-    data.type = data.type === "Scaffold View" ? "Scaffold" : data.type;
-
+  updateViewForEntry(state, {id, viewUrl}) {
     // Update the scaffold with a view url
-    for (let i in state.entries) {
-      if (state.entries[i].resource === data.resource) {
-        state.entries[i].viewUrl = data.viewUrl;
-        Vue.set(state.entries, i, state.entries[i]); // Need this to keep arrays reactive
-      }
-    }
+    const entry = state.entries.find(entry => entry.id === id);
+    Vue.set(entry, 'viewUrl', viewUrl);
+    entry.viewUrl = viewUrl;
   },
 };
 

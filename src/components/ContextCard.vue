@@ -68,7 +68,6 @@ import Vue from "vue";
 import { Link, Icon, Card, Button, Select, Input } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
-import EventBus from "./EventBus"
 
 //provide the s3Bucket related methods and data.
 import S3Bucket from "../mixins/S3Bucket";
@@ -265,16 +264,16 @@ export default {
     },
     generateFileLink(sample){
       return `${this.envVars.ROOT_URL}/file/${sample.discoverId}/${sample.version}?path=${this.processPathForUrl(sample.path)}`
-
     },
     parseMarkdown(markdown){
-      return xss(marked.parse(markdown))
+      const returned_data = xss(marked.parse(markdown))
+      this.$emit('context-ready')
+      return returned_data
     },
     openViewFile: function(view){
       // note that we assume that the view file is in the same directory as the scaffold (viewUrls take relative paths)
-      this.entry.viewUrl = this.getFileFromPath(view.path)
-      this.entry.type = 'Scaffold View'
-      EventBus.$emit("PopoverActionClick", this.entry)
+      const viewUrl = this.getFileFromPath(view.path)
+      this.$emit("scaffold-view-clicked", viewUrl);
     }
   }
 };

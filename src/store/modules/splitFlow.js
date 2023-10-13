@@ -66,22 +66,23 @@ const mutations = {
     state.slotInfo.find(
       slotInfo => slotInfo.name === payload.slot.name).id = payload.id;
   },
-  assignOrSwapIdToSlot(state, payload) {
-    let targetSlot = state.slotInfo.find(slot => slot.id === payload.id);
+  assignOrSwapSlotWithIds(state, payload) {
+    let sourceSlot = state.slotInfo.find(slot => slot.id === payload.source);
+    let targetSlot = state.slotInfo.find(slot => slot.id === payload.target);
     // Check if it is on syncMode
     if (state.syncMode) {
       if (targetSlot) {
         //exit syncMod if the two panel in sync mode are not swapping
-        if (!((targetSlot.name == "first" && payload.slot.name == "second") ||
-          (targetSlot.name == "second" && payload.slot.name == "first"))) {
+        if (!((targetSlot.name == "first" && sourceSlot.name == "second") ||
+          (targetSlot.name == "second" && sourceSlot.name == "first"))) {
           state.syncMode = false;
           state.globalCallback = false;
         }
       }
     }
     if (targetSlot)
-      targetSlot.id = payload.slot.id;
-    payload.slot.id = payload.id;
+      targetSlot.id = payload.source;
+    sourceSlot.id = payload.target;
   },
   changeViewByAvailabilty(state) {
     let count = 0;
@@ -183,7 +184,7 @@ const mutations = {
         }
       }
       let slot = state.slotInfo.find(
-        slotInfo => slotInfo.name === payload.slotName);
+        slotInfo => slotInfo.id === payload.id);
       let secondSlot = state.slotInfo.find(
         slotInfo => slotInfo.name === "second");
       let thirdSlot = state.slotInfo.find(

@@ -130,8 +130,6 @@ export default {
             }))
           );
           this.$refs.sideBar.openSearch(facets, "");
-        } else if (action.type == "Scaffold View") {
-          store.commit("entries/updateScaffoldViewEntry", action);
         } else {
           this.createNewEntry(action);
         }

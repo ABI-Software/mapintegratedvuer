@@ -5,18 +5,29 @@
     @mouseover="mouseHovered = true"
     @mouseleave="mouseHovered = false"
   >
+    <ContentBar
+      class="toolbar"
+      :entry="entry"
+      ref="contentBar"
+      @chooser-changed="onResize"
+      @hook:mounted="setPanesBoundary"
+      @scaffold-view-clicked="scaffoldViewClicked"
+    />
+  <!--
     <DatasetHeader
       v-if="entry.datasetTitle"
       class="dataset-header"
       :entry="entry"
     ></DatasetHeader>
-    <div :style="mainStyle">
+  -->
+    <div class="component-container">
       <Component
         :is="viewerType"
         :entry="entry"
         :mouseHovered="mouseHovered"
         :visible="visible"
         ref="viewer"
+        @flatmap-provenance-ready="flatmapProvenacneReady"
         @resource-selected="resourceSelected"
         @species-changed="speciesChanged"
       />
@@ -28,7 +39,8 @@
 /* eslint-disable no-alert, no-console */
 import Vue from "vue";
 import { Button } from "element-ui";
-import DatasetHeader from "./DatasetHeader";
+//import DatasetHeader from "./DatasetHeader";
+import ContentBar from "./ContentBar";
 import Flatmap from "./viewers/Flatmap";
 import Iframe from "./viewers/Iframe";
 import MultiFlatmap from "./viewers/MultiFlatmap";
@@ -56,7 +68,8 @@ export default {
     },
   },
   components: {
-    DatasetHeader,
+    //DatasetHeader,
+    ContentBar,
     Flatmap,
     Iframe,
     MultiFlatmap,
@@ -65,6 +78,9 @@ export default {
     Simulation,
   },
   methods: {
+    flatmapProvenacneReady: function(prov) {
+      this.$refs.contentBar.setupFlatmapContextCard(prov);
+    },
     /**
      * Toggle sync mode on/off depending on species and current state
      */
@@ -80,8 +96,13 @@ export default {
     resourceSelected: function (payload) {
       this.$emit("resource-selected", payload);
     },
-    speciesChanged: function (species) {
-      this.activeSpecies = species;
+    scaffoldViewClicked: function (viewUrl) {
+      if (this.entry.viewUrl !== viewUrl) {
+        store.commit("entries/updateViewForEntry", {id: this.entry.id, viewUrl});
+      } else {
+        //Manually set it as it cannot be set with reactivity
+        this.$refs.viewer.updateWithViewUrl(viewUrl);
+      }
     },
     /**
      * Perform a local search on this contentvuer
@@ -94,6 +115,12 @@ export default {
      */
     searchSuggestions: function(term, suggestions) {
       this.$refs.viewer.searchSuggestions(term, suggestions);
+    },
+    setPanesBoundary: function() {
+      this.$refs.contentBar.setBoundary(this.$refs.container);
+    },
+    speciesChanged: function (species) {
+      this.activeSpecies = species;
     },
     receiveSynchronisedEvent: async function (data) {
       this.$refs.viewer.receiveSynchronisedEvent(data);
@@ -115,11 +142,6 @@ export default {
   },
   data: function () {
     return {
-      mainStyle: {
-        height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",
-        width: "100%",
-        bottom: "0px",
-      },
       mouseHovered: false,
       activeSpecies: "Rat",
     };
@@ -145,6 +167,24 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @import "~element-ui/packages/theme-chalk/src/button";
+
+.toolbar {
+  width: 100%;
+  background-color: #f5f7fa !important;
+  position: absolute;
+  transition: all 1s ease;
+  height: 32px;
+  border-bottom: 1px solid rgb(220, 223, 230);
+  z-index: 11;
+}
+
+.component-container {
+  height: calc(100% - 32px);
+  width: 100%;
+  bottom: 0px;
+  position: absolute;
+}
+
 .dataset-header {
   height: 23px;
 }
