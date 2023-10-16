@@ -1,10 +1,10 @@
-import { mount } from '@vue/test-utils'
+import { shallowMount } from '@vue/test-utils'
 import SplitDialog from '../../src/components/SplitDialog';
 import ContentVuer from '../../src/components/ContentVuer';
 
 const div = document.createElement('div');
 document.body.appendChild(div);
-const wrapper = mount(SplitDialog, {
+const wrapper = shallowMount(SplitDialog, {
   attachTo: div,
   propsData: {
     entry: {

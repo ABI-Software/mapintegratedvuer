@@ -5,8 +5,6 @@ import SplitDialog from '../../src/components/SplitDialog';
 import { SideBar } from '@abi-software/map-side-bar';
 
 const testState = {
-  "activeDockedId":3,
-  "currentCount":3,
   "entries":[
     {
       "availableSpecies":{"Cat":{"displayWarning":true,"iconClass":"icon-mapicon_cat","taxo":"NCBITaxon:9685"},
@@ -39,7 +37,6 @@ const testState = {
       "title":"View 3D scaffold","type":"Scaffold","zIndex":1
     }
   ],
-  "mainTabName":"Flatmap","search":"","showDialogIcons":false,"sideBarVisibility":false,"zIndex":4
 };
 
 const div = document.createElement('div');
@@ -106,6 +103,6 @@ describe('SplitFlow.vue', () => {
   }),
   it('setState', () => {
     expect(wrapper.vm.setState(testState)).to.be.an('undefined');
-    expect(wrapper.vm.currentCount).to.equal(3);
+    expect(wrapper.vm.entries.length).to.equal(3);
   })
 })
