@@ -221,7 +221,7 @@ export default {
 
 
 .toolbar-title {
-  width: 107px;
+  width: 150px;
   height: 20px;
   color: $app-primary-color;
   font-size: 14px;
