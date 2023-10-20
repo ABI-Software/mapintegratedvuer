@@ -155,6 +155,9 @@ export default {
         this.$emit("resource-selected", result);
       }
     },
+    updateWithViewUrl: function(viewUrl) {
+      this.$refs.scaffold.updateViewURL(viewUrl);
+    },
     /**
      * Check if this viewer is currently visible
      */

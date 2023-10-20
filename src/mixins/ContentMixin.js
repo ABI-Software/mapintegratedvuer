@@ -53,6 +53,9 @@ export default {
         EventBus.$emit("OpenNewMap", type);
       }
     },
+    updateWithViewUrl: function() {
+      return;
+    },
     /**
      * Perform a local search on this contentvuer
      */

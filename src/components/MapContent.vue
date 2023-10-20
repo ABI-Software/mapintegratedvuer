@@ -173,7 +173,6 @@ export default {
                     //is current
                     if (state.uuid) entry.state.state.entry = state.taxo;
                   }
-                  currentState.activeDockedId = entry.id;
                   this.$refs.flow.setState(currentState);
                   //Do not create a new entry, instead set the multiflatmap viewer
                   //to the primary slot

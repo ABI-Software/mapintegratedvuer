@@ -180,15 +180,8 @@ export default {
      */
     showIcons: {
       type: Boolean,
-      default: true
+      default: false
 
-    },
-    /**
-     * The current active title.
-     */
-    activeId: {
-      type: Number,
-      default: -1
     },
     showHelpIcon: {
       type: Boolean,

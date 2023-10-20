@@ -7,9 +7,7 @@
       class="dialog-header"
     >
       <DialogToolbarContent
-        :activeId="activeDockedId"
         :numberOfEntries="entries.length"
-        :showIcons="entries[findIndexOfId(activeDockedId)].mode !== 'main'"
         @onFullscreen="onFullscreen"
         :showHelpIcon="true"
         @local-search="onDisplaySearch"
@@ -24,7 +22,6 @@
         <SplitDialog
           :entries="entries"
           ref="splitdialog"
-          @close="dialogClose(id)"
           @resource-selected="resourceSelected"
         />
         <SideBar
@@ -76,7 +73,12 @@ export default {
     }
   },
   data: function () {
-    return initialDefaultState();
+    return {
+      sideBarVisibility: true,
+      startUp: true,
+      search: '',
+      activeDockedId : 1,
+    }
   },
   watch: {
     state: {
@@ -128,8 +130,6 @@ export default {
             }))
           );
           this.$refs.sideBar.openSearch(facets, "");
-        } else if (action.type == "Scaffold View") {
-          this.updateEntry(action);
         } else {
           this.createNewEntry(action);
         }
@@ -176,18 +176,11 @@ export default {
         EventBus.$emit("markerUpdate");
       }
     },
-    // updateEntry: Updates entry a scaffold entry with a viewUrl
-    updateEntry(data) {
-      // 'Scaffold view' is sent in as 'Scaffold' to scaffoldvuer
-      data.type = data.type === "Scaffold View" ? "Scaffold" : data.type;
-
-      // Update the scaffold with a view url
-      for (let i in this.entries) {
-        if (this.entries[i].resource === data.resource) {
-          this.entries[i].viewUrl = data.viewUrl;
-          Vue.set(this.entries, i, this.entries[i]); // Need this to keep arrays reactive
-        }
+    getNewEntryId: function() {
+      if (this.entries.length) {
+        return (this.entries[this.entries.length - 1]).id + 1;
       }
+      return 1;
     },
     /**
      * Activate Synchronised workflow
@@ -196,15 +189,14 @@ export default {
       let newEntry = {};
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
-      newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex;
+      newEntry.id = this.getNewEntryId();
       newEntry.state = undefined;
       newEntry.type = "Scaffold";
       newEntry.discoverId = data.discoverId;
       newEntry.rotation = "free";
       if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
       else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
-      this.entries.push(newEntry);
+      store.commit("entries/addNewEntry", newEntry);
       store.commit("splitFlow/setSyncMode", {
         flag: true,
         newId: newEntry.id,
@@ -222,29 +214,14 @@ export default {
       newEntry.state = undefined;
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
-      newEntry.id = ++this.currentCount;
-      newEntry.zIndex = ++this.zIndex;
+      newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
-      this.entries.push(newEntry);
+      store.commit("entries/addNewEntry", newEntry);
       this.setIdToPrimarySlot(newEntry.id);
       if (store.state.splitFlow.syncMode) {
         store.commit("splitFlow/setSyncMode", { flag: false });
       }
       return newEntry.id;
-    },
-    findIndexOfId: function (id) {
-      for (let i = 0; i < this.entries.length; i++) {
-        if (this.entries[i].id == id) {
-          return i;
-        }
-      }
-      return -1;
-    },
-    destroyDialog: function (id) {
-      let index = this.findIndexOfId(id);
-      if (index > -1) {
-        this.entries.splice(index, 1);
-      }
     },
     openNewMap: async function (type) {
       const entry = await getNewMapEntry(type, store.state.settings.sparcApi);
@@ -276,19 +253,13 @@ export default {
       store.commit("splitFlow/setIdToPrimarySlot", id);
     },
     setState: function (state) {
-      this.mainTabName = state.mainTabName;
-      this.zIndex = state.zIndex;
-      this.showDialogIcons = state.showDialogIcons;
-      this.activeDockedId = state.activeDockedId;
-      this.entries = [];
-      Object.assign(this.entries, state.entries);
-      this.currentCount = state.currentCount;
+      store.commit("entries/setAll", state.entries);
       //Support both old and new permalink.
       if (state.splitFlow) store.commit("splitFlow/setState", state.splitFlow);
       else this.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
     },
     getState: function () {
-      let state = JSON.parse(JSON.stringify(this.$data));
+      let state = JSON.parse(JSON.stringify(store.getters["entries/state"]()));
       let splitdialog = this.$refs.splitdialog;
       let dialogStates = splitdialog.getContentsState();
       if (state.entries.length === dialogStates.length) {
@@ -306,13 +277,8 @@ export default {
       return state;
     },
     removeEntry: function (id) {
-      if (id !== 1) {
-        let index = -1;
-        for (let i = 0; this.entries.length && index === -1; i++) {
-          if (this.entries[i].id === id) index = i;
-        }
-        this.entries.splice(index, 1);
-      }
+      let index = store.getters["entries/findIndexOfId"](id);
+      store.commit("entries/destroyEntry", index);
     },
     resourceSelected: function (result) {
       this.$emit("resource-selected", result);
@@ -380,6 +346,9 @@ export default {
         NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
         ROOT_URL: store.state.settings.rootUrl,
       };
+    },
+    entries: function() {
+      return store.state.entries.entries;
     },
   },
 };

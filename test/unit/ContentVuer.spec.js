@@ -1,10 +1,10 @@
 import { shallowMount } from '@vue/test-utils'
+import ContentBar from '../../src/components/ContentBar';
 import ContentVuer from '../../src/components/ContentVuer';
-import { SideBar } from '@abi-software/map-side-bar';
 import Flatmap from "../../src/components/viewers/Flatmap";
 import MultiFlatmap from "../../src/components/viewers/MultiFlatmap";
 import Scaffold from "../../src/components/viewers/Scaffold";
-
+import { SideBar } from '@abi-software/map-side-bar';
 
 const div = document.createElement('div');
 document.body.appendChild(div);
@@ -25,7 +25,8 @@ const wrapper = shallowMount(ContentVuer, {
         "viewport":{"center":[-1.588289745831446,-4.569422936609342],"layers":[],"zoom":5.306304273218617}}},
       "type":"MultiFlatmap","zIndex":0
     }
-  }
+  },
+  stubs: {'ContentBar': ContentBar}
 });
 
 
