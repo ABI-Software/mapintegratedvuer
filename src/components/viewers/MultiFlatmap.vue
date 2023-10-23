@@ -99,8 +99,10 @@ export default {
             this.scaffoldResource["human"] = await getBodyScaffoldInfo(store.state.settings.sparcApi, "human");
           }
           action = {
-            contextCard: this.scaffoldResource["human"].contextualInfo,
-            discoverId: undefined,
+            contextCardUrl: this.scaffoldResource["human"].datasetInfo.contextCardUrl,
+            discoverId: this.scaffoldResource["human"].datasetInfo.discoverId,
+            s3uri: this.scaffoldResource["human"].datasetInfo.s3uri,
+            version: this.scaffoldResource["human"].datasetInfo.version,
             label: "Human Body",
             resource: this.scaffoldResource["human"].url,
             title: "View 3D scaffold",

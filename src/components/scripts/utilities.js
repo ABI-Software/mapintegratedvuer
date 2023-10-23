@@ -42,8 +42,11 @@ const getNewMapEntry = async (type, sparcApi) => {
       mode: "main",
       state: undefined,
       label: "Human",
-      contextCard: data.contextualInfo,
-      isBodyScaffold: true
+      discoverId: data.datasetInfo.discoverId,
+      contextCardUrl: data.datasetInfo.contextCardUrl,
+      s3uri: data.datasetInfo.s3uri,
+      version: data.datasetInfo.version,
+      isBodyScaffold: true,
     };
   }
 
@@ -62,7 +65,10 @@ const initialState = async (type, sparcApi) => {
   } else if (type === "WholeBody") {
     const data = await getBodyScaffoldInfo(sparcApi, "human");
     state.entries[0].resource = data.url;
-    state.entries[0].contextCard = data.contextualInfo;
+    state.entries[0].contextCardUrl = data.datasetInfo.contextCardUrl;
+    state.entries[0].discoverId = data.datasetInfo.discoverId,
+    state.entries[0].s3uri = data.datasetInfo.s3uri;
+    state.entries[0].version = data.datasetInfo.version;
     state.entries[0].type = "Scaffold";
     state.entries[0].label = "Human";
     state.entries[0].isBodyScaffold = true;
@@ -124,7 +130,7 @@ const extractS3BucketName = uri => {
 const getBodyScaffoldInfo = async (sparcApi, species) => {
   //Get body scaffold information
   let url = "";
-  let contextualInfo = undefined;
+  let datasetInfo = undefined;
   const response = await fetch(`${sparcApi}get_body_scaffold_info/${species}`);
   if (response.ok) {
     const data = await response.json();
@@ -132,7 +138,7 @@ const getBodyScaffoldInfo = async (sparcApi, species) => {
     const bucket = extractS3BucketName(data.s3uri);
     url = `${sparcApi}s3-resource/${data.id}/${data.version}/files/${data.path}?s3BucketName=${bucket}`;
     const contextCardUrl = `${sparcApi}s3-resource/${data.id}/${data.version}/files/${data.contextinfo}?s3BucketName=${bucket}`;
-    contextualInfo = {
+    datasetInfo = {
       s3uri: data.s3uri,
       contextCardUrl,
       discoverId: data.id,
@@ -147,7 +153,7 @@ const getBodyScaffoldInfo = async (sparcApi, species) => {
     }
   }
 
-  return {url, contextualInfo};
+  return {url, datasetInfo};
 }
 
 exports.availableSpecies = availableSpecies;
