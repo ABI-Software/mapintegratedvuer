@@ -221,6 +221,10 @@ export default {
       if (store.state.splitFlow.syncMode) {
         store.commit("splitFlow/setSyncMode", { flag: false });
       }
+
+      //close sidebar on entry creation to see the context card
+      this.$refs.sideBar.setDrawerOpen(false)
+
       return newEntry.id;
     },
     openNewMap: async function (type) {
