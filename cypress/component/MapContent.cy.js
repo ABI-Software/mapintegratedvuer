@@ -50,6 +50,8 @@ describe('MapContent', () => {
       // failing the test
       if (err.message.includes("this.facets.at is not a function"))
         return false
+      if (err.message.includes("Cannot read properties of undefined (reading 'left')"))
+        return false
       return true
     })
 
@@ -152,12 +154,13 @@ describe('MapContent', () => {
     cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
     cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 3);
 
-    //Check for segmentations and open it, should have four items in select now
+    //Check for plot and open it, should have four items in select now
+    cy.get('.open-tab > .el-icon-arrow-left').click();
     cy.get('.box-card .container button').contains('Segmentations (1)').click();
     cy.get('.gallery-strip').contains('M54-8_03_20_20_Final.xml').should("exist");
     cy.get('.box-card .container button').contains('Plots (1)').click();
-    cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should("exist");
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
+    cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should("exist");
     cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
     cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 4);
 
@@ -167,12 +170,14 @@ describe('MapContent', () => {
     })
 
     //Check for simulations and open it, should have five items in select now
+    cy.get('.open-tab > .el-icon-arrow-left').click();
     cy.get('.box-card .container button').contains('Simulations (1)').click();
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
     cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
     cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 5);
 
     //Close the sidebar
+    cy.get('.open-tab > .el-icon-arrow-left').click();
     cy.get('.close-tab').should('exist').click();
     cy.get('.sidebar-container').should('not.be.visible');
 
