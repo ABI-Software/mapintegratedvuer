@@ -41,8 +41,13 @@ const testState = {
 
 const div = document.createElement('div');
 document.body.appendChild(div);
-const wrapper = shallowMount(SplitFlow, {
-  attachTo: div});
+const wrapper = shallowMount(
+  SplitFlow, 
+  {
+    attachTo: div,
+    stubs: {'SideBar': SideBar}
+  }
+);
 
 const data = [
   {
