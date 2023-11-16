@@ -53,6 +53,7 @@
     "vue": "^2.6.10",
     "vue-cli-plugin-webpack-bundle-analyzer": "^2.0.0",
     "vue-draggable-resizable": "2.1.0",
+    "vue-resize-sensor": "^2.0.0",
     "vue-router": "^3.4.9",
     "vuex": "^3.5.1",
     "webpack-node-externals": "^2.5.2"

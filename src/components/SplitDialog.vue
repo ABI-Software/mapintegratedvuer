@@ -15,8 +15,12 @@
           @resized="resized('second', $event)"
           @resize="resize"
         >
-          <pane key="one" min-size="20" :size="splitter2"></pane>
-          <pane v-if="isSlotActive('fourth')" :size="100 - splitter2" key="four" min-size="20"></pane>
+          <pane key="one" min-size="20" :size="splitter2" ref="pane-1">
+            <resize-sensor :initial="true" @resize="calculateStyles(1)"></resize-sensor>
+          </pane>
+          <pane v-if="isSlotActive('fourth')" :size="100 - splitter2" key="four" min-size="20" ref="pane-4">
+            <resize-sensor :initial="true" @resize="calculateStyles(4)"></resize-sensor>
+          </pane>
         </splitpanes>
       </pane>
       <pane v-if="isSlotActive('second')" min-size="20" :size="100 - splitter1">
@@ -27,26 +31,19 @@
           @resized="resized('third', $event)"
           @resize="resize"
         >
-          <pane key="two" min-size="20" :size="splitter3"></pane>
-          <pane v-if="isSlotActive('third')" key="three" min-size="20" :size="100 - splitter3"></pane>
+          <pane key="two" min-size="20" :size="splitter3" ref="pane-2">
+            <resize-sensor :initial="true" @resize="calculateStyles(2)"></resize-sensor>
+          </pane>
+          <pane v-if="isSlotActive('third')" key="three" min-size="20" :size="100 - splitter3" ref="pane-3">
+            <resize-sensor :initial="true" @resize="calculateStyles(3)"></resize-sensor>
+          </pane>
         </splitpanes>
       </pane>
     </splitpanes>
-    <!--
-    <splitpanes-bar
-      ref="splitpanesbar"
-      :entries="entries" 
-      :splitter1="splitter1"
-      :splitter2="splitter2"
-      :splitter3="splitter3"
-      @chooser-changed="viewerChanged"
-      @hook:mounted="setPanesBoundary"
-      />
-      -->
     <div
       v-for="entry in entries"
       :key="entry.id"
-      :style="getStyle(entry.id)"
+      :style="styles[getRefsName(entry.id)]"
       :class="[getClass(entry.id), 'contentvuer']"
     >
       <ContentVuer
@@ -64,6 +61,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import ContentVuer from "./ContentVuer";
+import ResizeSensor from "vue-resize-sensor";
 //import SplitpanesBar from "./SplitpanesBar";
 import { Splitpanes, Pane } from "splitpanes";
 import store from "../store";
@@ -86,7 +84,8 @@ export default {
     ContentVuer,
     Splitpanes,
 //    SplitpanesBar,
-    Pane
+    Pane,
+    ResizeSensor
   },
   props: {
     entries: {
@@ -108,6 +107,7 @@ export default {
         third: false,
         fourth: false
       },
+      styles: { }
     }
   },
   methods: {
@@ -119,6 +119,12 @@ export default {
     },
     getClass: function(id) {
       let slot = store.getters["splitFlow/getSlotById"](id);
+      if (slot) {
+        return "active";
+      } else {
+        return "inactive";
+      }
+/*
       if (slot) {
         if (slot.name == "first") {
           switch (store.state.splitFlow.activeView) {
@@ -156,6 +162,23 @@ export default {
         }
       }
       return "inactive";
+      */
+    },
+    getRefsName: function(id) {
+      let slot = store.getters["splitFlow/getSlotById"](id);
+      let index = 0;
+      if (slot) {
+        if (slot.name == "first") {
+          index = 1;
+        } else if (slot.name == "second") {
+          index = 2;
+        } else if (slot.name == "third") {
+          index = 3;
+        } else if (slot.name == "fourth") {
+          index = 4;
+        }
+      }
+      return `pane-${index}`;
     },
     getStyle: function(id) {
       /* 
@@ -164,6 +187,12 @@ export default {
         height/width. The width, height and positon of the 
         viewer should take that into account.
       */
+      const refName = this.getRefsName(id);
+      if (refName in this.styles && this.styles[refName]) {
+        return this.styles[refName];
+      }
+      return {};
+      /**
       let style = {};
       let slot = store.getters["splitFlow/getSlotById"](id);
       if (slot) {
@@ -225,6 +254,7 @@ export default {
         }
       }
       return style;
+       */
     },
     getActiveContents: function() {
       const activeContents = [];
@@ -273,6 +303,32 @@ export default {
     setPanesBoundary: function() {
       this.$refs.splitpanesbar.setBoundary(this.$refs.tabContainer)
     },
+    calculateStyles: function(index) {
+      if (this.$refs && ('tabContainer' in this.$refs)) {
+        const bound = this.$refs['tabContainer'].getBoundingClientRect();
+        const refName = `pane-${index}`;
+        if (refName in this.$refs && this.$refs[refName] && this.$refs[refName].$el) {
+          const el = this.$refs[refName].$el;
+          const {top, left, width, height} = el.getBoundingClientRect();
+          const style = {};
+          style["width"] = `${width}px`;
+          style["left"] = `${left - bound.left}px`;
+          style["height"] = `${height}px`;
+          style["top"] = `${top - bound.top}px`;
+          this.styles[refName] = style;
+        }
+      }
+    },
+    updateStyles: function(index) {
+      //Need to wait for the pane to be resized first
+      if (index !== -1) {
+        this.calculateStyles(index);
+      } else {
+        for (let i = 1; i <= 4; i++) {
+          this.calculateStyles(i);
+        }
+      }
+    },
     viewerChanged: function() {
       for (let i = 0; i < this.$refs.content.length; i++) {
         this.$refs.content[i].onResize();
@@ -292,6 +348,9 @@ export default {
     }
   },
   computed: {
+    activeView: function() {
+      return store.state.splitFlow.activeView;
+    },
     // This computed property populates filter data's entry object with $data from this sidebar
     slotInfo: function() {
       return store.state.splitFlow.slotInfo;
@@ -307,7 +366,7 @@ export default {
     },
     globalCallback() {
       return store.state.splitFlow.globalCallback;
-    }
+    },
   },
   watch: {
     splitters: {
