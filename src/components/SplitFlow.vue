@@ -126,7 +126,7 @@ export default {
             ...action.labels.map(val => ({
               facet: capitalise(val),
               term: "Anatomical structure",
-              facetPropPath: "anatomy.organ.name",
+              facetPropPath: "anatomy.organ.category.name",
             }))
           );
           this.$refs.sideBar.openSearch(facets, "");
