@@ -19,11 +19,6 @@
       <div
         style="width: 100%; height: 100%; position: relative; overflow: hidden"
       >
-        <SplitDialog
-          :entries="entries"
-          ref="splitdialog"
-          @resource-selected="resourceSelected"
-        />
         <SideBar
           ref="sideBar"
           :envVars="envVars"
@@ -35,6 +30,11 @@
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
           @contextUpdate="contextUpdate($event)"
+        />
+        <SplitDialog
+          :entries="entries"
+          ref="splitdialog"
+          @resource-selected="resourceSelected"
         />
       </div>
     </el-main>

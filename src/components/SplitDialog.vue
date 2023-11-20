@@ -43,7 +43,7 @@
     <div
       v-for="entry in entries"
       :key="entry.id"
-      :style="styles[getRefsName(entry.id)]"
+      :style="getStyle(entry.id)"
       :class="[getClass(entry.id), 'contentvuer']"
     >
       <ContentVuer
@@ -107,7 +107,9 @@ export default {
         third: false,
         fourth: false
       },
-      styles: { }
+      styles: { 
+
+      }
     }
   },
   methods: {
@@ -118,51 +120,11 @@ export default {
       this.$emit("resource-selected", result);
     },
     getClass: function(id) {
-      let slot = store.getters["splitFlow/getSlotById"](id);
-      if (slot) {
+      if (this.isIdVisible(id)) {
         return "active";
       } else {
         return "inactive";
       }
-/*
-      if (slot) {
-        if (slot.name == "first") {
-          switch (store.state.splitFlow.activeView) {
-            case "singlepanel":
-              return "singlepanel-1";
-            case "2horpanel":
-              return "twohorpanel-1";
-            case "2vertpanel":
-            case "3panel":
-              return "twovertpanel-1";
-            case "4panel":
-              return "fourpanel-1";
-          }
-        } else if (slot.name == "second") {
-          switch (store.state.splitFlow.activeView) {
-            case "2horpanel":
-              return "twohorpanel-2";
-            case "2vertpanel":
-              return "twovertpanel-2";
-            case "3panel":
-            case "4panel":
-              return "threepanel-2";
-          }
-        } else if (slot.name == "third") {
-          switch (store.state.splitFlow.activeView) {
-            case "3panel":
-            case "4panel":
-              return "threepanel-3";
-          }
-        } else if (slot.name == "fourth") {
-          switch (store.state.splitFlow.activeView) {
-            case "4panel":
-              return "fourpanel-4";
-          }
-        }
-      }
-      return "inactive";
-      */
     },
     getRefsName: function(id) {
       let slot = store.getters["splitFlow/getSlotById"](id);
@@ -178,7 +140,14 @@ export default {
           index = 4;
         }
       }
-      return `pane-${index}`;
+      const refName = `pane-${index}`;
+      if (index !== 0) {
+        if (!(refName in this.styles)) {
+           Vue.set(this.styles, refName, {});
+        }
+      } 
+
+      return refName;
     },
     getStyle: function(id) {
       /* 
@@ -192,69 +161,6 @@ export default {
         return this.styles[refName];
       }
       return {};
-      /**
-      let style = {};
-      let slot = store.getters["splitFlow/getSlotById"](id);
-      if (slot) {
-        if (slot.name == "first") {
-          switch (store.state.splitFlow.activeView) {
-            case "2horpanel":
-              style["height"] = this.splitter1.toString() + "%";
-              break;
-            case "2vertpanel":
-            case "3panel":
-              style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
-              break;
-            case "4panel":
-              style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
-              style["height"] = this.splitter2.toString() + "%";
-              break;
-          }
-        } else if (slot.name == "second") {
-          switch (store.state.splitFlow.activeView) {
-            case "2horpanel":
-              style["height"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
-              style["top"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              break;
-            case "2vertpanel":
-              style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
-              style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              break;
-            case "3panel":
-            case "4panel":
-              style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
-              style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              style["height"] = this.splitter3.toString() + "%";
-              break;
-          }
-        } else if (slot.name == "third") {
-          switch (store.state.splitFlow.activeView) {
-            case "3panel":
-            case "4panel":
-              style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
-              style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              style["height"] =
-                "calc(" + (100 - this.splitter3).toString() + "% - 2px)";
-              style["top"] = "calc(" + this.splitter3.toString() + "% + 2px)";
-              break;
-          }
-        } else if (slot.name == "fourth") {
-          switch (store.state.splitFlow.activeView) {
-            case "4panel":
-              style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
-              style["height"] =
-                "calc(" + (100 - this.splitter2).toString() + "% - 2px)";
-              style["top"] = "calc(" + this.splitter2.toString() + "% + 2px)";
-              break;
-          }
-        }
-      }
-      return style;
-       */
     },
     getActiveContents: function() {
       const activeContents = [];
@@ -315,7 +221,7 @@ export default {
           style["left"] = `${left - bound.left}px`;
           style["height"] = `${height}px`;
           style["top"] = `${top - bound.top}px`;
-          this.styles[refName] = style;
+          Vue.set(this.styles, refName, style);
         }
       }
     },
@@ -427,7 +333,7 @@ export default {
     transition: opacity 0.4s;
     background-color: rgba(131, 0, 191, 0.3) !important;
     opacity: 0;
-    z-index: 6 !important;
+    z-index: 7 !important;
     &:hover {
       opacity: 1;
     }
@@ -479,77 +385,6 @@ export default {
 }
 
 .contentvuer {
-  &.singlepanel-1 {
-    width: 100%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
-    z-index: 2;
- }
-
- &.twohorpanel-1 {
-    width: 100%;
-    height: calc(50% - 1px);
-    left: 0px;
-    z-index: 2;
-    top: 0;
-  }
-
-  &.twohorpanel-2 {
-    width: 100%;
-    height: calc(50% - 1px);
-    left: 0px;
-    top: 50%;
-    z-index: 2;
-  }
-
-  &.twovertpanel-1 {
-    width: calc(50% - 1px);
-    height: 100%;
-    left: 0px;
-    top: 0px;
-    z-index: 3;
-  }
-
-  &.twovertpanel-2 {
-    width: calc(50% - 1px);
-    height: 100%;
-    left: calc(50% + 2px);
-    top: 0px;
-    z-index: 2;
-  }
-
-  &.threepanel-2 {
-    width: calc(50% - 1px);
-    height: 50%;
-    left: calc(50% + 2px);
-    z-index: 2;
-    top: 0;
-  }
-
-  &.threepanel-3 {
-    width: calc(50% - 1px);
-    height: calc(50% - 1px);
-    left: calc(50% + 2px);
-    top: calc(50% + 2px);
-    z-index: 2;
-  }
-
-  &.fourpanel-1 {
-    width: calc(50% - 1px);
-    height: 50%;
-    left: 0px;
-    top: 0px;
-    z-index: 4;
-  }
-
-  &.fourpanel-4 {
-    width: calc(50% - 1px);
-    height: calc(50% - 1px);
-    left: 0px;
-    top: calc(50% + 2px);
-    z-index: 3;
-  }
 
   &.inactive {
     display: none;
