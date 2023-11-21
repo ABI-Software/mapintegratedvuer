@@ -206,9 +206,6 @@ export default {
       }
       return states;
     },
-    setPanesBoundary: function() {
-      this.$refs.splitpanesbar.setBoundary(this.$refs.tabContainer)
-    },
     calculateStyles: function(index) {
       if (this.$refs && ('tabContainer' in this.$refs)) {
         const bound = this.$refs['tabContainer'].getBoundingClientRect();
@@ -235,11 +232,6 @@ export default {
         }
       }
     },
-    viewerChanged: function() {
-      for (let i = 0; i < this.$refs.content.length; i++) {
-        this.$refs.content[i].onResize();
-      }
-    },
     resize: function() {
       this.__userResize__ = true;
     },
@@ -254,13 +246,6 @@ export default {
     }
   },
   computed: {
-    activeView: function() {
-      return store.state.splitFlow.activeView;
-    },
-    // This computed property populates filter data's entry object with $data from this sidebar
-    slotInfo: function() {
-      return store.state.splitFlow.slotInfo;
-    },
     horizontal() {
       if (store.state.splitFlow.activeView === "2horpanel") {
         return true;
@@ -382,9 +367,6 @@ export default {
   position: absolute;
   transition: all 1s ease;
   background: rgba(255, 255, 255, 1);
-}
-
-.contentvuer {
 
   &.inactive {
     display: none;
