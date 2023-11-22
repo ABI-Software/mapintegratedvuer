@@ -6,6 +6,7 @@
       :dbl-click-splitter="false"
       @resized="resized('first', $event)"
       @resize="resize"
+      v-if="activeView !== 'customise'"
     >
       <pane min-size="20" :size="splitter1">
         <splitpanes
@@ -40,6 +41,11 @@
         </splitpanes>
       </pane>
     </splitpanes>
+    <custom-splitter
+      v-else
+      index="split-1"
+      key="split-1"
+    />
     <div
       v-for="entry in entries"
       :key="entry.id"
@@ -61,6 +67,8 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import ContentVuer from "./ContentVuer";
+import CustomSplitter from "./CustomSplitter";
+import EventBus from './EventBus';
 import ResizeSensor from "vue-resize-sensor";
 //import SplitpanesBar from "./SplitpanesBar";
 import { Splitpanes, Pane } from "splitpanes";
@@ -82,8 +90,8 @@ export default {
   name: "SplitDialog",
   components: {
     ContentVuer,
+    CustomSplitter,
     Splitpanes,
-//    SplitpanesBar,
     Pane,
     ResizeSensor
   },
@@ -207,29 +215,24 @@ export default {
       return states;
     },
     calculateStyles: function(index) {
-      if (this.$refs && ('tabContainer' in this.$refs)) {
-        const bound = this.$refs['tabContainer'].getBoundingClientRect();
+      if (this.$refs) {
         const refName = `pane-${index}`;
         if (refName in this.$refs && this.$refs[refName] && this.$refs[refName].$el) {
           const el = this.$refs[refName].$el;
-          const {top, left, width, height} = el.getBoundingClientRect();
-          const style = {};
-          style["width"] = `${width}px`;
-          style["left"] = `${left - bound.left}px`;
-          style["height"] = `${height}px`;
-          style["top"] = `${top - bound.top}px`;
-          Vue.set(this.styles, refName, style);
+          const rect = el.getBoundingClientRect();
+          this.setStyles(refName, rect);
         }
       }
     },
-    updateStyles: function(index) {
-      //Need to wait for the pane to be resized first
-      if (index !== -1) {
-        this.calculateStyles(index);
-      } else {
-        for (let i = 1; i <= 4; i++) {
-          this.calculateStyles(i);
-        }
+    setStyles: function(refName, rect) {
+      if (this.$refs && ('tabContainer' in this.$refs)) {
+        const bound = this.$refs['tabContainer'].getBoundingClientRect();
+        const style = {};
+        style["width"] = `${rect.width}px`;
+        style["left"] = `${rect.left - bound.left}px`;
+        style["height"] = `${rect.height}px`;
+        style["top"] = `${rect.top - bound.top}px`;
+        Vue.set(this.styles, refName, style);
       }
     },
     resize: function() {
@@ -246,6 +249,9 @@ export default {
     }
   },
   computed: {
+    activeView: function() {
+      return store.state.splitFlow.activeView;
+    },
     horizontal() {
       if (store.state.splitFlow.activeView === "2horpanel") {
         return true;
@@ -292,7 +298,12 @@ export default {
       immediate: true,
       deep: true
     },
-  }
+  },
+  mounted: function () {
+    EventBus.$on("PaneResize", payload => {
+      this.setStyles(payload.refName, payload.rect);
+    });
+  },
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -1,4 +1,5 @@
 /* eslint-disable no-alert, no-console */
+//import Vue from "vue";
 
 const state = () => ({
   activeView: "singlepanel",
@@ -13,8 +14,20 @@ const state = () => ({
     { icon: "2horpanel", name: "Horizontal split", min: 2 },
     { icon: "2vertpanel", name: "Vertical split", min: 2 },
     { icon: "3panel", name: "Three panes", min: 3 },
-    { icon: "4panel", name: "Four panes", min: 4 }
+    { icon: "4panel", name: "Four panes", min: 4 },
+    //{ icon: "customise", name: "Customise", min: 2 }
   ],
+  customLayout: {
+    /*
+    Example layout
+
+    "split-1": {content: false, horizontal: true, children: ["split-2", "pane-1"]},
+    "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3"]},
+    "pane-1": {content: true,  id: 1},
+    "pane-2": {content: true,  id: 2},
+    "pane-3": {content: true,  id: 3},
+    */
+  },
   splitters: { "first": 50, "second": 50, "third": 50 },
   globalCallback: false,
   syncMode: false,

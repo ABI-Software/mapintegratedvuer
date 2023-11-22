@@ -17,7 +17,7 @@
     :warning-message="warningMessage"
     :display-minimap="false"
     :display-markers="false"
-    :enableOpenMapUI="entry.isBodyScaffold"
+    :enableOpenMapUI="true"
     :view-u-r-l="entry.viewUrl"
     :markerLabels="markerLabels"
   />
