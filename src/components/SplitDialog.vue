@@ -121,7 +121,7 @@ export default {
     },
     getClass: function(id) {
       if (this.isIdVisible(id)) {
-        return "active";
+        return this.getRefsName(id);
       } else {
         return "inactive";
       }
