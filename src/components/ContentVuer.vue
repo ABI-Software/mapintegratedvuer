@@ -175,7 +175,7 @@ export default {
   transition: all 1s ease;
   height: 32px;
   border-bottom: 1px solid rgb(220, 223, 230);
-  z-index: 2001;
+  z-index: 7;
 }
 
 .component-container {
@@ -183,6 +183,7 @@ export default {
   width: 100%;
   bottom: 0px;
   position: absolute;
+  z-index:6;
 }
 
 .dataset-header {

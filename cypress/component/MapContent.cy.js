@@ -109,9 +109,9 @@ describe('MapContent', () => {
     //Test searching with uberon id wich should display a pop up with anatomical name
     cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > .settings-group > :nth-child(1)').should('exist').click();
     cy.get('.open-map-popper > :nth-child(2) > .el-button:visible').should('exist').click();
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view>').should('have.length', 2);
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> :nth-child(1)', {timeout: 30000}).click();
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view>').should('have.length', 2);
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> :nth-child(1)', {timeout: 30000}).click();
 
     //Check for two content containers
     cy.get('.contentvuer').should('be.visible').should('have.length', 2);
@@ -150,9 +150,9 @@ describe('MapContent', () => {
     cy.get('.box-card .container button').contains('Scaffolds (2)').click();
     cy.get('.gallery-strip').contains('54-8_metadata.json').should("exist");
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
-    cy.get('.singlepanel-1.contentvuer').should('have.length', 1);
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 3);
+    cy.get('.pane-1.contentvuer').should('have.length', 1);
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 3);
 
     //Check for plot and open it, should have four items in select now
     cy.get('.open-tab > .el-icon-arrow-left').click();
@@ -161,8 +161,8 @@ describe('MapContent', () => {
     cy.get('.box-card .container button').contains('Plots (1)').click();
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
     cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should("exist");
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 4);
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 4);
 
     cy.get('@simulation_ui').then((simulation_ui) => {
       cy.intercept('/sparc-api//sim/dataset/999',
@@ -173,8 +173,8 @@ describe('MapContent', () => {
     cy.get('.open-tab > .el-icon-arrow-left').click();
     cy.get('.box-card .container button').contains('Simulations (1)').click();
     cy.get('.box-card :nth-child(1) > .details .el-button').click();
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
-    cy.get('.singlepanel-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 5);
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-input > .el-input__inner').should('exist').click();
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > transition-stub > .el-select-dropdown > .el-scrollbar > .el-select-dropdown__wrap > .el-scrollbar__view> ').should('have.length', 5);
 
     //Close the sidebar
     cy.get('.open-tab > .el-icon-arrow-left').click();
