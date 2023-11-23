@@ -165,7 +165,7 @@ export default {
     },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
-        store.commit("splitFlow/assignOrSwapSlotWithIds", {
+        store.commit("splitFlow/assignOrSwapPaneWithIds", {
           source: this.entry.id,
           target: value
         });

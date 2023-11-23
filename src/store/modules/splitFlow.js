@@ -1,14 +1,99 @@
 /* eslint-disable no-alert, no-console */
-//import Vue from "vue";
+import Vue from "vue";
+
+const presetLayouts = (view) => {
+  switch (view) {
+    case "2horpanel":
+      return {
+        "split-1": {content: false, horizontal: true, children: ["pane-1", "pane-2"]},
+        "pane-1": {content: true,  id: 1},
+        "pane-2": {content: true,  id: 2},
+      };
+    case "2vertpanel": 
+      return {
+        "split-1": {content: false, horizontal: false, children: ["pane-1", "pane-2"]},
+        "pane-1": {content: true,  id: 1},
+        "pane-2": {content: true,  id: 2},
+      }
+    case "3panel": 
+      return {
+        "split-1": {content: false, horizontal: false, children: ["pane-1", "split-2"]},
+        "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3"]},
+        "pane-1": {content: true,  id: 1},
+        "pane-2": {content: true,  id: 2},
+        "pane-3": {content: true,  id: 3},
+      }
+    case "4panel": 
+      return {
+        "split-1": {content: false, horizontal: false, children: ["split-3", "split-2"]},
+        "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3"]},
+        "split-3": {content: false, horizontal: true, children: ["pane-1", "pane-4"]},
+        "pane-1": {content: true,  id: 1},
+        "pane-2": {content: true,  id: 2},
+        "pane-3": {content: true,  id: 3},
+        "pane-4": {content: true,  id: 3},
+      }
+    case "singlepanel":
+    default:
+      return {
+        "split-1": {content: false, horizontal: false, children: ["pane-1"]},
+        "pane-1": {content: true,  id: 1},
+    }
+  }
+}
+
+//A method to assign unused entry to pane with duplicated id
+const autoAssignEntryIdsToPane = (entries, layout) => {
+  const assignedIds  = [];
+  const invalidIdKeys = [];
+  for (const [key, value] of Object.entries(layout)) {
+    if (value.content) {
+      if (assignedIds.includes(value.id)) {
+        //id has got an assigned pane, cache it and find one
+        //later
+        invalidIdKeys.push(key);
+      } else {
+        assignedIds.push(value.id);
+      }
+    }
+  }
+  invalidIdKeys.forEach((key) => {
+    let done = false;
+    for (let i = 0; i < entries.length || !done; i++) {
+      if (!(assignedIds.includes(entries[i].id))) {
+        layout[key].id = entries[i].id;
+        assignedIds.push(entries.id);
+        done = true;
+      }
+    }
+  });
+}
+
+const extractPaneInfo = (layout) => {
+  const panes = {};
+  for (const [key, value] of Object.entries(layout)) {
+    if (value.content) {
+      panes[key] = value;
+    }
+  }
+  return panes;
+}
+
+const newLayoutWithOrigInfo = (original, activeView) => {
+  const panes = extractPaneInfo(original);
+  const customLayout = presetLayouts(activeView);
+  for (const [key, value] of Object.entries(panes)) {
+    customLayout[key] = value;
+  }
+  return customLayout;
+}
+
+const findKeyWithId = (layout, id) => {
+  return Object.keys(layout).find(key => layout[key]["id"] === id);
+}
 
 const state = () => ({
   activeView: "singlepanel",
-  slotInfo: [
-    { name: "first", id: 1, activation: 1 },
-    { name: "second", id: 0, activation: 2 },
-    { name: "third", id: 0, activation: 3 },
-    { name: "fourth", id: 0, activation: 4 }
-  ],
   viewIcons: [
     { icon: "singlepanel", name: "Single view", min: 1 },
     { icon: "2horpanel", name: "Horizontal split", min: 2 },
@@ -18,6 +103,8 @@ const state = () => ({
     //{ icon: "customise", name: "Customise", min: 2 }
   ],
   customLayout: {
+    "split-1": {content: false, horizontal: false, children: ["pane-1"]},
+    "pane-1": {content: true,  id: 1},
     /*
     Example layout
 
@@ -34,39 +121,12 @@ const state = () => ({
 });
 
 const getters = {
-  getFirstAvailableSlot: (state) => () => {
-    return state.slotInfo.find(slot => slot.id === 0);
-  },
-  getIdbySlotName: (state) => (name) => {
-    let slot = state.slotInfo.find(slot => slot.name === name);
-    return slot !== undefined ? slot.id : undefined;
-  },
-  getSlotById: (state) => (id) => {
-    let slot = state.slotInfo.find(slot => slot.id === id);
-    return slot;
-  },
-  getSlotByName: (state) => (name) => {
-    let slot = state.slotInfo.find(slot => slot.name === name);
-    return slot;
-  },
-  isSlotActive: (state) => (slot) => {
-    if (slot) {
-      let view = state.viewIcons.find(view => state.activeView === view.icon);
-      return (view.min >= slot.activation);
-    }
-    return false;
-  },
-  isEntryActive: (state) => (entry) => {
-    let slot = state.slotInfo.find(slot => slot.id === entry.id);
-    if (slot) {
-      let view = state.viewIcons.find(view => state.activeView === view.icon);
-      return (view.min >= slot.activation);
-    }
-    return false;
+  getPaneNameById: (state) => (id) => {
+    return findKeyWithId(state.customLayout, id);
   },
   getState: (state) => () => {
     return {
-      activeView: state.activeView, slotInfo: state.slotInfo,
+      activeView: state.activeView,
       splitters: state.splitters,
       globalCallback: state.globalCallback,
       syncMode: state.syncMode,
@@ -75,55 +135,45 @@ const getters = {
 }
 
 const mutations = {
-  assignIdToSlot(state, payload) {
-    state.slotInfo.find(
-      slotInfo => slotInfo.name === payload.slot.name).id = payload.id;
-  },
-  assignOrSwapSlotWithIds(state, payload) {
-    let sourceSlot = state.slotInfo.find(slot => slot.id === payload.source);
-    let targetSlot = state.slotInfo.find(slot => slot.id === payload.target);
+  assignOrSwapPaneWithIds(state, payload) {
+    let sourceKey = findKeyWithId(state.customLayout, payload.source);
+    let targetKey = findKeyWithId(state.customLayout, payload.target);
     // Check if it is on syncMode
-    if (state.syncMode) {
-      if (targetSlot) {
-        //exit syncMod if the two panel in sync mode are not swapping
-        if (!((targetSlot.name == "first" && sourceSlot.name == "second") ||
-          (targetSlot.name == "second" && sourceSlot.name == "first"))) {
-          state.syncMode = false;
-          state.globalCallback = false;
-        }
-      }
+    if (state.syncMode && (!(targetKey || sourceKey))) {
+      //exit syncMod if the two panel in sync mode are not swapping
+      state.syncMode = false;
+      state.globalCallback = false;
     }
-    if (targetSlot)
-      targetSlot.id = payload.source;
-    sourceSlot.id = payload.target;
-  },
-  changeViewByAvailabilty(state) {
-    let count = 0;
-    for (let i = 0; i < state.slotInfo.length; i++) {
-      if (state.slotInfo[i].id > 0)
-        count++;
+    if (targetKey) {
+      state.customLayout[targetKey].id = payload.source;
     }
-    let view = state.viewIcons.find(view => view.min === count);
-    if (view)
-      state.activeView = view.icon;
+    if (sourceKey) {
+      state.customLayout[sourceKey].id = payload.target;
+    }
   },
   toggleGlobalCallback(state, flag) {
     state.globalCallback = flag;
   },
-  updateActiveView(state, activeView) {
+  updateActiveView(state, payload) {
     //Deactivate sync mode if current or future view
     //is not in 2 split panels/
     if (state.syncMode) {
       const view1 = state.viewIcons.find(
         view => state.activeView === view.icon);
       const view2 = state.viewIcons.find(
-        view => activeView === view.icon);
+        view => payload.view === view.icon);
       if (!(view1.min == 2 && view2.min == 2)) {
         state.syncMode = false;
         state.globalCallback = false;
       }
     }
-    state.activeView = activeView;
+    state.activeView = payload.view;
+    const customLayout = newLayoutWithOrigInfo(
+      state.customLayout, state.activeView);
+    autoAssignEntryIdsToPane(payload.entries, customLayout);
+    for (const [key, value] of Object.entries(customLayout)) {
+      Vue.set(state.customLayout, key, value);
+    }
   },
   setSplitter(state, payload) {
     if (state.splitters[payload.name])
@@ -131,48 +181,89 @@ const mutations = {
   },
   setState(state, newState) {
     if (newState) {
-      if (newState.activeView)
+      let customLayout = undefined;
+      if (newState.activeView) {
         state.activeView = newState.activeView;
-      if (newState.globalCallback)
+      }
+      if (newState.customLayout) {
+        customLayout = newState.customLayout;
+      } else {
+        customLayout = presetLayouts(state.activeView);
+        if (newState.slotInfo) {
+          for (let i = 0; i < newState.slotInfo.length; i++) {
+            switch (newState.slotInfo[i].name) {
+              case "first": {
+                customLayout["pane-1"].id = newState.slotInfo[i].id;
+              } break;
+              case "second": {
+                if("panel-2" in customLayout)
+                  customLayout["pane-2"].id = newState.slotInfo[i].id;
+              } break;
+              case "thrid": {
+                if("panel-3" in customLayout)
+                  customLayout["pane-3"].id = newState.slotInfo[i].id;
+              } break;
+              case "fourth": {
+                if("panel-4" in customLayout)
+                  customLayout["pane-4"].id = newState.slotInfo[i].id;
+              } break;
+              default:
+                break;
+            }
+          }
+        }
+      }
+      for (const [key, value] of Object.entries(customLayout)) {
+        Vue.set(state.customLayout, key, value);
+      }
+      if (newState.globalCallback) {
         state.globalCallback = newState.globalCallback;
-      for (let i = 0; i < state.slotInfo.length; i++) {
-        state.slotInfo[i].id = newState.slotInfo[i].id;
       }
       for (const [key, value] of Object.entries(newState.splitters)) {
         state.splitters[key] = value;
       }
-      if (newState.syncMode)
+      if (newState.syncMode) {
         state.syncMode = newState.syncMode;
+      }
     }
   },
-  setIdToPrimarySlot(state, id) {
-    let availableSlot = state.slotInfo.find(slot => slot.id === id);
-    if (!availableSlot)
-      availableSlot = state.slotInfo.find(slot => slot.id === 0);
-    let primarySlot = state.slotInfo.find(slotInfo => slotInfo.name === "first");
-    if (availableSlot) {
-      availableSlot.id = primarySlot.id;
+  setIdToPrimaryPane(state, id) {
+    const currentKey = findKeyWithId(state.customLayout, id);
+    const firstPaneId = state.customLayout["pane-1"].id;
+    state.customLayout["pane-1"].id = id;
+    if (currentKey) {
+      state.customLayout[currentKey].id = firstPaneId;
     }
-    primarySlot.id = id;
   },
   setSyncMode(state, payload) {
     if (payload) {
       //Force the second slot to be the new viewer in payload and change the 
       //view to the payload's layout
-      let secondSlot = state.slotInfo.find(slot => slot.name === "second");
+      //state.customLayout["pane-2"].id = id;
       if (payload.flag === true) {
-        let firstSlot = state.slotInfo.find(slot => slot.name === "first");
-        let firstSlotId = firstSlot.id;
-        let originalSlot = state.slotInfo.find(slot => slot.id === 1);
-        secondSlot.id = payload.newId;
-        if (originalSlot.name !== "first")
-          originalSlot.id = firstSlotId;
-        firstSlot.id = 1;
-        state.syncMode = true;
         state.activeView = payload.layout;
+        //Extract pane info form original state and copy to the new layout
+        const customLayout = newLayoutWithOrigInfo(
+          state.customLayout, state.activeView);
+        const originalKey = findKeyWithId(customLayout, 1);
+        const firstPaneId = customLayout["pane-1"].id;
+        if (originalKey !== "pane-1") {
+          customLayout["pane-1"].id = firstPaneId;
+        }
+        customLayout["pane-1"].id = 1;
+        customLayout["pane-2"].id = payload.newId;
+        for (const [key, value] of Object.entries(customLayout)) {
+          Vue.set(state.customLayout, key, value);
+        }
+        state.syncMode = true;
         state.globalCallback = true;
       } else {
         state.activeView = "singlepanel";
+        const customLayout = newLayoutWithOrigInfo(
+          state.customLayout, state.activeView);
+        for (const [key, value] of Object.entries(customLayout)) {
+          Vue.set(state.customLayout, key, value);
+        }
         state.syncMode = false;
         state.globalCallback = false;
       }
@@ -189,103 +280,102 @@ const mutations = {
       } else if (payload.entries) {
         for (let i = 0; i < payload.entries.length &&
           availableId == 0; i++) {
-          //Find the entry not currently in use
-          if (state.slotInfo.find(slot => slot.id ===
-            payload.entries[i].id) === undefined) {
+          //Find the first entry not currently in use
+          if (findKeyWithId(payload.entries[i].id) === undefined) {
             availableId = payload.entries[i].id;
           }
         }
       }
-      let slot = state.slotInfo.find(
-        slotInfo => slotInfo.id === payload.id);
-      let secondSlot = state.slotInfo.find(
-        slotInfo => slotInfo.name === "second");
-      let thirdSlot = state.slotInfo.find(
-        slotInfo => slotInfo.name === "third");
-      let fourthSlot = state.slotInfo.find(
-        slotInfo => slotInfo.name === "fourth");
-      // The following move the entry id to the appropriate slot
-      // and remove the target id
-      switch (slot.name) {
-        case "first": {
-          switch (state.activeView) {
-            case "2horpanel":
-            case "2vertpanel": {
-              slot.id = secondSlot.id;
-              secondSlot.id = availableId;
-            } break;
-            case "3panel": {
-              slot.id = secondSlot.id;
-              secondSlot.id = thirdSlot.id;
-              thirdSlot.id = availableId;
-            } break;
-            case "4panel": {
-              slot.id = secondSlot.id;
-              secondSlot.id = thirdSlot.id;
-              thirdSlot.id = fourthSlot.id;
-              fourthSlot.id = availableId;
-            } break;
-            default:
-              break;
-          }
-        } break;
-        case "second": {
-          switch (state.activeView) {
-            case "2horpanel":
-            case "2vertpanel": {
-              slot.id = availableId;
-            } break;
-            case "3panel": {
-              slot.id = thirdSlot.id;
-              thirdSlot.id = fourthSlot.id;
-              fourthSlot.id = availableId;
-            } break;
-            case "4panel": {
-              slot.id = thirdSlot.id;
-              thirdSlot.id = fourthSlot.id;
-              fourthSlot.id = availableId;
-            } break;
-            default:
-              break;
-          }
-        } break;
-        case "third": {
-          switch (state.activeView) {
-            case "3panel":
-            case "4panel": {
-              slot.id = fourthSlot.id;
-              fourthSlot.id = availableId;
-            } break;
-            default:
-              break;
-          }
-        } break;
-        case "fourth": {
-          switch (state.activeView) {
-            case "4panel": {
-              slot.id = availableId;
-            } break;
-            default:
-              break;
-          }
-        } break;
-        default:
-          break;
-      }
-      //Then switch the view
-      switch (state.activeView) {
-        case "2horpanel":
-        case "2vertpanel":
-          state.activeView = "singlepanel";
-          break;
-        case "3panel":
-          state.activeView = "2vertpanel";
-          break;
-        case "4panel":
-          state.activeView = "3panel";
-          break;
-        default:
-          break;
+      //Switch the view
+      if (state.activeView !== "customise") {
+        //closePaneWithStandardLayout
+        const pView = state.activeView;
+        switch (state.activeView) {
+          case "2horpanel":
+          case "2vertpanel":
+            state.activeView = "singlepanel";
+            break;
+          case "3panel":
+            state.activeView = "2vertpanel";
+            break;
+          case "4panel":
+            state.activeView = "3panel";
+            break;
+          default:
+            break;
+        }
+        const customLayout = newLayoutWithOrigInfo(
+          state.customLayout, state.activeView);
+        const key = findKeyWithId(payload.id);
+      
+        // The following move the entry id to the appropriate slot
+        // and remove the target id
+        switch (key) {
+          case "pane-1": {
+            switch (pView) {
+              case "2horpanel":
+              case "2vertpanel": {
+                customLayout["pane-1"].id = customLayout["pane-2"].id;
+                customLayout["pane-2"].id = availableId;
+              } break;
+              case "3panel": {
+                customLayout["pane-1"].id = customLayout["pane-2"].id;
+                customLayout["pane-2"].id = customLayout["pane-3"].id;
+                customLayout["pane-3"].id = availableId;
+              } break;
+              case "4panel": {
+                customLayout["pane-1"].id = customLayout["pane-2"].id;
+                customLayout["pane-2"].id = customLayout["pane-3"].id;
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = availableId;
+              } break;
+              default:
+                break;
+            }
+          } break;
+          case "pane-2": {
+            switch (pView) {
+              case "2horpanel":
+              case "2vertpanel": {
+                customLayout["pane-2"].id = availableId;
+              } break;
+              case "3panel":
+              case "4panel": {
+                customLayout["pane-2"].id = customLayout["pane-3"].id;
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = availableId;
+              } break;
+              default:
+                break;
+            }
+          } break;
+          case "pane-3": {
+            switch (pView) {
+              case "3panel":
+              case "4panel": {
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = availableId;
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+              } break;
+              default:
+                break;
+            }
+          } break;
+          case "pane-4": {
+            switch (pView) {
+              case "4panel": {
+                customLayout["pane-4"].id = availableId;
+              } break;
+              default:
+                break;
+            }
+          } break;
+          default:
+            break;
+        }
+        for (const [key, value] of Object.entries(customLayout)) {
+          Vue.set(state.customLayout, key, value);
+        }
       }
     }
   },

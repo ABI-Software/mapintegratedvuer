@@ -158,14 +158,6 @@ export default {
     updateWithViewUrl: function(viewUrl) {
       this.$refs.scaffold.updateViewURL(viewUrl);
     },
-    /**
-     * Check if this viewer is currently visible
-     */
-    isVisible: function() {
-      let slot = store.getters["splitFlow/getSlotById"](this.entry.id);
-      if (slot) return store.getters["splitFlow/isSlotActive"](slot);
-      return false;
-    },
   },
   computed: {
     warningMessage: function() {

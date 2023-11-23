@@ -6,7 +6,7 @@
       :dbl-click-splitter="false"
       @resized="resized('first', $event)"
       @resize="resize"
-      v-if="activeView !== 'customise'"
+      v-if="activeView === 'custxcafadadaomise'"
     >
       <pane min-size="20" :size="splitter1">
         <splitpanes
@@ -135,26 +135,12 @@ export default {
       }
     },
     getRefsName: function(id) {
-      let slot = store.getters["splitFlow/getSlotById"](id);
-      let index = 0;
-      if (slot) {
-        if (slot.name == "first") {
-          index = 1;
-        } else if (slot.name == "second") {
-          index = 2;
-        } else if (slot.name == "third") {
-          index = 3;
-        } else if (slot.name == "fourth") {
-          index = 4;
+      const refName = store.getters["splitFlow/getPaneNameById"](id);
+      if (refName) {
+        if (!(refName in this.styles)) {
+          Vue.set(this.styles, refName, {});
         }
       }
-      const refName = `pane-${index}`;
-      if (index !== 0) {
-        if (!(refName in this.styles)) {
-           Vue.set(this.styles, refName, {});
-        }
-      } 
-
       return refName;
     },
     getStyle: function(id) {
@@ -165,7 +151,7 @@ export default {
         viewer should take that into account.
       */
       const refName = this.getRefsName(id);
-      if (refName in this.styles && this.styles[refName]) {
+      if (refName && refName in this.styles && this.styles[refName]) {
         return this.styles[refName];
       }
       return {};
@@ -181,15 +167,9 @@ export default {
       }
       return activeContents;
     },
-    isSlotActive: function(name) {
-      let slot = store.getters["splitFlow/getSlotByName"](name);
-      if (slot) return store.getters["splitFlow/isSlotActive"](slot);
-      return false;
-    },
     isIdVisible: function(id) {
-      let slot = store.getters["splitFlow/getSlotById"](id);
-      if (slot) return store.getters["splitFlow/isSlotActive"](slot);
-      return false;
+      const refName = store.getters["splitFlow/getPaneNameById"](id);
+      return refName !== undefined;
     },
     sendSynchronisedEvent: function(resource) {
       const activeContents = this.getActiveContents();
