@@ -129,6 +129,7 @@ const getters = {
       activeView: state.activeView,
       splitters: state.splitters,
       globalCallback: state.globalCallback,
+      customLayout: state.customLayout,
       syncMode: state.syncMode,
     };
   },
