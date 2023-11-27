@@ -1,48 +1,6 @@
 <template>
   <div class="tab-container" ref="tabContainer">
-    <splitpanes
-      class="default-theme"
-      :horizontal="horizontal"
-      :dbl-click-splitter="false"
-      @resized="resized('first', $event)"
-      @resize="resize"
-      v-if="activeView === 'custxcafadadaomise'"
-    >
-      <pane min-size="20" :size="splitter1">
-        <splitpanes
-          class="default-theme"
-          :horizontal="true"
-          :dbl-click-splitter="false"
-          @resized="resized('second', $event)"
-          @resize="resize"
-        >
-          <pane key="one" min-size="20" :size="splitter2" ref="pane-1">
-            <resize-sensor :initial="true" @resize="calculateStyles(1)"></resize-sensor>
-          </pane>
-          <pane v-if="isSlotActive('fourth')" :size="100 - splitter2" key="four" min-size="20" ref="pane-4">
-            <resize-sensor :initial="true" @resize="calculateStyles(4)"></resize-sensor>
-          </pane>
-        </splitpanes>
-      </pane>
-      <pane v-if="isSlotActive('second')" min-size="20" :size="100 - splitter1">
-        <splitpanes
-          class="default-theme"
-          :horizontal="true"
-          :dbl-click-splitter="false"
-          @resized="resized('third', $event)"
-          @resize="resize"
-        >
-          <pane key="two" min-size="20" :size="splitter3" ref="pane-2">
-            <resize-sensor :initial="true" @resize="calculateStyles(2)"></resize-sensor>
-          </pane>
-          <pane v-if="isSlotActive('third')" key="three" min-size="20" :size="100 - splitter3" ref="pane-3">
-            <resize-sensor :initial="true" @resize="calculateStyles(3)"></resize-sensor>
-          </pane>
-        </splitpanes>
-      </pane>
-    </splitpanes>
     <custom-splitter
-      v-else
       index="split-1"
       key="split-1"
     />
@@ -69,12 +27,9 @@
 import ContentVuer from "./ContentVuer";
 import CustomSplitter from "./CustomSplitter";
 import EventBus from './EventBus';
-import ResizeSensor from "vue-resize-sensor";
 //import SplitpanesBar from "./SplitpanesBar";
-import { Splitpanes, Pane } from "splitpanes";
 import store from "../store";
 import Vue from "vue";
-import "splitpanes/dist/splitpanes.css";
 import {
   Input,
   Option,
@@ -91,9 +46,6 @@ export default {
   components: {
     ContentVuer,
     CustomSplitter,
-    Splitpanes,
-    Pane,
-    ResizeSensor
   },
   props: {
     entries: {
@@ -105,19 +57,7 @@ export default {
   },
   data: function() {
     return {
-      splitter1: 50,
-      splitter2: 50,
-      splitter3: 50,
-      searchText: [],
-      isFlatmap: {
-        first: true,
-        second: false,
-        third: false,
-        fourth: false
-      },
-      styles: { 
-
-      }
+      styles: { }
     }
   },
   methods: {
@@ -246,15 +186,6 @@ export default {
     },
   },
   watch: {
-    splitters: {
-      handler: function() {
-        this.splitter1 = store.state.splitFlow.splitters.first;
-        this.splitter2 = store.state.splitFlow.splitters.second;
-        this.splitter3 = store.state.splitFlow.splitters.third;
-      },
-      immediate: true,
-      deep: true
-    },
     globalCallback: {
       handler: function(val) {
         //Only activate for active
