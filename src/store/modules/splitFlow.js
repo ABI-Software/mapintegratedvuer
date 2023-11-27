@@ -190,6 +190,7 @@ const mutations = {
         customLayout = newState.customLayout;
       } else {
         customLayout = presetLayouts(state.activeView);
+        console.log(newState, customLayout)
         if (newState.slotInfo) {
           for (let i = 0; i < newState.slotInfo.length; i++) {
             switch (newState.slotInfo[i].name) {
@@ -197,15 +198,15 @@ const mutations = {
                 customLayout["pane-1"].id = newState.slotInfo[i].id;
               } break;
               case "second": {
-                if("panel-2" in customLayout)
+                if("pane-2" in customLayout)
                   customLayout["pane-2"].id = newState.slotInfo[i].id;
               } break;
               case "thrid": {
-                if("panel-3" in customLayout)
+                if("pane-3" in customLayout)
                   customLayout["pane-3"].id = newState.slotInfo[i].id;
               } break;
               case "fourth": {
-                if("panel-4" in customLayout)
+                if("pane-4" in customLayout)
                   customLayout["pane-4"].id = newState.slotInfo[i].id;
               } break;
               default:
@@ -307,7 +308,7 @@ const mutations = {
         }
         const customLayout = newLayoutWithOrigInfo(
           state.customLayout, state.activeView);
-        const key = findKeyWithId(payload.id);
+        const key = findKeyWithId(customLayout, payload.id);
       
         // The following move the entry id to the appropriate slot
         // and remove the target id
@@ -340,7 +341,10 @@ const mutations = {
               case "2vertpanel": {
                 customLayout["pane-2"].id = availableId;
               } break;
-              case "3panel":
+              case "3panel": {
+                customLayout["pane-2"].id = customLayout["pane-3"].id;
+                customLayout["pane-3"].id = availableId;
+              } break;
               case "4panel": {
                 customLayout["pane-2"].id = customLayout["pane-3"].id;
                 customLayout["pane-3"].id = customLayout["pane-4"].id;
@@ -352,11 +356,12 @@ const mutations = {
           } break;
           case "pane-3": {
             switch (pView) {
-              case "3panel":
+              case "3panel": {
+                customLayout["pane-3"].id = availableId;
+              } break;
               case "4panel": {
                 customLayout["pane-3"].id = customLayout["pane-4"].id;
                 customLayout["pane-4"].id = availableId;
-                customLayout["pane-3"].id = customLayout["pane-4"].id;
               } break;
               default:
                 break;
