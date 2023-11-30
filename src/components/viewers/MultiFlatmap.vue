@@ -274,7 +274,7 @@ export default {
             store.state.settings.featuredMarkerIdentifiers[index];
           if (!markerIdentifier) {
             // Add the featured marker to the legend if we have a featured marker
-            let markerExists = this.addFeaturedMarker(markers[index], index, flatmap);
+            const markerExists = this.addFeaturedMarker(markers[index], index, flatmap);
             if (markerExists) {
               this.showStarInLegend = true;
             }
