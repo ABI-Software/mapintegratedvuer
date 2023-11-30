@@ -267,17 +267,16 @@ export default {
       this.updateFeatureMarkers(markers, flatmap);
     },
     updateFeatureMarkers: function (markers, flatmap) {
+      this.showStarInLegend = false; // will show if we have a featured marker
       for (let index = 0; index < markers.length; ++index) {
         if (markers[index]) {
           const markerIdentifier =
             store.state.settings.featuredMarkerIdentifiers[index];
           if (!markerIdentifier) {
-            let markerExists = this.addFeaturedMarker(markers[index], index, flatmap);
             // Add the featured marker to the legend if we have a featured marker
+            let markerExists = this.addFeaturedMarker(markers[index], index, flatmap);
             if (markerExists) {
               this.showStarInLegend = true;
-            } else {
-              this.showStarInLegend = false;
             }
           }
         }
