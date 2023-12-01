@@ -299,6 +299,7 @@ export default {
 
         const markerIdentifier = flatmapImp.addMarker(marker, {
           element: wrapperElement,
+          className: "highlight-marker"
         });
         store.commit("settings/updateFeaturedMarkerIdentifier", {
           index,
@@ -344,6 +345,24 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @import "~element-ui/packages/theme-chalk/src/button";
+
+::v-deep .maplibregl-popup {
+  z-index: 3;
+}
+
+::v-deep .maplibregl-marker {
+  &.standard-marker {
+    z-index: 2;
+  }
+  &.highlight-marker {
+    z-index: 1;
+    div {
+      scale: 0.5;
+      transform: translate(45px, -7px);
+    }
+  }
+}
+
 </style>
 
 <style src="@/../assets/mapicon-species-style.css"></style>
