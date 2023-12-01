@@ -125,7 +125,7 @@ export default {
               returnedAction = {
                 type: "Facet",
                 facet: label,
-                facetPropPath: "anatomy.organ.name",
+                facetPropPath: "anatomy.organ.category.name",
                 term: "Anatomical structure",
               };
             }
@@ -156,7 +156,7 @@ export default {
             returnedAction = {
               type: "Facet",
               facet: capitalise(resource[0].data.id),
-              facetPropPath: "anatomy.organ.name",
+              facetPropPath: "anatomy.organ.category.name",
               term: "Anatomical structure",
             };
           }
