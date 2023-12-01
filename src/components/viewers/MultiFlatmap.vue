@@ -10,6 +10,7 @@
     :helpMode="helpMode"
     ref="multiflatmap"
     :displayMinimap="true"
+    :showStarInLegend="showStarInLegend"
     :enableOpenMapUI="true"
     :openMapOptions="openMapOptions"
     :flatmapAPI="flatmapAPI"
@@ -73,6 +74,7 @@ export default {
       flatmapReady: false,
       availableSpecies: availableSpecies(),
       scaffoldResource: { },
+      showStarInLegend: false,
       openMapOptions: getOpenMapOptions("Rat")
     }
   },
@@ -265,12 +267,17 @@ export default {
       this.updateFeatureMarkers(markers, flatmap);
     },
     updateFeatureMarkers: function (markers, flatmap) {
+      this.showStarInLegend = false; // will show if we have a featured marker
       for (let index = 0; index < markers.length; ++index) {
         if (markers[index]) {
           const markerIdentifier =
             store.state.settings.featuredMarkerIdentifiers[index];
           if (!markerIdentifier) {
-            this.addFeaturedMarker(markers[index], index, flatmap);
+            // Add the featured marker to the legend if we have a featured marker
+            const markerExists = this.addFeaturedMarker(markers[index], index, flatmap);
+            if (markerExists) {
+              this.showStarInLegend = true;
+            }
           }
         }
       }
