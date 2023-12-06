@@ -75,7 +75,8 @@ export default {
       availableSpecies: availableSpecies(),
       scaffoldResource: { },
       showStarInLegend: false,
-      openMapOptions: getOpenMapOptions("Rat")
+      openMapOptions: getOpenMapOptions("Rat"),
+      flatmapProvenances: {},
     }
   },
   methods: {
@@ -231,6 +232,10 @@ export default {
         if (this.syncMode == true)
           await this.toggleSyncMode();
       }
+      const provKey = activeSpecies.toLowerCase()
+      if (provKey in this.flatmapProvenances) {
+        this.$emit("flatmap-provenance-ready", this.flatmapProvenances[provKey]);
+      }
     },
     multiFlatmapReady: function (flatmap) {
       let newMapImp = this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"]; // get latest map
@@ -240,7 +245,10 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerZoomUpdate(true, flatmapImp);
         let provClone = {id: this.entry.id, prov: newMapImp.provenance}; //create clone of provenance
-        EventBus.$emit("mapImpProv", provClone); // send provenance close to the context card for display
+        const provKey = newMapImp.provenance.id.replace(/-flatmap(_)?/, ' ').trim();
+        if (!(provKey in this.flatmapProvenances)) {
+          this.flatmapProvenances[provKey] = provClone;
+        }
         this.$emit("flatmap-provenance-ready", provClone);
       }
     },
