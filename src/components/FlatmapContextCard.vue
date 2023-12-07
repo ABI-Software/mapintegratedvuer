@@ -62,7 +62,8 @@ export default {
     },
     sckanReleaseDisplay: function() {
       let sckanRelease = "Unknown"
-      if(this.mapImpProv){
+      if(this.mapImpProv && this.mapImpProv.sckan &&
+        this.mapImpProv.sckan.created) {
         let isoTime = this.mapImpProv.sckan.created.replace(',', '.') // Date time does not accept commas but Sckan uses them
         sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
             day: '2-digit',

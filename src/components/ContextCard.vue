@@ -215,12 +215,14 @@ export default {
         });
     },
     removeDoubleFilesPath: function(path){
-      if (path.includes('files/')){
-        return path.replace('files/', '')
-      } else if (path.includes('files\\')) {
-        return path.replace('files\\', '')
-      } else {
-        return path
+      if (path) {
+        if (path.includes('files/')){
+          return path.replace('files/', '')
+        } else if (path.includes('files\\')) {
+          return path.replace('files\\', '')
+        } else {
+          return path
+        }
       }
     },
     toggleSampleDetails: function(i){
