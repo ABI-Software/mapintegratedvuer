@@ -1,24 +1,28 @@
 <template>
-  <splitpanes
-    class="default-theme"
-    :horizontal="isHorizontal"
-    :dbl-click-splitter="false"
-  >
-    <template v-for="(child, index) in children">
-      <pane :key="index" :ref="child">
-        <resize-sensor
-          v-if="customLayout[child].content"
-          :initial="true"
-          @resize="calculateStyles(child)">
-        </resize-sensor>
-        <custom-splitter 
-          v-else
-          :key="index"
-          :index="child"
-        />
-      </pane>
-    </template>
-  </splitpanes>
+  <div style="height: 100%; width: 100%">
+    <resize-sensor
+      @resize="calculateStyles(index)">
+    </resize-sensor>
+    <splitpanes
+      class="default-theme"
+      :horizontal="isHorizontal"
+      :dbl-click-splitter="false"
+    >
+      <template v-for="(child) in children">
+        <pane :key="child" :ref="child">
+          <resize-sensor
+            v-if="customLayout[child].content"
+            @resize="calculateStyles(child)">
+          </resize-sensor>
+          <custom-splitter 
+            v-else
+            :key="child"
+            :index="child"
+          />
+        </pane>
+      </template>
+    </splitpanes>
+  </div>
 </template>
 
 
@@ -26,7 +30,7 @@
 /* eslint-disable no-alert, no-console */
 import CustomSplitter from "./CustomSplitter";
 import EventBus from './EventBus';
-import ResizeSensor from "vue-resize-sensor";
+import ResizeSensor from "./ResizeSensor";
 import { Splitpanes, Pane } from "splitpanes";
 import store from "../store";
 import "splitpanes/dist/splitpanes.css";
@@ -36,7 +40,6 @@ export default {
   components: {
     CustomSplitter,
     Splitpanes,
-//    SplitpanesBar,
     Pane,
     ResizeSensor
   },
@@ -49,16 +52,29 @@ export default {
     }
   },
   methods: {
-    /**
-     * Callback when the vuers emit a selected event.
-     */
-    calculateStyles: function(refName) {
+    requestStylesUpdate: function(refName) {
       if (this.$refs) {
         if (refName in this.$refs && this.$refs[refName] && 
         this.$refs[refName][0] && this.$refs[refName][0].$el) {
           const el = this.$refs[refName][0].$el;
           const rect = el.getBoundingClientRect();
           EventBus.$emit("PaneResize", {refName, rect});
+        }
+      }
+    },
+    /**
+     * Callback when the vuers emit a selected event.
+     */
+    calculateStyles: function(refName) {
+      if (this.$refs) {
+        if (refName.startsWith("pane")) {
+          this.requestStylesUpdate(refName);
+        } else if (refName.startsWith("split")) {
+          this.customLayout[refName].children.forEach((childName) => {
+            if (childName.startsWith("pane")) {
+               this.requestStylesUpdate(childName);
+            }
+          });
         }
       }
     },

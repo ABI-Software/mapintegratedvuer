@@ -26,8 +26,8 @@ const presetLayouts = (view) => {
     case "4panel": 
       return {
         "split-1": {content: false, horizontal: false, children: ["split-3", "split-2"]},
-        "split-2": {content: false, horizontal: true, children: ["pane-1", "pane-2"]},
-        "split-3": {content: false, horizontal: true, children: ["pane-3", "pane-4"]},
+        "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3"]},
+        "split-3": {content: false, horizontal: true, children: ["pane-1", "pane-4"]},
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
         "pane-3": {content: true,  id: 3},
@@ -36,8 +36,8 @@ const presetLayouts = (view) => {
     case "5panel": 
       return {
         "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
-        "split-2": {content: false, horizontal: false, children: ["pane-1", "pane-2", "pane-3"]},
-        "split-3": {content: false, horizontal: false, children: ["pane-4","pane-5"]},
+        "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3", "pane-5"]},
+        "split-3": {content: false, horizontal: false, children: ["pane-1","pane-4"]},
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
         "pane-3": {content: true,  id: 3},
@@ -47,8 +47,8 @@ const presetLayouts = (view) => {
     case "6panel": 
       return {
         "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
-        "split-2": {content: false, horizontal: false, children: ["pane-1", "pane-2", "pane-3"]},
-        "split-3": {content: false, horizontal: false, children: ["pane-4","pane-5", "pane-6"]},
+        "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3", "pane-5"]},
+        "split-3": {content: false, horizontal: false, children: ["pane-1","pane-4", "pane-6"]},
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
         "pane-3": {content: true,  id: 3},

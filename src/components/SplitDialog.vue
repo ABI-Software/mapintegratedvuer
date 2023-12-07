@@ -152,6 +152,7 @@ export default {
         style["left"] = `${rect.left - bound.left}px`;
         style["height"] = `${rect.height}px`;
         style["top"] = `${rect.top - bound.top}px`;
+        console.log(refName, JSON.stringify(style));
         Vue.set(this.styles, refName, style);
       }
     },
