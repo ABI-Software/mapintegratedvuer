@@ -26,12 +26,35 @@ const presetLayouts = (view) => {
     case "4panel": 
       return {
         "split-1": {content: false, horizontal: false, children: ["split-3", "split-2"]},
-        "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3"]},
-        "split-3": {content: false, horizontal: true, children: ["pane-1", "pane-4"]},
+        "split-2": {content: false, horizontal: true, children: ["pane-1", "pane-2"]},
+        "split-3": {content: false, horizontal: true, children: ["pane-3", "pane-4"]},
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
         "pane-3": {content: true,  id: 3},
-        "pane-4": {content: true,  id: 3},
+        "pane-4": {content: true,  id: 4},
+      }
+    case "5panel": 
+      return {
+        "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
+        "split-2": {content: false, horizontal: false, children: ["pane-1", "pane-2", "pane-3"]},
+        "split-3": {content: false, horizontal: false, children: ["pane-4","pane-5"]},
+        "pane-1": {content: true,  id: 1},
+        "pane-2": {content: true,  id: 2},
+        "pane-3": {content: true,  id: 3},
+        "pane-4": {content: true,  id: 4},
+        "pane-5": {content: true,  id: 5},
+      }
+    case "6panel": 
+      return {
+        "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
+        "split-2": {content: false, horizontal: false, children: ["pane-1", "pane-2", "pane-3"]},
+        "split-3": {content: false, horizontal: false, children: ["pane-4","pane-5", "pane-6"]},
+        "pane-1": {content: true,  id: 1},
+        "pane-2": {content: true,  id: 2},
+        "pane-3": {content: true,  id: 3},
+        "pane-4": {content: true,  id: 4},
+        "pane-5": {content: true,  id: 5},
+        "pane-6": {content: true,  id: 6},
       }
     case "singlepanel":
     default:
@@ -100,6 +123,8 @@ const state = () => ({
     { icon: "2vertpanel", name: "Vertical split", min: 2 },
     { icon: "3panel", name: "Three panes", min: 3 },
     { icon: "4panel", name: "Four panes", min: 4 },
+    { icon: "5panel", name: "Five panes", min: 5 },
+    { icon: "6panel", name: "Six panes", min: 6 }
     //{ icon: "customise", name: "Customise", min: 2 }
   ],
   customLayout: {
@@ -209,6 +234,14 @@ const mutations = {
                 if("pane-4" in customLayout)
                   customLayout["pane-4"].id = newState.slotInfo[i].id;
               } break;
+              case "fifth": {
+                if("pane-5" in customLayout)
+                  customLayout["pane-5"].id = newState.slotInfo[i].id;
+              } break;
+              case "sixth": {
+                if("pane-6" in customLayout)
+                  customLayout["pane-6"].id = newState.slotInfo[i].id;
+              } break;
               default:
                 break;
             }
@@ -303,6 +336,12 @@ const mutations = {
           case "4panel":
             state.activeView = "3panel";
             break;
+          case "5panel":
+            state.activeView = "4panel";
+            break;
+          case "6panel":
+            state.activeView = "5panel";
+            break;
           default:
             break;
         }
@@ -331,6 +370,21 @@ const mutations = {
                 customLayout["pane-3"].id = customLayout["pane-4"].id;
                 customLayout["pane-4"].id = availableId;
               } break;
+              case "5panel": {
+                customLayout["pane-1"].id = customLayout["pane-2"].id;
+                customLayout["pane-2"].id = customLayout["pane-3"].id;
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = customLayout["pane-5"].id;
+                customLayout["pane-5"].id = availableId;
+              } break;
+              case "6panel": {
+                customLayout["pane-1"].id = customLayout["pane-2"].id;
+                customLayout["pane-2"].id = customLayout["pane-3"].id;
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = customLayout["pane-5"].id;
+                customLayout["pane-5"].id = customLayout["pane-6"].id;
+                customLayout["pane-6"].id = availableId;
+              } break;
               default:
                 break;
             }
@@ -350,6 +404,19 @@ const mutations = {
                 customLayout["pane-3"].id = customLayout["pane-4"].id;
                 customLayout["pane-4"].id = availableId;
               } break;
+              case "5panel": {
+                customLayout["pane-2"].id = customLayout["pane-3"].id;
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = customLayout["pane-5"].id;
+                customLayout["pane-5"].id = availableId;
+              } break;
+              case "6panel": {
+                customLayout["pane-2"].id = customLayout["pane-3"].id;
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = customLayout["pane-5"].id;
+                customLayout["pane-5"].id = customLayout["pane-6"].id;
+                customLayout["pane-6"].id = availableId;
+              } break;
               default:
                 break;
             }
@@ -363,6 +430,17 @@ const mutations = {
                 customLayout["pane-3"].id = customLayout["pane-4"].id;
                 customLayout["pane-4"].id = availableId;
               } break;
+              case "5panel": {
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = customLayout["pane-5"].id;
+                customLayout["pane-5"].id = availableId;
+              } break;
+              case "6panel": {
+                customLayout["pane-3"].id = customLayout["pane-4"].id;
+                customLayout["pane-4"].id = customLayout["pane-5"].id;
+                customLayout["pane-5"].id = customLayout["pane-6"].id;
+                customLayout["pane-6"].id = availableId;
+              } break;
               default:
                 break;
             }
@@ -371,6 +449,37 @@ const mutations = {
             switch (pView) {
               case "4panel": {
                 customLayout["pane-4"].id = availableId;
+              } break;
+              case "5panel": {
+                customLayout["pane-4"].id = customLayout["pane-5"].id;
+                customLayout["pane-5"].id = availableId;
+              } break;
+              case "6panel": {
+                customLayout["pane-4"].id = customLayout["pane-5"].id;
+                customLayout["pane-5"].id = customLayout["pane-6"].id;
+                customLayout["pane-6"].id = availableId;
+              } break;
+              default:
+                break;
+            }
+          } break;
+          case "pane-5": {
+            switch (pView) {
+              case "5panel": {
+                customLayout["pane-5"].id = availableId;
+              } break;
+              case "6panel": {
+                customLayout["pane-5"].id = customLayout["pane-6"].id;
+                customLayout["pane-6"].id = availableId;
+              } break;
+              default:
+                break;
+            }
+          } break;
+          case "pane-6": {
+            switch (pView) {
+              case "6panel": {
+                customLayout["pane-6"].id = availableId;
               } break;
               default:
                 break;
