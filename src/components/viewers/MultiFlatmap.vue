@@ -76,7 +76,6 @@ export default {
       scaffoldResource: { },
       showStarInLegend: false,
       openMapOptions: getOpenMapOptions("Rat"),
-      flatmapProvenances: {},
     }
   },
   methods: {
@@ -224,6 +223,13 @@ export default {
         }
       }
     },
+    updateProvCard: function() {
+      const imp = this.getFlatmapImp();
+      if (imp) {
+        let provClone = {id: this.entry.id, prov: imp.provenance};
+        this.$emit("flatmap-provenance-ready", provClone);
+      }
+    },
     flatmapChanged: async function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.openMapOptions = getOpenMapOptions(activeSpecies);
@@ -232,24 +238,15 @@ export default {
         if (this.syncMode == true)
           await this.toggleSyncMode();
       }
-      const provKey = activeSpecies.toLowerCase()
-      if (provKey in this.flatmapProvenances) {
-        this.$emit("flatmap-provenance-ready", this.flatmapProvenances[provKey]);
-      }
+      this.updateProvCard();
     },
     multiFlatmapReady: function (flatmap) {
-      let newMapImp = this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"]; // get latest map
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerZoomUpdate(true, flatmapImp);
-        let provClone = {id: this.entry.id, prov: newMapImp.provenance}; //create clone of provenance
-        const provKey = newMapImp.provenance.id.replace(/-flatmap(_)?/, ' ').trim();
-        if (!(provKey in this.flatmapProvenances)) {
-          this.flatmapProvenances[provKey] = provClone;
-        }
-        this.$emit("flatmap-provenance-ready", provClone);
+        this.updateProvCard();
       }
     },
     getFlatmapImp: function () {
