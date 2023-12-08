@@ -2,7 +2,7 @@
   <FlatmapVuer
     :state="entry.state"
     :entry="entry.resource"
-    @resource-selected="resourceSelected(entry.type, $event)"
+    @resource-selected="flatmaprResourceSelected(entry.type, $event)"
     @pan-zoom-callback="flatmapPanZoomCallback"
     :name="entry.resource"
     style="height: 100%; width: 100%"
@@ -45,6 +45,11 @@ export default {
     },
     getFlatmapImp() {
       return this.$refs.flatmap.mapImp;
+    },
+    flatmaprResourceSelected: function (type, resource) {
+      if (this.$refs.map.viewingMode === "Exploration") {
+        this.$refs.flatmap.resourceSelected(type, resource, false);
+      }
     },
     flatmapReadyCall: function (flatmap) {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
