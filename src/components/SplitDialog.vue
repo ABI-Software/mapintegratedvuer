@@ -15,8 +15,12 @@
           @resized="resized('second', $event)"
           @resize="resize"
         >
-          <pane key="one" min-size="20" :size="splitter2"></pane>
-          <pane v-if="isSlotActive('fourth')" :size="100 - splitter2" key="four" min-size="20"></pane>
+          <pane key="one" min-size="20" :size="splitter2" ref="pane-1">
+            <resize-sensor :initial="true" @resize="calculateStyles(1)"></resize-sensor>
+          </pane>
+          <pane v-if="isSlotActive('fourth')" :size="100 - splitter2" key="four" min-size="20" ref="pane-4">
+            <resize-sensor :initial="true" @resize="calculateStyles(4)"></resize-sensor>
+          </pane>
         </splitpanes>
       </pane>
       <pane v-if="isSlotActive('second')" min-size="20" :size="100 - splitter1">
@@ -27,22 +31,15 @@
           @resized="resized('third', $event)"
           @resize="resize"
         >
-          <pane key="two" min-size="20" :size="splitter3"></pane>
-          <pane v-if="isSlotActive('third')" key="three" min-size="20" :size="100 - splitter3"></pane>
+          <pane key="two" min-size="20" :size="splitter3" ref="pane-2">
+            <resize-sensor :initial="true" @resize="calculateStyles(2)"></resize-sensor>
+          </pane>
+          <pane v-if="isSlotActive('third')" key="three" min-size="20" :size="100 - splitter3" ref="pane-3">
+            <resize-sensor :initial="true" @resize="calculateStyles(3)"></resize-sensor>
+          </pane>
         </splitpanes>
       </pane>
     </splitpanes>
-    <!--
-    <splitpanes-bar
-      ref="splitpanesbar"
-      :entries="entries" 
-      :splitter1="splitter1"
-      :splitter2="splitter2"
-      :splitter3="splitter3"
-      @chooser-changed="viewerChanged"
-      @hook:mounted="setPanesBoundary"
-      />
-      -->
     <div
       v-for="entry in entries"
       :key="entry.id"
@@ -64,6 +61,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import ContentVuer from "./ContentVuer";
+import ResizeSensor from "vue-resize-sensor";
 //import SplitpanesBar from "./SplitpanesBar";
 import { Splitpanes, Pane } from "splitpanes";
 import store from "../store";
@@ -86,7 +84,8 @@ export default {
     ContentVuer,
     Splitpanes,
 //    SplitpanesBar,
-    Pane
+    Pane,
+    ResizeSensor
   },
   props: {
     entries: {
@@ -108,6 +107,9 @@ export default {
         third: false,
         fourth: false
       },
+      styles: { 
+
+      }
     }
   },
   methods: {
@@ -118,44 +120,34 @@ export default {
       this.$emit("resource-selected", result);
     },
     getClass: function(id) {
+      if (this.isIdVisible(id)) {
+        return this.getRefsName(id);
+      } else {
+        return "inactive";
+      }
+    },
+    getRefsName: function(id) {
       let slot = store.getters["splitFlow/getSlotById"](id);
+      let index = 0;
       if (slot) {
         if (slot.name == "first") {
-          switch (store.state.splitFlow.activeView) {
-            case "singlepanel":
-              return "singlepanel-1";
-            case "2horpanel":
-              return "twohorpanel-1";
-            case "2vertpanel":
-            case "3panel":
-              return "twovertpanel-1";
-            case "4panel":
-              return "fourpanel-1";
-          }
+          index = 1;
         } else if (slot.name == "second") {
-          switch (store.state.splitFlow.activeView) {
-            case "2horpanel":
-              return "twohorpanel-2";
-            case "2vertpanel":
-              return "twovertpanel-2";
-            case "3panel":
-            case "4panel":
-              return "threepanel-2";
-          }
+          index = 2;
         } else if (slot.name == "third") {
-          switch (store.state.splitFlow.activeView) {
-            case "3panel":
-            case "4panel":
-              return "threepanel-3";
-          }
+          index = 3;
         } else if (slot.name == "fourth") {
-          switch (store.state.splitFlow.activeView) {
-            case "4panel":
-              return "fourpanel-4";
-          }
+          index = 4;
         }
       }
-      return "inactive";
+      const refName = `pane-${index}`;
+      if (index !== 0) {
+        if (!(refName in this.styles)) {
+           Vue.set(this.styles, refName, {});
+        }
+      } 
+
+      return refName;
     },
     getStyle: function(id) {
       /* 
@@ -164,67 +156,11 @@ export default {
         height/width. The width, height and positon of the 
         viewer should take that into account.
       */
-      let style = {};
-      let slot = store.getters["splitFlow/getSlotById"](id);
-      if (slot) {
-        if (slot.name == "first") {
-          switch (store.state.splitFlow.activeView) {
-            case "2horpanel":
-              style["height"] = this.splitter1.toString() + "%";
-              break;
-            case "2vertpanel":
-            case "3panel":
-              style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
-              break;
-            case "4panel":
-              style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
-              style["height"] = this.splitter2.toString() + "%";
-              break;
-          }
-        } else if (slot.name == "second") {
-          switch (store.state.splitFlow.activeView) {
-            case "2horpanel":
-              style["height"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
-              style["top"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              break;
-            case "2vertpanel":
-              style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
-              style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              break;
-            case "3panel":
-            case "4panel":
-              style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
-              style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              style["height"] = this.splitter3.toString() + "%";
-              break;
-          }
-        } else if (slot.name == "third") {
-          switch (store.state.splitFlow.activeView) {
-            case "3panel":
-            case "4panel":
-              style["width"] =
-                "calc(" + (100 - this.splitter1).toString() + "% - 2px)";
-              style["left"] = "calc(" + this.splitter1.toString() + "% + 2px)";
-              style["height"] =
-                "calc(" + (100 - this.splitter3).toString() + "% - 2px)";
-              style["top"] = "calc(" + this.splitter3.toString() + "% + 2px)";
-              break;
-          }
-        } else if (slot.name == "fourth") {
-          switch (store.state.splitFlow.activeView) {
-            case "4panel":
-              style["width"] = "calc(" + this.splitter1.toString() + "% - 1px)";
-              style["height"] =
-                "calc(" + (100 - this.splitter2).toString() + "% - 2px)";
-              style["top"] = "calc(" + this.splitter2.toString() + "% + 2px)";
-              break;
-          }
-        }
+      const refName = this.getRefsName(id);
+      if (refName in this.styles && this.styles[refName]) {
+        return this.styles[refName];
       }
-      return style;
+      return {};
     },
     getActiveContents: function() {
       const activeContents = [];
@@ -270,12 +206,30 @@ export default {
       }
       return states;
     },
-    setPanesBoundary: function() {
-      this.$refs.splitpanesbar.setBoundary(this.$refs.tabContainer)
+    calculateStyles: function(index) {
+      if (this.$refs && ('tabContainer' in this.$refs)) {
+        const bound = this.$refs['tabContainer'].getBoundingClientRect();
+        const refName = `pane-${index}`;
+        if (refName in this.$refs && this.$refs[refName] && this.$refs[refName].$el) {
+          const el = this.$refs[refName].$el;
+          const {top, left, width, height} = el.getBoundingClientRect();
+          const style = {};
+          style["width"] = `${width}px`;
+          style["left"] = `${left - bound.left}px`;
+          style["height"] = `${height}px`;
+          style["top"] = `${top - bound.top}px`;
+          Vue.set(this.styles, refName, style);
+        }
+      }
     },
-    viewerChanged: function() {
-      for (let i = 0; i < this.$refs.content.length; i++) {
-        this.$refs.content[i].onResize();
+    updateStyles: function(index) {
+      //Need to wait for the pane to be resized first
+      if (index !== -1) {
+        this.calculateStyles(index);
+      } else {
+        for (let i = 1; i <= 4; i++) {
+          this.calculateStyles(i);
+        }
       }
     },
     resize: function() {
@@ -292,10 +246,6 @@ export default {
     }
   },
   computed: {
-    // This computed property populates filter data's entry object with $data from this sidebar
-    slotInfo: function() {
-      return store.state.splitFlow.slotInfo;
-    },
     horizontal() {
       if (store.state.splitFlow.activeView === "2horpanel") {
         return true;
@@ -307,7 +257,7 @@ export default {
     },
     globalCallback() {
       return store.state.splitFlow.globalCallback;
-    }
+    },
   },
   watch: {
     splitters: {
@@ -368,7 +318,7 @@ export default {
     transition: opacity 0.4s;
     background-color: rgba(131, 0, 191, 0.3) !important;
     opacity: 0;
-    z-index: 6 !important;
+    z-index: 7 !important;
     &:hover {
       opacity: 1;
     }
@@ -417,80 +367,6 @@ export default {
   position: absolute;
   transition: all 1s ease;
   background: rgba(255, 255, 255, 1);
-}
-
-.contentvuer {
-  &.singlepanel-1 {
-    width: 100%;
-    height: 100%;
-    top: 0px;
-    left: 0px;
-    z-index: 2;
- }
-
- &.twohorpanel-1 {
-    width: 100%;
-    height: calc(50% - 1px);
-    left: 0px;
-    z-index: 2;
-    top: 0;
-  }
-
-  &.twohorpanel-2 {
-    width: 100%;
-    height: calc(50% - 1px);
-    left: 0px;
-    top: 50%;
-    z-index: 2;
-  }
-
-  &.twovertpanel-1 {
-    width: calc(50% - 1px);
-    height: 100%;
-    left: 0px;
-    top: 0px;
-    z-index: 3;
-  }
-
-  &.twovertpanel-2 {
-    width: calc(50% - 1px);
-    height: 100%;
-    left: calc(50% + 2px);
-    top: 0px;
-    z-index: 2;
-  }
-
-  &.threepanel-2 {
-    width: calc(50% - 1px);
-    height: 50%;
-    left: calc(50% + 2px);
-    z-index: 2;
-    top: 0;
-  }
-
-  &.threepanel-3 {
-    width: calc(50% - 1px);
-    height: calc(50% - 1px);
-    left: calc(50% + 2px);
-    top: calc(50% + 2px);
-    z-index: 2;
-  }
-
-  &.fourpanel-1 {
-    width: calc(50% - 1px);
-    height: 50%;
-    left: 0px;
-    top: 0px;
-    z-index: 4;
-  }
-
-  &.fourpanel-4 {
-    width: calc(50% - 1px);
-    height: calc(50% - 1px);
-    left: 0px;
-    top: calc(50% + 2px);
-    z-index: 3;
-  }
 
   &.inactive {
     display: none;
