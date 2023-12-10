@@ -38,7 +38,7 @@
     "@abi-software/plotvuer": "^0.3.9",
     "@abi-software/scaffoldvuer": "^0.3.1",
     "@abi-software/simulationvuer": "^0.6.5",
-    "@abi-software/svg-sprite": "^0.3.1",
+    "@abi-software/svg-sprite": "^0.3.2",
     "@soda/get-current-script": "^1.0.2",
     "core-js": "^3.3.2",
     "css-element-queries": "^1.2.3",
