@@ -55,6 +55,15 @@ describe('MapContent', () => {
       return true
     })
 
+    Cypress.Commands.add('checkFlatmapProvenanceCard', (species) => {
+      cy.get('#flatmap-select').click()
+      cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click()
+      cy.get('.selected').then(($label) => {
+        cy.get('.toolbar > .icon-group > :nth-child(2)').click()
+        cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', $label.text().toLowerCase())
+      })
+    })
+
     //Wait for the curie response before continuing
    // cy.wait('@categoryResponse');
 
@@ -88,6 +97,9 @@ describe('MapContent', () => {
 
     //Test the existence of the minimap
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').should('exist');
+
+    cy.checkFlatmapProvenanceCard('Mouse')
+    cy.checkFlatmapProvenanceCard('Rat')
 
     //Search for non existance feature, expect not-found text
     cy.get('.el-autocomplete > .el-input > .el-input__inner').should('exist').type("NON_EXISTANCE");

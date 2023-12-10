@@ -115,6 +115,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+::v-deep .maplibregl-popup {
+  z-index: 3;
+}
+
 ::v-deep .flatmapvuer-popover {
   .maplibregl-popup-content {
     border-radius: 4px;
@@ -122,6 +126,15 @@ export default {
     pointer-events: auto;
     width: 25em;
     background: #fff;
+  }
+}
+
+::v-deep .maplibregl-marker {
+  &.standard-marker {
+    z-index: 2;
+  }
+  &.highlight-marker {
+    z-index: 1;
   }
 }
 </style>

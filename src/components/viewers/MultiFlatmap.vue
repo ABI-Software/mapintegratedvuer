@@ -75,7 +75,7 @@ export default {
       availableSpecies: availableSpecies(),
       scaffoldResource: { },
       showStarInLegend: false,
-      openMapOptions: getOpenMapOptions("Rat")
+      openMapOptions: getOpenMapOptions("Rat"),
     }
   },
   methods: {
@@ -223,6 +223,13 @@ export default {
         }
       }
     },
+    updateProvCard: function() {
+      const imp = this.getFlatmapImp();
+      if (imp) {
+        let provClone = {id: this.entry.id, prov: imp.provenance};
+        this.$emit("flatmap-provenance-ready", provClone);
+      }
+    },
     flatmapChanged: async function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.openMapOptions = getOpenMapOptions(activeSpecies);
@@ -231,17 +238,15 @@ export default {
         if (this.syncMode == true)
           await this.toggleSyncMode();
       }
+      this.updateProvCard();
     },
     multiFlatmapReady: function (flatmap) {
-      let newMapImp = this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"]; // get latest map
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerZoomUpdate(true, flatmapImp);
-        let provClone = {id: this.entry.id, prov: newMapImp ? newMapImp.provenance : undefined}; //create clone of provenance
-        EventBus.$emit("mapImpProv", provClone); // send provenance close to the context card for display
-        this.$emit("flatmap-provenance-ready", provClone);
+        this.updateProvCard();
       }
     },
     getFlatmapImp: function () {
@@ -299,6 +304,7 @@ export default {
 
         const markerIdentifier = flatmapImp.addMarker(marker, {
           element: wrapperElement,
+          className: "highlight-marker"
         });
         store.commit("settings/updateFeaturedMarkerIdentifier", {
           index,
@@ -344,6 +350,24 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @import "~element-ui/packages/theme-chalk/src/button";
+
+::v-deep .maplibregl-popup {
+  z-index: 3;
+}
+
+::v-deep .maplibregl-marker {
+  &.standard-marker {
+    z-index: 2;
+  }
+  &.highlight-marker {
+    z-index: 1;
+    div {
+      scale: 0.5;
+      transform: translate(45px, -7px);
+    }
+  }
+}
+
 </style>
 
 <style src="@/../assets/mapicon-species-style.css"></style>
