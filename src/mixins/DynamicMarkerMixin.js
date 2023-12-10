@@ -18,7 +18,7 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
         if (markerZoomLevels[i].id === id) {
           foundInArray = true;
           if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
-            flatmapImp.addMarker(id);
+            flatmapImp.addMarker(id, {className: "standard-marker"});
           }
           break;
         }
@@ -26,7 +26,7 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
       // Did not match, add it regardless so we do not lose any
       // markers.
       if (!foundInArray) {
- flatmapImp.addMarker(id);
+        flatmapImp.addMarker(id, {className: "standard-marker"});
       }
     });
   }
