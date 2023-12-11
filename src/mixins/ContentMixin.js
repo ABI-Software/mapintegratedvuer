@@ -71,7 +71,7 @@ export default {
     /**
      * Callback when the vuers emit a selected event.
      */
-    resourceSelected: function (type, resource) {
+    resourceSelected: function (type, resource, augmented) {
       // Skip processing if resources already has actions
       if (this.resourceHasAction(resource)) {
         EventBus.$emit("PopoverActionClick", resource);
@@ -165,8 +165,9 @@ export default {
         fireResourceSelected = true;
         action = "search";
       }
-      if (returnedAction === undefined)
+      if ((returnedAction === undefined) && augmented) {
         returnedAction = getInteractiveAction(result, action);
+      }
       if (returnedAction) EventBus.$emit("PopoverActionClick", returnedAction);
       if (fireResourceSelected) this.$emit("resource-selected", result);
     },

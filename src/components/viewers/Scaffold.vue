@@ -3,7 +3,7 @@
     :state="entry.state"
     :url="entry.resource"
     :region="entry.region"
-    @scaffold-selected="resourceSelected(entry.type, $event)"
+    @scaffold-selected="resourceSelected(entry.type, $event, true)"
     @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
     @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
     @on-ready="scaffoldIsReady"
@@ -20,6 +20,7 @@
     :enableOpenMapUI="true"
     :view-u-r-l="entry.viewUrl"
     :markerLabels="markerLabels"
+    :flatmapAPI="flatmapAPI"
   />
 </template>
 
