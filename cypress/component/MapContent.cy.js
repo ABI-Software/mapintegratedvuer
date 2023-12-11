@@ -59,9 +59,9 @@ describe('MapContent', () => {
       cy.get('#flatmap-select').click();
       cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
       cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask', {timeout: 30000}).should('not.exist');
-      cy.get('.selected').then(($label) => {
+      cy.get('.selected').then(() => {
         cy.get('.toolbar > .icon-group > :nth-child(2)').click()
-        cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', $label.text().toLowerCase())
+        cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
       })
     })
 
