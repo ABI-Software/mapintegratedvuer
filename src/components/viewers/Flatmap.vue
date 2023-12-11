@@ -47,9 +47,8 @@ export default {
       return this.$refs.flatmap.mapImp;
     },
     flatmaprResourceSelected: function (type, resource) {
-      if (this.$refs.map.viewingMode === "Exploration") {
-        this.$refs.flatmap.resourceSelected(type, resource, false);
-      }
+      this.$refs.flatmap.resourceSelected(
+        type, resource, (this.$refs.map.viewingMode === "Exploration"));
     },
     flatmapReadyCall: function (flatmap) {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
