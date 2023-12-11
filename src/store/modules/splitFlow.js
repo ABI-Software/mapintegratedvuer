@@ -36,8 +36,8 @@ const presetLayouts = (view) => {
     case "5panel": 
       return {
         "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
-        "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3", "pane-5"]},
-        "split-3": {content: false, horizontal: false, children: ["pane-1","pane-4"]},
+        "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3"]},
+        "split-3": {content: false, horizontal: false, children: ["pane-1","pane-4", "pane-5"]},
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
         "pane-3": {content: true,  id: 3},
@@ -58,9 +58,9 @@ const presetLayouts = (view) => {
       }
     case "6panelVertical":
       return {
-        "split-1": {content: false, horizontal: false, children: ["split-2", "split-3"]},
-        "split-2": {content: false, horizontal: true, children: ["pane-1", "pane-2", "pane-3"]},
-        "split-3": {content: false, horizontal: true, children: ["pane-4","pane-5", "pane-6"]},
+        "split-1": {content: false, horizontal: false, children: ["split-3", "split-2"]},
+        "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3", "pane-5"]},
+        "split-3": {content: false, horizontal: true, children: ["pane-1","pane-4", "pane-6"]},
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
         "pane-3": {content: true,  id: 3},
@@ -94,7 +94,7 @@ const autoAssignEntryIdsToPane = (entries, layout) => {
   }
   invalidIdKeys.forEach((key) => {
     let done = false;
-    for (let i = 0; i < entries.length || !done; i++) {
+    for (let i = 0; i < entries.length && !done; i++) {
       if (!(assignedIds.includes(entries[i].id))) {
         layout[key].id = entries[i].id;
         assignedIds.push(entries.id);
@@ -352,6 +352,7 @@ const mutations = {
           case "5panel":
             state.activeView = "4panel";
             break;
+          case "6panelVertical":
           case "6panel":
             state.activeView = "5panel";
             break;
@@ -390,7 +391,9 @@ const mutations = {
                 customLayout["pane-4"].id = customLayout["pane-5"].id;
                 customLayout["pane-5"].id = availableId;
               } break;
-              case "6panel" || "6panelVertical": {
+              case "6panelVertical":
+              case "6panel":
+              {
                 customLayout["pane-1"].id = customLayout["pane-2"].id;
                 customLayout["pane-2"].id = customLayout["pane-3"].id;
                 customLayout["pane-3"].id = customLayout["pane-4"].id;
@@ -423,7 +426,9 @@ const mutations = {
                 customLayout["pane-4"].id = customLayout["pane-5"].id;
                 customLayout["pane-5"].id = availableId;
               } break;
-              case "6panel" || "6panelVertical": {
+              case "6panelVertical":
+              case "6panel":
+              {
                 customLayout["pane-2"].id = customLayout["pane-3"].id;
                 customLayout["pane-3"].id = customLayout["pane-4"].id;
                 customLayout["pane-4"].id = customLayout["pane-5"].id;
@@ -448,7 +453,9 @@ const mutations = {
                 customLayout["pane-4"].id = customLayout["pane-5"].id;
                 customLayout["pane-5"].id = availableId;
               } break;
-              case "6panel" || "6panelVertical": {
+              case "6panelVertical":
+              case "6panel":
+              {
                 customLayout["pane-3"].id = customLayout["pane-4"].id;
                 customLayout["pane-4"].id = customLayout["pane-5"].id;
                 customLayout["pane-5"].id = customLayout["pane-6"].id;
@@ -467,7 +474,8 @@ const mutations = {
                 customLayout["pane-4"].id = customLayout["pane-5"].id;
                 customLayout["pane-5"].id = availableId;
               } break;
-              case "6panel" || "6panelVertical": {
+              case "6panelVertical":
+              case "6panel": {
                 customLayout["pane-4"].id = customLayout["pane-5"].id;
                 customLayout["pane-5"].id = customLayout["pane-6"].id;
                 customLayout["pane-6"].id = availableId;
@@ -481,7 +489,8 @@ const mutations = {
               case "5panel": {
                 customLayout["pane-5"].id = availableId;
               } break;
-              case "6panel" || "6panelVertical": {
+              case "6panelVertical":
+              case "6panel": {
                 customLayout["pane-5"].id = customLayout["pane-6"].id;
                 customLayout["pane-6"].id = availableId;
               } break;
@@ -491,7 +500,9 @@ const mutations = {
           } break;
           case "pane-6" : {
             switch (pView) {
-              case "6panel" || "6panelVertical": {
+              case "6panelVertical":
+              case "6panel":
+              {
                 customLayout["pane-6"].id = availableId;
               } break;
               default:
