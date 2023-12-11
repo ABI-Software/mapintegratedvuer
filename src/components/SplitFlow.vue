@@ -217,7 +217,7 @@ export default {
       newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
       store.commit("entries/addNewEntry", newEntry);
-      this.setIdToPrimarySlot(newEntry.id);
+      this.setIdToPrimaryPane(newEntry.id);
       if (store.state.splitFlow.syncMode) {
         store.commit("splitFlow/setSyncMode", { flag: false });
       }
@@ -253,14 +253,14 @@ export default {
     resetApp: function () {
       this.setState(initialDefaultState());
     },
-    setIdToPrimarySlot: function (id) {
-      store.commit("splitFlow/setIdToPrimarySlot", id);
+    setIdToPrimaryPane: function (id) {
+      store.commit("splitFlow/setIdToPrimaryPane", id);
     },
     setState: function (state) {
       store.commit("entries/setAll", state.entries);
       //Support both old and new permalink.
       if (state.splitFlow) store.commit("splitFlow/setState", state.splitFlow);
-      else this.entries.forEach(entry => this.setIdToPrimarySlot(entry.id));
+      else this.entries.forEach(entry => this.setIdToPrimaryPane(entry.id));
     },
     getState: function () {
       let state = JSON.parse(JSON.stringify(store.getters["entries/state"]()));
@@ -303,7 +303,6 @@ export default {
           if (store.state.splitFlow.syncMode) {
             store.commit("splitFlow/setSyncMode", {
               flag: false,
-              entries: this.entries,
             });
           }
         }

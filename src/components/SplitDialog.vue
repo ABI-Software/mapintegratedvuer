@@ -1,45 +1,9 @@
 <template>
   <div class="tab-container" ref="tabContainer">
-    <splitpanes
-      class="default-theme"
-      :horizontal="horizontal"
-      :dbl-click-splitter="false"
-      @resized="resized('first', $event)"
-      @resize="resize"
-    >
-      <pane min-size="20" :size="splitter1">
-        <splitpanes
-          class="default-theme"
-          :horizontal="true"
-          :dbl-click-splitter="false"
-          @resized="resized('second', $event)"
-          @resize="resize"
-        >
-          <pane key="one" min-size="20" :size="splitter2" ref="pane-1">
-            <resize-sensor :initial="true" @resize="calculateStyles(1)"></resize-sensor>
-          </pane>
-          <pane v-if="isSlotActive('fourth')" :size="100 - splitter2" key="four" min-size="20" ref="pane-4">
-            <resize-sensor :initial="true" @resize="calculateStyles(4)"></resize-sensor>
-          </pane>
-        </splitpanes>
-      </pane>
-      <pane v-if="isSlotActive('second')" min-size="20" :size="100 - splitter1">
-        <splitpanes
-          class="default-theme"
-          :horizontal="true"
-          :dbl-click-splitter="false"
-          @resized="resized('third', $event)"
-          @resize="resize"
-        >
-          <pane key="two" min-size="20" :size="splitter3" ref="pane-2">
-            <resize-sensor :initial="true" @resize="calculateStyles(2)"></resize-sensor>
-          </pane>
-          <pane v-if="isSlotActive('third')" key="three" min-size="20" :size="100 - splitter3" ref="pane-3">
-            <resize-sensor :initial="true" @resize="calculateStyles(3)"></resize-sensor>
-          </pane>
-        </splitpanes>
-      </pane>
-    </splitpanes>
+    <custom-splitter
+      index="split-1"
+      key="split-1"
+    />
     <div
       v-for="entry in entries"
       :key="entry.id"
@@ -61,12 +25,11 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import ContentVuer from "./ContentVuer";
-import ResizeSensor from "vue-resize-sensor";
+import CustomSplitter from "./CustomSplitter";
+import EventBus from './EventBus';
 //import SplitpanesBar from "./SplitpanesBar";
-import { Splitpanes, Pane } from "splitpanes";
 import store from "../store";
 import Vue from "vue";
-import "splitpanes/dist/splitpanes.css";
 import {
   Input,
   Option,
@@ -82,10 +45,7 @@ export default {
   name: "SplitDialog",
   components: {
     ContentVuer,
-    Splitpanes,
-//    SplitpanesBar,
-    Pane,
-    ResizeSensor
+    CustomSplitter,
   },
   props: {
     entries: {
@@ -97,19 +57,7 @@ export default {
   },
   data: function() {
     return {
-      splitter1: 50,
-      splitter2: 50,
-      splitter3: 50,
-      searchText: [],
-      isFlatmap: {
-        first: true,
-        second: false,
-        third: false,
-        fourth: false
-      },
-      styles: { 
-
-      }
+      styles: { }
     }
   },
   methods: {
@@ -127,26 +75,12 @@ export default {
       }
     },
     getRefsName: function(id) {
-      let slot = store.getters["splitFlow/getSlotById"](id);
-      let index = 0;
-      if (slot) {
-        if (slot.name == "first") {
-          index = 1;
-        } else if (slot.name == "second") {
-          index = 2;
-        } else if (slot.name == "third") {
-          index = 3;
-        } else if (slot.name == "fourth") {
-          index = 4;
+      const refName = store.getters["splitFlow/getPaneNameById"](id);
+      if (refName) {
+        if (!(refName in this.styles)) {
+          Vue.set(this.styles, refName, {});
         }
       }
-      const refName = `pane-${index}`;
-      if (index !== 0) {
-        if (!(refName in this.styles)) {
-           Vue.set(this.styles, refName, {});
-        }
-      } 
-
       return refName;
     },
     getStyle: function(id) {
@@ -157,7 +91,7 @@ export default {
         viewer should take that into account.
       */
       const refName = this.getRefsName(id);
-      if (refName in this.styles && this.styles[refName]) {
+      if (refName && refName in this.styles && this.styles[refName]) {
         return this.styles[refName];
       }
       return {};
@@ -173,15 +107,9 @@ export default {
       }
       return activeContents;
     },
-    isSlotActive: function(name) {
-      let slot = store.getters["splitFlow/getSlotByName"](name);
-      if (slot) return store.getters["splitFlow/isSlotActive"](slot);
-      return false;
-    },
     isIdVisible: function(id) {
-      let slot = store.getters["splitFlow/getSlotById"](id);
-      if (slot) return store.getters["splitFlow/isSlotActive"](slot);
-      return false;
+      const refName = store.getters["splitFlow/getPaneNameById"](id);
+      return refName !== undefined;
     },
     sendSynchronisedEvent: function(resource) {
       const activeContents = this.getActiveContents();
@@ -207,29 +135,25 @@ export default {
       return states;
     },
     calculateStyles: function(index) {
-      if (this.$refs && ('tabContainer' in this.$refs)) {
-        const bound = this.$refs['tabContainer'].getBoundingClientRect();
+      if (this.$refs) {
         const refName = `pane-${index}`;
         if (refName in this.$refs && this.$refs[refName] && this.$refs[refName].$el) {
           const el = this.$refs[refName].$el;
-          const {top, left, width, height} = el.getBoundingClientRect();
-          const style = {};
-          style["width"] = `${width}px`;
-          style["left"] = `${left - bound.left}px`;
-          style["height"] = `${height}px`;
-          style["top"] = `${top - bound.top}px`;
-          Vue.set(this.styles, refName, style);
+          const rect = el.getBoundingClientRect();
+          this.setStyles(refName, rect);
         }
       }
     },
-    updateStyles: function(index) {
-      //Need to wait for the pane to be resized first
-      if (index !== -1) {
-        this.calculateStyles(index);
-      } else {
-        for (let i = 1; i <= 4; i++) {
-          this.calculateStyles(i);
-        }
+    setStyles: function(refName, rect) {
+      if (this.$refs && ('tabContainer' in this.$refs)) {
+        const bound = this.$refs['tabContainer'].getBoundingClientRect();
+        const style = {};
+        style["width"] = `${rect.width}px`;
+        style["left"] = `${rect.left - bound.left}px`;
+        style["height"] = `${rect.height}px`;
+        style["top"] = `${rect.top - bound.top}px`;
+        console.log(refName, JSON.stringify(style));
+        Vue.set(this.styles, refName, style);
       }
     },
     resize: function() {
@@ -246,6 +170,9 @@ export default {
     }
   },
   computed: {
+    activeView: function() {
+      return store.state.splitFlow.activeView;
+    },
     horizontal() {
       if (store.state.splitFlow.activeView === "2horpanel") {
         return true;
@@ -260,15 +187,6 @@ export default {
     },
   },
   watch: {
-    splitters: {
-      handler: function() {
-        this.splitter1 = store.state.splitFlow.splitters.first;
-        this.splitter2 = store.state.splitFlow.splitters.second;
-        this.splitter3 = store.state.splitFlow.splitters.third;
-      },
-      immediate: true,
-      deep: true
-    },
     globalCallback: {
       handler: function(val) {
         //Only activate for active
@@ -292,7 +210,12 @@ export default {
       immediate: true,
       deep: true
     },
-  }
+  },
+  mounted: function () {
+    EventBus.$on("PaneResize", payload => {
+      this.setStyles(payload.refName, payload.rect);
+    });
+  },
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -261,7 +261,11 @@ export default {
       EventBus.$emit("updateShareLinkRequested");
     },
     viewClicked: function(view) {
-      store.commit("splitFlow/updateActiveView", view);
+      store.commit("splitFlow/updateActiveView", 
+        {
+          view,
+          entries: store.state.entries.entries,
+        });
     }
   },
 };

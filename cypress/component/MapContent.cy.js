@@ -56,8 +56,9 @@ describe('MapContent', () => {
     })
 
     Cypress.Commands.add('checkFlatmapProvenanceCard', (species) => {
-      cy.get('#flatmap-select').click()
-      cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click()
+      cy.get('#flatmap-select').click();
+      cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
+      cy.get('.multi-container > .el-loading-parent--relative > .el-loading-mask', {timeout: 30000}).should('not.exist');
       cy.get('.selected').then(($label) => {
         cy.get('.toolbar > .icon-group > :nth-child(2)').click()
         cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', $label.text().toLowerCase())
@@ -196,7 +197,7 @@ describe('MapContent', () => {
     //Change from single panel to four panels and check for it
     cy.get('.icon-group > :nth-child(2) > .el-popover__reference-wrapper').should('exist').click();
     cy.get('.icon-group.el-row .el-popover:visible').should('exist');
-    cy.get('.icon-group.el-row .el-popover:visible .el-row').should('have.length', 5);
+    cy.get('.icon-group.el-row .el-popover:visible .el-row').should('have.length', 8);
     cy.get('.icon-group.el-row .el-popover:visible .el-row').contains('Four panes').should('exist').click();
     cy.get('.content-container:visible').should('have.length', 4);
   })

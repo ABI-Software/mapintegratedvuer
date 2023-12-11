@@ -132,9 +132,8 @@ export default {
      * Check if this viewer is currently visible
      */
     isVisible: function() {
-      let slot = store.getters["splitFlow/getSlotById"](this.entry.id);
-      if (slot) return store.getters["splitFlow/isSlotActive"](slot);
-      return false;
+      const paneName = store.getters["splitFlow/getPaneNameById"](this.entry.id);
+      return paneName !== undefined;
     },
     onResize: function () {
       this.$refs.viewer.onResize();
