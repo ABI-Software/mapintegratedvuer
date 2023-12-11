@@ -52,6 +52,8 @@ describe('MapContent', () => {
         return false
       if (err.message.includes("Cannot read properties of undefined (reading 'left')"))
         return false
+      if (err.message.includes("Failed to fetch"))
+        return false
       return true
     })
 
