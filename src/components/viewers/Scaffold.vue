@@ -17,7 +17,7 @@
     :warning-message="warningMessage"
     :display-minimap="false"
     :display-markers="false"
-    :enableOpenMapUI="entry.isBodyScaffold"
+    :enableOpenMapUI="true"
     :view-u-r-l="entry.viewUrl"
     :markerLabels="markerLabels"
     :flatmapAPI="flatmapAPI"
@@ -158,14 +158,6 @@ export default {
     },
     updateWithViewUrl: function(viewUrl) {
       this.$refs.scaffold.updateViewURL(viewUrl);
-    },
-    /**
-     * Check if this viewer is currently visible
-     */
-    isVisible: function() {
-      let slot = store.getters["splitFlow/getSlotById"](this.entry.id);
-      if (slot) return store.getters["splitFlow/isSlotActive"](slot);
-      return false;
     },
   },
   computed: {
