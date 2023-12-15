@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
