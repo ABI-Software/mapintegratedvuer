@@ -176,7 +176,7 @@ export default {
                   this.$refs.flow.setState(currentState);
                   //Do not create a new entry, instead set the multiflatmap viewer
                   //to the primary slot
-                  this.$refs.flow.setIdToPrimarySlot(entry.id);
+                  this.$refs.flow.setIdToPrimaryPane(entry.id);
                   break;
                 }
               }
@@ -241,7 +241,7 @@ export default {
     EventBus.$on("updateShareLinkRequested", () => {
       this.$emit("updateShareLinkRequested");
     });
-    if (!this.state && this.startingMap !== "AC" ) {
+    if (!this.state) {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
     this.isReady = true;
