@@ -70,7 +70,7 @@ import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 
 //provide the s3Bucket related methods and data.
-import S3Bucket from "../mixins/S3Bucket";
+import S3Bucket from "@abi-software/map-side-bar/src/mixins/S3Bucket";
 
 import { marked } from 'marked'
 import xss from 'xss'
@@ -238,7 +238,7 @@ export default {
         return path
       }
       path = this.removeDoubleFilesPath(path)
-      return  `${this.envVars.API_LOCATION}s3-resource/${this.entry.discoverId}/${this.entry.version}/files/${path}${this.getS3Args()}`
+      return  `${this.envVars.API_LOCATION}s3-resource/${this.getS3Prefix()}files/${path}${this.getS3Args()}`
     },
     //  This is used later when generateing links to the resource on sparc.science (see generateFileLink)
     addDiscoverIdsToContextData(){

@@ -117,11 +117,17 @@ const findSpeciesKey = condition => {
   return "";
 }
 
-const extractS3BucketName = uri => {
+const extractS3BucketNameAndPrefix = uri => {
   if (uri) {
-    const substring = uri.split("//")[1]
+    const substring = uri.split("//")[1];
     if (substring) {
-      return substring.split("/")[0]
+      const s3Bucket = substring.split("/")[0];
+      const n = substring.indexOf('/');
+      const s3Prefix = substring.substring(n + 1);
+      return {
+        s3Bucket,
+        s3Prefix
+      };
     }
   }
   return undefined
@@ -135,9 +141,9 @@ const getBodyScaffoldInfo = async (sparcApi, species) => {
   if (response.ok) {
     const data = await response.json();
     //Construct the url endpoint for downloading the scaffold
-    const bucket = extractS3BucketName(data.s3uri);
-    url = `${sparcApi}s3-resource/${data.id}/${data.version}/files/${data.path}?s3BucketName=${bucket}`;
-    const contextCardUrl = `${sparcApi}s3-resource/${data.id}/${data.version}/files/${data.contextinfo}?s3BucketName=${bucket}`;
+    const bucketInfo = extractS3BucketNameAndPrefix(data.s3uri);
+    url = `${sparcApi}s3-resource/${bucketInfo.s3Prefix}files/${data.path}?s3BucketName=${bucketInfo.s3Bucket}`;
+    const contextCardUrl = `${sparcApi}s3-resource/${bucketInfo.s3Prefix}files/${data.contextinfo}?s3BucketName=${bucketInfo.s3Bucket}`;
     datasetInfo = {
       s3uri: data.s3uri,
       contextCardUrl,
