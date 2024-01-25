@@ -17,21 +17,13 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
-import { Link, Icon, Card, Button, Select } from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
-
-locale.use(lang);
-Vue.use(Link);
-Vue.use(Icon);
-Vue.use(Card);
-Vue.use(Button);
-Vue.use(Select);
+import { ElCard as Card } from "element-plus";
 
 export default {
   name: "ContextHelp",
+  components: {
+    Card
+  },
   props: {
     /**
      * Object containing information for
@@ -58,6 +50,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+@use "element-plus/theme-chalk/src/card";
 .step-item {
   font-size: 14px;
   margin-bottom: 18px;

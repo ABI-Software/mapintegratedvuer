@@ -1,6 +1,7 @@
 
 import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
-import store from "../store";
+import { mapStores } from 'pinia';
+import { useSettingsStore } from '../stores/settings';
 
 
 /*
@@ -34,6 +35,9 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
   
 /* eslint-disable no-alert, no-console */
 export default {
+  computed: {
+    ...mapStores(useSettingsStore),
+  },
   methods: {
     flatmapPanZoomCallback: function (payload) {
       if (this.mouseHovered) {
@@ -64,7 +68,7 @@ export default {
         if (force || this.zoomLevel !== currentZoom) {
           this.zoomLevel = currentZoom;
           flatmapImp.clearMarkers();
-          let markers = store.state.settings.markers;
+          let markers = this.settingsStore.markers;
           checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel);
           if (this.entry.type === "MultiFlatmap") {
             this.restoreFeaturedMarkers(flatmapImp);

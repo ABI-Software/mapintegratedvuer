@@ -37,22 +37,17 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
-import { Button } from "element-ui";
-//import DatasetHeader from "./DatasetHeader";
-import ContentBar from "./ContentBar";
-import Flatmap from "./viewers/Flatmap";
-import Iframe from "./viewers/Iframe";
-import MultiFlatmap from "./viewers/MultiFlatmap";
-import Plot from "./viewers/Plot";
-import Scaffold from "./viewers/Scaffold";
-import Simulation from "./viewers/Simulation";
-import store from "../store";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
-
-locale.use(lang);
-Vue.use(Button);
+import { ElButton as Button } from "element-plus";
+import ContentBar from "./ContentBar.vue";
+import Flatmap from "./viewers/Flatmap.vue";
+import Iframe from "./viewers/Iframe.vue";
+import MultiFlatmap from "./viewers/MultiFlatmap.vue";
+import Plot from "./viewers/Plot.vue";
+import Scaffold from "./viewers/Scaffold.vue";
+import Simulation from "./viewers/Simulation.vue";
+import { mapStores } from 'pinia';
+import { useEntriesStore } from '../stores/entries';
+import { useSplitFlowStore } from '../stores/splitFlow';
 
 export default {
   name: "ContentVuer",
@@ -69,6 +64,7 @@ export default {
   },
   components: {
     //DatasetHeader,
+    Button,
     ContentBar,
     Flatmap,
     Iframe,
@@ -98,7 +94,7 @@ export default {
     },
     scaffoldViewClicked: function (viewUrl) {
       if (this.entry.viewUrl !== viewUrl) {
-        store.commit("entries/updateViewForEntry", {id: this.entry.id, viewUrl});
+        this.entriesStore.updateViewForEntry({id: this.entry.id, viewUrl});
       } else {
         //Manually set it as it cannot be set with reactivity
         this.$refs.viewer.updateWithViewUrl(viewUrl);
@@ -132,7 +128,7 @@ export default {
      * Check if this viewer is currently visible
      */
     isVisible: function() {
-      const paneName = store.getters["splitFlow/getPaneNameById"](this.entry.id);
+      const paneName = storeSpliitFlow.getPaneNameById(this.entry.id);
       return paneName !== undefined;
     },
     onResize: function () {
@@ -146,8 +142,9 @@ export default {
     };
   },
   computed: {
+    ...mapStores(useEntriesStore, useSplitFlowStore),
     syncMode() {
-      return store.state.splitFlow.syncMode;
+      return this.splitFlowStore.syncMode;
     },
     viewerType() {
       switch (this.entry.type) {
@@ -165,7 +162,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "~element-ui/packages/theme-chalk/src/button";
+@use "element-plus/theme-chalk/src/button";
 
 .toolbar {
   width: 100%;

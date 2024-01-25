@@ -14,17 +14,17 @@
             <!-- Show sampeles and views seperately if they do not match -->
             <template v-if="!samplesUnderViews">
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
-              <template v-for="(view, i) in contextData.views">
-                <div v-bind:key="i+'_1'" @click="openViewFile(view)" class="context-card-view">
+              <template v-for="(view, i) in contextData.views" :key="i+'_1'">
+                <div @click="openViewFile(view)" class="context-card-view">
                   <img class="view-image" :src="getFileFromPath(view.thumbnail)"> 
                   <div class="view-description">{{view.description}}</div>
                 </div>
-                <div v-bind:key="i" class="padding"/>
+                <div class="padding"/>
               </template>
               <div style="margin-bottom: 16px;"/>
               <div v-if="contextData.samples && contextData.samples.length > 0" class="subtitle">Samples on Scaffold</div>
-              <template v-for="(sample, i) in contextData.samples">
-                  <span v-bind:key="i+'_3'" class="context-card-item cursor-pointer" @click="toggleSampleDetails(i)">
+              <template v-for="(sample, i) in contextData.samples" :key="i+'_3'">
+                  <span class="context-card-item cursor-pointer" @click="toggleSampleDetails(i)">
                     <div v-bind:key="i+'_6'" style="display: flex">
                       <div v-if="sample.color" class="color-box" :style="'background-color:'+ sample.color"></div>
                       <img class="key-image" v-else-if="sample.thumbnail" :src="getFileFromPath(sample.thumbnail)">
@@ -32,26 +32,26 @@
                       <i class="el-icon-warning-outline info"></i>
                     </div>
                   </span>
-                  <div v-bind:key="i+'_4'" v-if="sampleDetails[i]" v-html="sample.description"/>
-                  <a v-bind:key="i+'_5'" v-if="sampleDetails[i] && sample.path" :href="generateFileLink(sample)" target="_blank">View Source</a>
-                  <div v-bind:key="i+'_2'" class="padding"/>
+                  <div v-if="sampleDetails[i]" v-html="sample.description"/>
+                  <a v-if="sampleDetails[i] && sample.path" :href="generateFileLink(sample)" target="_blank">View Source</a>
+                  <div class="padding"/>
               </template>
             </template>
 
             <!-- Show samples under views if the ids match -->
             <template v-else>
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
-              <template v-for="(view, i) in contextData.views">
-                <span :key="i+'_1'" @click="viewClicked(view, i)" class="context-card-view">
+              <template v-for="(view, i) in contextData.views" :key="i+'_1'">
+                <span  @click="viewClicked(view, i)" class="context-card-view">
                   <img class="view-image" :src="getFileFromPath(view.thumbnail)"/> 
                   <div class="view-description">{{view.description}}<i class="el-icon-warning-outline info"></i> </div>
                 </span>
-                <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description" :key="i+'_2'"/>
+                <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description"/>
                 <a v-bind:key="i+'_5'" v-if="sampleDetails[i] && samplesMatching(view.id).path" :href="generateFileLink(samplesMatching(view.id))" target="_blank">View Source</a>
-                <div :key="i" class="padding"/>
+                <div class="padding"/>
 
                 <!-- Extra padding if sample details is open -->
-                <div :key="i+'_6'" v-if="sampleDetails[i]" class="padding"/>
+                <div v-if="sampleDetails[i]" class="padding"/>
               </template>
             </template>
           </div>
@@ -64,24 +64,12 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
-import { Link, Icon, Card, Button, Select, Input } from "element-ui";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
 
 //provide the s3Bucket related methods and data.
-import S3Bucket from "../mixins/S3Bucket";
+import S3Bucket from "../mixins/S3Bucket.vue";
 
 import { marked } from 'marked'
 import xss from 'xss'
-
-locale.use(lang);
-Vue.use(Link);
-Vue.use(Icon);
-Vue.use(Card);
-Vue.use(Button);
-Vue.use(Select);
-Vue.use(Input);
 
 const addFilesToPathIfMissing = function(path){
   if (!path.includes('files')){
@@ -209,7 +197,7 @@ export default {
         .catch((err) => {
           //set defaults if we hit an error
           console.error('caught error!', err)
-          this.thumbnail = require('@/../assets/missing-image.svg')
+          this.thumbnail = require('./assets/missing-image.svg')
           this.discoverId = undefined
           this.loading = false
         });
@@ -283,12 +271,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "~element-ui/packages/theme-chalk/src/button";
-@import "~element-ui/packages/theme-chalk/src/card";
-@import "~element-ui/packages/theme-chalk/src/icon";
-@import "~element-ui/packages/theme-chalk/src/input";
-@import "~element-ui/packages/theme-chalk/src/link";
-@import "~element-ui/packages/theme-chalk/src/select";
 
 .hide{
   color: #e4e7ed;
@@ -329,7 +311,7 @@ export default {
   flex: 8;
 }
 
-.context-card ::v-deep .el-card__body {
+.context-card :deep(.el-card__body) {
   margin: 0px;
   display: flex;
   width: 516px;

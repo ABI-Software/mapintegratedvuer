@@ -7,7 +7,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-const ResizeSensor = require("css-element-queries/src/ResizeSensor");
+import ResizeSensor from "css-element-queries/src/ResizeSensor";
 
 export default {
   name: "ResizeSensor",

@@ -156,10 +156,12 @@ const getBodyScaffoldInfo = async (sparcApi, species) => {
   return {url, datasetInfo};
 }
 
-exports.availableSpecies = availableSpecies;
-exports.capitalise = capitalise;
-exports.findSpeciesKey = findSpeciesKey;
-exports.initialState = initialState;
-exports.initialDefaultState = initialDefaultState;
-exports.getBodyScaffoldInfo = getBodyScaffoldInfo;
-exports.getNewMapEntry = getNewMapEntry;
+export { 
+  availableSpecies,
+  capitalise,
+  findSpeciesKey,
+  initialState,
+  initialDefaultState,
+  getBodyScaffoldInfo,
+  getNewMapEntry
+}

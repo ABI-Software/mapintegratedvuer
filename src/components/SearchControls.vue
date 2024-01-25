@@ -8,7 +8,7 @@
       :fetch-suggestions="fetchSuggestions"
       @keyup.enter.native="$emit('search', searchText)"
       @select="$emit('search', $event.value)"
-      :popper-append-to-body=false
+      :teleported=false
       popper-class="autocomplete-popper">
     </el-autocomplete>
     <map-svg-icon icon="magnifyingGlass" class="magnify"
@@ -21,14 +21,10 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
 import { MapSvgIcon } from '@abi-software/svg-sprite';
-import { Autocomplete } from "element-ui";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
-
-locale.use(lang);
-Vue.use(Autocomplete);
+import { 
+  ElAutocomplete as Autocomplete
+} from "element-plus";
 
 export default {
   name: "SearchControls",
@@ -36,6 +32,7 @@ export default {
     failedSearch: undefined,
   },
   components: {
+    Autocomplete,
     MapSvgIcon,
   },
   methods: {
@@ -57,7 +54,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "~element-ui/packages/theme-chalk/src/autocomplete";
+@use "element-plus/theme-chalk/src/autocomplete";
 
 .search-container {
   display:flex;
@@ -90,7 +87,7 @@ export default {
     margin-left:0.5rem;
     height:28px;
     width:137px;
-    ::v-deep .el-input__inner {
+    :deep(.el-input__inner) {
       background-color: $background;
       height:28px;
       line-height:28px;
@@ -113,7 +110,7 @@ export default {
       box-shadow: -3px 2px 4px 0 rgba(0,0,0,0.25);
     }
   }
-  ::v-deep .autocomplete-popper {
+  :deep(.autocomplete-popper) {
     min-width:137px!important;
     width: auto!important;
   }

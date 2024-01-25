@@ -4,7 +4,6 @@
       v-loading="!isReady"
       class="mapcontent"
       element-loading-text="Loading..."
-      element-loading-spinner="el-icon-loading"
       element-loading-background="rgba(0, 0, 0, 0.3)"
     >
       <map-svg-sprite-color/>
@@ -20,19 +19,16 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
-import SplitFlow from './SplitFlow';
+import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
-import store from '../store';
+import { mapStores } from 'pinia';
+import { useSettingsStore } from '../stores/settings';
 import { findSpeciesKey } from './scripts/utilities.js';
-import {MapSvgSpriteColor} from '@abi-software/svg-sprite';
+import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
 import { initialState } from "./scripts/utilities.js";
-import { Loading } from "element-ui";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
-
-locale.use(lang);
-Vue.use(Loading.directive);
+import {
+  ElLoading as Loading
+} from "element-plus";
 
 /**
  * Content of the app. More work flows will be added here.
@@ -40,8 +36,9 @@ Vue.use(Loading.directive);
 export default {
   name: "MapContent",
   components: {
-    SplitFlow,
     MapSvgSpriteColor,
+    Loading,
+    SplitFlow,
   },
   props: {
     shareLink: {
@@ -212,6 +209,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useSettingsStore),
     stateToSet() {
       return this.state ? this.state : this.initialState;
     },
@@ -219,7 +217,7 @@ export default {
   watch: {
     "shareLink" : {
       handler: function (newLink) {
-        store.commit("settings/updateShareLink", newLink);
+        this.settingsStore.updateShareLink(newLink);
       },
       immediate: true,
     },
@@ -227,18 +225,18 @@ export default {
   beforeMount: function() {
     if (this.options) {
       // Split options prop up to commit to the store
-      this.options.sparcApi ? store.commit("settings/updateSparcAPI", this.options.sparcApi) : null
-      this.options.algoliaIndex ? store.commit("settings/updateAlgoliaIndex", this.options.algoliaIndex) : null
-      this.options.algoliaKey ? store.commit("settings/updateAlgoliaKey", this.options.algoliaKey) : null
-      this.options.algoliaId ? store.commit("settings/updateAlgoliaId", this.options.algoliaId) : null
-      this.options.pennsieveApi ? store.commit("settings/updatePennsieveApi", this.options.pennsieveApi) : null
-      this.options.flatmapAPI ? store.commit("settings/updateFlatmapAPI", this.options.flatmapAPI) : null,
-      this.options.nlLinkPrefix ? store.commit("settings/updateNLLinkPrefix", this.options.nlLinkPrefix) : null
-      this.options.rootUrl ? store.commit("settings/updateRootUrl", this.options.rootUrl) : null
+      this.options.sparcApi ? this.settingsStore.updateSparcAPI(this.options.sparcApi) : null
+      this.options.algoliaIndex ? this.settingsStore.updateAlgoliaIndex(this.options.algoliaIndex) : null
+      this.options.algoliaKey ? this.settingsStore.updateAlgoliaKey(this.options.algoliaKey) : null
+      this.options.algoliaId ? this.settingsStore.updateAlgoliaId(this.options.algoliaId) : null
+      this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null
+      this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null,
+      this.options.nlLinkPrefix ? this.settingsStore.updateNLLinkPrefix(this.options.nlLinkPrefix) : null
+      this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
     }
   },
   mounted: async function() {
-    EventBus.$on("updateShareLinkRequested", () => {
+    EventBus.on("updateShareLinkRequested", () => {
       this.$emit("updateShareLinkRequested");
     });
     if (!this.state && this.startingMap !== "AC" ) {
@@ -251,12 +249,12 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@/assets/styles";
-@import "~element-ui/packages/theme-chalk/src/loading";
 
-
-::v-deep .el-loading-spinner {
-  i, .el-loading-text {
+:deep(.el-loading-spinner) {
+  .path {
+    stroke: $app-primary-color;
+  }
+  .el-loading-text {
     color: $app-primary-color;
   }
 }
@@ -275,6 +273,14 @@ export default {
 }
 
 </style>
-<style src="@/../assets/styleguide.css">
-</style>
 
+<style lang="scss">
+
+.mapcontent {
+  --el-color-primary: #8300BF;
+  --el-color-primary-light-7: #dab3ec;
+  --el-color-primary-light-8: #e6ccf2;
+  --el-color-primary-light-9: #f3e6f9;
+}
+
+</style>

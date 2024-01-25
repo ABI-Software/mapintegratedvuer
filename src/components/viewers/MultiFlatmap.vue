@@ -23,13 +23,13 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { availableSpecies } from "../scripts/utilities.js";
-import { MultiFlatmapVuer } from "@abi-software/flatmapvuer/src/components/index.js";
+import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
-import store from "../../store";
 import { getBodyScaffoldInfo } from "../scripts/utilities";
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
+import "@abi-software/flatmapvuer/dist/style.css";
 import YellowStar from "../../icons/yellowstar";
 
 const getOpenMapOptions = (species) => {
@@ -98,7 +98,7 @@ export default {
         } else if ((this.activeSpecies === "Human Male") || (this.activeSpecies === "Human Female")) {
           //Dynamically construct the whole body scaffold for human and store it
           if (!("human" in this.scaffoldResource)) {
-            this.scaffoldResource["human"] = await getBodyScaffoldInfo(store.state.settings.sparcApi, "human");
+            this.scaffoldResource["human"] = await getBodyScaffoldInfo(storeeSettings.sparcApi, "human");
           }
           action = {
             contextCardUrl: this.scaffoldResource["human"].datasetInfo.contextCardUrl,
@@ -114,9 +114,9 @@ export default {
           };
         }
         if (action)
-          EventBus.$emit("SyncModeRequest", { flag: true, action: action });
+          EventBus.emit("SyncModeRequest", { flag: true, action: action });
       } else {
-        EventBus.$emit("SyncModeRequest", { flag: false });
+        EventBus.emit("SyncModeRequest", { flag: false });
       }
     },
     getState: function () {
@@ -268,11 +268,11 @@ export default {
         label: "Unused",
         val: shownMarkers.map(marker => this.idNamePair[marker]),
       };
-      EventBus.$emit("PopoverActionClick", returnedAction);
+      EventBus.emit("PopoverActionClick", returnedAction);
     },
     restoreFeaturedMarkers: function (flatmap) {
-      store.commit("settings/resetFeaturedMarkerIdentifier");
-      const markers = store.state.settings.featuredMarkers;
+      this.settingsStore.resetFeaturedMarkerIdentifier();
+      const markers = this.settingsStore.featuredMarkers;
       this.updateFeatureMarkers(markers, flatmap);
     },
     updateFeatureMarkers: function (markers, flatmap) {
@@ -280,7 +280,7 @@ export default {
       for (let index = 0; index < markers.length; ++index) {
         if (markers[index]) {
           const markerIdentifier =
-            store.state.settings.featuredMarkerIdentifiers[index];
+            this.settingsStore.featuredMarkerIdentifiers[index];
           if (!markerIdentifier) {
             // Add the featured marker to the legend if we have a featured marker
             const markerExists = this.addFeaturedMarker(markers[index], index, flatmap);
@@ -293,7 +293,7 @@ export default {
     },
     addFeaturedMarker: function (marker, index, flatmap) {
       const markerSpecies =
-        store.getters["settings/featuredMarkerSpecies"](index);
+        this.settingsStore.featuredMarkerSpecies[index];
       if (markerSpecies && !this.activeSpecies.startsWith(markerSpecies)) {
         return false;
       }
@@ -310,7 +310,7 @@ export default {
           element: wrapperElement,
           className: "highlight-marker"
         });
-        store.commit("settings/updateFeaturedMarkerIdentifier", {
+        this.settingsStore.updateFeaturedMarkerIdentifie({
           index,
           markerIdentifier,
         });
@@ -321,10 +321,10 @@ export default {
   },
   computed: {
     facetSpecies() {
-      return store.state.settings.facets.species;
+      return this.settingsStore.facets.species;
     },
     featuredMarkers() {
-      return store.state.settings.featuredMarkers;
+      return this.settingsStore.featuredMarkers;
     },
   },
   watch: {
@@ -344,7 +344,7 @@ export default {
     this.getAvailableTerms();
     this.getFeaturedDatasets();
 
-    EventBus.$on("markerUpdate", () => {
+    EventBus.on("markerUpdate", () => {
       this.flatmapMarkerZoomUpdate(true, undefined);
     });
   },
@@ -353,13 +353,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "~element-ui/packages/theme-chalk/src/button";
+@use "element-plus/theme-chalk/src/button";
 
-::v-deep .maplibregl-popup {
+:deep(.maplibregl-popup) {
   z-index: 3;
 }
 
-::v-deep .maplibregl-marker {
+:deep(.maplibregl-marker) {
   &.standard-marker {
     z-index: 2;
   }
@@ -373,5 +373,3 @@ export default {
 }
 
 </style>
-
-<style src="@/../assets/mapicon-species-style.css"></style>
