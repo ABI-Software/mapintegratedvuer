@@ -4,6 +4,7 @@ export default {
   data() {
     return {
       s3Bucket: undefined,
+      s3Prefix: "",
     };
   },
   methods: {
@@ -13,6 +14,8 @@ export default {
         const substring = s3uri.split("//")[1];
         if (substring) {
           this.s3Bucket = substring.split("/")[0];
+          const n = substring.indexOf('/');
+          this.s3Prefix = substring.substring(n + 1);
           return;
         }
       }
@@ -23,6 +26,9 @@ export default {
       }
       return "";
     },
+    getS3Prefix: function() {
+      return this.s3Prefix;
+    }
   },
 
 };

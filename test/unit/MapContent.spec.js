@@ -5,7 +5,12 @@ import SplitFlow from '../../src/components/SplitFlow';
 const div = document.createElement('div');
 document.body.appendChild(div);
 const wrapper = shallowMount(MapContent, {
-  attachTo: div
+  attachTo: div,
+  propsData: {
+    options: {
+      sparcApi: "https://your-api-location/"
+    }
+  },
 });
 
 

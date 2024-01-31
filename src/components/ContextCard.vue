@@ -226,7 +226,7 @@ export default {
         return path
       }
       path = this.removeDoubleFilesPath(path)
-      return  `${this.envVars.API_LOCATION}s3-resource/${this.entry.discoverId}/files/${path}${this.getS3Args()}`
+      return  `${this.envVars.API_LOCATION}s3-resource/${this.getS3Prefix()}files/${path}${this.getS3Args()}`
     },
     //  This is used later when generateing links to the resource on sparc.science (see generateFileLink)
     addDiscoverIdsToContextData(){
