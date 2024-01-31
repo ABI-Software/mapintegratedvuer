@@ -37,7 +37,7 @@ export default defineConfig(({ command, mode }) => {
       lib: {
         entry: path.resolve(__dirname, "./src/components/index.js"),
         name: "MapintegratedVuer",
-        fileName: 'MapintegratedVuer',
+        fileName: 'mapintegratedvuer',
       },
       rollupOptions: {
         external: ["vue", "pinia"],
