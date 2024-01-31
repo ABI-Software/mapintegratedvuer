@@ -1,7 +1,6 @@
 <template>
   <div
     class="content-container"
-    ref="container"
     @mouseover="mouseHovered = true"
     @mouseleave="mouseHovered = false"
   >
@@ -10,8 +9,8 @@
       :entry="entry"
       ref="contentBar"
       @chooser-changed="onResize"
-      @hook:mounted="setPanesBoundary"
       @scaffold-view-clicked="scaffoldViewClicked"
+      @vue:mounted="setPanesBoundary"
     />
   <!--
     <DatasetHeader
@@ -20,7 +19,7 @@
       :entry="entry"
     ></DatasetHeader>
   -->
-    <div class="component-container">
+    <div class="component-container" ref="container">
       <Component
         :is="viewerType"
         :entry="entry"
@@ -113,7 +112,7 @@ export default {
       this.$refs.viewer.searchSuggestions(term, suggestions);
     },
     setPanesBoundary: function() {
-      this.$refs.contentBar.setBoundary(this.$refs.container);
+      this.$refs.contentBar.setBoundary(this.$refs["container"][0]);
     },
     speciesChanged: function (species) {
       this.activeSpecies = species;
@@ -128,7 +127,7 @@ export default {
      * Check if this viewer is currently visible
      */
     isVisible: function() {
-      const paneName = storeSpliitFlow.getPaneNameById(this.entry.id);
+      const paneName = this.splitFlowStore.getPaneNameById(this.entry.id);
       return paneName !== undefined;
     },
     onResize: function () {
@@ -162,8 +161,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@use "element-plus/theme-chalk/src/button";
-
 .toolbar {
   width: 100%;
   background-color: #f5f7fa !important;

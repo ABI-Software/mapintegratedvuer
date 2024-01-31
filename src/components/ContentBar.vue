@@ -37,9 +37,9 @@
         trigger="manual"
         :width="setPopperWidth(slot.id)"
         :offset="0"
-        class="context-card-popover"
+        popper-class="context-card-popover"
         :popper-options="popperOptions"
-        :value-model="contextCardVisible"
+        :visible="contextCardVisible"
       >
         <template #default v-if="contextCardEntry">
           <flatmap-context-card 
@@ -128,7 +128,7 @@ export default {
       slot:{
 
       },
-      boundariesElement: null, // this is set @hook:mounted by the parent component via the 'setBoundary' method
+      boundariesElement: null, // this is set @vue:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntry: undefined,
     }
@@ -156,7 +156,7 @@ export default {
       return { 
         preventOverflow: {
           enabled: true,
-          boundariesElement: this.boundariesElement,
+          boundary: this.boundariesElement,
         }
       }
     },
@@ -235,9 +235,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@use "element-plus/theme-chalk/src/input";
-@use "element-plus/theme-chalk/src/option";
-@use "element-plus/theme-chalk/src/select";
 @use "../assets/header-icon.scss";
 
 
@@ -260,7 +257,7 @@ export default {
     height: 26px;
     border-radius: 4px;
     border: 1px solid rgb(144, 147, 153);
-    background-color: $background;
+    background-color: #fff;
     font-weight: 500;
     color: rgb(48, 49, 51);
     margin-left: 8px;
@@ -275,8 +272,11 @@ export default {
       line-height: 26px;
       padding-left: 4px;
       padding-right: 8px;
-      background-color: $background;
+      background-color: #fff;
       border-style: none;
+      span {
+        color: $app-primary-color;
+      }
     }
     
     :deep(.el-input__icon) {
@@ -348,8 +348,25 @@ export default {
   width: 440px;
 }
 
-.context-card-popover :deep(.el-popover) {
+:deep(.header-popper.el-popover.el-popper) {
+  padding: 6px 4px;
+  font-size:12px;
+  color: rgb(48, 49, 51);
+  background-color: #f3ecf6;
+  border: 1px solid $app-primary-color;
+  white-space: nowrap;
+  min-width: unset;
+  .el-popper__arrow {
+    &:before {
+      border-color: $app-primary-color;
+      background-color: #f3ecf6;
+    }
+  }
+}
+
+:deep(.context-card-popover.el-popover.el-popper) {
   max-width: calc(100vw - 100px);
   padding-right: 0px;
+  width: unset!important;
 }
 </style>

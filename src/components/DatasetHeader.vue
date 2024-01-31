@@ -72,10 +72,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@use "element-plus/theme-chalk/src/button";
-@use "element-plus/theme-chalk/src/card";
-@use "element-plus/theme-chalk/src/link";
-
 .dataset-link{
   text-align:center;
 }

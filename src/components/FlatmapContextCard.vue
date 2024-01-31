@@ -16,8 +16,15 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import {
+  ElLoading as Loading
+} from "element-plus";
+
 export default {
-  name: "contextCard",
+  name: "FlatmapContextCard",
+  components: {
+    Loading,
+  },
   props: {
     /**
      * Object containing information for

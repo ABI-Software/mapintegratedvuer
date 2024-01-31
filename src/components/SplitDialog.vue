@@ -123,16 +123,6 @@ export default {
       }
       return states;
     },
-    calculateStyles: function(index) {
-      if (this.$refs) {
-        const refName = `pane-${index}`;
-        if (refName in this.$refs && this.$refs[refName] && this.$refs[refName].$el) {
-          const el = this.$refs[refName].$el;
-          const rect = el.getBoundingClientRect();
-          this.setStyles(refName, rect);
-        }
-      }
-    },
     setStyles: function(refName, rect) {
       if (this.$refs && ('tabContainer' in this.$refs)) {
         const bound = this.$refs.tabContainer.getBoundingClientRect();
@@ -141,7 +131,14 @@ export default {
         style["left"] = `${rect.left - bound.left}px`;
         style["height"] = `${rect.height}px`;
         style["top"] = `${rect.top - bound.top}px`;
-        console.log(refName, JSON.stringify(style));
+        style["display"] = "block";
+        this.styles[refName] = style;
+      }
+    },
+    hidePane: function(refName) {
+      if (this.$refs && ('tabContainer' in this.$refs)) {
+        const style = {};
+        style["display"] = "none";
         this.styles[refName] = style;
       }
     },
@@ -204,6 +201,9 @@ export default {
   mounted: function () {
     EventBus.on("PaneResize", payload => {
       this.setStyles(payload.refName, payload.rect);
+    });
+    EventBus.on("PaneUnmounted", payload => {
+      this.hidePane(payload.refName);
     });
   },
 };

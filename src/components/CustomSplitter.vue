@@ -9,7 +9,7 @@
       :dbl-click-splitter="false"
     >
       <template v-for="(child) in children" :key="child">
-        <pane :ref="child">
+        <pane :ref="child" @vue:beforeUnmount="childUnmounted(child)">
           <resize-sensor
             v-if="customLayout[child].content"
             @resize="calculateStyles(child)">
@@ -58,6 +58,7 @@ export default {
           const el = this.$refs[refName][0].$el;
           const rect = el.getBoundingClientRect();
           EventBus.emit("PaneResize", {refName, rect});
+
         }
       }
     },
@@ -77,6 +78,9 @@ export default {
         }
       }
     },
+    childUnmounted: function(refName) {
+      EventBus.emit("PaneUnmounted", {refName});
+    }
   },
   computed: {
     ...mapStores(useSplitFlowStore),

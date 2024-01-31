@@ -202,14 +202,13 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
       if (name) {
         const results = flatmap.search(name);
-        if (results.featureIds.length) {
-          let externalId = flatmap.modelForFeature(results.featureIds[0]);
-          if (externalId) {
-            if (forceSelect) {
-              flatmap.selectFeatures(externalId);
-            }
-            flatmap.zoomToFeatures(externalId);
-          } else flatmap.clearSearchResults();
+        if (results.featureIds.length > 0) {
+          if (forceSelect) {
+            flatmap.selectFeatures(results.featureIds);
+          }
+          flatmap.zoomToFeatures(results.featureIds);
+        } else {
+          flatmap.clearSearchResults();
         }
       } else {
         flatmap.clearSearchResults();
@@ -220,10 +219,13 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
       if (name) {
         const results = flatmap.search(name);
-        if (results.featureIds[0]) {
+        if (results.featureIds.length > 0) {
+          flatmap.zoomToFeatures(results.featureIds, { noZoomIn: true });
+          /*
           flatmap.highlightFeatures([
             flatmap.modelForFeature(results.featureIds[0]),
           ]);
+          */
         }
       }
     },
@@ -353,7 +355,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@use "element-plus/theme-chalk/src/button";
 
 :deep(.maplibregl-popup) {
   z-index: 3;
@@ -373,3 +374,5 @@ export default {
 }
 
 </style>
+
+<style src="../../assets/mapicon-species-style.css"></style>

@@ -7,9 +7,8 @@
       :failedSearch="failedSearch"
     />
 
-    <div class="switch-control">
+    <div v-if="syncMode" class="switch-control">
       <el-switch
-        v-if="syncMode"
         class="switch"
         v-model="independent"
         active-text="Independent"
@@ -17,7 +16,6 @@
         inactive-text="Linked">
       </el-switch>
       <el-popover
-        v-if="syncMode"
         class="tooltip"
         placement="bottom-end"
         :show-after="helpDelay"
@@ -25,7 +23,7 @@
         trigger="hover"
         popper-class="header-popper">
         <template #reference>
-          <map-svg-icon  v-if="syncMode" icon="help" class="sync-help header-icon"/>
+          <map-svg-icon icon="help" class="sync-help header-icon"/>
         </template>
         <template #default>
             When in Linked mode the two maps will interact 
@@ -314,13 +312,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@use "element-plus/theme-chalk/src/button";
-@use "element-plus/theme-chalk/src/loading";
-@use "element-plus/theme-chalk/src/icon";
-@use "element-plus/theme-chalk/src/input";
-@use "element-plus/theme-chalk/src/popover";
-@use "element-plus/theme-chalk/src/row";
-@use "element-plus/theme-chalk/src/switch";
 @use "../assets/header-icon.scss";
 
 .icon-group {
@@ -411,6 +402,8 @@ export default {
 
 .view-icon {
   font-size: 1.7em;
+  height: 24px!important;
+  width: 24px!important;
   color: $app-primary-color;
   padding-top:3px;
 }
@@ -429,6 +422,7 @@ export default {
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
+  width:unset!important;
   cursor:default;
   .el-popper__arrow {
     &:before {
@@ -445,6 +439,7 @@ export default {
   position: absolute;
   .sync-help {
     left:5px;
+    stroke: $app-primary-color;
   }
 }
 
@@ -453,48 +448,8 @@ export default {
   padding-left: 0.5rem;
   border-radius: 4px;
   border: 1px solid rgb(220, 223, 230);
-  vertical-align: baseline;
-  :deep(.el-switch__label.is-active) {
-    color: $purple;
-  }
-  :deep(.el-switch__core) {
-    background: $app-primary-color;
-    border: 1px solid $lightGrey;
-    height: 14px;
-    &::before {
-      content: "";
-      position:absolute;
-      top: -3px;
-      left: -1px;
-      border-radius: 100%;
-      -webkit-transition: all .3s;
-      transition: all .3s;
-      width: 19px;
-      height: 19px;
-      background-color: $app-primary-color;
-    }
-    &::after {
-      top: -2px;
-      left: 0px;
-      width: 17px;
-      height: 17px;
-      background-color: $cochlear;
-    }
-  }
-  :deep(&.is-checked) {
-    .el-switch__core {
-      border: 1px solid $lightGrey;
-      background: $cochlear;
-      &::before {
-        left: 100%;
-        margin-left:-17px;
-      }    
-      &::after {
-        left: 100%;
-        margin-left: -16px;
-      }
-    }
-  }
+  vertical-align: super;
+  height: 28px;
 }
 
 .sync-help {

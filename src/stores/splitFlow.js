@@ -127,7 +127,6 @@ const findKeyWithId = (layout, id) => {
   return Object.keys(layout).find(key => layout[key]["id"] === id);
 }
 
-
 export const useSplitFlowStore = defineStore('splitFlow', {
   state: () => {
     return {
@@ -176,60 +175,60 @@ export const useSplitFlowStore = defineStore('splitFlow', {
     },
   },
   actions: {
-    assignOrSwapPaneWithIds(state, payload) {
-      let sourceKey = findKeyWithId(state.customLayout, payload.source);
-      let targetKey = findKeyWithId(state.customLayout, payload.target);
+    assignOrSwapPaneWithIds(payload) {
+      let sourceKey = findKeyWithId(this.customLayout, payload.source);
+      let targetKey = findKeyWithId(this.customLayout, payload.target);
       // Check if it is on syncMode
-      if (state.syncMode && (!(targetKey || sourceKey))) {
+      if (this.syncMode && (!(targetKey || sourceKey))) {
         //exit syncMod if the two panel in sync mode are not swapping
-        state.syncMode = false;
-        state.globalCallback = false;
+        this.syncMode = false;
+        this.globalCallback = false;
       }
       if (targetKey) {
-        state.customLayout[targetKey].id = payload.source;
+        this.customLayout[targetKey].id = payload.source;
       }
       if (sourceKey) {
-        state.customLayout[sourceKey].id = payload.target;
+        this.customLayout[sourceKey].id = payload.target;
       }
     },
-    toggleGlobalCallback(state, flag) {
-      state.globalCallback = flag;
+    toggleGlobalCallback(flag) {
+      this.globalCallback = flag;
     },
-    updateActiveView(state, payload) {
+    updateActiveView(payload) {
       //Deactivate sync mode if current or future view
       //is not in 2 split panels/
-      if (state.syncMode) {
-        const view1 = state.viewIcons.find(
-          view => state.activeView === view.icon);
-        const view2 = state.viewIcons.find(
+      if (this.syncMode) {
+        const view1 = this.viewIcons.find(
+          view => this.activeView === view.icon);
+        const view2 = this.viewIcons.find(
           view => payload.view === view.icon);
         if (!(view1.min == 2 && view2.min == 2)) {
-          state.syncMode = false;
-          state.globalCallback = false;
+          this.syncMode = false;
+          this.globalCallback = false;
         }
       }
-      state.activeView = payload.view;
+      this.activeView = payload.view;
       const customLayout = newLayoutWithOrigInfo(
-        state.customLayout, state.activeView);
+        this.customLayout, this.activeView);
       autoAssignEntryIdsToPane(payload.entries, customLayout);
       for (const [key, value] of Object.entries(customLayout)) {
-        state.customLayout[key] = value;
+        this.customLayout[key] = value;
       }
     },
-    setSplitter(state, payload) {
-      if (state.splitters[payload.name])
-        state.splitters[payload.name] = payload.value;
+    setSplitter(payload) {
+      if (this.splitters[payload.name])
+        this.splitters[payload.name] = payload.value;
     },
-    setState(state, newState) {
+    setState(newState) {
       if (newState) {
         let customLayout = undefined;
         if (newState.activeView) {
-          state.activeView = newState.activeView;
+          this.activeView = newState.activeView;
         }
         if (newState.customLayout) {
           customLayout = newState.customLayout;
         } else {
-          customLayout = presetLayouts(state.activeView);
+          customLayout = presetLayouts(this.activeView);
           console.log(newState, customLayout)
           if (newState.slotInfo) {
             for (let i = 0; i < newState.slotInfo.length; i++) {
@@ -264,37 +263,37 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           }
         }
         for (const [key, value] of Object.entries(customLayout)) {
-          state.customLayout[key] = value;
+          this.customLayout[key] = value;
         }
         if (newState.globalCallback) {
-          state.globalCallback = newState.globalCallback;
+          this.globalCallback = newState.globalCallback;
         }
         for (const [key, value] of Object.entries(newState.splitters)) {
-          state.splitters[key] = value;
+          this.splitters[key] = value;
         }
         if (newState.syncMode) {
-          state.syncMode = newState.syncMode;
+          this.syncMode = newState.syncMode;
         }
       }
     },
-    setIdToPrimaryPane(state, id) {
-      const currentKey = findKeyWithId(state.customLayout, id);
-      const firstPaneId = state.customLayout["pane-1"].id;
-      state.customLayout["pane-1"].id = id;
+    setIdToPrimaryPane(id) {
+      const currentKey = findKeyWithId(this.customLayout, id);
+      const firstPaneId = this.customLayout["pane-1"].id;
+      this.customLayout["pane-1"].id = id;
       if (currentKey) {
-        state.customLayout[currentKey].id = firstPaneId;
+        this.customLayout[currentKey].id = firstPaneId;
       }
     },
-    setSyncMode(state, payload) {
+    setSyncMode(payload) {
       if (payload) {
         //Force the second slot to be the new viewer in payload and change the 
         //view to the payload's layout
-        //state.customLayout["pane-2"].id = id;
+        //this.customLayout["pane-2"].id = id;
         if (payload.flag === true) {
-          state.activeView = payload.layout;
+          this.activeView = payload.layout;
           //Extract pane info form original state and copy to the new layout
           const customLayout = newLayoutWithOrigInfo(
-            state.customLayout, state.activeView);
+            this.customLayout, this.activeView);
           const originalKey = findKeyWithId(customLayout, 1);
           const firstPaneId = customLayout["pane-1"].id;
           if (originalKey !== "pane-1") {
@@ -303,26 +302,26 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           customLayout["pane-1"].id = 1;
           customLayout["pane-2"].id = payload.newId;
           for (const [key, value] of Object.entries(customLayout)) {
-            state.customLayout[key] = value;
+            this.customLayout[key] = value;
           }
-          state.syncMode = true;
-          state.globalCallback = true;
+          this.syncMode = true;
+          this.globalCallback = true;
         } else {
-          state.activeView = "singlepanel";
+          this.activeView = "singlepanel";
           const customLayout = newLayoutWithOrigInfo(
-            state.customLayout, state.activeView);
+            this.customLayout, this.activeView);
           for (const [key, value] of Object.entries(customLayout)) {
-            state.customLayout[key] = value;
+            this.customLayout[key] = value;
           }
-          state.syncMode = false;
-          state.globalCallback = false;
+          this.syncMode = false;
+          this.globalCallback = false;
         }
       }
     },
-    closeSlot(state, payload) {
+    closeSlot(payload) {
       if (payload) {
-        state.syncMode = false;
-        state.globalCallback = false;
+        this.syncMode = false;
+        this.globalCallback = false;
         let availableId = 0;
         //Primary id cannot be changed
         if (payload.id === 1) {
@@ -337,32 +336,32 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           }
         }
         //Switch the view
-        if (state.activeView !== "customise") {
+        if (this.activeView !== "customise") {
           //closePaneWithStandardLayout
-          const pView = state.activeView;
-          switch (state.activeView) {
+          const pView = this.activeView;
+          switch (this.activeView) {
             case "2horpanel":
             case "2vertpanel":
-              state.activeView = "singlepanel";
+              this.activeView = "singlepanel";
               break;
             case "3panel":
-              state.activeView = "2vertpanel";
+              this.activeView = "2vertpanel";
               break;
             case "4panel":
-              state.activeView = "3panel";
+              this.activeView = "3panel";
               break;
             case "5panel":
-              state.activeView = "4panel";
+              this.activeView = "4panel";
               break;
             case "6panelVertical":
             case "6panel":
-              state.activeView = "5panel";
+              this.activeView = "5panel";
               break;
             default:
               break;
           }
           const customLayout = newLayoutWithOrigInfo(
-            state.customLayout, state.activeView);
+            this.customLayout, this.activeView);
           const key = findKeyWithId(customLayout, payload.id);
         
           // The following move the entry id to the appropriate slot
@@ -515,7 +514,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
               break;
           }
           for (const [key, value] of Object.entries(customLayout)) {
-            state.customLayout[key] = value;
+            this.customLayout[key] = value;
           }
         }
       }

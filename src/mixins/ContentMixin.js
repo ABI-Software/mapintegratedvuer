@@ -214,7 +214,7 @@ export default {
         if (objects.length === 0) {
           //Use nerve mapping
           if (data.resource && data.resource.feature) {
-            matched = getNerveNames(data.resource.feature.models);
+            const matched = getNerveNames(data.resource.feature.models);
             if (matched.length > 0) return matched;
           }
           let matched = getParentsRegion(name);

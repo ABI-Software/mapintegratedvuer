@@ -18,7 +18,6 @@
       <div
         style="width: 100%; height: 100%; position: relative; overflow: hidden"
       >
-      <!--
         <SideBar
           ref="sideBar"
           :envVars="envVars"
@@ -31,7 +30,6 @@
           @search-changed="searchChanged($event)"
           @contextUpdate="contextUpdate($event)"
         />
-        -->
         <SplitDialog
           :entries="entries"
           ref="splitdialog"
@@ -48,7 +46,7 @@ import DialogToolbarContent from "./DialogToolbarContent.vue";
 import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog.vue";
 // import contextCards from './context-cards'
-//import { SideBar } from "@abi-software/map-side-bar/src/components/index.js";
+import { SideBar } from "@abi-software/map-side-bar";
 import { capitalise, getNewMapEntry, initialDefaultState } from "./scripts/utilities.js";
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
@@ -59,6 +57,8 @@ import {
   ElHeader as Header,
   ElMain as Main,
 } from "element-plus";
+
+import "@abi-software/map-side-bar/dist/style.css";
 
 /**
  * Component of the floating dialogs.
@@ -71,7 +71,7 @@ export default {
     Main,
     DialogToolbarContent,
     SplitDialog,
-    //SideBar,
+    SideBar,
   },
   props: {
     state: {
@@ -113,7 +113,9 @@ export default {
         } else if (action.type == "URL") {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
-          this.$refs.sideBar.addFilter(action);
+          if (this.$refs.sideBar) {
+            this.$refs.sideBar.addFilter(action);
+          }
         } else if (action.type == "Facets") {
           const facets = [];
           this.settingsStore.facets.species.forEach(e => {
@@ -136,7 +138,9 @@ export default {
               facetPropPath: "anatomy.organ.category.name",
             }))
           );
-          this.$refs.sideBar.openSearch(facets, "");
+          if (this.$refs.sideBar) {
+            this.$refs.sideBar.openSearch(facets, "");
+          }
         } else {
           this.createNewEntry(action);
         }
@@ -223,14 +227,16 @@ export default {
       newEntry.mode = "normal";
       newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
-      storeEentries.addNewEntry(newEntry);
-      this.setIdToPrimaryPane(newEntry.id);
+      this.entriesStore.addNewEntry(newEntry);
+      this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
       if (this.splitFlowStore.syncMode) {
         this.splitFlowStore.setSyncMode({ flag: false });
       }
 
       //close sidebar on entry creation to see the context card
-      this.$refs.sideBar.setDrawerOpen(false)
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.setDrawerOpen(false);
+      }
 
       return newEntry.id;
     },
@@ -260,14 +266,11 @@ export default {
     resetApp: function () {
       this.setState(initialDefaultState());
     },
-    setIdToPrimaryPane: function (id) {
-      this.splitFlowStore.setIdToPrimaryPane(id);
-    },
     setState: function (state) {
       this.entriesStore.setAll(state.entries);
       //Support both old and new permalink.
       if (state.splitFlow) this.splitFlowStore.setState(state.splitFlow);
-      else this.entries.forEach(entry => this.setIdToPrimaryPane(entry.id));
+      else this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
     },
     getState: function () {
       let state = JSON.parse(JSON.stringify(this.entriesStore.$state));
@@ -404,4 +407,5 @@ export default {
     }
   }
 }
+
 </style>

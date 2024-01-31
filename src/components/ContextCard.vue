@@ -215,9 +215,9 @@ export default {
     },
     toggleSampleDetails: function(i){
       if (this.sampleDetails[i] === undefined){
-        Vue.set(this.sampleDetails, i, true)
+        this.sampleDetails[i] = true;
       } else {
-        Vue.set(this.sampleDetails, i, !this.sampleDetails[i])
+        this.sampleDetails[i] = !this.sampleDetails[i];
       }
     },
     getFileFromPath: function(path){
@@ -226,7 +226,7 @@ export default {
         return path
       }
       path = this.removeDoubleFilesPath(path)
-      return  `${this.envVars.API_LOCATION}s3-resource/${this.entry.discoverId}/${this.entry.version}/files/${path}${this.getS3Args()}`
+      return  `${this.envVars.API_LOCATION}s3-resource/${this.entry.discoverId}/files/${path}${this.getS3Args()}`
     },
     //  This is used later when generateing links to the resource on sparc.science (see generateFileLink)
     addDiscoverIdsToContextData(){
@@ -247,13 +247,16 @@ export default {
     processPathForUrl(path){
       path = convertBackslashToForwardSlash(path)
       path = addFilesToPathIfMissing(path)
-      return encodeURI(path)
+      return encodeURIComponent(path)
     },
     splitDoiFromUrl(url){
       return url.split('https://doi.org/').pop()
     },
     generateFileLink(sample){
-      return `${this.envVars.ROOT_URL}/file/${sample.discoverId}/${sample.version}?path=${this.processPathForUrl(sample.path)}`
+      const path = this.processPathForUrl(sample.path);
+      let link = `${this.envVars.ROOT_URL}/file/${sample.discoverId}/${sample.version}` + '?path=';
+      link = link + path;
+      return link;
     },
     parseMarkdown(markdown){
       const returned_data = xss(marked.parse(markdown))

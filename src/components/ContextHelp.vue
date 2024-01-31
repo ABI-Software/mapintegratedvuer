@@ -50,7 +50,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@use "element-plus/theme-chalk/src/card";
 .step-item {
   font-size: 14px;
   margin-bottom: 18px;

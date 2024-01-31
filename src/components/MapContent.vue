@@ -12,7 +12,7 @@
         @onFullscreen="onFullscreen"
         :state="stateToSet"
         ref="flow"
-        @hook:mounted="flowMounted"
+        @vue:mounted="flowMounted"
       />
     </div>
 </template>
