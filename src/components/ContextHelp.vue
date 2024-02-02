@@ -1,8 +1,8 @@
 <template>
   <div v-if="showHelp" class="content-container">
     <el-card class="box-card"
-      @mouseover.native="isActive = true"
-      @mouseleave.native="isActive = false"
+      @mouseover="isActive = true"
+      @mouseleave="isActive = false"
       :class="{active: isActive}">
       <div slot="header" class="header">
         <span>Needing some help?</span>

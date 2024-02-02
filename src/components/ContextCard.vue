@@ -197,7 +197,6 @@ export default {
         .catch((err) => {
           //set defaults if we hit an error
           console.error('caught error!', err)
-          this.thumbnail = require('./assets/missing-image.svg')
           this.discoverId = undefined
           this.loading = false
         });

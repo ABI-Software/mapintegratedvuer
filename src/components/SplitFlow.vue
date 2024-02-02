@@ -266,6 +266,9 @@ export default {
     resetApp: function () {
       this.setState(initialDefaultState());
     },
+    setIdToPrimaryPane: function (id) {
+      this.splitFlowStore.setIdToPrimaryPane(id);
+    },
     setState: function (state) {
       this.entriesStore.setAll(state.entries);
       //Support both old and new permalink.

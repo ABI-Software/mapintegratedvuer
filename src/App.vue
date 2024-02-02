@@ -157,7 +157,7 @@ export default {
     mapIsReady: function() {
       console.log("map is ready")
     },
-    parseQuery: function (query) {
+    parseQuery: function () {
       this.$router.isReady().then(() => {
         this.uuid = this.$route.query.id;
         if (window) {

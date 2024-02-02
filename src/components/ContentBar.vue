@@ -71,7 +71,7 @@
         <template #reference>
           <map-svg-icon icon="close" class="header-icon"
             v-show="(activeView !== 'singlepanel') && (entry.mode !== 'main')"
-            @click.native="closeAndRemove()"/>
+            @click="closeAndRemove()"/>
           </template>
       </el-popover>
 

@@ -55,7 +55,7 @@
           :class="[{ 'active': item.icon ==  activeView},
             {'disabled': item.min > numberOfEntries},
             'view-icon-row']"
-          @click.native="viewClicked(item.icon)"
+          @click="viewClicked(item.icon)"
         >
           <el-col :span="4">
             <map-svg-icon :icon="item.icon"
@@ -82,14 +82,14 @@
       <el-popover class="tooltip" content="Help" placement="bottom-end" :show-after="helpDelay"
         :teleported=false trigger="hover" popper-class="header-popper" >
         <template #reference>
-          <map-svg-icon icon="tooltips" class="header-icon" @click.native="startHelp()"/>
+          <map-svg-icon icon="tooltips" class="header-icon" @click="startHelp()"/>
         </template>
       </el-popover>
       <el-popover class="tooltip"
         content="Fullscreen" placement="bottom-end" :show-after="helpDelay"
         :teleported=false trigger="hover" popper-class="header-popper">
         <template #reference>
-          <map-svg-icon v-show="!isFullscreen" icon="fullScreen" class="header-icon" @click.native="onFullscreen"/>
+          <map-svg-icon v-show="!isFullscreen" icon="fullScreen" class="header-icon" @click="onFullscreen"/>
         </template>
       </el-popover>
       <el-popover class="tooltip"
@@ -97,7 +97,7 @@
         :teleported=false trigger="hover" popper-class="header-popper">
         <template #reference>
           <map-svg-icon v-show="isFullscreen" icon="closeFullScreen" class="header-icon"
-            @click.native="onFullscreen"/>
+            @click="onFullscreen"/>
         </template>
       </el-popover>
       <el-popover
@@ -145,7 +145,7 @@
           <map-svg-icon icon="permalink"
             ref="permalinkRef"
             class="header-icon"
-            @click.native="getShareLink"
+            @click="getShareLink"
             v-show="shareLink"
           />
         </template>
@@ -153,7 +153,7 @@
       <el-popover class="tooltip" content="Close" placement="bottom-end" :show-after="helpDelay"
         :teleported=false trigger="hover" popper-class="header-popper">
         <template #reference>
-          <map-svg-icon icon="close" class="header-icon" @click.native="close" v-show="showIcons"/>
+          <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
 

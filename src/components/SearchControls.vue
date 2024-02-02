@@ -6,13 +6,13 @@
     <el-autocomplete class="search-box" placeholder="Search"
       v-model="searchText"
       :fetch-suggestions="fetchSuggestions"
-      @keyup.enter.native="$emit('search', searchText)"
+      @keyup.enter="$emit('search', searchText)"
       @select="$emit('search', $event.value)"
       :teleported=false
       popper-class="autocomplete-popper">
     </el-autocomplete>
     <map-svg-icon icon="magnifyingGlass" class="magnify"
-      @click.native="$emit('search', searchText)"/>
+      @click="$emit('search', searchText)"/>
     <div v-if="failedSearch" class="text not-found-text">
       '{{failedSearch}}' not found
     </div>
