@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
 import MapContent from '../../src/components/MapContent.vue';
-import SplitFlow from '../../src/components/SplitFlow';
+import SplitFlow from '../../src/components/SplitFlow.vue';
 
 const div = document.createElement('div');
 document.body.appendChild(div);

@@ -1,13 +1,12 @@
 import { shallowMount } from '@vue/test-utils'
-import ContentBar from '../../src/components/ContentBar';
-import ContentVuer from '../../src/components/ContentVuer';
-import Flatmap from "../../src/components/viewers/Flatmap";
-import MultiFlatmap from "../../src/components/viewers/MultiFlatmap";
-import Scaffold from "../../src/components/viewers/Scaffold";
+import ContentBar from '../../src/components/ContentBar.vue';
+import ContentVuer from '../../src/components/ContentVuer.vue';
+import Flatmap from "../../src/components/viewers/Flatmap.vue";
+import MultiFlatmap from "../../src/components/viewers/MultiFlatmap.vue";
+import Scaffold from "../../src/components/viewers/Scaffold.vue";
 import { SideBar } from '@abi-software/map-side-bar';
 
-const div = document.createElement('div');
-document.body.appendChild(div);
+
 const wrapper = shallowMount(ContentVuer, {
   attachTo: div,
   propsData: {
