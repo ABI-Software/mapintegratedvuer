@@ -44,6 +44,7 @@ export default defineConfig(({ command, mode }) => {
         output: {
           globals: {
             vue: "Vue",
+            pinia: "pinia"
           },
         },
       },
