@@ -386,7 +386,7 @@ export default {
   },
   data: function () {
     return {
-      apiLocation: process.env.VUE_APP_API_LOCATION,
+      apiLocation: undefined,
       activeSpecies: "Rat",
       scaffoldCamera: undefined,
       mainStyle: {

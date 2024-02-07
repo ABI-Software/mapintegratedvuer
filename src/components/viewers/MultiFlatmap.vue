@@ -312,7 +312,7 @@ export default {
           element: wrapperElement,
           className: "highlight-marker"
         });
-        this.settingsStore.updateFeaturedMarkerIdentifie({
+        this.settingsStore.updateFeaturedMarkerIdentifier({
           index,
           markerIdentifier,
         });
