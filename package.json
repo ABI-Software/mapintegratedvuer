@@ -9,6 +9,7 @@
     "test": "vitest --dom",
     "build-static": "vite build -c vite.static-build.js",
     "cypress": "cypress",
+    "cypress-component": "cypress run --component",
     "report:merge": "mochawesome-merge cypress/results/json/*json > cypress/results/mochawesome-bundle.json",
     "report:generate": "marge cypress/results/mochawesome-bundle.json -o cypress/reports/html",
     "changelog": "auto-changelog -p --output CHANGELOG.md --template keepachangelog",

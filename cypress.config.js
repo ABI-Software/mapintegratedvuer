@@ -18,4 +18,6 @@ export default {
       bundler: "vite",
     },
   },
+  video: true,
+  videoCompression: true,
 };
