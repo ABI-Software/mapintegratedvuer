@@ -368,5 +368,6 @@ export default {
   max-width: calc(100vw - 100px);
   padding-right: 0px;
   width: unset!important;
+  background: #fff!important;
 }
 </style>
