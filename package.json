@@ -44,9 +44,9 @@
   "dependencies": {
     "@abi-software/flatmapvuer": "^0.6.0-vue3.6",
     "@abi-software/map-side-bar": "^1.7.0-vue3.4",
-    "@abi-software/plotvuer": "^0.4.0-vue-3-alpha.5",
+    "@abi-software/plotvuer": "^0.4.0-vue-3-alpha.7",
     "@abi-software/scaffoldvuer": "^0.4.0-vue3.6",
-    "@abi-software/simulationvuer": "^0.7.0-vue-3-alpha.3",
+    "@abi-software/simulationvuer": "^0.7.0-vue-3-alpha.4",
     "@abi-software/svg-sprite": "^0.4.0-vue3-beta.0",
     "@cypress/vite-dev-server": "^5.0.7",
     "@element-plus/icons-vue": "^2.3.1",
