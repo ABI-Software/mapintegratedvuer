@@ -130,7 +130,7 @@ describe('MapContent', () => {
     cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > .settings-group > :nth-child(1)').should('exist').click();
 
     //Open a new flatmap
-    cy.get('.open-map-popper > :nth-child(1) > :nth-child(2) > .el-button:visible').should('exist').click();
+    cy.get('.open-map-popper > :nth-child(2) > .el-button:visible').should('exist').click();
 
     //Switch back to the original viewer
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
