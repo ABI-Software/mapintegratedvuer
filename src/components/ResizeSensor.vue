@@ -28,7 +28,7 @@ export default {
       this.$emit("resize");
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.deactivate();
   },
   activated() {
