@@ -177,6 +177,7 @@ export default {
   bottom: 0px;
   position: absolute;
   z-index:6;
+  overflow: hidden;
 }
 
 .dataset-header {
