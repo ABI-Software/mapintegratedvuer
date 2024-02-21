@@ -87,7 +87,7 @@ export default {
     },
     getState: function () {
       return this.$refs.viewer.getState();
-    },       
+    },
     resourceSelected: function (payload) {
       this.$emit("resource-selected", payload);
     },
@@ -169,6 +169,10 @@ export default {
   height: 32px;
   border-bottom: 1px solid rgb(220, 223, 230);
   z-index: 7;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .component-container {

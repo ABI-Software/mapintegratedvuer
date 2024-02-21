@@ -21,7 +21,7 @@
         {{ getEntryTitle(entry) }}
       </div>
     </div>
-    <el-row class="icon-group">    
+    <el-row class="icon-group">
       <div v-show="contextCardEntry && contextCardVisible" class="hide" @click="contextCardVisible = false">
         Hide information
         <el-icon><el-icon-arrow-up /></el-icon>
@@ -30,7 +30,7 @@
         Show information
         <el-icon><el-icon-arrow-down /></el-icon>
       </div>
-      
+
       <el-popover
         placement="bottom"
         :teleported="false"
@@ -42,13 +42,13 @@
         :visible="contextCardVisible"
       >
         <template #default v-if="contextCardEntry">
-          <flatmap-context-card 
+          <flatmap-context-card
             class="flatmap-context-card"
-            v-if="(contextCardEntry.type == 'Flatmap' || 
-                  contextCardEntry.type == 'MultiFlatmap')" 
+            v-if="(contextCardEntry.type == 'Flatmap' ||
+                  contextCardEntry.type == 'MultiFlatmap')"
             :mapImpProv="contextCardEntry.mapImpProv"
           />
-          <context-card 
+          <context-card
             v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
             :entry="contextCardEntry"
             :envVars="envVars"
@@ -152,8 +152,8 @@ export default {
         ROOT_URL: this.settingsStore.rootUrl,
       };
     },
-    popperOptions: function() { 
-      return { 
+    popperOptions: function() {
+      return {
         preventOverflow: {
           enabled: true,
           boundary: this.boundariesElement,
@@ -245,7 +245,7 @@ export default {
   font-size: 14px;
   font-weight: normal;
   line-height: 20px;
-  margin-left: 11px;
+  margin-left: 1rem;
   margin-top: 4px;
 }
 
@@ -278,7 +278,7 @@ export default {
         color: $app-primary-color;
       }
     }
-    
+
     :deep(.el-input__icon) {
       line-height: 24px;
       color: $lightGrey;
@@ -322,21 +322,24 @@ export default {
   color: $app-primary-color;
   cursor: pointer;
   margin-right: 6px;
-  margin-top: 3px;
+  margin-top: 8px;
 }
 
 .icon-group {
+  position: relative;
+  top: auto;
   font-size: 12px;
 }
 
 .info-icon {
+  margin-top: 2px;
   margin-right: 8px;
   font-size: 28px;
   color: $app-primary-color;
   cursor: pointer;
   &::before { // since the icon is a font, we need to adjust the vertical alignment
     position: relative;
-    top: -2px; 
+    top: -2px;
   }
 }
 
