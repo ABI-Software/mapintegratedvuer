@@ -22,7 +22,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { MapSvgIcon } from '@abi-software/svg-sprite';
-import { 
+import {
   ElAutocomplete as Autocomplete
 } from "element-plus";
 
@@ -80,16 +80,14 @@ export default {
     font-size: 0.8rem;
     margin-left: 0.5rem;
   }
-  .search-box {
+  :deep(.search-box) {
     margin-top: 2px;
     margin-left:0.5rem;
     height:28px;
     width:137px;
-    :deep(.el-input__inner) {
-      background-color: $background;
-      height:28px;
+    .el-input__inner {
+      height:26px;
       line-height:28px;
-      border: 1px solid rgb(144, 147, 153);
       border-radius: 4px;
       &:focus {
         border-color: $app-primary-color;
