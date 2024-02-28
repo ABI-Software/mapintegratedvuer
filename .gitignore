@@ -9,3 +9,4 @@ cypress/videos
 results
 cypress/screenshots/
 cypress/reports/
+test/src/

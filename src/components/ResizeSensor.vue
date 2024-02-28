@@ -19,16 +19,18 @@ export default {
       }
     },
     deactivate: function() {
-      this._sensor.detach(this.$refs.display, this.displayResize);
-      delete this._sensor;
-      this._sensor = undefined;
-      this.displayResize();
+      if (this._sensor) {
+        this._sensor.detach(this.$refs.display, this.displayResize);
+        delete this._sensor;
+        this._sensor = undefined;
+        this.displayResize();
+      }
     },
     displayResize: function() {
       this.$emit("resize");
     },
   },
-  beforeUnmount() {
+  unmounted() {
     this.deactivate();
   },
   activated() {
