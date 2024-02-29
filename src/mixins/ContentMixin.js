@@ -6,7 +6,9 @@ import {
 } from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
 import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
-import store from "../store";
+import { mapStores } from 'pinia';
+import { useSettingsStore } from '../stores/settings';
+import { useSplitFlowStore } from '../stores/splitFlow';
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
@@ -30,12 +32,13 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useSettingsStore, useSplitFlowStore),
     syncMode() {
-      return store.state.splitFlow.syncMode;
+      return this.splitFlowStore.syncMode;
     },
   },
   mounted: function () {
-    EventBus.$on("startHelp", () => {
+    EventBus.on("startHelp", () => {
       this.startHelp();
     });
   },
@@ -50,7 +53,7 @@ export default {
       if (type === "SYNC") {
         this.toggleSyncMode();
       } else {
-        EventBus.$emit("OpenNewMap", type);
+        EventBus.emit("OpenNewMap", type);
       }
     },
     updateWithViewUrl: function() {
@@ -74,7 +77,7 @@ export default {
     resourceSelected: function (type, resource, augmented) {
       // Skip processing if resources already has actions
       if (this.resourceHasAction(resource)) {
-        EventBus.$emit("PopoverActionClick", resource);
+        EventBus.emit("PopoverActionClick", resource);
         return;
       }
 
@@ -100,14 +103,14 @@ export default {
             );
 
             if (
-              store.getters["settings/isFeaturedMarkerIdentifier"](
+              this.settingsStore.isFeaturedMarkerIdentifier(
                 resource.feature.id
               )
             ) {
               // It is a featured dataset search for DOI.
               returnedAction = {
                 type: "Search",
-                term: store.getters["settings/featuredMarkerDoi"](
+                term: this.settingsStore.featuredMarkerDoi(
                   resource.feature.id
                 ),
               };
@@ -168,7 +171,7 @@ export default {
       if ((returnedAction === undefined) && augmented) {
         returnedAction = getInteractiveAction(result, action);
       }
-      if (returnedAction) EventBus.$emit("PopoverActionClick", returnedAction);
+      if (returnedAction) EventBus.emit("PopoverActionClick", returnedAction);
       if (fireResourceSelected) this.$emit("resource-selected", result);
     },
     resourceHasAction: function (resource) {
@@ -184,7 +187,7 @@ export default {
      * Check if this viewer is currently visible
      */
      isVisible: function() {
-      const paneName = store.getters["splitFlow/getPaneNameById"](this.entry.id);
+      const paneName = this.splitFlowStore.getPaneNameById(this.entry.id);
       return paneName !== undefined;
     },
     displayTooltip: function() {
@@ -211,7 +214,7 @@ export default {
         if (objects.length === 0) {
           //Use nerve mapping
           if (data.resource && data.resource.feature) {
-            matched = getNerveNames(data.resource.feature.models);
+            const matched = getNerveNames(data.resource.feature.models);
             if (matched.length > 0) return matched;
           }
           let matched = getParentsRegion(name);
@@ -275,7 +278,7 @@ export default {
           } catch (error) {
             markerSpecies = undefined;
           }
-          store.commit("settings/updateFeaturedMarker", {
+          this.settingsStore.updateFeaturedMarker({
             identifier,
             marker: markerCurie,
             doi: markerDoi,
@@ -291,7 +294,7 @@ export default {
       fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
         .then(response => response.json())
         .then(data => {
-          store.commit("settings/updateFeatured", data.identifiers);
+          this.settingsStore.updateFeatured(data.identifiers);
           data.identifiers.forEach(element => {
             local_this.getDatasetAnatomyInfo(element);
           });
@@ -383,7 +386,7 @@ export default {
   },
   data: function () {
     return {
-      apiLocation: process.env.VUE_APP_API_LOCATION,
+      apiLocation: undefined,
       activeSpecies: "Rat",
       scaffoldCamera: undefined,
       mainStyle: {
@@ -400,9 +403,9 @@ export default {
   created: function () {
     this.flatmapAPI = undefined;
     this.apiLocation = undefined;
-    if (store.state.settings.flatmapAPI)
-      this.flatmapAPI = store.state.settings.flatmapAPI;
-    if (store.state.settings.sparcApi)
-      this.apiLocation = store.state.settings.sparcApi;
+    if (this.settingsStore.flatmapAPI)
+      this.flatmapAPI = this.settingsStore.flatmapAPI;
+    if (this.settingsStore.sparcApi)
+      this.apiLocation = this.settingsStore.sparcApi;
   },
 };

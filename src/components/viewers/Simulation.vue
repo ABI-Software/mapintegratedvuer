@@ -9,7 +9,7 @@
 /* eslint-disable no-alert, no-console */
 import ContentMixin from "../../mixins/ContentMixin";
 import { SimulationVuer } from "@abi-software/simulationvuer";
-import "@abi-software/simulationvuer/dist/simulationvuer.css";
+import "@abi-software/simulationvuer/dist/style.css";
 
 export default {
   name: "Simulation",

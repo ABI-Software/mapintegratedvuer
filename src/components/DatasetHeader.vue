@@ -22,21 +22,20 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
-import { Link, Icon, Card, Button, Select } from "element-ui";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
+import {
+  ElButton as Button,
+  ElCard as Card,
+  ElLink as Link
+} from "element-plus";
 
-locale.use(lang);
-Vue.use(Link);
-Vue.use(Icon);
-Vue.use(Card);
-Vue.use(Button);
-Vue.use(Select);
 
 export default {
   name: "DatasetHeader",
-  components: {},
+  components: {
+    Button,
+    Card,
+    Link
+  },
   props: {
     /**
      * Object containing information for

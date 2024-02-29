@@ -7,7 +7,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-const ResizeSensor = require("css-element-queries/src/ResizeSensor");
+import ResizeSensor from "css-element-queries/src/ResizeSensor";
 
 export default {
   name: "ResizeSensor",
@@ -19,16 +19,18 @@ export default {
       }
     },
     deactivate: function() {
-      this._sensor.detach(this.$refs.display, this.displayResize);
-      delete this._sensor;
-      this._sensor = undefined;
-      this.displayResize();
+      if (this._sensor) {
+        this._sensor.detach(this.$refs.display, this.displayResize);
+        delete this._sensor;
+        this._sensor = undefined;
+        this.displayResize();
+      }
     },
     displayResize: function() {
       this.$emit("resize");
     },
   },
-  beforeDestroy() {
+  unmounted() {
     this.deactivate();
   },
   activated() {

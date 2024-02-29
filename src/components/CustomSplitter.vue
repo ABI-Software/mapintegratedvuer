@@ -8,8 +8,8 @@
       :horizontal="isHorizontal"
       :dbl-click-splitter="false"
     >
-      <template v-for="(child) in children">
-        <pane :key="child" :ref="child">
+      <template v-for="(child) in children" :key="child">
+        <pane :ref="child" @vue:beforeUnmount="childUnmounted(child)">
           <resize-sensor
             v-if="customLayout[child].content"
             @resize="calculateStyles(child)">
@@ -28,17 +28,16 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import CustomSplitter from "./CustomSplitter";
 import EventBus from './EventBus';
-import ResizeSensor from "./ResizeSensor";
+import ResizeSensor from "./ResizeSensor.vue";
 import { Splitpanes, Pane } from "splitpanes";
-import store from "../store";
 import "splitpanes/dist/splitpanes.css";
+import { mapStores } from 'pinia';
+import { useSplitFlowStore } from '../stores/splitFlow';
 
 export default {
   name: "CustomSplitter",
   components: {
-    CustomSplitter,
     Splitpanes,
     Pane,
     ResizeSensor
@@ -58,7 +57,8 @@ export default {
         this.$refs[refName][0] && this.$refs[refName][0].$el) {
           const el = this.$refs[refName][0].$el;
           const rect = el.getBoundingClientRect();
-          EventBus.$emit("PaneResize", {refName, rect});
+          EventBus.emit("PaneResize", {refName, rect});
+
         }
       }
     },
@@ -78,13 +78,17 @@ export default {
         }
       }
     },
+    childUnmounted: function(refName) {
+      EventBus.emit("PaneUnmounted", {refName});
+    }
   },
   computed: {
+    ...mapStores(useSplitFlowStore),
     children() {
       return this.customLayout[this.index].children;
     },
     customLayout() {
-      return store.state.splitFlow.customLayout;
+      return this.splitFlowStore.customLayout;
     },
     isHorizontal() {
       return this.customLayout[this.index].horizontal;
@@ -95,12 +99,14 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 
-::v-deep .splitpanes.default-theme .splitpanes__pane {
-  background-color: #ccc !important;
-  position: relative;
+:deep() {
+  .splitpanes.default-theme .splitpanes__pane {
+    background-color: #ccc !important;
+    position: relative;
+  }
 }
 
-::v-deep .splitpanes__splitter {
+:deep(.splitpanes__splitter) {
   margin: 0px 0px 0px 0px !important;
   z-index: 6 !important;
   &::before {
@@ -118,13 +124,13 @@ export default {
   }
 }
 
-::v-deep .splitpanes--horizontal > .splitpanes__splitter,
-::v-deep .splitpanes--vertical > .splitpanes__splitter {
+:deep(.splitpanes--horizontal > .splitpanes__splitter),
+:deep(.splitpanes--vertical > .splitpanes__splitter) {
   background-color: #ccc !important;
   border-left: unset;
 }
 
-::v-deep .splitpanes--horizontal > .splitpanes__splitter {
+:deep(.splitpanes--horizontal > .splitpanes__splitter) {
   height: 1px;
   &::before {
     top: -2px;
@@ -133,7 +139,7 @@ export default {
   }
 }
 
-::v-deep .splitpanes--vertical > .splitpanes__splitter {
+:deep(.splitpanes--vertical > .splitpanes__splitter) {
   width: 1px;
   &::before {
     left: -3px;

@@ -1,23 +1,31 @@
 <template>
   <div class="header">
+    <map-svg-sprite-color />
     <search-controls
       @search="$emit('local-search', {term: $event});"
       @fetch-suggestions="$emit('fetch-suggestions', {data: $event});"
       :failedSearch="failedSearch"
     />
-    <div class="switch-control">
+
+    <div v-if="syncMode" class="switch-control">
       <el-switch
-        v-if="syncMode"
         class="switch"
         v-model="independent"
         active-text="Independent"
         :width=30
         inactive-text="Linked">
       </el-switch>
-      <el-popover v-if="syncMode" class="tooltip"
-        placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper">
-        <div>
+      <el-popover
+        class="tooltip"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported=false
+        trigger="hover"
+        popper-class="header-popper">
+        <template #reference>
+          <map-svg-icon icon="help" class="sync-help header-icon"/>
+        </template>
+        <template #default>
             When in Linked mode the two maps will interact 
             <br>
             together. Select an organ in one and it will
@@ -25,25 +33,29 @@
             be automatically selected in the other.
             <br>
             In Independent mode the maps will work separately."
-          </div>
-        <map-svg-icon icon="help"  slot="reference" class="sync-help header-icon"/>
+        </template>
       </el-popover>
     </div>
+
     <el-row class="icon-group">
       <el-popover
+        v-if="activeViewRef"
+        :virtual-ref="activeViewRef"
         ref="viewPopover"
         placement="bottom"
         width="133"
-        :appendToBody=false
+        :teleported=false
         trigger="click"
-        popper-class="view-icon-popover">
+        popper-class="view-icon-popover"
+        virtual-triggering
+        >
         <el-row :gutter="20"
           v-for="item in viewIcons"
           :key="item.name"
           :class="[{ 'active': item.icon ==  activeView},
             {'disabled': item.min > numberOfEntries},
             'view-icon-row']"
-          @click.native="viewClicked(item.icon)"
+          @click="viewClicked(item.icon)"
         >
           <el-col :span="4">
             <map-svg-icon :icon="item.icon"
@@ -54,47 +66,58 @@
           </el-col>
         </el-row>
       </el-popover>
-      <el-popover class="tooltip"  content="Split screen" placement="bottom-end"
-        :open-delay="helpDelay" :appendToBody=false trigger="hover"
+      <el-popover class="tooltip" content="Split screen" placement="bottom-end"
+        :show-after="helpDelay" :teleported=false trigger="hover"
         popper-class="header-popper"
       >
-        <map-svg-icon :icon="activeView"
-          v-popover:viewPopover
+        <template #reference>
+          <map-svg-icon :icon="activeView"
+          ref="activeViewRef"
           :class="[{'disabled': (1 >= numberOfEntries)},
             'header-icon']"
-          slot="reference"/>
+          />
+        </template>
       </el-popover>
-      <el-popover class="tooltip" content="Help" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showHelpIcon" >
-        <map-svg-icon icon="tooltips" slot="reference" class="header-icon" @click.native="startHelp()"/>
+
+      <el-popover class="tooltip" content="Help" placement="bottom-end" :show-after="helpDelay"
+        :teleported=false trigger="hover" popper-class="header-popper" >
+        <template #reference>
+          <map-svg-icon icon="tooltips" class="header-icon" @click="startHelp()"/>
+        </template>
       </el-popover>
-      <el-popover v-show="!isFullscreen" class="tooltip"
-        content="Fullscreen" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper">
-          <map-svg-icon icon="fullScreen"  slot="reference" class="header-icon" @click.native="onFullscreen"/>
+      <el-popover class="tooltip"
+        content="Fullscreen" placement="bottom-end" :show-after="helpDelay"
+        :teleported=false trigger="hover" popper-class="header-popper">
+        <template #reference>
+          <map-svg-icon v-show="!isFullscreen" icon="fullScreen" class="header-icon" @click="onFullscreen"/>
+        </template>
       </el-popover>
-      <el-popover v-show="isFullscreen" class="tooltip"
-        content="Exit fullscreen" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper">
-          <map-svg-icon icon="closeFullScreen" slot="reference" class="header-icon"
-            @click.native="onFullscreen"/>
+      <el-popover class="tooltip"
+        content="Exit fullscreen" placement="bottom-end" :show-after="helpDelay"
+        :teleported=false trigger="hover" popper-class="header-popper">
+        <template #reference>
+          <map-svg-icon v-show="isFullscreen" icon="closeFullScreen" class="header-icon"
+            @click="onFullscreen"/>
+        </template>
       </el-popover>
       <el-popover
+        v-if="permalinkRef"
         ref="linkPopover"
+        :virtual-ref="permalinkRef"
         placement="bottom-end"
         width="400"
-        :appendToBody=false
+        :teleported=false
         trigger="click"
         popper-class="link-popover"
+        virtual-triggering
       >
         <el-row :gutter="20"
           v-loading="loadingLink"
-          element-loading-text="Creating link..."
-          element-loading-spinner="el-icon-loading">
+          element-loading-text="Creating link...">
           <el-col :span="20">
             <el-input
               class="link-input"
-              size="mini"
+              size="small"
               placeholder="Permanant Link Here"
               :readonly=true
               v-model="shareLink"
@@ -103,29 +126,37 @@
           </el-col>
           <el-col :span="4">
             <el-popover class="tooltip" content="Copy link" placement="bottom-end"
-              :open-delay="helpDelay" :appendToBody=false trigger="hover"
+              :show-after="helpDelay" :teleported=false trigger="hover"
               popper-class="header-popper">
-            <el-button slot="reference" class="copy-button"
-              icon="el-icon-document-copy" size="mini"
-              @click="copyShareLink"></el-button>
+              <template #reference>
+                <el-button class="copy-button"
+                  :icon="ElIconCopyDocument" size="small"
+                  @click="copyShareLink"></el-button>
+              </template>
             </el-popover>
           </el-col>
         </el-row>
       </el-popover>
       <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
-        :open-delay="helpDelay" :appendToBody=false trigger="hover"
+        :show-after="helpDelay" :teleported=false trigger="hover"
         popper-class="header-popper"
-        v-show="shareLink">
-        <map-svg-icon icon="permalink"
-          v-popover:linkPopover
-          class="header-icon"
-          @click.native="getShareLink"
-          slot="reference"/>
+        >
+        <template #reference>
+          <map-svg-icon icon="permalink"
+            ref="permalinkRef"
+            class="header-icon"
+            @click="getShareLink"
+            v-show="shareLink"
+          />
+        </template>
       </el-popover>
-      <el-popover class="tooltip" content="Close" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" v-show="showIcons">
-        <map-svg-icon icon="close" slot="reference" class="header-icon" @click.native="close"/>
+      <el-popover class="tooltip" content="Close" placement="bottom-end" :show-after="helpDelay"
+        :teleported=false trigger="hover" popper-class="header-popper">
+        <template #reference>
+          <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
+        </template>
       </el-popover>
+
     </el-row>
   </div>
 </template>
@@ -133,39 +164,44 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
+import { shallowRef } from 'vue';
 import EventBus from './EventBus';
-import store from '../store';
-import {MapSvgIcon} from '@abi-software/svg-sprite';
-import SearchControls from './SearchControls';
-
+import { mapStores } from 'pinia';
+import { useEntriesStore } from '../stores/entries';
+import { useSettingsStore } from '../stores/settings';
+import { useSplitFlowStore } from '../stores/splitFlow';
+import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
+import SearchControls from './SearchControls.vue';
 import {
-  Button,
-  Col,
-  Icon,
-  Input,
-  Popover,
-  Radio,
-  Row,
-  Switch
-} from "element-ui";
+  CopyDocument as ElIconCopyDocument,
+} from '@element-plus/icons-vue';
+import {
+  ElButton as Button,
+  ElCol as Col,
+  ElIcon as Icon,
+  ElInput as Input,
+  ElPopover as Popover,
+  ElRow as Row,
+  ElSwitch as Switch,
+} from "element-plus";
 
-Vue.use(Button);
-Vue.use(Col);
-Vue.use(Icon);
-Vue.use(Input);
-Vue.use(Popover);
-Vue.use(Radio);
-Vue.use(Row);
-Vue.use(Switch);
 /**
  * Cmponent for the header of differnt vuers.
  */
 export default {
   name: "DialogToolbarContent",
   components: {
+    Button,
+    Col,
+    Icon,
+    Input,
+    Popover,
+    Row,
+    Switch,
     MapSvgIcon,
+    MapSvgSpriteColor,
     SearchControls,
+    ElIconCopyDocument,
   },
   props: {
     /**
@@ -183,29 +219,26 @@ export default {
       default: false
 
     },
-    showHelpIcon: {
-      type: Boolean,
-      default: true
-    },
   },
   computed: {
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     activeView() {
-      return store.state.splitFlow.activeView;
+      return this.splitFlowStore.activeView;
     },
     helpDelay() {
-      return store.state.settings.helpDelay;
+      return this.settingsStore.helpDelay;
     },
     shareLink() {
-      return store.state.settings.shareLink;
+      return this.settingsStore.shareLink;
     },
     syncMode() {
-      return store.state.splitFlow.syncMode;
+      return this.splitFlowStore.syncMode;
     },
     viewIcons() {
-      return store.state.splitFlow.viewIcons;
+      return this.splitFlowStore.viewIcons;
     },
     globalCallback() {
-      return store.state.splitFlow.globalCallback;
+      return this.splitFlowStore.globalCallback;
     }
   },
   watch: {
@@ -215,7 +248,7 @@ export default {
     independent: function(value) {
       let flag = !(value === true);
       if (this.globalCallback !== flag)
-        store.commit("splitFlow/toggleGlobalCallback", flag);
+        this.splitFlowStore.toggleGlobalCallback(flag);
     },
     globalCallback: function(value) {
       let flag = !(value === true);
@@ -230,6 +263,9 @@ export default {
       shareLinkDisplay: false,
       independent: true,
       failedSearch: undefined,
+      activeViewRef: undefined,
+      permalinkRef: undefined,
+      ElIconCopyDocument: shallowRef(ElIconCopyDocument)
     }
   },
   methods: {
@@ -237,7 +273,7 @@ export default {
       this.$emit("titleClicked", id);
     },
     startHelp: function(){
-      EventBus.$emit("startHelp");
+      EventBus.emit("startHelp");
     },
     onFullscreen: function() {
       this.$emit("onFullscreen");
@@ -258,49 +294,28 @@ export default {
     getShareLink: function() {
       this.loadingLink = true;
       this.shareLinkDisplay = true;
-      EventBus.$emit("updateShareLinkRequested");
+      EventBus.emit("updateShareLinkRequested");
     },
     viewClicked: function(view) {
-      store.commit("splitFlow/updateActiveView", 
-        {
-          view,
-          entries: store.state.entries.entries,
-        });
+      this.splitFlowStore.updateActiveView({
+        view,
+        entries: this.entriesStore.entries,
+      });
     }
+  },
+  mounted: function () {
+    this.activeViewRef = shallowRef(this.$refs.activeViewRef);
+    this.permalinkRef = shallowRef(this.$refs.permalinkRef);
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "~element-ui/packages/theme-chalk/src/button";
-@import "~element-ui/packages/theme-chalk/src/loading";
-@import "~element-ui/packages/theme-chalk/src/icon";
-@import "~element-ui/packages/theme-chalk/src/input";
-@import "~element-ui/packages/theme-chalk/src/popover";
-@import "~element-ui/packages/theme-chalk/src/radio";
-@import "~element-ui/packages/theme-chalk/src/row";
-@import "~element-ui/packages/theme-chalk/src/switch";
-@import "../assets/header-icon.scss";
-
-.content {
-  width:calc(100% - 120px);
-  height:32px;
-}
-
-.radio-control {
-  position:absolute;
-  justify-content: center;
-  top: 4px;
-  right:12px;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
+@use "../assets/header-icon.scss";
 
 .icon-group {
-  ::v-deep .el-button--text {
+  :deep(.el-button--text) {
     color:#606266;
     font-size: 1.5em;
     &:hover {
@@ -322,7 +337,7 @@ export default {
   height:32px;
 }
 
-::v-deep .header-popper {
+:deep(.header-popper.el-popover.el-popper) {
   padding: 6px 4px;
   font-size:12px;
   color: rgb(48, 49, 51);
@@ -330,22 +345,23 @@ export default {
   border: 1px solid $app-primary-color;
   white-space: nowrap;
   min-width: unset;
-  &.el-popper[x-placement^=bottom] {
-    .popper__arrow {
-      border-bottom-color: $app-primary-color !important;
-      &:after {
-        border-bottom-color: #f3ecf6 !important;
-      }
+  .el-popper__arrow {
+    &:before {
+      border-color: $app-primary-color;
+      background-color: #f3ecf6;
     }
   }
 }
 
-::v-deep .link-popover {
+:deep(.link-popover) {
   border: 1px solid $app-primary-color;
 }
 
-::v-deep .el-loading-spinner {
-  i, .el-loading-text {
+:deep(.el-loading-spinner) {
+  .path {
+    stroke: $app-primary-color;
+  }
+  .el-loading-text {
     color: $app-primary-color;
   }
 }
@@ -361,7 +377,7 @@ export default {
 }
 
 .link-input {
-  ::v-deep .el-input__inner {
+  :deep(.el-input__inner) {
     color:#303133;
     &:focus {
       border-color:$app-primary-color;
@@ -386,6 +402,8 @@ export default {
 
 .view-icon {
   font-size: 1.7em;
+  height: 24px!important;
+  width: 24px!important;
   color: $app-primary-color;
   padding-top:3px;
 }
@@ -399,18 +417,17 @@ export default {
   padding-top:7px;
 }
 
-::v-deep .view-icon-popover {
+:deep(.view-icon-popover.el-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
+  width:unset!important;
   cursor:default;
-  &.el-popper[x-placement^=bottom] {
-    .popper__arrow {
-      border-bottom-color: $app-primary-color !important;
-      &:after {
-        border-bottom-color: #fff !important;
-      }
+  .el-popper__arrow {
+    &:before {
+      border-color: $app-primary-color;
+      background-color: #f3ecf6;
     }
   }
 }
@@ -422,6 +439,7 @@ export default {
   position: absolute;
   .sync-help {
     left:5px;
+    stroke: $app-primary-color;
   }
 }
 
@@ -430,52 +448,17 @@ export default {
   padding-left: 0.5rem;
   border-radius: 4px;
   border: 1px solid rgb(220, 223, 230);
-  vertical-align: baseline;
-  ::v-deep .el-switch__label.is-active {
-    color: $purple;
-  }
-  ::v-deep .el-switch__core {
-    background: $app-primary-color;
-    border: 1px solid $lightGrey;
-    height: 14px;
-    &::before {
-      content: "";
-      position:absolute;
-      top: -3px;
-      left: -1px;
-      border-radius: 100%;
-      -webkit-transition: all .3s;
-      transition: all .3s;
-      width: 19px;
-      height: 19px;
-      background-color: $app-primary-color;
-    }
-    &::after {
-      top: -2px;
-      left: 0px;
-      width: 17px;
-      height: 17px;
-      background-color: $cochlear;
-    }
-  }
-  ::v-deep &.is-checked {
-    .el-switch__core {
-      border: 1px solid $lightGrey;
-      background: $cochlear;
-      &::before {
-        left: 100%;
-        margin-left:-17px;
-      }    
-      &::after {
-        left: 100%;
-        margin-left: -16px;
-      }
-    }
-  }
+  vertical-align: super;
+  height: 28px;
 }
 
 .sync-help {
   margin-left: 5px;
+}
+
+:deep(.el-loading-spinner) {
+  top: 0px;
+  scale: 0.7;
 }
 
 </style>

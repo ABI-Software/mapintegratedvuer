@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils'
-import SplitDialog from '../../src/components/SplitDialog';
-import ContentVuer from '../../src/components/ContentVuer';
+import SplitDialog from '../../src/components/SplitDialog.vue';
+import ContentVuer from '../../src/components/ContentVuer.vue';
 
 const div = document.createElement('div');
 document.body.appendChild(div);

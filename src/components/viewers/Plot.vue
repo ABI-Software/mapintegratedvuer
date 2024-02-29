@@ -10,7 +10,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { PlotVuer } from "@abi-software/plotvuer";
-import "@abi-software/plotvuer/dist/plotvuer.css";
+import "@abi-software/plotvuer/dist/style.css";
 import ContentMixin from "../../mixins/ContentMixin";
 
 export default {

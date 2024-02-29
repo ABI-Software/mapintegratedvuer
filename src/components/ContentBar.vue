@@ -3,8 +3,8 @@
     <div class="toolbar-flex-container">
       <el-select
         v-if="entries.length > 1"
-        :popper-append-to-body="false"
-        :value="entry.id"
+        :teleported="false"
+        :model-value="entry.id"
         placeholder="Select"
         class="select-box"
         popper-class="viewer_dropdown"
@@ -21,33 +21,34 @@
         {{ getEntryTitle(entry) }}
       </div>
     </div>
-    <el-row class="icon-group">    
+    <el-row class="icon-group">
       <div v-show="contextCardEntry && contextCardVisible" class="hide" @click="contextCardVisible = false">
         Hide information
-        <i class="el-icon-arrow-up"></i>
+        <el-icon><el-icon-arrow-up /></el-icon>
       </div>
       <div v-show="contextCardEntry && !contextCardVisible" class="hide" @click="contextCardVisible = true">
         Show information
-        <i class="el-icon-arrow-down"></i>
+        <el-icon><el-icon-arrow-down /></el-icon>
       </div>
+
       <el-popover
         placement="bottom"
-        :appendToBody="false"
+        :teleported="false"
         trigger="manual"
         :width="setPopperWidth(slot.id)"
-        offset=0
-        class="context-card-popover"
+        :offset="0"
+        popper-class="context-card-popover"
         :popper-options="popperOptions"
-        v-model="contextCardVisible"
+        :visible="contextCardVisible"
       >
-        <template v-if="contextCardEntry">
-          <flatmap-context-card 
+        <template #default v-if="contextCardEntry">
+          <flatmap-context-card
             class="flatmap-context-card"
-            v-if="(contextCardEntry.type == 'Flatmap' || 
-                  contextCardEntry.type == 'MultiFlatmap')" 
+            v-if="(contextCardEntry.type == 'Flatmap' ||
+                  contextCardEntry.type == 'MultiFlatmap')"
             :mapImpProv="contextCardEntry.mapImpProv"
           />
-          <context-card 
+          <context-card
             v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
             :entry="contextCardEntry"
             :envVars="envVars"
@@ -56,47 +57,67 @@
             @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
           />
         </template>
-        <div class="el-icon-info info-icon"
-          slot="reference"
-          @click="contextCardVisible = !contextCardVisible"
-          v-show="contextCardEntry"
-        >
-        </div>
+        <template #reference>
+          <el-icon
+            class="info-icon"
+            @click="contextCardVisible = !contextCardVisible"
+            v-show="contextCardEntry">
+            <el-icon-info-filled/>
+          </el-icon>
+        </template>
       </el-popover>
-      <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :open-delay="helpDelay"
-        :appendToBody=false trigger="hover" popper-class="header-popper" >
-        <map-svg-icon icon="close" slot="reference" class="header-icon"
-          v-if="(activeView !== 'singlepanel') && (entry.mode !== 'main')"
-          @click.native="closeAndRemove()"/>
+      <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :show-after="helpDelay"
+        :teleported=false trigger="hover" popper-class="header-popper" >
+        <template #reference>
+          <map-svg-icon icon="close" class="header-icon"
+            v-show="(activeView !== 'singlepanel') && (entry.mode !== 'main')"
+            @click="closeAndRemove()"/>
+          </template>
       </el-popover>
+
     </el-row>
+
   </div>
 </template>
 
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
 import EventBus from './EventBus';
-import store from "../store";
-import ContextCard from "./ContextCard";
+import { MapSvgIcon } from '@abi-software/svg-sprite';
+import { mapStores } from 'pinia';
+import { useEntriesStore } from '../stores/entries';
+import { useSettingsStore } from '../stores/settings';
+import { useSplitFlowStore } from '../stores/splitFlow';
+import ContextCard from "./ContextCard.vue";
 import FlatmapContextCard from './FlatmapContextCard.vue';
-import { Input, Option, Popover, Row, Select } from "element-ui";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
-
-locale.use(lang);
-Vue.use(Input);
-Vue.use(Option);
-Vue.use(Select);
-Vue.use(Popover);
-Vue.use(Row);
+import {
+  ArrowDown as ElIconArrowDown,
+  ArrowUp as ElIconArrowUp,
+  InfoFilled as ElIconInfoFilled,
+} from '@element-plus/icons-vue'
+import {
+  ElInput as Input,
+  ElOption as Option,
+  ElPopover as Popover,
+  ElRow as Row,
+  ElSelect as Select,
+} from "element-plus";
 
 export default {
   name: "ContentBar",
   components: {
+    ElIconArrowDown,
+    ElIconArrowUp,
+    ElIconInfoFilled,
+    Input,
+    Option,
+    Popover,
+    Row,
+    Select,
     ContextCard,
-    FlatmapContextCard
+    FlatmapContextCard,
+    MapSvgIcon,
   },
   props: {
     entry: Object,
@@ -107,46 +128,46 @@ export default {
       slot:{
 
       },
-      boundariesElement: null, // this is set @hook:mounted by the parent component via the 'setBoundary' method
+      boundariesElement: null, // this is set @vue:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntry: undefined,
     }
   },
   computed: {
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     helpDelay() {
-      return store.state.settings.helpDelay;
+      return this.settingsStore.helpDelay;
     },
     activeView: function() {
-      return store.state.splitFlow.activeView;
+      return this.splitFlowStore.activeView;
     },
     envVars: function () {
       return {
-        API_LOCATION: store.state.settings.sparcApi,
-        ALGOLIA_INDEX: store.state.settings.algoliaIndex,
-        ALGOLIA_KEY: store.state.settings.algoliaKey,
-        ALGOLIA_ID: store.state.settings.algoliaId,
-        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi,
-        NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
-        ROOT_URL: store.state.settings.rootUrl,
+        API_LOCATION: this.settingsStore.sparcApi,
+        ALGOLIA_INDEX: this.settingsStore.algoliaIndex,
+        ALGOLIA_KEY: this.settingsStore.algoliaKey,
+        ALGOLIA_ID: this.settingsStore.algoliaId,
+        PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
+        NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
+        ROOT_URL: this.settingsStore.rootUrl,
       };
     },
-    popperOptions: function() { 
-      return { 
+    popperOptions: function() {
+      return {
         preventOverflow: {
           enabled: true,
-          boundariesElement: this.boundariesElement,
+          boundary: this.boundariesElement,
         }
       }
     },
     entries: function() {
-      return store.state.entries.entries;
+      return this.entriesStore.entries;
     },
   },
   methods: {
     closeAndRemove: function() {
-      store.commit("splitFlow/closeSlot", 
-        { id: this.entry.id, entries: this.entries});
-      EventBus.$emit("RemoveEntryRequest", this.entry.id);
+      this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries});
+      EventBus.emit("RemoveEntryRequest", this.entry.id);
     },
     getEntryTitle: function(entry) {
       if (entry) {
@@ -165,11 +186,11 @@ export default {
     },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
-        store.commit("splitFlow/assignOrSwapPaneWithIds", {
+        this.splitFlowStore.assignOrSwapPaneWithIds({
           source: this.entry.id,
           target: value
         });
-        Vue.nextTick(() => {
+        this.$nextTick(() => {
           setTimeout(() => {
             this.$emit("chooser-changed");
           }, 1200);
@@ -214,10 +235,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "~element-ui/packages/theme-chalk/src/input";
-@import "~element-ui/packages/theme-chalk/src/option";
-@import "~element-ui/packages/theme-chalk/src/select";
-@import "../assets/header-icon.scss";
+@use "../assets/header-icon.scss";
 
 
 .toolbar-title {
@@ -227,7 +245,7 @@ export default {
   font-size: 14px;
   font-weight: normal;
   line-height: 20px;
-  margin-left: 11px;
+  margin-left: 1rem;
   margin-top: 4px;
 }
 
@@ -235,32 +253,38 @@ export default {
   display:flex;
   flex-direction: row;
   .select-box {
-    width: 200px;
+    width: 177px;
+    height: 26px;
     border-radius: 4px;
     border: 1px solid rgb(144, 147, 153);
-    background-color: $background;
+    background-color: #fff;
     font-weight: 500;
     color: rgb(48, 49, 51);
     margin-left: 8px;
     margin-top: 3px;
     margin-bottom: 2px;
     z-index: 5;
-    ::v-deep .el-input__inner {
+    :deep(.el-select__wrapper) {
       width:177px;
       color: $app-primary-color;
-      height: 24px;
+      height: 26px;
+      min-height: 26px;
+      line-height: 26px;
       padding-left: 4px;
       padding-right: 8px;
-      background-color: $background;
+      background-color: #fff;
       border-style: none;
+      span {
+        color: $app-primary-color;
+      }
     }
-    
-    ::v-deep .el-input__icon {
+
+    :deep(.el-input__icon) {
       line-height: 24px;
       color: $lightGrey;
     }
   }
-  i .select-box ::v-deep .el-input__icon {
+  i .select-box :deep(.el-input__icon) {
     color: rgb(48, 49, 51);
     height: 24px;
     padding-left: 8px;
@@ -287,7 +311,7 @@ export default {
   .el-select-dropdown__item {
     white-space: nowrap;
     text-align: left;
-    &.selected {
+    &.is-selected  {
       color: $app-primary-color;
       font-weight: normal;
     }
@@ -298,21 +322,24 @@ export default {
   color: $app-primary-color;
   cursor: pointer;
   margin-right: 6px;
-  margin-top: 3px;
+  margin-top: 8px;
 }
 
 .icon-group {
+  position: relative;
+  top: auto;
   font-size: 12px;
 }
 
 .info-icon {
+  margin-top: 2px;
   margin-right: 8px;
   font-size: 28px;
   color: $app-primary-color;
   cursor: pointer;
   &::before { // since the icon is a font, we need to adjust the vertical alignment
     position: relative;
-    top: -2px; 
+    top: -2px;
   }
 }
 
@@ -324,8 +351,26 @@ export default {
   width: 440px;
 }
 
-.context-card-popover ::v-deep .el-popover{
+:deep(.header-popper.el-popover.el-popper) {
+  padding: 6px 4px;
+  font-size:12px;
+  color: rgb(48, 49, 51);
+  background-color: #f3ecf6;
+  border: 1px solid $app-primary-color;
+  white-space: nowrap;
+  min-width: unset;
+  .el-popper__arrow {
+    &:before {
+      border-color: $app-primary-color;
+      background-color: #f3ecf6;
+    }
+  }
+}
+
+:deep(.context-card-popover.el-popover.el-popper) {
   max-width: calc(100vw - 100px);
   padding-right: 0px;
+  width: unset!important;
+  background: #fff!important;
 }
 </style>

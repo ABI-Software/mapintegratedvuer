@@ -1,8 +1,8 @@
 <template>
   <div v-if="showHelp" class="content-container">
     <el-card class="box-card"
-      @mouseover.native="isActive = true"
-      @mouseleave.native="isActive = false"
+      @mouseover="isActive = true"
+      @mouseleave="isActive = false"
       :class="{active: isActive}">
       <div slot="header" class="header">
         <span>Needing some help?</span>
@@ -17,21 +17,13 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
-import { Link, Icon, Card, Button, Select } from "element-ui";
-import "element-ui/lib/theme-chalk/index.css";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
-
-locale.use(lang);
-Vue.use(Link);
-Vue.use(Icon);
-Vue.use(Card);
-Vue.use(Button);
-Vue.use(Select);
+import { ElCard as Card } from "element-plus";
 
 export default {
   name: "ContextHelp",
+  components: {
+    Card
+  },
   props: {
     /**
      * Object containing information for

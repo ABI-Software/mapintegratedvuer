@@ -9,7 +9,6 @@
       <DialogToolbarContent
         :numberOfEntries="entries.length"
         @onFullscreen="onFullscreen"
-        :showHelpIcon="true"
         @local-search="onDisplaySearch"
         @fetch-suggestions="fetchSuggestions"
         ref="dialogToolbar"
@@ -43,18 +42,23 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import DialogToolbarContent from "./DialogToolbarContent";
+import DialogToolbarContent from "./DialogToolbarContent.vue";
 import EventBus from "./EventBus";
-import SplitDialog from "./SplitDialog";
+import SplitDialog from "./SplitDialog.vue";
 // import contextCards from './context-cards'
-import { SideBar } from "@abi-software/map-side-bar/src/components/index.js";
+import { SideBar } from "@abi-software/map-side-bar";
 import { capitalise, getNewMapEntry, initialDefaultState } from "./scripts/utilities.js";
-import store from "../store";
-import Vue from "vue";
-import { Container, Header, Main } from "element-ui";
-Vue.use(Container);
-Vue.use(Header);
-Vue.use(Main);
+import { mapStores } from 'pinia';
+import { useEntriesStore } from '../stores/entries';
+import { useSettingsStore } from '../stores/settings';
+import { useSplitFlowStore } from '../stores/splitFlow';
+import {
+  ElContainer as Container,
+  ElHeader as Header,
+  ElMain as Main,
+} from "element-plus";
+
+import "@abi-software/map-side-bar/dist/style.css";
 
 /**
  * Component of the floating dialogs.
@@ -62,6 +66,9 @@ Vue.use(Main);
 export default {
   name: "SplitFlow",
   components: {
+    Container,
+    Header,
+    Main,
     DialogToolbarContent,
     SplitDialog,
     SideBar,
@@ -106,10 +113,12 @@ export default {
         } else if (action.type == "URL") {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
-          this.$refs.sideBar.addFilter(action);
+          if (this.$refs.sideBar) {
+            this.$refs.sideBar.addFilter(action);
+          }
         } else if (action.type == "Facets") {
           const facets = [];
-          store.state.settings.facets.species.forEach(e => {
+          this.settingsStore.facets.species.forEach(e => {
             facets.push({
               facet: capitalise(e),
               term: "Species",
@@ -129,7 +138,9 @@ export default {
               facetPropPath: "anatomy.organ.category.name",
             }))
           );
-          this.$refs.sideBar.openSearch(facets, "");
+          if (this.$refs.sideBar) {
+            this.$refs.sideBar.openSearch(facets, "");
+          }
         } else {
           this.createNewEntry(action);
         }
@@ -168,12 +179,12 @@ export default {
         this.search = data.value;
       }
       if (data && data.type == "filter-update") {
-        store.commit("settings/updateFacets", data.value);
+        this.settingsStore.updateFacets(data.value);
       }
       if (data && data.type == "available-facets") {
-        store.commit("settings/updateFacetLabels", data.value.labels);
-        store.commit("settings/updateMarkers", data.value.uberons);
-        EventBus.$emit("markerUpdate");
+        this.settingsStore.updateFacetLabels(data.value.labels);
+        this.settingsStore.updateMarkers(data.value.uberons);
+        EventBus.emit("markerUpdate");
       }
     },
     getNewEntryId: function() {
@@ -196,8 +207,8 @@ export default {
       newEntry.rotation = "free";
       if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
       else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
-      store.commit("entries/addNewEntry", newEntry);
-      store.commit("splitFlow/setSyncMode", {
+      this.entriesStore.addNewEntry(newEntry);
+      this.splitFlowStore.setSyncMode({
         flag: true,
         newId: newEntry.id,
         layout: data.layout,
@@ -216,28 +227,30 @@ export default {
       newEntry.mode = "normal";
       newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
-      store.commit("entries/addNewEntry", newEntry);
-      this.setIdToPrimaryPane(newEntry.id);
-      if (store.state.splitFlow.syncMode) {
-        store.commit("splitFlow/setSyncMode", { flag: false });
+      this.entriesStore.addNewEntry(newEntry);
+      this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
+      if (this.splitFlowStore.syncMode) {
+        this.splitFlowStore.setSyncMode({ flag: false });
       }
 
       //close sidebar on entry creation to see the context card
-      this.$refs.sideBar.setDrawerOpen(false)
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.setDrawerOpen(false);
+      }
 
       return newEntry.id;
     },
     openNewMap: async function (type) {
-      const entry = await getNewMapEntry(type, store.state.settings.sparcApi);
+      const entry = await getNewMapEntry(type, this.settingsStore.sparcApi);
       this.createNewEntry(entry);
       if (entry.contextCard) {
-        EventBus.$emit("contextUpdate", entry.contextCard);
+        EventBus.emit("contextUpdate", entry.contextCard);
       }
     },
     openSearch: function (facets, query) {
       // Keep the species facets currently unused
       // let facets = [{facet: "All species", facetPropPath: 'organisms.primary.species.name', term:'species'}];
-      // store.state.settings.facets.species.forEach(e => {
+      // this.settingsStore.facets.species.forEach(e => {
       //   facets.push({facet: e, facetPropPath: 'organisms.primary.species.name', term:'species'});
       // });
       this.search = query;
@@ -254,16 +267,16 @@ export default {
       this.setState(initialDefaultState());
     },
     setIdToPrimaryPane: function (id) {
-      store.commit("splitFlow/setIdToPrimaryPane", id);
+      this.splitFlowStore.setIdToPrimaryPane(id);
     },
     setState: function (state) {
-      store.commit("entries/setAll", state.entries);
+      this.entriesStore.setAll(state.entries);
       //Support both old and new permalink.
-      if (state.splitFlow) store.commit("splitFlow/setState", state.splitFlow);
-      else this.entries.forEach(entry => this.setIdToPrimaryPane(entry.id));
+      if (state.splitFlow) this.splitFlowStore.setState(state.splitFlow);
+      else this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
     },
     getState: function () {
-      let state = JSON.parse(JSON.stringify(store.getters["entries/state"]()));
+      let state = JSON.parse(JSON.stringify(this.entriesStore.$state));
       let splitdialog = this.$refs.splitdialog;
       let dialogStates = splitdialog.getContentsState();
       if (state.entries.length === dialogStates.length) {
@@ -277,16 +290,16 @@ export default {
             delete entry.uberonId;
         }
       }
-      state.splitFlow = store.getters["splitFlow/getState"]();
+      state.splitFlow = this.splitFlowStore.getState();
       return state;
     },
     removeEntry: function (id) {
-      let index = store.getters["entries/findIndexOfId"](id);
-      store.commit("entries/destroyEntry", index);
+      let index = this.entriesStore.findIndexOfId(id);
+      this.entriesStore.destroyEntry(index);
     },
     resourceSelected: function (result) {
       this.$emit("resource-selected", result);
-      if (store.state.splitFlow.globalCallback) {
+      if (this.splitFlowStore.globalCallback) {
         this.$refs.splitdialog.sendSynchronisedEvent(result);
       }
     },
@@ -300,8 +313,8 @@ export default {
             this.activateSyncMap(payload.action);
           }
         } else {
-          if (store.state.splitFlow.syncMode) {
-            store.commit("splitFlow/setSyncMode", {
+          if (this.splitFlowStore.syncMode) {
+            this.splitFlowStore.setSyncMode({
               flag: false,
             });
           }
@@ -309,7 +322,7 @@ export default {
       }
     },
     contextUpdate: function (payload) {
-      EventBus.$emit("contextUpdate", payload);
+      EventBus.emit("contextUpdate", payload);
     }
   },
   created: function () {
@@ -317,21 +330,23 @@ export default {
     this._externalStateSet = false;
   },
   mounted: function () {
-    EventBus.$on("RemoveEntryRequest", id => {
+    EventBus.on("RemoveEntryRequest", id => {
       this.removeEntry(id);
     });
-    EventBus.$on("SyncModeRequest", payload => {
+    EventBus.on("SyncModeRequest", payload => {
       this.toggleSyncMode(payload);
     });
-    EventBus.$on("PopoverActionClick", payload => {
+    EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);
     });
-    EventBus.$on("OpenNewMap", type => {
+    EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
     });
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
-        this.$refs.sideBar.close();
+        if (this.$refs.sideBar) {
+          this.$refs.sideBar.close();
+        }
         setTimeout(() => {
           this.startUp = false;
         }, 2000);
@@ -339,19 +354,20 @@ export default {
     });
   },
   computed: {
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     envVars: function () {
       return {
-        API_LOCATION: store.state.settings.sparcApi,
-        ALGOLIA_INDEX: store.state.settings.algoliaIndex,
-        ALGOLIA_KEY: store.state.settings.algoliaKey,
-        ALGOLIA_ID: store.state.settings.algoliaId,
-        PENNSIEVE_API_LOCATION: store.state.settings.pennsieveApi,
-        NL_LINK_PREFIX: store.state.settings.nlLinkPrefix,
-        ROOT_URL: store.state.settings.rootUrl,
+        API_LOCATION: this.settingsStore.sparcApi,
+        ALGOLIA_INDEX: this.settingsStore.algoliaIndex,
+        ALGOLIA_KEY: this.settingsStore.algoliaKey,
+        ALGOLIA_ID: this.settingsStore.algoliaId,
+        PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
+        NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
+        ROOT_URL: this.settingsStore.rootUrl,
       };
     },
     entries: function() {
-      return store.state.entries.entries;
+      return this.entriesStore.entries;
     },
   },
 };
@@ -372,26 +388,27 @@ export default {
 }
 
 .start-up {
-  ::v-deep .el-drawer__open {
+  :deep(.el-drawer__open) {
     .el-drawer {
       &.rtl {
         animation: unset;
       }
     }
   }
-  ::v-deep .el-drawer-fade-leave-active {
+  :deep(.el-drawer-fade-leave-active) {
     animation: unset;
   }
-  ::v-deep .el-drawer {
+  :deep(.el-drawer) {
     &.rtl {
       animation: rtl-drawer-out 2s linear;
     }
   }
 
-  ::v-deep .el-drawer__wrapper {
+  :deep(.el-drawer__wrapper) {
     &.side-bar {
       display: block !important;
     }
   }
 }
+
 </style>

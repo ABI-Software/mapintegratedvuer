@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils'
-import SplitFlow from '../../src/components/SplitFlow';
-import DialogToolbarContent from '../../src/components/DialogToolbarContent';
-import SplitDialog from '../../src/components/SplitDialog';
+import SplitFlow from '../../src/components/SplitFlow.vue';
+import DialogToolbarContent from '../../src/components/DialogToolbarContent.vue';
+import SplitDialog from '../../src/components/SplitDialog.vue';
 import { SideBar } from '@abi-software/map-side-bar';
 
 const testState = {

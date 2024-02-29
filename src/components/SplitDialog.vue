@@ -24,22 +24,11 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import ContentVuer from "./ContentVuer";
-import CustomSplitter from "./CustomSplitter";
+import ContentVuer from "./ContentVuer.vue";
+import CustomSplitter from "./CustomSplitter.vue";
 import EventBus from './EventBus';
-//import SplitpanesBar from "./SplitpanesBar";
-import store from "../store";
-import Vue from "vue";
-import {
-  Input,
-  Option,
-  Popover,
-  Select
-} from "element-ui";
-Vue.use(Input);
-Vue.use(Option);
-Vue.use(Popover);
-Vue.use(Select);
+import { mapStores } from 'pinia';
+import { useSplitFlowStore } from '../stores/splitFlow';
 
 export default {
   name: "SplitDialog",
@@ -75,10 +64,10 @@ export default {
       }
     },
     getRefsName: function(id) {
-      const refName = store.getters["splitFlow/getPaneNameById"](id);
+      const refName = this.splitFlowStore.getPaneNameById(id);
       if (refName) {
         if (!(refName in this.styles)) {
-          Vue.set(this.styles, refName, {});
+          this.styles[refName] = {};
         }
       }
       return refName;
@@ -108,7 +97,7 @@ export default {
       return activeContents;
     },
     isIdVisible: function(id) {
-      const refName = store.getters["splitFlow/getPaneNameById"](id);
+      const refName = this.splitFlowStore.getPaneNameById(id);
       return refName !== undefined;
     },
     sendSynchronisedEvent: function(resource) {
@@ -134,26 +123,23 @@ export default {
       }
       return states;
     },
-    calculateStyles: function(index) {
-      if (this.$refs) {
-        const refName = `pane-${index}`;
-        if (refName in this.$refs && this.$refs[refName] && this.$refs[refName].$el) {
-          const el = this.$refs[refName].$el;
-          const rect = el.getBoundingClientRect();
-          this.setStyles(refName, rect);
-        }
-      }
-    },
     setStyles: function(refName, rect) {
       if (this.$refs && ('tabContainer' in this.$refs)) {
-        const bound = this.$refs['tabContainer'].getBoundingClientRect();
+        const bound = this.$refs.tabContainer.getBoundingClientRect();
         const style = {};
         style["width"] = `${rect.width}px`;
         style["left"] = `${rect.left - bound.left}px`;
         style["height"] = `${rect.height}px`;
         style["top"] = `${rect.top - bound.top}px`;
-        console.log(refName, JSON.stringify(style));
-        Vue.set(this.styles, refName, style);
+        style["display"] = "block";
+        this.styles[refName] = style;
+      }
+    },
+    hidePane: function(refName) {
+      if (this.$refs && ('tabContainer' in this.$refs)) {
+        const style = {};
+        style["display"] = "none";
+        this.styles[refName] = style;
       }
     },
     resize: function() {
@@ -161,7 +147,7 @@ export default {
     },
     resized: function(splitterName, event) {
       if (this.__userResize__) {
-        store.commit("splitFlow/setSplitter", {
+        this.splitFlowStore.setSplitter({
           name: splitterName,
           value: event[0].size
         });
@@ -170,20 +156,21 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useSplitFlowStore),
     activeView: function() {
-      return store.state.splitFlow.activeView;
+      return this.splitFlowStore.activeView;
     },
     horizontal() {
-      if (store.state.splitFlow.activeView === "2horpanel") {
+      if (this.splitFlowStore.activeView === "2horpanel") {
         return true;
       }
       return false;
     },
     splitters() {
-      return store.state.splitFlow.splitters;
+      return this.splitFlowStore.splitters;
     },
     globalCallback() {
-      return store.state.splitFlow.globalCallback;
+      return this.splitFlowStore.globalCallback;
     },
   },
   watch: {
@@ -212,25 +199,23 @@ export default {
     },
   },
   mounted: function () {
-    EventBus.$on("PaneResize", payload => {
+    EventBus.on("PaneResize", payload => {
       this.setStyles(payload.refName, payload.rect);
+    });
+    EventBus.on("PaneUnmounted", payload => {
+      this.hidePane(payload.refName);
     });
   },
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "~element-ui/packages/theme-chalk/src/input";
-@import "~element-ui/packages/theme-chalk/src/option";
-@import "~element-ui/packages/theme-chalk/src/popover";
-@import "~element-ui/packages/theme-chalk/src/select";
-
-::v-deep .splitpanes.default-theme .splitpanes__pane {
+:deep(.splitpanes.default-theme .splitpanes__pane) {
   background-color: #ccc !important;
   position: relative;
 }
 
-::v-deep .splitpanes__splitter {
+:deep(.splitpanes__splitter) {
   margin: 0px 0px 0px 0px !important;
   z-index: 6 !important;
   &::before {
@@ -248,13 +233,13 @@ export default {
   }
 }
 
-::v-deep .splitpanes--horizontal > .splitpanes__splitter,
-::v-deep .splitpanes--vertical > .splitpanes__splitter {
+:deep(.splitpanes--horizontal > .splitpanes__splitter),
+:deep(.splitpanes--vertical > .splitpanes__splitter) {
   background-color: #ccc !important;
   border-left: unset;
 }
 
-::v-deep .splitpanes--horizontal > .splitpanes__splitter {
+:deep(.splitpanes--horizontal > .splitpanes__splitter) {
   height: 1px;
   &::before {
     top: -2px;
@@ -263,7 +248,7 @@ export default {
   }
 }
 
-::v-deep .splitpanes--vertical > .splitpanes__splitter {
+:deep(.splitpanes--vertical > .splitpanes__splitter) {
   width: 1px;
   &::before {
     left: -3px;

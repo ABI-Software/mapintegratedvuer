@@ -27,9 +27,10 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
-import { ScaffoldVuer } from "@abi-software/scaffoldvuer/src/components/index.js";
+import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
 import ContentMixin from "../../mixins/ContentMixin";
-import store from "../../store";
+
+import "@abi-software/scaffoldvuer/dist/style.css";
 
 export default {
   name: "Scaffold",
@@ -115,8 +116,8 @@ export default {
       if (this.isVisible()) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
-        this.$refs.scaffold.toggleSyncControl(store.state.splitFlow.globalCallback, rotation);
-        if (store.state.splitFlow.syncMode) this.$refs.scaffold.fitWindow();
+        this.$refs.scaffold.toggleSyncControl(this.splitFlowStore.globalCallback, rotation);
+        if (this.splitFlowStore.syncMode) this.$refs.scaffold.fitWindow();
       }
     },
     requestSynchronisedEvent: function (flag) {
@@ -169,7 +170,7 @@ export default {
       }
     },
     markerLabels: function () {
-      return store.state.settings.facetLabels;
+      return this.settingsStore.facetLabels;
     },
   },
   data: function () {
@@ -182,7 +183,7 @@ export default {
   mounted: function () {
     this.scaffoldCamera =
       this.$refs.scaffold.$module.scene.getZincCameraControls();
-    EventBus.$on("startHelp", () => {
+    EventBus.on("startHelp", () => {
       this.startHelp();
     });
   },
@@ -190,7 +191,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-::v-deep .message-popper {
+:deep(.message-popper) {
   white-space: unset;
   max-width: 200px;
 }

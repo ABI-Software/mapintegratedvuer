@@ -22,11 +22,12 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { FlatmapVuer } from "@abi-software/flatmapvuer/src/components/index.js";
+import { FlatmapVuer } from "@abi-software/flatmapvuer";
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
-import store from "../../store";
+import "@abi-software/flatmapvuer/dist/style.css";
+
 export default {
   name: "Flatmap",
   mixins: [ ContentMixin, DynamicMarkerMixin ],
@@ -52,7 +53,7 @@ export default {
     },
     flatmapReadyCall: function (flatmap) {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
-      EventBus.$emit("mapImpProv", provClone); // send clone to context card
+      EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
       this.getAvailableTerms();
       if (this.entry.resource === "FunctionalConnectivity"){
@@ -105,12 +106,12 @@ export default {
   },
   computed: {
     facetSpecies() {
-      return store.state.settings.facets.species;
+      return this.settingsStore.facets.species;
     },
   },
   mounted: function() {
     this.getAvailableTerms();
-    EventBus.$on("markerUpdate", () => {
+    EventBus.on("markerUpdate", () => {
       this.flatmapMarkerZoomUpdate(true, undefined);
     });
   },
@@ -119,11 +120,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-::v-deep .maplibregl-popup {
+:deep(.maplibregl-popup) {
   z-index: 3;
 }
 
-::v-deep .flatmapvuer-popover {
+:deep(.flatmapvuer-popover) {
   .maplibregl-popup-content {
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -133,7 +134,7 @@ export default {
   }
 }
 
-::v-deep .maplibregl-marker {
+:deep(.maplibregl-marker) {
   &.standard-marker {
     z-index: 2;
   }

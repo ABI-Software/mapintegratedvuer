@@ -1,26 +1,22 @@
-import Vue from 'vue';
-import App from './App.vue';
-import VueRouter from 'vue-router';
-import {MapSvgSprite, MapSvgIcon, MapSvgSpriteColor} from '@abi-software/svg-sprite';
 
-Vue.component('map-svg-icon', MapSvgIcon);
-Vue.component('map-svg-sprite', MapSvgSprite);
-Vue.component('map-svg-sprite-color', MapSvgSpriteColor);
-Vue.use(VueRouter);
-Vue.config.productionTip = false;
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import * as VueRouter from 'vue-router'
+import App from './App.vue'
 
 const routes = [
-];
+  { path: '/'},
+]
 
-// 3. Create the router instance and pass the `routes` option
-// You can pass in additional options here, but let's
-// keep it simple for now.
-const router = new VueRouter({
-  mode: 'history',
-  routes // short for `routes: routes`
-});
+const router = VueRouter.createRouter({
+  // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
+  history: VueRouter.createWebHashHistory(),
+  routes,
+})
 
-new Vue({
-  router,
-  render: h => h(App),
-}).$mount('#app');
+const pinia = createPinia()
+const app = createApp(App)
+
+app.use(pinia)
+app.use(router)
+app.mount('#app')

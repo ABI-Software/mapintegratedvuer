@@ -2,30 +2,35 @@
   <div id="app">
     <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap">
-    <map-svg-sprite-color />
-    <el-popover
-      placement="bottom"
-      trigger="click"
-      width=500
-      class="popover"
-      :appendToBody=false
-      >
-      <div class="options-container">
-        <el-row class="row" :gutter="20">
-          <el-button @click="saveSettings()" size="mini">Save Settings</el-button>
-          <el-button @click="restoreSettings()" size="mini">Restore Settings</el-button>
-          <el-button @click="getShareableURL()" size="mini">Get Link</el-button>
-        </el-row>
-        <el-row class="row" :gutter="20">
-          <el-button @click="setMultiFlatmap()" size="mini">Set MultiFlatmap</el-button>
-          <el-button @click="setLegacyMultiFlatmap()" size="mini">Set Legacy MultiFlatmap</el-button>
-          <el-button @click="setScaffold()" size="mini">Set To Scaffold</el-button>
-          <el-button @click="setFlatmap()" size="mini">Set Flatmap</el-button>
-          <el-button @click="setSearch()" size="mini">Set Search</el-button>
-        </el-row>
+      <div class="button-container">
+        <el-popover
+          placement="bottom"
+          trigger="click"
+          width=500
+          class="popover"
+          :teleported=false
+          >
+            <div class="options-container">
+              <el-row class="row" :gutter="20">
+                <el-button @click="saveSettings()" size="small">Save Settings</el-button>
+                <el-button @click="restoreSettings()" size="small">Restore Settings</el-button>
+                <el-button @click="getShareableURL()" size="small">Get Link</el-button>
+              </el-row>
+              <el-row class="row" :gutter="20">
+                <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
+                <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
+                <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
+                <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
+                <el-button @click="setSearch()" size="small">Set Search</el-button>
+              </el-row>
+            </div>
+            <template #reference>
+
+                <el-button class="options-button" :icon="ElIconSetting">Options</el-button>
+
+            </template>
+        </el-popover>
       </div>
-      <el-button icon="el-icon-setting" slot="reference">Options</el-button>
-    </el-popover>
     <div class="map-app">
       <MapContent ref="map" :startingMap="startingMap" :options="options" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID" @isReady="mapIsReady"/>
     </div>
@@ -34,32 +39,34 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { shallowRef } from 'vue';
 import MapContent from './components/MapContent.vue';
-import Vue from "vue";
+import { Setting as ElIconSetting } from '@element-plus/icons-vue'
 import {
-  Button,
-  Col,
-  Popover,
-  Row,
-} from 'element-ui';
-Vue.use(Button);
-Vue.use(Col);
-Vue.use(Popover);
-Vue.use(Row);
+  ElButton as Button,
+  ElCol as Col,
+  ElPopover as Popover,
+  ElRow as Row,
+} from 'element-plus';
 
 export default {
   name: 'app',
   components: {
-    MapContent
+    Button,
+    Col,
+    Popover,
+    Row,
+    MapContent,
   },
   data: function() {
     return {
       uuid: undefined,
       state: undefined,
       prefix: "/map",
-      api: process.env.VUE_APP_API_LOCATION,
+      api: import.meta.env.VITE_API_LOCATION,
       mapSettings: [],
-      startingMap: "AC"
+      startingMap: "AC",
+      ElIconSetting: shallowRef(ElIconSetting)
     }
   },
   computed: {
@@ -70,14 +77,14 @@ export default {
     },
     options: function() {
       return {
-        sparcApi: process.env.VUE_APP_API_LOCATION,
-        algoliaIndex: process.env.VUE_APP_ALGOLIA_INDEX,
-        algoliaKey: process.env.VUE_APP_ALGOLIA_KEY,
-        algoliaId: process.env.VUE_APP_ALGOLIA_ID,
-        pennsieveApi: process.env.VUE_APP_PENNSIEVE_API_LOCATION,
-        flatmapAPI: process.env.VUE_APP_FLATMAPAPI_LOCATION,
-        nlLinkPrefix: process.env.VUE_APP_NL_LINK_PREFIX,
-        rootUrl: process.env.VUE_APP_ROOT_URL,
+        sparcApi: import.meta.env.VITE_API_LOCATION,
+        algoliaIndex: import.meta.env.VITE_ALGOLIA_INDEX,
+        algoliaKey: import.meta.env.VITE_ALGOLIA_KEY,
+        algoliaId: import.meta.env.VITE_ALGOLIA_ID,
+        pennsieveApi: import.meta.env.VITE_PENNSIEVE_API_LOCATION,
+        flatmapAPI: import.meta.env.VITE_FLATMAPAPI_LOCATION,
+        nlLinkPrefix: import.meta.env.VITE_NL_LINK_PREFIX,
+        rootUrl: import.meta.env.VITE_ROOT_URL,
       }
     }
   },
@@ -149,41 +156,46 @@ export default {
     },
     mapIsReady: function() {
       console.log("map is ready")
-    }
-  },
-  created: function() {
-    this.uuid = this.$route.query.id;
-    if (window) {
-      this.prefix = window.location.origin + window.location.pathname;
-    }
-    if (this.uuid) {
-      let xmlhttp = new XMLHttpRequest();
-      let url = this.api + 'map/getstate';
-      xmlhttp.open('POST', url, true);
-      //Send the proper header information along with the request
-      xmlhttp.setRequestHeader('Content-type', 'application/json');
-      xmlhttp.onreadystatechange = () => {//Call a function when the state changes.
-          if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            let state = JSON.parse(xmlhttp.responseText);
-            this.state = state.state;
+    },
+    parseQuery: function () {
+      this.$router.isReady().then(() => {
+        this.uuid = this.$route.query.id;
+        if (window) {
+          this.prefix = window.location.origin + window.location.pathname;
+        }
+        if (this.uuid) {
+          let xmlhttp = new XMLHttpRequest();
+          let url = this.api + 'map/getstate';
+          xmlhttp.open('POST', url, true);
+          //Send the proper header information along with the request
+          xmlhttp.setRequestHeader('Content-type', 'application/json');
+          xmlhttp.onreadystatechange = () => {//Call a function when the state changes.
+              if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                let state = JSON.parse(xmlhttp.responseText);
+                this.state = state.state;
+              }
           }
-      }
-      xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
-    }
+          xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
+        }
+      })
+    },
+  },
+  mounted: function() {
+    this.parseQuery();
   },
 }
 </script>
 
 <style lang="scss">
-@import "~element-ui/packages/theme-chalk/src/button";
-@import "~element-ui/packages/theme-chalk/src/popover";
-@import "~element-ui/packages/theme-chalk/src/row";
-
 #app {
   height:100%;
   width: 100%;
   position:absolute;
   font-family: "Asap",sans-serif;
+  --el-color-primary: #8300BF;
+  --el-color-primary-light-7: #dab3ec;
+  --el-color-primary-light-8: #e6ccf2;
+  --el-color-primary-light-9: #f3e6f9;
 }
 
 body {
@@ -194,7 +206,7 @@ body {
   position:absolute;
   height: calc(100% - 104px);
   width:calc(100% - 54px);
-  margin-top:70px;
+  margin-top:20px;
   margin-left:26px;
   margin-right:26px;
   border: solid 1px #dcdfe6;
@@ -214,6 +226,14 @@ body {
     margin-bottom: 0;
   }
 }
+
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height:50px;
+}
+
 
 .options-container{
   text-align: center;

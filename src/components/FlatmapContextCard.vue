@@ -16,22 +16,15 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Vue from "vue";
-import { Link, Icon, Card, Button, Select, Input } from "element-ui";
-import lang from "element-ui/lib/locale/lang/en";
-import locale from "element-ui/lib/locale";
-
-locale.use(lang);
-Vue.use(Link);
-Vue.use(Icon);
-Vue.use(Card);
-Vue.use(Button);
-Vue.use(Select);
-Vue.use(Input);
-
+import {
+  ElLoading as Loading
+} from "element-plus";
 
 export default {
-  name: "contextCard",
+  name: "FlatmapContextCard",
+  components: {
+    Loading,
+  },
   props: {
     /**
      * Object containing information for
@@ -93,17 +86,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@import "~element-ui/packages/theme-chalk/src/button";
-@import "~element-ui/packages/theme-chalk/src/card";
-@import "~element-ui/packages/theme-chalk/src/icon";
-@import "~element-ui/packages/theme-chalk/src/input";
-@import "~element-ui/packages/theme-chalk/src/link";
-@import "~element-ui/packages/theme-chalk/src/select";
 
-.hide{
-  color: #e4e7ed;
-  cursor: pointer;
-}
 
 .flatmap-context-card{
   background-color: white;
@@ -113,14 +96,6 @@ export default {
   display: flex;
   width: 100%;
   max-height: 258px;
-}
-
-.color-box {
-  width: 16px;
-  height: 16px;
-  border: solid 1px $app-primary-color;
-  border-radius: 2px;
-  margin-right: 8px;
 }
 
 .card-right {
@@ -134,23 +109,10 @@ export default {
   cursor: pointer;
 }
 
-.info{
-  transform: rotate(180deg);
-  color: $app-primary-color;
-  margin-left: 8px;
-}
-
-.padding {
-  padding-bottom: 8px;
-}
-
 .title{
   font-weight: bold;
 }
 
-.subtitle{
-  font-weight: bold;
-}
 
 .scrollbar::-webkit-scrollbar-track {
   border-radius: 10px;
