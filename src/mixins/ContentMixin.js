@@ -291,11 +291,12 @@ export default {
      */
     getFeaturedDatasets: function () {
       const local_this = this;
-      fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
+      fetch(`${this.apiLocation}get_featured_dataset`)
         .then(response => response.json())
         .then(data => {
-          this.settingsStore.updateFeatured(data.identifiers);
-          data.identifiers.forEach(element => {
+          let datasetIds = data.datasets.map(d => d.id);
+          this.settingsStore.updateFeatured(datasetIds);
+          datasetIds.forEach(element => {
             local_this.getDatasetAnatomyInfo(element);
           });
         });
