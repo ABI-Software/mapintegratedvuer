@@ -326,7 +326,6 @@ export default {
       datasetIds.forEach(element => {
         this.getDatasetAnatomyInfo(element)
       });
-      this.updateFeaturedMarker
     },
     zoomToFeatures: function () {
       return;
