@@ -278,6 +278,7 @@ export default {
           } catch (error) {
             markerSpecies = undefined;
           }
+          this.updateFeatureMarkers([markerCurie], undefined)
           this.settingsStore.updateFeaturedMarker({
             identifier,
             marker: markerCurie,
@@ -286,19 +287,45 @@ export default {
           });
         });
     },
+    // Check if the old featured dataset api has any info
+    oldFeaturedDatasetApiHasInfo: async function () {
+      let response = await fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
+      let data = await response.json()
+      if (!data.identifiers || data.identifiers.length == 0) {
+        return false;
+      } else {
+        return data.identifiers;
+      }
+    },
+    // Check if the new featured dataset api has any info
+    newFeaturedDatasetApiHasInfo: async function () {
+      let response = await fetch(`${this.apiLocation}get_featured_dataset`)
+      let data = await response.json()
+      if (!data.datasets || data.datasets.length == 0) {
+        return false;
+      } else {
+        return data.datasets.map(d => d.id);
+      }
+    },
+
     /**
      * Get a list of featured datasets to display.
      */
-    getFeaturedDatasets: function () {
-      const local_this = this;
-      fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
-        .then(response => response.json())
-        .then(data => {
-          this.settingsStore.updateFeatured(data.identifiers);
-          data.identifiers.forEach(element => {
-            local_this.getDatasetAnatomyInfo(element);
-          });
-        });
+    getFeaturedDatasets: async function () {
+      let datasetIds = [];
+
+      // Check the two api endpoints for featured datasets, old one first
+      let oldInfo = await this.oldFeaturedDatasetApiHasInfo();
+      if (oldInfo) datasetIds = oldInfo;
+      else {
+        let newInfo = await this.newFeaturedDatasetApiHasInfo();
+        if (newInfo) datasetIds = newInfo;
+      }
+      // Update the store with the new list of featured datasets
+      this.settingsStore.updateFeatured(datasetIds);
+      datasetIds.forEach(element => {
+        this.getDatasetAnatomyInfo(element)
+      });
     },
     zoomToFeatures: function () {
       return;

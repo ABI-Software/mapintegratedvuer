@@ -305,13 +305,17 @@ export default {
       }
 
       if (flatmapImp) {
+        // create the star marker
         let wrapperElement = document.createElement("div");
         wrapperElement.innerHTML = YellowStar;
 
+        // add it to the flatmap
         const markerIdentifier = flatmapImp.addMarker(marker, {
           element: wrapperElement,
           className: "highlight-marker"
         });
+
+        // update the store with the marker identifier
         this.settingsStore.updateFeaturedMarkerIdentifier({
           index,
           markerIdentifier,
@@ -362,9 +366,12 @@ export default {
 
 :deep(.maplibregl-marker) {
   &.standard-marker {
+    cursor: pointer !important;
     z-index: 2;
   }
   &.highlight-marker {
+    visibility: visible !important;
+    cursor: pointer !important;
     z-index: 1;
     div {
       scale: 0.5;
