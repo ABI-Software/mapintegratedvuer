@@ -286,20 +286,49 @@ export default {
           });
         });
     },
+    // Check if the old featured dataset api has any info
+    oldFeaturedDatasetApiHasInfo: function () {
+      fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.identifiers && data.identifiers.length == 0) {
+            return false;
+          } else {
+            return data.identifiers;
+          }
+        });
+    },
+    // Check if the new featured dataset api has any info
+    newFeaturedDatasetApiHasInfo: function () {
+      fetch(`${this.apiLocation}get_featured_dataset`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.datasets && data.datasets.length == 0) {
+            return false;
+          } else {
+            return data.datasets.map(d => d.id);
+          }
+        });
+    },
+
     /**
      * Get a list of featured datasets to display.
      */
     getFeaturedDatasets: function () {
       const local_this = this;
-      fetch(`${this.apiLocation}get_featured_dataset`)
-        .then(response => response.json())
-        .then(data => {
-          let datasetIds = data.datasets.map(d => d.id);
-          this.settingsStore.updateFeatured(datasetIds);
-          datasetIds.forEach(element => {
-            local_this.getDatasetAnatomyInfo(element);
-          });
-        });
+      let datasetIds = [];
+
+      // Check the two api endpoints for featured datasets, old one first
+      let oldInfo = this.oldFeaturedDatasetApiHasInfo();
+      let newInfo = this.newFeaturedDatasetApiHasInfo();
+      if (oldInfo) datasetIds = oldInfo;
+      if (newInfo) datasetIds = newInfo;
+
+      // Update the store with the new list of featured datasets
+      this.settingsStore.updateFeatured(datasetIds);
+      datasetIds.forEach(element => {
+        local_this.getDatasetAnatomyInfo(element);
+      });
     },
     zoomToFeatures: function () {
       return;
