@@ -278,6 +278,7 @@ export default {
           } catch (error) {
             markerSpecies = undefined;
           }
+          this.updateFeatureMarkers([markerCurie], undefined)
           this.settingsStore.updateFeaturedMarker({
             identifier,
             marker: markerCurie,
@@ -320,12 +321,13 @@ export default {
         let newInfo = await this.newFeaturedDatasetApiHasInfo();
         if (newInfo) datasetIds = newInfo;
       }
-
+      console.log("Featured datasets: ", datasetIds);
       // Update the store with the new list of featured datasets
       this.settingsStore.updateFeatured(datasetIds);
       datasetIds.forEach(element => {
         this.getDatasetAnatomyInfo(element)
       });
+      this.updateFeaturedMarker
     },
     zoomToFeatures: function () {
       return;
