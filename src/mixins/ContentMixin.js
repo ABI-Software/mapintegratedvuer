@@ -290,7 +290,6 @@ export default {
     oldFeaturedDatasetApiHasInfo: async function () {
       let response = await fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
       let data = await response.json()
-      console.log('finshed oldFeaturedDatasetApiHasInfo', data.identifiers)
       if (!data.identifiers || data.identifiers.length == 0) {
         return false;
       } else {
@@ -301,7 +300,6 @@ export default {
     newFeaturedDatasetApiHasInfo: async function () {
       let response = await fetch(`${this.apiLocation}get_featured_dataset`)
       let data = await response.json()
-      console.log('finshed newFeaturedDatasetApiHasInfo', data.datasets)
       if (!data.datasets || data.datasets.length == 0) {
         return false;
       } else {
@@ -313,20 +311,20 @@ export default {
      * Get a list of featured datasets to display.
      */
     getFeaturedDatasets: async function () {
-      const local_this = this;
       let datasetIds = [];
 
       // Check the two api endpoints for featured datasets, old one first
       let oldInfo = await this.oldFeaturedDatasetApiHasInfo();
-      let newInfo = await this.newFeaturedDatasetApiHasInfo();
-      if (newInfo) datasetIds = newInfo;
       if (oldInfo) datasetIds = oldInfo;
+      else {
+        let newInfo = await this.newFeaturedDatasetApiHasInfo();
+        if (newInfo) datasetIds = newInfo;
+      }
 
-      console.log('finshed getFeaturedDatasets', datasetIds)
       // Update the store with the new list of featured datasets
       this.settingsStore.updateFeatured(datasetIds);
       datasetIds.forEach(element => {
-        local_this.getDatasetAnatomyInfo(element)
+        this.getDatasetAnatomyInfo(element)
       });
     },
     zoomToFeatures: function () {
