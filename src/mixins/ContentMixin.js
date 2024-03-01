@@ -319,14 +319,14 @@ export default {
       // Check the two api endpoints for featured datasets, old one first
       let oldInfo = await this.oldFeaturedDatasetApiHasInfo();
       let newInfo = await this.newFeaturedDatasetApiHasInfo();
-      if (oldInfo) datasetIds = oldInfo;
       if (newInfo) datasetIds = newInfo;
+      if (oldInfo) datasetIds = oldInfo;
 
       console.log('finshed getFeaturedDatasets', datasetIds)
       // Update the store with the new list of featured datasets
       this.settingsStore.updateFeatured(datasetIds);
       datasetIds.forEach(element => {
-        local_this.getDatasetAnatomyInfo(element);
+        local_this.getDatasetAnatomyInfo(element)
       });
     },
     zoomToFeatures: function () {
