@@ -287,43 +287,42 @@ export default {
         });
     },
     // Check if the old featured dataset api has any info
-    oldFeaturedDatasetApiHasInfo: function () {
-      fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.identifiers && data.identifiers.length == 0) {
-            return false;
-          } else {
-            return data.identifiers;
-          }
-        });
+    oldFeaturedDatasetApiHasInfo: async function () {
+      let response = await fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
+      let data = await response.json()
+      console.log('finshed oldFeaturedDatasetApiHasInfo', data.identifiers)
+      if (!data.identifiers || data.identifiers.length == 0) {
+        return false;
+      } else {
+        return data.identifiers;
+      }
     },
     // Check if the new featured dataset api has any info
-    newFeaturedDatasetApiHasInfo: function () {
-      fetch(`${this.apiLocation}get_featured_dataset`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.datasets && data.datasets.length == 0) {
-            return false;
-          } else {
-            return data.datasets.map(d => d.id);
-          }
-        });
+    newFeaturedDatasetApiHasInfo: async function () {
+      let response = await fetch(`${this.apiLocation}get_featured_dataset`)
+      let data = await response.json()
+      console.log('finshed newFeaturedDatasetApiHasInfo', data.datasets)
+      if (!data.datasets || data.datasets.length == 0) {
+        return false;
+      } else {
+        return data.datasets.map(d => d.id);
+      }
     },
 
     /**
      * Get a list of featured datasets to display.
      */
-    getFeaturedDatasets: function () {
+    getFeaturedDatasets: async function () {
       const local_this = this;
       let datasetIds = [];
 
       // Check the two api endpoints for featured datasets, old one first
-      let oldInfo = this.oldFeaturedDatasetApiHasInfo();
-      let newInfo = this.newFeaturedDatasetApiHasInfo();
+      let oldInfo = await this.oldFeaturedDatasetApiHasInfo();
+      let newInfo = await this.newFeaturedDatasetApiHasInfo();
       if (oldInfo) datasetIds = oldInfo;
       if (newInfo) datasetIds = newInfo;
 
+      console.log('finshed getFeaturedDatasets', datasetIds)
       // Update the store with the new list of featured datasets
       this.settingsStore.updateFeatured(datasetIds);
       datasetIds.forEach(element => {
