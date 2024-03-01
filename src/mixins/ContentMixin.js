@@ -321,7 +321,6 @@ export default {
         let newInfo = await this.newFeaturedDatasetApiHasInfo();
         if (newInfo) datasetIds = newInfo;
       }
-      console.log("Featured datasets: ", datasetIds);
       // Update the store with the new list of featured datasets
       this.settingsStore.updateFeatured(datasetIds);
       datasetIds.forEach(element => {
