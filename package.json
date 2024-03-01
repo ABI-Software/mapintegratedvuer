@@ -126,6 +126,9 @@
       }
     ]
   },
+  "overrides": {
+    "@abi-software/flatmapvuer": "$@abi-software/flatmapvuer"
+  },
   "browserslist": [
     "> 1%",
     "last 2 versions"
