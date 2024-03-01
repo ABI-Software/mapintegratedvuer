@@ -11,7 +11,6 @@ declare module 'vue' {
     ContentVuer: typeof import('./components/ContentVuer.vue')['default']
     ContextCard: typeof import('./components/ContextCard.vue')['default']
     ContextHelp: typeof import('./components/ContextHelp.vue')['default']
-    ContextPopup: typeof import('./components/ContextPopup.vue')['default']
     CustomSplitter: typeof import('./components/CustomSplitter.vue')['default']
     DatasetHeader: typeof import('./components/DatasetHeader.vue')['default']
     DialogToolbarContent: typeof import('./components/DialogToolbarContent.vue')['default']
