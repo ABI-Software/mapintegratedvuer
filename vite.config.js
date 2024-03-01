@@ -11,7 +11,7 @@ export default defineConfig(({ command, mode }) => {
     css: {
         preprocessorOptions: {
           scss: {
-            additionalData: `@use './src/assets/styles' as *;`
+            additionalData: `@use '${pathSrc}/assets/styles' as *;`
           },
         },
     },
