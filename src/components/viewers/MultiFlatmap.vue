@@ -98,7 +98,7 @@ export default {
         } else if ((this.activeSpecies === "Human Male") || (this.activeSpecies === "Human Female")) {
           //Dynamically construct the whole body scaffold for human and store it
           if (!("human" in this.scaffoldResource)) {
-            this.scaffoldResource["human"] = await getBodyScaffoldInfo(storeeSettings.sparcApi, "human");
+            this.scaffoldResource["human"] = await getBodyScaffoldInfo(this.apiLocation, "human");
           }
           action = {
             contextCardUrl: this.scaffoldResource["human"].datasetInfo.contextCardUrl,
