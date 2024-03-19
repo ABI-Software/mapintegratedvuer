@@ -60,7 +60,8 @@ export default {
      */
     options: {
       type: Object,
-      default: () => {}
+      default: () => {},
+      required: true
     },
     /**
      * New option to start the map in AC, FC or WholeBody.
