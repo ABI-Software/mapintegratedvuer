@@ -47,7 +47,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/ABI-Software/flatmapvuer' }
+      { icon: 'github', link: 'https://github.com/ABI-Software/mapintegratedvuer' }
     ]
   },
   markdown: { attrs: { disable: true } },
