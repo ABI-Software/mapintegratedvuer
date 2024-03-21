@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.7.0-vue3.9",
+  "version": "0.7.1-auth.1",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
