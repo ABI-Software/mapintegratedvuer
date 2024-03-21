@@ -16,6 +16,7 @@
     :enableOpenMapUI="true"
     :flatmapAPI="flatmapAPI"
     :sparcAPI="apiLocation"
+    :userApiKey="userApiKey"
     @open-map="openMap"
   />
 </template>
