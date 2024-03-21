@@ -14,6 +14,7 @@ export const useSettingsStore = defineStore('settings', {
       flatmapAPI: undefined,
       nlLinkPrefix: undefined,
       rootUrl: undefined,
+      userToken: undefined,
       facets: { species: [], gender: [], organ: [] },
       facetLabels: [],
       markers: [],
@@ -63,6 +64,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateRootUrl(rootUrl) {
       this.rootUrl = rootUrl;
+    },
+    updateUserToken(userToken) {
+      this.userToken = userToken;
     },
     updateMarkers(markers) {
       this.markers = markers;
