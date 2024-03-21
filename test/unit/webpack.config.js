@@ -1,4 +1,3 @@
-const nodeExternals = require('webpack-node-externals');
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 
