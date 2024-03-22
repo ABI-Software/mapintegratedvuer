@@ -11,7 +11,7 @@ hero:
       text: Live demo
       link: /demo
     - theme: alt
-      text: API References
+      text: API Reference
       link: /components/MapContent
 
 features:

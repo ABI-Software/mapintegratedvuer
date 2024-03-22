@@ -14,27 +14,17 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      {
-        text: 'MapIntegratedVuer',
-        items: [
-          { text: 'Live Demo', link: '/demo' },
-          { text: 'API References', link: '/components/MapContent' },
-        ]
-      },
+      { text: 'API Reference', link: '/components/MapContent'},
     ],
 
     sidebar: [
       {
-        text: 'Live Demos',
-        items: [
-          { text: 'MapContent', link: '/demo' },
-        ]
+        text: 'Live Demo',
+        link: '/demo'
       },
       {
-        text: 'API References',
-        items: [
-          { text: 'MapContent', link: '/components/MapContent' },
-        ]
+        text: 'API Reference',
+        link: '/components/MapContent'
       },
       {
         text: 'Version',
