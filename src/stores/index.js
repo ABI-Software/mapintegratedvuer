@@ -1,16 +1,19 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-import entries from './modules/entries';
-import settings from './modules/settings';
-import splitFlow from './modules/splitFlow';
-Vue.use(Vuex);
+import { defineStore } from 'pinia'
 
-export const store = new Vuex.Store({
-  modules: {
-    entries,
-    splitFlow,
-    settings,
-  }
-});
-
-export default store;
+/**
+ * Activate the store when run the application individually.
+ * If the store exist in parent application, 
+ * instead of creating a new store it will access the parent main store.
+ */
+export const useMainStore = defineStore('main', {
+  state: () => ({
+    userProfile: {
+      token: ''
+    },
+  }),
+  getters: {
+    userToken(state) {
+      return state.userProfile.token
+    },
+  },
+})

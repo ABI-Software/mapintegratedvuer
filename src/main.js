@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import * as VueRouter from 'vue-router'
 import App from './App.vue'
+import { useMainStore } from './stores/index'
 
 const routes = [
   { path: '/'},
@@ -20,3 +21,5 @@ const app = createApp(App)
 app.use(pinia)
 app.use(router)
 app.mount('#app')
+
+useMainStore()
