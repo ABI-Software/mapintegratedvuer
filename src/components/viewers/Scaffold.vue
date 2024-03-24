@@ -21,7 +21,6 @@
     :view-u-r-l="entry.viewUrl"
     :markerLabels="markerLabels"
     :flatmapAPI="flatmapAPI"
-    :userApiKey="userApiKey"
   />
 </template>
 

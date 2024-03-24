@@ -233,7 +233,6 @@ export default {
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null,
       this.options.nlLinkPrefix ? this.settingsStore.updateNLLinkPrefix(this.options.nlLinkPrefix) : null
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
-      this.options.userToken ? this.settingsStore.updateUserToken(this.options.userToken) : null
     }
   },
   mounted: async function() {

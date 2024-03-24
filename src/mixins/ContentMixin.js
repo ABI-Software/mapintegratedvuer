@@ -430,12 +430,9 @@ export default {
   created: function () {
     this.flatmapAPI = undefined;
     this.apiLocation = undefined;
-    this.userApiKey = undefined;
     if (this.settingsStore.flatmapAPI)
       this.flatmapAPI = this.settingsStore.flatmapAPI;
     if (this.settingsStore.sparcApi)
       this.apiLocation = this.settingsStore.sparcApi;
-    if (this.settingsStore.userToken)
-      this.userApiKey = this.settingsStore.userToken;
   },
 };

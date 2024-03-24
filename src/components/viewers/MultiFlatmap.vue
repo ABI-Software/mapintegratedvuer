@@ -15,7 +15,6 @@
     :openMapOptions="openMapOptions"
     :flatmapAPI="flatmapAPI"
     :sparcAPI="apiLocation"
-    :userApiKey="userApiKey"
     @pan-zoom-callback="flatmapPanZoomCallback"
     @open-map="openMap"
   />
