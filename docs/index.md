@@ -8,11 +8,11 @@ hero:
   tagline: This project aims to provide an application to visually navigate anatomical entities to discover functional and physiological datasets from organ-specific neural circuitry.
   actions:
     - theme: brand
-      text: Live demo
-      link: /demo
-    - theme: alt
       text: API Reference
       link: /components/MapContent
+    - theme: alt
+      text: Live demo
+      link: /demo
 
 features:
   - title: Components in mapintegratedvuer

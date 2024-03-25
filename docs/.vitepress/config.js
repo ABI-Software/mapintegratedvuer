@@ -7,7 +7,7 @@ const versionNumber = process.env.npm_package_version
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "MapIntegratedVuer Docs",
+  title: "MapIntegratedVuer",
   description: "API documentation for MapIntegratedVuer",
   base: '/mapintegratedvuer/',
   themeConfig: {
