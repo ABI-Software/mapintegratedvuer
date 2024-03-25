@@ -6,7 +6,7 @@ import App from './App.vue'
 import { useMainStore } from './stores/index'
 
 const routes = [
-  { path: '/'},
+  { path: '/' },
 ]
 
 const router = VueRouter.createRouter({
@@ -20,6 +20,13 @@ const app = createApp(App)
 
 app.use(pinia)
 app.use(router)
-app.mount('#app')
 
-useMainStore()
+const mainStore = useMainStore()
+const token = document.cookie
+  .split("; ")
+  .find((row) => row.startsWith("user-token"))
+if (mainStore && token) {
+  mainStore.setUserToken(token.split("=")[1])
+}
+
+app.mount('#app')

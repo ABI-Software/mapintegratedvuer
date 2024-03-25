@@ -16,4 +16,9 @@ export const useMainStore = defineStore('main', {
       return state.userProfile.token
     },
   },
+  actions: {
+    setUserToken(value) {
+      this.userProfile.token = value
+    },
+  }
 })
