@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "0.7.1-auth.5",
+  "version": "0.7.1-auth.6",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
