@@ -7,14 +7,6 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
-  // for cypress component test
-  // to prevent reloading after optimized dependencies changed
-  const optimizeConfig = mode !== 'development' ? null : {
-    optimizeDeps: {
-      exclude: ['vue-router'],
-    },
-  };
-
   const config = {
     css: {
         preprocessorOptions: {
@@ -57,7 +49,11 @@ export default defineConfig(({ command, mode }) => {
         },
       },
     },
-    optimizeConfig,
+    // for cypress component test
+    // to prevent reloading after optimized dependencies changed
+    optimizeDeps: {
+      exclude: ['vue-router'],
+    },
   };
 
   if (command === 'serve') {
