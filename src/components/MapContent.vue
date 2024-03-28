@@ -7,7 +7,7 @@
       element-loading-background="rgba(0, 0, 0, 0.3)"
     >
       <map-svg-sprite-color/>
-      <SplitFlow 
+      <SplitFlow
         v-if="isReady"
         @onFullscreen="onFullscreen"
         :state="stateToSet"
@@ -41,19 +41,31 @@ export default {
     SplitFlow,
   },
   props: {
+    /**
+     * A link (URL) to share.
+     */
     shareLink: {
       type: String,
       default: undefined
     },
+    /**
+     * State containing state of the scaffold.
+     */
     state: {
       type: Object,
       default: undefined
     },
+    /**
+     * The options include APIs and Keys.
+     */
     options: {
-      type: Object, 
-      default: () => {}
+      type: Object,
+      default: () => {},
+      required: true
     },
-    //New option to start the map in AC, FC or WholeBody
+    /**
+     * New option to start the map in AC, FC or WholeBody.
+     */
     startingMap: {
       type: String,
       default: "AC"
@@ -66,10 +78,20 @@ export default {
     }
   },
   methods: {
+    /**
+     * @vuese
+     * Function to check whether it is in fullscreen mode or not.
+     *
+     */
     isFullscreen: function(){
       return (document.fullscreenElement || document.webkitFullscreenElement ||
         document.mozFullScreenElement || document.msFullscreenElement )
     },
+    /**
+     * @vuese
+     * Function to toggle fullscreen.
+     * @arg fullscreenRequest
+     */
     onFullscreen: function(fullscreenReq) {
       //If a request is sent, try it
       if (fullscreenReq !== undefined){
@@ -89,6 +111,10 @@ export default {
         }
       }
     },
+    /**
+     * @vuese
+     * Function to leave fullscreen mode.
+     */
     leaveFullscreen: function(){
       if (this.isFullscreen()) {
         if (document.exitFullscreen) {
@@ -102,6 +128,10 @@ export default {
         }
       }
     },
+    /**
+     * @vuese
+     * Function to go to fullscreen mode.
+     */
     goFullscreen: function(){
       let mapApp = this.$refs.MapApp;
       if (mapApp.requestFullscreen) {
@@ -121,11 +151,12 @@ export default {
       return this.$refs.flow.getState();
     },
     /**
+     * @vuese
      * Provide a way to set the current view, this is currently limited
      * to setting view for flatmapm, multiflatmap or scaffold.
      * In the case of the multiflatmap, it will not create a new entry and
      * instead change the current entry by setting the state.
-     * 
+     * @arg state
      */
     setCurrentEntry: function(state) {
       if (state && state.type) {
@@ -135,7 +166,7 @@ export default {
           //  region - Which region/group currently focusing on
           //  resource - the url to metadata
           //  state - state to restore (viewport)
-          //  viewUrl - relative path of the view file to metadata 
+          //  viewUrl - relative path of the view file to metadata
           const newView = {
             type: state.type,
             label: state.label,
@@ -150,7 +181,7 @@ export default {
           //  label - Setting the name of the dialog
           //  taxo - taxo of species to set
           //  biologicalSex - biological sex to be displayed (PATO)
-          //  organ - Target organ, flatmap will conduct a local search 
+          //  organ - Target organ, flatmap will conduct a local search
           //          using this
 
           //Look for the key in the available species array,
@@ -186,7 +217,7 @@ export default {
           //  region - Which region/group currently focusing on
           //  resource - the url to metadata
           //  state - state to restore (viewport)
-          //  viewUrl - relative path of the view file to metadata 
+          //  viewUrl - relative path of the view file to metadata
           const newView = {
             type: state.type,
             resource: state.resource,
@@ -194,17 +225,26 @@ export default {
             label: state.label
           };
           this.$refs.flow.createNewEntry(newView);
-        } 
-      } 
+        }
+      }
     },
     /**
+     * @vuese
      * Open the sidebar with the specified facets and query.
+     * @arg facets, query
      */
     openSearch: function(facets, query) {
       return this.$refs.flow.openSearch(facets, query);
     },
+    /**
+     * @vuese
+     * Function to run when the component is mounted.
+     */
     flowMounted: function () {
       this._flowMounted = true;
+      /**
+       * This event emit when the component is mounted.
+       */
       this.$emit("isReady");
     },
   },
@@ -237,6 +277,9 @@ export default {
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", () => {
+      /**
+       * This event emits when the share link is requested.
+       */
       this.$emit("updateShareLinkRequested");
     });
     if (!this.state) {

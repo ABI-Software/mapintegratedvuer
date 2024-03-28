@@ -43,7 +43,7 @@ const getOpenMapOptions = (species) => {
       key: "FC"
     },
     {
-      display: "Open 3D Human Map", 
+      display: "Open 3D Human Map",
       key: "3D"
     },
   ]
@@ -52,7 +52,7 @@ const getOpenMapOptions = (species) => {
     case "Human Female":
     case "Rat":
       options.push({
-        display: "Open Sync Map", 
+        display: "Open Sync Map",
         key: "SYNC"
       });
       break;
@@ -256,7 +256,7 @@ export default {
       }
     },
     getFlatmapImp: function () {
-      if (this.entry.type === "MultiFlatmap") {
+      if (this.entry.type === "MultiFlatmap" && this.flatmapReady) {
         return this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"];
       } else {
         return undefined;

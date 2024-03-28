@@ -10,3 +10,6 @@ results
 cypress/screenshots/
 cypress/reports/
 test/src/
+docs/.vitepress/dist
+docs/.vitepress/cache
+docs/components

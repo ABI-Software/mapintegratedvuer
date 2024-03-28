@@ -13,7 +13,7 @@ describe('MapContent', () => {
     cy.fixture('stubResponse.json').as('stub');
     cy.fixture('simulation_ui.json').as('simulation_ui');
   })
-  
+
   it('Workflow testing', () => {
 
     //Intercept any initial response with preloaded fixture
@@ -22,7 +22,7 @@ describe('MapContent', () => {
       cy.intercept('/sparc-api/dataset_info/using_multiple_dois/*', {statusCode: 200, body: stub.noResponse});
 
       cy.intercept('/sparc-api/dataset_info/using_multiple_dois/?dois=*', {statusCode: 200, body: stub.resultResponse}).as("mouseDataset");
-    
+
       cy.intercept('/sparc-api/get-organ-curies', {statusCode: 200, body: stub.curiesResponse}).as("curieResponse");
 
       cy.intercept('/sparc-api/get_featured_datasets_identifiers', {statusCode: 200, body: stub.featuredDatasetResponse}).as("featuredDatasetResponse");
@@ -35,7 +35,7 @@ describe('MapContent', () => {
     })
 
     //cy.intercept('GET', 'https://mapcore-demo.org/current/flatmap/v2/**');
-    
+
     cy.mount(MapContent, {
       propsData: {
         options: {
@@ -104,7 +104,7 @@ describe('MapContent', () => {
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 30000}).should('not.exist');
 
     //Test the existence of the minimap
-    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').should('exist');
+    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 30000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
     cy.checkFlatmapProvenanceCard('Rat')
@@ -163,7 +163,7 @@ describe('MapContent', () => {
       cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-8/scaffold/54-8_metadata.json?s3BucketName=pennsieve-prod-discover-publish-use1',
         {statusCode: 200, body: metadata});
     })
-    
+
     //Intercept the request and stub it with preloaded fixture
     cy.get('@primitive').then((primitive) => {
       cy.intercept('/sparc-api/s3-resource/999/1/files/derivative/sub-54-8/scaffold/cube_2.json?s3BucketName=pennsieve-prod-discover-publish-use1',

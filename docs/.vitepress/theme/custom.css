@@ -1,0 +1,58 @@
+/* Modify content styles for desktop view */
+@media (min-width: 1280px) {
+  .VPContent .VPDoc.has-aside {
+    & .content-container {
+      max-width: none;
+    }
+
+    .content-container .vp-doc {
+      & table {
+        overflow: unset;
+      }
+
+      & table thead {
+        position: sticky;
+        top: 64px; /* navigation height */
+
+        & th {
+          background-color: var(--vp-c-gray-1);
+        }
+      }
+
+      & table tr {
+        th, td {
+          vertical-align: top;
+        }
+
+        th:first-child,
+        td:first-child {
+          width: 10%;
+          text-wrap: nowrap;
+        }
+
+        /* Description column */
+        th:nth-child(2),
+        td:nth-child(2) {
+          width: 40%;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3) {
+          width: 10%;
+        }
+
+        th:nth-child(4),
+        td:nth-child(4) {
+          width: 10%;
+        }
+
+        th:last-child,
+        td:last-child {
+          width: 20%;
+          word-wrap: break-word;
+          word-break: break-word;
+        }
+      }
+    }
+  }
+}
