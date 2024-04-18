@@ -26,6 +26,7 @@ import { useSettingsStore } from '../stores/settings';
 import { findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
 import { initialState } from "./scripts/utilities.js";
+import RetrieveContextCardMixin from "../mixins/RetrieveContextCardMixin.js"
 import {
   ElLoading as Loading
 } from "element-plus";
@@ -40,6 +41,7 @@ export default {
     Loading,
     SplitFlow,
   },
+  mixins: [RetrieveContextCardMixin],
   props: {
     /**
      * A link (URL) to share.
@@ -158,7 +160,7 @@ export default {
      * instead change the current entry by setting the state.
      * @arg state
      */
-    setCurrentEntry: function(state) {
+    setCurrentEntry: async function(state) {
       if (state && state.type) {
         if (state.type === "Scaffold" && state.url) {
           //State for scaffold containing the following items:
@@ -167,7 +169,7 @@ export default {
           //  resource - the url to metadata
           //  state - state to restore (viewport)
           //  viewUrl - relative path of the view file to metadata
-          const newView = {
+          let newView = {
             type: state.type,
             label: state.label,
             region: state.region,
@@ -175,6 +177,9 @@ export default {
             state: state.state,
             viewUrl: state.viewUrl
           };
+          // Add content from scicrunch for the context card
+          const contextCardInfo = await this.retrieveContextCardFromUrl(state.url);
+          newView = {...newView, ...contextCardInfo};
           this.$refs.flow.createNewEntry(newView);
         } else if (state.type === "MultiFlatmap") {
           //State for scaffold containing the following items:

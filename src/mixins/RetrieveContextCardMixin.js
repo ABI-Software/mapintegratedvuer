@@ -4,23 +4,20 @@ export default {
   // Note that the setting store is included in MapContent.vue
   methods: {
     retrieveContextCardFromUrl: async function (url) {
-      console.log('retrieveContextCardFromUrl', url);
       // split the url to get the datasetId
-      const [datasetId, basePath] = this.splitInfoFromUrl(url);
+      const [datasetId, basePath, scaffoldPath, s3uri] = this.splitInfoFromUrl(url);
 
-      console.log('datasetId', datasetId);
       // get the context file from scicrunch
-      const sciResults = await this.getContextFileFromScicrunch(datasetId);
+      const sciResults = await this.getContextFileFromScicrunch(datasetId, scaffoldPath);
       if (!sciResults.success){
         return {} // return empty object if no context file is found (the empty object will be added to the entry)
       }
 
       // return the context file
-      const fullPath = basePath + sciResults.contextFile;
-      console.log('contextFile', fullPath);
+      const fullPath = basePath + sciResults.contextFile + s3uri;
       return {
+        s3uri: sciResults.s3uri,
         contextCardUrl: fullPath,
-        s3uri: sciResults.s3uri
       }
     },
     splitInfoFromUrl: function (url) {
@@ -28,6 +25,8 @@ export default {
       // find the part after 's3-resource' 
       let s3path = url.split('s3-resource')[1];
       let basePath = url.split('files/')[0] + 'files/' // This gives us the base path for our relative path we will get from scicrunch
+      let scaffoldPath = url.split('files/')[1].split('?')[0] // This gives us the relative path to the file we want to get from scicrunch
+      let s3uri = '?' + url.split('?')[1] // This gives us the full path to the file we want to get from scicrunch
 
       // split the url by '/'
       const parts = s3path.split('/');
@@ -36,9 +35,9 @@ export default {
       // return the parts
       const datasetId = parts[0];
 
-      return [datasetId, basePath];
+      return [datasetId, basePath, scaffoldPath, s3uri];
     },
-    getContextFileFromScicrunch: async function (datasetId) {
+    getContextFileFromScicrunch: async function (datasetId, scaffoldPath) {
       // get the context file from scicrunch
       let results = await fetch(`${this.settingsStore.sparcApi}/dataset_info/using_multiple_discoverIds/?discoverIds=${datasetId}`)
         .then(response => response.json())
@@ -47,12 +46,24 @@ export default {
           if (data.numberOfHits === 1) { // chgeck if there is only one hit
             const contextFile = data.results[0]['abi-contextual-information']
 
-            // check if there is only one context file (We have no way of knowing which one to choose if there are multiple)
+            // check if there is only one context file 
             if ( contextFile && contextFile.length === 1) {
               return {
                 success: true,
                 contextFile: contextFile[0], 
                 s3uri: data.results[0]['s3uri']
+              }
+            }
+
+            // If there are multiple context files, find the one that matches the scaffold path
+            else if (contextFile && contextFile.length > 1) {
+              let search = this.findContextInforForFilePath(data.results[0]['abi-context-file'], scaffoldPath);
+              if (search) {
+                return {
+                  success: true,
+                  contextFile: search, 
+                  s3uri: data.results[0]['s3uri']
+                }
               }
             }
           }
@@ -62,6 +73,10 @@ export default {
           return {success: false};
         });
       return results;
+    },
+    findContextInforForFilePath: function (dataciteInfo, filePath) {
+      let result = dataciteInfo.find((info) => info.datacite.isDerivedFrom.path.includes(filePath))
+      return result?.dataset?.path
     }
   }
 }
