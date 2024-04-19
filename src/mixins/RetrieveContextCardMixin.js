@@ -32,7 +32,7 @@ export default {
       const parts = s3path.split('/');
       // remove the first part
       parts.shift();
-      // return the parts
+      // return the datasetId which is the first part
       const datasetId = parts[0];
 
       return [datasetId, basePath, scaffoldPath, s3uri];
@@ -42,11 +42,11 @@ export default {
       let results = await fetch(`${this.settingsStore.sparcApi}/dataset_info/using_multiple_discoverIds/?discoverIds=${datasetId}`)
         .then(response => response.json())
         .then(data => {
-          // get the context file
-          if (data.numberOfHits === 1) { // chgeck if there is only one hit
+          // get the context info from the response
+          if (data.numberOfHits === 1) { // check if there is only one hit (We don't want to use the data if there are multiple hits)
             const contextFile = data.results[0]['abi-contextual-information']
 
-            // check if there is only one context file 
+            // check if there is only one context file and if so return it
             if ( contextFile && contextFile.length === 1) {
               return {
                 success: true,
@@ -75,6 +75,7 @@ export default {
       return results;
     },
     findContextInforForFilePath: function (dataciteInfo, filePath) {
+      // find the context file that matches the scaffold path
       let result = dataciteInfo.find((info) => info.datacite.isDerivedFrom.path.includes(filePath))
       return result?.dataset?.path
     }
