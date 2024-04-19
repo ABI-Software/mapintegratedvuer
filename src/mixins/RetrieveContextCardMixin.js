@@ -26,7 +26,7 @@ export default {
       let s3path = url.split('s3-resource')[1];
       let basePath = url.split('files/')[0] + 'files/' // This gives us the base path for our relative path we will get from scicrunch
       let scaffoldPath = url.split('files/')[1].split('?')[0] // This gives us the relative path to the file we want to get from scicrunch
-      let s3uri = '?' + url.split('?')[1] // This gives us the full path to the file we want to get from scicrunch
+      let s3uri = '?' + url.split('?')[1] // This gives us the uri needed to get the file from s3
 
       // split the url by '/'
       const parts = s3path.split('/');
