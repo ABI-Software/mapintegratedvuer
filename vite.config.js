@@ -1,5 +1,4 @@
 import path from "path";
-const pathSrc = path.resolve(__dirname, "./src");
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
@@ -29,7 +28,7 @@ export default defineConfig(({ command, mode }) => {
           ],
           dts: 'src/components.d.ts',
         }),
-    
+
         // https://github.com/antfu/unocss
         // see unocss.config.ts for config
     ],
@@ -48,6 +47,11 @@ export default defineConfig(({ command, mode }) => {
           },
         },
       },
+    },
+    // for cypress component test
+    // to prevent reloading after optimized dependencies changed
+    optimizeDeps: {
+      exclude: ['vue-router'],
     },
   };
 

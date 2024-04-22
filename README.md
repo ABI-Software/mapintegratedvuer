@@ -78,14 +78,14 @@ The following pagedemonstrates the mapintegratedapp in action: https://mapcore-d
 
 
 ## Testing mapintegratedvuer dependencies in [sparc-app](https://github.com/nih-sparc/sparc-app/)
-We will cover three options for updating nested dependencies. 
+We will cover three options for updating nested dependencies.
 
 ### 1. Copy build files from `npm run build-bundle`
 This works by directly changing files in `node-modules/`, where node will look to resolve dependencies.
 
 ```
 cd <your-dependency>
-npm run build-bundle 
+npm run build-bundle
 cp /dist <mapintegratedvuer-path>/node_modules/@<your-npmhandle>/<your-dependency>/dist
 cd <mapintegratedvuer-path>
 npm run build-bundle
@@ -98,7 +98,7 @@ This is a variant of option 1, where we use `yarn link` to create a symbolic lin
 It reduces the number of copies to 1, but still requires 3 builds
 ```
 cd <your-dependency>
-npm run build-bundle 
+npm run build-bundle
 cp /dist <mapintegratedvuer-path>/node_modules/@<your-npmhandle>/<your-dependency>/dist
 cd <mapintegratedvuer-path>
 npm run build-bundle
@@ -110,13 +110,13 @@ yarn dev
 (npm link does not work without disabling es-lint, which we won't go into)
 
 ### 3. Publish own version of mapintegratedvuer
-This method is the most time consuming and has the downside of populating the npm package's version history with builds. 
+This method is the most time consuming and has the downside of populating the npm package's version history with builds.
 Since it mimics the way `sparc-app` will use it, it's gauranteed to work.
 
 ```
 cd <your-dependency>
 npm run build-bundle
-npm publish --tag alpha 
+npm publish --tag alpha
 cd mapintegratedvuer
 npm install @<your-npmhandle>/<your-dependency>@alpha
 ```
@@ -127,7 +127,7 @@ Change `@abi-software/mapintegratedvuer` to `@<your-npm-handle>/mapintegratedvue
 ```
 cd mapintegratedvuer
 npm run build-bundle
-npm publish --tag alpha 
+npm publish --tag alpha
 ```
 
 Edit sparc-app/pages/maps/index.vue
@@ -139,4 +139,12 @@ yarn add @<your-npm-handle>/mapintegratedvuer@alpha
 yarn dev
 ```
 
+## Documentation
 
+The documentation is developed with `vitepress` and `vuese`. Documentation pages are in the `docs` folder.
+
+### To run in local development mode
+```bash
+npm run docs:watch
+```
+This will start the documentation server with `vitepress` on port `:5173` and watch the `FlatmapVuer` and `MultiFlatmapVuer` components changes.
