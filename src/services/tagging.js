@@ -15,7 +15,7 @@ export default {
       location: data.location || ''
     }
 
-    console.log('GTM Data', taggingData)
+    console.table(taggingData)
 
     // push to dataLayer for GTM
     if (typeof dataLayer !== 'undefined') {

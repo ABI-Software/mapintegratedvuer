@@ -141,6 +141,15 @@ export default {
           );
           if (this.$refs.sideBar) {
             this.$refs.sideBar.openSearch(facets, "");
+
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': 'filter',
+              'location': 'map_popup_data'
+            });
           }
         } else {
           this.createNewEntry(action);
