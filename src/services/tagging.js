@@ -1,6 +1,6 @@
 export default {
   sendEvent: function(data) {
-    const gaData = {
+    const taggingData = {
       event: data.event || '',
       event_name: data.event_name || '',
       files: data.files || '',
@@ -15,11 +15,11 @@ export default {
       location: data.location || ''
     }
 
-    console.log('GA Event', gaData)
+    console.log('GTM Data', taggingData)
 
     // push to dataLayer for GTM
     if (typeof dataLayer !== 'undefined') {
-      dataLayer.push(gaData)
+      dataLayer.push(taggingData)
     }
   }
 }
