@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
@@ -49,7 +49,7 @@
   ],
   "dependencies": {
     "@abi-software/flatmapvuer": "1.0.0",
-    "@abi-software/map-side-bar": "2.0.0",
+    "@abi-software/map-side-bar": "^2.0.1",
     "@abi-software/plotvuer": "1.0.0",
     "@abi-software/scaffoldvuer": "^1.0.0",
     "@abi-software/simulationvuer": "1.0.0",
