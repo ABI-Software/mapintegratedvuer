@@ -251,12 +251,11 @@ export default {
       // GA Tagging
       // Page view tracking for maps' buttons click on portal
       // category: AC | FC | WholeBody
-      const taggingData = {
+      Tagging.sendEvent({
         'event': 'interaction_event',
         'event_name': 'portal_maps_page_view',
         'category': this.startingMap
-      }
-      Tagging.sendEvent(taggingData);
+      });
     },
   },
   computed: {

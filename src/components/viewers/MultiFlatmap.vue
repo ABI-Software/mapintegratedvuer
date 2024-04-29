@@ -249,12 +249,11 @@ export default {
 
       // GA Tagging
       // Event tracking for maps' species change
-      const taggingData = {
+      Tagging.sendEvent({
         'event': 'interaction_event',
         'event_name': 'portal_maps_species_change',
         'category': this.activeSpecies
-      }
-      Tagging.sendEvent(taggingData);
+      });
     },
     multiFlatmapReady: function (flatmap) {
       if (flatmap) {
