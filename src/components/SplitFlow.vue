@@ -42,6 +42,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Tagging from '../services/tagging.js'
 import DialogToolbarContent from "./DialogToolbarContent.vue";
 import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog.vue";
@@ -107,6 +108,15 @@ export default {
         if (action.type == "Search") {
           if (action.nervePath) {
             this.openSearch([action.filter], action.label);
+
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_search',
+              'category': 'Search',
+              'location': 'map_sidebar_filter'
+            });
           } else {
             this.openSearch([], action.term);
           }
@@ -115,6 +125,15 @@ export default {
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
             this.$refs.sideBar.addFilter(action);
+
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_search',
+              'category': 'Facet_' + (action.facet2 || action.facet),
+              'location': 'map_sidebar_filter'
+            });
           }
         } else if (action.type == "Facets") {
           const facets = [];
@@ -140,6 +159,15 @@ export default {
           );
           if (this.$refs.sideBar) {
             this.$refs.sideBar.openSearch(facets, "");
+
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_search',
+              'category': 'Facets',
+              'location': 'map_sidebar_filter'
+            });
           }
         } else {
           this.createNewEntry(action);
