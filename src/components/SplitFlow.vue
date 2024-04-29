@@ -169,6 +169,15 @@ export default {
         });
       }
       this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
+
+      // GA Tagging
+      // Event tracking for map on display search
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_display_search',
+        'category': payload.term,
+        'location': 'map_toolbar'
+      });
     },
     fetchSuggestions: function(payload) {
       const suggestions = [];
