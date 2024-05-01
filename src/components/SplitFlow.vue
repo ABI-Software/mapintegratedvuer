@@ -402,6 +402,20 @@ export default {
     },
     contextUpdate: function (payload) {
       EventBus.emit("contextUpdate", payload);
+
+      const categoryValues = []
+      if (payload.label) categoryValues.push(payload.label)
+      if (payload.type) categoryValues.push(payload.type)
+      if (payload.datasetId) categoryValues.push('(' + payload.datasetId + ')')
+
+      // GA Tagging
+      // Event tracking for map sidebar gallery click
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_gallery_click',
+        'category': categoryValues.join(' '),
+        'location': 'map_sidebar_gallery'
+      });
     }
   },
   created: function () {
