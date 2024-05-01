@@ -162,12 +162,18 @@ const getBodyScaffoldInfo = async (sparcApi, species) => {
   return {url, datasetInfo};
 }
 
-export { 
+// Array intersection
+const intersectArrays = (arr1, arr2) => {
+  return arr1.filter((x) => arr2.includes(x));
+}
+
+export {
   availableSpecies,
   capitalise,
   findSpeciesKey,
   initialState,
   initialDefaultState,
   getBodyScaffoldInfo,
-  getNewMapEntry
+  getNewMapEntry,
+  intersectArrays
 }
