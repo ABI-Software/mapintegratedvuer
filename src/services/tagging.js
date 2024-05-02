@@ -15,7 +15,10 @@ export default {
       location: data.location || ''
     }
 
-    console.table(taggingData)
+    // set debugging mode
+    if (localStorage.getItem('debugTagging') === 'yes') {
+      console.table(taggingData)
+    }
 
     // push to dataLayer for GTM
     if (typeof dataLayer !== 'undefined') {
