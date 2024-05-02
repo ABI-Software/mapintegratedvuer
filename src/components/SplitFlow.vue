@@ -405,9 +405,10 @@ export default {
       EventBus.emit("contextUpdate", payload);
 
       const categoryValues = []
-      if (payload.label) categoryValues.push(payload.label)
-      if (payload.type) categoryValues.push(payload.type)
-      if (payload.datasetId) categoryValues.push('(' + payload.datasetId + ')')
+      const { label, type, datasetId } = payload
+      if (label) categoryValues.push(label)
+      if (type) categoryValues.push(type)
+      if (datasetId) categoryValues.push('(' + datasetId + ')')
 
       // GA Tagging
       // Event tracking for map sidebar gallery click
@@ -415,18 +416,28 @@ export default {
         'event': 'interaction_event',
         'event_name': 'portal_maps_gallery_click',
         'category': categoryValues.join(' '),
-        'location': 'map_sidebar_gallery'
+        'location': 'map_sidebar_gallery',
+        'dataset_id': datasetId ? datasetId + '' : '' // change to string format
       });
     },
     datasetClicked: function (payload) {
+      // payload is dataset URL
+      const datasetURL = payload || ''
+      const substringA = 'datasets/'
+      const substringB = '?type=dataset'
+      const datasetId = datasetURL.substring(
+        datasetURL.indexOf(substringA) + substringA.length,
+        datasetURL.indexOf(substringB)
+      )
+
       // GA Tagging
       // Event tracking for map sidebar gallery dataset click
-      // payload is dataset URL
       Tagging.sendEvent({
         'event': 'interaction_event',
         'event_name': 'portal_maps_gallery_click',
-        'category': payload,
-        'location': 'map_sidebar_gallery'
+        'category': datasetURL,
+        'location': 'map_sidebar_gallery',
+        'dataset_id': datasetId || ''
       });
     },
   },
