@@ -29,6 +29,7 @@
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
           @contextUpdate="contextUpdate($event)"
+          @dataset-clicked="datasetClicked($event)"
         />
         <SplitDialog
           :entries="entries"
@@ -416,7 +417,18 @@ export default {
         'category': categoryValues.join(' '),
         'location': 'map_sidebar_gallery'
       });
-    }
+    },
+    datasetClicked: function (payload) {
+      // GA Tagging
+      // Event tracking for map sidebar gallery dataset click
+      // payload is dataset URL
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_gallery_click',
+        'category': payload,
+        'location': 'map_sidebar_gallery'
+      });
+    },
   },
   created: function () {
     this._facets = [];
