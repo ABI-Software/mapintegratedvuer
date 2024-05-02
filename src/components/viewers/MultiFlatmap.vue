@@ -22,7 +22,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Tagging from '../../services/tagging.js'
+import Tagging from '../../services/tagging.js';
 import { availableSpecies } from "../scripts/utilities.js";
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
 import ContentMixin from "../../mixins/ContentMixin";

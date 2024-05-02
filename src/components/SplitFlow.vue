@@ -43,7 +43,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import Tagging from '../services/tagging.js'
+import Tagging from '../services/tagging.js';
 import DialogToolbarContent from "./DialogToolbarContent.vue";
 import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog.vue";
@@ -126,14 +126,14 @@ export default {
               'category': action.term || 'filter',
               'location': 'map_location_pin'
             });
-            this.filterTriggered = true
+            this.filterTriggered = true;
           }
         } else if (action.type == "URL") {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
             this.$refs.sideBar.addFilter(action);
-            const { facet } = action
+            const { facet } = action;
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
@@ -142,7 +142,7 @@ export default {
               'category': facet || 'filter',
               'location': 'map_location_pin'
             });
-            this.filterTriggered = true
+            this.filterTriggered = true;
           }
         } else if (action.type == "Facets") {
           const facets = [];
@@ -169,8 +169,8 @@ export default {
           if (this.$refs.sideBar) {
             this.$refs.sideBar.openSearch(facets, "");
 
-            const filterValuesArray = intersectArrays(this.availableFacets, action.labels)
-            const filterValues = filterValuesArray.join(', ')
+            const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
+            const filterValues = filterValuesArray.join(', ');
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
@@ -235,18 +235,18 @@ export default {
             'location': 'map_sidebar_search'
           });
         }
-        this.filterTriggered = false // reset for next action
+        this.filterTriggered = false; // reset for next action
       }
       if (data && data.type == "filter-update") {
         this.settingsStore.updateFacets(data.value);
 
         // Remove filter event from maps' popup
         if (!this.filterTriggered) {
-          const { value } = data
+          const { value } = data;
           const filterValuesArray = value.filter((val) =>
             val.facet && val.facet.toLowerCase() !== 'show all'
-          ).map((val) => val.facet)
-          const filterValues = filterValuesArray.join(', ')
+          ).map((val) => val.facet);
+          const filterValues = filterValuesArray.join(', ');
 
           // GA Tagging
           // Event tracking for map action search/filter data
@@ -257,7 +257,7 @@ export default {
             'location': 'map_sidebar_filter'
           });
         }
-        this.filterTriggered = false // reset for next action
+        this.filterTriggered = false; // reset for next action
       }
       if (data && data.type == "available-facets") {
         this.settingsStore.updateFacetLabels(data.value.labels);
@@ -404,11 +404,11 @@ export default {
     contextUpdate: function (payload) {
       EventBus.emit("contextUpdate", payload);
 
-      const categoryValues = []
-      const { label, type, datasetId } = payload
-      if (label) categoryValues.push(label)
-      if (type) categoryValues.push(type)
-      if (datasetId) categoryValues.push('(' + datasetId + ')')
+      const categoryValues = [];
+      const { label, type, datasetId } = payload;
+      if (label) categoryValues.push(label);
+      if (type) categoryValues.push(type);
+      if (datasetId) categoryValues.push('(' + datasetId + ')');
 
       // GA Tagging
       // Event tracking for map sidebar gallery click
@@ -422,13 +422,13 @@ export default {
     },
     datasetClicked: function (payload) {
       // payload is dataset URL
-      const datasetURL = payload || ''
-      const substringA = 'datasets/'
-      const substringB = '?type=dataset'
+      const datasetURL = payload || '';
+      const substringA = 'datasets/';
+      const substringB = '?type=dataset';
       const datasetId = datasetURL.substring(
         datasetURL.indexOf(substringA) + substringA.length,
         datasetURL.indexOf(substringB)
-      )
+      );
 
       // GA Tagging
       // Event tracking for map sidebar gallery dataset click

@@ -13,16 +13,16 @@ export default {
       doi: data.doi || '',
       citation_type: data.citation_type || '',
       location: data.location || ''
-    }
+    };
 
     // set debugging mode
     if (localStorage.getItem('debugTagging') === 'yes') {
-      console.table(taggingData)
+      console.table(taggingData);
     }
 
     // push to dataLayer for GTM
     if (typeof dataLayer !== 'undefined') {
-      dataLayer.push(taggingData)
+      dataLayer.push(taggingData);
     }
   }
 }
