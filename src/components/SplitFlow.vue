@@ -405,10 +405,14 @@ export default {
       EventBus.emit("contextUpdate", payload);
 
       const categoryValues = [];
-      const { label, type, datasetId } = payload;
+      const { label, type, datasetId, resource } = payload;
+      let filePath = '';
       if (label) categoryValues.push(label);
       if (type) categoryValues.push(type);
       if (datasetId) categoryValues.push('(' + datasetId + ')');
+      if (resource) {
+        filePath = resource.share_link;
+      }
 
       // GA Tagging
       // Event tracking for map sidebar gallery click
@@ -417,7 +421,8 @@ export default {
         'event_name': 'portal_maps_gallery_click',
         'category': categoryValues.join(' '),
         'location': 'map_sidebar_gallery',
-        'dataset_id': datasetId ? datasetId + '' : '' // change to string format
+        'dataset_id': datasetId ? datasetId + '' : '', // change to string format
+        'file_path': filePath,
       });
     },
     datalinkClicked: function (payload) {
