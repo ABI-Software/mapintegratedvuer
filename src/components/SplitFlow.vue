@@ -29,7 +29,7 @@
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
           @contextUpdate="contextUpdate($event)"
-          @dataset-clicked="datasetClicked($event)"
+          @datalink-clicked="datalinkClicked($event)"
         />
         <SplitDialog
           :entries="entries"
@@ -420,7 +420,7 @@ export default {
         'dataset_id': datasetId ? datasetId + '' : '' // change to string format
       });
     },
-    datasetClicked: function (payload) {
+    datalinkClicked: function (payload) {
       // payload is dataset URL
       const datasetURL = payload || '';
       const substringA = 'datasets/';
