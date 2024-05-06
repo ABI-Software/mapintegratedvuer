@@ -18,6 +18,7 @@
     @pan-zoom-callback="flatmapPanZoomCallback"
     @open-map="openMap"
     @pathway-selection-changed="onPathwaySelectionChanged"
+    @open-pubmed-url="onOpenPubmedUrl"
   />
 </template>
 
@@ -193,6 +194,16 @@ export default {
         'event_name': 'portal_maps_pathway_change',
         'category': label + ' [' + property + '] ' + checked,
         'location': selectionsTitle
+      });
+    },
+    onOpenPubmedUrl: function (url) {
+      // GA Tagging
+      // Event tracking for open pubmed url from popup
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_pubmed_url',
+        'file_path': url,
+        'location': 'map_popup_button',
       });
     },
     /**
