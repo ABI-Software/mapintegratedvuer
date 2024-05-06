@@ -24,11 +24,14 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Tagging from '../../services/tagging.js';
-import { availableSpecies } from "../scripts/utilities.js";
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
-import { getBodyScaffoldInfo } from "../scripts/utilities";
+import {
+  availableSpecies,
+  getBodyScaffoldInfo,
+  transformObjToString
+} from "../scripts/utilities";
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
 import "@abi-software/flatmapvuer/dist/style.css";
@@ -162,6 +165,24 @@ export default {
     flatmaprResourceSelected: function (type, resource) {
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
       this.resourceSelected(type, resource, (map.viewingMode === "Exploration"));
+
+      if (resource.eventType === 'click' && resource.feature.type === 'feature') {
+        const eventData = {
+          label: resource.label || '',
+          id: resource.feature.id || '',
+          featureId: resource.feature.featureId || '',
+          taxonomy: resource.taxonomy || '',
+          resources: resource.resource.join(', ')
+        };
+        const paramString = transformObjToString(eventData);
+        // `transformStringToObj` function can be used to change it back to object
+        Tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_connectivity',
+          'category': paramString,
+          "location": type + ' ' + map.viewingMode
+        });
+      }
     },
     onPathwaySelectionChanged: function (data) {
       const { label, property, checked, selectionsTitle } = data;

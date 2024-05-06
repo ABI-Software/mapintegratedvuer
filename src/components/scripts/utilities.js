@@ -167,6 +167,22 @@ const intersectArrays = (arr1, arr2) => {
   return arr1.filter((x) => arr2.includes(x));
 };
 
+// Not using URLSearchParams to avoid encoding spaces
+const transformObjToString = (obj) => {
+  return Object.keys(obj)
+    .map((key) => `${key}=${obj[key]}`)
+    .join('&');
+};
+
+const transformStringToObj = (str) => {
+  const params = new URLSearchParams(str);
+  const obj = {};
+  for (const [key, value] of params) {
+    obj[key] = value;
+  }
+  return obj;
+};
+
 export {
   availableSpecies,
   capitalise,
@@ -175,5 +191,7 @@ export {
   initialDefaultState,
   getBodyScaffoldInfo,
   getNewMapEntry,
-  intersectArrays
+  intersectArrays,
+  transformObjToString,
+  transformStringToObj,
 }

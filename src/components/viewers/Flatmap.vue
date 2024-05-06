@@ -27,6 +27,7 @@ import { FlatmapVuer } from "@abi-software/flatmapvuer";
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
+import { transformObjToString } from '../scripts/utilities';
 import "@abi-software/flatmapvuer/dist/style.css";
 
 export default {
@@ -51,6 +52,24 @@ export default {
     flatmaprResourceSelected: function (type, resource) {
       this.$refs.flatmap.resourceSelected(
         type, resource, (this.$refs.map.viewingMode === "Exploration"));
+
+      if (resource.eventType === 'click' && resource.feature.type === 'feature') {
+        const eventData = {
+          label: resource.label || '',
+          id: resource.feature.id || '',
+          featureId: resource.feature.featureId || '',
+          taxonomy: resource.taxonomy || '',
+          resources: resource.resource.join(', ')
+        };
+        const paramString = transformObjToString(eventData);
+        // `transformStringToObj` function can be used to change it back to object
+        Tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_connectivity',
+          'category': paramString,
+          "location": type + ' ' + this.$refs.map.viewingMode
+        });
+      }
     },
     flatmapReadyCall: function (flatmap) {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
