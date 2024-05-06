@@ -17,6 +17,7 @@
     :flatmapAPI="flatmapAPI"
     :sparcAPI="apiLocation"
     @open-map="openMap"
+    @pathway-selection-changed="onPathwaySelectionChanged"
   />
 </template>
 
@@ -59,6 +60,17 @@ export default {
       if (this.entry.resource === "FunctionalConnectivity"){
         this.flatmapReadyForMarkerUpdates(flatmap);
       }
+    },
+    onPathwaySelectionChanged: function (data) {
+      const { label, property, checked, selectionsTitle } = data;
+      // GA Tagging
+      // Event tracking for maps' pathway selection change
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_pathway_change',
+        'category': label + ' [' + property + '] ' + checked,
+        'location': selectionsTitle
+      });
     },
     highlightFeatures: function(info) {
       let name = info.name;

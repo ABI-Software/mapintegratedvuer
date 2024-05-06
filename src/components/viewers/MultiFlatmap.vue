@@ -17,6 +17,7 @@
     :sparcAPI="apiLocation"
     @pan-zoom-callback="flatmapPanZoomCallback"
     @open-map="openMap"
+    @pathway-selection-changed="onPathwaySelectionChanged"
   />
 </template>
 
@@ -161,6 +162,17 @@ export default {
     flatmaprResourceSelected: function (type, resource) {
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
       this.resourceSelected(type, resource, (map.viewingMode === "Exploration"));
+    },
+    onPathwaySelectionChanged: function (data) {
+      const { label, property, checked, selectionsTitle } = data;
+      // GA Tagging
+      // Event tracking for maps' pathway selection change
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_pathway_change',
+        'category': label + ' [' + property + '] ' + checked,
+        'location': selectionsTitle
+      });
     },
     /**
      * Handle sync pan zoom event
