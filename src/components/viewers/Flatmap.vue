@@ -112,7 +112,7 @@ export default {
   mounted: function() {
     this.getAvailableTerms();
     EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerUpdate(true, undefined);
+      this.flatmapMarkerUpdate(undefined);
     });
   },
 };

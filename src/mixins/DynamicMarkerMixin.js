@@ -31,10 +31,9 @@ export default {
     },
         /**
      * Function used for updating the flatmap markers.
-     * It will only update the markers if zoom level has changed or
-     * the force flag is true.
+     * We set the markers based on what was searched and the flatmap clusters them.
      */
-    flatmapMarkerUpdate(force, flatmap) {
+    flatmapMarkerUpdate(flatmap) {
       if (!this.flatmapReady) return;
 
       let flatmapImp = flatmap;
@@ -42,13 +41,12 @@ export default {
         flatmapImp = this.getFlatmapImp();
 
       if (flatmapImp) {
-        if (force) {
-          let markers = this.settingsStore.markers;
-          markers = removeDuplicates(markers);
-          markers.forEach(id => flatmapImp.addMarker(id, {className: "standard-marker"}))
-          if (this.entry.type === "MultiFlatmap") {
-            this.restoreFeaturedMarkers(flatmapImp);
-          }
+        let markers = this.settingsStore.markers;
+        markers = removeDuplicates(markers);
+        flatmapImp.clearMarkers();
+        markers.forEach(id => flatmapImp.addMarker(id, {className: "standard-marker"}))
+        if (this.entry.type === "MultiFlatmap") {
+          this.restoreFeaturedMarkers(flatmapImp);
         }
       }
     },
@@ -57,7 +55,7 @@ export default {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
-        this.flatmapMarkerUpdate(true, flatmapImp);
+        this.flatmapMarkerUpdate(flatmapImp);
       }
     },
   }

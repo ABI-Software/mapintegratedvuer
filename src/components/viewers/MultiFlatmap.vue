@@ -249,7 +249,7 @@ export default {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
-        this.flatmapMarkerUpdate(true, flatmapImp);
+        this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
       }
     },
@@ -350,7 +350,7 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerUpdate(true, undefined);
+      this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
     });
   },
 };
