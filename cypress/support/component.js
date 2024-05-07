@@ -15,7 +15,23 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
-
+import { createPinia } from 'pinia';
 import { mount } from 'cypress/vue'
 
-Cypress.Commands.add('mount', mount)
+Cypress.Commands.add('mount', (component, options = {}) => {
+
+  const pinia = createPinia();
+
+  const installPinia = (app) => {
+    app.use(pinia);
+  }
+
+  options = {
+    global: {
+      plugins:[installPinia]
+    },
+    ...options
+  };
+
+  return mount(component, options);
+});
