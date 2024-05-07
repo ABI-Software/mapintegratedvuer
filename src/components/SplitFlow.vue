@@ -120,9 +120,12 @@ export default {
             this.openSearch([], action.term);
             // GA Tagging
             // Event tracking for map action search/filter data
+            const eventName = action.featuredDataset
+              ? 'portal_maps_featured_dataset_search'
+              : 'portal_maps_action_search';
             Tagging.sendEvent({
               'event': 'interaction_event',
-              'event_name': 'portal_maps_action_search',
+              'event_name': eventName,
               'category': action.term || 'filter',
               'location': 'map_location_pin'
             });

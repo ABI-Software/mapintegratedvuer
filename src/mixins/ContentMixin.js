@@ -113,6 +113,7 @@ export default {
                 term: this.settingsStore.featuredMarkerDoi(
                   resource.feature.id
                 ),
+                featuredDataset: true,
               };
             } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
               // if it matches our stored keywords, it is a keyword search
