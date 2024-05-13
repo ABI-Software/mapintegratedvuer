@@ -377,6 +377,14 @@ export default {
       transform: translate(45px, -7px);
     }
   }
+  &.hovered-marker {
+    cursor: pointer !important;
+    z-index: 2;
+    div {
+      scale: 2;
+      transform: translate(0px, -5px);
+    }
+  }
 }
 
 </style>
