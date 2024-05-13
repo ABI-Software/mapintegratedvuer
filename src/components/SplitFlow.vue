@@ -28,6 +28,7 @@
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
+          @hover-changed="hoverChanged($event)"
           @contextUpdate="contextUpdate($event)"
         />
         <SplitDialog
@@ -173,6 +174,11 @@ export default {
         suggestions.push({"value": "\"" + item +"\""});
       }
       payload.data.cb(suggestions);
+    },
+    hoverChanged: function (data) {
+      const hoverEntries = data && data.anatomy ? data.anatomy : []
+      this.settingsStore.updateHoveredMarkers(hoverEntries);
+      EventBus.emit("markerUpdate");
     },
     searchChanged: function (data) {
       if (data && data.type == "query-update") {
