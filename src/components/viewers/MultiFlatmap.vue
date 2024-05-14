@@ -368,6 +368,12 @@ export default {
     cursor: pointer !important;
     z-index: 2;
   }
+  &.hovered {
+    div {
+      scale: 2;
+      transform: translate(0px, -5px);
+    }
+  }
   &.highlight-marker {
     visibility: visible !important;
     cursor: pointer !important;
@@ -375,14 +381,6 @@ export default {
     div {
       scale: 0.5;
       transform: translate(45px, -7px);
-    }
-  }
-  &.hovered-marker {
-    cursor: pointer !important;
-    z-index: 2;
-    div {
-      scale: 2;
-      transform: translate(0px, -5px);
     }
   }
 }
