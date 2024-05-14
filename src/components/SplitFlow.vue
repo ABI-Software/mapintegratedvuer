@@ -86,6 +86,7 @@ export default {
       startUp: true,
       search: '',
       activeDockedId : 1,
+      hoveredMarkerDelay: undefined,
     }
   },
   watch: {
@@ -178,7 +179,14 @@ export default {
     hoverChanged: function (data) {
       const hoverEntries = data && data.anatomy ? data.anatomy : []
       this.settingsStore.updateHoveredMarkers(hoverEntries);
-      EventBus.emit("markerUpdate");
+      if (!hoverEntries.length) {
+        this.hoveredMarkerDelay = setTimeout(() => {
+          EventBus.emit("markerUpdate");
+        }, 3000)
+      } else {
+        clearTimeout(this.hoveredMarkerDelay)
+        EventBus.emit("markerUpdate");
+      }
     },
     searchChanged: function (data) {
       if (data && data.type == "query-update") {
