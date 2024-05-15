@@ -17,6 +17,7 @@
     :sparcAPI="apiLocation"
     @pan-zoom-callback="flatmapPanZoomCallback"
     @open-map="openMap"
+    @finish-help-mode="endHelp"
   />
 </template>
 

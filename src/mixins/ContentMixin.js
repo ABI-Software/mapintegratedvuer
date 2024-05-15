@@ -399,16 +399,25 @@ export default {
     startHelp: function () {
       if (this.isInHelp === false) {
         this.helpMode = true;
-        window.addEventListener("mousedown", this.endHelp);
+        window.addEventListener("mousedown", this.checkEndHelpMouseDown);
         this.isInHelp = true;
       }
     },
     endHelp: function () {
-      window.removeEventListener("mousedown", this.endHelp);
+      window.removeEventListener("mousedown", this.checkEndHelpMouseDown);
       this.helpMode = false;
       setTimeout(() => {
         this.isInHelp = false;
       }, 200);
+    },
+    /**
+     * End help-mode only if user clicks outside of help mode dialog.
+     */
+    checkEndHelpMouseDown: function (e) {
+      const el = e.target;
+      if (!el.closest('.help-mode-dialog')) {
+        this.endHelp();
+      }
     },
   },
   data: function () {
