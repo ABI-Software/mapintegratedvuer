@@ -198,7 +198,11 @@ export default {
       if (type) categoryValues.push(type);
       if (datasetId) categoryValues.push('(' + id + ')');
       if (resource) {
-        filePath = typeof resource === 'string' ? resource : resource.share_link;
+        if (type === "Plot") {
+          filePath = resource.dataSource.url;
+        } else {
+          filePath = typeof resource === 'string' ? resource : resource.share_link;
+        }
       }
 
       // GA Tagging
