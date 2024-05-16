@@ -191,13 +191,14 @@ export default {
     },
     trackGalleryClick: function (action) {
       const categoryValues = [];
-      const { label, type, datasetId, resource } = action;
+      const { label, type, datasetId, discoverId, resource } = action;
       let filePath = '';
+      let id = datasetId ? datasetId : discoverId;
       if (label) categoryValues.push(label);
       if (type) categoryValues.push(type);
-      if (datasetId) categoryValues.push('(' + datasetId + ')');
+      if (datasetId) categoryValues.push('(' + id + ')');
       if (resource) {
-        filePath = resource.share_link;
+        filePath = typeof resource === 'string' ? resource : resource.share_link;
       }
 
       // GA Tagging
@@ -207,7 +208,7 @@ export default {
         'event_name': 'portal_maps_gallery_click',
         'category': categoryValues.join(' '),
         'location': 'map_sidebar_gallery',
-        'dataset_id': datasetId ? datasetId + '' : '', // change to string format
+        'dataset_id': id ? id + '' : '', // change to string format
         'file_path': filePath,
       });
     },
