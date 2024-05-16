@@ -29,6 +29,7 @@
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
           @contextUpdate="contextUpdate($event)"
+          @datalink-clicked="datalinkClicked($event)"
         />
         <SplitDialog
           :entries="entries"
@@ -42,12 +43,18 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Tagging from '../services/tagging.js';
 import DialogToolbarContent from "./DialogToolbarContent.vue";
 import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog.vue";
 // import contextCards from './context-cards'
 import { SideBar } from "@abi-software/map-side-bar";
-import { capitalise, getNewMapEntry, initialDefaultState } from "./scripts/utilities.js";
+import {
+  capitalise,
+  getNewMapEntry,
+  initialDefaultState,
+  intersectArrays,
+} from "./scripts/utilities.js";
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
 import { useSettingsStore } from '../stores/settings';
@@ -85,6 +92,8 @@ export default {
       startUp: true,
       search: '',
       activeDockedId : 1,
+      filterTriggered: false,
+      availableFacets: [],
     }
   },
   watch: {
@@ -109,12 +118,34 @@ export default {
             this.openSearch([action.filter], action.label);
           } else {
             this.openSearch([], action.term);
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            const eventName = action.featuredDataset
+              ? 'portal_maps_featured_dataset_search'
+              : 'portal_maps_action_search';
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': eventName,
+              'category': action.term || 'filter',
+              'location': 'map_location_pin'
+            });
+            this.filterTriggered = true;
           }
         } else if (action.type == "URL") {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
             this.$refs.sideBar.addFilter(action);
+            const { facet } = action;
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': facet || 'filter',
+              'location': 'map_location_pin'
+            });
+            this.filterTriggered = true;
           }
         } else if (action.type == "Facets") {
           const facets = [];
@@ -140,11 +171,50 @@ export default {
           );
           if (this.$refs.sideBar) {
             this.$refs.sideBar.openSearch(facets, "");
+
+            const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
+            const filterValues = filterValuesArray.join(', ');
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': filterValues || 'filter',
+              'location': 'map_popup_button'
+            });
           }
         } else {
+          this.trackGalleryClick(action);
           this.createNewEntry(action);
         }
       }
+    },
+    trackGalleryClick: function (action) {
+      const categoryValues = [];
+      const { label, type, datasetId, discoverId, resource } = action;
+      let filePath = '';
+      let id = datasetId ? datasetId : discoverId;
+      if (label) categoryValues.push(label);
+      if (type) categoryValues.push(type);
+      if (datasetId) categoryValues.push('(' + id + ')');
+      if (resource) {
+        if (type === "Plot") {
+          filePath = resource.dataSource.url;
+        } else {
+          filePath = typeof resource === 'string' ? resource : resource.share_link;
+        }
+      }
+
+      // GA Tagging
+      // Event tracking for map sidebar gallery click
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_gallery_click',
+        'category': categoryValues.join(' '),
+        'location': 'map_sidebar_gallery',
+        'dataset_id': id ? id + '' : '', // change to string format
+        'file_path': filePath,
+      });
     },
     onDisplaySearch: function (payload) {
       let searchFound = false;
@@ -159,6 +229,15 @@ export default {
         });
       }
       this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
+
+      // GA Tagging
+      // Event tracking for map on display search
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_display_search',
+        'category': payload.term,
+        'location': 'map_toolbar'
+      });
     },
     fetchSuggestions: function(payload) {
       const suggestions = [];
@@ -177,14 +256,46 @@ export default {
     searchChanged: function (data) {
       if (data && data.type == "query-update") {
         this.search = data.value;
+        if (this.search && !this.filterTriggered) {
+          // GA Tagging
+          // Event tracking for map action search/filter data
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_search',
+            'category': this.search,
+            'location': 'map_sidebar_search'
+          });
+        }
+        this.filterTriggered = false; // reset for next action
       }
       if (data && data.type == "filter-update") {
         this.settingsStore.updateFacets(data.value);
+
+        // Remove filter event from maps' popup
+        if (!this.filterTriggered) {
+          const { value } = data;
+          const filterValuesArray = value.filter((val) =>
+            val.facet && val.facet.toLowerCase() !== 'show all'
+          ).map((val) => val.facet);
+          const filterValues = filterValuesArray.join(', ');
+
+          // GA Tagging
+          // Event tracking for map action search/filter data
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_filter',
+            'category': filterValues || 'filter',
+            'location': 'map_sidebar_filter'
+          });
+        }
+        this.filterTriggered = false; // reset for next action
       }
       if (data && data.type == "available-facets") {
         this.settingsStore.updateFacetLabels(data.value.labels);
         this.settingsStore.updateMarkers(data.value.uberons);
         EventBus.emit("markerUpdate");
+
+        this.availableFacets = data.value.labels
       }
     },
     getNewEntryId: function() {
@@ -323,7 +434,27 @@ export default {
     },
     contextUpdate: function (payload) {
       EventBus.emit("contextUpdate", payload);
-    }
+    },
+    datalinkClicked: function (payload) {
+      // payload is dataset URL
+      const datasetURL = payload || '';
+      const substringA = 'datasets/';
+      const substringB = '?type=dataset';
+      const datasetId = datasetURL.substring(
+        datasetURL.indexOf(substringA) + substringA.length,
+        datasetURL.indexOf(substringB)
+      );
+
+      // GA Tagging
+      // Event tracking for map sidebar gallery dataset click
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_gallery_click',
+        'category': datasetURL,
+        'location': 'map_sidebar_gallery',
+        'dataset_id': datasetId || ''
+      });
+    },
   },
   created: function () {
     this._facets = [];

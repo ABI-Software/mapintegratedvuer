@@ -19,6 +19,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Tagging from '../services/tagging.js';
 import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
@@ -251,6 +252,15 @@ export default {
        * This event emit when the component is mounted.
        */
       this.$emit("isReady");
+
+      // GA Tagging
+      // Page view tracking for maps' buttons click on portal
+      // category: AC | FC | WholeBody
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_page_view',
+        'category': this.startingMap
+      });
     },
   },
   computed: {

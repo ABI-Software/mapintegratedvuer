@@ -9,6 +9,7 @@ import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import Tagging from '../services/tagging.js';
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
@@ -52,9 +53,21 @@ export default {
     openMap: function (type) {
       if (type === "SYNC") {
         this.toggleSyncMode();
+        this.trackOpenMap('toggle_map_sync_mode');
       } else {
         EventBus.emit("OpenNewMap", type);
+        this.trackOpenMap(`open_new_${type}_map`);
       }
+    },
+    trackOpenMap: function (category) {
+      // GA Tagging
+      // Open map tracking
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_open_map',
+        'category': category,
+        'location': 'open_new_map'
+      });
     },
     updateWithViewUrl: function() {
       return;
@@ -113,6 +126,7 @@ export default {
                 term: this.settingsStore.featuredMarkerDoi(
                   resource.feature.id
                 ),
+                featuredDataset: true,
               };
             } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
               // if it matches our stored keywords, it is a keyword search
