@@ -9,6 +9,7 @@
     :minZoom="entry.minZoom"
     :helpMode="helpMode"
     :helpModeActiveItem="helpModeActiveItem"
+    :helpModeInitialIndex="-1"
     @help-mode-last-item="onHelpModeLastItem"
     @shown-tooltip="onTooltipShown"
     @shown-map-tooltip="onMapTooltipShown"
@@ -26,7 +27,7 @@
 
   <HelpModeDialog
     v-if="helpMode"
-    :componentRef="flatmapRef"
+    :flatmapRef="flatmapRef"
     :lastItem="helpModeLastItem"
     @show-next="onHelpModeShowNext"
     @finish-help-mode="onFinishHelpMode"

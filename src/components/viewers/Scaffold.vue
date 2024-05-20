@@ -29,7 +29,7 @@
 
   <HelpModeDialog
     v-if="helpMode"
-    :componentRef="scaffoldRef"
+    :scaffoldRef="scaffoldRef"
     :lastItem="helpModeLastItem"
     @show-next="onHelpModeShowNext"
     @finish-help-mode="onFinishHelpMode"
