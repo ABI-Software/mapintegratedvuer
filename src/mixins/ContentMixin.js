@@ -443,8 +443,6 @@ export default {
       this.helpModeLastItem = false;
     },
     onTooltipShown: function () {
-      EventBus.emit('shown-tooltip');
-
       if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
         this.$refs.multiflatmapHelp.toggleTooltipHighlight();
       }
@@ -458,8 +456,6 @@ export default {
       }
     },
     onMapTooltipShown: function () {
-      EventBus.emit('shown-map-tooltip');
-
       if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
         this.$refs.multiflatmapHelp.toggleTooltipPinHighlight();
       }
