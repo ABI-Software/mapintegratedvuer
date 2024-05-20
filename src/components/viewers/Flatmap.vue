@@ -8,6 +8,10 @@
     style="height: 100%; width: 100%"
     :minZoom="entry.minZoom"
     :helpMode="helpMode"
+    :helpModeActiveItem="helpModeActiveItem"
+    @help-mode-last-item="onHelpModeLastItem"
+    @shown-tooltip="onTooltipShown"
+    @shown-map-tooltip="onMapTooltipShown"
     :pathControls="true"
     ref="flatmap"
     @ready="flatmapReadyCall"
@@ -19,11 +23,19 @@
     @open-map="openMap"
     @pathway-selection-changed="onPathwaySelectionChanged"
   />
+
+  <HelpModeDialog
+    v-if="helpMode"
+    :componentRef="flatmapRef"
+    :lastItem="helpModeLastItem"
+    @show-next="onHelpModeShowNext"
+    @finish-help-mode="onFinishHelpMode"
+  />
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { FlatmapVuer } from "@abi-software/flatmapvuer";
+import { FlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
@@ -35,6 +47,7 @@ export default {
   mixins: [ ContentMixin, DynamicMarkerMixin ],
   components: {
     FlatmapVuer,
+    HelpModeDialog,
   },
   methods: {
     getState: function () {

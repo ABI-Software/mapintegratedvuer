@@ -8,6 +8,10 @@
     style="height: 100%; width: 100%"
     :initial="entry.resource"
     :helpMode="helpMode"
+    :helpModeActiveItem="helpModeActiveItem"
+    @help-mode-last-item="onHelpModeLastItem"
+    @shown-tooltip="onTooltipShown"
+    @shown-map-tooltip="onMapTooltipShown"
     ref="multiflatmap"
     :displayMinimap="true"
     :showStarInLegend="showStarInLegend"
@@ -21,12 +25,20 @@
     @pathway-selection-changed="onPathwaySelectionChanged"
     @open-pubmed-url="onOpenPubmedUrl"
   />
+
+  <HelpModeDialog
+    v-if="helpMode"
+    :multiflatmapRef="multiflatmapRef"
+    :lastItem="helpModeLastItem"
+    @show-next="onHelpModeShowNext"
+    @finish-help-mode="onFinishHelpMode"
+  />
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import Tagging from '../../services/tagging.js';
-import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
+import { MultiFlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
@@ -74,6 +86,7 @@ export default {
   mixins: [ContentMixin, DyncamicMarkerMixin],
   components: {
     MultiFlatmapVuer,
+    HelpModeDialog,
   },
   data: function () {
     return {

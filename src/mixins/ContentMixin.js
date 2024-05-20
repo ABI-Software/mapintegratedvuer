@@ -42,6 +42,10 @@ export default {
     EventBus.on("startHelp", () => {
       this.startHelp();
     });
+
+    this.multiflatmapRef = this.$refs.multiflatmap;
+    this.flatmapRef = this.$refs.flatmap;
+    this.scaffoldRef = this.$refs.scaffold;
   },
   methods: {
     toggleSyncMode: function () {
@@ -424,6 +428,26 @@ export default {
         this.isInHelp = false;
       }, 200);
     },
+    onHelpModeShowNext: function () {
+      this.helpModeActiveItem += 1;
+    },
+    onHelpModeLastItem: function (isLastItem) {
+      if (isLastItem) {
+        this.helpModeLastItem = true;
+      }
+    },
+    onFinishHelpMode: function () {
+      this.helpMode = false;
+      // reset help mode to default values
+      this.helpModeActiveItem = 0;
+      this.helpModeLastItem = false;
+    },
+    onTooltipShown: function () {
+      EventBus.emit('shown-tooltip');
+    },
+    onMapTooltipShown: function () {
+      EventBus.emit('shown-map-tooltip');
+    },
     /**
      * End help-mode only if user clicks outside of help mode dialog.
      */
@@ -445,6 +469,11 @@ export default {
         bottom: "0px",
       },
       helpMode: false,
+      helpModeActiveItem: 0,
+      helpModeLastItem: false,
+      multiflatmapRef: null,
+      flatmapRef: null,
+      scaffoldRef: null,
       idNamePair: {},
       scaffoldLoaded: false,
       isInHelp: false,
@@ -457,5 +486,12 @@ export default {
       this.flatmapAPI = this.settingsStore.flatmapAPI;
     if (this.settingsStore.sparcApi)
       this.apiLocation = this.settingsStore.sparcApi;
+  },
+  watch: {
+    helpMode: function (newVal) {
+      if (!newVal) {
+        this.helpModeActiveItem = 0;
+      }
+    }
   },
 };
