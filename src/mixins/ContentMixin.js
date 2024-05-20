@@ -444,9 +444,33 @@ export default {
     },
     onTooltipShown: function () {
       EventBus.emit('shown-tooltip');
+
+      if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
+        this.$refs.multiflatmapHelp.toggleTooltipHighlight();
+      }
+
+      if (this.$refs.flatmap && this.$refs.flatmapHelp) {
+        this.$refs.flatmapHelp.toggleTooltipHighlight();
+      }
+
+      if (this.$refs.scaffold && this.$refs.scaffoldHelp) {
+        this.$refs.scaffoldHelp.toggleTooltipHighlight();
+      }
     },
     onMapTooltipShown: function () {
       EventBus.emit('shown-map-tooltip');
+
+      if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
+        this.$refs.multiflatmapHelp.toggleTooltipPinHighlight();
+      }
+
+      if (this.$refs.flatmap && this.$refs.flatmapHelp) {
+        this.$refs.flatmapHelp.toggleTooltipPinHighlight();
+      }
+
+      if (this.$refs.scaffold && this.$refs.scaffoldHelp) {
+        this.$refs.scaffoldHelp.toggleTooltipPinHighlight();
+      }
     },
     /**
      * End help-mode only if user clicks outside of help mode dialog.

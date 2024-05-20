@@ -27,6 +27,7 @@
 
   <HelpModeDialog
     v-if="helpMode"
+    ref="flatmapHelp"
     :flatmapRef="flatmapRef"
     :lastItem="helpModeLastItem"
     @show-next="onHelpModeShowNext"
