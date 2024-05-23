@@ -491,6 +491,7 @@ export default {
       helpMode: false,
       helpModeActiveItem: 0,
       helpModeLastItem: false,
+      useHelpModeDialog: true,
       multiflatmapRef: null,
       flatmapRef: null,
       scaffoldRef: null,

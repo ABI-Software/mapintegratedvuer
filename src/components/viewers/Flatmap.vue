@@ -10,6 +10,7 @@
     :helpMode="helpMode"
     :helpModeActiveItem="helpModeActiveItem"
     :helpModeInitialIndex="-1"
+    :helpModeDialog="useHelpModeDialog"
     @help-mode-last-item="onHelpModeLastItem"
     @shown-tooltip="onTooltipShown"
     @shown-map-tooltip="onMapTooltipShown"
@@ -26,7 +27,7 @@
   />
 
   <HelpModeDialog
-    v-if="helpMode"
+    v-if="helpMode && useHelpModeDialog"
     ref="flatmapHelp"
     :flatmapRef="flatmapRef"
     :lastItem="helpModeLastItem"
