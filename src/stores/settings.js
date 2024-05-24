@@ -17,6 +17,7 @@ export const useSettingsStore = defineStore('settings', {
       facets: { species: [], gender: [], organ: [] },
       facetLabels: [],
       markers: [],
+      hoveredMarkers: [],
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
@@ -66,6 +67,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateMarkers(markers) {
       this.markers = markers;
+    },
+    updateHoveredMarkers(markers) {
+      this.hoveredMarkers = markers;
     },
     updateFeatured(datasetIdentifiers) {
       this.featuredMarkerIdentifiers = new Array(datasetIdentifiers.length);

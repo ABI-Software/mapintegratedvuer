@@ -9,7 +9,7 @@ import { useSettingsStore } from '../stores/settings';
 * I have modified it to make sure the marker is displayed
 * if the uberon is not present in the hardcoded zoom-level list.
 */
-const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
+const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel, hoveredMarkers) => {
   if (markers) {
     markers.forEach(id => {
       let foundInArray = false;
@@ -19,7 +19,9 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel) => {
         if (markerZoomLevels[i].id === id) {
           foundInArray = true;
           if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
-            flatmapImp.addMarker(id, {className: "standard-marker"});
+            let markerClass = "standard-marker"
+            if (hoveredMarkers.includes(id)) markerClass = "hovered-marker"
+            flatmapImp.addMarker(id, { className: markerClass });
           }
           break;
         }
@@ -69,7 +71,8 @@ export default {
           this.zoomLevel = currentZoom;
           flatmapImp.clearMarkers();
           let markers = this.settingsStore.markers;
-          checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel);
+          let hoveredMarkers = this.settingsStore.hoveredMarkers;
+          checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel, hoveredMarkers);
           if (this.entry.type === "MultiFlatmap") {
             this.restoreFeaturedMarkers(flatmapImp);
           }
