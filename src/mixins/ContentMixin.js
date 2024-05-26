@@ -37,6 +37,9 @@ export default {
     syncMode() {
       return this.splitFlowStore.syncMode;
     },
+    useHelpModeDialog() {
+      return this.settingsStore.useHelpModeDialog;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
@@ -491,7 +494,6 @@ export default {
       helpMode: false,
       helpModeActiveItem: 0,
       helpModeLastItem: false,
-      useHelpModeDialog: true,
       multiflatmapRef: null,
       flatmapRef: null,
       scaffoldRef: null,

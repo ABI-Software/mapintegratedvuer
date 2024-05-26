@@ -24,6 +24,7 @@ export const useSettingsStore = defineStore('settings', {
       featuredMarkerSpecies: [],
       featuredDatasetIdentifiers: [],
       helpDelay: 0,
+      useHelpModeDialog: false,
     }
   },
   getters: {
@@ -143,6 +144,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateFacetLabels(facetLabels) {
       this.facetLabels = facetLabels;
-    }
+    },
+    updateUseHelpModeDialog(helpModeOption) {
+      this.useHelpModeDialog = helpModeOption;
+    },
   }
 });
