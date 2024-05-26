@@ -39,6 +39,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { FlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
+import Tagging from '../../services/tagging.js';
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
@@ -66,8 +67,8 @@ export default {
       return this.$refs.flatmap.mapImp;
     },
     flatmaprResourceSelected: function (type, resource) {
-      this.$refs.flatmap.resourceSelected(
-        type, resource, (this.$refs.map.viewingMode === "Exploration"));
+      this.resourceSelected(
+        type, resource, (this.$refs.flatmap.viewingMode === "Exploration"));
 
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
         const eventData = {
@@ -83,7 +84,7 @@ export default {
           'event': 'interaction_event',
           'event_name': 'portal_maps_connectivity',
           'category': paramString,
-          "location": type + ' ' + this.$refs.map.viewingMode
+          "location": type + ' ' + this.$refs.flatmap.viewingMode
         });
       }
     },
