@@ -154,3 +154,10 @@ This will start the documentation server with `vitepress` on port `:5173` and wa
 
 The `HelpModeDialog` is used to show help tooltips individually and one by one. This is available on Flatmap, MultiFlatmap, and Scaffold views.
 To use `HelpModeDialog`, set `useHelpModeDialog` to `true`. The default value is `false`.
+
+```HTML
+<MapContent
+  ...
+  :useHelpModeDialog="true"
+/>
+```
