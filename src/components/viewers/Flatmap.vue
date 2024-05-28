@@ -48,7 +48,7 @@ export default {
       return this.$refs.flatmap.searchAndShowResult(term);
     },
     getFlatmapImp() {
-      return this.$refs.flatmap.mapImp;
+      return this.$refs.flatmap?.mapImp;
     },
     flatmaprResourceSelected: function (type, resource) {
       this.resourceSelected(
