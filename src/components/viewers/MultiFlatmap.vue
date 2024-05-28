@@ -381,7 +381,8 @@ export default {
         // add it to the flatmap
         const markerIdentifier = flatmapImp.addMarker(marker, {
           element: wrapperElement,
-          className: "highlight-marker"
+          className: "highlight-marker",
+          cluster: false
         });
 
         // update the store with the marker identifier
