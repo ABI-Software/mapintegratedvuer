@@ -306,6 +306,12 @@ export default {
        */
       this.$emit("updateShareLinkRequested");
     });
+    EventBus.on('trackEvent', (taggingData) => {
+      /**
+       * This event triggers data tracking for Google Tag Manager (GTM) related to map interactions.
+       */
+      this.$emit('trackEvent', taggingData);
+    });
     if (!this.state) {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }

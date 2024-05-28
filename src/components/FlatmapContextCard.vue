@@ -56,22 +56,34 @@ export default {
     sckanReleaseDisplay: function() {
       let sckanRelease = "Unknown"
       if(this.mapImpProv){
-        let sckanCreated = this.mapImpProv.sckan.created ? this.mapImpProv.sckan.created : this.mapImpProv.sckan
-        let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
-        sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-        })
+        sckanRelease = this.mapImpProv.connectivity?.npo.date
+        if (!sckanRelease) {
+          let sckanCreated = this.mapImpProv.sckan?.created ? this.mapImpProv.sckan.created : this.mapImpProv.sckan
+          let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
+          sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+          })
+        }
+        if (!sckanRelease) {
+          sckanRelease = "Unknown";
+        }
       }
       return sckanRelease 
     },
     sckanReleaseLink: function() {
-      let sckanRelease = "Unknown"
+      let sckanLink = "Unknown"
       if(this.mapImpProv){
-        sckanRelease = this.mapImpProv.sckan.release
+        sckanLink = this.mapImpProv.connectivity?.npo.path
+        if (!sckanLink) {
+          sckanLink = this.mapImpProv.sckan?.release
+        }
+        if (!sckanLink) {
+          sckanLink = "Unknown"
+        }
       }
-      return sckanRelease 
+      return sckanLink
     },
     flatmapSource: function() {
       let flatmapSource = "Unknown"
