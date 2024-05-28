@@ -72,7 +72,16 @@ export default {
     startingMap: {
       type: String,
       default: "AC"
-    }
+    },
+    /**
+     * To use help-mode-dialog when user clicks "Help".
+     * This option is available on Flatmap, MultiFlatmap, and Scaffold.
+     * When this is set to `true`, "Help" tooltips will be shown one by one.
+     */
+    useHelpModeDialog: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -307,6 +316,7 @@ export default {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
     this.isReady = true;
+    this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
   }
 }
 
