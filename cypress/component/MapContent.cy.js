@@ -148,7 +148,7 @@ describe('MapContent', () => {
     cy.get('.header > .el-button').should('exist').click();
 
     //Check number of dataset card, it should be 1
-    cy.get('.dataset-card').should('have.length', 1);
+    cy.get('.dataset-card-container').should('have.length', 1);
 
     //Check how many tags in the dataset
     cy.get('.box-card .container button').should('have.length', 6);
