@@ -17,6 +17,7 @@ function capitalise(text) {
 
 /* eslint-disable no-alert, no-console */
 export default {
+  emits: [ "flatmap-provenance-ready", "resource-selected", "species-changed"],
   props: {
     /**
      * Object containing information for

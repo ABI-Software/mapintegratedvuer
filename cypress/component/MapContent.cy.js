@@ -56,6 +56,8 @@ describe('MapContent', () => {
         return false
       if (err.message.includes('Source "mapbox-gl-draw-cold" already exists.'))
         return false
+      if (err.message.includes('Source "markers" already exists.'))
+        return false
       return true
     })
 
