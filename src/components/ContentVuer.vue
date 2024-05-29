@@ -20,33 +20,38 @@
     ></DatasetHeader>
   -->
     <div class="component-container" ref="container">
-      <Component
-        :is="viewerType"
-        :entry="entry"
-        :mouseHovered="mouseHovered"
-        :visible="visible"
-        ref="viewer"
-        @flatmap-provenance-ready="flatmapProvenacneReady"
-        @resource-selected="resourceSelected"
-        @species-changed="speciesChanged"
-      />
+      <Suspense>
+        <Component
+          :is="viewerType"
+          :entry="entry"
+          :mouseHovered="mouseHovered"
+          :visible="visible"
+          :lazy="true"
+          ref="viewer"
+          @flatmap-provenance-ready="flatmapProvenacneReady"
+          @resource-selected="resourceSelected"
+          @species-changed="speciesChanged"
+        />
+      </Suspense>
     </div>
   </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { defineAsyncComponent } from 'vue'
 import { ElButton as Button } from "element-plus";
 import ContentBar from "./ContentBar.vue";
-import Flatmap from "./viewers/Flatmap.vue";
-import Iframe from "./viewers/Iframe.vue";
-import MultiFlatmap from "./viewers/MultiFlatmap.vue";
-import Plot from "./viewers/Plot.vue";
-import Scaffold from "./viewers/Scaffold.vue";
-import Simulation from "./viewers/Simulation.vue";
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
 import { useSplitFlowStore } from '../stores/splitFlow';
+
+const Flatmap = defineAsyncComponent(() => import("./viewers/Flatmap.vue"));
+const Iframe = defineAsyncComponent(() => import("./viewers/Iframe.vue"));
+const MultiFlatmap = defineAsyncComponent(() => import("./viewers/MultiFlatmap.vue"));
+const Plot = defineAsyncComponent(() => import("./viewers/Plot.vue"));
+const Scaffold = defineAsyncComponent(() => import("./viewers/Scaffold.vue"));
+const Simulation = defineAsyncComponent(() => import("./viewers/Simulation.vue"));
 
 export default {
   name: "ContentVuer",
