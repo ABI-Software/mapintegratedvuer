@@ -141,7 +141,7 @@ describe('MapContent', () => {
     cy.wait('@mouseDataset', {timeout: 20000});
 
     //Open the sidebar
-    cy.get('.open-tab').should('exist').click();
+    cy.get('.open-tab').should('be.visible').click();
 
     //Type in 76 generic
     cy.get('.search-input > .el-input__wrapper > .el-input__inner').should('exist').type('76 generic');
