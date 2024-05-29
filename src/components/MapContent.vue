@@ -24,6 +24,7 @@ import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
+import { useSplitFlowStore } from '../stores/splitFlow';
 import { findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
 import { initialState } from "./scripts/utilities.js";
@@ -273,7 +274,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore),
+    ...mapStores(useSettingsStore, useSplitFlowStore),
     stateToSet() {
       return this.state ? this.state : this.initialState;
     },
@@ -298,6 +299,7 @@ export default {
       this.options.nlLinkPrefix ? this.settingsStore.updateNLLinkPrefix(this.options.nlLinkPrefix) : null
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
     }
+    this.splitFlowStore?.reset();
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", () => {
