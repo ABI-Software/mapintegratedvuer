@@ -127,38 +127,42 @@ const findKeyWithId = (layout, id) => {
   return Object.keys(layout).find(key => layout[key]["id"] === id);
 }
 
+const getOriginalState = () => {
+  return {
+    activeView: "singlepanel",
+    viewIcons: [
+      { icon: "singlepanel", name: "Single view", min: 1 },
+      { icon: "2horpanel", name: "Horizontal split", min: 2 },
+      { icon: "2vertpanel", name: "Vertical split", min: 2 },
+      { icon: "3panel", name: "Three panes", min: 3 },
+      { icon: "4panel", name: "Four panes", min: 4 },
+      { icon: "5panel", name: "Five panes", min: 5 },
+      { icon: "6panel", name: "Six (horizontal)", min: 6 },
+      { icon: "6panelVertical", name: "Six (vertical)", min: 6 },
+      //{ icon: "customise", name: "Customise", min: 2 }
+    ],
+    customLayout: {
+      "split-1": {content: false, horizontal: false, children: ["pane-1"]},
+      "pane-1": {content: true,  id: 1},
+      /*
+      Example layout
+
+      "split-1": {content: false, horizontal: true, children: ["split-2", "pane-1"]},
+      "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3"]},
+      "pane-1": {content: true,  id: 1},
+      "pane-2": {content: true,  id: 2},
+      "pane-3": {content: true,  id: 3},
+      */
+    },
+    splitters: { "first": 50, "second": 50, "third": 50 },
+    globalCallback: false,
+    syncMode: false,
+  };
+}
+
 export const useSplitFlowStore = defineStore('splitFlow', {
   state: () => {
-    return {
-      activeView: "singlepanel",
-      viewIcons: [
-        { icon: "singlepanel", name: "Single view", min: 1 },
-        { icon: "2horpanel", name: "Horizontal split", min: 2 },
-        { icon: "2vertpanel", name: "Vertical split", min: 2 },
-        { icon: "3panel", name: "Three panes", min: 3 },
-        { icon: "4panel", name: "Four panes", min: 4 },
-        { icon: "5panel", name: "Five panes", min: 5 },
-        { icon: "6panel", name: "Six (horizontal)", min: 6 },
-        { icon: "6panelVertical", name: "Six (vertical)", min: 6 },
-        //{ icon: "customise", name: "Customise", min: 2 }
-      ],
-      customLayout: {
-        "split-1": {content: false, horizontal: false, children: ["pane-1"]},
-        "pane-1": {content: true,  id: 1},
-        /*
-        Example layout
-
-        "split-1": {content: false, horizontal: true, children: ["split-2", "pane-1"]},
-        "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3"]},
-        "pane-1": {content: true,  id: 1},
-        "pane-2": {content: true,  id: 2},
-        "pane-3": {content: true,  id: 3},
-        */
-      },
-      splitters: { "first": 50, "second": 50, "third": 50 },
-      globalCallback: false,
-      syncMode: false,
-    }
+    return getOriginalState();
   },
   getters: {
     getPaneNameById: (state) => (id) => {
@@ -317,6 +321,14 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           this.globalCallback = false;
         }
       }
+    },
+    reset() {
+      const original = getOriginalState();
+      this.activeView = original.activeView;
+      this.customLayout = original.customLayout;
+      this.splitters = original.splitters;
+      this.globalCallback = original.globalCallback;
+      this.syncMode = original.syncMode;
     },
     closeSlot(payload) {
       if (payload) {
