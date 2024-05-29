@@ -1,3 +1,4 @@
+import EventBus from '../components/EventBus';
 export default {
   sendEvent: function(data) {
     const taggingData = {
@@ -20,9 +21,7 @@ export default {
       console.table(taggingData);
     }
 
-    // push to dataLayer for GTM
-    if (typeof dataLayer !== 'undefined') {
-      dataLayer.push(taggingData);
-    }
+    // Emit data for GTM
+    EventBus.emit('trackEvent', taggingData);
   }
 }

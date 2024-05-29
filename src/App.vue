@@ -32,7 +32,16 @@
         </el-popover>
       </div>
     <div class="map-app">
-      <MapContent ref="map" :startingMap="startingMap" :options="options" :state="state" :shareLink="shareLink" @updateShareLinkRequested="updateUUID" @isReady="mapIsReady"/>
+      <MapContent
+        ref="map"
+        :startingMap="startingMap"
+        :options="options"
+        :state="state"
+        :shareLink="shareLink"
+        :useHelpModeDialog="true"
+        @updateShareLinkRequested="updateUUID"
+        @isReady="mapIsReady"
+      />
     </div>
   </div>
 </template>

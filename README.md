@@ -139,12 +139,25 @@ yarn add @<your-npm-handle>/mapintegratedvuer@alpha
 yarn dev
 ```
 
-## Documentation
+## API Documentation
 
-The documentation is developed with `vitepress` and `vuese`. Documentation pages are in the `docs` folder.
+The API documentation is developed with `vitepress` and `vuese`. The API documentation pages are in the `docs` folder.
 
 ### To run in local development mode
 ```bash
 npm run docs:watch
 ```
 This will start the documentation server with `vitepress` on port `:5173` and watch the `FlatmapVuer` and `MultiFlatmapVuer` components changes.
+
+
+## The HelpModeDialog
+
+The `HelpModeDialog` is used to show help tooltips individually and one by one. This is available on Flatmap, MultiFlatmap, and Scaffold views.
+To use `HelpModeDialog`, set `useHelpModeDialog` to `true`. The default value is `false`.
+
+```HTML
+<MapContent
+  ...
+  :useHelpModeDialog="true"
+/>
+```

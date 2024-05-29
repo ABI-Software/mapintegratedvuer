@@ -11,7 +11,12 @@
     ref="scaffold"
     :background-toggle="true"
     :traditional="true"
-    :help-mode="helpMode"
+    :helpMode="helpMode"
+    :helpModeActiveItem="helpModeActiveItem"
+    :helpModeDialog="useHelpModeDialog"
+    @help-mode-last-item="onHelpModeLastItem"
+    @shown-tooltip="onTooltipShown"
+    @shown-map-tooltip="onMapTooltipShown"
     :render="visible"
     :display-latest-message="true"
     :warning-message="warningMessage"
@@ -22,12 +27,21 @@
     :markerLabels="markerLabels"
     :flatmapAPI="flatmapAPI"
   />
+
+  <HelpModeDialog
+    v-if="helpMode && useHelpModeDialog"
+    ref="scaffoldHelp"
+    :scaffoldRef="scaffoldRef"
+    :lastItem="helpModeLastItem"
+    @show-next="onHelpModeShowNext"
+    @finish-help-mode="onFinishHelpMode"
+  />
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
-import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
+import { ScaffoldVuer, HelpModeDialog } from "@abi-software/scaffoldvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 
 import "@abi-software/scaffoldvuer/dist/style.css";
@@ -37,6 +51,7 @@ export default {
   mixins: [ ContentMixin ],
   components: {
     ScaffoldVuer,
+    HelpModeDialog,
   },
   methods: {
     onResize: function () {

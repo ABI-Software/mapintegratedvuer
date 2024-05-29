@@ -37,11 +37,18 @@ export default {
     syncMode() {
       return this.splitFlowStore.syncMode;
     },
+    useHelpModeDialog() {
+      return this.settingsStore.useHelpModeDialog;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
       this.startHelp();
     });
+
+    this.multiflatmapRef = this.$refs.multiflatmap;
+    this.flatmapRef = this.$refs.flatmap;
+    this.scaffoldRef = this.$refs.scaffold;
   },
   methods: {
     toggleSyncMode: function () {
@@ -413,16 +420,65 @@ export default {
     startHelp: function () {
       if (this.isInHelp === false) {
         this.helpMode = true;
-        window.addEventListener("mousedown", this.endHelp);
+        window.addEventListener("mousedown", this.checkEndHelpMouseDown);
         this.isInHelp = true;
       }
     },
     endHelp: function () {
-      window.removeEventListener("mousedown", this.endHelp);
+      window.removeEventListener("mousedown", this.checkEndHelpMouseDown);
       this.helpMode = false;
       setTimeout(() => {
         this.isInHelp = false;
       }, 200);
+    },
+    onHelpModeShowNext: function () {
+      this.helpModeActiveItem += 1;
+    },
+    onHelpModeLastItem: function (isLastItem) {
+      if (isLastItem) {
+        this.helpModeLastItem = true;
+      }
+    },
+    onFinishHelpMode: function () {
+      this.helpMode = false;
+      // reset help mode to default values
+      this.helpModeActiveItem = 0;
+      this.helpModeLastItem = false;
+    },
+    onTooltipShown: function () {
+      if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
+        this.$refs.multiflatmapHelp.toggleTooltipHighlight();
+      }
+
+      if (this.$refs.flatmap && this.$refs.flatmapHelp) {
+        this.$refs.flatmapHelp.toggleTooltipHighlight();
+      }
+
+      if (this.$refs.scaffold && this.$refs.scaffoldHelp) {
+        this.$refs.scaffoldHelp.toggleTooltipHighlight();
+      }
+    },
+    onMapTooltipShown: function () {
+      if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
+        this.$refs.multiflatmapHelp.toggleTooltipPinHighlight();
+      }
+
+      if (this.$refs.flatmap && this.$refs.flatmapHelp) {
+        this.$refs.flatmapHelp.toggleTooltipPinHighlight();
+      }
+
+      if (this.$refs.scaffold && this.$refs.scaffoldHelp) {
+        this.$refs.scaffoldHelp.toggleTooltipPinHighlight();
+      }
+    },
+    /**
+     * End help-mode only if user clicks outside of help mode dialog.
+     */
+    checkEndHelpMouseDown: function (e) {
+      const el = e.target;
+      if (!el.closest('.help-mode-dialog')) {
+        this.endHelp();
+      }
     },
   },
   data: function () {
@@ -436,6 +492,11 @@ export default {
         bottom: "0px",
       },
       helpMode: false,
+      helpModeActiveItem: 0,
+      helpModeLastItem: false,
+      multiflatmapRef: null,
+      flatmapRef: null,
+      scaffoldRef: null,
       idNamePair: {},
       scaffoldLoaded: false,
       isInHelp: false,
@@ -448,5 +509,12 @@ export default {
       this.flatmapAPI = this.settingsStore.flatmapAPI;
     if (this.settingsStore.sparcApi)
       this.apiLocation = this.settingsStore.sparcApi;
+  },
+  watch: {
+    helpMode: function (newVal) {
+      if (!newVal) {
+        this.helpModeActiveItem = 0;
+      }
+    }
   },
 };

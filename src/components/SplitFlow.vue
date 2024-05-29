@@ -479,6 +479,11 @@ export default {
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
     });
+    EventBus.on("startHelp", () => {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.close();
+      }
+    });
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {

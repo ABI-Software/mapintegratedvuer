@@ -8,6 +8,11 @@
     style="height: 100%; width: 100%"
     :initial="entry.resource"
     :helpMode="helpMode"
+    :helpModeActiveItem="helpModeActiveItem"
+    :helpModeDialog="useHelpModeDialog"
+    @help-mode-last-item="onHelpModeLastItem"
+    @shown-tooltip="onTooltipShown"
+    @shown-map-tooltip="onMapTooltipShown"
     ref="multiflatmap"
     :displayMinimap="true"
     :showStarInLegend="showStarInLegend"
@@ -17,15 +22,25 @@
     :sparcAPI="apiLocation"
     @pan-zoom-callback="flatmapPanZoomCallback"
     @open-map="openMap"
+    @finish-help-mode="endHelp"
     @pathway-selection-changed="onPathwaySelectionChanged"
     @open-pubmed-url="onOpenPubmedUrl"
+  />
+
+  <HelpModeDialog
+    v-if="helpMode && useHelpModeDialog"
+    ref="multiflatmapHelp"
+    :multiflatmapRef="multiflatmapRef"
+    :lastItem="helpModeLastItem"
+    @show-next="onHelpModeShowNext"
+    @finish-help-mode="onFinishHelpMode"
   />
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import Tagging from '../../services/tagging.js';
-import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
+import { MultiFlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
@@ -73,6 +88,7 @@ export default {
   mixins: [ContentMixin, DyncamicMarkerMixin],
   components: {
     MultiFlatmapVuer,
+    HelpModeDialog,
   },
   data: function () {
     return {
@@ -365,7 +381,8 @@ export default {
         // add it to the flatmap
         const markerIdentifier = flatmapImp.addMarker(marker, {
           element: wrapperElement,
-          className: "highlight-marker"
+          className: "highlight-marker",
+          cluster: false
         });
 
         // update the store with the marker identifier

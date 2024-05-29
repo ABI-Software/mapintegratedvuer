@@ -21,7 +21,7 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel, hoveredMarkers)
           if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
             let markerClass = "standard-marker"
             if (hoveredMarkers.includes(id)) markerClass = "hovered-marker"
-            flatmapImp.addMarker(id, { className: markerClass });
+            flatmapImp.addMarker(id, { className: markerClass, cluster: false});
           }
           break;
         }
@@ -29,7 +29,7 @@ const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel, hoveredMarkers)
       // Did not match, add it regardless so we do not lose any
       // markers.
       if (!foundInArray) {
-        flatmapImp.addMarker(id, {className: "standard-marker"});
+        flatmapImp.addMarker(id, {className: "standard-marker", cluster: false});
       }
     });
   }
