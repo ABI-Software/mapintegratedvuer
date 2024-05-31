@@ -79,19 +79,19 @@ export default {
   },
   methods: {
     flatmapProvenacneReady: function(prov) {
-      this.$refs.contentBar.setupFlatmapContextCard(prov);
+      this.$refs.contentBar?.setupFlatmapContextCard(prov);
     },
     /**
      * Toggle sync mode on/off depending on species and current state
      */
     toggleSyncMode: function () {
-      this.$refs.viewer.toggleSyncMode();
+      this.$refs.viewer?.toggleSyncMode();
     },
     getId: function () {
       return this.entry.id;
     },
     getState: function () {
-      return this.$refs.viewer.getState();
+      return this.$refs.viewer?.getState();
     },
     resourceSelected: function (payload) {
       this.$emit("resource-selected", payload);
@@ -101,32 +101,32 @@ export default {
         this.entriesStore.updateViewForEntry({id: this.entry.id, viewUrl});
       } else {
         //Manually set it as it cannot be set with reactivity
-        this.$refs.viewer.updateWithViewUrl(viewUrl);
+        this.$refs.viewer?.updateWithViewUrl(viewUrl);
       }
     },
     /**
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      return this.$refs.viewer.search(term);
+      return this.$refs.viewer?.search(term);
     },
     /**
      * Push the suggested terms into the suggestions array
      */
     searchSuggestions: function(term, suggestions) {
-      this.$refs.viewer.searchSuggestions(term, suggestions);
+      this.$refs.viewer?.searchSuggestions(term, suggestions);
     },
     setPanesBoundary: function() {
-      this.$refs.contentBar.setBoundary(this.$refs["container"][0]);
+      this.$refs.contentBar?.setBoundary(this.$refs["container"][0]);
     },
     speciesChanged: function (species) {
       this.activeSpecies = species;
     },
     receiveSynchronisedEvent: async function (data) {
-      this.$refs.viewer.receiveSynchronisedEvent(data);
+      this.$refs.viewer?.receiveSynchronisedEvent(data);
     },
     requestSynchronisedEvent: function (flag) {
-      this.$refs.viewer.requestSynchronisedEvent(flag);
+      this.$refs.viewer?.requestSynchronisedEvent(flag);
     },
     /**
      * Check if this viewer is currently visible
@@ -136,7 +136,7 @@ export default {
       return paneName !== undefined;
     },
     onResize: function () {
-      this.$refs.viewer.onResize();
+      this.$refs.viewer?.onResize();
     },
   },
   data: function () {
