@@ -1,40 +1,42 @@
 <template>
-  <MultiFlatmapVuer
-    :availableSpecies="availableSpecies"
-    @flatmapChanged="flatmapChanged"
-    @ready="multiFlatmapReady"
-    :state="entry.state"
-    @resource-selected="flatmaprResourceSelected(entry.type, $event)"
-    style="height: 100%; width: 100%"
-    :initial="entry.resource"
-    :helpMode="helpMode"
-    :helpModeActiveItem="helpModeActiveItem"
-    :helpModeDialog="useHelpModeDialog"
-    @help-mode-last-item="onHelpModeLastItem"
-    @shown-tooltip="onTooltipShown"
-    @shown-map-tooltip="onMapTooltipShown"
-    ref="multiflatmap"
-    :displayMinimap="true"
-    :showStarInLegend="showStarInLegend"
-    :enableOpenMapUI="true"
-    :openMapOptions="openMapOptions"
-    :flatmapAPI="flatmapAPI"
-    :sparcAPI="apiLocation"
-    @pan-zoom-callback="flatmapPanZoomCallback"
-    @open-map="openMap"
-    @finish-help-mode="endHelp"
-    @pathway-selection-changed="onPathwaySelectionChanged"
-    @open-pubmed-url="onOpenPubmedUrl"
-  />
+  <div class="viewer-container">
+    <MultiFlatmapVuer
+      :availableSpecies="availableSpecies"
+      @flatmapChanged="flatmapChanged"
+      @ready="multiFlatmapReady"
+      :state="entry.state"
+      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      style="height: 100%; width: 100%"
+      :initial="entry.resource"
+      :helpMode="helpMode"
+      :helpModeActiveItem="helpModeActiveItem"
+      :helpModeDialog="useHelpModeDialog"
+      @help-mode-last-item="onHelpModeLastItem"
+      @shown-tooltip="onTooltipShown"
+      @shown-map-tooltip="onMapTooltipShown"
+      ref="multiflatmap"
+      :displayMinimap="true"
+      :showStarInLegend="showStarInLegend"
+      :enableOpenMapUI="true"
+      :openMapOptions="openMapOptions"
+      :flatmapAPI="flatmapAPI"
+      :sparcAPI="apiLocation"
+      @pan-zoom-callback="flatmapPanZoomCallback"
+      @open-map="openMap"
+      @finish-help-mode="endHelp"
+      @pathway-selection-changed="onPathwaySelectionChanged"
+      @open-pubmed-url="onOpenPubmedUrl"
+    />
 
-  <HelpModeDialog
-    v-if="helpMode && useHelpModeDialog"
-    ref="multiflatmapHelp"
-    :multiflatmapRef="multiflatmapRef"
-    :lastItem="helpModeLastItem"
-    @show-next="onHelpModeShowNext"
-    @finish-help-mode="onFinishHelpMode"
-  />
+    <HelpModeDialog
+      v-if="helpMode && useHelpModeDialog"
+      ref="multiflatmapHelp"
+      :multiflatmapRef="multiflatmapRef"
+      :lastItem="helpModeLastItem"
+      @show-next="onHelpModeShowNext"
+      @finish-help-mode="onFinishHelpMode"
+    />
+  </div>
 </template>
 
 <script>
@@ -429,6 +431,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
+.viewer-container {
+  width: 100%;
+  height: 100%;
+}
 
 :deep(.maplibregl-popup) {
   z-index: 3;

@@ -1,39 +1,41 @@
 <template>
-  <FlatmapVuer
-    :state="entry.state"
-    :entry="entry.resource"
-    @resource-selected="flatmaprResourceSelected(entry.type, $event)"
-    @pan-zoom-callback="flatmapPanZoomCallback"
-    :name="entry.resource"
-    style="height: 100%; width: 100%"
-    :minZoom="entry.minZoom"
-    :helpMode="helpMode"
-    :helpModeActiveItem="helpModeActiveItem"
-    :helpModeInitialIndex="-1"
-    :helpModeDialog="useHelpModeDialog"
-    @help-mode-last-item="onHelpModeLastItem"
-    @shown-tooltip="onTooltipShown"
-    @shown-map-tooltip="onMapTooltipShown"
-    :pathControls="true"
-    ref="flatmap"
-    @ready="flatmapReadyCall"
-    :displayMinimap="false"
-    :displayWarning="true"
-    :enableOpenMapUI="true"
-    :flatmapAPI="flatmapAPI"
-    :sparcAPI="apiLocation"
-    @open-map="openMap"
-    @pathway-selection-changed="onPathwaySelectionChanged"
-  />
+  <div class="viewer-container">
+    <FlatmapVuer
+      :state="entry.state"
+      :entry="entry.resource"
+      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      @pan-zoom-callback="flatmapPanZoomCallback"
+      :name="entry.resource"
+      style="height: 100%; width: 100%"
+      :minZoom="entry.minZoom"
+      :helpMode="helpMode"
+      :helpModeActiveItem="helpModeActiveItem"
+      :helpModeInitialIndex="-1"
+      :helpModeDialog="useHelpModeDialog"
+      @help-mode-last-item="onHelpModeLastItem"
+      @shown-tooltip="onTooltipShown"
+      @shown-map-tooltip="onMapTooltipShown"
+      :pathControls="true"
+      ref="flatmap"
+      @ready="flatmapReadyCall"
+      :displayMinimap="false"
+      :displayWarning="true"
+      :enableOpenMapUI="true"
+      :flatmapAPI="flatmapAPI"
+      :sparcAPI="apiLocation"
+      @open-map="openMap"
+      @pathway-selection-changed="onPathwaySelectionChanged"
+    />
 
-  <HelpModeDialog
-    v-if="helpMode && useHelpModeDialog"
-    ref="flatmapHelp"
-    :flatmapRef="flatmapRef"
-    :lastItem="helpModeLastItem"
-    @show-next="onHelpModeShowNext"
-    @finish-help-mode="onFinishHelpMode"
-  />
+    <HelpModeDialog
+      v-if="helpMode && useHelpModeDialog"
+      ref="flatmapHelp"
+      :flatmapRef="flatmapRef"
+      :lastItem="helpModeLastItem"
+      @show-next="onHelpModeShowNext"
+      @finish-help-mode="onFinishHelpMode"
+    />
+  </div>
 </template>
 
 <script>
@@ -168,6 +170,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+.viewer-container {
+  width: 100%;
+  height: 100%;
+}
+
 :deep(.maplibregl-popup) {
   z-index: 3;
 }
