@@ -41,32 +41,26 @@ export default {
         flatmapImp = this.getFlatmapImp();
 
       if (flatmapImp) {
+        // Set the dataset markers
         let markers = this.settingsStore.markers;
         markers = removeDuplicates(markers);
         flatmapImp.clearMarkers();
         flatmapImp.addDatasetMarkers(markers);
-      }
+      
+        // Set the hovered markers
+        let hoveredMarkers = this.settingsStore.hoveredMarkers
+        hoveredMarkers = removeDuplicates(hoveredMarkers);
+        hoveredMarkers.forEach(id => {
+          let markerClass = "standard-marker" + " hovered" // Space-separated CSS class names
+          let markerCluster = false // Disable cluster when related dataset is hovered
+          flatmapImp.addMarker(id, { className: markerClass, cluster: markerCluster })
+        })
 
-      // commented out until we can add styles to the markers
-      // if (flatmapImp) {
-      //   let markers = this.settingsStore.markers;
-      //   let hoveredMarkers = this.settingsStore.hoveredMarkers
-      //   markers = removeDuplicates(markers);
-      //   hoveredMarkers = removeDuplicates(hoveredMarkers);
-      //   flatmapImp.clearMarkers();
-      //   markers.forEach(id => {
-      //     let markerClass = "standard-marker"
-      //     let markerCluster = true
-      //     if (hoveredMarkers.includes(id)) {
-      //       markerClass += " hovered" // Space-separated CSS class names
-      //       markerCluster = false // Disable cluster when related dataset is hovered
-      //     }
-      //     flatmapImp.addMarker(id, { className: markerClass, cluster: markerCluster })
-      //   })
-      //   if (this.entry.type === "MultiFlatmap") {
-      //     this.restoreFeaturedMarkers(flatmapImp);
-      //   }
-      // }
+        // Set the featured markers
+        if (this.entry.type === "MultiFlatmap") {
+          this.restoreFeaturedMarkers(flatmapImp);
+        }
+      }
     },
     flatmapReadyForMarkerUpdates: function (flatmap) {
       if (flatmap) {
