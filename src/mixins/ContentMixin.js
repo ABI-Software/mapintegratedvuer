@@ -412,7 +412,7 @@ export default {
           });
       }
     },
-    flatmapMarkerZoomUpdate() {
+    flatmapMarkerUpdate() {
       return;
     },
     onResize: function () {

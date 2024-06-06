@@ -155,7 +155,6 @@ export default {
           payload: payload,
           type: this.entry.type,
         };
-        this.flatmapMarkerZoomUpdate(false, undefined);
         this.$emit("resource-selected", result);
       }
     },
@@ -245,7 +244,6 @@ export default {
           this.$refs.multiflatmap
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
-          this.flatmapMarkerZoomUpdate(false, undefined);
         }
       }
     },
@@ -322,7 +320,7 @@ export default {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
-        this.flatmapMarkerZoomUpdate(true, flatmapImp);
+        this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
       }
     },
@@ -423,7 +421,7 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerZoomUpdate(true, undefined);
+      this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
     });
   },
 };
@@ -446,6 +444,12 @@ export default {
     cursor: pointer !important;
     z-index: 2;
   }
+  &.hovered {
+    div {
+      scale: 2;
+      transform: translate(0px, -5px);
+    }
+  }
   &.highlight-marker {
     visibility: visible !important;
     cursor: pointer !important;
@@ -453,14 +457,6 @@ export default {
     div {
       scale: 0.5;
       transform: translate(45px, -7px);
-    }
-  }
-  &.hovered-marker {
-    cursor: pointer !important;
-    z-index: 2;
-    div {
-      scale: 2;
-      transform: translate(0px, -5px);
     }
   }
 }
