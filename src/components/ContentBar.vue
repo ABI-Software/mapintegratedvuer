@@ -22,15 +22,6 @@
       </div>
     </div>
     <el-row class="icon-group">
-      <div v-show="contextCardEntry && contextCardVisible" class="hide" @click="contextCardVisible = false">
-        Hide information
-        <el-icon><el-icon-arrow-up /></el-icon>
-      </div>
-      <div v-show="contextCardEntry && !contextCardVisible" class="hide" @click="contextCardVisible = true">
-        Show information
-        <el-icon><el-icon-arrow-down /></el-icon>
-      </div>
-
       <el-popover
         placement="bottom"
         :teleported="false"
@@ -58,12 +49,16 @@
           />
         </template>
         <template #reference>
-          <el-icon
-            class="info-icon"
-            @click="contextCardVisible = !contextCardVisible"
-            v-show="contextCardEntry">
-            <el-icon-info-filled/>
-          </el-icon>
+          <div v-show="contextCardEntry">
+            <div v-show="contextCardVisible" class="hide" @click="contextCardVisible = false">
+              Hide information
+              <el-icon><el-icon-arrow-up /></el-icon>
+            </div>
+            <div v-show="!contextCardVisible" class="hide" @click="contextCardVisible = true">
+              Show information
+              <el-icon><el-icon-arrow-down /></el-icon>
+            </div>
+          </div>
         </template>
       </el-popover>
       <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :show-after="helpDelay"

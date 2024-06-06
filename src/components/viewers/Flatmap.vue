@@ -1,31 +1,51 @@
 <template>
-  <FlatmapVuer
-    :state="entry.state"
-    :entry="entry.resource"
-    @resource-selected="flatmaprResourceSelected(entry.type, $event)"
-    @pan-zoom-callback="flatmapPanZoomCallback"
-    :name="entry.resource"
-    style="height: 100%; width: 100%"
-    :minZoom="entry.minZoom"
-    :helpMode="helpMode"
-    :pathControls="true"
-    ref="flatmap"
-    @ready="flatmapReadyCall"
-    :displayMinimap="false"
-    :displayWarning="true"
-    :enableOpenMapUI="true"
-    :flatmapAPI="flatmapAPI"
-    :sparcAPI="apiLocation"
-    @open-map="openMap"
-  />
+  <div class="viewer-container">
+    <FlatmapVuer
+      :state="entry.state"
+      :entry="entry.resource"
+      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      @pan-zoom-callback="flatmapPanZoomCallback"
+      :name="entry.resource"
+      style="height: 100%; width: 100%"
+      :minZoom="entry.minZoom"
+      :helpMode="helpMode"
+      :helpModeActiveItem="helpModeActiveItem"
+      :helpModeInitialIndex="-1"
+      :helpModeDialog="useHelpModeDialog"
+      @help-mode-last-item="onHelpModeLastItem"
+      @shown-tooltip="onTooltipShown"
+      @shown-map-tooltip="onMapTooltipShown"
+      :pathControls="true"
+      ref="flatmap"
+      @ready="flatmapReadyCall"
+      :displayMinimap="false"
+      :displayWarning="true"
+      :enableOpenMapUI="true"
+      :flatmapAPI="flatmapAPI"
+      :sparcAPI="apiLocation"
+      @open-map="openMap"
+      @pathway-selection-changed="onPathwaySelectionChanged"
+    />
+
+    <HelpModeDialog
+      v-if="helpMode && useHelpModeDialog"
+      ref="flatmapHelp"
+      :flatmapRef="flatmapRef"
+      :lastItem="helpModeLastItem"
+      @show-next="onHelpModeShowNext"
+      @finish-help-mode="onFinishHelpMode"
+    />
+  </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { FlatmapVuer } from "@abi-software/flatmapvuer";
+import { FlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
+import Tagging from '../../services/tagging.js';
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
+import { transformObjToString } from '../scripts/utilities';
 import "@abi-software/flatmapvuer/dist/style.css";
 
 export default {
@@ -33,6 +53,7 @@ export default {
   mixins: [ ContentMixin, DynamicMarkerMixin ],
   components: {
     FlatmapVuer,
+    HelpModeDialog,
   },
   methods: {
     getState: function () {
@@ -45,11 +66,29 @@ export default {
       return this.$refs.flatmap.searchAndShowResult(term);
     },
     getFlatmapImp() {
-      return this.$refs.flatmap.mapImp;
+      return this.$refs.flatmap?.mapImp;
     },
     flatmaprResourceSelected: function (type, resource) {
-      this.$refs.flatmap.resourceSelected(
-        type, resource, (this.$refs.map.viewingMode === "Exploration"));
+      this.resourceSelected(
+        type, resource, (this.$refs.flatmap.viewingMode === "Exploration"));
+
+      if (resource.eventType === 'click' && resource.feature.type === 'feature') {
+        const eventData = {
+          label: resource.label || '',
+          id: resource.feature.id || '',
+          featureId: resource.feature.featureId || '',
+          taxonomy: resource.taxonomy || '',
+          resources: resource.resource.join(', ')
+        };
+        const paramString = transformObjToString(eventData);
+        // `transformStringToObj` function can be used to change it back to object
+        Tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_connectivity',
+          'category': paramString,
+          "location": type + ' ' + this.$refs.flatmap.viewingMode
+        });
+      }
     },
     flatmapReadyCall: function (flatmap) {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
@@ -59,6 +98,17 @@ export default {
       if (this.entry.resource === "FunctionalConnectivity"){
         this.flatmapReadyForMarkerUpdates(flatmap);
       }
+    },
+    onPathwaySelectionChanged: function (data) {
+      const { label, property, checked, selectionsTitle } = data;
+      // GA Tagging
+      // Event tracking for maps' pathway selection change
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_pathway_change',
+        'category': label + ' [' + property + '] ' + checked,
+        'location': selectionsTitle
+      });
     },
     highlightFeatures: function(info) {
       let name = info.name;
@@ -120,6 +170,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+.viewer-container {
+  width: 100%;
+  height: 100%;
+}
+
 :deep(.maplibregl-popup) {
   z-index: 3;
 }

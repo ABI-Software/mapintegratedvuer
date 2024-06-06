@@ -3,7 +3,6 @@ import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 
-
 // remove duplicates by stringifying the objects
 const removeDuplicates = function (arrayOfAnything) {
   if (!arrayOfAnything) return []
@@ -29,7 +28,7 @@ export default {
         this.$emit("resource-selected", result);
       }
     },
-        /**
+    /**
      * Function used for updating the flatmap markers.
      * We set the markers based on what was searched and the flatmap clusters them.
      */

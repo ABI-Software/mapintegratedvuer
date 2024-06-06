@@ -1,33 +1,49 @@
 <template>
-  <ScaffoldVuer
-    :state="entry.state"
-    :url="entry.resource"
-    :region="entry.region"
-    @scaffold-selected="resourceSelected(entry.type, $event, true)"
-    @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
-    @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
-    @on-ready="scaffoldIsReady"
-    @open-map="openMap"
-    ref="scaffold"
-    :background-toggle="true"
-    :traditional="true"
-    :help-mode="helpMode"
-    :render="visible"
-    :display-latest-message="true"
-    :warning-message="warningMessage"
-    :display-minimap="false"
-    :display-markers="false"
-    :enableOpenMapUI="true"
-    :view-u-r-l="entry.viewUrl"
-    :markerLabels="markerLabels"
-    :flatmapAPI="flatmapAPI"
-  />
+  <div class="viewer-container">
+    <ScaffoldVuer
+      :state="entry.state"
+      :url="entry.resource"
+      :region="entry.region"
+      @scaffold-selected="resourceSelected(entry.type, $event, true)"
+      @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
+      @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
+      @on-ready="scaffoldIsReady"
+      @open-map="openMap"
+      ref="scaffold"
+      :background-toggle="true"
+      :traditional="true"
+      :helpMode="helpMode"
+      :helpModeActiveItem="helpModeActiveItem"
+      :helpModeDialog="useHelpModeDialog"
+      @help-mode-last-item="onHelpModeLastItem"
+      @shown-tooltip="onTooltipShown"
+      @shown-map-tooltip="onMapTooltipShown"
+      :render="visible"
+      :display-latest-message="true"
+      :warning-message="warningMessage"
+      :display-minimap="false"
+      :display-markers="false"
+      :enableOpenMapUI="true"
+      :view-u-r-l="entry.viewUrl"
+      :markerLabels="markerLabels"
+      :flatmapAPI="flatmapAPI"
+    />
+
+    <HelpModeDialog
+      v-if="helpMode && useHelpModeDialog"
+      ref="scaffoldHelp"
+      :scaffoldRef="scaffoldRef"
+      :lastItem="helpModeLastItem"
+      @show-next="onHelpModeShowNext"
+      @finish-help-mode="onFinishHelpMode"
+    />
+  </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
-import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
+import { ScaffoldVuer, HelpModeDialog } from "@abi-software/scaffoldvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 
 import "@abi-software/scaffoldvuer/dist/style.css";
@@ -37,6 +53,7 @@ export default {
   mixins: [ ContentMixin ],
   components: {
     ScaffoldVuer,
+    HelpModeDialog,
   },
   methods: {
     onResize: function () {
@@ -191,6 +208,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.viewer-container {
+  width: 100%;
+  height: 100%;
+}
+
 :deep(.message-popper) {
   white-space: unset;
   max-width: 200px;
