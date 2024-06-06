@@ -9,6 +9,7 @@ import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import Tagging from '../services/tagging.js';
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
@@ -16,6 +17,7 @@ function capitalise(text) {
 
 /* eslint-disable no-alert, no-console */
 export default {
+  emits: [ "flatmap-provenance-ready", "resource-selected", "species-changed"],
   props: {
     /**
      * Object containing information for
@@ -36,11 +38,18 @@ export default {
     syncMode() {
       return this.splitFlowStore.syncMode;
     },
+    useHelpModeDialog() {
+      return this.settingsStore.useHelpModeDialog;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
       this.startHelp();
     });
+
+    this.multiflatmapRef = this.$refs.multiflatmap;
+    this.flatmapRef = this.$refs.flatmap;
+    this.scaffoldRef = this.$refs.scaffold;
   },
   methods: {
     toggleSyncMode: function () {
@@ -52,9 +61,21 @@ export default {
     openMap: function (type) {
       if (type === "SYNC") {
         this.toggleSyncMode();
+        this.trackOpenMap('toggle_map_sync_mode');
       } else {
         EventBus.emit("OpenNewMap", type);
+        this.trackOpenMap(`open_new_${type}_map`);
       }
+    },
+    trackOpenMap: function (category) {
+      // GA Tagging
+      // Open map tracking
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_open_map',
+        'category': category,
+        'location': 'open_new_map'
+      });
     },
     updateWithViewUrl: function() {
       return;
@@ -113,6 +134,7 @@ export default {
                 term: this.settingsStore.featuredMarkerDoi(
                   resource.feature.id
                 ),
+                featuredDataset: true,
               };
             } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
               // if it matches our stored keywords, it is a keyword search
@@ -278,7 +300,7 @@ export default {
           } catch (error) {
             markerSpecies = undefined;
           }
-          this.updateFeatureMarkers([markerCurie], undefined)
+          this.updateFeaturedMarkers([markerCurie], undefined)
           this.settingsStore.updateFeaturedMarker({
             identifier,
             marker: markerCurie,
@@ -399,16 +421,65 @@ export default {
     startHelp: function () {
       if (this.isInHelp === false) {
         this.helpMode = true;
-        window.addEventListener("mousedown", this.endHelp);
+        window.addEventListener("mousedown", this.checkEndHelpMouseDown);
         this.isInHelp = true;
       }
     },
     endHelp: function () {
-      window.removeEventListener("mousedown", this.endHelp);
+      window.removeEventListener("mousedown", this.checkEndHelpMouseDown);
       this.helpMode = false;
       setTimeout(() => {
         this.isInHelp = false;
       }, 200);
+    },
+    onHelpModeShowNext: function () {
+      this.helpModeActiveItem += 1;
+    },
+    onHelpModeLastItem: function (isLastItem) {
+      if (isLastItem) {
+        this.helpModeLastItem = true;
+      }
+    },
+    onFinishHelpMode: function () {
+      this.helpMode = false;
+      // reset help mode to default values
+      this.helpModeActiveItem = 0;
+      this.helpModeLastItem = false;
+    },
+    onTooltipShown: function () {
+      if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
+        this.$refs.multiflatmapHelp.toggleTooltipHighlight();
+      }
+
+      if (this.$refs.flatmap && this.$refs.flatmapHelp) {
+        this.$refs.flatmapHelp.toggleTooltipHighlight();
+      }
+
+      if (this.$refs.scaffold && this.$refs.scaffoldHelp) {
+        this.$refs.scaffoldHelp.toggleTooltipHighlight();
+      }
+    },
+    onMapTooltipShown: function () {
+      if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
+        this.$refs.multiflatmapHelp.toggleTooltipPinHighlight();
+      }
+
+      if (this.$refs.flatmap && this.$refs.flatmapHelp) {
+        this.$refs.flatmapHelp.toggleTooltipPinHighlight();
+      }
+
+      if (this.$refs.scaffold && this.$refs.scaffoldHelp) {
+        this.$refs.scaffoldHelp.toggleTooltipPinHighlight();
+      }
+    },
+    /**
+     * End help-mode only if user clicks outside of help mode dialog.
+     */
+    checkEndHelpMouseDown: function (e) {
+      const el = e.target;
+      if (!el.closest('.help-mode-dialog')) {
+        this.endHelp();
+      }
     },
   },
   data: function () {
@@ -422,6 +493,11 @@ export default {
         bottom: "0px",
       },
       helpMode: false,
+      helpModeActiveItem: 0,
+      helpModeLastItem: false,
+      multiflatmapRef: null,
+      flatmapRef: null,
+      scaffoldRef: null,
       idNamePair: {},
       scaffoldLoaded: false,
       isInHelp: false,
@@ -434,5 +510,12 @@ export default {
       this.flatmapAPI = this.settingsStore.flatmapAPI;
     if (this.settingsStore.sparcApi)
       this.apiLocation = this.settingsStore.sparcApi;
+  },
+  watch: {
+    helpMode: function (newVal) {
+      if (!newVal) {
+        this.helpModeActiveItem = 0;
+      }
+    }
   },
 };

@@ -1,32 +1,55 @@
 <template>
-  <MultiFlatmapVuer
-    :availableSpecies="availableSpecies"
-    @flatmapChanged="flatmapChanged"
-    @ready="multiFlatmapReady"
-    :state="entry.state"
-    @resource-selected="flatmaprResourceSelected(entry.type, $event)"
-    style="height: 100%; width: 100%"
-    :initial="entry.resource"
-    :helpMode="helpMode"
-    ref="multiflatmap"
-    :displayMinimap="true"
-    :showStarInLegend="showStarInLegend"
-    :enableOpenMapUI="true"
-    :openMapOptions="openMapOptions"
-    :flatmapAPI="flatmapAPI"
-    :sparcAPI="apiLocation"
-    @pan-zoom-callback="flatmapPanZoomCallback"
-    @open-map="openMap"
-  />
+  <div class="viewer-container">
+    <MultiFlatmapVuer
+      :availableSpecies="availableSpecies"
+      @flatmapChanged="flatmapChanged"
+      @ready="multiFlatmapReady"
+      :state="entry.state"
+      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      style="height: 100%; width: 100%"
+      :initial="entry.resource"
+      :helpMode="helpMode"
+      :helpModeActiveItem="helpModeActiveItem"
+      :helpModeDialog="useHelpModeDialog"
+      @help-mode-last-item="onHelpModeLastItem"
+      @shown-tooltip="onTooltipShown"
+      @shown-map-tooltip="onMapTooltipShown"
+      ref="multiflatmap"
+      :displayMinimap="true"
+      :showStarInLegend="showStarInLegend"
+      :enableOpenMapUI="true"
+      :openMapOptions="openMapOptions"
+      :flatmapAPI="flatmapAPI"
+      :sparcAPI="apiLocation"
+      @pan-zoom-callback="flatmapPanZoomCallback"
+      @open-map="openMap"
+      @finish-help-mode="endHelp"
+      @pathway-selection-changed="onPathwaySelectionChanged"
+      @open-pubmed-url="onOpenPubmedUrl"
+    />
+
+    <HelpModeDialog
+      v-if="helpMode && useHelpModeDialog"
+      ref="multiflatmapHelp"
+      :multiflatmapRef="multiflatmapRef"
+      :lastItem="helpModeLastItem"
+      @show-next="onHelpModeShowNext"
+      @finish-help-mode="onFinishHelpMode"
+    />
+  </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { availableSpecies } from "../scripts/utilities.js";
-import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
+import Tagging from '../../services/tagging.js';
+import { MultiFlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
-import { getBodyScaffoldInfo } from "../scripts/utilities";
+import {
+  availableSpecies,
+  getBodyScaffoldInfo,
+  transformObjToString
+} from "../scripts/utilities";
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
 import "@abi-software/flatmapvuer/dist/style.css";
@@ -67,6 +90,7 @@ export default {
   mixins: [ContentMixin, DyncamicMarkerMixin],
   components: {
     MultiFlatmapVuer,
+    HelpModeDialog,
   },
   data: function () {
     return {
@@ -159,6 +183,45 @@ export default {
     flatmaprResourceSelected: function (type, resource) {
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
       this.resourceSelected(type, resource, (map.viewingMode === "Exploration"));
+
+      if (resource.eventType === 'click' && resource.feature.type === 'feature') {
+        const eventData = {
+          label: resource.label || '',
+          id: resource.feature.id || '',
+          featureId: resource.feature.featureId || '',
+          taxonomy: resource.taxonomy || '',
+          resources: resource.resource.join(', ')
+        };
+        const paramString = transformObjToString(eventData);
+        // `transformStringToObj` function can be used to change it back to object
+        Tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_connectivity',
+          'category': paramString,
+          "location": type + ' ' + map.viewingMode
+        });
+      }
+    },
+    onPathwaySelectionChanged: function (data) {
+      const { label, property, checked, selectionsTitle } = data;
+      // GA Tagging
+      // Event tracking for maps' pathway selection change
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_pathway_change',
+        'category': label + ' [' + property + '] ' + checked,
+        'location': selectionsTitle
+      });
+    },
+    onOpenPubmedUrl: function (url) {
+      // GA Tagging
+      // Event tracking for open pubmed url from popup
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_pubmed_url',
+        'file_path': url,
+        'location': 'map_popup_button',
+      });
     },
     /**
      * Handle sync pan zoom event
@@ -243,6 +306,14 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
+
+      // GA Tagging
+      // Event tracking for maps' species change
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_species_change',
+        'category': this.activeSpecies
+      });
     },
     multiFlatmapReady: function (flatmap) {
       if (flatmap) {
@@ -254,7 +325,7 @@ export default {
       }
     },
     getFlatmapImp: function () {
-      if (this.entry.type === "MultiFlatmap" && this.flatmapReady) {
+      if (this.entry.type === "MultiFlatmap" && this.flatmapReady && this.$refs.multiflatmap) {
         return this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"];
       } else {
         return undefined;
@@ -273,9 +344,9 @@ export default {
     restoreFeaturedMarkers: function (flatmap) {
       this.settingsStore.resetFeaturedMarkerIdentifier();
       const markers = this.settingsStore.featuredMarkers;
-      this.updateFeatureMarkers(markers, flatmap);
+      this.updateFeaturedMarkers(markers, flatmap);
     },
-    updateFeatureMarkers: function (markers, flatmap) {
+    updateFeaturedMarkers: function (markers, flatmap) {
       this.showStarInLegend = false; // will show if we have a featured marker
       for (let index = 0; index < markers.length; ++index) {
         if (markers[index]) {
@@ -311,7 +382,7 @@ export default {
         const markerIdentifier = flatmapImp.addMarker(marker, {
           element: wrapperElement,
           className: "highlight-marker",
-          cluster: false,
+          cluster: false
         });
 
         // update the store with the marker identifier
@@ -342,7 +413,7 @@ export default {
         return;
       }
 
-      this.updateFeatureMarkers(markers, undefined);
+      this.updateFeaturedMarkers(markers, undefined);
     },
   },
   mounted: function () {
@@ -358,6 +429,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
+.viewer-container {
+  width: 100%;
+  height: 100%;
+}
 
 :deep(.maplibregl-popup) {
   z-index: 3;

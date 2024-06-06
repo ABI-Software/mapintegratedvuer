@@ -19,10 +19,12 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import Tagging from '../services/tagging.js';
 import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
+import { useSplitFlowStore } from '../stores/splitFlow';
 import { findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
 import { initialState } from "./scripts/utilities.js";
@@ -71,7 +73,16 @@ export default {
     startingMap: {
       type: String,
       default: "AC"
-    }
+    },
+    /**
+     * To use help-mode-dialog when user clicks "Help".
+     * This option is available on Flatmap, MultiFlatmap, and Scaffold.
+     * When this is set to `true`, "Help" tooltips will be shown one by one.
+     */
+    useHelpModeDialog: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -251,10 +262,19 @@ export default {
        * This event emit when the component is mounted.
        */
       this.$emit("isReady");
+
+      // GA Tagging
+      // Page view tracking for maps' buttons click on portal
+      // category: AC | FC | WholeBody
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_page_view',
+        'category': this.startingMap
+      });
     },
   },
   computed: {
-    ...mapStores(useSettingsStore),
+    ...mapStores(useSettingsStore, useSplitFlowStore),
     stateToSet() {
       return this.state ? this.state : this.initialState;
     },
@@ -279,6 +299,7 @@ export default {
       this.options.nlLinkPrefix ? this.settingsStore.updateNLLinkPrefix(this.options.nlLinkPrefix) : null
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
     }
+    this.splitFlowStore?.reset();
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", () => {
@@ -287,10 +308,17 @@ export default {
        */
       this.$emit("updateShareLinkRequested");
     });
+    EventBus.on('trackEvent', (taggingData) => {
+      /**
+       * This event triggers data tracking for Google Tag Manager (GTM) related to map interactions.
+       */
+      this.$emit('trackEvent', taggingData);
+    });
     if (!this.state) {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
     this.isReady = true;
+    this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
   }
 }
 

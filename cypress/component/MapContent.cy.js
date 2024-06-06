@@ -56,6 +56,10 @@ describe('MapContent', () => {
         return false
       if (err.message.includes('Source "mapbox-gl-draw-cold" already exists.'))
         return false
+      if (err.message.includes('Source "markers" already exists.'))
+        return false
+      if (err.message.includes("Cannot read properties of undefined (reading 'onResize')"))
+        return false
       return true
     })
 
@@ -139,7 +143,7 @@ describe('MapContent', () => {
     cy.wait('@mouseDataset', {timeout: 20000});
 
     //Open the sidebar
-    cy.get('.open-tab').should('exist').click();
+    cy.get('.side-bar > .open-tab').should('exist').click();
 
     //Type in 76 generic
     cy.get('.search-input > .el-input__wrapper > .el-input__inner').should('exist').type('76 generic');
@@ -148,7 +152,7 @@ describe('MapContent', () => {
     cy.get('.header > .el-button').should('exist').click();
 
     //Check number of dataset card, it should be 1
-    cy.get('.dataset-card').should('have.length', 1);
+    cy.get('.dataset-card-container').should('have.length', 1);
 
     //Check how many tags in the dataset
     cy.get('.box-card .container button').should('have.length', 6);

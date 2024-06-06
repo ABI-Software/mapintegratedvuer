@@ -20,33 +20,38 @@
     ></DatasetHeader>
   -->
     <div class="component-container" ref="container">
-      <Component
-        :is="viewerType"
-        :entry="entry"
-        :mouseHovered="mouseHovered"
-        :visible="visible"
-        ref="viewer"
-        @flatmap-provenance-ready="flatmapProvenacneReady"
-        @resource-selected="resourceSelected"
-        @species-changed="speciesChanged"
-      />
+      <Suspense>
+        <Component
+          :is="viewerType"
+          :entry="entry"
+          :mouseHovered="mouseHovered"
+          :visible="visible"
+          :lazy="true"
+          ref="viewer"
+          @flatmap-provenance-ready="flatmapProvenacneReady"
+          @resource-selected="resourceSelected"
+          @species-changed="speciesChanged"
+        />
+      </Suspense>
     </div>
   </div>
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { defineAsyncComponent } from 'vue'
 import { ElButton as Button } from "element-plus";
 import ContentBar from "./ContentBar.vue";
-import Flatmap from "./viewers/Flatmap.vue";
-import Iframe from "./viewers/Iframe.vue";
-import MultiFlatmap from "./viewers/MultiFlatmap.vue";
-import Plot from "./viewers/Plot.vue";
-import Scaffold from "./viewers/Scaffold.vue";
-import Simulation from "./viewers/Simulation.vue";
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
 import { useSplitFlowStore } from '../stores/splitFlow';
+
+const Flatmap = defineAsyncComponent(() => import("./viewers/Flatmap.vue"));
+const Iframe = defineAsyncComponent(() => import("./viewers/Iframe.vue"));
+const MultiFlatmap = defineAsyncComponent(() => import("./viewers/MultiFlatmap.vue"));
+const Plot = defineAsyncComponent(() => import("./viewers/Plot.vue"));
+const Scaffold = defineAsyncComponent(() => import("./viewers/Scaffold.vue"));
+const Simulation = defineAsyncComponent(() => import("./viewers/Simulation.vue"));
 
 export default {
   name: "ContentVuer",
@@ -74,19 +79,19 @@ export default {
   },
   methods: {
     flatmapProvenacneReady: function(prov) {
-      this.$refs.contentBar.setupFlatmapContextCard(prov);
+      this.$refs.contentBar?.setupFlatmapContextCard(prov);
     },
     /**
      * Toggle sync mode on/off depending on species and current state
      */
     toggleSyncMode: function () {
-      this.$refs.viewer.toggleSyncMode();
+      this.$refs.viewer?.toggleSyncMode();
     },
     getId: function () {
       return this.entry.id;
     },
     getState: function () {
-      return this.$refs.viewer.getState();
+      return this.$refs.viewer?.getState();
     },
     resourceSelected: function (payload) {
       this.$emit("resource-selected", payload);
@@ -96,32 +101,32 @@ export default {
         this.entriesStore.updateViewForEntry({id: this.entry.id, viewUrl});
       } else {
         //Manually set it as it cannot be set with reactivity
-        this.$refs.viewer.updateWithViewUrl(viewUrl);
+        this.$refs.viewer?.updateWithViewUrl(viewUrl);
       }
     },
     /**
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      return this.$refs.viewer.search(term);
+      return this.$refs.viewer?.search(term);
     },
     /**
      * Push the suggested terms into the suggestions array
      */
     searchSuggestions: function(term, suggestions) {
-      this.$refs.viewer.searchSuggestions(term, suggestions);
+      this.$refs.viewer?.searchSuggestions(term, suggestions);
     },
     setPanesBoundary: function() {
-      this.$refs.contentBar.setBoundary(this.$refs["container"][0]);
+      this.$refs.contentBar?.setBoundary(this.$refs["container"][0]);
     },
     speciesChanged: function (species) {
       this.activeSpecies = species;
     },
     receiveSynchronisedEvent: async function (data) {
-      this.$refs.viewer.receiveSynchronisedEvent(data);
+      this.$refs.viewer?.receiveSynchronisedEvent(data);
     },
     requestSynchronisedEvent: function (flag) {
-      this.$refs.viewer.requestSynchronisedEvent(flag);
+      this.$refs.viewer?.requestSynchronisedEvent(flag);
     },
     /**
      * Check if this viewer is currently visible
@@ -131,7 +136,7 @@ export default {
       return paneName !== undefined;
     },
     onResize: function () {
-      this.$refs.viewer.onResize();
+      this.$refs.viewer?.onResize();
     },
   },
   data: function () {
