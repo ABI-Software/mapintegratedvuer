@@ -28,6 +28,7 @@
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
+          @anatomy-in-datasets="updateMarkers($event)"
           @hover-changed="hoverChanged($event)"
           @contextUpdate="contextUpdate($event)"
         />
@@ -195,11 +196,10 @@ export default {
       if (data && data.type == "filter-update") {
         this.settingsStore.updateFacets(data.value);
       }
-      if (data && data.type == "available-facets") {
-        this.settingsStore.updateFacetLabels(data.value.labels);
-        this.settingsStore.updateMarkers(data.value.uberons);
-        EventBus.emit("markerUpdate");
-      }
+    },
+    updateMarkers: function (data) {
+      this.settingsStore.updateMarkers(data);
+      EventBus.emit("markerUpdate");
     },
     getNewEntryId: function() {
       if (this.entries.length) {

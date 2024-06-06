@@ -69,7 +69,7 @@ export default {
     sckanReleaseLink: function() {
       let sckanRelease = "Unknown"
       if(this.mapImpProv){
-        sckanRelease = this.mapImpProv.sckan.release
+        sckanRelease = this.mapImpProv.sckan?.release
       }
       return sckanRelease 
     },
