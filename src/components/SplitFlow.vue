@@ -262,7 +262,7 @@ export default {
       if (!hoverEntries.length) {
         this.hoveredMarkerDelay = setTimeout(() => {
           EventBus.emit("markerUpdate");
-        }, 3000)
+        }, 500)
       } else {
         clearTimeout(this.hoveredMarkerDelay)
         EventBus.emit("markerUpdate");

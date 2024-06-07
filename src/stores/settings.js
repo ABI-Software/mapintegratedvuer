@@ -18,6 +18,7 @@ export const useSettingsStore = defineStore('settings', {
       facetLabels: [],
       markers: [],
       hoveredMarkers: [],
+      previousHoveredMarkers: null,
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
@@ -70,6 +71,7 @@ export const useSettingsStore = defineStore('settings', {
       this.markers = markers;
     },
     updateHoveredMarkers(markers) {
+      this.previousHoveredMarkers = this.hoveredMarkers;
       this.hoveredMarkers = markers;
     },
     updateFeatured(datasetIdentifiers) {
