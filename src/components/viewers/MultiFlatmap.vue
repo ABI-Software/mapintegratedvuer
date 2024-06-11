@@ -347,6 +347,7 @@ export default {
       const markers = this.settingsStore.featuredMarkers;
       this.updateFeaturedMarkers(markers, flatmap);
     },
+    // updateFeaturedMarkers will step through the featured markers and add them to the map
     updateFeaturedMarkers: function (markers, flatmap) {
       this.showStarInLegend = false; // will show if we have a featured marker
       for (let index = 0; index < markers.length; ++index) {
@@ -363,6 +364,7 @@ export default {
         }
       }
     },
+    // addFeaturedMarker: add a featured marker to the map at the specified uberon location
     addFeaturedMarker: function (marker, index, flatmap) {
       const markerSpecies =
         this.settingsStore.featuredMarkerSpecies[index];

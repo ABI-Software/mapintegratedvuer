@@ -268,6 +268,7 @@ export default {
       }
       return { id, name };
     },
+    // Get the species and andaotmy info for the featured datasets
     getDatasetAnatomyInfo: function (identifier) {
       fetch(`${this.apiLocation}dataset_info/anatomy?identifier=${identifier}`)
         .then(response => response.json())
