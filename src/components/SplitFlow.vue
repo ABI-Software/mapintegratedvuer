@@ -29,6 +29,7 @@
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
           @anatomy-in-datasets="updateMarkers($event)"
+          @number-of-datasets-for-anatomies="updateScaffoldMarkers($event)"
           @hover-changed="hoverChanged($event)"
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
@@ -309,6 +310,9 @@ export default {
     updateMarkers: function (data) {
       this.settingsStore.updateMarkers(data);
       EventBus.emit("markerUpdate");
+    },
+    updateScaffoldMarkers: function (data) {
+      this.settingsStore.updateNumberOfDatasetsForFacets(data);
     },
     getNewEntryId: function() {
       if (this.entries.length) {
