@@ -187,7 +187,7 @@ export default {
       }
     },
     markerLabels: function () {
-      return this.settingsStore.facetLabels;
+      return this.settingsStore.numberOfDatasetsForFacets;
     },
   },
   data: function () {

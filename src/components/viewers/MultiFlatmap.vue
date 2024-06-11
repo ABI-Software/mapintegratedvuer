@@ -368,7 +368,6 @@ export default {
     addFeaturedMarker: function (marker, index, flatmap) {
       const markerSpecies =
         this.settingsStore.featuredMarkerSpecies[index];
-      console.log("addFeaturedMarker", markerSpecies, this.activeSpecies, marker);
       if (markerSpecies && !this.activeSpecies.startsWith(markerSpecies)) {
         return false;
       }
