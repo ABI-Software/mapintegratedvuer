@@ -45,6 +45,7 @@ export default {
         let markers = this.settingsStore.markers;
         markers = removeDuplicates(markers);
         flatmapImp.clearMarkers();
+        flatmapImp.clearDatasetMarkers();
         flatmapImp.addDatasetMarkers(markers);
       
         // Set the hovered markers
