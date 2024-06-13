@@ -176,7 +176,7 @@ export default {
 }
 
 :deep(.maplibregl-popup) {
-  z-index: 3;
+  z-index: 11;
 }
 
 :deep(.flatmapvuer-popover) {

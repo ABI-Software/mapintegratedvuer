@@ -14,6 +14,7 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @provenance-popup-close="onProvenancePopupClose"
       ref="multiflatmap"
       :displayMinimap="true"
       :showStarInLegend="showStarInLegend"
@@ -396,6 +397,9 @@ export default {
       }
       return false;
     },
+    onProvenancePopupClose: function () {
+      EventBus.emit('provenance-popup-close');
+    },
   },
   computed: {
     facetSpecies() {
@@ -438,7 +442,7 @@ export default {
 }
 
 :deep(.maplibregl-popup) {
-  z-index: 3;
+  z-index: 11;
 }
 
 :deep(.maplibregl-marker) {

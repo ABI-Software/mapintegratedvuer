@@ -14,7 +14,7 @@
         ref="dialogToolbar"
       />
     </el-header>
-    <el-main class="dialog-main">
+    <el-main class="dialog-main" :class="provenanceOpenCSS">
       <div
         style="width: 100%; height: 100%; position: relative; overflow: hidden"
       >
@@ -95,6 +95,7 @@ export default {
       activeDockedId : 1,
       filterTriggered: false,
       availableFacets: [],
+      provenanceOpenCSS: '',
     }
   },
   watch: {
@@ -136,6 +137,7 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
+            this.closeProvenancePopup();
             this.$refs.sideBar.addFilter(action);
             const { facet } = action;
             // GA Tagging
@@ -171,6 +173,7 @@ export default {
             }))
           );
           if (this.$refs.sideBar) {
+            this.closeProvenancePopup();
             this.$refs.sideBar.openSearch(facets, "");
 
             const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
@@ -373,9 +376,18 @@ export default {
       this.search = query;
       this._facets = facets;
       if (this.$refs && this.$refs.sideBar) {
+        this.closeProvenancePopup();
         this.$refs.sideBar.openSearch(facets, query);
       }
       this.startUp = false;
+    },
+    closeProvenancePopup: function() {
+      this.provenanceOpenCSS = '';
+      // close all opened popups on DOM
+      const containerEl = this.$el;
+      containerEl.querySelectorAll('.maplibregl-popup-close-button').forEach((el) => {
+        el.click();
+      });
     },
     onFullscreen: function (val) {
       this.$emit("onFullscreen", val);
@@ -476,6 +488,15 @@ export default {
     EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);
     });
+    EventBus.on('provenance-popup', payload => {
+      this.provenanceOpenCSS = 'provenance-open';
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.close()
+      }
+    });
+    EventBus.on('provenance-popup-close', payload => {
+      this.provenanceOpenCSS = '';
+    });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
     });
@@ -527,6 +548,12 @@ export default {
   padding: 0px;
   width: 100%;
   height: 100%;
+
+  &.provenance-open {
+    .side-bar {
+      visibility: hidden;
+    }
+  }
 }
 
 .start-up {
