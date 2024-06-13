@@ -39,11 +39,12 @@ export default defineConfig(({ command, mode }) => {
         fileName: 'mapintegratedvuer',
       },
       rollupOptions: {
-        external: ["vue", "pinia"],
+        external: ["vue", "pinia", "@abi-software/map-utilities"],
         output: {
           globals: {
             vue: "Vue",
-            pinia: "pinia"
+            pinia: "pinia",
+            "@abi-software/map-utilities": "@abi-software/map-utilities"
           },
         },
       },
