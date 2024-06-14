@@ -44,9 +44,10 @@ export default {
         // Set the dataset markers
         let markers = this.settingsStore.markers;
         markers = removeDuplicates(markers);
+        let fmMarkers = this.removeMarkersNotOnFlatmap(flatmapImp, markers);
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
-        flatmapImp.addDatasetMarkers(markers);
+        flatmapImp.addDatasetMarkers(fmMarkers);
       
         // Set the hovered markers
         let hoveredMarkers = this.settingsStore.hoveredMarkers
@@ -69,6 +70,26 @@ export default {
           this.restoreFeaturedMarkers(flatmapImp);
         }
       }
+    },
+    // removeMarkersNotOnFlatmap: rewrites the dataset marker list to only include markers that are on the flatmap
+    removeMarkersNotOnFlatmap(flatmapImp, datasets) {
+
+      // dataset markers are in the form [{id: "discoverId", terms: ["term1", "term2"]}, {id:....}]
+      let fma = flatmapImp.anatomicalIdentifiers;
+      let markersOnFlatmap = []
+
+      // the block below steps through each dataset and checks each term to see if it is in the flatmap
+      for (let i = 0; i < datasets.length; i++) {
+        let dataset = datasets[i];
+        let datasetAdjusted = {id: dataset.id, terms: []};
+        for (let j = 0; j < dataset.terms.length; j++) {
+          if (fma.includes(dataset.terms[j])) {
+            datasetAdjusted.terms.push(dataset.terms[j]);
+          }
+        }
+        markersOnFlatmap.push(datasetAdjusted);
+      }
+      return markersOnFlatmap;
     },
     flatmapReadyForMarkerUpdates: function (flatmap) {
       if (flatmap) {
