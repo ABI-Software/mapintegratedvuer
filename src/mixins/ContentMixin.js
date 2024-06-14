@@ -175,6 +175,9 @@ export default {
         }
       } else if (type == "Scaffold") {
         if (resource && resource[0]) {
+          if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
+            resource[0].data.id = resource[0].data?.group;
+          }
           result.internalName = resource[0].data.id;
           // Facet search if marker is clicked
           if (resource[0].data.lastActionOnMarker === true) {

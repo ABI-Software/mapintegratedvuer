@@ -25,6 +25,7 @@
       :display-markers="false"
       :enableOpenMapUI="true"
       :view-u-r-l="entry.viewUrl"
+      :markerCluster="true"
       :markerLabels="markerLabels"
       :flatmapAPI="flatmapAPI"
     />
@@ -155,6 +156,9 @@ export default {
         internalName: undefined,
       };
       if (resource && resource[0]) {
+        if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
+          resource[0].data.id = resource[0].data?.group;
+        }
         result.internalName = resource[0].data.id;
         result.eventType = "highlighted";
       }
