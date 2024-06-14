@@ -488,8 +488,8 @@ export default {
     EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);
     });
-    EventBus.on('provenance-popup', payload => {
-      this.provenanceOpenCSS = 'provenance-open';
+    EventBus.on('provenance-popup-open', payload => {
+      this.provenanceOpenCSS = 'provenance-popup-open';
       if (this.$refs.sideBar) {
         this.$refs.sideBar.close()
       }
@@ -549,7 +549,7 @@ export default {
   width: 100%;
   height: 100%;
 
-  &.provenance-open {
+  &.provenance-popup-open {
     .side-bar {
       visibility: hidden;
     }

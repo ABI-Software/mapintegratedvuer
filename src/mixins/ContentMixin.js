@@ -162,7 +162,7 @@ export default {
               flatmap.clearSearchResults();
             }
           } else if (resource.feature.type == "feature") {
-            EventBus.emit('provenance-popup', resource)
+            EventBus.emit('provenance-popup-open', resource)
             // Do no open scaffold in sync map
             if (this.syncMode) {
               fireResourceSelected = true;
