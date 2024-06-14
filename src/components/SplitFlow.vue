@@ -491,7 +491,7 @@ export default {
     EventBus.on('provenance-popup-open', payload => {
       this.provenanceOpenCSS = 'provenance-popup-open';
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.close()
+        this.$refs.sideBar.close();
       }
     });
     EventBus.on('provenance-popup-close', payload => {
