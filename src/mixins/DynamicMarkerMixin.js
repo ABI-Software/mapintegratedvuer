@@ -85,6 +85,8 @@ export default {
         for (let j = 0; j < dataset.terms.length; j++) {
           if (fma.includes(dataset.terms[j])) {
             datasetAdjusted.terms.push(dataset.terms[j]);
+
+            
           }
         }
         markersOnFlatmap.push(datasetAdjusted);
