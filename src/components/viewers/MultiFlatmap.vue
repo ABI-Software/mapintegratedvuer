@@ -14,7 +14,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @provenance-popup-open="onProvenancePopupOpen"
       @provenance-popup-close="onProvenancePopupClose"
+      :provenanceSidebar="provenanceSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
       :showStarInLegend="showStarInLegend"
@@ -396,6 +398,9 @@ export default {
         return true;
       }
       return false;
+    },
+    onProvenancePopupOpen: function (provenanceEntryData) {
+      EventBus.emit('provenance-popup-open', provenanceEntryData);
     },
     onProvenancePopupClose: function () {
       EventBus.emit('provenance-popup-close');

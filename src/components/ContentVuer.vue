@@ -65,6 +65,13 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to show provenance info in sidebar.
+     */
+    provenanceSidebar: {
+      type: Boolean,
+      default: false,
+    },
   },
   components: {
     //DatasetHeader,

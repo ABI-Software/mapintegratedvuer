@@ -14,7 +14,7 @@
         ref="dialogToolbar"
       />
     </el-header>
-    <el-main class="dialog-main" :class="provenanceOpenCSS">
+    <el-main class="dialog-main">
       <div
         style="width: 100%; height: 100%; position: relative; overflow: hidden"
       >
@@ -25,6 +25,7 @@
           :class="['side-bar', { 'start-up': startUp }]"
           :activeId="activeDockedId"
           :open-at-start="startUp"
+          :provenanceEntry="provenanceEntry"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
@@ -95,7 +96,7 @@ export default {
       activeDockedId : 1,
       filterTriggered: false,
       availableFacets: [],
-      provenanceOpenCSS: '',
+      provenanceEntry: null,
     }
   },
   watch: {
@@ -382,7 +383,6 @@ export default {
       this.startUp = false;
     },
     closeProvenancePopup: function() {
-      this.provenanceOpenCSS = '';
       // close all opened popups on DOM
       const containerEl = this.$el;
       containerEl.querySelectorAll('.maplibregl-popup-close-button').forEach((el) => {
@@ -489,13 +489,14 @@ export default {
       this.actionClick(payload);
     });
     EventBus.on('provenance-popup-open', payload => {
-      this.provenanceOpenCSS = 'provenance-popup-open';
+      this.provenanceEntry = payload;
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.close();
+        this.tabClicked(2); // TODO: to rename IDs to be meaningful
+        this.$refs.sideBar.setDrawerOpen(true);
       }
     });
     EventBus.on('provenance-popup-close', payload => {
-      this.provenanceOpenCSS = '';
+      this.provenanceEntry = null;
     });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
@@ -548,12 +549,6 @@ export default {
   padding: 0px;
   width: 100%;
   height: 100%;
-
-  &.provenance-popup-open {
-    .side-bar {
-      visibility: hidden;
-    }
-  }
 }
 
 .start-up {
