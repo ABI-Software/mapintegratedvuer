@@ -41,6 +41,9 @@ export default {
     useHelpModeDialog() {
       return this.settingsStore.useHelpModeDialog;
     },
+    provenanceSidebar() {
+      return this.settingsStore.provenanceSidebar;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
@@ -480,6 +483,12 @@ export default {
       if (!el.closest('.help-mode-dialog')) {
         this.endHelp();
       }
+    },
+    onProvenancePopupOpen: function (provenanceEntryData) {
+      EventBus.emit('provenance-popup-open', provenanceEntryData);
+    },
+    onProvenancePopupClose: function () {
+      EventBus.emit('provenance-popup-close');
     },
   },
   data: function () {

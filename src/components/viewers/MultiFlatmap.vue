@@ -399,12 +399,6 @@ export default {
       }
       return false;
     },
-    onProvenancePopupOpen: function (provenanceEntryData) {
-      EventBus.emit('provenance-popup-open', provenanceEntryData);
-    },
-    onProvenancePopupClose: function () {
-      EventBus.emit('provenance-popup-close');
-    },
   },
   computed: {
     facetSpecies() {
