@@ -26,6 +26,7 @@
           :activeId="activeDockedId"
           :open-at-start="startUp"
           :provenanceEntry="provenanceEntry"
+          @provenance-popup-close="onProvenancePopupClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
@@ -472,6 +473,9 @@ export default {
         'location': 'map_sidebar_gallery',
         'dataset_id': datasetId || ''
       });
+    },
+    onProvenancePopupClose: function () {
+      EventBus.emit('provenance-popup-close');
     },
   },
   created: function () {
