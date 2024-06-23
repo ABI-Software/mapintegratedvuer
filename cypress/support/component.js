@@ -35,3 +35,13 @@ Cypress.Commands.add('mount', (component, options = {}) => {
 
   return mount(component, options);
 });
+
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // we expect a flatmap-viewer error with message ''Graph.addNode'
+  // and don't want to fail the test so we return false
+  if (err.message.includes('Graph.addNode')) {
+    return false
+  }
+  // we still want to ensure there are no other unexpected
+  // errors, so we let them fail the test
+})
