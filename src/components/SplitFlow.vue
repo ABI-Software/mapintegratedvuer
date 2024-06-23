@@ -30,6 +30,8 @@
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
+          @anatomy-in-datasets="updateMarkers($event)"
+          @number-of-datasets-for-anatomies="updateScaffoldMarkers($event)"
           @hover-changed="hoverChanged($event)"
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
@@ -95,6 +97,7 @@ export default {
       startUp: true,
       search: '',
       activeDockedId : 1,
+      hoveredMarkerDelay: undefined,
       filterTriggered: false,
       availableFacets: [],
       provenanceEntry: null,
@@ -262,7 +265,14 @@ export default {
     hoverChanged: function (data) {
       const hoverEntries = data && data.anatomy ? data.anatomy : []
       this.settingsStore.updateHoveredMarkers(hoverEntries);
-      EventBus.emit("markerUpdate");
+      if (!hoverEntries.length) {
+        this.hoveredMarkerDelay = setTimeout(() => {
+          EventBus.emit("markerUpdate");
+        }, 500)
+      } else {
+        clearTimeout(this.hoveredMarkerDelay)
+        EventBus.emit("markerUpdate");
+      }
     },
     searchChanged: function (data) {
       if (data && data.type == "query-update") {
@@ -301,13 +311,13 @@ export default {
         }
         this.filterTriggered = false; // reset for next action
       }
-      if (data && data.type == "available-facets") {
-        this.settingsStore.updateFacetLabels(data.value.labels);
-        this.settingsStore.updateMarkers(data.value.uberons);
-        EventBus.emit("markerUpdate");
-
-        this.availableFacets = data.value.labels
-      }
+    },
+    updateMarkers: function (data) {
+      this.settingsStore.updateMarkers(data);
+      EventBus.emit("markerUpdate");
+    },
+    updateScaffoldMarkers: function (data) {
+      this.settingsStore.updateNumberOfDatasetsForFacets(data);
     },
     getNewEntryId: function() {
       if (this.entries.length) {

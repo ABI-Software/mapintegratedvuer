@@ -178,6 +178,9 @@ export default {
         }
       } else if (type == "Scaffold") {
         if (resource && resource[0]) {
+          if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
+            resource[0].data.id = resource[0].data?.group;
+          }
           result.internalName = resource[0].data.id;
           // Facet search if marker is clicked
           if (resource[0].data.lastActionOnMarker === true) {
@@ -271,6 +274,7 @@ export default {
       }
       return { id, name };
     },
+    // Get the species and andaotmy info for the featured datasets
     getDatasetAnatomyInfo: function (identifier) {
       fetch(`${this.apiLocation}dataset_info/anatomy?identifier=${identifier}`)
         .then(response => response.json())
@@ -303,7 +307,8 @@ export default {
           } catch (error) {
             markerSpecies = undefined;
           }
-          this.updateFeatureMarkers([markerCurie], undefined)
+          // can test the featured marker by uncommenting the line below:
+          // markerSpecies = "Rat"
           this.settingsStore.updateFeaturedMarker({
             identifier,
             marker: markerCurie,
@@ -415,7 +420,7 @@ export default {
           });
       }
     },
-    flatmapMarkerZoomUpdate() {
+    flatmapMarkerUpdate() {
       return;
     },
     onResize: function () {
