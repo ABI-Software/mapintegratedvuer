@@ -510,6 +510,7 @@ export default {
       }
     });
     EventBus.on('provenance-popup-close', payload => {
+      this.tabClicked(1);
       this.provenanceEntry = null;
     });
     EventBus.on("OpenNewMap", type => {
