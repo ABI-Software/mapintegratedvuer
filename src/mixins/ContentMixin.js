@@ -69,6 +69,8 @@ export default {
         EventBus.emit("OpenNewMap", type);
         this.trackOpenMap(`open_new_${type}_map`);
       }
+
+      this.onProvenancePopupClose();
     },
     trackOpenMap: function (category) {
       // GA Tagging

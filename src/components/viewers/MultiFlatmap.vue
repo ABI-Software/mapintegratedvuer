@@ -309,6 +309,7 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
+      this.onProvenancePopupClose();
 
       // GA Tagging
       // Event tracking for maps' species change
