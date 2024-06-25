@@ -4,10 +4,12 @@
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
-    "build-bundle": "vite build",
+    "heroku-postbuild": "vite build",
+    "build-bundle": "vite build -c vite.bundle-build.js",
+    "build-static": "vite build -c vite.static-build.js",
+    "start": "vite build && vite preview",
     "test-unit": "mochapack --webpack-config test/unit/webpack.config.js --require test/unit/setup.js test/unit/**/*.spec.js",
     "test": "vitest --dom",
-    "build-static": "vite build -c vite.static-build.js",
     "cypress": "cypress",
     "cypress-component": "cypress run --component",
     "report:merge": "mochawesome-merge cypress/results/json/*json > cypress/results/mochawesome-bundle.json",
@@ -65,11 +67,11 @@
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
     "vuex": "^4.1.0",
-    "xss": "^1.0.14"
+    "xss": "^1.0.14",
+    "@vitejs/plugin-vue": "^4.6.2"
   },
   "devDependencies": {
     "@cypress/webpack-dev-server": "^3.6.1",
-    "@vitejs/plugin-vue": "^4.6.2",
     "@vue/test-utils": "^2.4.4",
     "@vuese/markdown-render": "^2.11.3",
     "@vuese/parser": "^2.10.3",
@@ -130,5 +132,8 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "engines": {
+    "node": "18.17.1"
+  }
 }
