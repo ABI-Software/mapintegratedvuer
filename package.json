@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vite --host --force",
     "build-bundle": "vite build",
-    "heroku-postbuild": "npm run build-bundle",
+    "heroku-postbuild": "vite build",
+    "start": "vite preview",
     "test-unit": "mochapack --webpack-config test/unit/webpack.config.js --require test/unit/setup.js test/unit/**/*.spec.js",
     "test": "vitest --dom",
     "build-static": "vite build -c vite.static-build.js",
