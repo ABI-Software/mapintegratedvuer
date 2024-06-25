@@ -67,11 +67,11 @@
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
     "vuex": "^4.1.0",
-    "xss": "^1.0.14"
+    "xss": "^1.0.14",
+    "@vitejs/plugin-vue": "^4.6.2"
   },
   "devDependencies": {
     "@cypress/webpack-dev-server": "^3.6.1",
-    "@vitejs/plugin-vue": "^4.6.2",
     "@vue/test-utils": "^2.4.4",
     "@vuese/markdown-render": "^2.11.3",
     "@vuese/parser": "^2.10.3",
