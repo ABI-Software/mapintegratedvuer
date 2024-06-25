@@ -4,36 +4,13 @@ import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 
 
-/*
-* Function to check markers visibility at the given zoom level.
-* I have modified it to make sure the marker is displayed
-* if the uberon is not present in the hardcoded zoom-level list.
-*/
-const checkMarkersAtZoomLevel = (flatmapImp, markers, zoomLevel, hoveredMarkers) => {
-  if (markers) {
-    markers.forEach(id => {
-      let foundInArray = false;
-      // First check if uberon is in the list, check for zoom level
-      // if true. Note: markerZoomLevels is imported.
-      for (let i = 0; i < markerZoomLevels.length; i++) {
-        if (markerZoomLevels[i].id === id) {
-          foundInArray = true;
-          if (zoomLevel >= markerZoomLevels[i].showAtZoom) {
-            let markerClass = "standard-marker"
-            if (hoveredMarkers.includes(id)) markerClass = "hovered-marker"
-            flatmapImp.addMarker(id, { className: markerClass, cluster: false});
-          }
-          break;
-        }
-      }
-      // Did not match, add it regardless so we do not lose any
-      // markers.
-      if (!foundInArray) {
-        flatmapImp.addMarker(id, {className: "standard-marker", cluster: false});
-      }
-    });
-  }
-};
+// remove duplicates by stringifying the objects
+const removeDuplicates = function (arrayOfAnything) {
+  if (!arrayOfAnything) return []
+  return [...new Set(arrayOfAnything.map((e) => JSON.stringify(e)))].map((e) =>
+    JSON.parse(e)
+  )
+}
   
 /* eslint-disable no-alert, no-console */
 export default {
@@ -49,16 +26,14 @@ export default {
           payload: payload,
           type: this.entry.type,
         };
-        this.flatmapMarkerZoomUpdate(false, undefined);
         this.$emit("resource-selected", result);
       }
     },
         /**
      * Function used for updating the flatmap markers.
-     * It will only update the markers if zoom level has changed or
-     * the force flag is true.
+     * We set the markers based on what was searched and the flatmap clusters them.
      */
-    flatmapMarkerZoomUpdate(force, flatmap) {
+    flatmapMarkerUpdate(flatmap) {
       if (!this.flatmapReady) return;
 
       let flatmapImp = flatmap;
@@ -66,25 +41,64 @@ export default {
         flatmapImp = this.getFlatmapImp();
 
       if (flatmapImp) {
-        let currentZoom = flatmapImp.getZoom()["zoom"];
-        if (force || this.zoomLevel !== currentZoom) {
-          this.zoomLevel = currentZoom;
-          flatmapImp.clearMarkers();
-          let markers = this.settingsStore.markers;
-          let hoveredMarkers = this.settingsStore.hoveredMarkers;
-          checkMarkersAtZoomLevel(flatmapImp, markers, this.zoomLevel, hoveredMarkers);
-          if (this.entry.type === "MultiFlatmap") {
-            this.restoreFeaturedMarkers(flatmapImp);
-          }
+        // Set the dataset markers
+        let markers = this.settingsStore.markers;
+        markers = removeDuplicates(markers);
+        let fmMarkers = this.removeMarkersNotOnFlatmap(flatmapImp, markers);
+        flatmapImp.clearMarkers();
+        flatmapImp.clearDatasetMarkers();
+        flatmapImp.addDatasetMarkers(fmMarkers);
+      
+        // Set the hovered markers
+        let hoveredMarkers = this.settingsStore.hoveredMarkers
+        let previousHoveredMarkers = this.settingsStore.previousHoveredMarkers
+        hoveredMarkers.forEach(id => {
+          let markerClass = "standard-marker" + " hovered" // Space-separated CSS class names
+          let markerCluster = false // Disable cluster when related dataset is hovered
+          flatmapImp.addMarker(id, { className: markerClass, cluster: markerCluster })
+        })
+        if (previousHoveredMarkers !== null && previousHoveredMarkers.length >= 0) {
+          previousHoveredMarkers.forEach(id => {
+            let markerClass = "standard-marker"
+            let markerCluster = true
+            flatmapImp.addMarker(id, { className: markerClass, cluster: markerCluster })
+          })
+        } 
+
+        // Set the featured markers
+        if (this.entry.type === "MultiFlatmap") {
+          this.restoreFeaturedMarkers(flatmapImp);
         }
       }
+    },
+    // removeMarkersNotOnFlatmap: rewrites the dataset marker list to only include markers that are on the flatmap
+    removeMarkersNotOnFlatmap(flatmapImp, datasets) {
+
+      // dataset markers are in the form [{id: "discoverId", terms: ["term1", "term2"]}, {id:....}]
+      let fma = flatmapImp.anatomicalIdentifiers;
+      let markersOnFlatmap = []
+
+      // the block below steps through each dataset and checks each term to see if it is in the flatmap
+      for (let i = 0; i < datasets.length; i++) {
+        let dataset = datasets[i];
+        let datasetAdjusted = {id: dataset.id, terms: []};
+        for (let j = 0; j < dataset.terms.length; j++) {
+          if (fma.includes(dataset.terms[j])) {
+            datasetAdjusted.terms.push(dataset.terms[j]);
+
+            
+          }
+        }
+        markersOnFlatmap.push(datasetAdjusted);
+      }
+      return markersOnFlatmap;
     },
     flatmapReadyForMarkerUpdates: function (flatmap) {
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
-        this.flatmapMarkerZoomUpdate(true, flatmapImp);
+        this.flatmapMarkerUpdate(flatmapImp);
       }
     },
   }

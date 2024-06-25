@@ -158,7 +158,6 @@ export default {
           payload: payload,
           type: this.entry.type,
         };
-        this.flatmapMarkerZoomUpdate(false, undefined);
         this.$emit("resource-selected", result);
       }
     },
@@ -248,7 +247,6 @@ export default {
           this.$refs.multiflatmap
             .getCurrentFlatmap()
             .mapImp.panZoomTo(origin, [sW, sH]);
-          this.flatmapMarkerZoomUpdate(false, undefined);
         }
       }
     },
@@ -325,7 +323,7 @@ export default {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
-        this.flatmapMarkerZoomUpdate(true, flatmapImp);
+        this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
       }
     },
@@ -347,11 +345,13 @@ export default {
       EventBus.emit("PopoverActionClick", returnedAction);
     },
     restoreFeaturedMarkers: function (flatmap) {
+
       this.settingsStore.resetFeaturedMarkerIdentifier();
       const markers = this.settingsStore.featuredMarkers;
-      this.updateFeatureMarkers(markers, flatmap);
+      this.updateFeaturedMarkers(markers, flatmap);
     },
-    updateFeatureMarkers: function (markers, flatmap) {
+    // updateFeaturedMarkers will step through the featured markers and add them to the map
+    updateFeaturedMarkers: function (markers, flatmap) {
       this.showStarInLegend = false; // will show if we have a featured marker
       for (let index = 0; index < markers.length; ++index) {
         if (markers[index]) {
@@ -367,6 +367,7 @@ export default {
         }
       }
     },
+    // addFeaturedMarker: add a featured marker to the map at the specified uberon location
     addFeaturedMarker: function (marker, index, flatmap) {
       const markerSpecies =
         this.settingsStore.featuredMarkerSpecies[index];
@@ -418,7 +419,7 @@ export default {
         return;
       }
 
-      this.updateFeatureMarkers(markers, undefined);
+      this.updateFeaturedMarkers(markers, undefined);
     },
   },
   mounted: function () {
@@ -426,7 +427,9 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerZoomUpdate(true, undefined);
+      if (this.flatmapReady) {
+        this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
+      }
     });
   },
 };
@@ -449,6 +452,12 @@ export default {
     cursor: pointer !important;
     z-index: 2;
   }
+  &.hovered {
+    div {
+      scale: 2;
+      transform: translate(0px, -5px);
+    }
+  }
   &.highlight-marker {
     visibility: visible !important;
     cursor: pointer !important;
@@ -456,14 +465,6 @@ export default {
     div {
       scale: 0.5;
       transform: translate(45px, -7px);
-    }
-  }
-  &.hovered-marker {
-    cursor: pointer !important;
-    z-index: 2;
-    div {
-      scale: 2;
-      transform: translate(0px, -5px);
     }
   }
 }
