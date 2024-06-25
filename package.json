@@ -132,5 +132,8 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "engines": {
+    "node": "18.17.1"
+  }
 }
