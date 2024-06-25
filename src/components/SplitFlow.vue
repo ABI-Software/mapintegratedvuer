@@ -487,6 +487,13 @@ export default {
     onProvenancePopupClose: function () {
       EventBus.emit('provenance-popup-close');
     },
+    resetActivePathways: function () {
+      const containerEl = this.$el;
+      const activeCanvas = containerEl.querySelector('.maplibregl-canvas');
+      if (activeCanvas) {
+        activeCanvas.click();
+      }
+    },
   },
   created: function () {
     this._facets = [];
@@ -512,6 +519,7 @@ export default {
     EventBus.on('provenance-popup-close', payload => {
       this.tabClicked(1);
       this.provenanceEntry = null;
+      this.resetActivePathways();
     });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
