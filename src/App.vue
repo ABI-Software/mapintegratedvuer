@@ -39,6 +39,7 @@
         :state="state"
         :shareLink="shareLink"
         :useHelpModeDialog="true"
+        :provenanceSidebar="true"
         @updateShareLinkRequested="updateUUID"
         @isReady="mapIsReady"
       />

@@ -14,6 +14,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @provenance-popup-open="onProvenancePopupOpen"
+      @provenance-popup-close="onProvenancePopupClose"
+      :provenanceSidebar="provenanceSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
       :showStarInLegend="showStarInLegend"
@@ -306,6 +309,7 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
+      this.onProvenancePopupClose();
 
       // GA Tagging
       // Event tracking for maps' species change
@@ -441,7 +445,7 @@ export default {
 }
 
 :deep(.maplibregl-popup) {
-  z-index: 3;
+  z-index: 11;
 }
 
 :deep(.maplibregl-marker) {

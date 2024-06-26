@@ -15,6 +15,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @provenance-popup-open="onProvenancePopupOpen"
+      @provenance-popup-close="onProvenancePopupClose"
+      :provenanceSidebar="provenanceSidebar"
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
@@ -176,7 +179,7 @@ export default {
 }
 
 :deep(.maplibregl-popup) {
-  z-index: 3;
+  z-index: 11;
 }
 
 :deep(.flatmapvuer-popover) {

@@ -83,6 +83,13 @@ export default {
       type: Boolean,
       default: false,
     },
+    /**
+     * The option to show provenance info in sidebar.
+     */
+    provenanceSidebar: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -319,6 +326,7 @@ export default {
     }
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
+    this.settingsStore.updateProvenanceSidebar(this.provenanceSidebar);
   }
 }
 

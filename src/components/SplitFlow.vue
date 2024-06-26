@@ -25,6 +25,8 @@
           :class="['side-bar', { 'start-up': startUp }]"
           :activeId="activeDockedId"
           :open-at-start="startUp"
+          :provenanceEntry="provenanceEntry"
+          @provenance-popup-close="onProvenancePopupClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
@@ -98,6 +100,7 @@ export default {
       hoveredMarkerDelay: undefined,
       filterTriggered: false,
       availableFacets: [],
+      provenanceEntry: null,
     }
   },
   watch: {
@@ -139,6 +142,7 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
+            this.closeProvenancePopup();
             this.$refs.sideBar.addFilter(action);
             const { facet } = action;
             // GA Tagging
@@ -174,6 +178,7 @@ export default {
             }))
           );
           if (this.$refs.sideBar) {
+            this.closeProvenancePopup();
             this.$refs.sideBar.openSearch(facets, "");
 
             const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
@@ -383,9 +388,17 @@ export default {
       this.search = query;
       this._facets = facets;
       if (this.$refs && this.$refs.sideBar) {
+        this.closeProvenancePopup();
         this.$refs.sideBar.openSearch(facets, query);
       }
       this.startUp = false;
+    },
+    closeProvenancePopup: function() {
+      // close all opened popups on DOM
+      const containerEl = this.$el;
+      containerEl.querySelectorAll('.maplibregl-popup-close-button').forEach((el) => {
+        el.click();
+      });
     },
     onFullscreen: function (val) {
       this.$emit("onFullscreen", val);
@@ -471,6 +484,16 @@ export default {
         'dataset_id': datasetId || ''
       });
     },
+    onProvenancePopupClose: function () {
+      EventBus.emit('provenance-popup-close');
+    },
+    resetActivePathways: function () {
+      const containerEl = this.$el;
+      const activeCanvas = containerEl.querySelector('.maplibregl-canvas');
+      if (activeCanvas) {
+        activeCanvas.click();
+      }
+    },
   },
   created: function () {
     this._facets = [];
@@ -485,6 +508,18 @@ export default {
     });
     EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);
+    });
+    EventBus.on('provenance-popup-open', payload => {
+      this.provenanceEntry = payload;
+      if (this.$refs.sideBar) {
+        this.tabClicked(2); // TODO: to rename IDs to be meaningful
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    });
+    EventBus.on('provenance-popup-close', payload => {
+      this.tabClicked(1);
+      this.provenanceEntry = null;
+      this.resetActivePathways();
     });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
