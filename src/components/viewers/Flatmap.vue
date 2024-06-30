@@ -17,7 +17,7 @@
       @shown-map-tooltip="onMapTooltipShown"
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-info-close="onConnectivityInfoClose"
-      :provenanceSidebar="provenanceSidebar"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
