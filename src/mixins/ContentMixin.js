@@ -41,6 +41,9 @@ export default {
     useHelpModeDialog() {
       return this.settingsStore.useHelpModeDialog;
     },
+    connectivityInfoSidebar() {
+      return this.settingsStore.connectivityInfoSidebar;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
@@ -66,6 +69,8 @@ export default {
         EventBus.emit("OpenNewMap", type);
         this.trackOpenMap(`open_new_${type}_map`);
       }
+
+      this.onConnectivityInfoClose();
     },
     trackOpenMap: function (category) {
       // GA Tagging
@@ -485,6 +490,12 @@ export default {
       if (!el.closest('.help-mode-dialog')) {
         this.endHelp();
       }
+    },
+    onConnectivityInfoOpen: function (connectivityInfoData) {
+      EventBus.emit('connectivity-info-open', connectivityInfoData);
+    },
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
     },
   },
   data: function () {

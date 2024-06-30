@@ -14,6 +14,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @connectivity-info-open="onConnectivityInfoOpen"
+      @connectivity-info-close="onConnectivityInfoClose"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
       :showStarInLegend="showStarInLegend"
@@ -306,6 +309,7 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
+      this.onConnectivityInfoClose();
 
       // GA Tagging
       // Event tracking for maps' species change
@@ -441,7 +445,7 @@ export default {
 }
 
 :deep(.maplibregl-popup) {
-  z-index: 3;
+  z-index: 11;
 }
 
 :deep(.maplibregl-marker) {
