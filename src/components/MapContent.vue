@@ -84,9 +84,9 @@ export default {
       default: false,
     },
     /**
-     * The option to show provenance info in sidebar.
+     * The option to show connectivity info in sidebar.
      */
-    provenanceSidebar: {
+    connectivityInfoSidebar: {
       type: Boolean,
       default: false,
     },
@@ -326,7 +326,7 @@ export default {
     }
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
-    this.settingsStore.updateProvenanceSidebar(this.provenanceSidebar);
+    this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
   }
 }
 

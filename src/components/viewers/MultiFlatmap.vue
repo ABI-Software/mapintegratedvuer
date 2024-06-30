@@ -14,9 +14,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
-      @provenance-popup-open="onProvenancePopupOpen"
-      @provenance-popup-close="onProvenancePopupClose"
-      :provenanceSidebar="provenanceSidebar"
+      @connectivity-info-open="onConnectivityInfoOpen"
+      @connectivity-info-close="onConnectivityInfoClose"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
       :showStarInLegend="showStarInLegend"
@@ -309,7 +309,7 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
-      this.onProvenancePopupClose();
+      this.onConnectivityInfoClose();
 
       // GA Tagging
       // Event tracking for maps' species change
