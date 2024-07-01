@@ -25,8 +25,8 @@
           :class="['side-bar', { 'start-up': startUp }]"
           :activeId="activeDockedId"
           :open-at-start="startUp"
-          :provenanceEntry="provenanceEntry"
-          @provenance-popup-close="onProvenancePopupClose"
+          :connectivityInfo="connectivityInfo"
+          @connectivity-info-close="onConnectivityInfoClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
@@ -100,7 +100,7 @@ export default {
       hoveredMarkerDelay: undefined,
       filterTriggered: false,
       availableFacets: [],
-      provenanceEntry: null,
+      connectivityInfo: null,
     }
   },
   watch: {
@@ -142,7 +142,7 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
-            this.closeProvenancePopup();
+            this.closeConnectivityInfo();
             this.$refs.sideBar.addFilter(action);
             const { facet } = action;
             // GA Tagging
@@ -178,7 +178,7 @@ export default {
             }))
           );
           if (this.$refs.sideBar) {
-            this.closeProvenancePopup();
+            this.closeConnectivityInfo();
             this.$refs.sideBar.openSearch(facets, "");
 
             const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
@@ -388,12 +388,12 @@ export default {
       this.search = query;
       this._facets = facets;
       if (this.$refs && this.$refs.sideBar) {
-        this.closeProvenancePopup();
+        this.closeConnectivityInfo();
         this.$refs.sideBar.openSearch(facets, query);
       }
       this.startUp = false;
     },
-    closeProvenancePopup: function() {
+    closeConnectivityInfo: function() {
       // close all opened popups on DOM
       const containerEl = this.$el;
       containerEl.querySelectorAll('.maplibregl-popup-close-button').forEach((el) => {
@@ -484,8 +484,8 @@ export default {
         'dataset_id': datasetId || ''
       });
     },
-    onProvenancePopupClose: function () {
-      EventBus.emit('provenance-popup-close');
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
     },
     resetActivePathways: function () {
       const containerEl = this.$el;
@@ -509,16 +509,16 @@ export default {
     EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);
     });
-    EventBus.on('provenance-popup-open', payload => {
-      this.provenanceEntry = payload;
+    EventBus.on('connectivity-info-open', payload => {
+      this.connectivityInfo = payload;
       if (this.$refs.sideBar) {
         this.tabClicked(2); // TODO: to rename IDs to be meaningful
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on('provenance-popup-close', payload => {
+    EventBus.on('connectivity-info-close', payload => {
       this.tabClicked(1);
-      this.provenanceEntry = null;
+      this.connectivityInfo = null;
       this.resetActivePathways();
     });
     EventBus.on("OpenNewMap", type => {

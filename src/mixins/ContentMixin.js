@@ -41,8 +41,8 @@ export default {
     useHelpModeDialog() {
       return this.settingsStore.useHelpModeDialog;
     },
-    provenanceSidebar() {
-      return this.settingsStore.provenanceSidebar;
+    connectivityInfoSidebar() {
+      return this.settingsStore.connectivityInfoSidebar;
     },
   },
   mounted: function () {
@@ -70,7 +70,7 @@ export default {
         this.trackOpenMap(`open_new_${type}_map`);
       }
 
-      this.onProvenancePopupClose();
+      this.onConnectivityInfoClose();
     },
     trackOpenMap: function (category) {
       // GA Tagging
@@ -491,11 +491,11 @@ export default {
         this.endHelp();
       }
     },
-    onProvenancePopupOpen: function (provenanceEntryData) {
-      EventBus.emit('provenance-popup-open', provenanceEntryData);
+    onConnectivityInfoOpen: function (connectivityInfoData) {
+      EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
-    onProvenancePopupClose: function () {
-      EventBus.emit('provenance-popup-close');
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
     },
   },
   data: function () {
