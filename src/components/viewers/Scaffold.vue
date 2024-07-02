@@ -44,10 +44,12 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from "../EventBus";
-import { ScaffoldVuer, HelpModeDialog } from "@abi-software/scaffoldvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 
+import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
 import "@abi-software/scaffoldvuer/dist/style.css";
+import { HelpModeDialog } from '@abi-software/map-utilities'
+import '@abi-software/map-utilities/dist/style.css'
 
 export default {
   name: "Scaffold",
