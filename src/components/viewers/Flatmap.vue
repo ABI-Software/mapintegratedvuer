@@ -43,13 +43,16 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { FlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
 import Tagging from '../../services/tagging.js';
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 import { transformObjToString } from '../scripts/utilities';
+
+import { FlatmapVuer } from "@abi-software/flatmapvuer";
 import "@abi-software/flatmapvuer/dist/style.css";
+import { HelpModeDialog } from '@abi-software/map-utilities'
+import '@abi-software/map-utilities/dist/style.css'
 
 export default {
   name: "Flatmap",

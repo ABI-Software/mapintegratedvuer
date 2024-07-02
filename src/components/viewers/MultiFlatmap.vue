@@ -45,7 +45,6 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Tagging from '../../services/tagging.js';
-import { MultiFlatmapVuer, HelpModeDialog } from "@abi-software/flatmapvuer";
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
@@ -55,8 +54,12 @@ import {
 } from "../scripts/utilities";
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
-import "@abi-software/flatmapvuer/dist/style.css";
 import YellowStar from "../../icons/yellowstar";
+  
+import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
+import "@abi-software/flatmapvuer/dist/style.css";
+import { HelpModeDialog } from '@abi-software/map-utilities'
+import '@abi-software/map-utilities/dist/style.css'
 
 const getOpenMapOptions = (species) => {
   const options = [

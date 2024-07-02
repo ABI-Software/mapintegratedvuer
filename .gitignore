@@ -13,3 +13,4 @@ test/src/
 docs/.vitepress/dist
 docs/.vitepress/cache
 docs/components
+.vitepress
