@@ -452,12 +452,6 @@ export default {
     cursor: pointer !important;
     z-index: 2;
   }
-  &.hovered {
-    div {
-      scale: 2;
-      transform: translate(0px, -5px);
-    }
-  }
   &.highlight-marker {
     visibility: visible !important;
     cursor: pointer !important;

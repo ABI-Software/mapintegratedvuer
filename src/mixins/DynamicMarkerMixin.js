@@ -48,22 +48,6 @@ export default {
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
         flatmapImp.addDatasetMarkers(fmMarkers);
-      
-        // Set the hovered markers
-        let hoveredMarkers = this.settingsStore.hoveredMarkers
-        let previousHoveredMarkers = this.settingsStore.previousHoveredMarkers
-        hoveredMarkers.forEach(id => {
-          let markerClass = "standard-marker" + " hovered" // Space-separated CSS class names
-          let markerCluster = false // Disable cluster when related dataset is hovered
-          flatmapImp.addMarker(id, { className: markerClass, cluster: markerCluster })
-        })
-        if (previousHoveredMarkers !== null && previousHoveredMarkers.length >= 0) {
-          previousHoveredMarkers.forEach(id => {
-            let markerClass = "standard-marker"
-            let markerCluster = true
-            flatmapImp.addMarker(id, { className: markerClass, cluster: markerCluster })
-          })
-        } 
 
         // Set the featured markers
         if (this.entry.type === "MultiFlatmap") {
