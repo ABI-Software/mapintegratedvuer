@@ -258,7 +258,8 @@ export default {
     },
     hoverChanged: function (data) {
       const hoverEntries = data && data.anatomy ? data.anatomy : []
-      this.settingsStore.updateHoveredMarkers(hoverEntries);
+      this.settingsStore.updateHoverFeatures(hoverEntries);
+      EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {
       if (data && data.type == "query-update") {

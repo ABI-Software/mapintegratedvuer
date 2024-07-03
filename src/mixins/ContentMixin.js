@@ -486,6 +486,18 @@ export default {
         this.endHelp();
       }
     },
+    flatmapHoverUpdate: function () {
+      const cFlatmap = this.multiflatmapRef.getCurrentFlatmap().mapImp;
+      const hoverFeatures = this.settingsStore.hoverFeatures
+      if (hoverFeatures.length) {
+        clearTimeout(this.hoverDelay)
+        cFlatmap.zoomToFeatures(hoverFeatures, { noZoomIn: true })
+      } else {
+        this.hoverDelay = setTimeout(() => {
+          cFlatmap.clearSearchResults();
+        }, 500)
+      }
+    }
   },
   data: function () {
     return {
@@ -506,6 +518,7 @@ export default {
       idNamePair: {},
       scaffoldLoaded: false,
       isInHelp: false,
+      hoverDelay: undefined
     };
   },
   created: function () {

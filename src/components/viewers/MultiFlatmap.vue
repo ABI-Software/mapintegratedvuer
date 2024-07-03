@@ -431,6 +431,11 @@ export default {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
       }
     });
+    EventBus.on("hoverUpdate", () => {
+      if (this.flatmapReady) {
+        this.flatmapHoverUpdate();
+      }
+    });
   },
 };
 </script>
