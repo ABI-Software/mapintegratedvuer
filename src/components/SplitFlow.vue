@@ -23,7 +23,7 @@
           :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
-          :activeId="activeDockedId"
+          :activeTabId="activeDockedId"
           :open-at-start="startUp"
           :connectivityInfo="connectivityInfo"
           @connectivity-info-close="onConnectivityInfoClose"
@@ -443,7 +443,7 @@ export default {
         this.$refs.splitdialog.sendSynchronisedEvent(result);
       }
     },
-    tabClicked: function (id) {
+    tabClicked: function ({id, type}) {
       this.activeDockedId = id;
     },
     toggleSyncMode: function (payload) {
@@ -512,12 +512,12 @@ export default {
     EventBus.on('connectivity-info-open', payload => {
       this.connectivityInfo = payload;
       if (this.$refs.sideBar) {
-        this.tabClicked(2); // TODO: to rename IDs to be meaningful
+        this.tabClicked({id: 2, type: 'connectivity'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
     EventBus.on('connectivity-info-close', payload => {
-      this.tabClicked(1);
+      this.tabClicked({id: 1, type: 'search'});
       this.connectivityInfo = null;
       this.resetActivePathways();
     });
