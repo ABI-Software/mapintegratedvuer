@@ -50,15 +50,16 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/map-utilities": "^0.0.0-beta.4",
     "@abi-software/flatmapvuer": "^1.2.0",
-    "@abi-software/map-side-bar": "^2.2.1-alpha-3",
+    "@abi-software/map-side-bar": "^2.2.1-beta.3",
+    "@abi-software/map-utilities": "^0.0.0-beta.4",
     "@abi-software/plotvuer": "1.0.0",
     "@abi-software/scaffoldvuer": "^1.2.1",
     "@abi-software/simulationvuer": "1.0.0",
     "@abi-software/svg-sprite": "1.0.0",
     "@element-plus/icons-vue": "^2.3.1",
     "@pinia/testing": "^0.1.3",
+    "@vitejs/plugin-vue": "^4.6.2",
     "css-element-queries": "^1.2.3",
     "element-plus": "^2.4.4",
     "marked": "^4.3.0",
@@ -68,8 +69,7 @@
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
     "vuex": "^4.1.0",
-    "xss": "^1.0.14",
-    "@vitejs/plugin-vue": "^4.6.2"
+    "xss": "^1.0.14"
   },
   "devDependencies": {
     "@cypress/webpack-dev-server": "^3.6.1",
