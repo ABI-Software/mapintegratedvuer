@@ -486,15 +486,23 @@ export default {
         this.endHelp();
       }
     },
-    flatmapHoverUpdate: function () {
-      const cFlatmap = this.multiflatmapRef.getCurrentFlatmap().mapImp;
-      const hoverFeatures = this.settingsStore.hoverFeatures
-      if (hoverFeatures.length) {
+    mapHoverHighlight: function (mapImp) {
+      const hoverAnatomies = this.settingsStore.hoverAnatomies
+      const hoverOrgans = this.settingsStore.hoverOrgans
+      if (hoverAnatomies.length || hoverOrgans.length) {
         clearTimeout(this.hoverDelay)
-        cFlatmap.zoomToFeatures(hoverFeatures, { noZoomIn: true })
+        if (this.multiflatmapRef || this.flatmapRef) {
+          mapImp.zoomToFeatures(hoverAnatomies, { noZoomIn: true })
+        } else if (this.scaffoldRef) {
+          mapImp.changeHighlightedByName(hoverOrgans, "", false)
+        }
       } else {
         this.hoverDelay = setTimeout(() => {
-          cFlatmap.clearSearchResults();
+          if (this.multiflatmapRef || this.flatmapRef) {
+            mapImp.clearSearchResults();
+          } else if (this.scaffoldRef) {
+            mapImp.changeHighlightedByName(hoverOrgans, "", false);
+          }
         }, 500)
       }
     }

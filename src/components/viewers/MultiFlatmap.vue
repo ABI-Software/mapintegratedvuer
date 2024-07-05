@@ -433,7 +433,7 @@ export default {
     });
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
-        this.flatmapHoverUpdate();
+        this.mapHoverHighlight(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
       }
     });
   },

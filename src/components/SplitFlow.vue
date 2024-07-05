@@ -257,8 +257,9 @@ export default {
       payload.data.cb(suggestions);
     },
     hoverChanged: function (data) {
-      const hoverEntries = data && data.anatomy ? data.anatomy : []
-      this.settingsStore.updateHoverFeatures(hoverEntries);
+      const hoverAnatomies = data && data.anatomy ? data.anatomy : []
+      const hoverOrgans = data && data.organs ? data.organs : []
+      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans);
       EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {

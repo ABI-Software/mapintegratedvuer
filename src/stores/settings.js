@@ -17,7 +17,8 @@ export const useSettingsStore = defineStore('settings', {
       facets: { species: [], gender: [], organ: [] },
       numberOfDatasetsForFacets: [],
       markers: [],
-      hoverFeatures: [],
+      hoverAnatomies: [],
+      hoverOrgans: [],
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
@@ -69,8 +70,9 @@ export const useSettingsStore = defineStore('settings', {
     updateMarkers(markers) {
       this.markers = markers;
     },
-    updateHoverFeatures(features) {
-      this.hoverFeatures = features;
+    updateHoverFeatures(anatomies, organs) {
+      this.hoverAnatomies = anatomies;
+      this.hoverOrgans = organs;
     },
     updateFeatured(datasetIdentifiers) {
       this.featuredMarkerIdentifiers = new Array(datasetIdentifiers.length);
