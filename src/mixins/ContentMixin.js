@@ -492,16 +492,16 @@ export default {
       if (hoverAnatomies.length || hoverOrgans.length) {
         clearTimeout(this.hoverDelay)
         if (this.multiflatmapRef || this.flatmapRef) {
-          mapImp.zoomToFeatures(hoverAnatomies, { noZoomIn: true })
+          mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true })
         } else if (this.scaffoldRef) {
-          mapImp.changeHighlightedByName(hoverOrgans, "", false)
+          mapImp?.changeHighlightedByName(hoverOrgans, "", false)
         }
       } else {
         this.hoverDelay = setTimeout(() => {
           if (this.multiflatmapRef || this.flatmapRef) {
-            mapImp.clearSearchResults();
+            mapImp?.clearSearchResults();
           } else if (this.scaffoldRef) {
-            mapImp.changeHighlightedByName(hoverOrgans, "", false);
+            mapImp?.changeHighlightedByName(hoverOrgans, "", false);
           }
         }, 500)
       }
