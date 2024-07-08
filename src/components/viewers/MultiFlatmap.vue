@@ -431,10 +431,14 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.on('show-connectivity', (payload) => {
+      const { featureIds, offset } = payload;
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (currentFlatmap) {
-          currentFlatmap.moveMap(payload);
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -200 : 0,
+            zoom: 4,
+          });
         }
       }
     });

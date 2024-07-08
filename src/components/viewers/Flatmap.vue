@@ -172,9 +172,13 @@ export default {
     });
 
     EventBus.on('show-connectivity', (payload) => {
+      const { featureIds, offset } = payload;
       const currentFlatmap = this.$refs.flatmap;
       if (currentFlatmap) {
-        currentFlatmap.moveMap(payload);
+        currentFlatmap.moveMap(featureIds, {
+          offsetX: offset ? -200 : 0,
+          zoom: 4,
+        });
       }
     });
   },

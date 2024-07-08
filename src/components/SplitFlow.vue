@@ -269,7 +269,13 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      EventBus.emit('show-connectivity', featureIds);
+      const splitFlowState = this.splitFlowStore.getState();
+      const activeView = splitFlowState?.activeView || '';
+      // offset sidebar only on singlepanel and 2horpanel views
+      EventBus.emit('show-connectivity', {
+        featureIds: featureIds,
+        offset: activeView === 'singlepanel' || activeView === '2horpanel'
+      });
     },
     hoverChanged: function (data) {
       const hoverEntries = data && data.anatomy ? data.anatomy : []
