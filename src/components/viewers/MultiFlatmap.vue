@@ -55,7 +55,7 @@ import {
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
 import YellowStar from "../../icons/yellowstar";
-  
+
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
 import "@abi-software/flatmapvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
@@ -429,6 +429,15 @@ export default {
   mounted: function () {
     this.getAvailableTerms();
     this.getFeaturedDatasets();
+
+    EventBus.on('show-connectivity', (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.moveMap(payload);
+        }
+      }
+    });
 
     EventBus.on("markerUpdate", () => {
       if (this.flatmapReady) {

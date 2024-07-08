@@ -35,6 +35,7 @@
           @hover-changed="hoverChanged($event)"
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
+          @show-connectivity="onShowConnectivity"
         />
         <SplitDialog
           :entries="entries"
@@ -261,6 +262,14 @@ export default {
         suggestions.push({"value": "\"" + item +"\""});
       }
       payload.data.cb(suggestions);
+    },
+    /**
+     * This event is emitted when the show connectivity button in sidebar is clicked.
+     * This will move the map to the highlighted connectivity area.
+     * @arg featureIds
+     */
+    onShowConnectivity: function (featureIds) {
+      EventBus.emit('show-connectivity', featureIds);
     },
     hoverChanged: function (data) {
       const hoverEntries = data && data.anatomy ? data.anatomy : []

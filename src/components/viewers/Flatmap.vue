@@ -170,6 +170,13 @@ export default {
     EventBus.on("markerUpdate", () => {
       this.flatmapMarkerUpdate(undefined);
     });
+
+    EventBus.on('show-connectivity', (payload) => {
+      const currentFlatmap = this.$refs.flatmap;
+      if (currentFlatmap) {
+        currentFlatmap.moveMap(payload);
+      }
+    });
   },
 };
 </script>
