@@ -176,7 +176,7 @@ export default {
       const currentFlatmap = this.$refs.flatmap;
       if (currentFlatmap) {
         currentFlatmap.moveMap(featureIds, {
-          offsetX: offset ? -200 : 0,
+          offsetX: offset ? -150 : 0,
           zoom: 4,
         });
       }
