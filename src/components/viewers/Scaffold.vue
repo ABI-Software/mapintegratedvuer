@@ -209,6 +209,11 @@ export default {
     EventBus.on("startHelp", () => {
       this.startHelp();
     });
+    EventBus.on("hoverUpdate", () => {
+      if (this.scaffoldLoaded) {
+        this.mapHoverHighlight(this.$refs.scaffold);
+      }
+    });
   },
 };
 </script>

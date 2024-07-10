@@ -35,7 +35,7 @@ describe('MapContent', () => {
     //cy.intercept('GET', 'https://mapcore-demo.org/current/flatmap/v2/**');
 
     cy.mount(MapContent, {
-      propsData: {
+      props: {
         options: {
           sparcApi: "https://mock-test/sparc-api/",
           flatmapAPI: "https://mapcore-demo.org/current/flatmap/v3/",

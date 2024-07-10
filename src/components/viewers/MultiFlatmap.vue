@@ -431,6 +431,11 @@ export default {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
       }
     });
+    EventBus.on("hoverUpdate", () => {
+      if (this.flatmapReady) {
+        this.mapHoverHighlight(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
+      }
+    });
   },
 };
 </script>
@@ -451,12 +456,6 @@ export default {
   &.standard-marker {
     cursor: pointer !important;
     z-index: 2;
-  }
-  &.hovered {
-    div {
-      scale: 2;
-      transform: translate(0px, -5px);
-    }
   }
   &.highlight-marker {
     visibility: visible !important;
