@@ -15,6 +15,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @connectivity-info-open="onConnectivityInfoOpen"
+      @connectivity-info-close="onConnectivityInfoClose"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
@@ -170,6 +173,16 @@ export default {
     EventBus.on("hoverUpdate", () => {
       this.mapHoverHighlight(this.$refs.flatmap.mapImp);
     });
+    EventBus.on('show-connectivity', (payload) => {
+      const { featureIds, offset } = payload;
+      const currentFlatmap = this.$refs.flatmap;
+      if (currentFlatmap) {
+        currentFlatmap.moveMap(featureIds, {
+          offsetX: offset ? -150 : 0,
+          zoom: 4,
+        });
+      }
+    });
   },
 };
 </script>
@@ -182,7 +195,7 @@ export default {
 }
 
 :deep(.maplibregl-popup) {
-  z-index: 3;
+  z-index: 11;
 }
 
 :deep(.flatmapvuer-popover) {

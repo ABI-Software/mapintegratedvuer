@@ -14,6 +14,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @connectivity-info-open="onConnectivityInfoOpen"
+      @connectivity-info-close="onConnectivityInfoClose"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
       :showStarInLegend="showStarInLegend"
@@ -52,7 +55,7 @@ import {
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
 import YellowStar from "../../icons/yellowstar";
-  
+
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
 import "@abi-software/flatmapvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
@@ -309,6 +312,7 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
+      this.onConnectivityInfoClose();
 
       // GA Tagging
       // Event tracking for maps' species change
@@ -426,6 +430,19 @@ export default {
     this.getAvailableTerms();
     this.getFeaturedDatasets();
 
+    EventBus.on('show-connectivity', (payload) => {
+      const { featureIds, offset } = payload;
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -150 : 0,
+            zoom: 4,
+          });
+        }
+      }
+    });
+
     EventBus.on("markerUpdate", () => {
       if (this.flatmapReady) {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
@@ -449,7 +466,7 @@ export default {
 }
 
 :deep(.maplibregl-popup) {
-  z-index: 3;
+  z-index: 11;
 }
 
 :deep(.maplibregl-marker) {

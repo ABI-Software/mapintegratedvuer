@@ -23,8 +23,10 @@
           :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
-          :activeId="activeDockedId"
+          :activeTabId="activeDockedId"
           :open-at-start="startUp"
+          :connectivityInfo="connectivityInfo"
+          @connectivity-info-close="onConnectivityInfoClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
@@ -33,6 +35,7 @@
           @hover-changed="hoverChanged($event)"
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
+          @show-connectivity="onShowConnectivity"
         />
         <SplitDialog
           :entries="entries"
@@ -97,6 +100,7 @@ export default {
       activeDockedId : 1,
       filterTriggered: false,
       availableFacets: [],
+      connectivityInfo: null,
     }
   },
   watch: {
@@ -138,6 +142,7 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
+            this.closeConnectivityInfo();
             this.$refs.sideBar.addFilter(action);
             const { facet } = action;
             // GA Tagging
@@ -173,6 +178,7 @@ export default {
             }))
           );
           if (this.$refs.sideBar) {
+            this.closeConnectivityInfo();
             this.$refs.sideBar.openSearch(facets, "");
 
             const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
@@ -255,6 +261,20 @@ export default {
         suggestions.push({"value": "\"" + item +"\""});
       }
       payload.data.cb(suggestions);
+    },
+    /**
+     * This event is emitted when the show connectivity button in sidebar is clicked.
+     * This will move the map to the highlighted connectivity area.
+     * @arg featureIds
+     */
+    onShowConnectivity: function (featureIds) {
+      const splitFlowState = this.splitFlowStore.getState();
+      const activeView = splitFlowState?.activeView || '';
+      // offset sidebar only on singlepanel and 2horpanel views
+      EventBus.emit('show-connectivity', {
+        featureIds: featureIds,
+        offset: activeView === 'singlepanel' || activeView === '2horpanel'
+      });
     },
     hoverChanged: function (data) {
       const hoverAnatomies = data && data.anatomy ? data.anatomy : [];
@@ -376,9 +396,17 @@ export default {
       this.search = query;
       this._facets = facets;
       if (this.$refs && this.$refs.sideBar) {
+        this.closeConnectivityInfo();
         this.$refs.sideBar.openSearch(facets, query);
       }
       this.startUp = false;
+    },
+    closeConnectivityInfo: function() {
+      // close all opened popups on DOM
+      const containerEl = this.$el;
+      containerEl.querySelectorAll('.maplibregl-popup-close-button').forEach((el) => {
+        el.click();
+      });
     },
     onFullscreen: function (val) {
       this.$emit("onFullscreen", val);
@@ -423,7 +451,7 @@ export default {
         this.$refs.splitdialog.sendSynchronisedEvent(result);
       }
     },
-    tabClicked: function (id) {
+    tabClicked: function ({id, type}) {
       this.activeDockedId = id;
     },
     toggleSyncMode: function (payload) {
@@ -464,6 +492,16 @@ export default {
         'dataset_id': datasetId || ''
       });
     },
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
+    },
+    resetActivePathways: function () {
+      const containerEl = this.$el;
+      const activeCanvas = containerEl.querySelector('.maplibregl-canvas');
+      if (activeCanvas) {
+        activeCanvas.click();
+      }
+    },
   },
   created: function () {
     this._facets = [];
@@ -478,6 +516,18 @@ export default {
     });
     EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);
+    });
+    EventBus.on('connectivity-info-open', payload => {
+      this.connectivityInfo = payload;
+      if (this.$refs.sideBar) {
+        this.tabClicked({id: 2, type: 'connectivity'});
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    });
+    EventBus.on('connectivity-info-close', payload => {
+      this.tabClicked({id: 1, type: 'search'});
+      this.connectivityInfo = null;
+      this.resetActivePathways();
     });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
