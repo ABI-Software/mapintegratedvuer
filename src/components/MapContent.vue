@@ -85,10 +85,11 @@ export default {
     },
     /**
      * The option to show connectivity info in sidebar.
+     * Default is `true`. Set `false` to show as popup on map.
      */
     connectivityInfoSidebar: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   data: function () {

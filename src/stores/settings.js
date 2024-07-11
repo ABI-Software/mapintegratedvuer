@@ -26,7 +26,7 @@ export const useSettingsStore = defineStore('settings', {
       featuredDatasetIdentifiers: [],
       helpDelay: 0,
       useHelpModeDialog: false,
-      connectivityInfoSidebar: false,
+      connectivityInfoSidebar: true,
     }
   },
   getters: {
