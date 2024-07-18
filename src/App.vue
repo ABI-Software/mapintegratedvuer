@@ -165,6 +165,7 @@ export default {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
     },
     mapIsReady: function() {
+      if (!this.uuid) this.setFlatmap();
       console.log("map is ready")
     },
     parseQuery: function () {

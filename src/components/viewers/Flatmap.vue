@@ -3,7 +3,6 @@
     <FlatmapVuer
       :state="entry.state"
       :entry="entry.resource"
-      :flatmapId="entry.data"
       @resource-selected="flatmaprResourceSelected(entry.type, $event)"
       @pan-zoom-callback="flatmapPanZoomCallback"
       :name="entry.resource ? entry.resource : entry.data"
@@ -78,7 +77,6 @@ export default {
     flatmaprResourceSelected: function (type, resource) {
       this.resourceSelected(
         type, resource, (this.$refs.flatmap.viewingMode === "Exploration"));
-
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
         const eventData = {
           label: resource.label || '',
