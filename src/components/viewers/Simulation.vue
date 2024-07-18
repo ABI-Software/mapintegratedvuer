@@ -27,9 +27,10 @@ export default {
       if (this.entry.discoverId) {
         this.id = this.entry.discoverId;
       } else if (this.entry.resource) {
-        const index = this.entry.resource.indexOf("workspace");
-        if (index > -1) {
-          this.id = this.entry.resource.substring(index);
+        if (this.settingsStore.pmrHost) {
+          this.id = this.entry.resource.replace(this.settingsStore.pmrHost, '');
+        } else {
+          this.id = this.entry.resource;
         }
       }
     }

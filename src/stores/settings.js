@@ -11,6 +11,7 @@ export const useSettingsStore = defineStore('settings', {
       algoliaKey: undefined,
       algoliaId: undefined,
       pennsieveApi: undefined,
+      pmrHost: "https://models.physiomeproject.org/",
       flatmapAPI: undefined,
       nlLinkPrefix: undefined,
       rootUrl: undefined,
@@ -67,6 +68,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateRootUrl(rootUrl) {
       this.rootUrl = rootUrl;
+    },
+    updatePmrHost(pmrHost) {
+      this.pmrHost = pmrHost ? pmrHost : "https://models.physiomeproject.org/";
     },
     updateMarkers(markers) {
       this.markers = markers;

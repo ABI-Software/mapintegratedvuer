@@ -95,6 +95,7 @@ export default {
         flatmapAPI: import.meta.env.VITE_FLATMAPAPI_LOCATION,
         nlLinkPrefix: import.meta.env.VITE_NL_LINK_PREFIX,
         rootUrl: import.meta.env.VITE_ROOT_URL,
+        pmrHost: import.meta.env.VITE_PMR_HOST,
       }
     }
   },
