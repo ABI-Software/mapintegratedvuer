@@ -1,7 +1,7 @@
 <template>
   <SimulationVuer
     :apiLocation="apiLocation"
-    :id="entry.discoverId"
+    :id="id"
   />
 </template>
 
@@ -13,9 +13,26 @@ import "@abi-software/simulationvuer/dist/style.css";
 
 export default {
   name: "Simulation",
+  data: function() {
+    return {
+      id: undefined,
+    };
+  },
   mixins: [ ContentMixin ],
   components: {
     SimulationVuer,
   },
+  created: function() {
+    if (this.entry) {
+      if (this.entry.discoverId) {
+        this.id = this.entry.discoverId;
+      } else if (this.entry.resource) {
+        const index = this.entry.resource.indexOf("workspace");
+        if (index > -1) {
+          this.id = this.entry.resource.substring(index);
+        }
+      }
+    }
+  }
 };
 </script>

@@ -59,12 +59,14 @@ export default {
         sckanRelease = this.mapImpProv.connectivity?.npo.date
         if (!sckanRelease) {
           let sckanCreated = this.mapImpProv.sckan?.created ? this.mapImpProv.sckan.created : this.mapImpProv.sckan
-          let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
-          sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-          })
+          if (sckanCreated) {
+            let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
+            sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+            })
+          }
         }
         if (!sckanRelease) {
           sckanRelease = "Unknown";

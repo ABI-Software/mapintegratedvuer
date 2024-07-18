@@ -3,9 +3,10 @@
     <FlatmapVuer
       :state="entry.state"
       :entry="entry.resource"
+      :flatmapId="entry.data"
       @resource-selected="flatmaprResourceSelected(entry.type, $event)"
       @pan-zoom-callback="flatmapPanZoomCallback"
-      :name="entry.resource"
+      :name="entry.resource ? entry.resource : entry.data"
       style="height: 100%; width: 100%"
       :minZoom="entry.minZoom"
       :helpMode="helpMode"

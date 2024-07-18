@@ -245,6 +245,7 @@ export default {
           const newView = {
             type: state.type,
             resource: state.resource,
+            data: state.data,
             state: state.state,
             label: state.label
           };
