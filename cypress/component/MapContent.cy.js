@@ -74,6 +74,9 @@ describe('MapContent', () => {
     //Wait for the curie response before continuing
    // cy.wait('@categoryResponse');
 
+    //Wait for curie response
+    cy.wait('@curieResponse', {timeout: 20000});
+
     //Check if mapcontent is mounted correctly
     cy.get('.mapcontent').invoke('attr', 'style', 'height: 880px').should(
       'have.attr', 'style', 'height: 880px');
@@ -90,9 +93,6 @@ describe('MapContent', () => {
 
     //Sidebar should not be visbile
     cy.get('.el-drawer.rtl.my-drawer').should('not.be.visible');
-
-    //Wait for curie response
-    cy.wait('@curieResponse', {timeout: 20000});
 
     //Wait for curie response
     cy.wait('@featuredDatasetResponse', {timeout: 20000});
