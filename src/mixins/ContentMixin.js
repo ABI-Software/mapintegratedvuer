@@ -1,5 +1,4 @@
 import {
-  getAvailableTermsForSpecies,
   getInteractiveAction,
   getNerveNames,
   getParentsRegion,
@@ -35,6 +34,9 @@ export default {
   },
   computed: {
     ...mapStores(useSettingsStore, useSplitFlowStore),
+    idNamePair() {
+      return this.splitFlowStore.idNamePair;
+    },
     syncMode() {
       return this.splitFlowStore.syncMode;
     },
@@ -397,31 +399,6 @@ export default {
     requestSynchronisedEvent: function () {
       return;
     },
-    getAvailableTerms: function () {
-      //Use the default list of uberons before we get the list from
-      //the api
-      let terms = getAvailableTermsForSpecies();
-      for (let i = 0; i < terms.length; i++) {
-        this.idNamePair[terms[i].id] = terms[i].name;
-      }
-      if (this.apiLocation) {
-        if (this._controller) this._controller.abort();
-        this._controller = new AbortController();
-        let signal = this._controller.signal;
-        fetch(`${this.apiLocation}get-organ-curies`, {
-          signal,
-        })
-          .then(response => response.json())
-          .then(data => {
-            this._controller = undefined;
-            data.uberon.array.forEach(pair => {
-              this.idNamePair[pair.id.toUpperCase()] =
-                pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
-            });
-            return;
-          });
-      }
-    },
     flatmapMarkerUpdate() {
       return;
     },
@@ -536,7 +513,6 @@ export default {
       multiflatmapRef: null,
       flatmapRef: null,
       scaffoldRef: null,
-      idNamePair: {},
       scaffoldLoaded: false,
       isInHelp: false,
       hoverDelay: undefined

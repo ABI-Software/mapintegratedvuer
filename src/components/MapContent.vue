@@ -308,6 +308,7 @@ export default {
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
     }
     this.splitFlowStore?.reset();
+    this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", () => {
