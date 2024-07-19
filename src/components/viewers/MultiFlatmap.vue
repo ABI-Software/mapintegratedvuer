@@ -427,9 +427,7 @@ export default {
     },
   },
   mounted: function () {
-    this.getAvailableTerms();
     this.getFeaturedDatasets();
-
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       if (this.flatmapReady && this.$refs.multiflatmap) {
