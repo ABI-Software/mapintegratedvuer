@@ -310,6 +310,7 @@ export default {
       this.options.pmrHost ? this.settingsStore.updatePmrHost(this.options.pmrHost) : null;
     }
     this.splitFlowStore?.reset();
+    this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", () => {

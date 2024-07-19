@@ -1,4 +1,7 @@
 import { defineStore } from 'pinia';
+import {
+  getAvailableTermsForSpecies,
+} from "../components/SimulatedData.js";
 
 /* eslint-disable no-alert, no-console */
 const presetLayouts = (view) => {
@@ -130,6 +133,7 @@ const findKeyWithId = (layout, id) => {
 const getOriginalState = () => {
   return {
     activeView: "singlepanel",
+    idNamePair: {},
     viewIcons: [
       { icon: "singlepanel", name: "Single view", min: 1 },
       { icon: "2horpanel", name: "Horizontal split", min: 2 },
@@ -193,6 +197,30 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       }
       if (sourceKey) {
         this.customLayout[sourceKey].id = payload.target;
+      }
+    },
+    getAvailableTerms(apiLocation) {
+      let terms = getAvailableTermsForSpecies();
+      for (let i = 0; i < terms.length; i++) {
+        this.idNamePair[terms[i].id] = terms[i].name;
+      }
+      if (apiLocation) {
+        if (this._controller) this._controller.abort();
+        this._controller = new AbortController();
+        let signal = this._controller.signal;
+        console.log("getAvailableTerms")
+        fetch(`${apiLocation}get-organ-curies`, {
+          signal,
+        })
+          .then(response => response.json())
+          .then(data => {
+            this._controller = undefined;
+            data.uberon.array.forEach(pair => {
+              this.idNamePair[pair.id.toUpperCase()] =
+                pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
+            });
+            return;
+          });
       }
     },
     toggleGlobalCallback(flag) {
