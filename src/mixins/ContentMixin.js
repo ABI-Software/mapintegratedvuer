@@ -97,6 +97,41 @@ export default {
     searchSuggestions: function () {
       return;
     },
+    getMarkerClickedACtion: function(resource) {
+      let label = this.idNamePair[resource.feature.models];
+      let hardcodedAnnotation = markerZoomLevels.filter(
+        mz => mz.id === resource.feature.models
+      );
+
+      if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
+        // It is a featured dataset search for DOI.
+        return {
+          type: "Search",
+          term: this.settingsStore.featuredMarkerDoi(
+            resource.feature.id
+          ),
+          featuredDataset: true,
+        };
+      } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
+        // if it matches our stored keywords, it is a keyword search
+        // Keyword searches do not contain labels, so switch to keyword search if no label exists
+        return {
+          type: "Search",
+          term:
+            "http://purl.obolibrary.org/obo/" +
+            resource.feature.models.replace(":", "_"),
+        };
+      } else {
+        // Facet search on anatomy if it is not a keyword search
+        return {
+          type: "Facet",
+          facet: label,
+          facetPropPath: "anatomy.organ.category.name",
+          term: "Anatomical structure",
+        };
+      }
+
+    },
     /**
      * Callback when the vuers emit a selected event.
      */
@@ -106,7 +141,6 @@ export default {
         EventBus.emit("PopoverActionClick", resource);
         return;
       }
-
       let returnedAction = undefined;
       let action = "none";
       let fireResourceSelected = false;
@@ -117,56 +151,26 @@ export default {
         internalName: undefined,
         eventType: undefined,
       };
-
       if (type == "MultiFlatmap" || type == "Flatmap") {
+        const flatmapImp = this.getFlatmapImp();
         result.internalName = this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
-            let label = this.idNamePair[resource.feature.models];
-            let hardcodedAnnotation = markerZoomLevels.filter(
-              mz => mz.id === resource.feature.models
-            );
-
-            if (
-              this.settingsStore.isFeaturedMarkerIdentifier(
-                resource.feature.id
-              )
-            ) {
-              // It is a featured dataset search for DOI.
-              returnedAction = {
-                type: "Search",
-                term: this.settingsStore.featuredMarkerDoi(
-                  resource.feature.id
-                ),
-                featuredDataset: true,
-              };
-            } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
-              // if it matches our stored keywords, it is a keyword search
-              // Keyword searches do not contain labels, so switch to keyword search if no label exists
-              returnedAction = {
-                type: "Search",
-                term:
-                  "http://purl.obolibrary.org/obo/" +
-                  resource.feature.models.replace(":", "_"),
-              };
-            } else {
-              // Facet search on anatomy if it is not a keyword search
-              returnedAction = {
-                type: "Facet",
-                facet: label,
-                facetPropPath: "anatomy.organ.category.name",
-                term: "Anatomical structure",
-              };
-            }
-
+            returnedAction = this.getMarkerClickedACtion(resource);
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
-              const flatmap =
-                this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-              flatmap.clearSearchResults();
+              flatmapImp.clearSearchResults();
             }
           } else if (resource.feature.type == "feature") {
+            if (flatmapImp.options && flatmapImp.options.style === 'functional') {
+              if (resource.feature?.label) {
+                returnedAction = {
+                  type: "Search",
+                  term: resource.feature.label,
+                };
+              }
+            }
             // Do no open scaffold in sync map
             if (this.syncMode) {
               fireResourceSelected = true;
