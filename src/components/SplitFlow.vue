@@ -121,7 +121,7 @@ export default {
     actionClick: function (action) {
       if (action) {
         if (action.type == "Search") {
-          if (action.nervePath) {
+          if (action.filter) {
             this.openSearch([action.filter], action.label);
           } else {
             this.openSearch([], action.term);

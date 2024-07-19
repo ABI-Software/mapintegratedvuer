@@ -167,9 +167,16 @@ export default {
           } else if (resource.feature.type == "feature") {
             if (flatmapImp.options && flatmapImp.options.style === 'functional') {
               if (resource.feature?.label) {
+                const filter = {
+                  facet: "PMR",
+                  term: "Data Type",
+                  facetPropPath: "item.types.name",
+                };
                 returnedAction = {
+                  filter: filter,
                   type: "Search",
                   term: resource.feature.label,
+                  
                 };
               }
             }
