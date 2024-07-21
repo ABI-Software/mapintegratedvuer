@@ -266,7 +266,7 @@ function getHumanData(term, label, dataset, scaffold, simulations) {
         data.actions = {
           search: {
             title: "Explore data",
-            label: "Colon",
+            term: "Colon",
             resource: "https://sparc.science/data?type=dataset&q=colon",
             type: "Search",
             filter: {
@@ -289,7 +289,7 @@ function getHumanData(term, label, dataset, scaffold, simulations) {
           data.actions = {
             search: {
               title: "Explore data",
-              label: "Heart",
+              term: "Heart",
               resource: "https://sparc.science/data?type=dataset&q=colon",
               type: "Search",
               filter: {
@@ -345,7 +345,7 @@ function getRatData(term, label, dataset, scaffold, simulations) {
           data.actions = {
             search: {
               title: "Explore data",
-              label: "Heart",
+              term: "Heart",
               resource: "https://sparc.science/data?type=dataset&q=heart",
               type: "Search",
               filter: {
@@ -597,7 +597,7 @@ function getPigData(term, label, dataset, scaffold, simulations) {
               data.actions = {
                 search: {
                   title: "Explore data",
-                  label: "Heart",
+                  term: "Heart",
                   resource: "https://sparc.science/data?type=dataset&q=colon",
                   type: "Search",
                   filter: {

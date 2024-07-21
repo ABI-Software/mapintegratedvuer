@@ -122,7 +122,7 @@ export default {
       if (action) {
         if (action.type == "Search") {
           if (action.filter) {
-            this.openSearch([action.filter], action.label);
+            this.openSearch([action.filter], action.term);
           } else {
             this.openSearch([], action.term);
             // GA Tagging
