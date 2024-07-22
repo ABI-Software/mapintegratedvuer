@@ -169,7 +169,7 @@ export default {
               if (resource.feature?.label) {
                 const filter = {
                   facet: "PMR",
-                  term: "Data Type",
+                  term: "Data type",
                   facetPropPath: "item.types.name",
                 };
                 returnedAction = {
