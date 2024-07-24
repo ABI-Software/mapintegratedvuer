@@ -123,6 +123,12 @@ export default {
         if (action.type == "Search") {
           if (action.filter) {
             this.openSearch([action.filter], action.term);
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': action.term || 'filter',
+              'location': 'map_location_pin'
+            });
           } else {
             this.openSearch([], action.term);
             // GA Tagging
