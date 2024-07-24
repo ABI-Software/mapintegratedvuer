@@ -479,6 +479,7 @@ export default {
     div {
       scale: 0.5;
       transform: translate(45px, -7px);
+      width: 0;
     }
   }
 }
