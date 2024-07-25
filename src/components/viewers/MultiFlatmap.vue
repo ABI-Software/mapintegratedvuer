@@ -478,7 +478,7 @@ export default {
     z-index: 1;
     div {
       scale: 0.5;
-      transform: translate(45px, -7px);
+      width: 0;
     }
   }
 }
