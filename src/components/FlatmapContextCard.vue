@@ -10,7 +10,11 @@
         View publication <a :href="flatmapSource" target="_blank">here</a>
       <br/>
     </div>
-    <CopyToClipboard :content="copyContent" />
+
+    <!-- Copy to clipboard button container -->
+    <div class="float-button-container">
+      <CopyToClipboard :content="copyContent" />
+    </div>
   </div>
 </template>
 
@@ -21,6 +25,7 @@ import {
   ElLoading as Loading
 } from "element-plus";
 import { CopyToClipboard } from "@abi-software/map-utilities";
+import '@abi-software/map-utilities/dist/style.css';
 
 export default {
   name: "FlatmapContextCard",
@@ -168,4 +173,16 @@ export default {
   background-color: #979797;
 }
 
+.float-button-container {
+  position: absolute;
+  bottom: 0;
+  right: 12px;
+  opacity: 0;
+  visibility: hidden;
+
+  .flatmap-context-card:hover & {
+    opacity: 1;
+    visibility: visible;
+  }
+}
 </style>
