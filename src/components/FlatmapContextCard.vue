@@ -10,6 +10,7 @@
         View publication <a :href="flatmapSource" target="_blank">here</a>
       <br/>
     </div>
+    <CopyToClipboard :content="copyContent" />
   </div>
 </template>
 
@@ -19,11 +20,13 @@
 import {
   ElLoading as Loading
 } from "element-plus";
+import CopyToClipboard from "./CopyToClipboard.vue";
 
 export default {
   name: "FlatmapContextCard",
   components: {
     Loading,
+    CopyToClipboard,
   },
   props: {
     /**
@@ -38,7 +41,8 @@ export default {
       showDetails: true,
       showContextCard: true,
       sampleDetails: {},
-      loading: false
+      loading: false,
+      copyContent: '',
     };
   },
   computed: {
@@ -93,6 +97,27 @@ export default {
       return flatmapSource
     },
   },
+  mounted: function () {
+    this.updateCopyContent();
+  },
+  methods: {
+    updateCopyContent: function () {
+      const contentArray = [];
+
+      contentArray.push('Flatmap Provenance');
+      contentArray.push('');
+      contentArray.push('SCKAN version:');
+      contentArray.push(this.sckanReleaseLink);
+      contentArray.push('');
+      contentArray.push('Published on:');
+      contentArray.push(this.flatmapPublishedDisplay);
+      contentArray.push('');
+      contentArray.push('View publication:');
+      contentArray.push(this.flatmapSource);
+
+      this.copyContent = contentArray.join('\n');
+    },
+  }
 };
 </script>
 
