@@ -20,7 +20,7 @@
 import {
   ElLoading as Loading
 } from "element-plus";
-import CopyToClipboard from "./CopyToClipboard.vue";
+import { CopyToClipboard } from "@abi-software/map-utilities";
 
 export default {
   name: "FlatmapContextCard",
