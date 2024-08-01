@@ -51,7 +51,7 @@ export default {
             year: 'numeric',
         })
       }
-      return flatmapPublished 
+      return flatmapPublished
     },
     sckanReleaseDisplay: function() {
       let sckanRelease = "Unknown"
@@ -70,7 +70,7 @@ export default {
           sckanRelease = "Unknown";
         }
       }
-      return sckanRelease 
+      return sckanRelease
     },
     sckanReleaseLink: function() {
       let sckanLink = "Unknown"
