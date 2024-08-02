@@ -16,7 +16,7 @@
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
               <template v-for="(view, i) in contextData.views" :key="i+'_1'">
                 <div @click="openViewFile(view)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"> 
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)">
                   <div class="view-description">{{view.description}}</div>
                 </div>
                 <div class="padding"/>
@@ -43,7 +43,7 @@
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
               <template v-for="(view, i) in contextData.views" :key="i+'_1'">
                 <span  @click="viewClicked(view, i)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"/> 
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"/>
                   <div class="view-description">{{view.description}}<i class="el-icon-warning-outline info"></i> </div>
                 </span>
                 <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description"/>
@@ -57,6 +57,11 @@
           </div>
         </div>
       </div>
+
+      <!-- Copy to clipboard button container -->
+      <div class="float-button-container">
+        <CopyToClipboard :content="updatedCopyContent" />
+      </div>
     </div>
   </div>
 </template>
@@ -64,6 +69,8 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { CopyToClipboard } from "@abi-software/map-utilities";
+import '@abi-software/map-utilities/dist/style.css';
 
 //provide the s3Bucket related methods and data.
 import S3Bucket from "../mixins/S3Bucket.vue";
@@ -94,6 +101,9 @@ const convertBackslashToForwardSlash = function(path){
 
 export default {
   name: "contextCard",
+  components: {
+    CopyToClipboard,
+  },
   mixins: [S3Bucket],
   props: {
     /**
@@ -109,7 +119,7 @@ export default {
       showDetails: true,
       showContextCard: true,
       sampleDetails: {},
-      loading: false
+      loading: false,
     };
   },
   watch: {
@@ -142,8 +152,8 @@ export default {
         if (this.contextData.samplesUnderViews){
           return true
         } else {
-          let viewId = this.contextData.views.map(v=>v.id)
-          let samplesView = this.contextData.samples.map(s=>s.view)
+          let viewId = this.contextData.views?.map(v=>v.id) || [];
+          let samplesView = this.contextData.samples?.map(s=>s.view) || [];
 
           // get matching values
           let matching = viewId.filter(v=>samplesView.includes(v))
@@ -152,21 +162,76 @@ export default {
           if ( viewId.length === matching.length && matching.length === samplesView.length){
             return true
           }
-          return false
         }
       }
-      else return false
+      return false;
     },
     banner: function(){
       if (this.contextData.banner){
-        return this.getFileFromPath(this.contextData.banner) 
+        return this.getFileFromPath(this.contextData.banner)
       } else if (this.contextData && this.contextData.views && this.contextData.views.length > 0) {
         if(this.contextData.views[0].thumbnail){
           return this.getFileFromPath(this.contextData.views[0].thumbnail)
         }
-      } 
+      }
       return this.entry.banner
-    }
+    },
+    updatedCopyContent: function () {
+      const contentArray = [];
+
+      if (this.contextData.heading) {
+        contentArray.push(this.contextData.heading);
+      }
+      if (this.contextData.description) {
+        const descDOM = document.createElement('div');
+        descDOM.innerHTML = this.contextData.description;
+        contentArray.push(descDOM.innerText);
+      }
+
+      if (this.contextData.views?.length) {
+        contentArray.push('Scaffold Views');
+        const views = [];
+
+        this.contextData.views.forEach((view, i) => {
+          const viewContents = [];
+          viewContents.push(view.description);
+          viewContents.push(this.getFileFromPath(view.path));
+
+          if (this.samplesUnderViews) {
+            const description = this.samplesMatching(view.id).description;
+            viewContents.push(description);
+
+            if (this.samplesMatching(view.id).path) {
+              const url = this.generateFileLink(this.samplesMatching(view.id));
+              viewContents.push(url);
+            }
+          }
+          views.push(viewContents.join('\n'));
+        });
+        contentArray.push(views.join('\n\n'));
+      }
+
+      if (!this.samplesUnderViews) {
+        if (this.contextData.samples?.length) {
+          contentArray.push('Samples on Scaffold');
+          const samples = [];
+
+          this.contextData.samples.forEach((sample, i) => {
+            const sampleContents = [];
+            sampleContents.push(sample.heading);
+            sampleContents.push(sample.description);
+            if (sample.path) {
+              const url = this.generateFileLink(sample);
+              sampleContents.push(url);
+            }
+            samples.push(sampleContents.join('\n'));
+          });
+          contentArray.push(samples.join('\n\n'));
+        }
+      }
+
+      return contentArray.join('\n\n');
+    },
   },
   methods: {
     samplesMatching: function(viewId){
@@ -176,7 +241,7 @@ export default {
       else return []
     },
     viewClicked: function(view, i){
-      this.openViewFile(view) 
+      this.openViewFile(view)
       this.toggleSampleDetails(i)
     },
     getContextFile: function (contextFileUrl) {
@@ -192,7 +257,7 @@ export default {
         .then((data) => {
           this.contextData = data
           this.loading = false
-          this.addDiscoverIdsToContextData() 
+          this.addDiscoverIdsToContextData()
         })
         .catch((err) => {
           //set defaults if we hit an error
@@ -382,4 +447,16 @@ export default {
   background-color: #979797;
 }
 
+.float-button-container {
+  position: absolute;
+  bottom: 0;
+  right: 12px;
+  opacity: 0;
+  visibility: hidden;
+
+  .context-card-container:hover & {
+    opacity: 1;
+    visibility: visible;
+  }
+}
 </style>
