@@ -13,7 +13,7 @@
 
     <!-- Copy to clipboard button container -->
     <div class="float-button-container">
-      <CopyToClipboard :content="copyContent" />
+      <CopyToClipboard :content="copyContent" theme="light" />
     </div>
   </div>
 </template>

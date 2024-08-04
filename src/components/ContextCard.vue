@@ -60,7 +60,7 @@
 
       <!-- Copy to clipboard button container -->
       <div class="float-button-container">
-        <CopyToClipboard :content="updatedCopyContent" />
+        <CopyToClipboard :content="updatedCopyContent" theme="light" />
       </div>
     </div>
   </div>
