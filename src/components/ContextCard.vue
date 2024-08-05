@@ -16,7 +16,7 @@
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
               <template v-for="(view, i) in contextData.views" :key="i+'_1'">
                 <div @click="openViewFile(view)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"> 
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)">
                   <div class="view-description">{{view.description}}</div>
                 </div>
                 <div class="padding"/>
@@ -43,7 +43,7 @@
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
               <template v-for="(view, i) in contextData.views" :key="i+'_1'">
                 <span  @click="viewClicked(view, i)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"/> 
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"/>
                   <div class="view-description">{{view.description}}<i class="el-icon-warning-outline info"></i> </div>
                 </span>
                 <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description"/>
@@ -159,12 +159,12 @@ export default {
     },
     banner: function(){
       if (this.contextData.banner){
-        return this.getFileFromPath(this.contextData.banner) 
+        return this.getFileFromPath(this.contextData.banner)
       } else if (this.contextData && this.contextData.views && this.contextData.views.length > 0) {
         if(this.contextData.views[0].thumbnail){
           return this.getFileFromPath(this.contextData.views[0].thumbnail)
         }
-      } 
+      }
       return this.entry.banner
     }
   },
@@ -176,7 +176,7 @@ export default {
       else return []
     },
     viewClicked: function(view, i){
-      this.openViewFile(view) 
+      this.openViewFile(view)
       this.toggleSampleDetails(i)
     },
     getContextFile: function (contextFileUrl) {
@@ -192,7 +192,7 @@ export default {
         .then((data) => {
           this.contextData = data
           this.loading = false
-          this.addDiscoverIdsToContextData() 
+          this.addDiscoverIdsToContextData()
         })
         .catch((err) => {
           //set defaults if we hit an error
@@ -285,6 +285,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: initial;
 }
 
 .context-card{
@@ -301,6 +302,7 @@ export default {
   cursor: pointer;
   margin-bottom: 8px;
   display: flex;
+  gap: 8px;
 }
 
 .view-image {
@@ -363,6 +365,7 @@ export default {
 
 .subtitle{
   font-weight: bold;
+  margin-bottom: 8px;
 }
 
 .scrollbar::-webkit-scrollbar-track {
