@@ -109,21 +109,21 @@ export default {
     updateCopyContent: function () {
       const contentArray = [];
 
-      contentArray.push(`<h4>Flatmap Provenance</h4>`);
+      contentArray.push(`<div><strong>Flatmap Provenance</strong></div>`);
 
-      let versionContent = `<h6>SCKAN version:</h6>`;
+      let versionContent = `<div>SCKAN version:</div>`;
       versionContent += `\n`;
-      versionContent += `<p><a href="${this.sckanReleaseLink}">${this.sckanReleaseLink}</a></p>`;
+      versionContent += `<div><a href="${this.sckanReleaseLink}">${this.sckanReleaseLink}</a></div>`;
       contentArray.push(versionContent);
 
-      let publishedContent = `<h6>Published on:</h6>`;
+      let publishedContent = `<div>Published on:</div>`;
       publishedContent += `\n`;
-      publishedContent += `<p>${this.flatmapPublishedDisplay}</p>`;
+      publishedContent += `<div>${this.flatmapPublishedDisplay}</div>`;
       contentArray.push(publishedContent);
 
-      let publicationContent = `<h6>View publication:</h6>`;
+      let publicationContent = `<div>View publication:</div>`;
       publicationContent += `\n`;
-      publicationContent += `<p><a href="${this.flatmapSource}">${this.flatmapSource}</a></p>`;
+      publicationContent += `<div><a href="${this.flatmapSource}">${this.flatmapSource}</a></div>`;
       contentArray.push(publicationContent);
 
       this.copyContent = contentArray.join('\n\n<br>');
