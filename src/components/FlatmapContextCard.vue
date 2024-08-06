@@ -109,18 +109,24 @@ export default {
     updateCopyContent: function () {
       const contentArray = [];
 
-      contentArray.push('Flatmap Provenance');
-      contentArray.push('');
-      contentArray.push('SCKAN version:');
-      contentArray.push(this.sckanReleaseLink);
-      contentArray.push('');
-      contentArray.push('Published on:');
-      contentArray.push(this.flatmapPublishedDisplay);
-      contentArray.push('');
-      contentArray.push('View publication:');
-      contentArray.push(this.flatmapSource);
+      contentArray.push(`<h4>Flatmap Provenance</h4>`);
 
-      this.copyContent = contentArray.join('\n');
+      let versionContent = `<h6>SCKAN version:</h6>`;
+      versionContent += `\n`;
+      versionContent += `<p><a href="${this.sckanReleaseLink}">${this.sckanReleaseLink}</a></p>`;
+      contentArray.push(versionContent);
+
+      let publishedContent = `<h6>Published on:</h6>`;
+      publishedContent += `\n`;
+      publishedContent += `<p>${this.flatmapPublishedDisplay}</p>`;
+      contentArray.push(publishedContent);
+
+      let publicationContent = `<h6>View publication:</h6>`;
+      publicationContent += `\n`;
+      publicationContent += `<p><a href="${this.flatmapSource}">${this.flatmapSource}</a></p>`;
+      contentArray.push(publicationContent);
+
+      this.copyContent = contentArray.join('\n\n<br>');
     },
   }
 };
