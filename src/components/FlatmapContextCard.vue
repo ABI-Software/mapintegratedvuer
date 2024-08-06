@@ -109,6 +109,9 @@ export default {
     updateCopyContent: function () {
       const contentArray = [];
 
+      // Use <div> instead of <h1>..<h6> or <p>
+      // to avoid default formatting on font size and margin
+
       contentArray.push(`<div><strong>Flatmap Provenance</strong></div>`);
 
       let versionContent = `<div>SCKAN version:</div>`;

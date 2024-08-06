@@ -179,8 +179,11 @@ export default {
     updatedCopyContent: function () {
       const contentArray = [];
 
+      // Use <div> instead of <h1>..<h6> or <p>
+      // to avoid default formatting on font size and margin
+
       if (this.contextData.heading) {
-        contentArray.push(`<h4>${this.contextData.heading}</h4>`);
+        contentArray.push(`<div><strong>${this.contextData.heading}</strong></div>`);
       }
 
       if (this.contextData.description) {
@@ -188,25 +191,25 @@ export default {
       }
 
       if (this.contextData.views?.length) {
-        let scaffoldViews = '<h6>Scaffold Views</h6>';
+        let scaffoldViews = '<div><strong>Scaffold Views</strong></div>';
         const views = [];
 
         this.contextData.views.forEach((view, i) => {
           const viewContents = [];
           const viewPath = this.getFileFromPath(view.path);
-          let viewContent = `<p>${view.description}</p>`;
-          viewContent += '\n';
-          viewContent += `<p><a href="${viewPath}">${viewPath}</a></p>`;
+          let viewContent = `<div>${view.description}</div>`;
+          viewContent += `\n`;
+          viewContent += `<div><a href="${viewPath}">${viewPath}</a></div>`;
           viewContents.push(viewContent);
 
           if (this.samplesUnderViews) {
             const description = this.samplesMatching(view.id).description;
-            let sampleContent = `<p>${description}</p>`;
+            let sampleContent = `<div>${description}</div>`;
 
             if (this.samplesMatching(view.id).path) {
-              sampleContent += '\n';
+              sampleContent += `\n`;
               const url = this.generateFileLink(this.samplesMatching(view.id));
-              sampleContent += `<p><a href="${url}">${url}</a></p>`;
+              sampleContent += `<div><a href="${url}">${url}</a></div>`;
             }
             viewContents.push(sampleContent);
           }
@@ -220,19 +223,20 @@ export default {
 
       if (!this.samplesUnderViews) {
         if (this.contextData.samples?.length) {
-          let sampleViews = '<h6>Samples on Scaffold</h6>';
+          let sampleViews = '<div><strong>Samples on Scaffold</strong></div>';
           const samples = [];
 
           this.contextData.samples.forEach((sample, i) => {
-            const sampleContents = [];
-            sampleContents.push(`<p>${sample.heading}</p>`);
-            sampleContents.push(`<p>${sample.description}</p>`);
+            let sampleContents = '';
+            sampleContents += `<div>${sample.heading}</div>`;
+            sampleContents += `\n`;
+            sampleContents += `<div>${sample.description}</div>`;
             if (sample.path) {
               const url = this.generateFileLink(sample);
-              sampleContents.push(`<p><a href="${url}">${url}</a></p>`);
+              sampleContents += `\n`;
+              sampleContents += `<div><a href="${url}">${url}</a></div>`;
             }
-            const sampleContentStr = sampleContents.join('\n');
-            samples.push(`<li>${sampleContentStr}</li>`);
+            samples.push(`<li>${sampleContents}</li>`);
           });
           sampleViews += '\n\n';
           sampleViews += `<ul>${samples.join('\n')}</ul>`;
