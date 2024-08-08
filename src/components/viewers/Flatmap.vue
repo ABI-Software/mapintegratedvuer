@@ -100,7 +100,7 @@ export default {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
-      if (this.entry.resource === "FunctionalConnectivity"){
+      if (this.entry.resource !== "FunctionalConnectivity"){
         this.flatmapReadyForMarkerUpdates(flatmap);
       }
       EventBus.emit("mapReady", flatmap);
