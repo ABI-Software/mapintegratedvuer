@@ -158,6 +158,9 @@ export default {
         flatmap.clearSearchResults();
       }
     },
+    changeViewingMode: function (modeName) {
+      this.$refs.flatmap.changeViewingMode(modeName);
+    },
   },
   computed: {
     facetSpecies() {
@@ -180,6 +183,9 @@ export default {
           zoom: 4,
         });
       }
+    });
+    EventBus.on("changeViewingMode", (modeName) => {
+      this.changeViewingMode(modeName);
     });
   },
 };

@@ -99,6 +99,9 @@ export default {
     }
   },
   methods: {
+    changeViewingMode: function(modeName) {
+      this.$refs.map.changeViewingMode(modeName);
+    },
     saveSettings: function() {
       this.mapSettings.push(this.$refs.map.getState());
     },
@@ -166,6 +169,7 @@ export default {
     },
     mapIsReady: function() {
       console.log("map is ready")
+      this.changeViewingMode('Annotation')
     },
     parseQuery: function () {
       this.$router.isReady().then(() => {

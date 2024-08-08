@@ -280,6 +280,9 @@ export default {
         'category': this.startingMap
       });
     },
+    changeViewingMode: function(modeName) {
+      EventBus.emit("changeViewingMode", modeName);
+    },
   },
   computed: {
     ...mapStores(useSettingsStore, useSplitFlowStore),

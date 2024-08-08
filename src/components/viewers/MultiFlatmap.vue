@@ -404,6 +404,13 @@ export default {
       }
       return false;
     },
+    /**
+     * Change the view mode of the current flatmap
+     */
+    changeViewingMode: function (modeName) {
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      flatmap.changeViewingMode(modeName);
+    },
   },
   computed: {
     facetSpecies() {
@@ -449,6 +456,11 @@ export default {
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
         this.mapHoverHighlight(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
+      }
+    });
+    EventBus.on("changeViewingMode", (modeName) => {
+      if (this.flatmapReady) {
+        this.changeViewingMode(modeName);
       }
     });
   },

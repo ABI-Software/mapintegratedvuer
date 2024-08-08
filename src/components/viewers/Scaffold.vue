@@ -183,6 +183,12 @@ export default {
     updateWithViewUrl: function(viewUrl) {
       this.$refs.scaffold.updateViewURL(viewUrl);
     },
+    /**
+     * Change the view mode of the current scaffold
+     */
+    changeViewingMode: function (modeName) {
+      this.$refs.scaffold.changeViewingMode(modeName);
+    },
   },
   computed: {
     warningMessage: function() {
@@ -212,6 +218,11 @@ export default {
     EventBus.on("hoverUpdate", () => {
       if (this.scaffoldLoaded) {
         this.mapHoverHighlight(this.$refs.scaffold);
+      }
+    });
+    EventBus.on("changeViewingMode", (modeName) => {
+      if (this.scaffoldLoaded) {
+        this.changeViewingMode(modeName);
       }
     });
   },
