@@ -266,11 +266,6 @@ export default {
      */
     flowMounted: function () {
       this._flowMounted = true;
-      /**
-       * This event emit when the component is mounted.
-       */
-      this.$emit("isReady");
-
       // GA Tagging
       // Page view tracking for maps' buttons click on portal
       // category: AC | FC | WholeBody
@@ -329,6 +324,12 @@ export default {
     if (!this.state) {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
+    EventBus.on('mapReady', () => {
+      /**
+       * This event emit when the component is mounted and map is ready.
+       */
+      if (this._flowMounted) this.$emit("isReady");
+    });
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
