@@ -6,7 +6,7 @@
           <img :src="banner" class="context-image">
         </div>
         <div class="card-right scrollbar">
-          <div style="margin-right: 8px;">
+          <div>
             <div class="title">{{contextData.heading}}</div>
             <div v-html="parseMarkdown(contextData.description)"/>
             <!-- <br/> -->
@@ -288,7 +288,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: initial;
+  // text-align: initial; // default is justify
   word-break: initial;
 }
 
