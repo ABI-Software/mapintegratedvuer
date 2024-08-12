@@ -9,8 +9,11 @@
           <div style="margin-right: 8px;">
             <div class="title">{{contextData.heading}}</div>
             <div v-html="parseMarkdown(contextData.description)"/>
-            <br/>
-
+            <!-- <br/> -->
+          </div>
+        </div>
+        <div class="card-bottom">
+          <div>
             <!-- Show sampeles and views seperately if they do not match -->
             <template v-if="!samplesUnderViews">
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
@@ -286,16 +289,20 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: initial;
+  word-break: initial;
 }
 
 .context-card{
   background-color: white;
-  max-height: 10  50px;
   font-size: 14px;
   position: relative;
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   width: 100%;
   max-height: 258px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .context-card-view{
@@ -307,8 +314,8 @@ export default {
 
 .view-image {
   width: 34px;
-  height: 34px;
-  flex: 1;
+  height: auto;
+  // flex: 1;
 }
 
 .view-descriptions {
@@ -341,8 +348,17 @@ export default {
 .card-right {
   flex: 1.5;
   word-break: normal !important;
-  overflow-y: scroll;
-  scrollbar-width: thin;
+  // overflow-y: scroll;
+  // scrollbar-width: thin;
+
+  :deep(p:last-child) {
+    margin-bottom: 0;
+  }
+}
+
+.card-bottom {
+  flex: 0 0 auto;
+  max-width: 100%;
 }
 
 .cursor-pointer {
