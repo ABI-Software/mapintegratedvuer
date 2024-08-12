@@ -303,6 +303,11 @@ export default {
   max-height: 258px;
   overflow-y: auto;
   scrollbar-width: thin;
+  box-sizing: border-box;
+
+  &:not(.context-card-container) {
+    padding: 10px;
+  }
 }
 
 .context-card-view{
@@ -315,7 +320,6 @@ export default {
 .view-image {
   width: 34px;
   height: auto;
-  // flex: 1;
 }
 
 .view-descriptions {
@@ -348,8 +352,6 @@ export default {
 .card-right {
   flex: 1.5;
   word-break: normal !important;
-  // overflow-y: scroll;
-  // scrollbar-width: thin;
 
   :deep(p:last-child) {
     margin-bottom: 0;
