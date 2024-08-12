@@ -169,7 +169,7 @@ export default {
     },
     mapIsReady: function() {
       console.log("map is ready")
-      this.changeViewingMode('Annotation')
+      // this.changeViewingMode('Annotation')
     },
     parseQuery: function () {
       this.$router.isReady().then(() => {
