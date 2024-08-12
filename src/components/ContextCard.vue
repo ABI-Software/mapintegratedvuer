@@ -463,7 +463,7 @@ export default {
 
 .float-button-container {
   position: absolute;
-  bottom: 0;
+  bottom: 6px;
   right: 12px;
   opacity: 0;
   visibility: hidden;
