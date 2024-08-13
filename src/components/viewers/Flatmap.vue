@@ -103,7 +103,7 @@ export default {
       if (this.entry.resource !== "FunctionalConnectivity"){
         this.flatmapReadyForMarkerUpdates(flatmap);
       }
-      EventBus.emit("mapReady", flatmap);
+      EventBus.emit("mapLoaded", flatmap);
     },
     onPathwaySelectionChanged: function (data) {
       const { label, property, checked, selectionsTitle } = data;

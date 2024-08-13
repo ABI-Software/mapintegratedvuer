@@ -329,7 +329,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
-        EventBus.emit("mapReady", flatmap);
+        EventBus.emit("mapLoaded", flatmap);
       }
     },
     getFlatmapImp: function () {

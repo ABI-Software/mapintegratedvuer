@@ -139,7 +139,7 @@ export default {
         this.$refs.scaffold.toggleSyncControl(this.splitFlowStore.globalCallback, rotation);
         if (this.splitFlowStore.syncMode) this.$refs.scaffold.fitWindow();
       }
-      EventBus.emit("mapReady", this.$refs.scaffold);
+      EventBus.emit("mapLoaded", this.$refs.scaffold);
     },
     requestSynchronisedEvent: function (flag) {
       if (this.scaffoldLoaded) {

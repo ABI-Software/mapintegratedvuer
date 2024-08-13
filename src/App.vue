@@ -41,7 +41,8 @@
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
         @updateShareLinkRequested="updateUUID"
-        @isReady="mapIsReady"
+        @isReady="viewerIsReady"
+        @mapLoaded="mapIsLoaded"
       />
     </div>
   </div>
@@ -167,9 +168,12 @@ export default {
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
     },
-    mapIsReady: function() {
-      console.log("map is ready")
+    mapIsLoaded: function() {
+      console.log("map is loaded")
       // this.changeViewingMode('Annotation')
+    },
+    viewerIsReady: function() {
+      console.log("viewer is ready")
     },
     parseQuery: function () {
       this.$router.isReady().then(() => {
