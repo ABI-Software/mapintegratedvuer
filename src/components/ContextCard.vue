@@ -16,7 +16,7 @@
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
               <template v-for="(view, i) in contextData.views" :key="i+'_1'">
                 <div @click="openViewFile(view)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"> 
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)">
                   <div class="view-description">{{view.description}}</div>
                 </div>
                 <div class="padding"/>
@@ -43,7 +43,7 @@
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
               <template v-for="(view, i) in contextData.views" :key="i+'_1'">
                 <span  @click="viewClicked(view, i)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"/> 
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"/>
                   <div class="view-description">{{view.description}}<i class="el-icon-warning-outline info"></i> </div>
                 </span>
                 <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description"/>
@@ -57,6 +57,11 @@
           </div>
         </div>
       </div>
+
+      <!-- Copy to clipboard button container -->
+      <div class="float-button-container">
+        <CopyToClipboard :content="updatedCopyContent" theme="light" />
+      </div>
     </div>
   </div>
 </template>
@@ -64,6 +69,8 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { CopyToClipboard } from "@abi-software/map-utilities";
+import '@abi-software/map-utilities/dist/style.css';
 
 //provide the s3Bucket related methods and data.
 import S3Bucket from "../mixins/S3Bucket.vue";
@@ -94,6 +101,9 @@ const convertBackslashToForwardSlash = function(path){
 
 export default {
   name: "contextCard",
+  components: {
+    CopyToClipboard,
+  },
   mixins: [S3Bucket],
   props: {
     /**
@@ -109,7 +119,7 @@ export default {
       showDetails: true,
       showContextCard: true,
       sampleDetails: {},
-      loading: false
+      loading: false,
     };
   },
   watch: {
@@ -142,8 +152,8 @@ export default {
         if (this.contextData.samplesUnderViews){
           return true
         } else {
-          let viewId = this.contextData.views.map(v=>v.id)
-          let samplesView = this.contextData.samples.map(s=>s.view)
+          let viewId = this.contextData.views?.map(v=>v.id) || [];
+          let samplesView = this.contextData.samples?.map(s=>s.view) || [];
 
           // get matching values
           let matching = viewId.filter(v=>samplesView.includes(v))
@@ -152,21 +162,90 @@ export default {
           if ( viewId.length === matching.length && matching.length === samplesView.length){
             return true
           }
-          return false
         }
       }
-      else return false
+      return false;
     },
     banner: function(){
       if (this.contextData.banner){
-        return this.getFileFromPath(this.contextData.banner) 
+        return this.getFileFromPath(this.contextData.banner)
       } else if (this.contextData && this.contextData.views && this.contextData.views.length > 0) {
         if(this.contextData.views[0].thumbnail){
           return this.getFileFromPath(this.contextData.views[0].thumbnail)
         }
-      } 
+      }
       return this.entry.banner
-    }
+    },
+    updatedCopyContent: function () {
+      const contentArray = [];
+
+      // Use <div> instead of <h1>..<h6> or <p>
+      // to avoid default formatting on font size and margin
+
+      if (this.contextData.heading) {
+        contentArray.push(`<div><strong>${this.contextData.heading}</strong></div>`);
+      }
+
+      if (this.contextData.description) {
+        contentArray.push(`<div>${this.contextData.description}</div>`);
+      }
+
+      if (this.contextData.views?.length) {
+        let scaffoldViews = '<div><strong>Scaffold Views</strong></div>';
+        const views = [];
+
+        this.contextData.views.forEach((view, i) => {
+          const viewContents = [];
+          const viewPath = this.getFileFromPath(view.path);
+          let viewContent = `<div>${view.description}</div>`;
+          viewContent += `\n`;
+          viewContent += `<div><a href="${viewPath}">${viewPath}</a></div>`;
+          viewContents.push(viewContent);
+
+          if (this.samplesUnderViews) {
+            const description = this.samplesMatching(view.id).description;
+            let sampleContent = `<div>${description}</div>`;
+
+            if (this.samplesMatching(view.id).path) {
+              sampleContent += `\n`;
+              const url = this.generateFileLink(this.samplesMatching(view.id));
+              sampleContent += `<div><a href="${url}">${url}</a></div>`;
+            }
+            viewContents.push(sampleContent);
+          }
+          const viewContentStr = viewContents.join('\n');
+          views.push(`<li>${viewContentStr}</li>`);
+        });
+        scaffoldViews += '\n\n';
+        scaffoldViews += `<ul>${views.join('\n')}</ul>`;
+        contentArray.push(scaffoldViews);
+      }
+
+      if (!this.samplesUnderViews) {
+        if (this.contextData.samples?.length) {
+          let sampleViews = '<div><strong>Samples on Scaffold</strong></div>';
+          const samples = [];
+
+          this.contextData.samples.forEach((sample, i) => {
+            let sampleContents = '';
+            sampleContents += `<div>${sample.heading}</div>`;
+            sampleContents += `\n`;
+            sampleContents += `<div>${sample.description}</div>`;
+            if (sample.path) {
+              const url = this.generateFileLink(sample);
+              sampleContents += `\n`;
+              sampleContents += `<div><a href="${url}">${url}</a></div>`;
+            }
+            samples.push(`<li>${sampleContents}</li>`);
+          });
+          sampleViews += '\n\n';
+          sampleViews += `<ul>${samples.join('\n')}</ul>`;
+          contentArray.push(sampleViews);
+        }
+      }
+
+      return contentArray.join('\n\n<br>');
+    },
   },
   methods: {
     samplesMatching: function(viewId){
@@ -176,7 +255,7 @@ export default {
       else return []
     },
     viewClicked: function(view, i){
-      this.openViewFile(view) 
+      this.openViewFile(view)
       this.toggleSampleDetails(i)
     },
     getContextFile: function (contextFileUrl) {
@@ -192,7 +271,7 @@ export default {
         .then((data) => {
           this.contextData = data
           this.loading = false
-          this.addDiscoverIdsToContextData() 
+          this.addDiscoverIdsToContextData()
         })
         .catch((err) => {
           //set defaults if we hit an error
@@ -382,4 +461,16 @@ export default {
   background-color: #979797;
 }
 
+.float-button-container {
+  position: absolute;
+  bottom: 6px;
+  right: 12px;
+  opacity: 0;
+  visibility: hidden;
+
+  .context-card-container:hover & {
+    opacity: 1;
+    visibility: visible;
+  }
+}
 </style>
