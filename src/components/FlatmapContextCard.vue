@@ -141,19 +141,16 @@ export default {
 
 .flatmap-context-card{
   background-color: white;
-  max-height: 10  50px;
   font-size: 12px;
   position: relative;
   display: flex;
   width: 100%;
   max-height: 258px;
+  padding: 10px;
 }
 
 .card-right {
-  flex: 1.3;
-  padding-left: 6px;
-  // overflow-y: scroll;
-  scrollbar-width: thin;
+  flex: 1;
 }
 
 .cursor-pointer {

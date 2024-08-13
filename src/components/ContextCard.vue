@@ -6,11 +6,14 @@
           <img :src="banner" class="context-image">
         </div>
         <div class="card-right scrollbar">
-          <div style="margin-right: 8px;">
+          <div>
             <div class="title">{{contextData.heading}}</div>
             <div v-html="parseMarkdown(contextData.description)"/>
-            <br/>
-
+            <!-- <br/> -->
+          </div>
+        </div>
+        <div class="card-bottom">
+          <div>
             <!-- Show sampeles and views seperately if they do not match -->
             <template v-if="!samplesUnderViews">
               <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
@@ -364,28 +367,38 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  // text-align: initial; // default is justify
+  word-break: initial;
 }
 
 .context-card{
   background-color: white;
-  max-height: 10  50px;
   font-size: 14px;
   position: relative;
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   width: 100%;
   max-height: 258px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  box-sizing: border-box;
+
+  &:not(.context-card-container) {
+    padding: 10px;
+  }
 }
 
 .context-card-view{
   cursor: pointer;
   margin-bottom: 8px;
   display: flex;
+  gap: 8px;
 }
 
 .view-image {
   width: 34px;
-  height: 34px;
-  flex: 1;
+  height: auto;
 }
 
 .view-descriptions {
@@ -418,8 +431,15 @@ export default {
 .card-right {
   flex: 1.5;
   word-break: normal !important;
-  overflow-y: scroll;
-  scrollbar-width: thin;
+
+  :deep(p:last-child) {
+    margin-bottom: 0;
+  }
+}
+
+.card-bottom {
+  flex: 0 0 100%;
+  max-width: 100%;
 }
 
 .cursor-pointer {
@@ -442,6 +462,7 @@ export default {
 
 .subtitle{
   font-weight: bold;
+  margin-bottom: 8px;
 }
 
 .scrollbar::-webkit-scrollbar-track {
