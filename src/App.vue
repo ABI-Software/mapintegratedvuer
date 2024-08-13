@@ -168,9 +168,9 @@ export default {
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
     },
-    mapIsLoaded: function() {
-      console.log("map is loaded")
-      // this.changeViewingMode('Annotation')
+    mapIsLoaded: function(map) {
+      console.log("map is loaded", map)
+      // map.changeViewingMode('Annotation')
     },
     viewerIsReady: function() {
       console.log("viewer is ready")

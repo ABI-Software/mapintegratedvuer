@@ -280,9 +280,6 @@ export default {
         'category': this.startingMap
       });
     },
-    changeViewingMode: function(modeName) {
-      EventBus.emit("changeViewingMode", modeName);
-    },
   },
   computed: {
     ...mapStores(useSettingsStore, useSplitFlowStore),
@@ -329,11 +326,11 @@ export default {
     if (!this.state) {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
-    EventBus.on("mapLoaded", () => {
+    EventBus.on("mapLoaded", (map) => {
       /**
        * This event emit when the map is loaded.
        */
-      this.$emit("mapLoaded");
+      this.$emit("mapLoaded", map);
     });
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);

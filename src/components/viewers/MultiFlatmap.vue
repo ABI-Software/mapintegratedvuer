@@ -459,11 +459,6 @@ export default {
         this.mapHoverHighlight(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
       }
     });
-    EventBus.on("changeViewingMode", (modeName) => {
-      if (this.flatmapReady) {
-        this.changeViewingMode(modeName);
-      }
-    });
   },
 };
 </script>

@@ -221,11 +221,6 @@ export default {
         this.mapHoverHighlight(this.$refs.scaffold);
       }
     });
-    EventBus.on("changeViewingMode", (modeName) => {
-      if (this.scaffoldLoaded) {
-        this.changeViewingMode(modeName);
-      }
-    });
   },
 };
 </script>

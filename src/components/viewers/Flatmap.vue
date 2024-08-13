@@ -185,9 +185,6 @@ export default {
         });
       }
     });
-    EventBus.on("changeViewingMode", (modeName) => {
-      this.changeViewingMode(modeName);
-    });
   },
 };
 </script>
