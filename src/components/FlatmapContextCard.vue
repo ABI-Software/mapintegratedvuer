@@ -10,6 +10,11 @@
         View publication <a :href="flatmapSource" target="_blank">here</a>
       <br/>
     </div>
+
+    <!-- Copy to clipboard button container -->
+    <div class="float-button-container">
+      <CopyToClipboard :content="copyContent" theme="light" />
+    </div>
   </div>
 </template>
 
@@ -19,11 +24,14 @@
 import {
   ElLoading as Loading
 } from "element-plus";
+import { CopyToClipboard } from "@abi-software/map-utilities";
+import '@abi-software/map-utilities/dist/style.css';
 
 export default {
   name: "FlatmapContextCard",
   components: {
     Loading,
+    CopyToClipboard,
   },
   props: {
     /**
@@ -38,7 +46,8 @@ export default {
       showDetails: true,
       showContextCard: true,
       sampleDetails: {},
-      loading: false
+      loading: false,
+      copyContent: '',
     };
   },
   computed: {
@@ -51,7 +60,7 @@ export default {
             year: 'numeric',
         })
       }
-      return flatmapPublished 
+      return flatmapPublished
     },
     sckanReleaseDisplay: function() {
       let sckanRelease = "Unknown"
@@ -70,7 +79,7 @@ export default {
           sckanRelease = "Unknown";
         }
       }
-      return sckanRelease 
+      return sckanRelease
     },
     sckanReleaseLink: function() {
       let sckanLink = "Unknown"
@@ -93,6 +102,36 @@ export default {
       return flatmapSource
     },
   },
+  mounted: function () {
+    this.updateCopyContent();
+  },
+  methods: {
+    updateCopyContent: function () {
+      const contentArray = [];
+
+      // Use <div> instead of <h1>..<h6> or <p>
+      // to avoid default formatting on font size and margin
+
+      contentArray.push(`<div><strong>Flatmap Provenance</strong></div>`);
+
+      let versionContent = `<div>SCKAN version:</div>`;
+      versionContent += `\n`;
+      versionContent += `<div><a href="${this.sckanReleaseLink}">${this.sckanReleaseLink}</a></div>`;
+      contentArray.push(versionContent);
+
+      let publishedContent = `<div>Published on:</div>`;
+      publishedContent += `\n`;
+      publishedContent += `<div>${this.flatmapPublishedDisplay}</div>`;
+      contentArray.push(publishedContent);
+
+      let publicationContent = `<div>View publication:</div>`;
+      publicationContent += `\n`;
+      publicationContent += `<div><a href="${this.flatmapSource}">${this.flatmapSource}</a></div>`;
+      contentArray.push(publicationContent);
+
+      this.copyContent = contentArray.join('\n\n<br>');
+    },
+  }
 };
 </script>
 
@@ -102,19 +141,16 @@ export default {
 
 .flatmap-context-card{
   background-color: white;
-  max-height: 10  50px;
   font-size: 12px;
   position: relative;
   display: flex;
   width: 100%;
   max-height: 258px;
+  padding: 10px;
 }
 
 .card-right {
-  flex: 1.3;
-  padding-left: 6px;
-  // overflow-y: scroll;
-  scrollbar-width: thin;
+  flex: 1;
 }
 
 .cursor-pointer {
@@ -143,4 +179,16 @@ export default {
   background-color: #979797;
 }
 
+.float-button-container {
+  position: absolute;
+  bottom: 6px;
+  right: 12px;
+  opacity: 0;
+  visibility: hidden;
+
+  .flatmap-context-card:hover & {
+    opacity: 1;
+    visibility: visible;
+  }
+}
 </style>

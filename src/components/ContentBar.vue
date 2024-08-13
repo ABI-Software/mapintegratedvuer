@@ -365,7 +365,7 @@ export default {
 
 :deep(.context-card-popover.el-popover.el-popper) {
   max-width: calc(100vw - 100px);
-  padding-right: 0px;
+  padding: 0px;
   width: unset!important;
   background: #fff!important;
 }
