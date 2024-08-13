@@ -208,7 +208,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         if (this._controller) this._controller.abort();
         this._controller = new AbortController();
         let signal = this._controller.signal;
-        console.log("getAvailableTerms")
+        // console.log("getAvailableTerms")
         fetch(`${apiLocation}get-organ-curies`, {
           signal,
         })
