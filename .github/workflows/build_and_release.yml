@@ -4,7 +4,7 @@
 name: MapIntegratedVuer Release
 run-name: "Build and release ${{ github.event.inputs.release_type }}"
 
-on: 
+on:
   workflow_dispatch:
     inputs:
       release_type:
@@ -15,7 +15,7 @@ on:
         - beta
         - patch
         - minor
-        
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -24,13 +24,13 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.17.1
-      - run: npm install 
+      - run: npm install
       - name: "Run Cypress"
         run: npm run cypress run-ct
         env:
           CYPRESS_ALGOLIA_ID: ${{ secrets.ALGOLIA_ID }}
           CYPRESS_ALGOLIA_KEY: ${{ secrets.ALGOLIA_KEY }}
-      
+
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -39,13 +39,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.17.1
-      - run: npm install 
+      - run: npm install
       - run: npm run build-bundle
-      - uses: actions/upload-artifact@master
-        with:
-          name: dist
-          path: dist/
-          
+
   publish:
     needs: build
     if: github.event.inputs.release_type != 'Test-only'
@@ -59,11 +55,6 @@ jobs:
         with:
           registry-url: 'https://registry.npmjs.org'
           node-version: 18.17.1
-      - name: Download dist
-        uses: actions/download-artifact@master
-        with:
-          name: dist
-          path: dist/
       - name: "Release ${{ github.event.inputs.release_type }}"
         run: |
           git config user.name github-actions
@@ -74,5 +65,5 @@ jobs:
           git push --tag
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
+
 
