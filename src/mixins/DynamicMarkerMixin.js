@@ -48,11 +48,11 @@ export default {
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
         if (this.entry.resource === "FunctionalConnectivity") {
-          let FCMapMarkers = []
+          let FCMapMarkers = [];
           for (let i = 0; i < fmMarkers.length; i++) {
-            FCMapMarkers = FCMapMarkers.concat(fmMarkers[i].terms)
+            FCMapMarkers = FCMapMarkers.concat(fmMarkers[i].terms);
           }
-          flatmapImp.addMarkers(Array.from(new Set(FCMapMarkers)), { className: "standard-marker", cluster: false })
+          flatmapImp.addMarkers(Array.from(new Set(FCMapMarkers)), { className: "standard-marker", cluster: false });
         } else {
           flatmapImp.addDatasetMarkers(fmMarkers);
         }
