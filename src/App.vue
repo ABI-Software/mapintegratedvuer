@@ -41,7 +41,8 @@
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
         @updateShareLinkRequested="updateUUID"
-        @isReady="mapIsReady"
+        @isReady="viewerIsReady"
+        @mapLoaded="mapIsLoaded"
       />
     </div>
   </div>
@@ -99,6 +100,9 @@ export default {
     }
   },
   methods: {
+    changeViewingMode: function(modeName) {
+      this.$refs.map.changeViewingMode(modeName);
+    },
     saveSettings: function() {
       this.mapSettings.push(this.$refs.map.getState());
     },
@@ -164,8 +168,12 @@ export default {
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
     },
-    mapIsReady: function() {
-      console.log("map is ready")
+    mapIsLoaded: function(map) {
+      console.log("map is loaded", map)
+      // map.changeViewingMode('Annotation')
+    },
+    viewerIsReady: function() {
+      console.log("viewer is ready")
     },
     parseQuery: function () {
       this.$router.isReady().then(() => {
