@@ -329,6 +329,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
+        EventBus.emit("mapLoaded", flatmap);
       }
     },
     getFlatmapImp: function () {
@@ -403,6 +404,13 @@ export default {
         return true;
       }
       return false;
+    },
+    /**
+     * Change the view mode of the current flatmap
+     */
+    changeViewingMode: function (modeName) {
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      flatmap.changeViewingMode(modeName);
     },
   },
   computed: {
