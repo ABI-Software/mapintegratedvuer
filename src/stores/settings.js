@@ -27,6 +27,7 @@ export const useSettingsStore = defineStore('settings', {
       helpDelay: 0,
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
+      organCuries: [],
     }
   },
   getters: {
@@ -153,6 +154,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateConnectivityInfoSidebar(connectivityInfoSidebar) {
       this.connectivityInfoSidebar = connectivityInfoSidebar;
+    },
+    updateOrganCuries(organCuries) {
+      this.organCuries = organCuries;
     },
   }
 });

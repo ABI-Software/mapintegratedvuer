@@ -20,6 +20,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Tagging from '../services/tagging.js';
+import { getOrganCuries } from "../services/scicrunchQueries";
 import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
@@ -335,6 +336,7 @@ export default {
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
+    getOrganCuries(this.settingsStore.sparcApi).then((organCuries) => this.settingsStore.updateOrganCuries(organCuries));
   }
 }
 

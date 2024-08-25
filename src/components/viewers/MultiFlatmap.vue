@@ -29,6 +29,8 @@
       @finish-help-mode="endHelp"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
+      @image-thumbnail-open="onImageThumbnailOpen"
+      :imageThumbnailSidebar="true"
     />
 
     <HelpModeDialog
@@ -109,6 +111,9 @@ export default {
     }
   },
   methods: {
+    onImageThumbnailOpen: function (data) {
+      console.log("🚀 ~ onImageThumbnailOpen:", data)
+    },
     /**
      * Toggle sync mode on/off depending on species and current state
      */

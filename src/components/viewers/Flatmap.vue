@@ -28,6 +28,8 @@
       :sparcAPI="apiLocation"
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
+      @image-thumbnail-open="onImageThumbnailOpen"
+      :imageThumbnailSidebar="true"
     />
 
     <HelpModeDialog
@@ -62,6 +64,9 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    onImageThumbnailOpen: function (data) {
+      console.log("🚀 ~ onImageThumbnailOpen:", data)
+    },
     getState: function () {
       return this.$refs.flatmap.getState();
     },
