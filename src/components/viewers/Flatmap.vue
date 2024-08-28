@@ -29,7 +29,7 @@
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @image-thumbnail-open="onImageThumbnailOpen"
-      :imageThumbnailSidebar="true"
+      :imageThumbnailSidebar="imageThumbnailSidebar"
     />
 
     <HelpModeDialog

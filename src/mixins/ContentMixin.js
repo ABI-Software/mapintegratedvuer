@@ -46,6 +46,9 @@ export default {
     connectivityInfoSidebar() {
       return this.settingsStore.connectivityInfoSidebar;
     },
+    imageThumbnailSidebar() {
+      return this.settingsStore.imageThumbnailSidebar;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {

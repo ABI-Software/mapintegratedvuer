@@ -28,6 +28,9 @@
       :markerCluster="true"
       :markerLabels="markerLabels"
       :flatmapAPI="flatmapAPI"
+      :sparcAPI="apiLocation"
+      @image-thumbnail-open="onImageThumbnailOpen"
+      :imageThumbnailSidebar="imageThumbnailSidebar"
     />
 
     <HelpModeDialog
@@ -59,6 +62,9 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    onImageThumbnailOpen: function (data) {
+      console.log("🚀 ~ onImageThumbnailOpen:", data)
+    },
     onResize: function () {
       this.scaffoldCamera.onResize();
     },
@@ -205,7 +211,6 @@ export default {
   },
   data: function () {
     return {
-      apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
     };

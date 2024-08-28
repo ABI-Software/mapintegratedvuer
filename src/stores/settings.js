@@ -28,6 +28,9 @@ export const useSettingsStore = defineStore('settings', {
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
       organCuries: [],
+      imageTypes: [],
+      imageThumbnails: {},
+      imageThumbnailSidebar: true,
     }
   },
   getters: {
@@ -39,6 +42,21 @@ export const useSettingsStore = defineStore('settings', {
         element => element == identifier
       );
       return state.featuredMarkerDois[index];
+    },
+    imageTypeCached: (state) => (imageType) => {
+      return state.imageTypes.includes(imageType);
+    },
+    getImageThumbnails: (state) => (imageType, uberonIds = undefined) => {
+      if (uberonIds) {
+        let thumbnails = {};
+        Object.entries(state.imageThumbnails).forEach(([key, value]) => {
+          if (uberonIds.includes(key)) {
+            thumbnails[key] = value.filter((item) => item.type === imageType);
+          }
+        });
+        return thumbnails;
+      }
+      return state.imageThumbnails;
     },
   },
   actions: {
@@ -157,6 +175,18 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateOrganCuries(organCuries) {
       this.organCuries = organCuries;
+    },
+    updateImageThumbnails(imageType, imageThumbnails) {
+      this.imageTypes.push(imageType);
+      Object.keys(imageThumbnails).forEach((key) => {
+        if (!(key in this.imageThumbnails)) {
+          this.imageThumbnails[key] = [];
+        }
+        this.imageThumbnails[key].push(...imageThumbnails[key]);
+      });
+    },
+    updateImageThumbnailSidebar(imageThumbnailSidebar) {
+      this.imageThumbnailSidebar = imageThumbnailSidebar;
     },
   }
 });

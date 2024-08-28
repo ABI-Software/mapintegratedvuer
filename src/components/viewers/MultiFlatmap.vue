@@ -30,7 +30,7 @@
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
       @image-thumbnail-open="onImageThumbnailOpen"
-      :imageThumbnailSidebar="true"
+      :imageThumbnailSidebar="imageThumbnailSidebar"
     />
 
     <HelpModeDialog
