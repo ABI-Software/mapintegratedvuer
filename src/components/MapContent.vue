@@ -309,7 +309,10 @@ export default {
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
     }
     this.splitFlowStore?.reset();
-    this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
+    getOrganCuries(this.settingsStore.sparcApi).then((organCuries) => {
+      this.settingsStore.updateOrganCuries(organCuries)
+      this.splitFlowStore?.getAvailableTerms(organCuries);
+    });
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", () => {
@@ -336,7 +339,6 @@ export default {
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
-    getOrganCuries(this.settingsStore.sparcApi).then((organCuries) => this.settingsStore.updateOrganCuries(organCuries));
   }
 }
 
