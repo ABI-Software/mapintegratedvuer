@@ -4,7 +4,7 @@
       :state="entry.state"
       :url="entry.resource"
       :region="entry.region"
-      @scaffold-selected="resourceSelected(entry.type, $event, true)"
+      @scaffold-selected="scaffoldResourceSelected(entry.type, $event)"
       @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
       @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
       @on-ready="scaffoldIsReady"
@@ -62,6 +62,9 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    scaffoldResourceSelected: function (type, resource) {
+      this.resourceSelected(type, resource, this.$refs.scaffold);
+    },
     onImageThumbnailOpen: function (data) {
       console.log("🚀 ~ onImageThumbnailOpen:", data)
     },

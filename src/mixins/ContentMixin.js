@@ -105,11 +105,16 @@ export default {
     /**
      * Callback when the vuers emit a selected event.
      */
-    resourceSelected: function (type, resource, augmented) {
+    resourceSelected: function (type, resource, mapImp) {
       // Skip processing if resources already has actions
       if (this.resourceHasAction(resource)) {
         EventBus.emit("PopoverActionClick", resource);
         return;
+      }
+
+      // Temporarily disable sidebar interaction for image marker click events
+      if ((resource.feature?.type === "marker" || resource && resource[0]) && mapImp.imageRadio) {
+        return
       }
 
       let returnedAction = undefined;
@@ -203,7 +208,7 @@ export default {
         fireResourceSelected = true;
         action = "search";
       }
-      if ((returnedAction === undefined) && augmented) {
+      if ((returnedAction === undefined) && (mapImp.viewingMode === "Exploration")) {
         returnedAction = getInteractiveAction(result, action);
       }
       if (returnedAction) EventBus.emit("PopoverActionClick", returnedAction);
