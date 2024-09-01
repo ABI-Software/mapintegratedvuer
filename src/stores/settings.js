@@ -30,7 +30,7 @@ export const useSettingsStore = defineStore('settings', {
       organCuries: [],
       imageTypes: [],
       imageThumbnails: {},
-      imageThumbnailSidebar: true,
+      imageThumbnailSidebar: false,
     }
   },
   getters: {

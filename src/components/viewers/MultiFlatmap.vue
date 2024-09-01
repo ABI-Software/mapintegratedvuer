@@ -209,7 +209,7 @@ export default {
           'event': 'interaction_event',
           'event_name': 'portal_maps_connectivity',
           'category': paramString,
-          "location": type + ' ' + map.viewingMode
+          "location": type + ' ' + flatmap.viewingMode
         });
       }
     },
