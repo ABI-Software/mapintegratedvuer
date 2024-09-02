@@ -5,7 +5,7 @@
       @flatmapChanged="flatmapChanged"
       @ready="multiFlatmapReady"
       :state="entry.state"
-      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      @resource-selected="flatmapResourceSelected(entry.type, $event)"
       style="height: 100%; width: 100%"
       :initial="entry.resource"
       :helpMode="helpMode"
@@ -29,6 +29,9 @@
       @finish-help-mode="endHelp"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
+      @imageThumbnailDisplay="onImageThumbnailDisplay"
+      @image-thumbnail-open="onImageThumbnailOpen"
+      :imageThumbnailSidebar="imageThumbnailSidebar"
     />
 
     <HelpModeDialog
@@ -109,6 +112,17 @@ export default {
     }
   },
   methods: {
+    onImageThumbnailDisplay: function (flag) {
+      const flatmapImp = this.getFlatmapImp();
+      if (flag) {
+        flatmapImp.clearDatasetMarkers();
+      } else {
+        this.flatmapMarkerUpdate(flatmapImp);
+      }
+    },
+    onImageThumbnailOpen: function (data) {
+      console.log("🚀 ~ onImageThumbnailOpen:", data)
+    },
     /**
      * Toggle sync mode on/off depending on species and current state
      */
@@ -186,9 +200,9 @@ export default {
         });
       }
     },
-    flatmaprResourceSelected: function (type, resource) {
-      const map = this.$refs.multiflatmap.getCurrentFlatmap();
-      this.resourceSelected(type, resource, (map.viewingMode === "Exploration"));
+    flatmapResourceSelected: function (type, resource) {
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      this.resourceSelected(type, resource, flatmap);
 
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
         const eventData = {
@@ -204,7 +218,7 @@ export default {
           'event': 'interaction_event',
           'event_name': 'portal_maps_connectivity',
           'category': paramString,
-          "location": type + ' ' + map.viewingMode
+          "location": type + ' ' + flatmap.viewingMode
         });
       }
     },

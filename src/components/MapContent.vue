@@ -20,6 +20,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import Tagging from '../services/tagging.js';
+import { getOrganCuries } from "../services/scicrunchQueries";
 import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
@@ -308,7 +309,10 @@ export default {
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
     }
     this.splitFlowStore?.reset();
-    this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
+    getOrganCuries(this.settingsStore.sparcApi).then((organCuries) => {
+      this.settingsStore.updateOrganCuries(organCuries)
+      this.splitFlowStore?.getAvailableTerms(organCuries);
+    });
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", () => {

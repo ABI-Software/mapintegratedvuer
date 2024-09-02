@@ -199,28 +199,16 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         this.customLayout[sourceKey].id = payload.target;
       }
     },
-    getAvailableTerms(apiLocation) {
+    getAvailableTerms(organCuries) {
       let terms = getAvailableTermsForSpecies();
       for (let i = 0; i < terms.length; i++) {
         this.idNamePair[terms[i].id] = terms[i].name;
       }
-      if (apiLocation) {
-        if (this._controller) this._controller.abort();
-        this._controller = new AbortController();
-        let signal = this._controller.signal;
-        // console.log("getAvailableTerms")
-        fetch(`${apiLocation}get-organ-curies`, {
-          signal,
-        })
-          .then(response => response.json())
-          .then(data => {
-            this._controller = undefined;
-            data.uberon.array.forEach(pair => {
-              this.idNamePair[pair.id.toUpperCase()] =
-                pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
-            });
-            return;
-          });
+      if (organCuries.length > 0) {
+        organCuries.forEach(pair => {
+          this.idNamePair[pair.id.toUpperCase()] =
+            pair.name.charAt(0).toUpperCase() + pair.name.slice(1);
+        });
       }
     },
     toggleGlobalCallback(flag) {
