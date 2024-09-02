@@ -29,6 +29,7 @@
       @finish-help-mode="endHelp"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
+      @imageThumbnailDisplay="onImageThumbnailDisplay"
       @image-thumbnail-open="onImageThumbnailOpen"
       :imageThumbnailSidebar="imageThumbnailSidebar"
     />
@@ -111,6 +112,14 @@ export default {
     }
   },
   methods: {
+    onImageThumbnailDisplay: function (flag) {
+      const flatmapImp = this.getFlatmapImp();
+      if (flag) {
+        flatmapImp.clearDatasetMarkers();
+      } else {
+        this.flatmapMarkerUpdate(flatmapImp);
+      }
+    },
     onImageThumbnailOpen: function (data) {
       console.log("🚀 ~ onImageThumbnailOpen:", data)
     },
