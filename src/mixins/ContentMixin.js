@@ -112,11 +112,6 @@ export default {
         return;
       }
 
-      // Temporarily disable sidebar interaction for image marker click events
-      if ((resource.feature?.type === "marker" || resource && resource[0]) && mapImp.imageRadio) {
-        return
-      }
-
       let returnedAction = undefined;
       let action = "none";
       let fireResourceSelected = false;
@@ -132,7 +127,7 @@ export default {
         result.internalName = this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
-          if (resource.feature.type == "marker") {
+          if (resource.feature.type == "marker" && resource.markerType === "Standard") {
             let label = this.idNamePair[resource.feature.models];
             let hardcodedAnnotation = markerZoomLevels.filter(
               mz => mz.id === resource.feature.models
@@ -195,7 +190,7 @@ export default {
           }
           result.internalName = resource[0].data.id;
           // Facet search if marker is clicked
-          if (resource[0].data.lastActionOnMarker === true) {
+          if (resource[0].data.lastActionOnMarker === true && resource[0].data.imageType === "Standard") {
             returnedAction = {
               type: "Facet",
               facet: capitalise(resource[0].data.id),
