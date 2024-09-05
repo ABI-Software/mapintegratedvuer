@@ -120,10 +120,6 @@ export default {
         this.flatmapMarkerUpdate(flatmapImp);
       }
     },
-    onImageThumbnailOpen: function (data) {
-      console.log("🚀 ~ onImageThumbnailOpen:", data)
-      EventBus.emit('image-thumbnail-open', data);
-    },
     /**
      * Toggle sync mode on/off depending on species and current state
      */
