@@ -172,7 +172,7 @@ export default {
   },
   mounted: function() {
     EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerUpdate(undefined);
+      this.flatmapMarkerUpdate(this.getFlatmapImp());
     });
     EventBus.on("hoverUpdate", () => {
       this.mapHoverHighlight(this.$refs.flatmap.mapImp);
