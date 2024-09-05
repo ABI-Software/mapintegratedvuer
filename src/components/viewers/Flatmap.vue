@@ -66,6 +66,7 @@ export default {
   methods: {
     onImageThumbnailOpen: function (data) {
       console.log("🚀 ~ onImageThumbnailOpen:", data)
+      EventBus.emit('image-thumbnail-open', data);
     },
     getState: function () {
       return this.$refs.flatmap.getState();
