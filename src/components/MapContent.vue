@@ -94,11 +94,10 @@ export default {
     },
     /**
      * The option to show thumbnail images in sidebar.
-     * Default is `true`. Set `false` to show as popup on map.
      */
-     imageThumbnailSidebar: {
+    imageThumbnailSidebar: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   data: function () {
