@@ -92,6 +92,14 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to show thumbnail images in sidebar.
+     * Default is `true`. Set `false` to show as popup on map.
+     */
+     imageThumbnailSidebar: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: function () {
     return {
@@ -339,6 +347,7 @@ export default {
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
+    this.settingsStore.updateImageThumbnailSidebar(this.imageThumbnailSidebar);
   }
 }
 

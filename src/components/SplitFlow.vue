@@ -26,6 +26,7 @@
           :activeTabId="activeDockedId"
           :open-at-start="startUp"
           :connectivityInfo="connectivityInfo"
+          :imageThumbnails="imageThumbnails"
           @connectivity-info-close="onConnectivityInfoClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
@@ -101,6 +102,7 @@ export default {
       filterTriggered: false,
       availableFacets: [],
       connectivityInfo: null,
+      imageThumbnails: [],
     }
   },
   watch: {
@@ -521,6 +523,13 @@ export default {
       this.connectivityInfo = payload;
       if (this.$refs.sideBar) {
         this.tabClicked({id: 2, type: 'connectivity'});
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    });
+    EventBus.on('image-thumbnail-open', payload => {
+      this.imageThumbnails = payload;
+      if (this.$refs.sideBar) {
+        this.tabClicked({id: 3, type: 'images'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
