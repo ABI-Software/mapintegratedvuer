@@ -28,6 +28,7 @@
           :connectivityInfo="connectivityInfo"
           :imageThumbnails="imageThumbnails"
           @connectivity-info-close="onConnectivityInfoClose"
+          @image-thumbnail-close="onImageThumbnailClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
@@ -497,6 +498,9 @@ export default {
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
     },
+    onImageThumbnailClose: function () {
+      EventBus.emit('image-thumbnail-close');
+    },
     resetActivePathways: function () {
       const containerEl = this.$el;
       const activeCanvas = containerEl.querySelector('.maplibregl-canvas');
@@ -537,6 +541,10 @@ export default {
       this.tabClicked({id: 1, type: 'search'});
       this.connectivityInfo = null;
       this.resetActivePathways();
+    });
+    EventBus.on('image-thumbnail-close', payload => {
+      this.tabClicked({id: 1, type: 'search'});
+      this.imageThumbnails = [];
     });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
