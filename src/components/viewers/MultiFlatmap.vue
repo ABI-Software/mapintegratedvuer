@@ -109,11 +109,13 @@ export default {
       scaffoldResource: { },
       showStarInLegend: false,
       openMapOptions: getOpenMapOptions("Rat"),
+      imageMarker: false,
     }
   },
   methods: {
     onImageThumbnailDisplay: function (flag) {
       const flatmapImp = this.getFlatmapImp();
+      this.imageMarker = flag;
       if (flag) {
         flatmapImp.clearDatasetMarkers();
       } else {
@@ -461,8 +463,8 @@ export default {
     });
 
     EventBus.on("markerUpdate", () => {
-      if (this.flatmapReady) {
-        this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
+      if (this.flatmapReady && !this.imageMarker) {
+        this.flatmapMarkerUpdate(this.getFlatmapImp());
       }
     });
     EventBus.on("hoverUpdate", () => {
