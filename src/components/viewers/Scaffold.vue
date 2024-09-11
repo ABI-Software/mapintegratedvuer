@@ -65,9 +65,6 @@ export default {
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, this.$refs.scaffold);
     },
-    onImageThumbnailOpen: function (data) {
-      console.log("🚀 ~ onImageThumbnailOpen:", data)
-    },
     onResize: function () {
       this.scaffoldCamera.onResize();
     },

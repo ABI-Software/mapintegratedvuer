@@ -26,7 +26,9 @@
           :activeTabId="activeDockedId"
           :open-at-start="startUp"
           :connectivityInfo="connectivityInfo"
+          :imageThumbnails="imageThumbnails"
           @connectivity-info-close="onConnectivityInfoClose"
+          @image-thumbnail-close="onImageThumbnailClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
@@ -101,6 +103,7 @@ export default {
       filterTriggered: false,
       availableFacets: [],
       connectivityInfo: null,
+      imageThumbnails: [],
     }
   },
   watch: {
@@ -495,6 +498,9 @@ export default {
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
     },
+    onImageThumbnailClose: function () {
+      EventBus.emit('image-thumbnail-close');
+    },
     resetActivePathways: function () {
       const containerEl = this.$el;
       const activeCanvas = containerEl.querySelector('.maplibregl-canvas');
@@ -524,10 +530,21 @@ export default {
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
+    EventBus.on('image-thumbnail-open', payload => {
+      this.imageThumbnails = payload;
+      if (this.$refs.sideBar) {
+        this.tabClicked({id: 3, type: 'images'});
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    });
     EventBus.on('connectivity-info-close', payload => {
       this.tabClicked({id: 1, type: 'search'});
       this.connectivityInfo = null;
       this.resetActivePathways();
+    });
+    EventBus.on('image-thumbnail-close', payload => {
+      this.tabClicked({id: 1, type: 'search'});
+      this.imageThumbnails = [];
     });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);

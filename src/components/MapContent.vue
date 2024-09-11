@@ -92,6 +92,13 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to show thumbnail images in sidebar.
+     */
+    imageThumbnailSidebar: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -339,6 +346,7 @@ export default {
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
+    this.settingsStore.updateImageThumbnailSidebar(this.imageThumbnailSidebar);
   }
 }
 

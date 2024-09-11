@@ -499,6 +499,10 @@ export default {
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
     },
+    onImageThumbnailOpen: function (data) {
+      console.log("🚀 ~ onImageThumbnailOpen:", data)
+      EventBus.emit('image-thumbnail-open', data);
+    },
   },
   data: function () {
     return {

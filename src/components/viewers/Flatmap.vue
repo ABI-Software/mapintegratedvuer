@@ -64,9 +64,6 @@ export default {
     HelpModeDialog,
   },
   methods: {
-    onImageThumbnailOpen: function (data) {
-      console.log("🚀 ~ onImageThumbnailOpen:", data)
-    },
     getState: function () {
       return this.$refs.flatmap.getState();
     },
