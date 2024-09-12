@@ -105,7 +105,7 @@ export default {
       availableSpecies: availableSpecies(),
       scaffoldResource: { },
       showStarInLegend: false,
-      openMapOptions: getOpenMapOptions("Rat"),
+      openMapOptions: getOpenMapOptions("Human Male"),
     }
   },
   methods: {

@@ -500,7 +500,7 @@ export default {
   data: function () {
     return {
       apiLocation: undefined,
-      activeSpecies: "Rat",
+      activeSpecies: "Human Male",
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",
