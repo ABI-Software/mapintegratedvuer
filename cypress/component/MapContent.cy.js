@@ -102,6 +102,8 @@ describe('MapContent', () => {
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 30000}).should('not.exist');
 
+    cy.compareSnapshot('default-map');
+
     //Test the existence of the minimap
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 30000}).should('exist');
 
