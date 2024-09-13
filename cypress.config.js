@@ -1,4 +1,6 @@
 
+import { configureVisualRegression } from 'cypress-visual-regression';
+
 export default {
   defaultCommandTimeout: 10000,
   reporter: "junit",
@@ -16,6 +18,13 @@ export default {
     devServer: {
       framework: "vue",
       bundler: "vite",
+    },
+    env: {
+      visualRegressionType: 'regression'
+    },
+    screenshotsFolder: './cypress/snapshots/actual',
+    setupNodeEvents(on, config) {
+      configureVisualRegression(on)
     },
   },
   video: true,
