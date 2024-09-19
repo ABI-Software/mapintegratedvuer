@@ -2,7 +2,7 @@ const initialDefaultState = () => {
   return {
     entries: [
       {
-        resource: "Rat",
+        resource: "Human Male",
         type: "MultiFlatmap",
         mode: "main",
         id: 1,
@@ -18,7 +18,7 @@ const getNewMapEntry = async (type, sparcApi) => {
   let entry = { };
   if (type === "AC") {
     entry = {
-      resource: "Rat",
+      resource: "Human Male",
       type: "MultiFlatmap",
       mode: "main",
       state: undefined,
