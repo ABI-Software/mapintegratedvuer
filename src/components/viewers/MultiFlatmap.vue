@@ -188,7 +188,7 @@ export default {
     },
     flatmaprResourceSelected: function (type, resource) {
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
-      this.resourceSelected(type, resource, (map.viewingMode === "Exploration"));
+      this.resourceSelected(type, resource);
 
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
         const eventData = {
