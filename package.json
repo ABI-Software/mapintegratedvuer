@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "1.5.0",
+  "version": "1.5.1-beta-0",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
@@ -55,7 +55,7 @@
     "@abi-software/map-utilities": "^1.1.0",
     "@abi-software/plotvuer": "1.0.0",
     "@abi-software/scaffoldvuer": "^1.4.1",
-    "@abi-software/simulationvuer": "1.0.0",
+    "@abi-software/simulationvuer": "2.0.6",
     "@abi-software/svg-sprite": "1.0.0",
     "@element-plus/icons-vue": "^2.3.1",
     "@pinia/testing": "^0.1.3",
