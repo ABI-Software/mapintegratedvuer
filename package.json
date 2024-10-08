@@ -72,7 +72,6 @@
     "xss": "^1.0.14"
   },
   "devDependencies": {
-    "@cypress/webpack-dev-server": "^3.6.1",
     "@vue/test-utils": "^2.4.4",
     "@vuese/markdown-render": "^2.11.3",
     "auto-changelog": "^2.4.0",
