@@ -64,7 +64,7 @@ export default {
      */
     options: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
       required: true
     },
     /**
@@ -100,7 +100,7 @@ export default {
   },
   methods: {
     /**
-     * @vuese
+     * @public
      * Function to check whether it is in fullscreen mode or not.
      *
      */
@@ -109,9 +109,9 @@ export default {
         document.mozFullScreenElement || document.msFullscreenElement )
     },
     /**
-     * @vuese
+     * @public
      * Function to toggle fullscreen.
-     * @arg fullscreenRequest
+     * @arg `fullscreenReq`
      */
     onFullscreen: function(fullscreenReq) {
       //If a request is sent, try it
@@ -133,7 +133,7 @@ export default {
       }
     },
     /**
-     * @vuese
+     * @public
      * Function to leave fullscreen mode.
      */
     leaveFullscreen: function(){
@@ -150,7 +150,7 @@ export default {
       }
     },
     /**
-     * @vuese
+     * @public
      * Function to go to fullscreen mode.
      */
     goFullscreen: function(){
@@ -172,12 +172,12 @@ export default {
       return this.$refs.flow.getState();
     },
     /**
-     * @vuese
+     * @public
      * Provide a way to set the current view, this is currently limited
      * to setting view for flatmapm, multiflatmap or scaffold.
      * In the case of the multiflatmap, it will not create a new entry and
      * instead change the current entry by setting the state.
-     * @arg state
+     * @arg `state`
      */
     setCurrentEntry: async function(state) {
       if (state && state.type) {
@@ -253,15 +253,16 @@ export default {
       }
     },
     /**
-     * @vuese
+     * @public
      * Open the sidebar with the specified facets and query.
-     * @arg facets, query
+     * @arg `facets`,
+     * @arg `query`
      */
     openSearch: function(facets, query) {
       return this.$refs.flow.openSearch(facets, query);
     },
     /**
-     * @vuese
+     * @public
      * Function to run when the component is mounted.
      */
     flowMounted: function () {

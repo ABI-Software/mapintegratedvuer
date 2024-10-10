@@ -139,8 +139,6 @@ describe('MapContent', () => {
     //Check for two content containers
     cy.get('.contentvuer').should('be.visible').should('have.length', 2);
 
-    //Wait for the mouse dataset request
-    cy.wait('@mouseDataset', {timeout: 20000});
 
     //Open the sidebar
     cy.get('.side-bar > .open-tab').should('exist').click();
@@ -153,6 +151,9 @@ describe('MapContent', () => {
 
     //Check number of dataset card, it should be 1
     cy.get('.dataset-card-container').should('have.length', 1);
+
+    //Wait for the mouse dataset request
+    cy.wait('@mouseDataset', {timeout: 20000});
 
     //Check how many tags in the dataset
     cy.get('.box-card .container button').should('have.length', 6);
