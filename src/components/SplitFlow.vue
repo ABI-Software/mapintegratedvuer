@@ -41,6 +41,7 @@
           :entries="entries"
           ref="splitdialog"
           @resource-selected="resourceSelected"
+          @species-changed="speciesChanged"
         />
       </div>
     </el-main>
@@ -449,6 +450,11 @@ export default {
       this.$emit("resource-selected", result);
       if (this.splitFlowStore.globalCallback) {
         this.$refs.splitdialog.sendSynchronisedEvent(result);
+      }
+    },
+    speciesChanged: function (species) {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.close();
       }
     },
     tabClicked: function ({id, type}) {
