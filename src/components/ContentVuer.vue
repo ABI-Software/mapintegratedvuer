@@ -121,6 +121,7 @@ export default {
     },
     speciesChanged: function (species) {
       this.activeSpecies = species;
+      this.$emit("species-changed", species);
     },
     receiveSynchronisedEvent: async function (data) {
       this.$refs.viewer?.receiveSynchronisedEvent(data);
