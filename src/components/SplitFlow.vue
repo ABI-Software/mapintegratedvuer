@@ -565,6 +565,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
         ROOT_URL: this.settingsStore.rootUrl,
+        FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
       };
     },
     entries: function() {
