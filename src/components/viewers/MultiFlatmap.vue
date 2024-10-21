@@ -449,6 +449,18 @@ export default {
       }
     });
 
+    EventBus.on('connectivity-component-click', (data) => {
+      // Connectivity component click emits an array of data,
+      // a combination of ids and labels.
+      // The first half is ids and the second half is labels.
+      const halfIndex = Math.ceil(data.length / 2);
+      const ids = data.slice(0, halfIndex); // first half
+      // const labels = data.slice(halfIndex); // second half
+
+      // The search can perform with either id or label
+      this.search(ids[0]);
+    });
+
     EventBus.on("markerUpdate", () => {
       if (this.flatmapReady) {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
