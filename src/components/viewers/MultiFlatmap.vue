@@ -454,8 +454,14 @@ export default {
       // a combination of ids and labels.
       // The first half is ids and the second half is labels.
       const halfIndex = Math.ceil(data.length / 2);
-      const ids = data.slice(0, halfIndex); // first half
-      // const labels = data.slice(halfIndex); // second half
+
+      // first half | ids
+      // searching with id will find the exact match
+      const ids = data.slice(0, halfIndex);
+
+      // second half | labels
+      // searching with labels will find the closest/similar term
+      const labels = data.slice(halfIndex);
 
       // The search can perform with either id or label
       this.search(ids[0]);
