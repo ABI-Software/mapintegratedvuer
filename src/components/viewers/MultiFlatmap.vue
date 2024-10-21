@@ -463,8 +463,18 @@ export default {
       // searching with labels will find the closest/similar term
       const labels = data.slice(halfIndex);
 
-      // The search can perform with either id or label
-      this.search(ids[0]);
+      // search the features on the map first
+      if (this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (flatmap.mapImp) {
+          const response = flatmap.mapImp.search(ids[0]);
+          // highlight only if the feature is found on map
+          if (response?.results.length) {
+            // The search can perform with either id or label
+            this.search(ids[0]);
+          }
+        }
+      }
     });
 
     EventBus.on("markerUpdate", () => {
