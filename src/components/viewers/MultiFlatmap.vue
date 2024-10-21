@@ -179,7 +179,8 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       if (term && flatmap.mapImp) {
         const results = flatmap.mapImp.search(term);
-        results.__featureIds.forEach(id => {
+        const featureIds = results.__featureIds || results.featureIds;
+        featureIds.forEach(id => {
           const annotation = flatmap.mapImp.annotation(id);
           if (annotation && annotation.label)
             suggestions.push(annotation.label);
