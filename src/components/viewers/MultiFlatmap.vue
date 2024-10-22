@@ -470,17 +470,52 @@ export default {
       if (this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (flatmap.mapImp) {
-          const response = flatmap.mapImp.search(ids[0]);
-          // highlight only if the feature is found on map
-          if (response?.results.length) {
-            // The search can perform with either id or label
-            this.search(ids[0]);
+          // create an array for all data
+          const features = [];
 
-            // to keep the highlighted path on map
-            if (connectivityInfo && connectivityInfo.featureId) {
-              const allFeatures = [...ids, ...connectivityInfo.featureId];
-              flatmap.mapImp.zoomToFeatures(allFeatures);
+          ids.forEach((id, i) => {
+            const response = flatmap.mapImp.search(id);
+            if (response?.results.length) {
+              const featureId = response?.results[0].featureId;
+              features.push({
+                featureId,
+                label: labels[i],
+              });
             }
+          });
+
+          // combine all labels to show together
+          // content type must be DOM object to use HTML
+          const labelsContainer = document.createElement('div');
+          labelsContainer.classList.add('flatmap-feature-label');
+          labels.forEach((label, i) => {
+            labelsContainer.append(label);
+
+            if ((i + 1) < labels.length) {
+              const hr = document.createElement('hr');
+              labelsContainer.appendChild(hr);
+            }
+          });
+
+          // The search can perform with either id or label
+          // this.search(ids[0]);
+
+          // show tooltip of the first item
+          // with all labels
+          flatmap.mapImp.showPopup(
+            features[0].featureId,
+            labelsContainer,
+            {
+              className: 'custom-popup',
+              positionAtLastClick: false,
+              preserveSelection: true,
+            }
+          );
+
+          // to keep the highlighted path on map
+          if (connectivityInfo && connectivityInfo.featureId) {
+            const allFeatures = [...ids, ...connectivityInfo.featureId];
+            flatmap.mapImp.zoomToFeatures(allFeatures);
           }
         }
       }
