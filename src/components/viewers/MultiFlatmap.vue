@@ -450,7 +450,9 @@ export default {
       }
     });
 
-    EventBus.on('connectivity-component-click', (data) => {
+    EventBus.on('connectivity-component-click', (payload) => {
+      const { connectivityInfo, data } = payload;
+
       // Connectivity component click emits an array of data,
       // a combination of ids and labels.
       // The first half is ids and the second half is labels.
@@ -473,6 +475,11 @@ export default {
           if (response?.results.length) {
             // The search can perform with either id or label
             this.search(ids[0]);
+
+            // to keep the highlighted path on map
+            if (connectivityInfo && connectivityInfo.featureId) {
+              flatmap.mapImp.zoomToFeatures(connectivityInfo.featureId);
+            }
           }
         }
       }

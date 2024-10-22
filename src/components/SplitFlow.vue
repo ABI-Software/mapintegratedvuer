@@ -279,7 +279,10 @@ export default {
       });
     },
     onConnectivityComponentClick: function (data) {
-      EventBus.emit('connectivity-component-click', data);
+      EventBus.emit('connectivity-component-click', {
+        connectivityInfo: this.connectivityInfo,
+        data
+      });
     },
     hoverChanged: function (data) {
       const hoverAnatomies = data && data.anatomy ? data.anatomy : [];
