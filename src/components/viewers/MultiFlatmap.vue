@@ -478,7 +478,8 @@ export default {
 
             // to keep the highlighted path on map
             if (connectivityInfo && connectivityInfo.featureId) {
-              flatmap.mapImp.zoomToFeatures(connectivityInfo.featureId);
+              const allFeatures = [...ids, ...connectivityInfo.featureId];
+              flatmap.mapImp.zoomToFeatures(allFeatures);
             }
           }
         }
