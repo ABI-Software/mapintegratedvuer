@@ -542,6 +542,11 @@ export default {
       this.connectivityInfo = null;
       this.resetActivePathways();
     });
+    EventBus.on('connectivity-graph-error', payload => {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.updateConnectivityGraphError(payload.data);
+      }
+    });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
     });

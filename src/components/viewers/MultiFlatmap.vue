@@ -452,71 +452,102 @@ export default {
 
     EventBus.on('connectivity-component-click', (payload) => {
       const { connectivityInfo, data } = payload;
+      const featuresToHighlight = [];
+      const connectivityData = [];
+      const filteredConnectivityData = [];
+      const errorData = [];
+
+      // to keep the highlighted path on map
+      if (connectivityInfo && connectivityInfo.featureId) {
+        featuresToHighlight.push(...connectivityInfo.featureId);
+      }
 
       // Connectivity component click emits an array of data,
       // a combination of ids and labels.
       // The first half is ids and the second half is labels.
-      const halfIndex = Math.ceil(data.length / 2);
-
-      // first half | ids
-      // searching with id will find the exact match
-      const ids = data.slice(0, halfIndex);
-
-      // second half | labels
-      // searching with labels will find the closest/similar term
-      const labels = data.slice(halfIndex);
+      for (let i = 0; i < data.length / 2; i++) {
+        connectivityData.push({
+          id: data[i],
+          label: data[i + data.length / 2]
+        });
+      }
 
       // search the features on the map first
       if (this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (flatmap.mapImp) {
-          // create an array for all data
-          const features = [];
-
-          ids.forEach((id, i) => {
+          connectivityData.forEach((connectivity, i) => {
+            const {id, label} = connectivity;
             const response = flatmap.mapImp.search(id);
+
             if (response?.results.length) {
               const featureId = response?.results[0].featureId;
-              features.push({
+
+              filteredConnectivityData.push({
                 featureId,
-                label: labels[i],
+                id,
+                label,
               });
+              featuresToHighlight.push(id);
+            } else {
+              errorData.push(connectivity);
             }
           });
-
-          // combine all labels to show together
-          // content type must be DOM object to use HTML
-          const labelsContainer = document.createElement('div');
-          labelsContainer.classList.add('flatmap-feature-label');
-          labels.forEach((label, i) => {
-            labelsContainer.append(label);
-
-            if ((i + 1) < labels.length) {
-              const hr = document.createElement('hr');
-              labelsContainer.appendChild(hr);
-            }
-          });
-
-          // The search can perform with either id or label
-          // this.search(ids[0]);
 
           // show tooltip of the first item
           // with all labels
-          flatmap.mapImp.showPopup(
-            features[0].featureId,
-            labelsContainer,
-            {
-              className: 'custom-popup',
-              positionAtLastClick: false,
-              preserveSelection: true,
-            }
-          );
+          if (filteredConnectivityData.length) {
+            // combine all labels to show together
+            // content type must be DOM object to use HTML
+            const labelsContainer = document.createElement('div');
+            labelsContainer.classList.add('flatmap-feature-label');
 
-          // to keep the highlighted path on map
-          if (connectivityInfo && connectivityInfo.featureId) {
-            const allFeatures = [...ids, ...connectivityInfo.featureId];
-            flatmap.mapImp.zoomToFeatures(allFeatures);
+            filteredConnectivityData.forEach((connectivity, i) => {
+              const { label } = connectivity;
+              labelsContainer.append(label);
+
+              if ((i + 1) < filteredConnectivityData.length) {
+                const hr = document.createElement('hr');
+                labelsContainer.appendChild(hr);
+              }
+            });
+
+            flatmap.mapImp.showPopup(
+              filteredConnectivityData[0].featureId,
+              labelsContainer,
+              {
+                className: 'custom-popup',
+                positionAtLastClick: false,
+                preserveSelection: true,
+              }
+            );
+          } else {
+            errorData.push(...connectivityData);
           }
+
+          if (errorData.length) {
+            const errorDataToEmit = [...new Set(errorData)];
+            let errorMessage = '';
+
+            errorDataToEmit.forEach((connectivity, i) => {
+              errorMessage += connectivity.label;
+
+              if (errorDataToEmit.length > 1) {
+                if ((i + 2) === errorDataToEmit.length) {
+                  errorMessage += ' and ';
+                } else if ((i + 1) < errorDataToEmit.length) {
+                  errorMessage += ', ';
+                }
+              }
+            });
+            errorMessage += ' cannot be found on the map!';
+            EventBus.emit('connectivity-graph-error', {
+              data: errorMessage
+            });
+          }
+
+          // highlight all available features
+          flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
         }
       }
     });
