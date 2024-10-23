@@ -414,6 +414,55 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
+    createTooltipForConnectivity: function (filteredConnectivityData, mapImp) {
+      // combine all labels to show together
+      // content type must be DOM object to use HTML
+      const labelsContainer = document.createElement('div');
+      labelsContainer.classList.add('flatmap-feature-label');
+
+      filteredConnectivityData.forEach((connectivity, i) => {
+        const { label } = connectivity;
+        labelsContainer.append(capitalise(label));
+
+        if ((i + 1) < filteredConnectivityData.length) {
+          const hr = document.createElement('hr');
+          labelsContainer.appendChild(hr);
+        }
+      });
+
+      mapImp.showPopup(
+        filteredConnectivityData[0].featureId,
+        labelsContainer,
+        {
+          className: 'custom-popup flatmap-tooltip-popup',
+          positionAtLastClick: false,
+          preserveSelection: true,
+        }
+      );
+    },
+    emitConnectivityGraphError: function (errorData) {
+      if (errorData.length) {
+        const errorDataToEmit = [...new Set(errorData)];
+        let errorMessage = '';
+
+        errorDataToEmit.forEach((connectivity, i) => {
+          const { label } = connectivity;
+          errorMessage += (i === 0) ? capitalise(label) : label;
+
+          if (errorDataToEmit.length > 1) {
+            if ((i + 2) === errorDataToEmit.length) {
+              errorMessage += ' and ';
+            } else if ((i + 1) < errorDataToEmit.length) {
+              errorMessage += ', ';
+            }
+          }
+        });
+        errorMessage += ' cannot be found on the map!';
+        EventBus.emit('connectivity-graph-error', {
+          data: errorMessage
+        });
+      }
+    },
   },
   computed: {
     facetSpecies() {
@@ -498,55 +547,13 @@ export default {
           // show tooltip of the first item
           // with all labels
           if (filteredConnectivityData.length) {
-            // combine all labels to show together
-            // content type must be DOM object to use HTML
-            const labelsContainer = document.createElement('div');
-            labelsContainer.classList.add('flatmap-feature-label');
-
-            filteredConnectivityData.forEach((connectivity, i) => {
-              const { label } = connectivity;
-              labelsContainer.append(capitalise(label));
-
-              if ((i + 1) < filteredConnectivityData.length) {
-                const hr = document.createElement('hr');
-                labelsContainer.appendChild(hr);
-              }
-            });
-
-            flatmap.mapImp.showPopup(
-              filteredConnectivityData[0].featureId,
-              labelsContainer,
-              {
-                className: 'custom-popup flatmap-tooltip-popup',
-                positionAtLastClick: false,
-                preserveSelection: true,
-              }
-            );
+            this.createTooltipForConnectivity(filteredConnectivityData, flatmap.mapImp);
           } else {
             errorData.push(...connectivityData);
           }
 
-          if (errorData.length) {
-            const errorDataToEmit = [...new Set(errorData)];
-            let errorMessage = '';
-
-            errorDataToEmit.forEach((connectivity, i) => {
-              const { label } = connectivity;
-              errorMessage += (i === 0) ? capitalise(label) : label;
-
-              if (errorDataToEmit.length > 1) {
-                if ((i + 2) === errorDataToEmit.length) {
-                  errorMessage += ' and ';
-                } else if ((i + 1) < errorDataToEmit.length) {
-                  errorMessage += ', ';
-                }
-              }
-            });
-            errorMessage += ' cannot be found on the map!';
-            EventBus.emit('connectivity-graph-error', {
-              data: errorMessage
-            });
-          }
+          // Emit error message for connectivity graph
+          this.emitConnectivityGraphError(errorData);
 
           // highlight all available features
           flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
