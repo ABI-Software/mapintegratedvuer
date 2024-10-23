@@ -463,44 +463,7 @@ export default {
         });
       }
     },
-  },
-  computed: {
-    facetSpecies() {
-      return this.settingsStore.facets.species;
-    },
-    featuredMarkers() {
-      return this.settingsStore.featuredMarkers;
-    },
-  },
-  watch: {
-    syncMode: function (val) {
-      if (this.$refs.multiflatmap.getCurrentFlatmap())
-        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
-    },
-    featuredMarkers: function (markers) {
-      if (!this.flatmapReady) {
-        return;
-      }
-
-      this.updateFeaturedMarkers(markers, undefined);
-    },
-  },
-  mounted: function () {
-    this.getFeaturedDatasets();
-    EventBus.on('show-connectivity', (payload) => {
-      const { featureIds, offset } = payload;
-      if (this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (currentFlatmap) {
-          currentFlatmap.moveMap(featureIds, {
-            offsetX: offset ? -150 : 0,
-            zoom: 4,
-          });
-        }
-      }
-    });
-
-    EventBus.on('connectivity-component-click', (payload) => {
+    showConnectivityTooltips: function (payload) {
       const { connectivityInfo, data } = payload;
       const featuresToHighlight = [];
       const connectivityData = [];
@@ -544,9 +507,9 @@ export default {
             }
           });
 
-          // show tooltip of the first item
-          // with all labels
           if (filteredConnectivityData.length) {
+            // show tooltip of the first item
+            // with all labels
             this.createTooltipForConnectivity(filteredConnectivityData, flatmap.mapImp);
           } else {
             errorData.push(...connectivityData);
@@ -559,6 +522,46 @@ export default {
           flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
         }
       }
+    },
+  },
+  computed: {
+    facetSpecies() {
+      return this.settingsStore.facets.species;
+    },
+    featuredMarkers() {
+      return this.settingsStore.featuredMarkers;
+    },
+  },
+  watch: {
+    syncMode: function (val) {
+      if (this.$refs.multiflatmap.getCurrentFlatmap())
+        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
+    },
+    featuredMarkers: function (markers) {
+      if (!this.flatmapReady) {
+        return;
+      }
+
+      this.updateFeaturedMarkers(markers, undefined);
+    },
+  },
+  mounted: function () {
+    this.getFeaturedDatasets();
+    EventBus.on('show-connectivity', (payload) => {
+      const { featureIds, offset } = payload;
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -150 : 0,
+            zoom: 4,
+          });
+        }
+      }
+    });
+
+    EventBus.on('connectivity-component-click', (payload) => {
+      this.showConnectivityTooltips(payload);
     });
 
     EventBus.on("markerUpdate", () => {
