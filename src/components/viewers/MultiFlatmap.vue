@@ -48,6 +48,7 @@ import Tagging from '../../services/tagging.js';
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
+  capitalise,
   availableSpecies,
   getBodyScaffoldInfo,
   transformObjToString
@@ -504,7 +505,7 @@ export default {
 
             filteredConnectivityData.forEach((connectivity, i) => {
               const { label } = connectivity;
-              labelsContainer.append(label);
+              labelsContainer.append(capitalise(label));
 
               if ((i + 1) < filteredConnectivityData.length) {
                 const hr = document.createElement('hr');
@@ -516,7 +517,7 @@ export default {
               filteredConnectivityData[0].featureId,
               labelsContainer,
               {
-                className: 'custom-popup',
+                className: 'custom-popup flatmap-tooltip-popup',
                 positionAtLastClick: false,
                 preserveSelection: true,
               }
@@ -530,7 +531,8 @@ export default {
             let errorMessage = '';
 
             errorDataToEmit.forEach((connectivity, i) => {
-              errorMessage += connectivity.label;
+              const { label } = connectivity;
+              errorMessage += (i === 0) ? capitalise(label) : label;
 
               if (errorDataToEmit.length > 1) {
                 if ((i + 2) === errorDataToEmit.length) {
