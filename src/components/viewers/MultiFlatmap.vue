@@ -414,6 +414,14 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
+    removeConnectivityTooltips: function () {
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      if (flatmap?.$el) {
+        // close all tooltips on the current flatmap element
+        const tooltips = flatmap.$el.querySelectorAll('.flatmap-tooltip-popup');
+        tooltips.forEach(tooltip => tooltip.remove());
+      }
+    },
     createTooltipForConnectivity: function (filteredConnectivityData, mapImp) {
       // combine all labels to show together
       // content type must be DOM object to use HTML
@@ -470,6 +478,10 @@ export default {
       const filteredConnectivityData = [];
       const errorData = [];
 
+      if (!data.length) {
+        this.removeConnectivityTooltips();
+      }
+
       // to keep the highlighted path on map
       if (connectivityInfo && connectivityInfo.featureId) {
         featuresToHighlight.push(...connectivityInfo.featureId);
@@ -513,6 +525,7 @@ export default {
             this.createTooltipForConnectivity(filteredConnectivityData, flatmap.mapImp);
           } else {
             errorData.push(...connectivityData);
+            this.removeConnectivityTooltips();
           }
 
           // Emit error message for connectivity graph
