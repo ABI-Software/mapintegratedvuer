@@ -36,6 +36,7 @@
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
+          @connectivity-component-click="onConnectivityComponentClick"
         />
         <SplitDialog
           :entries="entries"
@@ -275,6 +276,12 @@ export default {
       EventBus.emit('show-connectivity', {
         featureIds: featureIds,
         offset: activeView === 'singlepanel' || activeView === '2horpanel'
+      });
+    },
+    onConnectivityComponentClick: function (data) {
+      EventBus.emit('connectivity-component-click', {
+        connectivityInfo: this.connectivityInfo,
+        data
       });
     },
     hoverChanged: function (data) {
