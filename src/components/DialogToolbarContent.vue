@@ -26,7 +26,7 @@
           <map-svg-icon icon="help" class="sync-help header-icon"/>
         </template>
         <template #default>
-            When in Linked mode the two maps will interact 
+            When in Linked mode the two maps will interact
             <br>
             together. Select an organ in one and it will
             <br>
@@ -279,6 +279,11 @@ export default {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
     },
+    onFullscreenEsc: function () {
+      if (!document.fullscreenElement) {
+        this.isFullscreen = false;
+      }
+    },
     close: function() {
       this.$emit("close");
     },
@@ -306,6 +311,11 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
+
+    document.addEventListener('fullscreenchange', this.onFullscreenEsc);
+  },
+  unmounted: function () {
+    document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
   },
 };
 </script>
@@ -372,7 +382,7 @@ export default {
   &:hover, &:focus {
     color:#FFFFFF;
     background-color:$app-primary-color;
-    box-shadow: -3px 2px 4px #000000; 
+    box-shadow: -3px 2px 4px #000000;
   }
 }
 
