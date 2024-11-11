@@ -261,30 +261,35 @@ export default {
   display:flex;
   flex-direction: row;
   .select-box {
-    width: 177px;
-    height: 26px;
-    border-radius: 4px;
-    border: 1px solid rgb(144, 147, 153);
-    background-color: #fff;
-    font-weight: 500;
-    color: rgb(48, 49, 51);
-    margin-left: 8px;
-    margin-top: 3px;
-    margin-bottom: 2px;
+    max-width: 300px;
     z-index: 5;
     :deep(.el-select__wrapper) {
-      width:177px;
       color: $app-primary-color;
-      height: 26px;
-      min-height: 26px;
-      line-height: 26px;
-      padding-left: 4px;
+      height: 29px;
+      min-height: 29px;
+      line-height: 29px;
+      font-weight: 500;
+      margin-top: 1px;
+      margin-left: 8px;
+      padding-left: 8px;
       padding-right: 8px;
-      background-color: #fff;
-      border-style: none;
+      box-shadow: none !important;
+      background: transparent;
       span {
         color: $app-primary-color;
       }
+    }
+
+    :deep(.el-select__placeholder) {
+      width: fit-content;
+      position: relative;
+      top: auto;
+      transform: none;
+      min-width: 80px;
+    }
+
+    :deep(.el-select__caret) {
+      color: $app-primary-color;
     }
 
     :deep(.el-input__icon) {
