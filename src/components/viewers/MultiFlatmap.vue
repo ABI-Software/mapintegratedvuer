@@ -439,6 +439,13 @@ export default {
   },
   mounted: function () {
     this.getFeaturedDatasets();
+
+    EventBus.on('annotation-close', (payload) => {
+      if (payload?.tabClose && this.$refs.multiflatmap.getCurrentFlatmap()) {
+        this.$refs.multiflatmap.getCurrentFlatmap().annotationEventCallback({}, { type: 'aborted' })
+      }
+    });
+
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       if (this.flatmapReady && this.$refs.multiflatmap) {

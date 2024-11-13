@@ -543,7 +543,7 @@ export default {
     },
     onSidebarTabClose: function (id) {
       if (id === 2) EventBus.emit('connectivity-info-close');
-      if (id === 3) EventBus.emit('annotation-close');
+      if (id === 3) EventBus.emit('annotation-close', { tabClose: true });
     },
     resetActivePathways: function () {
       const containerEl = this.$el;
