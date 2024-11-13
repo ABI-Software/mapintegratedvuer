@@ -337,6 +337,21 @@ export default {
   position: relative;
   top: auto;
   font-size: 12px;
+  align-items: center;
+
+  :deep(.el-tooltip__trigger) {
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .hide {
+    margin-top: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
 }
 
 .info-icon {
