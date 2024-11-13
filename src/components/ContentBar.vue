@@ -149,10 +149,22 @@ export default {
     },
     popperOptions: function() {
       return {
-        preventOverflow: {
-          enabled: true,
-          boundary: this.boundariesElement,
-        }
+        modifiers: [
+          {
+            name: 'preventOverflow',
+            options: {
+              boundary: this.boundariesElement,
+            }
+          },
+          {
+            name: 'flip',
+            options: {
+              boundary: this.boundariesElement,
+              flipVariations: false,
+              allowedAutoPlacements: ['bottom'],
+            }
+          },
+        ]
       }
     },
     entries: function() {
