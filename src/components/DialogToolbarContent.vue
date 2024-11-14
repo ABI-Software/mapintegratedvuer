@@ -306,6 +306,10 @@ export default {
         view,
         entries: this.entriesStore.entries,
       });
+
+      if (this.$refs.viewPopover) {
+        this.$refs.viewPopover.hide();
+      }
     }
   },
   mounted: function () {
