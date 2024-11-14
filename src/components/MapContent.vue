@@ -91,6 +91,14 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to show annotation in sidebar.
+     * Default is `true`. Set `false` to show as popup on map.
+     */
+     annotationSidebar: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: function () {
     return {
@@ -337,6 +345,7 @@ export default {
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
+    this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
   }
 }
 

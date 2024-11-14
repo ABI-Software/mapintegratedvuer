@@ -261,7 +261,6 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           customLayout = newState.customLayout;
         } else {
           customLayout = presetLayouts(this.activeView);
-          console.log(newState, customLayout)
           if (newState.slotInfo) {
             for (let i = 0; i < newState.slotInfo.length; i++) {
               switch (newState.slotInfo[i].name) {

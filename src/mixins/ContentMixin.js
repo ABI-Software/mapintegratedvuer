@@ -1,3 +1,4 @@
+import { markRaw } from "vue";
 import {
   getNerveNames,
   getParentsRegion,
@@ -44,6 +45,9 @@ export default {
     },
     connectivityInfoSidebar() {
       return this.settingsStore.connectivityInfoSidebar;
+    },
+    annotationSidebar() {
+      return this.settingsStore.annotationSidebar;
     },
   },
   mounted: function () {
@@ -486,6 +490,12 @@ export default {
         }
       }
     },
+    onAnnotationOpen: function (payload) {
+      EventBus.emit('annotation-open', payload);
+    },
+    onAnnotationClose: function () {
+      EventBus.emit('annotation-close');
+    },
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
@@ -511,7 +521,7 @@ export default {
       scaffoldRef: null,
       scaffoldLoaded: false,
       isInHelp: false,
-      hoverDelay: undefined
+      hoverDelay: undefined,
     };
   },
   created: function () {
