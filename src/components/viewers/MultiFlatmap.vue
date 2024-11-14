@@ -180,7 +180,8 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       if (term && flatmap.mapImp) {
         const results = flatmap.mapImp.search(term);
-        results.__featureIds.forEach(id => {
+        const featureIds = results.__featureIds || results.featureIds;
+        featureIds.forEach(id => {
           const annotation = flatmap.mapImp.annotation(id);
           if (annotation && annotation.label)
             suggestions.push(annotation.label);
@@ -426,14 +427,17 @@ export default {
       // content type must be DOM object to use HTML
       const labelsContainer = document.createElement('div');
       labelsContainer.classList.add('flatmap-feature-label');
+
       filteredConnectivityData.forEach((connectivity, i) => {
-        const { name } = connectivity;
-        labelsContainer.append(capitalise(name));
+        const { label } = connectivity;
+        labelsContainer.append(capitalise(label));
+
         if ((i + 1) < filteredConnectivityData.length) {
           const hr = document.createElement('hr');
           labelsContainer.appendChild(hr);
         }
       });
+
       mapImp.showPopup(
         filteredConnectivityData[0].featureId,
         labelsContainer,
@@ -444,22 +448,38 @@ export default {
         }
       );
     },
+    emitConnectivityGraphError: function (errorData) {
+      if (errorData.length) {
+        const errorDataToEmit = [...new Set(errorData)];
+        let errorMessage = '';
+
+        errorDataToEmit.forEach((connectivity, i) => {
+          const { label } = connectivity;
+          errorMessage += (i === 0) ? capitalise(label) : label;
+
+          if (errorDataToEmit.length > 1) {
+            if ((i + 2) === errorDataToEmit.length) {
+              errorMessage += ' and ';
+            } else if ((i + 1) < errorDataToEmit.length) {
+              errorMessage += ', ';
+            }
+          }
+        });
+        errorMessage += ' cannot be found on the map!';
+        EventBus.emit('connectivity-graph-error', {
+          data: errorMessage
+        });
+      }
+    },
     showConnectivityTooltips: function (payload) {
       const { connectivityInfo, data } = payload;
       const featuresToHighlight = [];
       const connectivityData = [];
       const filteredConnectivityData = [];
+      const errorData = [];
 
-      console.log('this is data', data)
       if (!data.length) {
         this.removeConnectivityTooltips();
-      } else {
-        data.forEach((item) => {
-          connectivityData.push({
-            id: item.id,
-            name: item.name,
-          });
-        })
       }
 
       // to keep the highlighted path on map
@@ -467,32 +487,56 @@ export default {
         featuresToHighlight.push(...connectivityInfo.featureId);
       }
 
+      // Connectivity component click emits an array of data,
+      // a combination of ids and labels.
+      // The first half is ids and the second half is labels.
+      for (let i = 0; i < data.length / 2; i++) {
+        connectivityData.push({
+          id: data[i],
+          label: data[i + data.length / 2]
+        });
+        // connectivity list data
+        //   data.forEach((item) => {
+        //     connectivityData.push({
+        //       id: item.id,
+        //       label: item.name,
+        //     });
+        //   })
+      }
+
       // search the features on the map first
       if (this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (flatmap.mapImp) {
-
           connectivityData.forEach((connectivity, i) => {
-            const {id, name} = connectivity;
+            const {id, label} = connectivity;
             const response = flatmap.mapImp.search(id);
 
             if (response?.results.length) {
               const featureId = response?.results[0].featureId;
+
               filteredConnectivityData.push({
                 featureId,
                 id,
-                name,
+                label,
               });
               featuresToHighlight.push(id);
+            } else {
+              errorData.push(connectivity);
             }
           });
+
           if (filteredConnectivityData.length) {
             // show tooltip of the first item
             // with all labels
             this.createTooltipForConnectivity(filteredConnectivityData, flatmap.mapImp);
           } else {
+            errorData.push(...connectivityData);
             this.removeConnectivityTooltips();
           }
+
+          // Emit error message for connectivity graph
+          this.emitConnectivityGraphError(errorData);
 
           // highlight all available features
           flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
