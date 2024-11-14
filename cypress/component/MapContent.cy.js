@@ -144,13 +144,13 @@ describe('MapContent', () => {
     cy.get('.side-bar > .open-tab').should('exist').click();
 
     //Type in 76 generic
-    cy.get('.search-input > .el-input__wrapper > .el-input__inner').should('exist').type('76 generic');
+    cy.get(':nth-child(1) > .el-card__header > .header > .el-input > .el-input__wrapper').should('exist').type('76 generic');
 
     //Search
-    cy.get('.header > .el-button').should('exist').click();
+    cy.get(':nth-child(1) > .el-card__header > .header > .el-button > span').should('exist').click();
 
     //Check number of dataset card, it should be 1
-    cy.get('.dataset-card-container').should('have.length', 1);
+    cy.get('.dataset-card-container').filter(':visible').should('have.length', 1);
 
     //Wait for the mouse dataset request
     cy.wait('@mouseDataset', {timeout: 20000});
@@ -173,17 +173,17 @@ describe('MapContent', () => {
     //Check for scaffolds and open it, should have three items in select now
     cy.get('.box-card .container button').contains('Scaffolds (2)').click();
     cy.get('.gallery-strip').contains('54-8_metadata.json').should("exist");
-    cy.get('.box-card :nth-child(1) > .details .el-button').click();
+    cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.pane-1.contentvuer').should('have.length', 1);
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li').should('have.length', 3);
 
     //Check for plot and open it, should have four items in select now
     cy.get('.open-tab > .el-icon').click();
-    cy.get('.box-card .container button').contains('Segmentations (1)').click();
+    cy.get('.box-card .container button').filter(':visible').contains('Segmentations (1)').click();
     cy.get('.gallery-strip').contains('M54-8_03_20_20_Final.xml').should("exist");
-    cy.get('.box-card .container button').contains('Plots (1)').click();
-    cy.get('.box-card :nth-child(1) > .details .el-button').click();
+    cy.get('.box-card .container button').filter(':visible').contains('Plots (1)').click();
+    cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should("exist");
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li').should('have.length', 4);
@@ -195,8 +195,8 @@ describe('MapContent', () => {
 
     //Check for simulations and open it, should have five items in select now
     cy.get('.open-tab > .el-icon').click();
-    cy.get('.box-card .container button').contains('Simulations (1)').click();
-    cy.get('.box-card :nth-child(1) > .details .el-button').click();
+    cy.get('.box-card .container button').filter(':visible').contains('Simulations (1)').click();
+    cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li').should('have.length', 5);
 
