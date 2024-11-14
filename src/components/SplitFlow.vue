@@ -280,7 +280,12 @@ export default {
       const activeContents = splitdialog.getActiveContents();
       //Push new suggestions into the pre-existing suggestions array
       activeContents.forEach(content => content.searchSuggestions(payload.data.term, suggestions));
-      const unique = new Set(suggestions);
+      const parsed = [];
+      //Remove double quote as it is used as a speical character
+      suggestions.forEach(suggestion => {
+        parsed.push(suggestion.replaceAll("\"", ""));
+      });
+      const unique = new Set(parsed);
       suggestions.length = 0;
       for (const item of unique) {
         suggestions.push({"value": "\"" + item +"\""});
