@@ -437,6 +437,7 @@ export default {
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
   width:unset!important;
+  background-color: #f3ecf6;
   cursor:default;
   .el-popper__arrow {
     &:before {
