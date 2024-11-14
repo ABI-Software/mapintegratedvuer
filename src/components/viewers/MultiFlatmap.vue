@@ -483,28 +483,31 @@ export default {
 
       if (!data.length) {
         this.removeConnectivityTooltips();
+      } else {
+        if (typeof data[0] === 'object') {
+          // Connectivity list hover emits array of objects
+          data.forEach((item) => {
+            connectivityData.push({
+              id: item.id,
+              label: item.name,
+            });
+          })
+        } else {
+          // Connectivity graph node click emits an array of data,
+          // a combination of ids and labels.
+          // The first half is ids and the second half is labels.
+          for (let i = 0; i < data.length / 2; i++) {
+            connectivityData.push({
+              id: data[i],
+              label: data[i + data.length / 2]
+            });
+          }
+        }
       }
 
       // to keep the highlighted path on map
       if (connectivityInfo && connectivityInfo.featureId) {
         featuresToHighlight.push(...connectivityInfo.featureId);
-      }
-
-      // Connectivity component click emits an array of data,
-      // a combination of ids and labels.
-      // The first half is ids and the second half is labels.
-      for (let i = 0; i < data.length / 2; i++) {
-        connectivityData.push({
-          id: data[i],
-          label: data[i + data.length / 2]
-        });
-        // connectivity list data
-        //   data.forEach((item) => {
-        //     connectivityData.push({
-        //       id: item.id,
-        //       label: item.name,
-        //     });
-        //   })
       }
 
       // search the features on the map first
