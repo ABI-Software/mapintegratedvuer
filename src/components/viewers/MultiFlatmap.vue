@@ -495,6 +495,13 @@ export default {
           id: data[i],
           label: data[i + data.length / 2]
         });
+        // connectivity list data
+        //   data.forEach((item) => {
+        //     connectivityData.push({
+        //       id: item.id,
+        //       label: item.name,
+        //     });
+        //   })
       }
 
       // search the features on the map first
