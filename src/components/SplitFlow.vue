@@ -42,6 +42,7 @@
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
+          @connectivity-component-click="onConnectivityComponentClick"
         />
         <SplitDialog
           :entries="entries"
@@ -298,6 +299,12 @@ export default {
       EventBus.emit('show-connectivity', {
         featureIds: featureIds,
         offset: activeView === 'singlepanel' || activeView === '2horpanel'
+      });
+    },
+    onConnectivityComponentClick: function (data) {
+      EventBus.emit('connectivity-component-click', {
+        connectivityInfo: this.connectivityInfo,
+        data
       });
     },
     hoverChanged: function (data) {
@@ -603,6 +610,11 @@ export default {
       this.connectivityInfo = null;
       this.resetActivePathways();
     });
+    EventBus.on('connectivity-graph-error', payload => {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.updateConnectivityGraphError(payload.data);
+      }
+    });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
     });
@@ -633,6 +645,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
         ROOT_URL: this.settingsStore.rootUrl,
+        FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI2, // temporary
       };
     },
     entries: function() {
