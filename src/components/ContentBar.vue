@@ -178,6 +178,7 @@ export default {
     },
     getEntryTitle: function(entry) {
       if (entry) {
+        const id = entry.id;
         let title = entry.label ? entry.label + " ": '';
         let type = entry.type;
         if (type == "Scaffold")
@@ -187,6 +188,10 @@ export default {
           title += " (" + entry.datasetId + ")";
         else if (entry.discoverId)
           title += " (" + entry.discoverId + ")";
+        else
+          if (this.entries.length > 1) {
+            title += " (" + String.fromCharCode(96 + id) + ")";
+          }
         return title;
       }
       return "Viewer";
