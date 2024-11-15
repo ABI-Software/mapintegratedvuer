@@ -13,7 +13,7 @@
         <el-option
           v-for="entry in entries"
           :key="entry.id"
-          :label="getEntryTitle(entry)"
+          :label="getTitle(entry)"
           :value="entry.id"
         />
       </el-select>
@@ -126,6 +126,7 @@ export default {
       boundariesElement: null, // this is set @vue:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntry: undefined,
+      titles: [],
     }
   },
   computed: {
@@ -168,7 +169,18 @@ export default {
       }
     },
     entries: function() {
-      return this.entriesStore.entries;
+      this.titles = [];
+      return this.entriesStore.entries.map((entry) => {
+        const title = this.getEntryTitle(entry);
+        this.titles.push({
+          id: entry.id,
+          title: title,
+        });
+        return {
+          ...entry,
+          title: title,
+        };
+      });
     },
   },
   methods: {
@@ -185,16 +197,42 @@ export default {
           type = "3D Scaffold";
         title += type;
         if (entry.datasetId)
-          title += " (" + entry.datasetId + ")";
+          title += " - " + entry.datasetId + "";
         else if (entry.discoverId)
-          title += " (" + entry.discoverId + ")";
-        else
-          if (this.entries.length > 1) {
-            title += " (" + String.fromCharCode(96 + id) + ")";
-          }
+          title += " - " + entry.discoverId + "";
+
         return title;
       }
       return "Viewer";
+    },
+    getTitle: function(_entry) {
+      const {id, title} = _entry;
+      const foundTitles = this.titles.filter((t) => t.title === title);
+
+      if (foundTitles.length > 1) {
+        const titleList = [];
+
+        for (let i = 0; i < foundTitles.length; i++) {
+          const alpha = this.getCharById(i);
+
+          titleList.push({
+            id: foundTitles[i].id,
+            title: foundTitles[i].title + alpha,
+          });
+        }
+
+        const titleToReturn = titleList.find(t => t.id === id);
+        if (titleToReturn) {
+          return titleToReturn.title;
+        }
+      }
+
+      return title;
+    },
+    getCharById: function(id) {
+      // starts from char 'a'
+      const character = ' (' + String.fromCharCode(97 + id) + ')';
+      return character.toUpperCase();
     },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
