@@ -489,7 +489,7 @@ export default {
           data.forEach((item) => {
             connectivityData.push({
               id: item.id,
-              label: item.name,
+              label: item.label,
             });
           })
         } else {
