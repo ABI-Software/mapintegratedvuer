@@ -417,13 +417,6 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
-    /**
-     * Close all tooltips on the current flatmap element.
-     */
-    removeConnectivityTooltips: function () {
-      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-      flatmap.removeActiveTooltips();
-    },
     emitConnectivityGraphError: function (errorData) {
       if (errorData.length) {
         const errorDataToEmit = [...new Set(errorData)];
@@ -453,9 +446,11 @@ export default {
       const connectivityData = [];
       const filteredConnectivityData = [];
       const errorData = [];
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
 
       if (!data.length) {
-        this.removeConnectivityTooltips();
+        // Close all tooltips on the current flatmap element
+        flatmap.removeActiveTooltips();
       } else {
         data.forEach((item) => {
           connectivityData.push({
@@ -471,42 +466,40 @@ export default {
       }
 
       // search the features on the map first
-      if (this.flatmapReady) {
-        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (flatmap.mapImp) {
-          connectivityData.forEach((connectivity, i) => {
-            const {id, label} = connectivity;
-            const response = flatmap.mapImp.search(id);
+      if (this.flatmapReady && flatmap.mapImp) {
+        connectivityData.forEach((connectivity, i) => {
+          const {id, label} = connectivity;
+          const response = flatmap.mapImp.search(id);
 
-            if (response?.results.length) {
-              const featureId = response?.results[0].featureId;
+          if (response?.results.length) {
+            const featureId = response?.results[0].featureId;
 
-              filteredConnectivityData.push({
-                featureId,
-                id,
-                label,
-              });
-              featuresToHighlight.push(id);
-            } else {
-              errorData.push(connectivity);
-            }
-          });
-
-          if (filteredConnectivityData.length) {
-            // show tooltip of the first item
-            // with all labels
-            flatmap.createTooltipForConnectivity(filteredConnectivityData);
+            filteredConnectivityData.push({
+              featureId,
+              id,
+              label,
+            });
+            featuresToHighlight.push(id);
           } else {
-            errorData.push(...connectivityData);
-            this.removeConnectivityTooltips();
+            errorData.push(connectivity);
           }
+        });
 
-          // Emit error message for connectivity graph
-          this.emitConnectivityGraphError(errorData);
-
-          // highlight all available features
-          flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
+        if (filteredConnectivityData.length) {
+          // show tooltip of the first item
+          // with all labels
+          flatmap.createTooltipForConnectivity(filteredConnectivityData);
+        } else {
+          errorData.push(...connectivityData);
+          // Close all tooltips on the current flatmap element
+          flatmap.removeActiveTooltips();
         }
+
+        // Emit error message for connectivity graph
+        this.emitConnectivityGraphError(errorData);
+
+        // highlight all available features
+        flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
       }
     },
   },
