@@ -19,6 +19,7 @@
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-info-close="onConnectivityInfoClose"
+      @connectivity-graph-error="onConnectivityGraphError"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
@@ -428,67 +429,9 @@ export default {
       });
     },
     showConnectivityTooltips: function (payload) {
-      const { connectivityInfo, data } = payload;
-      const featuresToHighlight = [];
-      const connectivityData = [];
-      const filteredConnectivityData = [];
-      const errorData = [];
-      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-
-      if (!data.length) {
-        // Close all tooltips on the current flatmap element
-        flatmap.removeActiveTooltips();
-      } else {
-        data.forEach((item) => {
-          connectivityData.push({
-            id: item.id,
-            label: item.label,
-          });
-        });
-      }
-
-      // to keep the highlighted path on map
-      if (connectivityInfo && connectivityInfo.featureId) {
-        featuresToHighlight.push(...connectivityInfo.featureId);
-      }
-
-      // search the features on the map first
-      if (this.flatmapReady && flatmap.mapImp) {
-        connectivityData.forEach((connectivity, i) => {
-          const {id, label} = connectivity;
-          const response = flatmap.mapImp.search(id);
-
-          if (response?.results.length) {
-            const featureId = response?.results[0].featureId;
-
-            filteredConnectivityData.push({
-              featureId,
-              id,
-              label,
-            });
-            featuresToHighlight.push(id);
-          } else {
-            errorData.push(connectivity);
-          }
-        });
-
-        if (filteredConnectivityData.length) {
-          // show tooltip of the first item
-          // with all labels
-          flatmap.createTooltipForConnectivity(filteredConnectivityData);
-        } else {
-          errorData.push(...connectivityData);
-          // Close all tooltips on the current flatmap element
-          flatmap.removeActiveTooltips();
-        }
-
-        // Emit error message for connectivity graph
-        if (errorData.length) {
-          this.emitConnectivityGraphError(errorData);
-        }
-
-        // highlight all available features
-        flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
+      if (this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.showConnectivityTooltips(payload);
       }
     },
   },
