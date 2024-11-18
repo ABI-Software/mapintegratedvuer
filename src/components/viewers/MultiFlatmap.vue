@@ -418,27 +418,14 @@ export default {
       flatmap.changeViewingMode(modeName);
     },
     emitConnectivityGraphError: function (errorData) {
-      if (errorData.length) {
-        const errorDataToEmit = [...new Set(errorData)];
-        let errorMessage = '';
+      const errorMessage = 'cannot be found on the map!';
 
-        errorDataToEmit.forEach((connectivity, i) => {
-          const { label } = connectivity;
-          errorMessage += (i === 0) ? capitalise(label) : label;
-
-          if (errorDataToEmit.length > 1) {
-            if ((i + 2) === errorDataToEmit.length) {
-              errorMessage += ' and ';
-            } else if ((i + 1) < errorDataToEmit.length) {
-              errorMessage += ', ';
-            }
-          }
-        });
-        errorMessage += ' cannot be found on the map!';
-        EventBus.emit('connectivity-graph-error', {
-          data: errorMessage
-        });
-      }
+      EventBus.emit('connectivity-graph-error', {
+        data: {
+          errorData: errorData,
+          errorMessage: errorMessage,
+        }
+      });
     },
     showConnectivityTooltips: function (payload) {
       const { connectivityInfo, data } = payload;
@@ -496,7 +483,9 @@ export default {
         }
 
         // Emit error message for connectivity graph
-        this.emitConnectivityGraphError(errorData);
+        if (errorData.length) {
+          this.emitConnectivityGraphError(errorData);
+        }
 
         // highlight all available features
         flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
