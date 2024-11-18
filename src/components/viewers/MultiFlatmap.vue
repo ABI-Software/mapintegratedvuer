@@ -417,13 +417,12 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
+    /**
+     * Close all tooltips on the current flatmap element.
+     */
     removeConnectivityTooltips: function () {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-      if (flatmap?.$el) {
-        // close all tooltips on the current flatmap element
-        const tooltips = flatmap.$el.querySelectorAll('.flatmap-tooltip-popup');
-        tooltips.forEach(tooltip => tooltip.remove());
-      }
+      flatmap.removeActiveTooltips();
     },
     createTooltipForConnectivity: function (filteredConnectivityData, mapImp) {
       // combine all labels to show together
