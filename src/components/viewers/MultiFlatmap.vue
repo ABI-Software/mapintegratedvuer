@@ -424,32 +424,6 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.removeActiveTooltips();
     },
-    createTooltipForConnectivity: function (filteredConnectivityData, mapImp) {
-      // combine all labels to show together
-      // content type must be DOM object to use HTML
-      const labelsContainer = document.createElement('div');
-      labelsContainer.classList.add('flatmap-feature-label');
-
-      filteredConnectivityData.forEach((connectivity, i) => {
-        const { label } = connectivity;
-        labelsContainer.append(capitalise(label));
-
-        if ((i + 1) < filteredConnectivityData.length) {
-          const hr = document.createElement('hr');
-          labelsContainer.appendChild(hr);
-        }
-      });
-
-      mapImp.showPopup(
-        filteredConnectivityData[0].featureId,
-        labelsContainer,
-        {
-          className: 'custom-popup flatmap-tooltip-popup',
-          positionAtLastClick: false,
-          preserveSelection: true,
-        }
-      );
-    },
     emitConnectivityGraphError: function (errorData) {
       if (errorData.length) {
         const errorDataToEmit = [...new Set(errorData)];
@@ -521,7 +495,7 @@ export default {
           if (filteredConnectivityData.length) {
             // show tooltip of the first item
             // with all labels
-            this.createTooltipForConnectivity(filteredConnectivityData, flatmap.mapImp);
+            flatmap.createTooltipForConnectivity(filteredConnectivityData);
           } else {
             errorData.push(...connectivityData);
             this.removeConnectivityTooltips();
