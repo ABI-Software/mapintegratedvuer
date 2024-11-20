@@ -306,10 +306,11 @@ export default {
         offset: activeView === 'singlepanel' || activeView === '2horpanel'
       });
     },
-    onConnectivityComponentClick: function (data) {
+    onConnectivityComponentClick: function (detail) {
       EventBus.emit('connectivity-component-click', {
         connectivityInfo: this.connectivityInfo,
-        data
+        data: detail.data,
+        clickEvent: detail.type
       });
     },
     hoverChanged: function (data) {
