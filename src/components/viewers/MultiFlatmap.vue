@@ -14,6 +14,9 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @annotation-open="onAnnotationOpen"
+      @annotation-close="onAnnotationClose"
+      :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-info-close="onConnectivityInfoClose"
       :connectivityInfoSidebar="connectivityInfoSidebar"
@@ -48,6 +51,7 @@ import Tagging from '../../services/tagging.js';
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
+  capitalise,
   availableSpecies,
   getBodyScaffoldInfo,
   transformObjToString
@@ -105,7 +109,7 @@ export default {
       availableSpecies: availableSpecies(),
       scaffoldResource: { },
       showStarInLegend: false,
-      openMapOptions: getOpenMapOptions("Rat"),
+      openMapOptions: getOpenMapOptions("Human Male"),
     }
   },
   methods: {
@@ -179,7 +183,8 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       if (term && flatmap.mapImp) {
         const results = flatmap.mapImp.search(term);
-        results.__featureIds.forEach(id => {
+        const featureIds = results.__featureIds || results.featureIds;
+        featureIds.forEach(id => {
           const annotation = flatmap.mapImp.annotation(id);
           if (annotation && annotation.label)
             suggestions.push(annotation.label);
@@ -188,7 +193,7 @@ export default {
     },
     flatmaprResourceSelected: function (type, resource) {
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
-      this.resourceSelected(type, resource, (map.viewingMode === "Exploration"));
+      this.resourceSelected(type, resource);
 
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
         const eventData = {
@@ -412,6 +417,138 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
+    removeConnectivityTooltips: function () {
+      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      if (flatmap?.$el) {
+        // close all tooltips on the current flatmap element
+        const tooltips = flatmap.$el.querySelectorAll('.flatmap-tooltip-popup');
+        tooltips.forEach(tooltip => tooltip.remove());
+      }
+    },
+    createTooltipForConnectivity: function (filteredConnectivityData, mapImp) {
+      // combine all labels to show together
+      // content type must be DOM object to use HTML
+      const labelsContainer = document.createElement('div');
+      labelsContainer.classList.add('flatmap-feature-label');
+
+      filteredConnectivityData.forEach((connectivity, i) => {
+        const { label } = connectivity;
+        labelsContainer.append(capitalise(label));
+
+        if ((i + 1) < filteredConnectivityData.length) {
+          const hr = document.createElement('hr');
+          labelsContainer.appendChild(hr);
+        }
+      });
+
+      mapImp.showPopup(
+        filteredConnectivityData[0].featureId,
+        labelsContainer,
+        {
+          className: 'custom-popup flatmap-tooltip-popup',
+          positionAtLastClick: false,
+          preserveSelection: true,
+        }
+      );
+    },
+    emitConnectivityGraphError: function (errorData) {
+      if (errorData.length) {
+        const errorDataToEmit = [...new Set(errorData)];
+        let errorMessage = '';
+
+        errorDataToEmit.forEach((connectivity, i) => {
+          const { label } = connectivity;
+          errorMessage += (i === 0) ? capitalise(label) : label;
+
+          if (errorDataToEmit.length > 1) {
+            if ((i + 2) === errorDataToEmit.length) {
+              errorMessage += ' and ';
+            } else if ((i + 1) < errorDataToEmit.length) {
+              errorMessage += ', ';
+            }
+          }
+        });
+        errorMessage += ' cannot be found on the map!';
+        EventBus.emit('connectivity-graph-error', {
+          data: errorMessage
+        });
+      }
+    },
+    showConnectivityTooltips: function (payload) {
+      const { connectivityInfo, data } = payload;
+      const featuresToHighlight = [];
+      const connectivityData = [];
+      const filteredConnectivityData = [];
+      const errorData = [];
+
+      if (!data.length) {
+        this.removeConnectivityTooltips();
+      } else {
+        if (typeof data[0] === 'object') {
+          // Connectivity list hover emits array of objects
+          data.forEach((item) => {
+            connectivityData.push({
+              id: item.id,
+              label: item.name,
+            });
+          })
+        } else {
+          // Connectivity graph node click emits an array of data,
+          // a combination of ids and labels.
+          // The first half is ids and the second half is labels.
+          for (let i = 0; i < data.length / 2; i++) {
+            connectivityData.push({
+              id: data[i],
+              label: data[i + data.length / 2]
+            });
+          }
+        }
+      }
+
+      // to keep the highlighted path on map
+      if (connectivityInfo && connectivityInfo.featureId) {
+        featuresToHighlight.push(...connectivityInfo.featureId);
+      }
+
+      // search the features on the map first
+      if (this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (flatmap.mapImp) {
+          connectivityData.forEach((connectivity, i) => {
+            const {id, label} = connectivity;
+            const response = flatmap.mapImp.search(id);
+
+            if (response?.results.length) {
+              const featureId = response?.results[0].featureId;
+
+              filteredConnectivityData.push({
+                featureId,
+                id,
+                label,
+              });
+              featuresToHighlight.push(id);
+            } else {
+              errorData.push(connectivity);
+            }
+          });
+
+          if (filteredConnectivityData.length) {
+            // show tooltip of the first item
+            // with all labels
+            this.createTooltipForConnectivity(filteredConnectivityData, flatmap.mapImp);
+          } else {
+            errorData.push(...connectivityData);
+            this.removeConnectivityTooltips();
+          }
+
+          // Emit error message for connectivity graph
+          this.emitConnectivityGraphError(errorData);
+
+          // highlight all available features
+          flatmap.mapImp.zoomToFeatures(featuresToHighlight, { noZoomIn: true });
+        }
+      }
+    },
   },
   computed: {
     facetSpecies() {
@@ -436,6 +573,13 @@ export default {
   },
   mounted: function () {
     this.getFeaturedDatasets();
+
+    EventBus.on('annotation-close', (payload) => {
+      if (payload?.tabClose && this.$refs.multiflatmap.getCurrentFlatmap()) {
+        this.$refs.multiflatmap.getCurrentFlatmap().annotationEventCallback({}, { type: 'aborted' })
+      }
+    });
+
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       if (this.flatmapReady && this.$refs.multiflatmap) {
@@ -447,6 +591,10 @@ export default {
           });
         }
       }
+    });
+
+    EventBus.on('connectivity-component-click', (payload) => {
+      this.showConnectivityTooltips(payload);
     });
 
     EventBus.on("markerUpdate", () => {

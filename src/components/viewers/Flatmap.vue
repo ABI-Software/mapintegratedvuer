@@ -75,8 +75,7 @@ export default {
       return this.$refs.flatmap?.mapImp;
     },
     flatmaprResourceSelected: function (type, resource) {
-      this.resourceSelected(
-        type, resource, (this.$refs.flatmap.viewingMode === "Exploration"));
+      this.resourceSelected(type, resource);
 
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
         const eventData = {

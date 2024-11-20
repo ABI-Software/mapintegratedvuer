@@ -25,22 +25,30 @@
           :class="['side-bar', { 'start-up': startUp }]"
           :activeTabId="activeDockedId"
           :open-at-start="startUp"
+          :annotationEntry="annotationEntry"
+          :createData="createData"
           :connectivityInfo="connectivityInfo"
-          @connectivity-info-close="onConnectivityInfoClose"
+          @tab-close="onSidebarTabClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
           @anatomy-in-datasets="updateMarkers($event)"
+          @annotation-submitted="onAnnotationSubmitted"
+          @confirm-create="onConfirmCreate"
+          @cancel-create="onCancelCreate"
+          @confirm-delete="onConfirmDelete"
           @number-of-datasets-for-anatomies="updateScaffoldMarkers($event)"
           @hover-changed="hoverChanged($event)"
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
+          @connectivity-component-click="onConnectivityComponentClick"
         />
         <SplitDialog
           :entries="entries"
           ref="splitdialog"
           @resource-selected="resourceSelected"
+          @species-changed="speciesChanged"
         />
       </div>
     </el-main>
@@ -49,6 +57,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { provide, markRaw } from 'vue'
 import Tagging from '../services/tagging.js';
 import DialogToolbarContent from "./DialogToolbarContent.vue";
 import EventBus from "./EventBus";
@@ -61,8 +70,10 @@ import {
   initialDefaultState,
   intersectArrays,
 } from "./scripts/utilities.js";
+import { AnnotationService } from '@abi-software/sparc-annotation'
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
+import { useMainStore } from '../stores/index'
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import {
@@ -86,6 +97,14 @@ export default {
     SplitDialog,
     SideBar,
   },
+  setup() {
+    const mainStore = useMainStore();
+    provide('userApiKey', mainStore.userToken);
+    const settings = useSettingsStore();
+    let annotator = markRaw(new AnnotationService(`${settings.flatmapAPI}annotator`));
+    provide('$annotator', annotator)
+    return { annotator }
+  },
   props: {
     state: {
       type: Object,
@@ -101,6 +120,12 @@ export default {
       filterTriggered: false,
       availableFacets: [],
       connectivityInfo: null,
+      annotationEntry: {},
+      annotationCallback: undefined,
+      confirmCreateCallback: undefined,
+      cancelCreateCallback: undefined,
+      confirmDeleteCallback: undefined,
+      createData: {},
     }
   },
   watch: {
@@ -255,7 +280,12 @@ export default {
       const activeContents = splitdialog.getActiveContents();
       //Push new suggestions into the pre-existing suggestions array
       activeContents.forEach(content => content.searchSuggestions(payload.data.term, suggestions));
-      const unique = new Set(suggestions);
+      const parsed = [];
+      //Remove double quote as it is used as a speical character
+      suggestions.forEach(suggestion => {
+        parsed.push(suggestion.replaceAll("\"", ""));
+      });
+      const unique = new Set(parsed);
       suggestions.length = 0;
       for (const item of unique) {
         suggestions.push({"value": "\"" + item +"\""});
@@ -274,6 +304,12 @@ export default {
       EventBus.emit('show-connectivity', {
         featureIds: featureIds,
         offset: activeView === 'singlepanel' || activeView === '2horpanel'
+      });
+    },
+    onConnectivityComponentClick: function (data) {
+      EventBus.emit('connectivity-component-click', {
+        connectivityInfo: this.connectivityInfo,
+        data
       });
     },
     hoverChanged: function (data) {
@@ -451,6 +487,11 @@ export default {
         this.$refs.splitdialog.sendSynchronisedEvent(result);
       }
     },
+    speciesChanged: function (species) {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.close();
+      }
+    },
     tabClicked: function ({id, type}) {
       this.activeDockedId = id;
     },
@@ -492,8 +533,29 @@ export default {
         'dataset_id': datasetId || ''
       });
     },
-    onConnectivityInfoClose: function () {
-      EventBus.emit('connectivity-info-close');
+    onAnnotationSubmitted: function(annotation) {
+      if (this.annotationCallback) {
+        this.annotationCallback(annotation);
+      }
+    },
+    onConfirmCreate: function(payload) {
+      if (this.confirmCreateCallback) {
+        this.confirmCreateCallback(payload);
+      }
+    },
+    onCancelCreate: function() {
+      if (this.cancelCreateCallback) {
+        this.cancelCreateCallback();
+      }
+    },
+    onConfirmDelete: function(payload) {
+      if (this.confirmDeleteCallback) {
+        this.confirmDeleteCallback(payload);
+      }
+    },
+    onSidebarTabClose: function (id) {
+      if (id === 2) EventBus.emit('connectivity-info-close');
+      if (id === 3) EventBus.emit('annotation-close', { tabClose: true });
     },
     resetActivePathways: function () {
       const containerEl = this.$el;
@@ -517,6 +579,30 @@ export default {
     EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);
     });
+    EventBus.on('annotation-open', payload => {
+      this.annotationEntry = payload.annotationEntry;
+      this.annotationCallback = markRaw(payload.commitCallback);
+      if (!payload.createData) {
+        this.createData = markRaw({});
+      } else {
+        this.createData = markRaw(payload.createData);
+      }
+      this.confirmCreateCallback = markRaw(payload.confirmCreate);
+      this.cancelCreateCallback = markRaw(payload.cancelCreate);
+      this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+      if (this.$refs.sideBar) {
+        this.tabClicked({id: 3, type: 'annotation'});
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    });
+    EventBus.on('annotation-close', payload => {
+      this.tabClicked({id:  1, type: 'search'});
+      this.annotationEntry = {};
+      this.createData = {};
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.setDrawerOpen(false);
+      }
+    });
     EventBus.on('connectivity-info-open', payload => {
       this.connectivityInfo = payload;
       if (this.$refs.sideBar) {
@@ -528,6 +614,11 @@ export default {
       this.tabClicked({id: 1, type: 'search'});
       this.connectivityInfo = null;
       this.resetActivePathways();
+    });
+    EventBus.on('connectivity-graph-error', payload => {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.updateConnectivityGraphError(payload.data);
+      }
     });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
@@ -559,6 +650,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
         ROOT_URL: this.settingsStore.rootUrl,
+        FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI2, // temporary
       };
     },
     entries: function() {

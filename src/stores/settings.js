@@ -13,6 +13,7 @@ export const useSettingsStore = defineStore('settings', {
       pennsieveApi: undefined,
       flatmapAPI: undefined,
       nlLinkPrefix: undefined,
+      flatmapAPI2: "https://mapcore-demo.org/curation/flatmap/",
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
       numberOfDatasetsForFacets: [],
@@ -27,6 +28,7 @@ export const useSettingsStore = defineStore('settings', {
       helpDelay: 0,
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
+      annotationSidebar: true,
     }
   },
   getters: {
@@ -61,6 +63,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateFlatmapAPI(flatmapAPI) {
       this.flatmapAPI = flatmapAPI;
+    },
+    updateFlatmapAPI2(flatmapAPI2) {
+      this.flatmapAPI2 = flatmapAPI2;
     },
     updateNLLinkPrefix(nlLinkPrefix) {
       this.nlLinkPrefix = nlLinkPrefix;
@@ -153,6 +158,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateConnectivityInfoSidebar(connectivityInfoSidebar) {
       this.connectivityInfoSidebar = connectivityInfoSidebar;
+    },
+    updateAnnotationSidebar(annotationSidebar) {
+      this.annotationSidebar = annotationSidebar;
     },
   }
 });

@@ -117,10 +117,11 @@ export default {
       this.$refs.viewer?.searchSuggestions(term, suggestions);
     },
     setPanesBoundary: function() {
-      this.$refs.contentBar?.setBoundary(this.$refs["container"][0]);
+      this.$refs.contentBar?.setBoundary(this.$refs["container"]);
     },
     speciesChanged: function (species) {
       this.activeSpecies = species;
+      this.$emit("species-changed", species);
     },
     receiveSynchronisedEvent: async function (data) {
       this.$refs.viewer?.receiveSynchronisedEvent(data);

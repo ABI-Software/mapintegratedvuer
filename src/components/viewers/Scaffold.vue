@@ -15,6 +15,9 @@
       :helpMode="helpMode"
       :helpModeActiveItem="helpModeActiveItem"
       :helpModeDialog="useHelpModeDialog"
+      @annotation-open="onAnnotationOpen"
+      @annotation-close="onAnnotationClose"
+      :annotationSidebar="annotationSidebar"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
@@ -69,9 +72,7 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      //Remove first and last letter if they are double quote
-      const parsed = term.replace(/(^"|"$)/g, '');
-      return this.$refs.scaffold.search(parsed, true);
+      return this.$refs.scaffold.search(term, true);
     },
     searchSuggestions: function(term, suggestions){
       if (term === "" || !this.$refs.scaffold) {
