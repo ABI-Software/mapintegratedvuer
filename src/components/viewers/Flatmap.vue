@@ -170,6 +170,12 @@ export default {
     },
   },
   mounted: function() {
+    EventBus.on('annotation-close', (payload) => {
+      const currentFlatmap = this.$refs.flatmap;
+      if (payload?.tabClose && currentFlatmap) {
+        this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
+      }
+    });
     EventBus.on("markerUpdate", () => {
       this.flatmapMarkerUpdate(undefined);
     });
