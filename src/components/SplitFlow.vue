@@ -309,7 +309,7 @@ export default {
     onConnectivityComponentClick: function (data) {
       EventBus.emit('connectivity-component-click', {
         connectivityInfo: this.connectivityInfo,
-        data
+        data: data,
       });
     },
     hoverChanged: function (data) {

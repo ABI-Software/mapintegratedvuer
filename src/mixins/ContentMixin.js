@@ -502,6 +502,9 @@ export default {
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
     },
+    onConnectivityGraphError: function (errorInfo) {
+      EventBus.emit('connectivity-graph-error', errorInfo);
+    },
   },
   data: function () {
     return {
