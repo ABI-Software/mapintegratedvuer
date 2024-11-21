@@ -20,7 +20,9 @@ export default {
       bundler: "vite",
     },
     env: {
-      visualRegressionType: 'regression'
+      visualRegressionType: 'regression',
+      visualRegressionGenerateDiff: 'always',
+      visualRegressionFailSilently: false
     },
     screenshotsFolder: './cypress/snapshots/actual',
     setupNodeEvents(on, config) {

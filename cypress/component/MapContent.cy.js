@@ -107,13 +107,14 @@ describe('MapContent', () => {
     cy.get('html').invoke('css', 'width', '1200px');
     cy.get('body').invoke('css', 'width', '1200px');
     cy.wait(1000);
-    cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > [style="height: 100%; width: 100%;"] > :nth-child(2) > :nth-child(2) > #maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').compareSnapshot('minimap');
+    cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > [style="height: 100%; width: 100%;"] > :nth-child(2) > :nth-child(2) > #maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').compareSnapshot('minimap').then(comparisonResults => {
+      expect(comparisonResults.percentage).to.be.below(0.1)
+    });
     cy.get('html').invoke('css', 'width', 'initial');
     cy.get('body').invoke('css', 'width', 'initial');
     //Test the existence of the minimap
 
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 30000}).should('exist');
-
 
     cy.checkFlatmapProvenanceCard('Mouse')
     cy.checkFlatmapProvenanceCard('Rat')
