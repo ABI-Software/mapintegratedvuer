@@ -418,16 +418,6 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
-    emitConnectivityGraphError: function (errorData) {
-      const errorMessage = 'cannot be found on the map!';
-
-      EventBus.emit('connectivity-graph-error', {
-        data: {
-          errorData: errorData,
-          errorMessage: errorMessage,
-        }
-      });
-    },
     showConnectivityTooltips: function (payload) {
       if (this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
