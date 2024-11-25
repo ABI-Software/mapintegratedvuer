@@ -15,6 +15,9 @@
       :helpMode="helpMode"
       :helpModeActiveItem="helpModeActiveItem"
       :helpModeDialog="useHelpModeDialog"
+      @annotation-open="onAnnotationOpen"
+      @annotation-close="onAnnotationClose"
+      :annotationSidebar="annotationSidebar"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
@@ -69,9 +72,7 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      //Remove first and last letter if they are double quote
-      const parsed = term.replace(/(^"|"$)/g, '');
-      return this.$refs.scaffold.search(parsed, true);
+      return this.$refs.scaffold.search(term, true);
     },
     searchSuggestions: function(term, suggestions){
       if (term === "" || !this.$refs.scaffold) {
@@ -139,6 +140,7 @@ export default {
         this.$refs.scaffold.toggleSyncControl(this.splitFlowStore.globalCallback, rotation);
         if (this.splitFlowStore.syncMode) this.$refs.scaffold.fitWindow();
       }
+      EventBus.emit("mapLoaded", this.$refs.scaffold);
     },
     requestSynchronisedEvent: function (flag) {
       if (this.scaffoldLoaded) {
@@ -182,6 +184,12 @@ export default {
     },
     updateWithViewUrl: function(viewUrl) {
       this.$refs.scaffold.updateViewURL(viewUrl);
+    },
+    /**
+     * Change the view mode of the current scaffold
+     */
+    changeViewingMode: function (modeName) {
+      this.$refs.scaffold.changeViewingMode(modeName);
     },
   },
   computed: {

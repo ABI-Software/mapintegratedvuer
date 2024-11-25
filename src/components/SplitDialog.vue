@@ -15,6 +15,7 @@
         :entry="entry"
         ref="content"
         @resource-selected="resourceSelected"
+        @species-changed="speciesChanged"
         :visible="isIdVisible(entry.id)"
       />
     </div>
@@ -55,6 +56,9 @@ export default {
      */
     resourceSelected: function(result) {
       this.$emit("resource-selected", result);
+    },
+    speciesChanged: function (species) {
+      this.$emit("species-changed", species);
     },
     getClass: function(id) {
       if (this.isIdVisible(id)) {

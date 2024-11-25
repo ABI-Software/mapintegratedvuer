@@ -47,7 +47,15 @@ export default {
         let fmMarkers = this.removeMarkersNotOnFlatmap(flatmapImp, markers);
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
-        flatmapImp.addDatasetMarkers(fmMarkers);
+        if (this.entry.resource === "FunctionalConnectivity") {
+          let FCMapMarkers = [];
+          for (let i = 0; i < fmMarkers.length; i++) {
+            FCMapMarkers = FCMapMarkers.concat(fmMarkers[i].terms);
+          }
+          flatmapImp.addMarkers(Array.from(new Set(FCMapMarkers)), { className: "standard-marker", cluster: false });
+        } else {
+          flatmapImp.addDatasetMarkers(fmMarkers);
+        }
 
         // Set the featured markers
         if (this.entry.type === "MultiFlatmap") {

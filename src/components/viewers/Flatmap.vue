@@ -15,8 +15,12 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @annotation-open="onAnnotationOpen"
+      @annotation-close="onAnnotationClose"
+      :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-info-close="onConnectivityInfoClose"
+      @connectivity-graph-error="onConnectivityGraphError"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
@@ -99,9 +103,8 @@ export default {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
-      if (this.entry.resource === "FunctionalConnectivity"){
-        this.flatmapReadyForMarkerUpdates(flatmap);
-      }
+      this.flatmapReadyForMarkerUpdates(flatmap);
+      EventBus.emit("mapLoaded", flatmap);
     },
     onPathwaySelectionChanged: function (data) {
       const { label, property, checked, selectionsTitle } = data;
@@ -132,7 +135,8 @@ export default {
     searchSuggestions: function (term, suggestions) {
       if (term && this.$refs.flatmap.mapImp) {
         const results = this.$refs.flatmap.mapImp.search(term);
-        results.__featureIds.forEach(id => {
+        const featureIds = results.__featureIds || results.featureIds;
+        featureIds.forEach(id => {
           const annotation = this.$refs.flatmap.mapImp.annotation(id);
           if (annotation && annotation.label)
             suggestions.push(annotation.label);
@@ -157,6 +161,9 @@ export default {
         flatmap.clearSearchResults();
       }
     },
+    changeViewingMode: function (modeName) {
+      this.$refs.flatmap.changeViewingMode(modeName);
+    },
   },
   computed: {
     facetSpecies() {
@@ -164,6 +171,12 @@ export default {
     },
   },
   mounted: function() {
+    EventBus.on('annotation-close', (payload) => {
+      const currentFlatmap = this.$refs.flatmap;
+      if (payload?.tabClose && currentFlatmap) {
+        this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
+      }
+    });
     EventBus.on("markerUpdate", () => {
       this.flatmapMarkerUpdate(undefined);
     });

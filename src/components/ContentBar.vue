@@ -149,10 +149,22 @@ export default {
     },
     popperOptions: function() {
       return {
-        preventOverflow: {
-          enabled: true,
-          boundary: this.boundariesElement,
-        }
+        modifiers: [
+          {
+            name: 'preventOverflow',
+            options: {
+              boundary: this.boundariesElement,
+            }
+          },
+          {
+            name: 'flip',
+            options: {
+              boundary: this.boundariesElement,
+              flipVariations: false,
+              allowedAutoPlacements: ['bottom'],
+            }
+          },
+        ]
       }
     },
     entries: function() {
@@ -325,6 +337,21 @@ export default {
   position: relative;
   top: auto;
   font-size: 12px;
+  align-items: center;
+
+  :deep(.el-tooltip__trigger) {
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .hide {
+    margin-top: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
 }
 
 .info-icon {
@@ -365,7 +392,7 @@ export default {
 
 :deep(.context-card-popover.el-popover.el-popper) {
   max-width: calc(100vw - 100px);
-  padding-right: 0px;
+  padding: 0px;
   width: unset!important;
   background: #fff!important;
 }
