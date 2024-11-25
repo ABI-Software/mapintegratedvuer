@@ -77,6 +77,9 @@ export default {
 
       this.onConnectivityInfoClose();
     },
+    onMapmanagerLoaded: function (mapManager) {
+      this.settingsStore.updateMapManager(mapManager);
+    },
     trackOpenMap: function (category) {
       // GA Tagging
       // Open map tracking
@@ -525,6 +528,7 @@ export default {
       scaffoldLoaded: false,
       isInHelp: false,
       hoverDelay: undefined,
+      mapManager: undefined,
     };
   },
   created: function () {
@@ -534,6 +538,9 @@ export default {
       this.flatmapAPI = this.settingsStore.flatmapAPI;
     if (this.settingsStore.sparcApi)
       this.apiLocation = this.settingsStore.sparcApi;
+    if (this.settingsStore.mapManager) {
+      this.mapManager = this.settingsStore.mapManager;
+    }
   },
   watch: {
     helpMode: function (newVal) {

@@ -3,6 +3,7 @@
     <FlatmapVuer
       :state="entry.state"
       :entry="entry.resource"
+      :mapManager="mapManager"
       @resource-selected="flatmaprResourceSelected(entry.type, $event)"
       @pan-zoom-callback="flatmapPanZoomCallback"
       :name="entry.resource"
@@ -32,6 +33,7 @@
       :sparcAPI="apiLocation"
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
+      @mapmanager-loaded="onMapmanagerLoaded"
     />
 
     <HelpModeDialog
