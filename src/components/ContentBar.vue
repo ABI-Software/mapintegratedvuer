@@ -230,9 +230,9 @@ export default {
       return title;
     },
     getCharById: function(id) {
-      // starts from char 'a'
-      const character = ' (' + String.fromCharCode(97 + id) + ')';
-      return character.toUpperCase();
+      // starts from char 'A'
+      const character = ' (' + String.fromCharCode(65 + id) + ')';
+      return character;
     },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
