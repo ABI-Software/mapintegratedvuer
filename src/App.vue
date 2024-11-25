@@ -96,11 +96,8 @@ export default {
         flatmapAPI: import.meta.env.VITE_FLATMAPAPI_LOCATION,
         nlLinkPrefix: import.meta.env.VITE_NL_LINK_PREFIX,
         rootUrl: import.meta.env.VITE_ROOT_URL,
-<<<<<<< HEAD
         pmrHost: import.meta.env.VITE_PMR_HOST,
-=======
         flatmapAPI2: import.meta.env.VITE_FLATMAPAPI_LOCATION2,
->>>>>>> upstream/main
       }
     }
   },
@@ -173,18 +170,13 @@ export default {
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
     },
-<<<<<<< HEAD
-    mapIsReady: function() {
-      if (!this.uuid) this.setFlatmap();
-      console.log("map is ready")
-=======
     mapIsLoaded: function(map) {
-      console.log("map is loaded", map)
+      //if (!this.uuid) this.setFlatmap();
+      console.log("map is loaded")
       // map.changeViewingMode('Annotation')
     },
     viewerIsReady: function() {
       console.log("viewer is ready")
->>>>>>> upstream/main
     },
     parseQuery: function () {
       this.$router.isReady().then(() => {
