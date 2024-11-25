@@ -20,3 +20,10 @@
 
 //   return config
 // }
+
+module.exports = (on, config) => {
+  on('before:browser:launch', (browser = {}, launchOptions) => {
+    launchOptions.args.push('--force-device-scale-factor=1')
+    return launchOptions
+  })
+}
