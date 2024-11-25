@@ -102,7 +102,24 @@ describe('MapContent', () => {
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 30000}).should('not.exist');
 
+    //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
+    //the following attempt to workaround it.
+    function is_high_resolution_screen() {
+      // retina display has a devicePixelRatio of 2
+      return window.devicePixelRatio > 1;
+    }
+    let snapshot = 'minimap_lr'
+    if (is_high_resolution_screen()) {
+      snapshot = 'minimap_hr'
+    }
+    cy.get('html').invoke('css', 'width', '1200px');
+    cy.wait(1000);
+    cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > [style="height: 100%; width: 100%;"] > :nth-child(2) > :nth-child(2) > #maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').compareSnapshot(snapshot).then(comparisonResults => {
+      expect(comparisonResults.percentage).to.be.below(0.1)
+    });
+    cy.get('html').invoke('css', 'width', 'initial');
     //Test the existence of the minimap
+
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 30000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
