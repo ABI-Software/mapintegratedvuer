@@ -2,7 +2,7 @@ const initialDefaultState = () => {
   return {
     entries: [
       {
-        resource: "Human Male",
+        resource: "FunctionalConnectivity",
         type: "MultiFlatmap",
         mode: "main",
         id: 1,
@@ -94,6 +94,8 @@ const availableSpecies = () => {
     "Mouse": { taxo: "NCBITaxon:10090", iconClass: "mapicon-icon_mouse", displayLatestChanges: true, displayWarning: true },
     "Pig": { taxo: "NCBITaxon:9823", iconClass: "mapicon-icon_pig", displayLatestChanges: true, displayWarning: true },
     "Cat": { taxo: "NCBITaxon:9685", iconClass: "mapicon-icon_cat", displayLatestChanges: true, displayWarning: true },
+    "BG:Cardio": {taxo: "BG:CardioVascular" },
+    "FunctionalConnectivity": {taxo: "FunctionalConnectivity" },
   }
 }
 

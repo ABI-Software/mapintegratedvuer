@@ -65,7 +65,7 @@ export default {
     sckanReleaseDisplay: function() {
       let sckanRelease = "Unknown"
       if(this.mapImpProv){
-        sckanRelease = this.mapImpProv.connectivity?.npo.date
+        sckanRelease = this.mapImpProv.connectivity?.npo?.date
         if (!sckanRelease) {
           let sckanCreated = this.mapImpProv.sckan?.created ? this.mapImpProv.sckan.created : this.mapImpProv.sckan
           if (sckanCreated) {
@@ -86,7 +86,8 @@ export default {
     sckanReleaseLink: function() {
       let sckanLink = "Unknown"
       if(this.mapImpProv){
-        sckanLink = this.mapImpProv.connectivity?.npo.path
+        console.log(this.mapImpProv.connectivity)
+        sckanLink = this.mapImpProv.connectivity?.npo?.path
         if (!sckanLink) {
           sckanLink = this.mapImpProv.sckan?.release
         }
