@@ -14,6 +14,7 @@ export const useSettingsStore = defineStore('settings', {
       flatmapAPI: undefined,
       nlLinkPrefix: undefined,
       flatmapAPI2: "https://mapcore-demo.org/curation/flatmap/",
+      mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
       numberOfDatasetsForFacets: [],
@@ -66,6 +67,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateFlatmapAPI2(flatmapAPI2) {
       this.flatmapAPI2 = flatmapAPI2;
+    },
+    updateMapManager(mapManager) {
+      this.mapManager = mapManager;
     },
     updateNLLinkPrefix(nlLinkPrefix) {
       this.nlLinkPrefix = nlLinkPrefix;

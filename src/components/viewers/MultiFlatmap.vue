@@ -5,6 +5,7 @@
       @flatmapChanged="flatmapChanged"
       @ready="multiFlatmapReady"
       :state="entry.state"
+      :mapManager="mapManager"
       @resource-selected="flatmaprResourceSelected(entry.type, $event)"
       style="height: 100%; width: 100%"
       :initial="entry.resource"
@@ -33,6 +34,7 @@
       @finish-help-mode="endHelp"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
+      @mapmanager-loaded="onMapmanagerLoaded"
     />
 
     <HelpModeDialog
