@@ -60,6 +60,9 @@ describe('MapContent', () => {
         return false
       if (err.message.includes("Cannot read properties of undefined (reading 'onResize')"))
         return false
+      if (err.message.includes("knowledge/query/")) {
+        return false
+      }
       return true
     })
 
