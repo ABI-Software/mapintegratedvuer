@@ -452,8 +452,9 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.on('annotation-close', (payload) => {
-      if (payload?.tabClose && this.$refs.multiflatmap.getCurrentFlatmap()) {
-        this.$refs.multiflatmap.getCurrentFlatmap().annotationEventCallback({}, { type: 'aborted' })
+      if (payload?.tabClose && this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
       }
     });
 
