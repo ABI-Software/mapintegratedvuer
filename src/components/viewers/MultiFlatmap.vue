@@ -474,6 +474,16 @@ export default {
       this.showConnectivityTooltips(payload);
     });
 
+    EventBus.on('neuron-connection-change', (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          const current = currentFlatmap.currentActive
+          currentFlatmap.highlightConnectedPaths([current], payload.type)
+        }
+      }
+    });
+
     EventBus.on("markerUpdate", () => {
       if (this.flatmapReady) {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
