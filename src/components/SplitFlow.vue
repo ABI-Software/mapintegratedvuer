@@ -43,6 +43,7 @@
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
           @connectivity-component-click="onConnectivityComponentClick"
+          @neuron-connection-change="onNeuronConnectionChange"
         />
         <SplitDialog
           :entries="entries"
@@ -311,6 +312,9 @@ export default {
         connectivityInfo: this.connectivityInfo,
         data: data,
       });
+    },
+    onNeuronConnectionChange: function (data) {
+      EventBus.emit('neuron-connection-change', data);
     },
     hoverChanged: function (data) {
       const hoverAnatomies = data && data.anatomy ? data.anatomy : [];
