@@ -13,7 +13,7 @@
         <el-option
           v-for="entry in entries"
           :key="entry.id"
-          :label="getEntryTitle(entry)"
+          :label="getTitle(entry)"
           :value="entry.id"
         />
       </el-select>
@@ -126,6 +126,7 @@ export default {
       boundariesElement: null, // this is set @vue:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntry: undefined,
+      titles: [],
     }
   },
   computed: {
@@ -168,7 +169,18 @@ export default {
       }
     },
     entries: function() {
-      return this.entriesStore.entries;
+      this.titles = [];
+      return this.entriesStore.entries.map((entry) => {
+        const title = this.getEntryTitle(entry);
+        this.titles.push({
+          id: entry.id,
+          title: title,
+        });
+        return {
+          ...entry,
+          title: title,
+        };
+      });
     },
   },
   methods: {
@@ -184,12 +196,42 @@ export default {
           type = "3D Scaffold";
         title += type;
         if (entry.datasetId)
-          title += " (" + entry.datasetId + ")";
+          title += " - " + entry.datasetId + "";
         else if (entry.discoverId)
-          title += " (" + entry.discoverId + ")";
+          title += " - " + entry.discoverId + "";
+
         return title;
       }
       return "Viewer";
+    },
+    getTitle: function(_entry) {
+      const {id, title} = _entry;
+      const foundTitles = this.titles.filter((t) => t.title === title);
+
+      if (foundTitles.length > 1) {
+        const titleList = [];
+
+        for (let i = 0; i < foundTitles.length; i++) {
+          const alpha = this.getCharById(i);
+
+          titleList.push({
+            id: foundTitles[i].id,
+            title: foundTitles[i].title + alpha,
+          });
+        }
+
+        const titleToReturn = titleList.find(t => t.id === id);
+        if (titleToReturn) {
+          return titleToReturn.title;
+        }
+      }
+
+      return title;
+    },
+    getCharById: function(id) {
+      // starts from char 'A'
+      const character = ' (' + String.fromCharCode(65 + id) + ')';
+      return character;
     },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
@@ -261,30 +303,35 @@ export default {
   display:flex;
   flex-direction: row;
   .select-box {
-    width: 177px;
-    height: 26px;
-    border-radius: 4px;
-    border: 1px solid rgb(144, 147, 153);
-    background-color: #fff;
-    font-weight: 500;
-    color: rgb(48, 49, 51);
-    margin-left: 8px;
-    margin-top: 3px;
-    margin-bottom: 2px;
+    max-width: 300px;
     z-index: 5;
     :deep(.el-select__wrapper) {
-      width:177px;
       color: $app-primary-color;
-      height: 26px;
-      min-height: 26px;
-      line-height: 26px;
-      padding-left: 4px;
+      height: 29px;
+      min-height: 29px;
+      line-height: 29px;
+      font-weight: 500;
+      margin-top: 1px;
+      margin-left: 8px;
+      padding-left: 8px;
       padding-right: 8px;
-      background-color: #fff;
-      border-style: none;
+      box-shadow: none !important;
+      background: transparent;
       span {
         color: $app-primary-color;
       }
+    }
+
+    :deep(.el-select__placeholder) {
+      width: fit-content;
+      position: relative;
+      top: auto;
+      transform: none;
+      min-width: 80px;
+    }
+
+    :deep(.el-select__caret) {
+      color: $app-primary-color;
     }
 
     :deep(.el-input__icon) {
