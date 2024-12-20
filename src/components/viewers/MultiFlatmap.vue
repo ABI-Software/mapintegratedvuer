@@ -479,7 +479,11 @@ export default {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (currentFlatmap) {
           const current = currentFlatmap.currentActive
-          currentFlatmap.highlightConnectedPaths([current], payload.type)
+          const options = {
+            type: payload.type,
+            target: payload.data.map((ele) => ele.id)
+          }
+          currentFlatmap.highlightConnectedPaths([current], options)
         }
       }
     });
