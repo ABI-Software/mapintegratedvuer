@@ -1,8 +1,6 @@
 
-import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
-
 
 // remove duplicates by stringifying the objects
 const removeDuplicates = function (arrayOfAnything) {
@@ -77,8 +75,6 @@ export default {
         for (let j = 0; j < dataset.terms.length; j++) {
           if (fma.includes(dataset.terms[j])) {
             datasetAdjusted.terms.push(dataset.terms[j]);
-
-            
           }
         }
         markersOnFlatmap.push(datasetAdjusted);
