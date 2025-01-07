@@ -4,7 +4,6 @@ import {
   getParentsRegion,
 } from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
-import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
@@ -126,16 +125,13 @@ export default {
         eventType: undefined,
       };
 
+
       if (type == "MultiFlatmap" || type == "Flatmap") {
-        result.internalName = this.idNamePair[resource.feature.models];
+        result.internalName = resource?.feature?.label ? resource.feature.label : this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
-            let label = this.idNamePair[resource.feature.models];
-            let hardcodedAnnotation = markerZoomLevels.filter(
-              mz => mz.id === resource.feature.models
-            );
-
+            let label = result.internalName;
             if (
               this.settingsStore.isFeaturedMarkerIdentifier(
                 resource.feature.id
@@ -148,15 +144,6 @@ export default {
                   resource.feature.id
                 ),
                 featuredDataset: true,
-              };
-            } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
-              // if it matches our stored keywords, it is a keyword search
-              // Keyword searches do not contain labels, so switch to keyword search if no label exists
-              returnedAction = {
-                type: "Search",
-                term:
-                  "http://purl.obolibrary.org/obo/" +
-                  resource.feature.models.replace(":", "_"),
               };
             } else {
               // Facet search on anatomy if it is not a keyword search
