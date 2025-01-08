@@ -143,7 +143,7 @@ describe('MapContent', () => {
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("UBERON:0018675");
     cy.get('.search-container > .map-icon > use').should('exist').click();
-    cy.get('.maplibregl-popup-content').should('exist').contains('pelvic splanchnic nerve');
+    cy.get('.maplibregl-popup-content').should('exist').contains('Pelvic splanchnic nerve');
 
     //Test searching with uberon id wich should display a pop up with anatomical name
     cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > .settings-group > :nth-child(1)').should('exist').click();
