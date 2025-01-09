@@ -155,6 +155,9 @@ export default {
         } else if (document.msExitFullscreen) { /* IE/Edge */
           document.msExitFullscreen();
         }
+
+        let mapApp = this.$refs.MapApp;
+        this.replacePopupsOnFullscreen(mapApp, document.body);
       }
     },
     /**
@@ -172,6 +175,15 @@ export default {
       } else if (parent.msRequestFullscreen) { /* IE/Edge */
         mapApp.msRequestFullscreen();
       }
+
+      this.replacePopupsOnFullscreen(document.body, mapApp);
+    },
+    replacePopupsOnFullscreen: function (containerA, containerB) {
+      const allTeleportedPopovers = containerA.querySelectorAll('[id^="el-popper-container"]');
+
+      allTeleportedPopovers.forEach((teleportedPopover) => {
+        containerB.append(teleportedPopover);
+      });
     },
     setState: function(state){
       return this.$refs.flow.setState(state);
