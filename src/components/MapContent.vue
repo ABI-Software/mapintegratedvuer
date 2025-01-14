@@ -27,7 +27,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
-import { initialState } from "./scripts/utilities.js";
+import { initialState, getBodyScaffoldInfo } from "./scripts/utilities.js";
 import RetrieveContextCardMixin from "../mixins/RetrieveContextCardMixin.js"
 import {
   ElLoading as Loading
@@ -201,7 +201,7 @@ export default {
      */
     setCurrentEntry: async function(state) {
       if (state && state.type) {
-        if (state.type === "Scaffold" && state.url) {
+        if (state.type === "Scaffold" && (state.url || state.isBodyScaffold)) {
           //State for scaffold containing the following items:
           //  label - Setting the name of the dialog
           //  region - Which region/group currently focusing on
@@ -216,9 +216,14 @@ export default {
             state: state.state,
             viewUrl: state.viewUrl
           };
-          // Add content from scicrunch for the context card
-          const contextCardInfo = await this.retrieveContextCardFromUrl(state.url);
-          newView = {...newView, ...contextCardInfo};
+          if (state.isBodyScaffold) {
+            const data = await getBodyScaffoldInfo(this.options.sparcApi, state.label);
+            newView = { ...newView, ...data.datasetInfo, resource: data.url };
+          } else {
+            // Add content from scicrunch for the context card
+            const contextCardInfo = await this.retrieveContextCardFromUrl(state.url);
+            newView = { ...newView, ...contextCardInfo };
+          }
           this.$refs.flow.createNewEntry(newView);
         } else if (state.type === "MultiFlatmap") {
           //State for scaffold containing the following items:
@@ -235,10 +240,10 @@ export default {
             const currentState = this.getState();
             if (currentState && currentState.entries) {
               for (let i = 0; i < currentState.entries.length; i++) {
-                const entry =  currentState.entries[i];
+                const entry = currentState.entries[i];
                 if (entry.type === "MultiFlatmap") {
                   entry.resource = key;
-                  entry.state = {species: key};
+                  entry.state = { species: key };
                   if (state.organ || state.uuid) {
                     entry.state.state = { searchTerm: state.organ, uuid: state.uuid };
                     //if it contains an uuid, use the taxo to help identify if the uuid
@@ -254,8 +259,7 @@ export default {
               }
             }
           }
-        }
-        else if (state.type === "Flatmap") {
+        } else if (state.type === "Flatmap") {
           //State for scaffold containing the following items:
           //  label - Setting the name of the dialog
           //  region - Which region/group currently focusing on
