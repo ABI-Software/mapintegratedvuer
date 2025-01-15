@@ -226,46 +226,57 @@ export default {
           }
           this.$refs.flow.createNewEntry(newView);
         } else if (state.type === "MultiFlatmap") {
-          //State for scaffold containing the following items:
-          //  label - Setting the name of the dialog
-          //  taxo - taxo of species to set
-          //  biologicalSex - biological sex to be displayed (PATO)
-          //  organ - Target organ, flatmap will conduct a local search
-          //          using this
-
-          //Look for the key in the available species array,
-          //it will use the taxo and biologicalSex as hints.
-          const key = findSpeciesKey(state);
-          if (key) {
-            const currentState = this.getState();
-            if (currentState && currentState.entries) {
-              for (let i = 0; i < currentState.entries.length; i++) {
-                const entry = currentState.entries[i];
-                if (entry.type === "MultiFlatmap") {
-                  entry.resource = key;
-                  entry.state = { species: key };
-                  if (state.organ || state.uuid) {
-                    entry.state.state = { searchTerm: state.organ, uuid: state.uuid };
-                    //if it contains an uuid, use the taxo to help identify if the uuid
-                    //is current
-                    if (state.uuid) entry.state.state.entry = state.taxo;
+          if (state.resource) {
+            //State for new multiflatmap containing the following items:
+            //  label - Setting the name of the dialog
+            //  resource - the url to metadata
+            //  state - state to restore (viewport)
+            const newView = {
+              type: state.type,
+              resource: state.resource,
+              state: state.state,
+              label: state.label
+            };
+            this.$refs.flow.createNewEntry(newView);
+          } else {
+            //State for multiflatmap containing the following items:
+            //  taxo - taxo of species to set
+            //  biologicalSex - biological sex to be displayed (PATO)
+            //  organ - Target organ, flatmap will conduct a local search
+            //          using this
+  
+            //Look for the key in the available species array,
+            //it will use the taxo and biologicalSex as hints.
+            const key = findSpeciesKey(state);
+            if (key) {
+              const currentState = this.getState();
+              if (currentState && currentState.entries) {
+                for (let i = 0; i < currentState.entries.length; i++) {
+                  const entry = currentState.entries[i];
+                  if (entry.type === "MultiFlatmap") {
+                    entry.resource = key;
+                    entry.state = { species: key };
+                    if (state.organ || state.uuid) {
+                      entry.state.state = { searchTerm: state.organ, uuid: state.uuid };
+                      //if it contains an uuid, use the taxo to help identify if the uuid
+                      //is current
+                      if (state.uuid) entry.state.state.entry = state.taxo;
+                    }
+                    this.$refs.flow.setState(currentState);
+                    //Do not create a new entry, instead set the multiflatmap viewer
+                    //to the primary slot
+                    this.$refs.flow.setIdToPrimaryPane(entry.id);
+                    break;
                   }
-                  this.$refs.flow.setState(currentState);
-                  //Do not create a new entry, instead set the multiflatmap viewer
-                  //to the primary slot
-                  this.$refs.flow.setIdToPrimaryPane(entry.id);
-                  break;
                 }
               }
             }
           }
         } else if (state.type === "Flatmap") {
-          //State for scaffold containing the following items:
+          //State for flatmap containing the following items:
           //  label - Setting the name of the dialog
-          //  region - Which region/group currently focusing on
           //  resource - the url to metadata
           //  state - state to restore (viewport)
-          //  viewUrl - relative path of the view file to metadata
           const newView = {
             type: state.type,
             resource: state.resource,
