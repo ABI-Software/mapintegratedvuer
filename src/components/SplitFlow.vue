@@ -558,11 +558,7 @@ export default {
       if (id === 3) EventBus.emit('annotation-close', { tabClose: true });
     },
     resetActivePathways: function () {
-      const containerEl = this.$el;
-      const activeCanvas = containerEl.querySelector('.maplibregl-canvas');
-      if (activeCanvas) {
-        activeCanvas.click();
-      }
+      this.hoverChanged(undefined);
     },
   },
   created: function () {
