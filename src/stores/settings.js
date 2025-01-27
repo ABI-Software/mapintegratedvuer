@@ -13,7 +13,6 @@ export const useSettingsStore = defineStore('settings', {
       pennsieveApi: undefined,
       flatmapAPI: undefined,
       nlLinkPrefix: undefined,
-      flatmapAPI2: "https://mapcore-demo.org/curation/flatmap/",
       mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
@@ -64,9 +63,6 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateFlatmapAPI(flatmapAPI) {
       this.flatmapAPI = flatmapAPI;
-    },
-    updateFlatmapAPI2(flatmapAPI2) {
-      this.flatmapAPI2 = flatmapAPI2;
     },
     updateMapManager(mapManager) {
       this.mapManager = mapManager;
