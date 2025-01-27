@@ -28,6 +28,7 @@
           :annotationEntry="annotationEntry"
           :createData="createData"
           :connectivityInfo="connectivityInfo"
+          :useDOIFormatter="useDOIFormatter"
           @tab-close="onSidebarTabClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
@@ -109,7 +110,11 @@ export default {
     state: {
       type: Object,
       default: undefined,
-    }
+    },
+    useDOIFormatter: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: function () {
     return {

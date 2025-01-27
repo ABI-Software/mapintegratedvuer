@@ -23,6 +23,16 @@
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
               </el-row>
+              <el-row>
+                <el-col>
+                  <el-switch
+                    v-model="useDOIFormatter"
+                    size="small"
+                    active-text="Use DOI formatter"
+                    inactive-text="Use citation.js formatter"
+                  />
+                </el-col>
+              </el-row>
             </div>
             <template #reference>
 
@@ -40,6 +50,7 @@
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
+        :useDOIFormatter="useDOIFormatter"
         @updateShareLinkRequested="updateUUID"
         @isReady="viewerIsReady"
         @mapLoaded="mapIsLoaded"
@@ -77,7 +88,8 @@ export default {
       api: import.meta.env.VITE_API_LOCATION,
       mapSettings: [],
       startingMap: "AC",
-      ElIconSetting: shallowRef(ElIconSetting)
+      ElIconSetting: shallowRef(ElIconSetting),
+      useDOIFormatter: true,
     }
   },
   computed: {
