@@ -558,11 +558,7 @@ export default {
       if (id === 3) EventBus.emit('annotation-close', { tabClose: true });
     },
     resetActivePathways: function () {
-      const containerEl = this.$el;
-      const activeCanvas = containerEl.querySelector('.maplibregl-canvas');
-      if (activeCanvas) {
-        activeCanvas.click();
-      }
+      this.hoverChanged(undefined);
     },
   },
   created: function () {
@@ -650,7 +646,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
         ROOT_URL: this.settingsStore.rootUrl,
-        FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI2, // temporary
+        FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
       };
     },
     entries: function() {
