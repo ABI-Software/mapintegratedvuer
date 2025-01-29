@@ -205,11 +205,15 @@ export default {
 </script>
 
 <style lang="scss">
+$button-container-size: 50px;
+$gap: 24px;
+
 #app {
   height:100%;
   width: 100%;
   position:absolute;
   font-family: "Asap",sans-serif;
+  background-color: #f5f7fa;
   --el-color-primary: #8300BF;
   --el-color-primary-light-7: #dab3ec;
   --el-color-primary-light-8: #e6ccf2;
@@ -221,14 +225,13 @@ body {
 }
 
 .map-app {
-  position:absolute;
-  height: calc(100% - 104px);
-  width:calc(100% - 54px);
-  margin-top:20px;
-  margin-left:26px;
-  margin-right:26px;
+  margin: 0 auto;
+  width: calc(100% - #{$gap * 2});
+  height: calc(100% - #{$button-container-size + $gap});
   border: solid 1px #dcdfe6;
   box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  position: relative;
 }
 
 .popover{
@@ -249,7 +252,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height:50px;
+  height: $button-container-size;
 }
 
 
