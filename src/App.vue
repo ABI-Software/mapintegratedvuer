@@ -11,18 +11,18 @@
           :teleported=false
           >
             <div class="options-container">
-              <el-row class="row" :gutter="20">
+              <div class="row">
                 <el-button @click="saveSettings()" size="small">Save Settings</el-button>
                 <el-button @click="restoreSettings()" size="small">Restore Settings</el-button>
                 <el-button @click="getShareableURL()" size="small">Get Link</el-button>
-              </el-row>
-              <el-row class="row" :gutter="20">
+              </div>
+              <div class="row">
                 <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
                 <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
                 <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
-              </el-row>
+              </div>
             </div>
             <template #reference>
 
@@ -242,9 +242,16 @@ body {
 }
 
 .row {
-  margin-bottom: 5px;
-  &:last-child {
-    margin-bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  + .row {
+    margin-top: 12px;
+  }
+
+  .el-button + .el-button {
+    margin: 0;
   }
 }
 
