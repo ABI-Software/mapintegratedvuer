@@ -38,6 +38,7 @@
     </div>
 
     <el-row class="icon-group">
+      <el-button @click="updateGlobalSettings">settings</el-button> <!-- temp -->
       <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
@@ -265,10 +266,18 @@ export default {
       failedSearch: undefined,
       activeViewRef: undefined,
       permalinkRef: undefined,
-      ElIconCopyDocument: shallowRef(ElIconCopyDocument)
+      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      displayMarker: true // temp
     }
   },
   methods: {
+    updateGlobalSettings: function() {
+      this.displayMarker = !this.displayMarker // temp
+      let incomingSettings = { displayMarker: this.displayMarker }
+      const updatedSettings = this.settingsStore.getUpdatedSettings(incomingSettings)
+      this.settingsStore.updateGlobalSettings(incomingSettings)
+      if (updatedSettings.includes('displayMarker')) EventBus.emit("markerUpdate");
+    },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },

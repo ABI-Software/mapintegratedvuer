@@ -29,6 +29,9 @@ export const useSettingsStore = defineStore('settings', {
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
       annotationSidebar: true,
+      globalSettings: {
+        displayMarker: true,
+      }
     }
   },
   getters: {
@@ -40,6 +43,17 @@ export const useSettingsStore = defineStore('settings', {
         element => element == identifier
       );
       return state.featuredMarkerDois[index];
+    },
+    getUpdatedSettings: state => settings => {
+      let updatedSettings = []
+      Object.entries(state.globalSettings).forEach((entry) => {
+        const key = entry[0]
+        const value = entry[1]
+        if (key in settings && settings[key] !== value) {
+          updatedSettings.push(key)
+        }
+      })
+      return updatedSettings;
     },
   },
   actions: {
@@ -161,6 +175,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateAnnotationSidebar(annotationSidebar) {
       this.annotationSidebar = annotationSidebar;
+    },
+    updateGlobalSettings(globalSettings) {
+      this.globalSettings = {...this.globalSettings, ...globalSettings};
     },
   }
 });
