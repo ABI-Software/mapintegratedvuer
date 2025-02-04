@@ -42,6 +42,7 @@
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
+          @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-component-click="onConnectivityComponentClick"
         />
         <SplitDialog
@@ -305,6 +306,9 @@ export default {
         featureIds: featureIds,
         offset: activeView === 'singlepanel' || activeView === '2horpanel'
       });
+    },
+    onShowReferenceConnectivities: function (refSource) {
+      EventBus.emit('show-reference-connectivities', refSource);
     },
     onConnectivityComponentClick: function (data) {
       EventBus.emit('connectivity-component-click', {
