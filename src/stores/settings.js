@@ -44,15 +44,14 @@ export const useSettingsStore = defineStore('settings', {
       );
       return state.featuredMarkerDois[index];
     },
-    getUpdatedSettings: state => settings => {
-      let updatedSettings = []
-      Object.entries(state.globalSettings).forEach((entry) => {
-        const key = entry[0]
-        const value = entry[1]
-        if (key in settings && settings[key] !== value) {
-          updatedSettings.push(key)
+    getUpdatedGlobalSettingsKey: state => settings => {
+      let updatedSettings = [];
+      for (const [key, value] of Object.entries(settings)) {
+        const attribute = state.globalSettings[key];
+        if (!attribute || (attribute !== value)) {
+          updatedSettings.push(key);
         }
-      })
+      }
       return updatedSettings;
     },
   },
@@ -177,7 +176,9 @@ export const useSettingsStore = defineStore('settings', {
       this.annotationSidebar = annotationSidebar;
     },
     updateGlobalSettings(globalSettings) {
-      this.globalSettings = {...this.globalSettings, ...globalSettings};
+      for (const [key, value] of Object.entries(globalSettings)) {
+        this.globalSettings[key] = value;
+      }
     },
   }
 });

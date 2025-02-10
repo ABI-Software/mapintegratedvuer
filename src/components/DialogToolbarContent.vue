@@ -269,11 +269,18 @@ export default {
     }
   },
   methods: {
-    updateGlobalSettings: function() {
-      let incomingSettings = { displayMarker: true }
-      const updatedSettings = this.settingsStore.getUpdatedSettings(incomingSettings)
-      this.settingsStore.updateGlobalSettings(incomingSettings)
-      if (updatedSettings.includes('displayMarker')) EventBus.emit("markerUpdate");
+    updateGlobalSettings: function(globalSettings) {
+      this.settingsStore.updateGlobalSettings(globalSettings)
+    },
+    setDisplayMarkerFlag: function(displayMarker) {
+      if (displayMarker !== undefined) {
+        let incomingSettings = { displayMarker };
+        const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(incomingSettings);
+        if (updatedSettings.includes('displayMarker')) {
+          this.settingsStore.updateGlobalSettings(incomingSettings);
+          EventBus.emit("markerUpdate");
+        }
+      }
     },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
