@@ -219,7 +219,7 @@ export default {
     });
     EventBus.on("hoverUpdate", () => {
       if (this.scaffoldLoaded) {
-        this.mapHoverHighlight(this.$refs.scaffold);
+        this.mapHoverHighlight();
       }
     });
   },

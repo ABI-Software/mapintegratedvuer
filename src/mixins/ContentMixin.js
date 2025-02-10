@@ -484,14 +484,30 @@ export default {
 
       return itemsToHighlight;
     },
-    mapHoverHighlight: function (mapImp) {
+    mapHoverHighlight: function () {
       if (this.visible) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
         const hoverDOI = this.settingsStore.hoverDOI;
+        let mapImp = null;
+        let scaffold = null;
+
+        if (this.flatmapRef) {
+          mapImp = this.$refs.flatmap.mapImp;
+        }
+
+        if (this.multiflatmapRef) {
+          mapImp = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+        }
+
+        if (this.scaffoldRef) {
+          scaffold = this.$refs.scaffold;
+        }
 
         // reset
-        mapImp?.clearSearchResults();
+        if (mapImp) {
+          mapImp.clearSearchResults();
+        }
 
         if (hoverAnatomies.length || hoverOrgans.length) {
           clearTimeout(this.hoverDelay);
@@ -500,14 +516,14 @@ export default {
               mapImp.selectFeatures(itemsToHighlight);
             });
           } else if (this.scaffoldRef) {
-            mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+            scaffold?.changeHighlightedByName(hoverOrgans, "", false);
           }
         } else {
           this.hoverDelay = setTimeout(() => {
             if (this.multiflatmapRef || this.flatmapRef) {
               mapImp?.clearSearchResults();
             } else if (this.scaffoldRef) {
-              mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+              scaffold?.changeHighlightedByName(hoverOrgans, "", false);
             }
           }, 500);
         }

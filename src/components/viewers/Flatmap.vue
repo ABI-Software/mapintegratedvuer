@@ -183,7 +183,7 @@ export default {
       this.flatmapMarkerUpdate(undefined);
     });
     EventBus.on("hoverUpdate", () => {
-      this.mapHoverHighlight(this.$refs.flatmap.mapImp);
+      this.mapHoverHighlight();
     });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
