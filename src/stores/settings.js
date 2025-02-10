@@ -30,6 +30,10 @@ export const useSettingsStore = defineStore('settings', {
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
       annotationSidebar: true,
+      hoverHighlightOptions: {
+        highlightConnectedPaths: false,
+        highlightDOIPaths: false,
+      },
     }
   },
   getters: {
@@ -163,6 +167,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateAnnotationSidebar(annotationSidebar) {
       this.annotationSidebar = annotationSidebar;
+    },
+    updateHoverHighlightOptions(hoverHighlightOptions) {
+      this.hoverHighlightOptions = hoverHighlightOptions;
     },
   }
 });

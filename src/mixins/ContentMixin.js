@@ -465,9 +465,10 @@ export default {
     },
     highlightAnatomies: async function (mapImp, hoverAnatomies, hoverDOI) {
       const itemsToHighlight = [...hoverAnatomies];
+      const hoverHighlightOptions = this.settingsStore.hoverHighlightOptions;
 
       // to highlight connected paths
-      if (this.highlightFeaturesAndPaths) {
+      if (hoverHighlightOptions.highlightConnectedPaths) {
         const connectionsFromFeatures = await mapImp.queryPathsForFeatures(hoverAnatomies);
         if (connectionsFromFeatures) {
           itemsToHighlight.push(...connectionsFromFeatures);
@@ -475,7 +476,7 @@ export default {
       }
 
       // to highlight related paths from reference DOI
-      if (this.highlightDOIPaths) {
+      if (hoverHighlightOptions.highlightDOIPaths) {
         const connectionsFromDOI = await this.getConnectivitiesByDOI(hoverDOI);
         if (connectionsFromDOI) {
           itemsToHighlight.push(...connectionsFromDOI);
@@ -565,8 +566,6 @@ export default {
       isInHelp: false,
       hoverDelay: undefined,
       mapManager: undefined,
-      highlightFeaturesAndPaths: false,
-      highlightDOIPaths: false,
     };
   },
   created: function () {
