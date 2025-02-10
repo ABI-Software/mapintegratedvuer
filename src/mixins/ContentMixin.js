@@ -458,22 +458,31 @@ export default {
         this.endHelp();
       }
     },
-    highlightFeaturesAndConnectivities: function (mapImp, hoverAnatomies) {
-      const queryPathsForFeatures = mapImp.queryPathsForFeatures(hoverAnatomies);
-
-      queryPathsForFeatures.then((connectedPaths) => {
-        if (connectedPaths.length) {
-          mapImp.selectFeatures([
-            ...hoverAnatomies,
-            ...connectedPaths,
-          ]);
-        } else {
-          mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true });
-        }
-      });
+    getConnectivitiesByDOI: async function (hoverDOI) {
+      const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      const response = await currentFlatmap.searchConnectivitiesByReference(hoverDOI);
+      return response;
     },
-    highlightFeaturesByDOI: function (mapImp, hoverDOI) {
-      // TODO
+    highlightAnatomies: async function (mapImp, hoverAnatomies, hoverDOI) {
+      const itemsToHighlight = [...hoverAnatomies];
+
+      // to highlight connected paths
+      if (this.highlightFeaturesAndPaths) {
+        const connectionsFromFeatures = await mapImp.queryPathsForFeatures(hoverAnatomies);
+        if (connectionsFromFeatures) {
+          itemsToHighlight.push(...connectionsFromFeatures);
+        }
+      }
+
+      // to highlight related paths from reference DOI
+      if (this.highlightDOIPaths) {
+        const connectionsFromDOI = await this.getConnectivitiesByDOI(hoverDOI);
+        if (connectionsFromDOI) {
+          itemsToHighlight.push(...connectionsFromDOI);
+        }
+      }
+
+      return itemsToHighlight;
     },
     mapHoverHighlight: function (mapImp) {
       if (this.visible) {
@@ -487,13 +496,9 @@ export default {
         if (hoverAnatomies.length || hoverOrgans.length) {
           clearTimeout(this.hoverDelay);
           if (this.multiflatmapRef || this.flatmapRef) {
-            if (this.highlightFeaturesAndPaths) {
-              this.highlightFeaturesAndConnectivities(mapImp, hoverAnatomies);
-            } else if (this.highlightByDOI) {
-              this.highlightFeaturesByDOI(mapImp, hoverDOI);
-            } else {
-              mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true });
-            }
+            this.highlightAnatomies(mapImp, hoverAnatomies, hoverDOI).then((itemsToHighlight) => {
+              mapImp.selectFeatures(itemsToHighlight);
+            });
           } else if (this.scaffoldRef) {
             mapImp?.changeHighlightedByName(hoverOrgans, "", false);
           }
@@ -545,7 +550,7 @@ export default {
       hoverDelay: undefined,
       mapManager: undefined,
       highlightFeaturesAndPaths: false,
-      highlightByDOI: false,
+      highlightDOIPaths: false,
     };
   },
   created: function () {
