@@ -472,10 +472,14 @@ export default {
         }
       });
     },
+    highlightFeaturesByDOI: function (mapImp, hoverDOI) {
+      // TODO
+    },
     mapHoverHighlight: function (mapImp) {
       if (this.visible) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
+        const hoverDOI = this.settingsStore.hoverDOI;
 
         // reset
         mapImp?.clearSearchResults();
@@ -483,7 +487,13 @@ export default {
         if (hoverAnatomies.length || hoverOrgans.length) {
           clearTimeout(this.hoverDelay);
           if (this.multiflatmapRef || this.flatmapRef) {
-            this.highlightFeaturesAndConnectivities(mapImp, hoverAnatomies);
+            if (this.highlightFeaturesAndPaths) {
+              this.highlightFeaturesAndConnectivities(mapImp, hoverAnatomies);
+            } else if (this.highlightByDOI) {
+              this.highlightFeaturesByDOI(mapImp, hoverDOI);
+            } else {
+              mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true });
+            }
           } else if (this.scaffoldRef) {
             mapImp?.changeHighlightedByName(hoverOrgans, "", false);
           }
@@ -534,6 +544,8 @@ export default {
       isInHelp: false,
       hoverDelay: undefined,
       mapManager: undefined,
+      highlightFeaturesAndPaths: false,
+      highlightByDOI: false,
     };
   },
   created: function () {

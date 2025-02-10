@@ -315,7 +315,8 @@ export default {
     hoverChanged: function (data) {
       const hoverAnatomies = data && data.anatomy ? data.anatomy : [];
       const hoverOrgans = data && data.organs ? data.organs : [];
-      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans);
+      const hoverDOI = data && data.doi ? data.doi : '';
+      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI);
       EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {

@@ -20,6 +20,7 @@ export const useSettingsStore = defineStore('settings', {
       markers: [],
       hoverAnatomies: [],
       hoverOrgans: [],
+      hoverDOI: '',
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
@@ -76,9 +77,10 @@ export const useSettingsStore = defineStore('settings', {
     updateMarkers(markers) {
       this.markers = markers;
     },
-    updateHoverFeatures(anatomies, organs) {
+    updateHoverFeatures(anatomies, organs, doi) {
       this.hoverAnatomies = anatomies;
       this.hoverOrgans = organs;
+      this.hoverDOI = doi;
     },
     updateFeatured(datasetIdentifiers) {
       this.featuredMarkerIdentifiers = new Array(datasetIdentifiers.length);
