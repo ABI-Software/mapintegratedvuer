@@ -265,10 +265,16 @@ export default {
       failedSearch: undefined,
       activeViewRef: undefined,
       permalinkRef: undefined,
-      ElIconCopyDocument: shallowRef(ElIconCopyDocument)
+      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
     }
   },
   methods: {
+    updateGlobalSettings: function() {
+      let incomingSettings = { displayMarker: true }
+      const updatedSettings = this.settingsStore.getUpdatedSettings(incomingSettings)
+      this.settingsStore.updateGlobalSettings(incomingSettings)
+      if (updatedSettings.includes('displayMarker')) EventBus.emit("markerUpdate");
+    },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
