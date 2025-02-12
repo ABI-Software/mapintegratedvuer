@@ -195,6 +195,12 @@ export default {
         });
       }
     });
+    EventBus.on('show-reference-connectivities', (payload) => {
+      const currentFlatmap = this.$refs.flatmap;
+      if (currentFlatmap) {
+        currentFlatmap.showConnectivitiesByReference(payload);
+      }
+    });
   },
 };
 </script>

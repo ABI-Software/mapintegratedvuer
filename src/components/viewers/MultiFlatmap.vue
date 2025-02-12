@@ -471,6 +471,15 @@ export default {
       }
     });
 
+    EventBus.on('show-reference-connectivities', (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.showConnectivitiesByReference(payload);
+        }
+      }
+    });
+
     EventBus.on('connectivity-component-click', (payload) => {
       this.showConnectivityTooltips(payload);
     });
