@@ -34,6 +34,9 @@ export const useSettingsStore = defineStore('settings', {
         highlightConnectedPaths: false,
         highlightDOIPaths: false,
       },
+      globalSettings: {
+        displayMarker: true,
+      },
     }
   },
   getters: {
@@ -45,6 +48,16 @@ export const useSettingsStore = defineStore('settings', {
         element => element == identifier
       );
       return state.featuredMarkerDois[index];
+    },
+    getUpdatedGlobalSettingsKey: state => settings => {
+      let updatedSettings = [];
+      for (const [key, value] of Object.entries(settings)) {
+        const attribute = state.globalSettings[key];
+        if (!attribute || (attribute !== value)) {
+          updatedSettings.push(key);
+        }
+      }
+      return updatedSettings;
     },
   },
   actions: {
@@ -170,6 +183,11 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateHoverHighlightOptions(hoverHighlightOptions) {
       this.hoverHighlightOptions = hoverHighlightOptions;
+    },
+    updateGlobalSettings(globalSettings) {
+      for (const [key, value] of Object.entries(globalSettings)) {
+        this.globalSettings[key] = value;
+      }
     },
   }
 });

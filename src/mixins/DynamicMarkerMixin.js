@@ -40,7 +40,7 @@ export default {
 
       if (flatmapImp) {
         // Set the dataset markers
-        let markers = this.settingsStore.markers;
+        let markers = this.settingsStore.globalSettings.displayMarker ? this.settingsStore.markers : [];
         markers = removeDuplicates(markers);
         let fmMarkers = this.removeMarkersNotOnFlatmap(flatmapImp, markers);
         flatmapImp.clearMarkers();
