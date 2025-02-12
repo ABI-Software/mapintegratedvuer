@@ -248,7 +248,7 @@ export default {
             return fetch(`${this.apiLocation}get-related-terms/${id}`)
               .then(response => response.json())
               .then(data => {
-                if (data.uberon.array.length > 0) {
+                if (data.uberon?.array.length > 0) {
                   name =
                     data.uberon.array[0].name.charAt(0).toUpperCase() +
                     data.uberon.array[0].name.slice(1);
