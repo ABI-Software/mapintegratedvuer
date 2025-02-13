@@ -161,11 +161,19 @@
         popper-class="header-popper"
         >
         <template #reference>
-          <el-icon
-            class="header-icon"
-          >
-            <el-icon-more-filled />
-          </el-icon>
+          <el-dropdown trigger="click">
+            <el-icon
+              class="header-icon"
+            >
+              <el-icon-more-filled />
+            </el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item>Action 1</el-dropdown-item>
+                <el-dropdown-item>Action 2</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </template>
       </el-popover>
     </el-row>
