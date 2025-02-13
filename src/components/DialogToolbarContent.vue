@@ -156,7 +156,18 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-
+      <el-popover class="tooltip" content="Settings" placement="bottom-end"
+        :show-after="helpDelay" :teleported=false trigger="hover"
+        popper-class="header-popper"
+        >
+        <template #reference>
+          <el-icon
+            class="header-icon"
+          >
+            <el-icon-more-filled />
+          </el-icon>
+        </template>
+      </el-popover>
     </el-row>
   </div>
 </template>
