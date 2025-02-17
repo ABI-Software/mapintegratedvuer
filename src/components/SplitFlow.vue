@@ -42,6 +42,7 @@
           @contextUpdate="contextUpdate($event)"
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
+          @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-component-click="onConnectivityComponentClick"
         />
         <SplitDialog
@@ -306,6 +307,9 @@ export default {
         offset: activeView === 'singlepanel' || activeView === '2horpanel'
       });
     },
+    onShowReferenceConnectivities: function (refSource) {
+      EventBus.emit('show-reference-connectivities', refSource);
+    },
     onConnectivityComponentClick: function (data) {
       EventBus.emit('connectivity-component-click', {
         connectivityInfo: this.connectivityInfo,
@@ -315,7 +319,8 @@ export default {
     hoverChanged: function (data) {
       const hoverAnatomies = data && data.anatomy ? data.anatomy : [];
       const hoverOrgans = data && data.organs ? data.organs : [];
-      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans);
+      const hoverDOI = data && data.doi ? data.doi : '';
+      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI);
       EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {

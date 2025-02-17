@@ -183,7 +183,7 @@ export default {
       this.flatmapMarkerUpdate(undefined);
     });
     EventBus.on("hoverUpdate", () => {
-      this.mapHoverHighlight(this.$refs.flatmap.mapImp);
+      this.mapHoverHighlight();
     });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
@@ -193,6 +193,12 @@ export default {
           offsetX: offset ? -150 : 0,
           zoom: 4,
         });
+      }
+    });
+    EventBus.on('show-reference-connectivities', (payload) => {
+      const currentFlatmap = this.$refs.flatmap;
+      if (currentFlatmap) {
+        currentFlatmap.showConnectivitiesByReference(payload);
       }
     });
   },

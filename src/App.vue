@@ -20,8 +20,11 @@
                 <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
                 <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
                 <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
+                <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
+                <el-button @click="toggleHighlightConnectedPaths()" size="small">Toggle Highlight Connected Paths</el-button>
+                <el-button @click="toggleHighlightDOIPaths()" size="small">Toggle Highlight DOI Paths</el-button>
               </div>
             </div>
             <template #reference>
@@ -40,6 +43,7 @@
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
+        :hoverHighlightOptions="hoverHighlightOptions"
         @updateShareLinkRequested="updateUUID"
         @isReady="viewerIsReady"
         @mapLoaded="mapIsLoaded"
@@ -77,7 +81,11 @@ export default {
       api: import.meta.env.VITE_API_LOCATION,
       mapSettings: [],
       startingMap: "AC",
-      ElIconSetting: shallowRef(ElIconSetting)
+      ElIconSetting: shallowRef(ElIconSetting),
+      hoverHighlightOptions: {
+        highlightConnectedPaths: true,
+        highlightDOIPaths: false,
+      },
     }
   },
   computed: {
@@ -165,8 +173,23 @@ export default {
         }
       );
     },
+    setWholebody: function() {
+      this.$refs.map.setCurrentEntry(
+        {
+          type: "Scaffold",
+          label: "Human",
+          isBodyScaffold: true
+        }
+      );
+    },
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
+    },
+    toggleHighlightConnectedPaths: function () {
+      this.hoverHighlightOptions.highlightConnectedPaths = !this.hoverHighlightOptions.highlightConnectedPaths;
+    },
+    toggleHighlightDOIPaths: function () {
+      this.hoverHighlightOptions.highlightDOIPaths = !this.hoverHighlightOptions.highlightDOIPaths;
     },
     mapIsLoaded: function(map) {
       console.log("map is loaded", map)

@@ -458,23 +458,73 @@ export default {
         this.endHelp();
       }
     },
-    mapHoverHighlight: function (mapImp) {
+    getConnectivitiesByDOI: async function (hoverDOI) {
+      const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      const response = await currentFlatmap.searchConnectivitiesByReference(hoverDOI);
+      return response;
+    },
+    highlightAnatomies: async function (mapImp, hoverAnatomies, hoverDOI) {
+      const itemsToHighlight = [...hoverAnatomies];
+      const hoverHighlightOptions = this.settingsStore.hoverHighlightOptions;
+
+      // to highlight connected paths
+      if (hoverHighlightOptions.highlightConnectedPaths) {
+        const connectionsFromFeatures = await mapImp.queryPathsForFeatures(hoverAnatomies);
+        if (connectionsFromFeatures) {
+          itemsToHighlight.push(...connectionsFromFeatures);
+        }
+      }
+
+      // to highlight related paths from reference DOI
+      if (hoverHighlightOptions.highlightDOIPaths) {
+        const connectionsFromDOI = await this.getConnectivitiesByDOI(hoverDOI);
+        if (connectionsFromDOI) {
+          itemsToHighlight.push(...connectionsFromDOI);
+        }
+      }
+
+      return itemsToHighlight;
+    },
+    mapHoverHighlight: function () {
       if (this.visible) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
+        const hoverDOI = this.settingsStore.hoverDOI;
+        let mapImp = null;
+        let scaffold = null;
+
+        if (this.flatmapRef) {
+          mapImp = this.$refs.flatmap.mapImp;
+        }
+
+        if (this.multiflatmapRef) {
+          mapImp = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+        }
+
+        if (this.scaffoldRef) {
+          scaffold = this.$refs.scaffold;
+        }
+
+        // reset
+        if (mapImp) {
+          mapImp.clearSearchResults();
+        }
+
         if (hoverAnatomies.length || hoverOrgans.length) {
           clearTimeout(this.hoverDelay);
           if (this.multiflatmapRef || this.flatmapRef) {
-            mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true });
+            this.highlightAnatomies(mapImp, hoverAnatomies, hoverDOI).then((itemsToHighlight) => {
+              mapImp.selectFeatures(itemsToHighlight);
+            });
           } else if (this.scaffoldRef) {
-            mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+            scaffold?.changeHighlightedByName(hoverOrgans, "", false);
           }
         } else {
           this.hoverDelay = setTimeout(() => {
             if (this.multiflatmapRef || this.flatmapRef) {
               mapImp?.clearSearchResults();
             } else if (this.scaffoldRef) {
-              mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+              scaffold?.changeHighlightedByName(hoverOrgans, "", false);
             }
           }, 500);
         }
