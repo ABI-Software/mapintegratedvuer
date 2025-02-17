@@ -20,6 +20,7 @@
                 <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
                 <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
                 <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
+                <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
                 <el-button @click="toggleHighlightConnectedPaths()" size="small">Toggle Highlight Connected Paths</el-button>
@@ -90,7 +91,7 @@ export default {
   computed: {
     shareLink: function() {
       if (this.uuid)
-        return this.prefix +"?id=" + this.uuid;
+        return this.prefix +"#/?id=" + this.uuid;
       return this.prefix;
     },
     options: function() {
@@ -169,6 +170,15 @@ export default {
           label: "Colon",
           url: "https://mapcore-demo.org/current/sparc-api-v2/s3-resource/221/3/files/derivative/Scaffolds/mouse_colon_metadata.json",
           viewUrl: "M16_view.json"
+        }
+      );
+    },
+    setWholebody: function() {
+      this.$refs.map.setCurrentEntry(
+        {
+          type: "Scaffold",
+          label: "Human",
+          isBodyScaffold: true
         }
       );
     },

@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "1.7.2",
+  "version": "1.8.0-beta.1",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
@@ -50,11 +50,11 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "1.7.4",
-    "@abi-software/map-side-bar": "2.6.3",
-    "@abi-software/map-utilities": "1.3.2",
+    "@abi-software/flatmapvuer": "^1.8.0-beta.0",
+    "@abi-software/map-side-bar": "^2.7.0-beta.0",
+    "@abi-software/map-utilities": "^1.4.0-beta.0",
     "@abi-software/plotvuer": "^1.0.3",
-    "@abi-software/scaffoldvuer": "1.7.2",
+    "@abi-software/scaffoldvuer": "^1.8.0-beta.3",
     "@abi-software/simulationvuer": "1.0.1",
     "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "^1.0.1",
