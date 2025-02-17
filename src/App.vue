@@ -83,7 +83,7 @@ export default {
   computed: {
     shareLink: function() {
       if (this.uuid)
-        return this.prefix +"?id=" + this.uuid;
+        return this.prefix +"#/?id=" + this.uuid;
       return this.prefix;
     },
     options: function() {
