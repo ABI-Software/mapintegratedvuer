@@ -169,8 +169,16 @@
             </el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>Action 1</el-dropdown-item>
-                <el-dropdown-item>Action 2</el-dropdown-item>
+                <el-dropdown-item>
+                  <el-checkbox v-model="highlightConnectedPaths">
+                    Highlight Connected Paths
+                  </el-checkbox>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-checkbox v-model="highlightDOIPaths">
+                    Highlight DOI Paths
+                  </el-checkbox>
+                </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -273,7 +281,13 @@ export default {
       let flag = !(value === true);
       if (flag !== this.independent)
         this.independent = flag;
-    }
+    },
+    highlightConnectedPaths: function(value) {
+      this.settingsStore.globalSettings['highlightConnectedPaths'] = value;
+    },
+    highlightDOIPaths: function(value) {
+      this.settingsStore.globalSettings['highlightDOIPaths'] = value;
+    },
   },
   data: function() {
     return {
@@ -285,6 +299,8 @@ export default {
       activeViewRef: undefined,
       permalinkRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      highlightConnectedPaths: false,
+      highlightDOIPaths: false,
     }
   },
   methods: {
@@ -347,6 +363,9 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
+
+    this.highlightConnectedPaths = this.settingsStore.globalSettings['highlightConnectedPaths'];
+    this.highlightDOIPaths = this.settingsStore.globalSettings['highlightDOIPaths'];
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
   },
@@ -508,4 +527,22 @@ export default {
   scale: 0.7;
 }
 
+:deep(.el-dropdown-menu__item) {
+  &,
+  &:not(.is-disabled) {
+    &:hover,
+    &:focus {
+      color: $app-primary-color;
+      background-color: var(--el-bg-color-page);
+    }
+
+    .el-checkbox__input.is-checked + .el-checkbox__label {
+      color: inherit;
+    }
+    .el-checkbox__input.is-checked .el-checkbox__inner {
+      border-color: $app-primary-color;
+      background-color: $app-primary-color;
+    }
+  }
+}
 </style>

@@ -36,6 +36,8 @@ export const useSettingsStore = defineStore('settings', {
       },
       globalSettings: {
         displayMarker: true,
+        highlightConnectedPaths: false,
+        highlightDOIPaths: false,
       },
     }
   },
