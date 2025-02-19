@@ -169,7 +169,12 @@
             </el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item disabled>
+                <el-dropdown-item>
+                  <el-checkbox v-model="displayMarker">
+                    Display markers on map
+                  </el-checkbox>
+                </el-dropdown-item>
+                <el-dropdown-item disabled divided>
                   <span class="dropdown-item-title">Dataset Card Hover</span>
                 </el-dropdown-item>
                 <el-dropdown-item>
@@ -285,6 +290,10 @@ export default {
       if (flag !== this.independent)
         this.independent = flag;
     },
+    displayMarker: function(value) {
+      this.settingsStore.globalSettings['displayMarker'] = value;
+      EventBus.emit('markerUpdate');
+    },
     highlightConnectedPaths: function(value) {
       this.settingsStore.globalSettings['highlightConnectedPaths'] = value;
     },
@@ -302,6 +311,7 @@ export default {
       activeViewRef: undefined,
       permalinkRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      displayMarker: true,
       highlightConnectedPaths: false,
       highlightDOIPaths: false,
     }
@@ -367,6 +377,7 @@ export default {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
 
+    this.displayMarker = this.settingsStore.globalSettings['displayMarker'];
     this.highlightConnectedPaths = this.settingsStore.globalSettings['highlightConnectedPaths'];
     this.highlightDOIPaths = this.settingsStore.globalSettings['highlightDOIPaths'];
 
