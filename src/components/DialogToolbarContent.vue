@@ -156,10 +156,16 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-      <el-popover class="tooltip" content="Settings" placement="bottom-end"
-        :show-after="helpDelay" :teleported=false trigger="hover"
+      <el-popover
+        class="tooltip"
+        content="Settings"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported=false
+        trigger="hover"
         popper-class="header-popper"
-        >
+        v-if="globalSettings"
+      >
         <template #reference>
           <el-dropdown trigger="click" size="small" popper-class="map-settings-dropdown">
             <el-icon
@@ -169,24 +175,40 @@
             </el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>
-                  <el-checkbox v-model="displayMarker">
+
+                <el-dropdown-item v-if="globalSettings.displayMarker !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.displayMarker"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
                     Display markers on map
                   </el-checkbox>
                 </el-dropdown-item>
-                <el-dropdown-item disabled divided>
+
+                <el-dropdown-item
+                  disabled
+                  :divided="globalSettings.displayMarker !== undefined"
+                  v-if="globalSettings.highlightConnectedPaths !== undefined || globalSettings.highlightDOIPaths !== undefined"
+                >
                   <span class="dropdown-item-title">Dataset Card Hover</span>
                 </el-dropdown-item>
-                <el-dropdown-item>
-                  <el-checkbox v-model="highlightConnectedPaths">
+                <el-dropdown-item v-if="globalSettings.highlightConnectedPaths !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.highlightConnectedPaths"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
                     Highlight connected paths
                   </el-checkbox>
                 </el-dropdown-item>
-                <el-dropdown-item>
-                  <el-checkbox v-model="highlightDOIPaths">
+                <el-dropdown-item v-if="globalSettings.highlightDOIPaths !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.highlightDOIPaths"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
                     Highlight related DOI paths
                   </el-checkbox>
                 </el-dropdown-item>
+
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -290,16 +312,6 @@ export default {
       if (flag !== this.independent)
         this.independent = flag;
     },
-    displayMarker: function(value) {
-      this.settingsStore.globalSettings['displayMarker'] = value;
-      EventBus.emit('markerUpdate');
-    },
-    highlightConnectedPaths: function(value) {
-      this.settingsStore.globalSettings['highlightConnectedPaths'] = value;
-    },
-    highlightDOIPaths: function(value) {
-      this.settingsStore.globalSettings['highlightDOIPaths'] = value;
-    },
   },
   data: function() {
     return {
@@ -311,14 +323,18 @@ export default {
       activeViewRef: undefined,
       permalinkRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
-      displayMarker: true,
-      highlightConnectedPaths: false,
-      highlightDOIPaths: false,
+      globalSettings: null,
     }
   },
   methods: {
-    updateGlobalSettings: function(globalSettings) {
-      this.settingsStore.updateGlobalSettings(globalSettings)
+    updateGlobalSettings: function(updatedGlobalSettings) {
+      const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(updatedGlobalSettings);
+      this.settingsStore.updateGlobalSettings(updatedGlobalSettings);
+
+      // display marker update
+      if (updatedSettings.includes('displayMarker')) {
+        EventBus.emit('markerUpdate');
+      }
     },
     setDisplayMarkerFlag: function(displayMarker) {
       if (displayMarker !== undefined) {
@@ -376,10 +392,7 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
-
-    this.displayMarker = this.settingsStore.globalSettings['displayMarker'];
-    this.highlightConnectedPaths = this.settingsStore.globalSettings['highlightConnectedPaths'];
-    this.highlightDOIPaths = this.settingsStore.globalSettings['highlightDOIPaths'];
+    this.globalSettings = {...this.settingsStore.globalSettings};
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
   },
