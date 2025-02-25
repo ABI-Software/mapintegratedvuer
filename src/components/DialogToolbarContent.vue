@@ -530,6 +530,9 @@ export default {
   top:2px;
   left: calc(50% - 60px);
   position: absolute;
+  display: flex;
+  align-items: center;
+
   .sync-help {
     left:5px;
     stroke: $app-primary-color;
@@ -543,6 +546,7 @@ export default {
   border: 1px solid rgb(220, 223, 230);
   vertical-align: super;
   height: 28px;
+  box-sizing: border-box;
 }
 
 .sync-help {
