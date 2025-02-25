@@ -156,7 +156,64 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
+      <el-popover
+        class="tooltip"
+        content="Settings"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported=false
+        trigger="hover"
+        popper-class="header-popper"
+        v-if="globalSettings"
+      >
+        <template #reference>
+          <el-dropdown trigger="click" size="small" popper-class="map-settings-dropdown">
+            <el-icon
+              class="header-icon"
+            >
+              <el-icon-more-filled />
+            </el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
 
+                <el-dropdown-item v-if="globalSettings.displayMarker !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.displayMarker"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
+                    Display markers on map
+                  </el-checkbox>
+                </el-dropdown-item>
+
+                <el-dropdown-item
+                  disabled
+                  :divided="globalSettings.displayMarker !== undefined"
+                  v-if="globalSettings.highlightConnectedPaths !== undefined || globalSettings.highlightDOIPaths !== undefined"
+                >
+                  <span class="dropdown-item-title">Dataset Card Hover</span>
+                </el-dropdown-item>
+                <el-dropdown-item v-if="globalSettings.highlightConnectedPaths !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.highlightConnectedPaths"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
+                    Highlight connected paths
+                  </el-checkbox>
+                </el-dropdown-item>
+                <el-dropdown-item v-if="globalSettings.highlightDOIPaths !== undefined">
+                  <el-checkbox
+                    v-model="globalSettings.highlightDOIPaths"
+                    @change="updateGlobalSettings(globalSettings)"
+                  >
+                    Highlight related DOI paths
+                  </el-checkbox>
+                </el-dropdown-item>
+
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </template>
+      </el-popover>
     </el-row>
   </div>
 </template>
@@ -254,7 +311,7 @@ export default {
       let flag = !(value === true);
       if (flag !== this.independent)
         this.independent = flag;
-    }
+    },
   },
   data: function() {
     return {
@@ -266,11 +323,18 @@ export default {
       activeViewRef: undefined,
       permalinkRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      globalSettings: null,
     }
   },
   methods: {
-    updateGlobalSettings: function(globalSettings) {
-      this.settingsStore.updateGlobalSettings(globalSettings)
+    updateGlobalSettings: function(updatedGlobalSettings) {
+      const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(updatedGlobalSettings);
+      this.settingsStore.updateGlobalSettings(updatedGlobalSettings);
+
+      // display marker update
+      if (updatedSettings.includes('displayMarker')) {
+        EventBus.emit('markerUpdate');
+      }
     },
     setDisplayMarkerFlag: function(displayMarker) {
       if (displayMarker !== undefined) {
@@ -328,6 +392,7 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
+    this.globalSettings = {...this.settingsStore.globalSettings};
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
   },
@@ -492,5 +557,49 @@ export default {
   top: 0px;
   scale: 0.7;
 }
+</style>
 
+<style lang="scss">
+.map-settings-dropdown {
+  .el-dropdown-menu__item {
+
+    &:not(.is-disabled) {
+      &:hover,
+      &:focus {
+        color: $app-primary-color;
+        background-color: var(--el-bg-color-page);
+
+        .el-checkbox,
+        .el-checkbox__label {
+          color: $app-primary-color;
+        }
+      }
+
+      .el-checkbox__input.is-checked + .el-checkbox__label {
+        color: inherit;
+      }
+
+      .el-checkbox__input.is-checked .el-checkbox__inner {
+        border-color: $app-primary-color;
+        background-color: $app-primary-color;
+      }
+    }
+
+    .el-checkbox,
+    .el-checkbox__label,
+    .dropdown-item-title {
+      color: var(--el-text-color-primary);
+      font-size: inherit;
+      font-weight: 500;
+    }
+
+    &.is-disabled {
+      cursor: default !important;
+    }
+
+    .dropdown-item-title {
+      color: var(--el-text-color-secondary);
+    }
+  }
+}
 </style>
