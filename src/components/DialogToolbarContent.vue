@@ -265,10 +265,23 @@ export default {
       failedSearch: undefined,
       activeViewRef: undefined,
       permalinkRef: undefined,
-      ElIconCopyDocument: shallowRef(ElIconCopyDocument)
+      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
     }
   },
   methods: {
+    updateGlobalSettings: function(globalSettings) {
+      this.settingsStore.updateGlobalSettings(globalSettings)
+    },
+    setDisplayMarkerFlag: function(displayMarker) {
+      if (displayMarker !== undefined) {
+        let incomingSettings = { displayMarker };
+        const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(incomingSettings);
+        if (updatedSettings.includes('displayMarker')) {
+          this.settingsStore.updateGlobalSettings(incomingSettings);
+          EventBus.emit("markerUpdate");
+        }
+      }
+    },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
@@ -452,6 +465,9 @@ export default {
   top:2px;
   left: calc(50% - 60px);
   position: absolute;
+  display: flex;
+  align-items: center;
+
   .sync-help {
     left:5px;
     stroke: $app-primary-color;
@@ -465,6 +481,7 @@ export default {
   border: 1px solid rgb(220, 223, 230);
   vertical-align: super;
   height: 28px;
+  box-sizing: border-box;
 }
 
 .sync-help {

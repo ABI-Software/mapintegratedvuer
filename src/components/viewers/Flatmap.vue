@@ -3,6 +3,7 @@
     <FlatmapVuer
       :state="entry.state"
       :entry="entry.resource"
+      :mapManager="mapManager"
       @resource-selected="flatmaprResourceSelected(entry.type, $event)"
       @pan-zoom-callback="flatmapPanZoomCallback"
       :name="entry.resource ? entry.resource : entry.data"
@@ -32,6 +33,7 @@
       :sparcAPI="apiLocation"
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
+      @mapmanager-loaded="onMapmanagerLoaded"
     />
 
     <HelpModeDialog
@@ -181,7 +183,7 @@ export default {
       this.flatmapMarkerUpdate(undefined);
     });
     EventBus.on("hoverUpdate", () => {
-      this.mapHoverHighlight(this.$refs.flatmap.mapImp);
+      this.mapHoverHighlight();
     });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
@@ -191,6 +193,12 @@ export default {
           offsetX: offset ? -150 : 0,
           zoom: 4,
         });
+      }
+    });
+    EventBus.on('show-reference-connectivities', (payload) => {
+      const currentFlatmap = this.$refs.flatmap;
+      if (currentFlatmap) {
+        currentFlatmap.showConnectivitiesByReference(payload);
       }
     });
   },

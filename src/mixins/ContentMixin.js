@@ -4,7 +4,6 @@ import {
   getParentsRegion,
 } from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
-import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
@@ -77,6 +76,9 @@ export default {
 
       this.onConnectivityInfoClose();
     },
+    onMapmanagerLoaded: function (mapManager) {
+      this.settingsStore.updateMapManager(mapManager);
+    },
     trackOpenMap: function (category) {
       // GA Tagging
       // Open map tracking
@@ -102,41 +104,6 @@ export default {
     searchSuggestions: function () {
       return;
     },
-    getMarkerClickedACtion: function(resource) {
-      let label = this.idNamePair[resource.feature.models];
-      let hardcodedAnnotation = markerZoomLevels.filter(
-        mz => mz.id === resource.feature.models
-      );
-
-      if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
-        // It is a featured dataset search for DOI.
-        return {
-          type: "Search",
-          term: this.settingsStore.featuredMarkerDoi(
-            resource.feature.id
-          ),
-          featuredDataset: true,
-        };
-      } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
-        // if it matches our stored keywords, it is a keyword search
-        // Keyword searches do not contain labels, so switch to keyword search if no label exists
-        return {
-          type: "Search",
-          term:
-            "http://purl.obolibrary.org/obo/" +
-            resource.feature.models.replace(":", "_"),
-        };
-      } else {
-        // Facet search on anatomy if it is not a keyword search
-        return {
-          type: "Facet",
-          facet: label,
-          facetPropPath: "anatomy.organ.category.name",
-          term: "Anatomical structure",
-        };
-      }
-
-    },
     /**
      * Callback when the vuers emit a selected event.
      */
@@ -157,12 +124,34 @@ export default {
         eventType: undefined,
       };
       if (type == "MultiFlatmap" || type == "Flatmap") {
-        const flatmapImp = this.getFlatmapImp();
-        result.internalName = this.idNamePair[resource.feature.models];
+        result.internalName = resource?.feature?.label ? resource.feature.label : this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
-            returnedAction = this.getMarkerClickedACtion(resource);
+            let label = result.internalName;
+            if (
+              this.settingsStore.isFeaturedMarkerIdentifier(
+                resource.feature.id
+              )
+            ) {
+              // It is a featured dataset search for DOI.
+              returnedAction = {
+                type: "Search",
+                term: this.settingsStore.featuredMarkerDoi(
+                  resource.feature.id
+                ),
+                featuredDataset: true,
+              };
+            } else {
+              // Facet search on anatomy if it is not a keyword search
+              returnedAction = {
+                type: "Facet",
+                facet: label,
+                facetPropPath: "anatomy.organ.category.name",
+                term: "Anatomical structure",
+              };
+            }
+
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
               flatmapImp.clearSearchResults();
@@ -269,7 +258,7 @@ export default {
             return fetch(`${this.apiLocation}get-related-terms/${id}`)
               .then(response => response.json())
               .then(data => {
-                if (data.uberon.array.length > 0) {
+                if (data.uberon?.array.length > 0) {
                   name =
                     data.uberon.array[0].name.charAt(0).toUpperCase() +
                     data.uberon.array[0].name.slice(1);
@@ -479,23 +468,73 @@ export default {
         this.endHelp();
       }
     },
-    mapHoverHighlight: function (mapImp) {
+    getConnectivitiesByDOI: async function (hoverDOI) {
+      const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+      const response = await currentFlatmap.searchConnectivitiesByReference(hoverDOI);
+      return response;
+    },
+    highlightAnatomies: async function (mapImp, hoverAnatomies, hoverDOI) {
+      const itemsToHighlight = [...hoverAnatomies];
+      const hoverHighlightOptions = this.settingsStore.hoverHighlightOptions;
+
+      // to highlight connected paths
+      if (hoverHighlightOptions.highlightConnectedPaths) {
+        const connectionsFromFeatures = await mapImp.queryPathsForFeatures(hoverAnatomies);
+        if (connectionsFromFeatures) {
+          itemsToHighlight.push(...connectionsFromFeatures);
+        }
+      }
+
+      // to highlight related paths from reference DOI
+      if (hoverHighlightOptions.highlightDOIPaths) {
+        const connectionsFromDOI = await this.getConnectivitiesByDOI(hoverDOI);
+        if (connectionsFromDOI) {
+          itemsToHighlight.push(...connectionsFromDOI);
+        }
+      }
+
+      return itemsToHighlight;
+    },
+    mapHoverHighlight: function () {
       if (this.visible) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
+        const hoverDOI = this.settingsStore.hoverDOI;
+        let mapImp = null;
+        let scaffold = null;
+
+        if (this.flatmapRef) {
+          mapImp = this.$refs.flatmap.mapImp;
+        }
+
+        if (this.multiflatmapRef) {
+          mapImp = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+        }
+
+        if (this.scaffoldRef) {
+          scaffold = this.$refs.scaffold;
+        }
+
+        // reset
+        if (mapImp) {
+          mapImp.clearSearchResults();
+        }
+
         if (hoverAnatomies.length || hoverOrgans.length) {
           clearTimeout(this.hoverDelay);
           if (this.multiflatmapRef || this.flatmapRef) {
-            mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true });
+            this.highlightAnatomies(mapImp, hoverAnatomies, hoverDOI).then((itemsToHighlight) => {
+              mapImp.selectFeatures(itemsToHighlight);
+            });
           } else if (this.scaffoldRef) {
-            mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+            scaffold?.changeHighlightedByName(hoverOrgans, "", false);
           }
         } else {
           this.hoverDelay = setTimeout(() => {
             if (this.multiflatmapRef || this.flatmapRef) {
               mapImp?.clearSearchResults();
             } else if (this.scaffoldRef) {
-              mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+              scaffold?.changeHighlightedByName(hoverOrgans, "", false);
             }
           }, 500);
         }
@@ -536,6 +575,7 @@ export default {
       scaffoldLoaded: false,
       isInHelp: false,
       hoverDelay: undefined,
+      mapManager: undefined,
     };
   },
   created: function () {
@@ -545,6 +585,9 @@ export default {
       this.flatmapAPI = this.settingsStore.flatmapAPI;
     if (this.settingsStore.sparcApi)
       this.apiLocation = this.settingsStore.sparcApi;
+    if (this.settingsStore.mapManager) {
+      this.mapManager = this.settingsStore.mapManager;
+    }
   },
   watch: {
     helpMode: function (newVal) {

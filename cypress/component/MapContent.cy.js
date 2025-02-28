@@ -60,6 +60,9 @@ describe('MapContent', () => {
         return false
       if (err.message.includes("Cannot read properties of undefined (reading 'onResize')"))
         return false
+      if (err.message.includes("knowledge/query/")) {
+        return false
+      }
       return true
     })
 
@@ -102,7 +105,24 @@ describe('MapContent', () => {
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 30000}).should('not.exist');
 
+    //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
+    //the following attempt to workaround it.
+    function is_high_resolution_screen() {
+      // retina display has a devicePixelRatio of 2
+      return window.devicePixelRatio > 1;
+    }
+    let snapshot = 'minimap_lr'
+    if (is_high_resolution_screen()) {
+      snapshot = 'minimap_hr'
+    }
+    cy.get('html').invoke('css', 'width', '1200px');
+    cy.wait(1000);
+    cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > [style="height: 100%; width: 100%;"] > :nth-child(2) > :nth-child(2) > #maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').compareSnapshot(snapshot).then(comparisonResults => {
+      expect(comparisonResults.percentage).to.be.below(0.1)
+    });
+    cy.get('html').invoke('css', 'width', 'initial');
     //Test the existence of the minimap
+
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 30000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
@@ -123,7 +143,7 @@ describe('MapContent', () => {
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("UBERON:0018675");
     cy.get('.search-container > .map-icon > use').should('exist').click();
-    cy.get('.maplibregl-popup-content').should('exist').contains('pelvic splanchnic nerve');
+    cy.get('.maplibregl-popup-content').should('exist').contains('Pelvic splanchnic nerve');
 
     //Test searching with uberon id wich should display a pop up with anatomical name
     cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > .settings-group > :nth-child(1)').should('exist').click();

@@ -8,6 +8,8 @@ yalc.lock
 cypress/videos
 results
 cypress/screenshots/
+cypress/snapshots/actual/
+cypress/snapshots/diff/
 cypress/reports/
 test/src/
 docs/.vitepress/dist

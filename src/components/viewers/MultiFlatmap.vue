@@ -5,6 +5,7 @@
       @flatmapChanged="flatmapChanged"
       @ready="multiFlatmapReady"
       :state="entry.state"
+      :mapManager="mapManager"
       @resource-selected="flatmaprResourceSelected(entry.type, $event)"
       style="height: 100%; width: 100%"
       :initial="entry.resource"
@@ -33,6 +34,7 @@
       @finish-help-mode="endHelp"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
+      @mapmanager-loaded="onMapmanagerLoaded"
     />
 
     <HelpModeDialog
@@ -450,8 +452,9 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.on('annotation-close', (payload) => {
-      if (payload?.tabClose && this.$refs.multiflatmap.getCurrentFlatmap()) {
-        this.$refs.multiflatmap.getCurrentFlatmap().annotationEventCallback({}, { type: 'aborted' })
+      if (payload?.tabClose && this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
       }
     });
 
@@ -468,6 +471,15 @@ export default {
       }
     });
 
+    EventBus.on('show-reference-connectivities', (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.showConnectivitiesByReference(payload);
+        }
+      }
+    });
+
     EventBus.on('connectivity-component-click', (payload) => {
       this.showConnectivityTooltips(payload);
     });
@@ -479,7 +491,7 @@ export default {
     });
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
-        this.mapHoverHighlight(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
+        this.mapHoverHighlight();
       }
     });
   },
