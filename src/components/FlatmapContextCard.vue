@@ -65,15 +65,17 @@ export default {
     sckanReleaseDisplay: function() {
       let sckanRelease = "Unknown"
       if(this.mapImpProv){
-        sckanRelease = this.mapImpProv.connectivity?.npo.date
+        sckanRelease = this.mapImpProv.connectivity?.npo?.date
         if (!sckanRelease) {
           let sckanCreated = this.mapImpProv.sckan?.created ? this.mapImpProv.sckan.created : this.mapImpProv.sckan
-          let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
-          sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-          })
+          if (sckanCreated) {
+            let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
+            sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+            })
+          }
         }
         if (!sckanRelease) {
           sckanRelease = "Unknown";
@@ -84,7 +86,8 @@ export default {
     sckanReleaseLink: function() {
       let sckanLink = "Unknown"
       if(this.mapImpProv){
-        sckanLink = this.mapImpProv.connectivity?.npo.path
+        console.log(this.mapImpProv.connectivity)
+        sckanLink = this.mapImpProv.connectivity?.npo?.path
         if (!sckanLink) {
           sckanLink = this.mapImpProv.sckan?.release
         }

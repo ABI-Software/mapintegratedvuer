@@ -291,6 +291,7 @@ export default {
           const newView = {
             type: state.type,
             resource: state.resource,
+            data: state.data,
             state: state.state,
             label: state.label
           };
@@ -345,14 +346,15 @@ export default {
   beforeMount: function() {
     if (this.options) {
       // Split options prop up to commit to the store
-      this.options.sparcApi ? this.settingsStore.updateSparcAPI(this.options.sparcApi) : null
-      this.options.algoliaIndex ? this.settingsStore.updateAlgoliaIndex(this.options.algoliaIndex) : null
-      this.options.algoliaKey ? this.settingsStore.updateAlgoliaKey(this.options.algoliaKey) : null
-      this.options.algoliaId ? this.settingsStore.updateAlgoliaId(this.options.algoliaId) : null
-      this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null
-      this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null,
-      this.options.nlLinkPrefix ? this.settingsStore.updateNLLinkPrefix(this.options.nlLinkPrefix) : null
-      this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null
+      this.options.sparcApi ? this.settingsStore.updateSparcAPI(this.options.sparcApi) : null;
+      this.options.algoliaIndex ? this.settingsStore.updateAlgoliaIndex(this.options.algoliaIndex) : null;
+      this.options.algoliaKey ? this.settingsStore.updateAlgoliaKey(this.options.algoliaKey) : null;
+      this.options.algoliaId ? this.settingsStore.updateAlgoliaId(this.options.algoliaId) : null;
+      this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null;
+      this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null;
+      this.options.nlLinkPrefix ? this.settingsStore.updateNLLinkPrefix(this.options.nlLinkPrefix) : null;
+      this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
+      this.options.pmrHost ? this.settingsStore.updatePmrHost(this.options.pmrHost) : null;
     }
     this.splitFlowStore?.reset();
     this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);

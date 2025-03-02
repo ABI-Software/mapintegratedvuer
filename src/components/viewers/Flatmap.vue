@@ -6,7 +6,7 @@
       :mapManager="mapManager"
       @resource-selected="flatmaprResourceSelected(entry.type, $event)"
       @pan-zoom-callback="flatmapPanZoomCallback"
-      :name="entry.resource"
+      :name="entry.resource ? entry.resource : entry.data"
       style="height: 100%; width: 100%"
       :minZoom="entry.minZoom"
       :helpMode="helpMode"
@@ -81,8 +81,8 @@ export default {
       return this.$refs.flatmap?.mapImp;
     },
     flatmaprResourceSelected: function (type, resource) {
-      this.resourceSelected(type, resource);
-
+      this.resourceSelected(
+        type, resource, (this.$refs.flatmap.viewingMode === "Exploration"));
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
         const eventData = {
           label: resource.label || '',

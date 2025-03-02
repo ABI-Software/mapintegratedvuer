@@ -147,8 +147,14 @@ export default {
     actionClick: function (action) {
       if (action) {
         if (action.type == "Search") {
-          if (action.nervePath) {
-            this.openSearch([action.filter], action.label);
+          if (action.filter) {
+            this.openSearch([action.filter], action.term);
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': action.term || 'filter',
+              'location': 'map_location_pin'
+            });
           } else {
             this.openSearch([], action.term);
             // GA Tagging
@@ -651,7 +657,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
         ROOT_URL: this.settingsStore.rootUrl,
-        FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
+        FLATMAP_API_LOCATION: this.settingsStore.flatmapAPI,
       };
     },
     entries: function() {

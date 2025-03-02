@@ -113,7 +113,6 @@ export default {
         EventBus.emit("PopoverActionClick", resource);
         return;
       }
-
       let returnedAction = undefined;
       let action = "none";
       let fireResourceSelected = false;
@@ -124,8 +123,6 @@ export default {
         internalName: undefined,
         eventType: undefined,
       };
-
-
       if (type == "MultiFlatmap" || type == "Flatmap") {
         result.internalName = resource?.feature?.label ? resource.feature.label : this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
@@ -157,11 +154,24 @@ export default {
 
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
-              const flatmap =
-                this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-              flatmap.clearSearchResults();
+              flatmapImp.clearSearchResults();
             }
           } else if (resource.feature.type == "feature") {
+            if (flatmapImp.options && flatmapImp.options.style === 'functional') {
+              if (resource.feature?.label) {
+                const filter = {
+                  facet: "PMR",
+                  term: "Data type",
+                  facetPropPath: "item.types.name",
+                };
+                returnedAction = {
+                  filter: filter,
+                  type: "Search",
+                  term: resource.feature.label,
+                  
+                };
+              }
+            }
             // Do no open scaffold in sync map
             if (this.syncMode) {
               fireResourceSelected = true;

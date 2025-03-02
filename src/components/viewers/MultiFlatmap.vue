@@ -341,7 +341,7 @@ export default {
       }
     },
     getFlatmapImp: function () {
-      if (this.entry.type === "MultiFlatmap" && this.flatmapReady && this.$refs.multiflatmap) {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
         return this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"];
       } else {
         return undefined;
