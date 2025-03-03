@@ -465,7 +465,7 @@ export default {
     },
     highlightAnatomies: async function (mapImp, hoverAnatomies, hoverDOI) {
       const itemsToHighlight = [...hoverAnatomies];
-      const hoverHighlightOptions = this.settingsStore.hoverHighlightOptions;
+      const hoverHighlightOptions = this.settingsStore.globalSettings;
 
       // to highlight connected paths
       if (hoverHighlightOptions.highlightConnectedPaths) {
