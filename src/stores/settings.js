@@ -30,12 +30,10 @@ export const useSettingsStore = defineStore('settings', {
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
       annotationSidebar: true,
-      hoverHighlightOptions: {
-        highlightConnectedPaths: false,
-        highlightDOIPaths: false,
-      },
       globalSettings: {
         displayMarker: true,
+        highlightConnectedPaths: false,
+        highlightDOIPaths: false, // comment out to hide in settings
       },
     }
   },
@@ -53,7 +51,7 @@ export const useSettingsStore = defineStore('settings', {
       let updatedSettings = [];
       for (const [key, value] of Object.entries(settings)) {
         const attribute = state.globalSettings[key];
-        if (!attribute || (attribute !== value)) {
+        if (attribute === undefined || (attribute !== value)) {
           updatedSettings.push(key);
         }
       }
@@ -180,9 +178,6 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateAnnotationSidebar(annotationSidebar) {
       this.annotationSidebar = annotationSidebar;
-    },
-    updateHoverHighlightOptions(hoverHighlightOptions) {
-      this.hoverHighlightOptions = hoverHighlightOptions;
     },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {
