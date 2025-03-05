@@ -18,6 +18,13 @@ const presetLayouts = (view) => {
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
       }
+    case "3vertpanel": 
+      return {
+        "split-1": {content: false, horizontal: false, children: ["pane-1", "pane-2", "pane-3"]},
+        "pane-1": {content: true,  id: 1},
+        "pane-2": {content: true,  id: 2},
+        "pane-3": {content: true,  id: 3},
+      }
     case "3panel": 
       return {
         "split-1": {content: false, horizontal: false, children: ["pane-1", "split-2"]},
@@ -138,6 +145,7 @@ const getOriginalState = () => {
       { icon: "singlepanel", name: "Single view", min: 1 },
       { icon: "2horpanel", name: "Horizontal split", min: 2 },
       { icon: "2vertpanel", name: "Vertical split", min: 2 },
+      { icon: "3vertpanel", name: "Three vert split", min: 3 },
       { icon: "3panel", name: "Three panes", min: 3 },
       { icon: "4panel", name: "Four panes", min: 4 },
       { icon: "5panel", name: "Five panes", min: 5 },
@@ -383,6 +391,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
             case "2vertpanel":
               this.activeView = "singlepanel";
               break;
+            case "3vertpanel":
             case "3panel":
               this.activeView = "2vertpanel";
               break;
@@ -413,6 +422,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
                   customLayout["pane-1"].id = customLayout["pane-2"].id;
                   customLayout["pane-2"].id = availableId;
                 } break;
+                case "3vertpanel":
                 case "3panel": {
                   customLayout["pane-1"].id = customLayout["pane-2"].id;
                   customLayout["pane-2"].id = customLayout["pane-3"].id;
@@ -451,6 +461,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
                 case "2vertpanel": {
                   customLayout["pane-2"].id = availableId;
                 } break;
+                case "3vertpanel":
                 case "3panel": {
                   customLayout["pane-2"].id = customLayout["pane-3"].id;
                   customLayout["pane-3"].id = availableId;
@@ -481,6 +492,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
             } break;
             case "pane-3": {
               switch (pView) {
+                case "3vertpanel":
                 case "3panel": {
                   customLayout["pane-3"].id = availableId;
                 } break;
