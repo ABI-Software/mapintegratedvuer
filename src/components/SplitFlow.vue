@@ -28,6 +28,7 @@
           :annotationEntry="annotationEntry"
           :createData="createData"
           :connectivityInfo="connectivityInfo"
+          :hyperlinks="hyperlinks"
           @tab-close="onSidebarTabClose"
           @actionClick="actionClick"
           @tabClicked="tabClicked"
@@ -127,6 +128,7 @@ export default {
       cancelCreateCallback: undefined,
       confirmDeleteCallback: undefined,
       createData: {},
+      hyperlinks: {},
     }
   },
   watch: {
@@ -415,7 +417,29 @@ export default {
       newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
       this.entriesStore.addNewEntry(newEntry);
-      this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
+      if (data.multiscale) {
+        let viewOptions = this.splitFlowStore.viewIcons.filter((view) => {
+          return view.min === this.entriesStore.entries.length;
+        });
+        if (viewOptions.length > 1) {
+          viewOptions = viewOptions.filter((view) => {
+            return view.icon.toLowerCase().includes('vert');
+          });
+        }
+        this.splitFlowStore.updateActiveView({
+          view: viewOptions[0].icon,
+          entries: this.entriesStore.entries,
+        });
+        this.hyperlinks = {};
+      } else {
+        this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
+        if (this.entriesStore.entries.length > 1) {
+          this.splitFlowStore.updateActiveView({
+            view: "singlepanel",
+            entries: this.entriesStore.entries,
+          });
+        }
+      }
       if (this.splitFlowStore.syncMode) {
         this.splitFlowStore.setSyncMode({ flag: false });
       }
@@ -494,6 +518,9 @@ export default {
     },
     resourceSelected: function (result) {
       this.$emit("resource-selected", result);
+      if (result.eventType === "selected") {
+        this.hyperlinks = result.hyperlinks;
+      }
       if (this.splitFlowStore.globalCallback) {
         this.$refs.splitdialog.sendSynchronisedEvent(result);
       }

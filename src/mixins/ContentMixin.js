@@ -124,6 +124,7 @@ export default {
         eventType: undefined,
       };
       if (type == "MultiFlatmap" || type == "Flatmap") {
+        const flatmapImp = this.getFlatmapImp();
         result.internalName = resource?.feature?.label ? resource.feature.label : this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
@@ -158,19 +159,27 @@ export default {
             }
           } else if (resource.feature.type == "feature") {
             if (flatmapImp.options && flatmapImp.options.style === 'functional') {
+              const filter = {
+                facet: "PMR",
+                term: "Data type",
+                facetPropPath: "item.types.name",
+              };
               if (resource.feature?.label) {
-                const filter = {
-                  facet: "PMR",
-                  term: "Data type",
-                  facetPropPath: "item.types.name",
-                };
                 returnedAction = {
                   filter: filter,
                   type: "Search",
                   term: resource.feature.label,
-                  
                 };
               }
+              if (resource.feature?.hyperlinks) {
+                returnedAction = {
+                  filter: filter,
+                  type: "Search",
+                  term: 'cardiovascular multiscale model',
+                };
+              }
+              result.hyperlinks = resource.feature?.hyperlinks;
+              fireResourceSelected = true;
             }
             // Do no open scaffold in sync map
             if (this.syncMode) {
@@ -504,11 +513,11 @@ export default {
         let scaffold = null;
 
         if (this.flatmapRef) {
-          mapImp = this.$refs.flatmap.mapImp;
+          mapImp = this.$refs.flatmap?.mapImp;
         }
 
         if (this.multiflatmapRef) {
-          mapImp = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+          mapImp = this.$refs.multiflatmap?.getCurrentFlatmap().mapImp;
         }
 
         if (this.scaffoldRef) {
@@ -517,14 +526,14 @@ export default {
 
         // reset
         if (mapImp) {
-          mapImp.clearSearchResults();
+          mapImp?.clearSearchResults();
         }
 
         if (hoverAnatomies.length || hoverOrgans.length) {
           clearTimeout(this.hoverDelay);
           if (this.multiflatmapRef || this.flatmapRef) {
             this.highlightAnatomies(mapImp, hoverAnatomies, hoverDOI).then((itemsToHighlight) => {
-              mapImp.selectFeatures(itemsToHighlight);
+              mapImp?.selectFeatures(itemsToHighlight);
             });
           } else if (this.scaffoldRef) {
             scaffold?.changeHighlightedByName(hoverOrgans, "", false);
