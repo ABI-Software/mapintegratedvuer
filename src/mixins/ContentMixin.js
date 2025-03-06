@@ -159,19 +159,27 @@ export default {
             }
           } else if (resource.feature.type == "feature") {
             if (flatmapImp.options && flatmapImp.options.style === 'functional') {
+              const filter = {
+                facet: "PMR",
+                term: "Data type",
+                facetPropPath: "item.types.name",
+              };
               if (resource.feature?.label) {
-                const filter = {
-                  facet: "PMR",
-                  term: "Data type",
-                  facetPropPath: "item.types.name",
-                };
                 returnedAction = {
                   filter: filter,
                   type: "Search",
                   term: resource.feature.label,
-                  
                 };
               }
+              if (resource.feature?.hyperlinks) {
+                returnedAction = {
+                  filter: filter,
+                  type: "Search",
+                  term: 'cardiovascular multiscale model',
+                };
+              }
+              result.hyperlinks = resource.feature?.hyperlinks;
+              fireResourceSelected = true;
             }
             // Do no open scaffold in sync map
             if (this.syncMode) {
