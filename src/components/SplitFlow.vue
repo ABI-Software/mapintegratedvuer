@@ -23,14 +23,12 @@
           :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
-          :activeTabId="activeDockedId"
           :open-at-start="startUp"
           :annotationEntry="annotationEntry"
           :createData="createData"
           :connectivityInfo="connectivityInfo"
-          @tab-close="onSidebarTabClose"
+          @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
-          @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
           @anatomy-in-datasets="updateMarkers($event)"
           @annotation-submitted="onAnnotationSubmitted"
@@ -44,6 +42,7 @@
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-component-click="onConnectivityComponentClick"
+          @connectivity-clicked="onConnectivityClicked"
         />
         <SplitDialog
           :entries="entries"
@@ -117,7 +116,6 @@ export default {
       sideBarVisibility: true,
       startUp: true,
       search: '',
-      activeDockedId : 1,
       filterTriggered: false,
       availableFacets: [],
       connectivityInfo: null,
@@ -141,6 +139,9 @@ export default {
     },
   },
   methods: {
+    onConnectivityClicked: function (payload) {
+      this.onDisplaySearch({term: payload.id})
+    },
     /**
      * Callback when an action is performed (open new dialogs).
      */
@@ -497,9 +498,6 @@ export default {
         this.$refs.sideBar.close();
       }
     },
-    tabClicked: function ({id, type}) {
-      this.activeDockedId = id;
-    },
     toggleSyncMode: function (payload) {
       if (payload) {
         if (payload.flag) {
@@ -558,9 +556,9 @@ export default {
         this.confirmDeleteCallback(payload);
       }
     },
-    onSidebarTabClose: function (id) {
-      if (id === 2) EventBus.emit('connectivity-info-close');
-      if (id === 3) EventBus.emit('annotation-close', { tabClose: true });
+    onSidebarTabClosed: function (tab) {
+      if (tab.id === 2) EventBus.emit('connectivity-info-close');
+      if (tab.id === 3) EventBus.emit('annotation-close', { tabClose: true });
     },
     resetActivePathways: function () {
       this.hoverChanged(undefined);
@@ -592,12 +590,12 @@ export default {
       this.cancelCreateCallback = markRaw(payload.cancelCreate);
       this.confirmDeleteCallback = markRaw(payload.confirmDelete);
       if (this.$refs.sideBar) {
-        this.tabClicked({id: 3, type: 'annotation'});
+        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
     EventBus.on('annotation-close', payload => {
-      this.tabClicked({id:  1, type: 'search'});
+      this.$refs.sideBar.tabClicked({id:  1, type: 'search'});
       this.annotationEntry = {};
       this.createData = {};
       if (this.$refs.sideBar) {
@@ -607,12 +605,12 @@ export default {
     EventBus.on('connectivity-info-open', payload => {
       this.connectivityInfo = payload;
       if (this.$refs.sideBar) {
-        this.tabClicked({id: 2, type: 'connectivity'});
+        this.$refs.sideBar.tabClicked({id: 2, type: 'connectivity'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
     EventBus.on('connectivity-info-close', payload => {
-      this.tabClicked({id: 1, type: 'search'});
+      this.$refs.sideBar.tabClicked({id: 4, type: 'connectivityExplorer'});
       this.connectivityInfo = null;
       this.resetActivePathways();
     });
