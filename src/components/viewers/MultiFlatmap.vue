@@ -321,7 +321,6 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
-      this.onConnectivityInfoClose();
 
       // GA Tagging
       // Event tracking for maps' species change
