@@ -27,6 +27,7 @@
           :annotationEntry="annotationEntry"
           :createData="createData"
           :connectivityInfo="connectivityInfo"
+          :sckanVersion="sckanVersion"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
           @search-changed="searchChanged($event)"
@@ -125,6 +126,7 @@ export default {
       cancelCreateCallback: undefined,
       confirmDeleteCallback: undefined,
       createData: {},
+      sckanVersion: ''
     }
   },
   watch: {
@@ -626,6 +628,9 @@ export default {
       if (this.$refs.sideBar) {
         this.$refs.sideBar.close();
       }
+    });
+    EventBus.on("mapImpProv", (prov) => {
+      this.sckanVersion = prov.prov.connectivity['knowledge-source']
     });
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {

@@ -308,6 +308,7 @@ export default {
       const imp = this.getFlatmapImp();
       if (imp) {
         let provClone = {id: this.entry.id, prov: imp.provenance};
+        EventBus.emit("mapImpProv", provClone);
         this.$emit("flatmap-provenance-ready", provClone);
       }
     },
