@@ -42,8 +42,8 @@
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
-          @connectivity-component-click="onConnectivityComponentClick"
-          @connectivity-clicked="onConnectivityClicked"
+          @connectivity-hovered="onConnectivityHovered"
+          @connectivity-explorer-clicked="onConnectivityExplorerClicked"
         />
         <SplitDialog
           :entries="entries"
@@ -140,7 +140,7 @@ export default {
     },
   },
   methods: {
-    onConnectivityClicked: function (payload) {
+    onConnectivityExplorerClicked: function (payload) {
       this.onDisplaySearch({term: payload.id})
     },
     /**
@@ -312,8 +312,8 @@ export default {
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
     },
-    onConnectivityComponentClick: function (data) {
-      EventBus.emit('connectivity-component-click', {
+    onConnectivityHovered: function (data) {
+      EventBus.emit('connectivity-hovered', {
         connectivityInfo: this.connectivityInfo,
         data: data,
       });

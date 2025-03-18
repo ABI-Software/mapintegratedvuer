@@ -481,7 +481,7 @@ export default {
       }
     });
 
-    EventBus.on('connectivity-component-click', (payload) => {
+    EventBus.on('connectivity-hovered', (payload) => {
       this.showConnectivityTooltips(payload);
     });
 
