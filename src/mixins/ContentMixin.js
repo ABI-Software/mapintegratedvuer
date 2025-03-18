@@ -9,6 +9,9 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import Tagging from '../services/tagging.js';
 
+import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
+import { getKnowledgeSource, loadAndStoreKnowledge } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
+
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
 }
@@ -545,6 +548,36 @@ export default {
     onConnectivityGraphError: function (errorInfo) {
       EventBus.emit('connectivity-graph-error', errorInfo);
     },
+    loadConnectivityKnowledge: async function (flatmap) {
+      const sckanVersion = getKnowledgeSource(flatmap);
+      const flatmapQueries = markRaw(new FlatmapQueries());
+      flatmapQueries.initialise(this.flatmapAPI);
+      const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
+      this.connectivityKnowledge = knowledge.filter((item) => {
+        if (item.source === sckanVersion && "connectivity" in item) return true;
+        return false;
+      });
+      EventBus.emit("connectivity-knowledge", this.connectivityKnowledge);
+    },
+    connectivityQueryFilter: async function (flatmap, payload) {
+      let results = this.connectivityKnowledge;
+      if (payload.type === "query-update") this.query = payload.value;
+      if (payload.type === "filter-update") this.filter = payload.value;
+      if (this.query) {
+        let suggestions = [];
+        this.searchSuggestions(this.query, suggestions);
+        const labels = [...new Set(suggestions)];
+        let paths = [];
+        if (labels.length === 1) {
+          paths = await flatmap.retrieveConnectedPaths([this.query], { type: this.filter });
+        }
+        results = results.filter((item) => {
+          if (paths.length) return paths.includes(item.id);
+          return labels.includes(item.label) || labels.includes(item["long-label"]);
+        })
+      }
+      EventBus.emit("connectivity-knowledge", results);
+    }
   },
   data: function () {
     return {
@@ -566,6 +599,9 @@ export default {
       isInHelp: false,
       hoverDelay: undefined,
       mapManager: undefined,
+      connectivityKnowledge: [],
+      query: "",
+      filter: [],
     };
   },
   created: function () {

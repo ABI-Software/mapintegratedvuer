@@ -27,7 +27,7 @@
           :annotationEntry="annotationEntry"
           :createData="createData"
           :connectivityInfo="connectivityInfo"
-          :sckanVersion="sckanVersion"
+          :connectivityKnowledge="connectivityKnowledge"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
           @search-changed="searchChanged($event)"
@@ -65,6 +65,7 @@ import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog.vue";
 // import contextCards from './context-cards'
 import { SideBar } from "@abi-software/map-side-bar";
+import "@abi-software/map-side-bar/dist/style.css";
 import {
   capitalise,
   getNewMapEntry,
@@ -82,8 +83,6 @@ import {
   ElHeader as Header,
   ElMain as Main,
 } from "element-plus";
-
-import "@abi-software/map-side-bar/dist/style.css";
 
 /**
  * Component of the floating dialogs.
@@ -126,7 +125,7 @@ export default {
       cancelCreateCallback: undefined,
       confirmDeleteCallback: undefined,
       createData: {},
-      sckanVersion: ''
+      connectivityKnowledge: [],
     }
   },
   watch: {
@@ -327,41 +326,45 @@ export default {
       EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {
-      if (data && data.type == "query-update") {
-        this.search = data.value;
-        if (this.search && !this.filterTriggered) {
-          // GA Tagging
-          // Event tracking for map action search/filter data
-          Tagging.sendEvent({
-            'event': 'interaction_event',
-            'event_name': 'portal_maps_action_search',
-            'category': this.search,
-            'location': 'map_sidebar_search'
-          });
+      if (data.id === 1) {
+        if (data && data.type == "query-update") {
+          this.search = data.value;
+          if (this.search && !this.filterTriggered) {
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_search',
+              'category': this.search,
+              'location': 'map_sidebar_search'
+            });
+          }
+          this.filterTriggered = false; // reset for next action
         }
-        this.filterTriggered = false; // reset for next action
-      }
-      if (data && data.type == "filter-update") {
-        this.settingsStore.updateFacets(data.value);
+        if (data && data.type == "filter-update") {
+          this.settingsStore.updateFacets(data.value);
 
-        // Remove filter event from maps' popup
-        if (!this.filterTriggered) {
-          const { value } = data;
-          const filterValuesArray = value.filter((val) =>
-            val.facet && val.facet.toLowerCase() !== 'show all'
-          ).map((val) => val.facet);
-          const filterValues = filterValuesArray.join(', ');
+          // Remove filter event from maps' popup
+          if (!this.filterTriggered) {
+            const { value } = data;
+            const filterValuesArray = value.filter((val) =>
+              val.facet && val.facet.toLowerCase() !== 'show all'
+            ).map((val) => val.facet);
+            const filterValues = filterValuesArray.join(', ');
 
-          // GA Tagging
-          // Event tracking for map action search/filter data
-          Tagging.sendEvent({
-            'event': 'interaction_event',
-            'event_name': 'portal_maps_action_filter',
-            'category': filterValues || 'filter',
-            'location': 'map_sidebar_filter'
-          });
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': filterValues || 'filter',
+              'location': 'map_sidebar_filter'
+            });
+          }
+          this.filterTriggered = false; // reset for next action
         }
-        this.filterTriggered = false; // reset for next action
+      } else if (data.id === 4) {
+        EventBus.emit("connectivity-query-filter", data)
       }
     },
     updateMarkers: function (data) {
@@ -629,9 +632,9 @@ export default {
         this.$refs.sideBar.close();
       }
     });
-    EventBus.on("mapImpProv", (prov) => {
-      this.sckanVersion = prov.prov.connectivity['knowledge-source']
-    });
+    EventBus.on("connectivity-knowledge", payload => {
+      this.connectivityKnowledge = payload
+    })
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {

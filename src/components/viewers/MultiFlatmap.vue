@@ -337,6 +337,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
+        this.loadConnectivityKnowledge(flatmapImp);
         EventBus.emit("mapLoaded", flatmap);
       }
     },
@@ -492,6 +493,14 @@ export default {
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
         this.mapHoverHighlight();
+      }
+    });
+    EventBus.on("connectivity-query-filter", (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          this.connectivityQueryFilter(currentFlatmap, payload)
+        }
       }
     });
   },
