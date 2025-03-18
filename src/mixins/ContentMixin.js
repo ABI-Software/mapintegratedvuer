@@ -564,17 +564,18 @@ export default {
       if (payload.type === "query-update") this.query = payload.value;
       if (payload.type === "filter-update") this.filter = payload.value;
       if (this.query) {
-        let suggestions = [];
+        let flag = "", order = [], suggestions = [], paths = [];
         this.searchSuggestions(this.query, suggestions);
         const labels = [...new Set(suggestions)];
-        let paths = [];
+        flag = 'label';
+        order = labels;
         if (labels.length === 1) {
           paths = await flatmap.retrieveConnectedPaths([this.query], { type: this.filter });
+          flag = 'id';
+          order = [this.query, ...paths.filter(item => item !== this.query)];
         }
-        results = results.filter((item) => {
-          if (paths.length) return paths.includes(item.id);
-          return labels.includes(item.label) || labels.includes(item["long-label"]);
-        })
+        results = results.filter(item => paths.includes(item.id) || labels.includes(item.label));
+        results.sort((a, b) => order.indexOf(a[flag]) - order.indexOf(b[flag]));
       }
       EventBus.emit("connectivity-knowledge", results);
     }
