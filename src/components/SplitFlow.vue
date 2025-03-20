@@ -332,9 +332,16 @@ export default {
       });
     },
     hoverChanged: function (data) {
-      const hoverAnatomies = data && data.anatomy ? data.anatomy : [];
-      const hoverOrgans = data && data.organs ? data.organs : [];
-      const hoverDOI = data && data.doi ? data.doi : '';
+      let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '';
+      if (data) {
+        if (data.type === 'dataset') {
+          hoverAnatomies = data.anatomy ? data.anatomy : [];
+          hoverOrgans = data.organs ? data.organs : [];
+          hoverDOI = data.doi ? data.doi : '';
+        } else if (data.type === 'connectivity') {
+          hoverAnatomies = data.id ? [data.id] : [];
+        }
+      }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI);
       EventBus.emit("hoverUpdate");
     },

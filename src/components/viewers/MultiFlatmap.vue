@@ -492,7 +492,7 @@ export default {
     });
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
-        this.mapHoverHighlight();
+        this.cardHoverHighlight();
       }
     });
     EventBus.on("connectivity-query-filter", (payload) => {
