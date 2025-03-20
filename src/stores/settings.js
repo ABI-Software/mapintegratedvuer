@@ -21,6 +21,7 @@ export const useSettingsStore = defineStore('settings', {
       hoverAnatomies: [],
       hoverOrgans: [],
       hoverDOI: '',
+      hoverConnectivity: '',
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
@@ -94,10 +95,11 @@ export const useSettingsStore = defineStore('settings', {
     updateMarkers(markers) {
       this.markers = markers;
     },
-    updateHoverFeatures(anatomies, organs, doi) {
+    updateHoverFeatures(anatomies, organs, doi, connectivity) {
       this.hoverAnatomies = anatomies;
       this.hoverOrgans = organs;
       this.hoverDOI = doi;
+      this.hoverConnectivity = connectivity;
     },
     updateFeatured(datasetIdentifiers) {
       this.featuredMarkerIdentifiers = new Array(datasetIdentifiers.length);

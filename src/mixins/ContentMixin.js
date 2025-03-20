@@ -461,63 +461,63 @@ export default {
         this.endHelp();
       }
     },
-    getConnectivitiesByDOI: async function (hoverDOI) {
-      const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-      const response = await currentFlatmap.searchConnectivitiesByReference(hoverDOI);
-      return response;
-    },
-    highlightAnatomies: async function (mapImp, hoverAnatomies, hoverDOI) {
-      const itemsToHighlight = [...hoverAnatomies];
+    flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
+      let toHighlight = [];
       const hoverHighlightOptions = this.settingsStore.hoverHighlightOptions;
 
       // to highlight connected paths
       if (hoverHighlightOptions.highlightConnectedPaths) {
-        const connectionsFromFeatures = await mapImp.queryPathsForFeatures(hoverAnatomies);
-        if (connectionsFromFeatures) {
-          itemsToHighlight.push(...connectionsFromFeatures);
+        const entry = hoverAnatomies.length ?
+          hoverAnatomies : hoverConnectivity ?
+            hoverConnectivity : undefined;
+        const connectionsFromAnatomies = await flatmap.retrieveConnectedPaths(entry);
+        if (connectionsFromAnatomies) {
+          toHighlight.push(...connectionsFromAnatomies);
         }
       }
 
       // to highlight related paths from reference DOI
       if (hoverHighlightOptions.highlightDOIPaths) {
-        const connectionsFromDOI = await this.getConnectivitiesByDOI(hoverDOI);
+        const connectionsFromDOI = await flatmap.searchConnectivitiesByReference(hoverDOI);
         if (connectionsFromDOI) {
-          itemsToHighlight.push(...connectionsFromDOI);
+          toHighlight.push(...connectionsFromDOI);
         }
       }
-
-      return itemsToHighlight;
+      toHighlight = [...new Set(toHighlight)];
+      return toHighlight;
     },
     cardHoverHighlight: function () {
       if (this.visible) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
         const hoverDOI = this.settingsStore.hoverDOI;
-        let mapImp = null;
-        let scaffold = null;
+        const hoverConnectivity = this.settingsStore.hoverConnectivity;
 
-        if (this.flatmapRef) mapImp = this.$refs.flatmap.mapImp;
-        if (this.multiflatmapRef) mapImp = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+        let flatmap = null;
+        let scaffold = null;
+        if (this.flatmapRef) flatmap = this.$refs.flatmap;
+        if (this.multiflatmapRef) flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (this.scaffoldRef) scaffold = this.$refs.scaffold;
+
         // reset
-        if (mapImp) mapImp.clearSearchResults();
-        if (hoverAnatomies.length || hoverOrgans.length) {
-          clearTimeout(this.hoverDelay);
-          if ((this.multiflatmapRef || this.flatmapRef) && mapImp) {
-            this.highlightAnatomies(mapImp, hoverAnatomies, hoverDOI).then((itemsToHighlight) => {
-              mapImp.zoomToFeatures(itemsToHighlight);
+        if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+          flatmap.mapImp.clearSearchResults();
+        } else if (this.scaffoldRef && scaffold) {
+          scaffold.changeHighlightedByName(hoverOrgans, "", false);
+        }
+
+        if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity) {
+          if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+            this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
+              try {
+                flatmap.zoomToFeatures(paths);
+              } catch (error) {
+                console.log(error)
+              }
             });
           } else if (this.scaffoldRef && scaffold) {
             scaffold.changeHighlightedByName(hoverOrgans, "", false);
           }
-        } else {
-          this.hoverDelay = setTimeout(() => {
-            if ((this.multiflatmapRef || this.flatmapRef) && mapImp) {
-              mapImp.clearSearchResults();
-            } else if (this.scaffoldRef && scaffold) {
-              scaffold.changeHighlightedByName(hoverOrgans, "", false);
-            }
-          }, 500);
         }
       }
     },
@@ -599,7 +599,6 @@ export default {
       scaffoldRef: null,
       scaffoldLoaded: false,
       isInHelp: false,
-      hoverDelay: undefined,
       mapManager: undefined,
       connectivityKnowledge: [],
       query: "",
