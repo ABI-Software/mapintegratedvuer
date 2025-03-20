@@ -42,6 +42,7 @@
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
+          @connectivity-clicked="onConnectivityClicked"
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-explorer-clicked="onConnectivityExplorerClicked"
         />
@@ -312,6 +313,18 @@ export default {
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
     },
+    onConnectivityClicked: function (data) {
+      if (this.$refs && this.$refs.sideBar) {
+        this.$refs.sideBar.openConnectivitySearch(data.filter, data.query);
+        EventBus.emit("connectivity-query-filter", {
+          id: 4,
+          type: "query-filter-update",
+          query: data.query,
+          filter: data.filter,
+          data: data.data,
+        });
+      }
+    },
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', {
         connectivityInfo: this.connectivityInfo,
@@ -364,7 +377,7 @@ export default {
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.id === 4) {
-        EventBus.emit("connectivity-query-filter", data)
+        EventBus.emit("connectivity-query-filter", data);
       }
     },
     updateMarkers: function (data) {

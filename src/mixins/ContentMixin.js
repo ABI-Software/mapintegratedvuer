@@ -554,15 +554,24 @@ export default {
       flatmapQueries.initialise(this.flatmapAPI);
       const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
       this.connectivityKnowledge = knowledge.filter((item) => {
-        if (item.source === sckanVersion && "connectivity" in item) return true;
+        if (item.source === sckanVersion && item.connectivity?.length) return true;
         return false;
       });
       EventBus.emit("connectivity-knowledge", this.connectivityKnowledge);
     },
     connectivityQueryFilter: async function (flatmap, payload) {
       let results = this.connectivityKnowledge;
-      if (payload.type === "query-update") this.query = payload.value;
-      if (payload.type === "filter-update") this.filter = payload.value;
+      if (payload.type === "query-update") {
+        if (this.query !== payload.value) this.target = [];
+        this.query = payload.value;
+      } else if (payload.type === "filter-update") {
+        this.filter = payload.value;
+        this.target = [];
+      } else if (payload.type === "query-filter-update") {
+        this.query = payload.query;
+        this.filter = payload.filter;
+        this.target = payload.data;
+      }
       if (this.query) {
         let flag = "", order = [], suggestions = [], paths = [];
         this.searchSuggestions(this.query, suggestions);
@@ -570,7 +579,11 @@ export default {
         flag = 'label';
         order = labels;
         if (labels.length === 1) {
-          paths = await flatmap.retrieveConnectedPaths([this.query], { type: this.filter });
+          const options = {
+            type: this.filter.map(f => f.facet.toLowerCase()),
+            target: this.target.map(d => d.id),
+          };
+          paths = await flatmap.retrieveConnectedPaths([this.query], options);
           flag = 'id';
           order = [this.query, ...paths.filter(item => item !== this.query)];
         }
@@ -603,6 +616,7 @@ export default {
       connectivityKnowledge: [],
       query: "",
       filter: [],
+      target: [], // Support origins/components/destinations term search
     };
   },
   created: function () {
