@@ -571,7 +571,7 @@ export default {
             type: this.filter.map(f => f.facet.toLowerCase()),
             target: this.target.map(d => d.id),
           };
-          paths = await flatmap.retrieveConnectedPaths([this.query], options);
+          paths = await flatmap.retrieveConnectedPaths(this.query, options);
           flag = 'id';
           order = [this.query, ...paths.filter(item => item !== this.query)];
         }
