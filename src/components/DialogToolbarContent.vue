@@ -157,61 +157,37 @@
         </template>
       </el-popover>
       <el-popover
-        class="tooltip"
-        content="Settings"
-        placement="bottom-end"
-        :show-after="helpDelay"
+        v-if="globalSettingRef"
+        :virtual-ref="globalSettingRef"
+        ref="settingPopover"
+        placement="bottom"
+        width="133"
         :teleported=false
-        trigger="hover"
+        trigger="click"
+        popper-class="setting-popover"
+        virtual-triggering
+        >
+        <el-row :gutter="20">
+          <el-col :span="20">
+            <div v-for="(value, key) in globalSettings">
+              <p v-if="key === 'highlightConnectedPaths'">Dataset Card Hover</p>
+              <el-checkbox
+                v-model="globalSettings[key]"
+                :label="getSettingLabel(key)"
+                @change="updateGlobalSettings"
+              />
+            </div>
+          </el-col>
+        </el-row>
+      </el-popover>
+      <el-popover class="tooltip" content="Global Settings" placement="bottom-end"
+        :show-after="helpDelay" :teleported=false trigger="hover"
         popper-class="header-popper"
-        v-if="globalSettings"
       >
         <template #reference>
-          <el-dropdown trigger="click" size="small" popper-class="map-settings-dropdown">
-            <el-icon
-              class="header-icon"
-            >
-              <el-icon-more-filled />
-            </el-icon>
-            <template #dropdown>
-              <el-dropdown-menu>
-
-                <el-dropdown-item v-if="globalSettings.displayMarker !== undefined">
-                  <el-checkbox
-                    v-model="globalSettings.displayMarker"
-                    @change="updateGlobalSettings(globalSettings)"
-                  >
-                    Display markers on map
-                  </el-checkbox>
-                </el-dropdown-item>
-
-                <el-dropdown-item
-                  disabled
-                  :divided="globalSettings.displayMarker !== undefined"
-                  v-if="globalSettings.highlightConnectedPaths !== undefined || globalSettings.highlightDOIPaths !== undefined"
-                >
-                  <span class="dropdown-item-title">Dataset Card Hover</span>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="globalSettings.highlightConnectedPaths !== undefined">
-                  <el-checkbox
-                    v-model="globalSettings.highlightConnectedPaths"
-                    @change="updateGlobalSettings(globalSettings)"
-                  >
-                    Highlight connected paths
-                  </el-checkbox>
-                </el-dropdown-item>
-                <el-dropdown-item v-if="globalSettings.highlightDOIPaths !== undefined">
-                  <el-checkbox
-                    v-model="globalSettings.highlightDOIPaths"
-                    @change="updateGlobalSettings(globalSettings)"
-                  >
-                    Highlight related DOI paths
-                  </el-checkbox>
-                </el-dropdown-item>
-
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <el-icon class="header-icon" ref="globalSettingRef">
+            <el-icon-more-filled />
+          </el-icon>
         </template>
       </el-popover>
     </el-row>
@@ -231,6 +207,7 @@ import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
 import {
   CopyDocument as ElIconCopyDocument,
+  MoreFilled as ElIconMoreFilled,
 } from '@element-plus/icons-vue';
 import {
   ElButton as Button,
@@ -322,28 +299,34 @@ export default {
       failedSearch: undefined,
       activeViewRef: undefined,
       permalinkRef: undefined,
+      globalSettingRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
-      globalSettings: null,
+      globalSettings: {},
     }
   },
   methods: {
-    updateGlobalSettings: function(updatedGlobalSettings) {
-      const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(updatedGlobalSettings);
-      this.settingsStore.updateGlobalSettings(updatedGlobalSettings);
+    getSettingLabel: function (key) {
+      const labels = {
+        displayMarker: 'Display Map Markers',
+        highlightConnectedPaths: 'Highlight Connected Paths',
+        highlightDOIPaths: 'Highlight DOI Paths',
+      };
+      if (labels[key]) return labels[key];
+      return key;
+    },
+    loadGlobalSettings: function () {
+      this.globalSettings = {
+        ...this.globalSettings,
+        ...this.settingsStore.globalSettings
+      };
+    },
+    updateGlobalSettings: function() {
+      const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
+      this.settingsStore.updateGlobalSettings(this.globalSettings);
 
       // display marker update
       if (updatedSettings.includes('displayMarker')) {
         EventBus.emit('markerUpdate');
-      }
-    },
-    setDisplayMarkerFlag: function(displayMarker) {
-      if (displayMarker !== undefined) {
-        let incomingSettings = { displayMarker };
-        const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(incomingSettings);
-        if (updatedSettings.includes('displayMarker')) {
-          this.settingsStore.updateGlobalSettings(incomingSettings);
-          EventBus.emit("markerUpdate");
-        }
       }
     },
     titleClicked: function(id) {
@@ -392,9 +375,11 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
-    this.globalSettings = {...this.settingsStore.globalSettings};
+    this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
+
+    this.loadGlobalSettings();
   },
   unmounted: function () {
     document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
@@ -509,7 +494,8 @@ export default {
   padding-top:7px;
 }
 
-:deep(.view-icon-popover.el-popper) {
+:deep(.view-icon-popover.el-popper), 
+:deep(.setting-popover.el-popper ) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
