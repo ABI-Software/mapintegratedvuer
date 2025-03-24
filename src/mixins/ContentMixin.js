@@ -467,12 +467,13 @@ export default {
 
       // to highlight connected paths
       if (hoverHighlightOptions.highlightConnectedPaths) {
-        const entry = hoverAnatomies.length ?
-          hoverAnatomies : hoverConnectivity ?
-            hoverConnectivity : undefined;
-        const connectionsFromAnatomies = await flatmap.retrieveConnectedPaths(entry);
+        const connectionsFromAnatomies = await flatmap.retrieveConnectedPaths(hoverAnatomies);
         if (connectionsFromAnatomies) {
           toHighlight.push(...connectionsFromAnatomies);
+        }
+        const connectionsFromConnectivity = await flatmap.retrieveConnectedPaths(hoverConnectivity);
+        if (connectionsFromConnectivity) {
+          toHighlight.push(...connectionsFromConnectivity);
         }
       }
 
@@ -506,7 +507,7 @@ export default {
           scaffold.changeHighlightedByName(hoverOrgans, "", false);
         }
 
-        if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity) {
+        if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
             this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
               try {
@@ -571,7 +572,7 @@ export default {
             type: this.filter.map(f => f.facet.toLowerCase()),
             target: this.target.map(d => d.id),
           };
-          paths = await flatmap.retrieveConnectedPaths(this.query, options);
+          paths = await flatmap.retrieveConnectedPaths([this.query], options);
           flag = 'id';
           order = [this.query, ...paths.filter(item => item !== this.query)];
         }

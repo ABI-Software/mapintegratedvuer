@@ -21,7 +21,7 @@ export const useSettingsStore = defineStore('settings', {
       hoverAnatomies: [],
       hoverOrgans: [],
       hoverDOI: '',
-      hoverConnectivity: '',
+      hoverConnectivity: [],
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
