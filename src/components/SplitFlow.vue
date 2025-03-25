@@ -127,6 +127,7 @@ export default {
       confirmDeleteCallback: undefined,
       createData: {},
       connectivityKnowledge: [],
+      connectivityExplorerClicked: false,
     }
   },
   watch: {
@@ -142,7 +143,8 @@ export default {
   },
   methods: {
     onConnectivityExplorerClicked: function (payload) {
-      this.onDisplaySearch({term: payload.id})
+      this.connectivityExplorerClicked = true;
+      this.onDisplaySearch({ term: payload.id }, false);
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -254,7 +256,7 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: function (payload) {
+    onDisplaySearch: function (payload, tracking = true) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
@@ -268,14 +270,16 @@ export default {
       }
       this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
 
-      // GA Tagging
-      // Event tracking for map on display search
-      Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_display_search',
-        'category': payload.term,
-        'location': 'map_toolbar'
-      });
+      if (tracking) {        
+        // GA Tagging
+        // Event tracking for map on display search
+        Tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_display_search',
+          'category': payload.term,
+          'location': 'map_toolbar'
+        });
+      }
     },
     fetchSuggestions: function(payload) {
       const suggestions = [];
@@ -315,9 +319,10 @@ export default {
     },
     onConnectivityClicked: function (data) {
       if (this.$refs && this.$refs.sideBar) {
+        this.connectivityEntry = {};
         this.$refs.sideBar.openConnectivitySearch(data.filter, data.query);
         EventBus.emit("connectivity-query-filter", {
-          id: 4,
+          id: 2,
           type: "query-filter-update",
           query: data.query,
           filter: data.filter,
@@ -383,7 +388,7 @@ export default {
           }
           this.filterTriggered = false; // reset for next action
         }
-      } else if (data.id === 4) {
+      } else if (data.id === 2) {
         EventBus.emit("connectivity-query-filter", data);
       }
     },
@@ -582,7 +587,6 @@ export default {
       }
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 2) EventBus.emit('connectivity-info-close');
       if (tab.id === 3) EventBus.emit('annotation-close', { tabClose: true });
     },
     resetActivePathways: function () {
@@ -628,14 +632,14 @@ export default {
       }
     });
     EventBus.on('connectivity-info-open', payload => {
-      if (this.$refs.sideBar) {
-        this.$refs.sideBar.tabClicked({id: 2, type: 'connectivity'});
-        this.$refs.sideBar.setDrawerOpen(true);
       this.connectivityEntry = payload;
+      // click on the flatmap paths/features directly
+      if (!this.connectivityExplorerClicked) {
+        this.$refs.sideBar.openConnectivitySearch([], payload.featureId[0]);
       }
+      this.connectivityExplorerClicked = false;
     });
     EventBus.on('connectivity-info-close', payload => {
-      this.$refs.sideBar.tabClicked({id: 4, type: 'connectivityExplorer'});
       this.connectivityEntry = {};
       this.resetActivePathways();
     });
