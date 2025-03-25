@@ -169,14 +169,25 @@
         >
         <el-row :gutter="20">
           <el-col :span="20">
-            <div v-for="(value, key) in globalSettings">
-              <p v-if="key === 'highlightConnectedPaths'">Dataset Card Hover</p>
-              <el-checkbox
-                v-model="globalSettings[key]"
-                :label="getSettingLabel(key)"
-                @change="updateGlobalSettings"
-              />
-            </div>
+            <el-checkbox
+              v-model="globalSettings.displayMarker"
+              @change="updateGlobalSettings"
+            >
+              Display Map Markers
+            </el-checkbox>
+            <p>Dataset Card Hover</p>
+            <el-checkbox
+              v-model="globalSettings.highlightConnectedPaths"
+              @change="updateGlobalSettings"
+            >
+              Highlight Connected Paths
+            </el-checkbox>
+            <el-checkbox
+              v-model="globalSettings.highlightDOIPaths"
+              @change="updateGlobalSettings"
+            >
+              Highlight DOI Paths
+            </el-checkbox>
           </el-col>
         </el-row>
       </el-popover>
@@ -305,15 +316,6 @@ export default {
     }
   },
   methods: {
-    getSettingLabel: function (key) {
-      const labels = {
-        displayMarker: 'Display Map Markers',
-        highlightConnectedPaths: 'Highlight Connected Paths',
-        highlightDOIPaths: 'Highlight DOI Paths',
-      };
-      if (labels[key]) return labels[key];
-      return key;
-    },
     loadGlobalSettings: function () {
       this.globalSettings = {
         ...this.globalSettings,
