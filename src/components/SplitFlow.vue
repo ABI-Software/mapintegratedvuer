@@ -26,7 +26,7 @@
           :open-at-start="startUp"
           :annotationEntry="annotationEntry"
           :createData="createData"
-          :connectivityInfo="connectivityInfo"
+          :connectivityEntry="connectivityEntry"
           :connectivityKnowledge="connectivityKnowledge"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -119,7 +119,7 @@ export default {
       search: '',
       filterTriggered: false,
       availableFacets: [],
-      connectivityInfo: null,
+      connectivityEntry: {},
       annotationEntry: {},
       annotationCallback: undefined,
       confirmCreateCallback: undefined,
@@ -327,7 +327,7 @@ export default {
     },
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', {
-        connectivityInfo: this.connectivityInfo,
+        connectivityEntry: this.connectivityEntry,
         data: data,
       });
     },
@@ -628,15 +628,15 @@ export default {
       }
     });
     EventBus.on('connectivity-info-open', payload => {
-      this.connectivityInfo = payload;
       if (this.$refs.sideBar) {
         this.$refs.sideBar.tabClicked({id: 2, type: 'connectivity'});
         this.$refs.sideBar.setDrawerOpen(true);
+      this.connectivityEntry = payload;
       }
     });
     EventBus.on('connectivity-info-close', payload => {
       this.$refs.sideBar.tabClicked({id: 4, type: 'connectivityExplorer'});
-      this.connectivityInfo = null;
+      this.connectivityEntry = {};
       this.resetActivePathways();
     });
     EventBus.on('connectivity-graph-error', payload => {
