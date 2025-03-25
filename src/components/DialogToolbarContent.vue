@@ -188,6 +188,15 @@
             >
               Highlight DOI Paths
             </el-checkbox>
+            <p>Interactive Mode</p>
+            <el-radio-group
+              v-model="globalSettings.interactiveMode"
+              @change="updateGlobalSettings"
+            >
+              <el-radio value="data">Data Exploration</el-radio>
+              <el-radio value="connectivity">Connectivity Exploration</el-radio>
+              <el-radio value="multiscale">Multiscale Model</el-radio>
+            </el-radio-group>
           </el-col>
         </el-row>
       </el-popover>
