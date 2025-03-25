@@ -34,6 +34,7 @@ export const useSettingsStore = defineStore('settings', {
         displayMarker: true,
         highlightConnectedPaths: false,
         highlightDOIPaths: false, // comment out to hide in settings
+        interactiveMode: 'data',
       },
     }
   },

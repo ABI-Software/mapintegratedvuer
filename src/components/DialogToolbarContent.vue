@@ -215,6 +215,8 @@ import {
   ElIcon as Icon,
   ElInput as Input,
   ElPopover as Popover,
+  ElRadio as Radio,
+  ElRadioGroup as RadioGroup,
   ElRow as Row,
   ElSwitch as Switch,
 } from "element-plus";
@@ -230,6 +232,8 @@ export default {
     Icon,
     Input,
     Popover,
+    Radio,
+    RadioGroup,
     Row,
     Switch,
     MapSvgIcon,
@@ -554,13 +558,22 @@ export default {
       &:focus {
         color: $app-primary-color;
         background-color: var(--el-bg-color-page);
-
+        .el-radio,
+        .el-radio__input, 
+        .el-radio__label,
         .el-checkbox,
         .el-checkbox__label {
           color: $app-primary-color;
         }
       }
 
+      .el-radio__input.is-checked .el-radio__inner
+      {
+        border-color: $app-primary-color;
+        background: $app-primary-color;
+      }
+
+      .el-radio__input.is-checked + .el-radio__label,
       .el-checkbox__input.is-checked + .el-checkbox__label {
         color: inherit;
       }
@@ -571,6 +584,8 @@ export default {
       }
     }
 
+    .el-radio,
+    .el-radio__label,
     .el-checkbox,
     .el-checkbox__label,
     .dropdown-item-title {
