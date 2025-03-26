@@ -201,7 +201,7 @@ export default {
       }
     },
     markerLabels: function () {
-      return this.settingsStore.globalSettings.displayMarker ? this.settingsStore.numberOfDatasetsForFacets : {};
+      return this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.numberOfDatasetsForFacets : {};
     },
   },
   data: function () {

@@ -32,10 +32,10 @@ export const useSettingsStore = defineStore('settings', {
       connectivityInfoSidebar: true,
       annotationSidebar: true,
       globalSettings: {
-        displayMarker: true,
+        displayMarkers: true,
         highlightConnectedPaths: false,
         highlightDOIPaths: false, // comment out to hide in settings
-        interactiveMode: 'data',
+        interactiveMode: 'dataset', // dataset, connectivity, multiscale
       },
     }
   },

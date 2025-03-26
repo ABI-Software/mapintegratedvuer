@@ -170,12 +170,12 @@
         <el-row :gutter="20">
           <el-col :span="20">
             <el-checkbox
-              v-model="globalSettings.displayMarker"
+              v-model="globalSettings.displayMarkers"
               @change="updateGlobalSettings"
             >
               Display Map Markers
             </el-checkbox>
-            <p>Dataset Card Hover</p>
+            <p>Card Hover</p>
             <el-checkbox
               v-model="globalSettings.highlightConnectedPaths"
               @change="updateGlobalSettings"
@@ -193,9 +193,9 @@
               v-model="globalSettings.interactiveMode"
               @change="updateGlobalSettings"
             >
-              <el-radio value="data">Data Exploration</el-radio>
+              <el-radio value="dataset">Dataset Exploration</el-radio>
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
-              <el-radio value="multiscale">Multiscale Model</el-radio>
+              <!-- <el-radio value="multiscale">Multiscale Model</el-radio> -->
             </el-radio-group>
           </el-col>
         </el-row>
@@ -340,8 +340,11 @@ export default {
       this.settingsStore.updateGlobalSettings(this.globalSettings);
 
       // display marker update
-      if (updatedSettings.includes('displayMarker')) {
+      if (updatedSettings.includes('displayMarkers')) {
         EventBus.emit('markerUpdate');
+      }
+      if (updatedSettings.includes('interactiveMode')) {
+        EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
     },
     titleClicked: function(id) {

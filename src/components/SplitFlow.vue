@@ -659,6 +659,13 @@ export default {
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload
     })
+    EventBus.on("modeUpdate", payload => {
+      if (payload === "dataset") {
+        this.$refs.sideBar.tabClicked({id:  1, type: 'search'});
+      } else if (payload === "connectivity") {
+        this.$refs.sideBar.tabClicked({id:  2, type: 'connectivity'});
+      }
+    })
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {
