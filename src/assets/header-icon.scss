@@ -40,6 +40,13 @@
       background-color: #f3ecf6;
     }
   }
+
+  &.el-icon {
+    margin: 0;
+    color: white;
+    background-color: $app-primary-color;
+    border-radius: 50% 50%;
+  }
 }
 
 .header-icon.disabled,

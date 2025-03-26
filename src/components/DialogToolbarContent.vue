@@ -156,7 +156,60 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-
+      <el-popover
+        v-if="globalSettingRef"
+        :virtual-ref="globalSettingRef"
+        ref="settingPopover"
+        placement="bottom"
+        width="133"
+        :teleported=false
+        trigger="click"
+        popper-class="setting-popover"
+        virtual-triggering
+        >
+        <el-row :gutter="20">
+          <el-col :span="20">
+            <el-checkbox
+              v-model="globalSettings.displayMarker"
+              @change="updateGlobalSettings"
+            >
+              Display Map Markers
+            </el-checkbox>
+            <p>Dataset Card Hover</p>
+            <el-checkbox
+              v-model="globalSettings.highlightConnectedPaths"
+              @change="updateGlobalSettings"
+            >
+              Highlight Connected Paths
+            </el-checkbox>
+            <el-checkbox
+              v-model="globalSettings.highlightDOIPaths"
+              @change="updateGlobalSettings"
+            >
+              Highlight DOI Paths
+            </el-checkbox>
+            <p>Interactive Mode</p>
+            <el-radio-group
+              v-model="globalSettings.interactiveMode"
+              @change="updateGlobalSettings"
+            >
+              <el-radio value="data">Data Exploration</el-radio>
+              <el-radio value="connectivity">Connectivity Exploration</el-radio>
+              <el-radio value="multiscale">Multiscale Model</el-radio>
+            </el-radio-group>
+          </el-col>
+        </el-row>
+      </el-popover>
+      <el-popover class="tooltip" content="Global Settings" placement="bottom-end"
+        :show-after="helpDelay" :teleported=false trigger="hover"
+        popper-class="header-popper"
+      >
+        <template #reference>
+          <el-icon class="header-icon" ref="globalSettingRef">
+            <el-icon-more-filled />
+          </el-icon>
+        </template>
+      </el-popover>
     </el-row>
   </div>
 </template>
@@ -174,6 +227,7 @@ import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
 import {
   CopyDocument as ElIconCopyDocument,
+  MoreFilled as ElIconMoreFilled,
 } from '@element-plus/icons-vue';
 import {
   ElButton as Button,
@@ -181,6 +235,8 @@ import {
   ElIcon as Icon,
   ElInput as Input,
   ElPopover as Popover,
+  ElRadio as Radio,
+  ElRadioGroup as RadioGroup,
   ElRow as Row,
   ElSwitch as Switch,
 } from "element-plus";
@@ -196,6 +252,8 @@ export default {
     Icon,
     Input,
     Popover,
+    Radio,
+    RadioGroup,
     Row,
     Switch,
     MapSvgIcon,
@@ -254,7 +312,7 @@ export default {
       let flag = !(value === true);
       if (flag !== this.independent)
         this.independent = flag;
-    }
+    },
   },
   data: function() {
     return {
@@ -265,21 +323,25 @@ export default {
       failedSearch: undefined,
       activeViewRef: undefined,
       permalinkRef: undefined,
+      globalSettingRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      globalSettings: {},
     }
   },
   methods: {
-    updateGlobalSettings: function(globalSettings) {
-      this.settingsStore.updateGlobalSettings(globalSettings)
+    loadGlobalSettings: function () {
+      this.globalSettings = {
+        ...this.globalSettings,
+        ...this.settingsStore.globalSettings
+      };
     },
-    setDisplayMarkerFlag: function(displayMarker) {
-      if (displayMarker !== undefined) {
-        let incomingSettings = { displayMarker };
-        const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(incomingSettings);
-        if (updatedSettings.includes('displayMarker')) {
-          this.settingsStore.updateGlobalSettings(incomingSettings);
-          EventBus.emit("markerUpdate");
-        }
+    updateGlobalSettings: function() {
+      const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
+      this.settingsStore.updateGlobalSettings(this.globalSettings);
+
+      // display marker update
+      if (updatedSettings.includes('displayMarker')) {
+        EventBus.emit('markerUpdate');
       }
     },
     titleClicked: function(id) {
@@ -328,8 +390,11 @@ export default {
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
+    this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
+
+    this.loadGlobalSettings();
   },
   unmounted: function () {
     document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
@@ -444,7 +509,8 @@ export default {
   padding-top:7px;
 }
 
-:deep(.view-icon-popover.el-popper) {
+:deep(.view-icon-popover.el-popper), 
+:deep(.setting-popover.el-popper ) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
@@ -492,5 +558,60 @@ export default {
   top: 0px;
   scale: 0.7;
 }
+</style>
 
+<style lang="scss">
+.map-settings-dropdown {
+  .el-dropdown-menu__item {
+
+    &:not(.is-disabled) {
+      &:hover,
+      &:focus {
+        color: $app-primary-color;
+        background-color: var(--el-bg-color-page);
+        .el-radio,
+        .el-radio__input, 
+        .el-radio__label,
+        .el-checkbox,
+        .el-checkbox__label {
+          color: $app-primary-color;
+        }
+      }
+
+      .el-radio__input.is-checked .el-radio__inner
+      {
+        border-color: $app-primary-color;
+        background: $app-primary-color;
+      }
+
+      .el-radio__input.is-checked + .el-radio__label,
+      .el-checkbox__input.is-checked + .el-checkbox__label {
+        color: inherit;
+      }
+
+      .el-checkbox__input.is-checked .el-checkbox__inner {
+        border-color: $app-primary-color;
+        background-color: $app-primary-color;
+      }
+    }
+
+    .el-radio,
+    .el-radio__label,
+    .el-checkbox,
+    .el-checkbox__label,
+    .dropdown-item-title {
+      color: var(--el-text-color-primary);
+      font-size: inherit;
+      font-weight: 500;
+    }
+
+    &.is-disabled {
+      cursor: default !important;
+    }
+
+    .dropdown-item-title {
+      color: var(--el-text-color-secondary);
+    }
+  }
+}
 </style>
