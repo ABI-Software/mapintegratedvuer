@@ -463,22 +463,21 @@ export default {
     },
     flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
       let toHighlight = [];
-      const hoverHighlightOptions = this.settingsStore.hoverHighlightOptions;
+      const globalSettings = this.settingsStore.globalSettings;
 
       // to highlight connected paths
-      if (hoverHighlightOptions.highlightConnectedPaths) {
-        const connectionsFromAnatomies = await flatmap.retrieveConnectedPaths(hoverAnatomies);
-        if (connectionsFromAnatomies) {
-          toHighlight.push(...connectionsFromAnatomies);
-        }
-        const connectionsFromConnectivity = await flatmap.retrieveConnectedPaths(hoverConnectivity);
-        if (connectionsFromConnectivity) {
-          toHighlight.push(...connectionsFromConnectivity);
+      if (globalSettings.highlightConnectedPaths) {
+        const hoverEntry = hoverAnatomies.length ? hoverAnatomies :
+          hoverConnectivity.length ? hoverConnectivity :
+            []
+        const connectedPaths = await flatmap.retrieveConnectedPaths(hoverEntry);
+        if (connectedPaths) {
+          toHighlight.push(...connectedPaths);
         }
       }
 
       // to highlight related paths from reference DOI
-      if (hoverHighlightOptions.highlightDOIPaths) {
+      if (globalSettings.highlightDOIPaths) {
         const connectionsFromDOI = await flatmap.searchConnectivitiesByReference(hoverDOI);
         if (connectionsFromDOI) {
           toHighlight.push(...connectionsFromDOI);
