@@ -28,6 +28,7 @@
           :createData="createData"
           :connectivityEntry="connectivityEntry"
           :connectivityKnowledge="connectivityKnowledge"
+          @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
           @search-changed="searchChanged($event)"
@@ -586,6 +587,16 @@ export default {
         this.confirmDeleteCallback(payload);
       }
     },
+    onSidebarTabClicked: function (tab) {
+      let globalSettings = { ...this.settingsStore.globalSettings };
+      if (tab.id === 1 && tab.type === 'datasetExplorer') {
+        globalSettings.interactiveMode = 'dataset';
+      } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
+        globalSettings.interactiveMode = 'connectivity';
+      }
+      this.settingsStore.updateGlobalSettings(globalSettings);
+      this.$refs.dialogToolbar.loadGlobalSettings();
+    },
     onSidebarTabClosed: function (tab) {
       if (tab.id === 3) EventBus.emit('annotation-close', { tabClose: true });
     },
@@ -624,7 +635,7 @@ export default {
       }
     });
     EventBus.on('annotation-close', payload => {
-      this.$refs.sideBar.tabClicked({id:  1, type: 'search'});
+      this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
       this.annotationEntry = {};
       this.createData = {};
       if (this.$refs.sideBar) {
@@ -661,9 +672,9 @@ export default {
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
-        this.$refs.sideBar.tabClicked({id:  1, type: 'search'});
+        this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
       } else if (payload === "connectivity") {
-        this.$refs.sideBar.tabClicked({id:  2, type: 'connectivity'});
+        this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
     })
     this.$nextTick(() => {
