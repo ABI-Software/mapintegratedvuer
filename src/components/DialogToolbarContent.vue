@@ -496,7 +496,7 @@ export default {
   padding-top:7px;
 }
 
-:deep(.view-icon-popover.el-popper), 
+:deep(.view-icon-popover.el-popper),
 :deep(.setting-popover.el-popper ) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
@@ -544,50 +544,5 @@ export default {
 :deep(.el-loading-spinner) {
   top: 0px;
   scale: 0.7;
-}
-</style>
-
-<style lang="scss">
-.map-settings-dropdown {
-  .el-dropdown-menu__item {
-
-    &:not(.is-disabled) {
-      &:hover,
-      &:focus {
-        color: $app-primary-color;
-        background-color: var(--el-bg-color-page);
-
-        .el-checkbox,
-        .el-checkbox__label {
-          color: $app-primary-color;
-        }
-      }
-
-      .el-checkbox__input.is-checked + .el-checkbox__label {
-        color: inherit;
-      }
-
-      .el-checkbox__input.is-checked .el-checkbox__inner {
-        border-color: $app-primary-color;
-        background-color: $app-primary-color;
-      }
-    }
-
-    .el-checkbox,
-    .el-checkbox__label,
-    .dropdown-item-title {
-      color: var(--el-text-color-primary);
-      font-size: inherit;
-      font-weight: 500;
-    }
-
-    &.is-disabled {
-      cursor: default !important;
-    }
-
-    .dropdown-item-title {
-      color: var(--el-text-color-secondary);
-    }
-  }
 }
 </style>
