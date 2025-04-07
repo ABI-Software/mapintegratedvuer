@@ -109,8 +109,8 @@ export default {
      */
     resourceSelected: function (type, resource) {
       // Skip processing if resources already has actions
-      if (this.resourceHasAction(resource)) {
-        EventBus.emit("PopoverActionClick", resource);
+      if (this.resourceHasAction(resource[0])) {
+        EventBus.emit("PopoverActionClick", resource[0]);
         return;
       }
 
@@ -125,24 +125,19 @@ export default {
         eventType: undefined,
       };
 
-
       if (type == "MultiFlatmap" || type == "Flatmap") {
-        result.internalName = resource?.feature?.label ? resource.feature.label : this.idNamePair[resource.feature.models];
-        if (resource.eventType == "click") {
+        result.internalName = resource[0]?.feature?.label ?
+          resource[0].feature.label :
+          this.idNamePair[resource[0].feature.models];
+        if (resource[0].eventType == "click") {
           result.eventType = "selected";
-          if (resource.feature.type == "marker") {
+          if (resource[0].feature.type == "marker") {
             let label = result.internalName;
-            if (
-              this.settingsStore.isFeaturedMarkerIdentifier(
-                resource.feature.id
-              )
-            ) {
+            if (this.settingsStore.isFeaturedMarkerIdentifier(resource[0].feature.id)) {
               // It is a featured dataset search for DOI.
               returnedAction = {
                 type: "Search",
-                term: this.settingsStore.featuredMarkerDoi(
-                  resource.feature.id
-                ),
+                term: this.settingsStore.featuredMarkerDoi(resource[0].feature.id),
                 featuredDataset: true,
               };
             } else {
@@ -153,15 +148,22 @@ export default {
                 facetPropPath: "anatomy.organ.category.name",
                 term: "Anatomical structure",
               };
+              let labels = new Set();
+              resource[0].feature['dataset-features'].map(df => df.features.map(f => labels.add(f.label)));
+              if (labels.size > 0) {
+                returnedAction = {
+                  type: "Facets",
+                  labels: [...labels, label],
+                };
+              }
             }
 
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
-              const flatmap =
-                this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
               flatmap.clearSearchResults();
             }
-          } else if (resource.feature.type == "feature") {
+          } else if (resource[0].feature.type == "feature") {
             // Do no open scaffold in sync map
             if (this.syncMode) {
               fireResourceSelected = true;
@@ -169,7 +171,7 @@ export default {
               action = "scaffold";
             }
           }
-        } else if (resource.eventType == "mouseenter") {
+        } else if (resource[0].eventType == "mouseenter") {
           result.eventType = "highlighted";
           fireResourceSelected = true;
         }
