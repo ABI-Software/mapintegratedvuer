@@ -107,10 +107,11 @@ export default {
     /**
      * Callback when the vuers emit a selected event.
      */
-    resourceSelected: function (type, resource) {
+    resourceSelected: function (type, resources) {
+      const resource = resources[0]
       // Skip processing if resources already has actions
-      if (this.resourceHasAction(resource[0])) {
-        EventBus.emit("PopoverActionClick", resource[0]);
+      if (this.resourceHasAction(resource)) {
+        EventBus.emit("PopoverActionClick", resource);
         return;
       }
 
@@ -120,24 +121,23 @@ export default {
       const result = {
         paneIndex: this.entry.id,
         type: type,
-        resource: resource,
+        resource: resources,
         internalName: undefined,
         eventType: undefined,
       };
 
       if (type == "MultiFlatmap" || type == "Flatmap") {
-        result.internalName = resource[0]?.feature?.label ?
-          resource[0].feature.label :
-          this.idNamePair[resource[0].feature.models];
-        if (resource[0].eventType == "click") {
+        result.internalName = resource?.feature?.label ?
+          resource.feature.label : this.idNamePair[resource.feature.models];
+        if (resource.eventType == "click") {
           result.eventType = "selected";
-          if (resource[0].feature.type == "marker") {
+          if (resource.feature.type == "marker") {
             let label = result.internalName;
-            if (this.settingsStore.isFeaturedMarkerIdentifier(resource[0].feature.id)) {
+            if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
               // It is a featured dataset search for DOI.
               returnedAction = {
                 type: "Search",
-                term: this.settingsStore.featuredMarkerDoi(resource[0].feature.id),
+                term: this.settingsStore.featuredMarkerDoi(resource.feature.id),
                 featuredDataset: true,
               };
             } else {
@@ -149,7 +149,7 @@ export default {
                 term: "Anatomical structure",
               };
               let labels = new Set();
-              resource[0].feature['dataset-features'].map(df => df.features.map(f => labels.add(f.label)));
+              resource.feature['dataset-features'].map(df => df.features.map(f => labels.add(f.label)));
               if (labels.size > 0) {
                 returnedAction = {
                   type: "Facets",
@@ -163,7 +163,7 @@ export default {
               const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
               flatmap.clearSearchResults();
             }
-          } else if (resource[0].feature.type == "feature") {
+          } else if (resource.feature.type == "feature") {
             // Do no open scaffold in sync map
             if (this.syncMode) {
               fireResourceSelected = true;
@@ -171,21 +171,21 @@ export default {
               action = "scaffold";
             }
           }
-        } else if (resource[0].eventType == "mouseenter") {
+        } else if (resource.eventType == "mouseenter") {
           result.eventType = "highlighted";
           fireResourceSelected = true;
         }
       } else if (type == "Scaffold") {
-        if (resource && resource[0]) {
-          if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
-            resource[0].data.id = resource[0].data?.group;
+        if (resource) {
+          if (resource.data?.id === undefined || resource.data?.id === "") {
+            resource.data.id = resource.data?.group;
           }
-          result.internalName = resource[0].data.id;
+          result.internalName = resource.data.id;
           // Facet search if marker is clicked
-          if (resource[0].data.lastActionOnMarker === true) {
+          if (resource.data.lastActionOnMarker === true) {
             returnedAction = {
               type: "Facet",
-              facet: capitalise(resource[0].data.id),
+              facet: capitalise(resource.data.id),
               facetPropPath: "anatomy.organ.category.name",
               term: "Anatomical structure",
             };
