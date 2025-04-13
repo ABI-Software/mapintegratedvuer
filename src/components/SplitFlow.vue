@@ -196,12 +196,6 @@ export default {
               facetPropPath: "organisms.primary.species.name",
             });
           });
-          if (facets.length == 0)
-            facets.push({
-              facet: "Show All",
-              term: "Species",
-              facetPropPath: "organisms.primary.species.name",
-            });
           facets.push(
             ...action.labels.map(val => ({
               facet: capitalise(val),

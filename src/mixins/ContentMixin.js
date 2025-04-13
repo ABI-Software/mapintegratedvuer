@@ -110,7 +110,8 @@ export default {
     /**
      * Callback when the vuers emit a selected event.
      */
-    resourceSelected: function (type, resource) {
+    resourceSelected: function (type, resources) {
+      const resource = resources[0]
       // Skip processing if resources already has actions
       if (this.resourceHasAction(resource)) {
         EventBus.emit("PopoverActionClick", resource);
@@ -123,29 +124,23 @@ export default {
       const result = {
         paneIndex: this.entry.id,
         type: type,
-        resource: resource,
+        resource: resources,
         internalName: undefined,
         eventType: undefined,
       };
 
-
       if (type == "MultiFlatmap" || type == "Flatmap") {
-        result.internalName = resource?.feature?.label ? resource.feature.label : this.idNamePair[resource.feature.models];
+        result.internalName = resource?.feature?.label ?
+          resource.feature.label : this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
             let label = result.internalName;
-            if (
-              this.settingsStore.isFeaturedMarkerIdentifier(
-                resource.feature.id
-              )
-            ) {
+            if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
               // It is a featured dataset search for DOI.
               returnedAction = {
                 type: "Search",
-                term: this.settingsStore.featuredMarkerDoi(
-                  resource.feature.id
-                ),
+                term: this.settingsStore.featuredMarkerDoi(resource.feature.id),
                 featuredDataset: true,
               };
             } else {
@@ -156,12 +151,23 @@ export default {
                 facetPropPath: "anatomy.organ.category.name",
                 term: "Anatomical structure",
               };
+              let labels = new Set();
+              resource.feature['dataset-features'].forEach((dataset) => {
+                dataset.features.forEach((feature) => {
+                  labels.add(feature.label)
+                })
+              });
+              if (labels.size > 0) {
+                returnedAction = {
+                  type: "Facets",
+                  labels: [...labels, label],
+                };
+              }
             }
 
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
-              const flatmap =
-                this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
               flatmap.clearSearchResults();
             }
           } else if (resource.feature.type == "feature") {
@@ -177,16 +183,16 @@ export default {
           fireResourceSelected = true;
         }
       } else if (type == "Scaffold") {
-        if (resource && resource[0]) {
-          if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
-            resource[0].data.id = resource[0].data?.group;
+        if (resource) {
+          if (resource.data?.id === undefined || resource.data?.id === "") {
+            resource.data.id = resource.data?.group;
           }
-          result.internalName = resource[0].data.id;
+          result.internalName = resource.data.id;
           // Facet search if marker is clicked
-          if (resource[0].data.lastActionOnMarker === true) {
+          if (resource.data.lastActionOnMarker === true) {
             returnedAction = {
               type: "Facet",
-              facet: capitalise(resource[0].data.id),
+              facet: capitalise(resource.data.id),
               facetPropPath: "anatomy.organ.category.name",
               term: "Anatomical structure",
             };
