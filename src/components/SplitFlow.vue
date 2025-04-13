@@ -598,7 +598,7 @@ export default {
       this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 3) EventBus.emit('annotation-close', { tabClose: true });
+      if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
     },
     resetActivePathways: function () {
       this.hoverChanged(undefined);
@@ -630,12 +630,12 @@ export default {
       this.cancelCreateCallback = markRaw(payload.cancelCreate);
       this.confirmDeleteCallback = markRaw(payload.confirmDelete);
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
+        this.$refs.sideBar.setActiveTab({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on('annotation-close', payload => {
-      this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+    EventBus.on('annotation-close', () => {
+      this.$refs.sideBar.setActiveTab({id:  1, type: 'datasetExplorer'});
       this.annotationEntry = {};
       this.createData = {};
       if (this.$refs.sideBar) {

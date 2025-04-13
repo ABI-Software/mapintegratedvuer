@@ -173,9 +173,9 @@ export default {
     },
   },
   mounted: function() {
-    EventBus.on('annotation-close', (payload) => {
+    EventBus.on('annotation-close', () => {
       const currentFlatmap = this.$refs.flatmap;
-      if (payload?.tabClose && currentFlatmap) {
+      if (currentFlatmap) {
         this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
       }
     });
