@@ -560,6 +560,7 @@ export default {
         this.query = payload.query;
         this.filter = payload.filter;
         this.target = payload.data;
+        return;
       }
       if (this.query) {
         let flag = "", order = [], suggestions = [], paths = [];

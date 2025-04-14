@@ -313,7 +313,6 @@ export default {
     onConnectivityClicked: function (data) {
       if (this.$refs && this.$refs.sideBar) {
         this.connectivityEntry = [];
-        this.$refs.sideBar.openConnectivitySearch(data.filter, data.query);
         EventBus.emit("connectivity-query-filter", {
           id: 2,
           type: "query-filter-update",
@@ -321,6 +320,7 @@ export default {
           filter: data.filter,
           data: data.data,
         });
+        this.$refs.sideBar.openConnectivitySearch(data.filter, data.query);
       }
     },
     onConnectivityHovered: function (data) {
