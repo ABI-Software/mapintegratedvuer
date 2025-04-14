@@ -624,12 +624,12 @@ export default {
       this.cancelCreateCallback = markRaw(payload.cancelCreate);
       this.confirmDeleteCallback = markRaw(payload.confirmDelete);
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.setActiveTab({id: 3, type: 'annotation'});
+        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
     EventBus.on('annotation-close', () => {
-      this.$refs.sideBar.setActiveTab({id:  1, type: 'datasetExplorer'});
+      this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
       this.annotationEntry = {};
       this.createData = {};
       if (this.$refs.sideBar) {
@@ -639,12 +639,13 @@ export default {
     EventBus.on('connectivity-info-open', payload => {
       this.connectivityEntry = payload;
       // click on the flatmap paths/features directly
+      // or onDisplaySearch is performed
       if (!this.connectivityExplorerClicked) {
         this.connectivityKnowledge = payload.map((entry) => {
           return { label: entry.title, id: entry.featureId[0] }
         });
         if (this.$refs.sideBar) {
-          this.$refs.sideBar.setActiveTab({ id: 2, type: 'connectivityExplorer' });
+          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
           this.$refs.sideBar.setDrawerOpen(true);
         }
       }
