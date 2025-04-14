@@ -202,20 +202,17 @@ export default {
               facetPropPath: "anatomy.organ.category.name",
             }))
           );
-          if (this.$refs.sideBar) {
-            this.$refs.sideBar.openSearch(facets, "");
-
-            const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
-            const filterValues = filterValuesArray.join(', ');
-            // GA Tagging
-            // Event tracking for map action search/filter data
-            Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_filter',
-              'category': filterValues || 'filter',
-              'location': 'map_popup_button'
-            });
-          }
+          this.openSearch(facets, "")
+          const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
+          const filterValues = filterValuesArray.join(', ');
+          // GA Tagging
+          // Event tracking for map action search/filter data
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_filter',
+            'category': filterValues || 'filter',
+            'location': 'map_popup_button'
+          });
         } else {
           this.trackGalleryClick(action);
           this.createNewEntry(action);
@@ -462,6 +459,7 @@ export default {
       this._facets = facets;
       if (this.$refs && this.$refs.sideBar) {
         this.$refs.sideBar.openSearch(facets, query);
+        this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
       }
       this.startUp = false;
     },
