@@ -174,7 +174,6 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
-            this.closeConnectivityInfo();
             this.$refs.sideBar.addFilter(action);
             const { facet } = action;
             // GA Tagging
@@ -204,7 +203,6 @@ export default {
             }))
           );
           if (this.$refs.sideBar) {
-            this.closeConnectivityInfo();
             this.$refs.sideBar.openSearch(facets, "");
 
             const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
@@ -463,17 +461,9 @@ export default {
       this.search = query;
       this._facets = facets;
       if (this.$refs && this.$refs.sideBar) {
-        this.closeConnectivityInfo();
         this.$refs.sideBar.openSearch(facets, query);
       }
       this.startUp = false;
-    },
-    closeConnectivityInfo: function() {
-      // close all opened popups on DOM
-      const containerEl = this.$el;
-      containerEl.querySelectorAll('.maplibregl-popup-close-button').forEach((el) => {
-        el.click();
-      });
     },
     onFullscreen: function (val) {
       this.$emit("onFullscreen", val);
@@ -594,9 +584,6 @@ export default {
     onSidebarTabClosed: function (tab) {
       if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
     },
-    resetActivePathways: function () {
-      this.hoverChanged(undefined);
-    },
   },
   created: function () {
     this._facets = [];
@@ -650,10 +637,6 @@ export default {
         }
       }
       this.connectivityExplorerClicked = false;
-    });
-    EventBus.on('connectivity-info-close', payload => {
-      this.connectivityEntry = [];
-      this.resetActivePathways();
     });
     EventBus.on('connectivity-graph-error', payload => {
       if (this.$refs.sideBar) {

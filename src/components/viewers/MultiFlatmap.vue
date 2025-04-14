@@ -19,7 +19,6 @@
       @annotation-close="onAnnotationClose"
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
-      @connectivity-info-close="onConnectivityInfoClose"
       @connectivity-graph-error="onConnectivityGraphError"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"

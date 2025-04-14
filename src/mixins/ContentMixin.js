@@ -76,8 +76,6 @@ export default {
         EventBus.emit("OpenNewMap", type);
         this.trackOpenMap(`open_new_${type}_map`);
       }
-
-      this.onConnectivityInfoClose();
     },
     onMapmanagerLoaded: function (mapManager) {
       this.settingsStore.updateMapManager(mapManager);
@@ -535,9 +533,6 @@ export default {
     },
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
-    },
-    onConnectivityInfoClose: function () {
-      EventBus.emit('connectivity-info-close');
     },
     onConnectivityGraphError: function (errorInfo) {
       EventBus.emit('connectivity-graph-error', errorInfo);
