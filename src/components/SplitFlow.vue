@@ -120,7 +120,7 @@ export default {
       search: '',
       filterTriggered: false,
       availableFacets: [],
-      connectivityEntry: {},
+      connectivityEntry: [],
       annotationEntry: {},
       annotationCallback: undefined,
       confirmCreateCallback: undefined,
@@ -314,7 +314,7 @@ export default {
     },
     onConnectivityClicked: function (data) {
       if (this.$refs && this.$refs.sideBar) {
-        this.connectivityEntry = {};
+        this.connectivityEntry = [];
         this.$refs.sideBar.openConnectivitySearch(data.filter, data.query);
         EventBus.emit("connectivity-query-filter", {
           id: 2,
@@ -640,12 +640,18 @@ export default {
       this.connectivityEntry = payload;
       // click on the flatmap paths/features directly
       if (!this.connectivityExplorerClicked) {
-        this.$refs.sideBar.openConnectivitySearch([], payload.featureId[0]);
+        this.connectivityKnowledge = payload.map((entry) => {
+          return { label: entry.title, id: entry.featureId[0] }
+        });
+        if (this.$refs.sideBar) {
+          this.$refs.sideBar.setActiveTab({ id: 2, type: 'connectivityExplorer' });
+          this.$refs.sideBar.setDrawerOpen(true);
+        }
       }
       this.connectivityExplorerClicked = false;
     });
     EventBus.on('connectivity-info-close', payload => {
-      this.connectivityEntry = {};
+      this.connectivityEntry = [];
       this.resetActivePathways();
     });
     EventBus.on('connectivity-graph-error', payload => {
@@ -662,7 +668,7 @@ export default {
       }
     });
     EventBus.on("connectivity-knowledge", payload => {
-      this.connectivityKnowledge = payload
+      this.connectivityKnowledge = payload;
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
