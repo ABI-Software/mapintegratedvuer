@@ -318,10 +318,7 @@ export default {
       });
     },
     onConnectivitySourceChange: function (data) {
-      EventBus.emit('connectivity-source-change', {
-        connectivityInfo: this.connectivityInfo,
-        connectivitySource: data,
-      });
+      EventBus.emit('connectivity-source-change', data);
     },
     hoverChanged: function (data) {
       const hoverAnatomies = data && data.anatomy ? data.anatomy : [];
