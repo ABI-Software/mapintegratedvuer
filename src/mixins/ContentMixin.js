@@ -560,6 +560,10 @@ export default {
         this.query = payload.query;
         this.filter = payload.filter;
         this.target = payload.data;
+        // restore connectivity explorer content
+        if (!this.query) {
+          EventBus.emit("connectivity-knowledge", [...results]);
+        }
         return;
       }
       if (this.query) {
