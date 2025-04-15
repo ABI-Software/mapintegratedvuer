@@ -44,6 +44,7 @@
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-component-click="onConnectivityComponentClick"
+          @connectivity-source-change="onConnectivitySourceChange"
         />
         <SplitDialog
           :entries="entries"
@@ -314,6 +315,12 @@ export default {
       EventBus.emit('connectivity-component-click', {
         connectivityInfo: this.connectivityInfo,
         data: data,
+      });
+    },
+    onConnectivitySourceChange: function (data) {
+      EventBus.emit('connectivity-source-change', {
+        connectivityInfo: this.connectivityInfo,
+        connectivitySource: data,
       });
     },
     hoverChanged: function (data) {

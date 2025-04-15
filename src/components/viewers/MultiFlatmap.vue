@@ -426,6 +426,12 @@ export default {
         flatmap.showConnectivityTooltips(payload);
       }
     },
+    changeConnectivitySource: function (payload) {
+      if (this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.changeConnectivitySource(payload);
+      }
+    },
   },
   computed: {
     facetSpecies() {
@@ -482,6 +488,10 @@ export default {
 
     EventBus.on('connectivity-component-click', (payload) => {
       this.showConnectivityTooltips(payload);
+    });
+
+    EventBus.on('connectivity-source-change', (payload) => {
+      this.changeConnectivitySource(payload);
     });
 
     EventBus.on("markerUpdate", () => {
