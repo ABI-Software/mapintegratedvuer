@@ -466,8 +466,9 @@ export default {
       }
     },
     flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
-      let toHighlight = [];
+      let toHighlight = [...hoverAnatomies, ...hoverConnectivity];
       const globalSettings = this.settingsStore.globalSettings;
+      
 
       // to highlight connected paths
       if (globalSettings.highlightConnectedPaths) {
@@ -496,6 +497,8 @@ export default {
         const hoverOrgans = this.settingsStore.hoverOrgans;
         const hoverDOI = this.settingsStore.hoverDOI;
         const hoverConnectivity = this.settingsStore.hoverConnectivity;
+
+        console.log(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity )
 
         let flatmap = null;
         let scaffold = null;
