@@ -46,6 +46,7 @@
           @connectivity-clicked="onConnectivityClicked"
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-explorer-clicked="onConnectivityExplorerClicked"
+          @connectivity-source-change="onConnectivitySourceChange"
         />
         <SplitDialog
           :entries="entries"
@@ -325,6 +326,9 @@ export default {
         connectivityEntry: this.connectivityEntry,
         data: data,
       });
+    },
+    onConnectivitySourceChange: function (data) {
+      EventBus.emit('connectivity-source-change', data);
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
