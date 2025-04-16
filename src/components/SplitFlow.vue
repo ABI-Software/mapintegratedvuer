@@ -328,6 +328,7 @@ export default {
       });
     },
     onConnectivitySourceChange: function (data) {
+      this.connectivityExplorerClicked = true;
       EventBus.emit('connectivity-source-change', data);
     },
     hoverChanged: function (data) {
