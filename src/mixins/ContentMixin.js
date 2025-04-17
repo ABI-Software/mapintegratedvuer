@@ -147,6 +147,7 @@ export default {
                 type: "Facet",
                 facet: label,
                 facetPropPath: "anatomy.organ.category.name",
+                facetSubPropPath: "anatomy.organ.name",
                 term: "Anatomical structure",
               };
               let labels = new Set();
@@ -155,10 +156,11 @@ export default {
                   labels.add(feature.label)
                 })
               });
+              labels.add(label)
               if (labels.size > 0) {
                 returnedAction = {
                   type: "Facets",
-                  labels: [...labels, label],
+                  labels: [...labels],
                 };
               }
             }
