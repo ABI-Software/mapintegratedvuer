@@ -500,8 +500,6 @@ export default {
         const hoverDOI = this.settingsStore.hoverDOI;
         const hoverConnectivity = this.settingsStore.hoverConnectivity;
 
-        console.log(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity )
-
         let flatmap = null;
         let scaffold = null;
         if (this.flatmapRef) flatmap = this.$refs.flatmap;
