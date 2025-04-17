@@ -201,6 +201,7 @@ export default {
               facet: capitalise(val),
               term: "Anatomical structure",
               facetPropPath: "anatomy.organ.category.name",
+              facetSubPropPath: "anatomy.organ.name",
             }))
           );
           this.openSearch(facets, "")
