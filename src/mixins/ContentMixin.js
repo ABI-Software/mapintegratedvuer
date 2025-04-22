@@ -151,10 +151,8 @@ export default {
                 term: "Anatomical structure",
               };
               let labels = new Set();
-              resource.feature['dataset-features'].forEach((dataset) => {
-                dataset.features.forEach((feature) => {
-                  labels.add(feature.label)
-                })
+              resource.feature['marker-terms'].forEach((term) => {
+                labels.add(term.label)
               });
               labels.add(label)
               if (labels.size > 0) {
