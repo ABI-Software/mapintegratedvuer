@@ -122,7 +122,7 @@ export default {
       filterTriggered: false,
       availableFacets: [],
       connectivityEntry: [],
-      annotationEntry: {},
+      annotationEntry: [],
       annotationCallback: undefined,
       confirmCreateCallback: undefined,
       cancelCreateCallback: undefined,
@@ -621,7 +621,7 @@ export default {
     });
     EventBus.on('annotation-close', () => {
       this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
-      this.annotationEntry = {};
+      this.annotationEntry = [];
       this.createData = {};
       if (this.$refs.sideBar) {
         this.$refs.sideBar.setDrawerOpen(false);
