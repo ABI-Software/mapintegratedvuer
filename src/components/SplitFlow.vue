@@ -121,7 +121,7 @@ export default {
       filterTriggered: false,
       availableFacets: [],
       connectivityInfo: null,
-      annotationEntry: {},
+      annotationEntry: [],
       annotationCallback: undefined,
       confirmCreateCallback: undefined,
       cancelCreateCallback: undefined,
@@ -592,7 +592,7 @@ export default {
     });
     EventBus.on('annotation-close', payload => {
       this.tabClicked({id:  1, type: 'search'});
-      this.annotationEntry = {};
+      this.annotationEntry = [];
       this.createData = {};
       if (this.$refs.sideBar) {
         this.$refs.sideBar.setDrawerOpen(false);
