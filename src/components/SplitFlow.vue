@@ -262,7 +262,7 @@ export default {
       }
       this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
 
-      if (tracking) {        
+      if (tracking) {
         // GA Tagging
         // Event tracking for map on display search
         Tagging.sendEvent({
@@ -638,6 +638,7 @@ export default {
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
           this.$refs.sideBar.setDrawerOpen(true);
+          this.$refs.sideBar.setConnectivityInfoOpen(true);
         }
       }
       this.connectivityExplorerClicked = false;
@@ -657,6 +658,7 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload;
+      this.$refs.sideBar.setConnectivityInfoOpen(false);
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
