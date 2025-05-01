@@ -127,6 +127,7 @@ export default {
       confirmCreateCallback: undefined,
       cancelCreateCallback: undefined,
       confirmDeleteCallback: undefined,
+      confirmCommentCallback: undefined,
       createData: {},
     }
   },
@@ -545,6 +546,8 @@ export default {
     onAnnotationSubmitted: function(annotation) {
       if (this.annotationCallback) {
         this.annotationCallback(annotation);
+      } else if (this.confirmCommentCallback) {
+        this.confirmCommentCallback(annotation)
       }
     },
     onConfirmCreate: function(payload) {
@@ -595,6 +598,7 @@ export default {
       this.confirmCreateCallback = markRaw(payload.confirmCreate);
       this.cancelCreateCallback = markRaw(payload.cancelCreate);
       this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+      this.confirmCommentCallback = markRaw(payload.confirmComment);
       if (this.$refs.sideBar) {
         this.tabClicked({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
