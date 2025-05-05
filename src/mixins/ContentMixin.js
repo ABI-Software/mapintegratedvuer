@@ -549,11 +549,11 @@ export default {
       });
       EventBus.emit("connectivity-knowledge", this.connectivityKnowledge);
     },
-    getSearchedId: function (flatmap, query) {
+    getSearchedId: function (flatmap, term) {
       let ids = [];
-      const searchResult = flatmap.mapImp.search(query);
+      const searchResult = flatmap.mapImp.search(term);
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
-      featureIds.forEach(id => {
+      featureIds.forEach((id) => {
         const annotation = flatmap.mapImp.annotation(id);
         if (annotation.models && !ids.includes(annotation.models)) {
           ids.push(annotation.models);
@@ -580,14 +580,14 @@ export default {
         return;
       }
       if (this.query) {
-        let prom1 = [], suggestions = [], options = {};
+        let prom1 = [], options = {};
         const searchTerms = this.query.split(/[,\s]+/);
         for (let index = 0; index < searchTerms.length; index++) {
-          const entry = searchTerms[index];
-          prom1.push(this.getSearchedId(flatmap, entry));
+          const term = searchTerms[index];
+          prom1.push(this.getSearchedId(flatmap, term));
         }
-        suggestions = await Promise.all(prom1);
-        const ids = [...new Set(suggestions.flat())];
+        const nestedIds = await Promise.all(prom1);
+        const ids = [...new Set(nestedIds.flat())];
         if (ids.length === 1) {
           options = {
             type: this.filter.map((f) => f.facet.toLowerCase()),
