@@ -549,6 +549,18 @@ export default {
       });
       EventBus.emit("connectivity-knowledge", this.connectivityKnowledge);
     },
+    getSearchedId: function (flatmap, query) {
+      let ids = [];
+      const searchResult = flatmap.mapImp.search(query);
+      const featureIds = searchResult.__featureIds || searchResult.featureIds;
+      featureIds.forEach(id => {
+        const annotation = flatmap.mapImp.annotation(id);
+        if (annotation.models && !ids.includes(annotation.models)) {
+          ids.push(annotation.models);
+        }
+      });
+      return ids;
+    },
     connectivityQueryFilter: async function (flatmap, payload) {
       let results = this.connectivityKnowledge;
       if (payload.type === "query-update") {
@@ -568,22 +580,23 @@ export default {
         return;
       }
       if (this.query) {
-        let flag = "", order = [], suggestions = [], paths = [];
-        this.searchSuggestions(this.query, suggestions);
-        const labels = [...new Set(suggestions)];
-        flag = 'label';
-        order = labels;
-        if (labels.length === 1) {
-          const options = {
-            type: this.filter.map(f => f.facet.toLowerCase()),
-            target: this.target.map(d => d.id),
-          };
-          paths = await flatmap.retrieveConnectedPaths([this.query], options);
-          flag = 'id';
-          order = [this.query, ...paths.filter(item => item !== this.query)];
+        let prom1 = [], suggestions = [], options = {};
+        const searchTerms = this.query.split(/[,\s]+/);
+        for (let index = 0; index < searchTerms.length; index++) {
+          const entry = searchTerms[index];
+          prom1.push(this.getSearchedId(flatmap, entry));
         }
-        results = results.filter(item => paths.includes(item.id) || labels.includes(item.label));
-        results.sort((a, b) => order.indexOf(a[flag]) - order.indexOf(b[flag]));
+        suggestions = await Promise.all(prom1);
+        const ids = [...new Set(suggestions.flat())];
+        if (ids.length === 1) {
+          options = {
+            type: this.filter.map((f) => f.facet.toLowerCase()),
+            target: this.target.map((d) => d.id),
+          };
+        }
+        const paths = await flatmap.retrieveConnectedPaths(ids, options);
+        results = results.filter((item) => paths.includes(item.id));
+        results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
       }
       EventBus.emit("connectivity-knowledge", results);
     }
