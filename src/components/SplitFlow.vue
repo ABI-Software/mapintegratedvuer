@@ -323,10 +323,7 @@ export default {
       }
     },
     onConnectivityHovered: function (data) {
-      EventBus.emit('connectivity-hovered', {
-        connectivityEntry: this.connectivityEntry,
-        data: data,
-      });
+      EventBus.emit('connectivity-hovered', data);
     },
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked = true;
