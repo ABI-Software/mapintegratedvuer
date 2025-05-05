@@ -465,7 +465,7 @@ export default {
       if (state.splitFlow) this.splitFlowStore.setState(state.splitFlow);
       else this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
     },
-    getState: function () {
+    getState: function (offlineAnnotations = false) {
       let state = JSON.parse(JSON.stringify(this.entriesStore.$state));
       let splitdialog = this.$refs.splitdialog;
       let dialogStates = splitdialog.getContentsState();
@@ -478,6 +478,9 @@ export default {
             delete entry.viewUrl;
           if (entry.type === "MultiFlatmap" && "uberonId" in entry)
             delete entry.uberonId;
+          if ((offlineAnnotations === false) && "offlineAnnotations" in entry) {
+            delete entry.offlineAnnotations;
+          }
         }
       }
       state.splitFlow = this.splitFlowStore.getState();

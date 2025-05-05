@@ -64,6 +64,80 @@ import {
   ElRow as Row,
 } from 'element-plus';
 
+
+const getAnnotationId = (api) => {
+  return new Promise((resolve) => {
+    let offlineAnnotations = JSON.parse(sessionStorage.getItem('offline-annotation')) || undefined;
+    console.log(offlineAnnotations);
+    if (offlineAnnotations) {
+      let maxRetry = 3
+      const annotationUrl = api + '/annotation/getshareid';
+      const getId = (attempt) => {
+        fetch(annotationUrl, {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: JSON.stringify({ state: offlineAnnotations }),
+        }).then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error('Unsuccessful attempt to get annotation id')
+        })
+        .then((data) => {
+          resolve(data.uuid);
+        })
+        .catch((error) => {
+          console.log(`Unable to create permalink: attempt ${attempt} of ${maxRetry}`)
+          if (maxRetry > attempt) {
+            getId(attempt + 1);
+          } else {
+            resolve(undefined);
+          }
+        })
+      }
+      getId(1);
+    } else {
+      resolve(undefined);
+    }
+  });
+}
+
+const getAnnotationState = (api, annotationId) => {
+  return new Promise((resolve) => {
+    let maxRetry = 3
+    const annotationUrl = api + '/annotation/getstate';
+    const getState = (attempt) => {
+      fetch(annotationUrl, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify({ uuid: annotationId }),
+      }).then((response) => {
+        if (response.ok) {
+          const text = response.text();
+          return JSON.parse(text);
+        }
+        throw new Error('Unsuccessful attempt to get annotations')
+      })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(`Unable to get annotation state: attempt ${attempt} of ${maxRetry}`)
+        if (maxRetry > attempt) {
+          getState(attempt + 1);
+        } else {
+          resolve(undefined);
+        }
+      })
+    }
+    getState(1);
+  });
+}
+
 export default {
   name: 'app',
   components: {
@@ -119,19 +193,40 @@ export default {
         this.$refs.map.setState(this.mapSettings.pop());
     },
     updateUUID: function() {
-      let xmlhttp = new XMLHttpRequest();
       let url = this.api + 'map/getshareid';
       let state = this.$refs.map.getState();
-      xmlhttp.open('POST', url, true);
-      //Send the proper header information along with the request
-      xmlhttp.setRequestHeader('Content-type', 'application/json');
-      xmlhttp.onreadystatechange = () => {//Call a function when the state changes.
-          if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            let state = JSON.parse(xmlhttp.responseText);
-            this.uuid = state.uuid;
+
+      const maxRetry = 3;
+      const getShareLink = (attempt) => {
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: JSON.stringify({ state: state }),
+        })
+        .then((response) => {
+          if (response.ok) {
+            return response.json()
           }
+          throw new Error('Unsuccessful attempt to get shareid')
+        })
+        .then((data) => {
+          this.uuid = data.uuid
+        })
+        .catch((error) => {
+          console.log(`Unable to create permalink: attempt ${attempt} of ${maxRetry}`)
+          if (maxRetry > attempt) {
+            getShareLink(attempt + 1)
+          }
+        })
       }
-      xmlhttp.send(JSON.stringify({"state": state}));
+      getAnnotationId(this.api).then((annotationId) => {
+        if (annotationId) {
+          state.annotationId = annotationId;
+        }
+        getShareLink(1)
+      });
 
     },
     setFlatmap: function() {
@@ -213,7 +308,20 @@ export default {
           xmlhttp.onreadystatechange = () => {//Call a function when the state changes.
               if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 let state = JSON.parse(xmlhttp.responseText);
-                this.state = state.state;
+                if (state?.state?.annotationId) {
+                  getAnnotationState(this.api, state.state.annotationId).
+                  then((data) => {
+                    console.log(data)
+                    if (data) {
+                      sessionStorage.setItem('offline-annotation', JSON.stringify(data.state))
+                    }
+                    this.state = state.state;
+                  });
+                } else {
+                  this.state = state.state;
+                }
+                
+                console.log(state)
               }
           }
           xmlhttp.send(JSON.stringify({"uuid": this.uuid}));

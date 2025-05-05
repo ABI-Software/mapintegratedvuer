@@ -196,11 +196,26 @@ export default {
         containerB.append(teleportedPopover);
       });
     },
+    /**
+     * @public
+     * Restore state of the map viewer from a state provided in the
+     * state argument, use the getState method to get the current state.
+     * 
+     * @arg `state`
+     */
     setState: function(state){
       return this.$refs.flow.setState(state);
     },
-    getState: function(){
-      return this.$refs.flow.getState();
+    /**
+     * @public
+     * Get the current state of the map viewer, these states can be used to
+     * restore settings and viewers using the setState method.
+     * Set offlineAnnotations to true if the user would like to perserve the
+     * state of offline annotations.
+     * @arg `offlineAnnotations` 
+     */
+    getState: function(offlineAnnotations = false){
+      return this.$refs.flow.getState(offlineAnnotations);
     },
     /**
      * @public
