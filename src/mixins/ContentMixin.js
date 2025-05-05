@@ -581,7 +581,7 @@ export default {
       }
       if (this.query) {
         let prom1 = [], options = {};
-        const searchTerms = this.query.split(/[,\s]+/);
+        const searchTerms = this.query.split(",");
         for (let index = 0; index < searchTerms.length; index++) {
           const term = searchTerms[index];
           prom1.push(this.getSearchedId(flatmap, term));
