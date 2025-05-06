@@ -469,7 +469,6 @@ export default {
       let toHighlight = [...hoverAnatomies, ...hoverConnectivity];
       const globalSettings = this.settingsStore.globalSettings;
       
-
       // to highlight connected paths
       if (globalSettings.highlightConnectedPaths) {
         const hoverEntry = hoverAnatomies.length ? hoverAnatomies :
@@ -505,25 +504,28 @@ export default {
         if (this.scaffoldRef) scaffold = this.$refs.scaffold;
 
         // reset
+        clearTimeout(this.highlightDelay);
         if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
           flatmap.mapImp.clearSearchResults();
         } else if (this.scaffoldRef && scaffold) {
           scaffold.changeHighlightedByName(hoverOrgans, "", false);
         }
 
-        if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length) {
-          if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
-            this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
-              try {
-                flatmap.zoomToFeatures(paths);
-              } catch (error) {
-                console.log(error)
-              }
-            });
-          } else if (this.scaffoldRef && scaffold) {
-            scaffold.changeHighlightedByName(hoverOrgans, "", false);
+        this.highlightDelay = setTimeout(() => {
+          if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length) {
+            if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+              this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
+                try {
+                  flatmap.zoomToFeatures(paths);
+                } catch (error) {
+                  console.log(error)
+                }
+              });
+            } else if (this.scaffoldRef && scaffold) {
+              scaffold.changeHighlightedByName(hoverOrgans, "", false);
+            }
           }
-        }
+        }, 500);
       }
     },
     onAnnotationOpen: function (payload) {
@@ -583,8 +585,7 @@ export default {
         let prom1 = [], options = {};
         const searchTerms = this.query.split(",");
         for (let index = 0; index < searchTerms.length; index++) {
-          const term = searchTerms[index];
-          prom1.push(this.getSearchedId(flatmap, term));
+          prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
         }
         const nestedIds = await Promise.all(prom1);
         const ids = [...new Set(nestedIds.flat())];
@@ -627,6 +628,7 @@ export default {
       query: "",
       filter: [],
       target: [], // Support origins/components/destinations term search
+      highlightDelay: undefined
     };
   },
   created: function () {
