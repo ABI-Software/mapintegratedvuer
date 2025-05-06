@@ -630,7 +630,7 @@ export default {
       // or onDisplaySearch is performed
       if (!this.connectivityExplorerClicked) {
         this.connectivityKnowledge = payload.map((entry) => {
-          return { label: entry.title, id: entry.featureId[0] }
+          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
         });
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
