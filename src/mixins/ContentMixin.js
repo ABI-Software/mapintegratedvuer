@@ -594,7 +594,10 @@ export default {
             target: this.target.map((d) => d.id),
           };
         }
-        const paths = await flatmap.retrieveConnectedPaths(ids, options);
+        let paths = await flatmap.retrieveConnectedPaths(ids, options);
+        if (paths.includes(this.query)) {
+          paths = [this.query, ...paths.filter((path) => path !== this.query)];
+        }
         results = results.filter((item) => paths.includes(item.id));
         results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
       }
