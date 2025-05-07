@@ -505,10 +505,12 @@ export default {
 
         // reset
         clearTimeout(this.highlightDelay);
-        if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
-          flatmap.mapImp.clearSearchResults();
-        } else if (this.scaffoldRef && scaffold) {
-          scaffold.changeHighlightedByName(hoverOrgans, "", false);
+        if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {          
+          if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+            flatmap.mapImp.clearSearchResults();
+          } else if (this.scaffoldRef && scaffold) {
+            scaffold.changeHighlightedByName(hoverOrgans, "", false);
+          }
         }
 
         this.highlightDelay = setTimeout(() => {
@@ -525,7 +527,7 @@ export default {
               scaffold.changeHighlightedByName(hoverOrgans, "", false);
             }
           }
-        }, 500);
+        }, 100);
       }
     },
     onAnnotationOpen: function (payload) {
@@ -549,7 +551,7 @@ export default {
         if (item.source === sckanVersion && item.connectivity?.length) return true;
         return false;
       });
-      EventBus.emit("connectivity-knowledge", this.connectivityKnowledge);
+      EventBus.emit("connectivity-knowledge", {type: "default", data: this.connectivityKnowledge});
     },
     getSearchedId: function (flatmap, term) {
       let ids = [];
@@ -565,6 +567,7 @@ export default {
     },
     connectivityQueryFilter: async function (flatmap, payload) {
       let results = this.connectivityKnowledge;
+      let knowledgeType = "default";
       if (payload.type === "query-update") {
         if (this.query !== payload.value) this.target = [];
         this.query = payload.value;
@@ -582,6 +585,7 @@ export default {
         return;
       }
       if (this.query) {
+        knowledgeType = "processed"
         let prom1 = [], options = {};
         const searchTerms = this.query.split(",");
         for (let index = 0; index < searchTerms.length; index++) {
@@ -602,7 +606,7 @@ export default {
         results = results.filter((item) => paths.includes(item.id));
         results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
       }
-      EventBus.emit("connectivity-knowledge", results);
+      EventBus.emit("connectivity-knowledge", { type: knowledgeType, data: results });
     }
   },
   data: function () {

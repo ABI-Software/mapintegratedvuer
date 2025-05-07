@@ -47,6 +47,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-explorer-clicked="onConnectivityExplorerClicked"
           @connectivity-source-change="onConnectivitySourceChange"
+          @mouseleave="hoverChanged({type: 'manual'})"
         />
         <SplitDialog
           :entries="entries"
@@ -128,6 +129,7 @@ export default {
       cancelCreateCallback: undefined,
       confirmDeleteCallback: undefined,
       createData: {},
+      connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: false,
     }
@@ -338,10 +340,12 @@ export default {
           hoverDOI = data.doi ? data.doi : '';
         } else if (data.type === 'connectivity') {
           hoverConnectivity = data.id ? [data.id] : '';
+        } else if (data.type === 'manual') {
+          hoverConnectivity = this.connectivityHighlight.map(entry => entry.id);
         }
+        this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
+        EventBus.emit("hoverUpdate");
       }
-      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {
       if (data.id === 1) {
@@ -632,6 +636,7 @@ export default {
         this.connectivityKnowledge = payload.map((entry) => {
           return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
         });
+        this.connectivityHighlight = this.connectivityKnowledge;
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
           this.$refs.sideBar.setDrawerOpen(true);
@@ -653,7 +658,12 @@ export default {
       }
     });
     EventBus.on("connectivity-knowledge", payload => {
-      this.connectivityKnowledge = payload;
+      this.connectivityKnowledge = payload.data;
+      this.connectivityHighlight = [];
+      if (payload.type === "processed") {
+        this.connectivityHighlight = this.connectivityKnowledge;
+      }
+      this.hoverChanged({type: "manual"})
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
