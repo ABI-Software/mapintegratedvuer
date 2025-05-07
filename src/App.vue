@@ -65,11 +65,10 @@ import {
 } from 'element-plus';
 
 
-const getAnnotationId = (api) => {
+const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
     let offlineAnnotations = JSON.parse(sessionStorage.getItem('offline-annotation')) || undefined;
-    console.log(offlineAnnotations);
-    if (offlineAnnotations) {
+    if (withAnnotation && offlineAnnotations) {
       let maxRetry = 3
       const annotationUrl = api + '/annotation/getshareid';
       const getId = (attempt) => {
@@ -192,7 +191,7 @@ export default {
       if (this.mapSettings.length > 0)
         this.$refs.map.setState(this.mapSettings.pop());
     },
-    updateUUID: function() {
+    updateUUID: function(withAnnotation) {
       let url = this.api + 'map/getshareid';
       let state = this.$refs.map.getState();
 
@@ -221,7 +220,7 @@ export default {
           }
         })
       }
-      getAnnotationId(this.api).then((annotationId) => {
+      getAnnotationId(this.api, withAnnotation).then((annotationId) => {
         if (annotationId) {
           state.annotationId = annotationId;
         }

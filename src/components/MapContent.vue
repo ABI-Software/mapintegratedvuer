@@ -373,11 +373,11 @@ export default {
     this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },
   mounted: async function() {
-    EventBus.on("updateShareLinkRequested", () => {
+    EventBus.on("updateShareLinkRequested", (data) => {
       /**
        * This event emits when the share link is requested.
        */
-      this.$emit("updateShareLinkRequested");
+      this.$emit("updateShareLinkRequested", data);
     });
     EventBus.on('trackEvent', (taggingData) => {
       /**

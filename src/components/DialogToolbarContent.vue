@@ -111,31 +111,58 @@
         popper-class="link-popover"
         virtual-triggering
       >
-        <el-row :gutter="20"
-          v-loading="loadingLink"
-          element-loading-text="Creating link...">
-          <el-col :span="20">
-            <el-input
-              class="link-input"
-              size="small"
-              placeholder="Permanant Link Here"
-              :readonly=true
-              v-model="shareLink"
-              ref="linkInput">
-            </el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-popover class="tooltip" content="Copy link" placement="bottom-end"
-              :show-after="helpDelay" :teleported=false trigger="hover"
-              popper-class="header-popper">
-              <template #reference>
-                <el-button class="copy-button"
-                  :icon="ElIconCopyDocument" size="small"
-                  @click="copyShareLink"></el-button>
-              </template>
-            </el-popover>
-          </el-col>
+        <template v-if="displayShareOptions">
+          <el-row>
+            <el-col :span="8">
+              <el-button
+                type="primary"
+                size="small"
+                @click="getShareLink(false)"
+                class="share-options"
+              >
+                Settings Only
+              </el-button>
+            </el-col>
+            <el-col :span="14">
+              <el-button
+                type="primary"
+                size="small"
+                @click="getShareLink(true)"
+                class="share-options"
+              >
+                Settings with Annotations
+                (Valid for 30 days)
+              </el-button>
+            </el-col>
         </el-row>
+        </template>
+        <template v-else>
+          <el-row :gutter="20"
+            v-loading="loadingLink"
+            element-loading-text="Creating link...">
+            <el-col :span="20">
+              <el-input
+                class="link-input"
+                size="small"
+                placeholder="Permanant Link Here"
+                :readonly=true
+                v-model="shareLink"
+                ref="linkInput">
+              </el-input>
+            </el-col>
+            <el-col :span="4">
+              <el-popover class="tooltip" content="Copy link" placement="bottom-end"
+                :show-after="helpDelay" :teleported=false trigger="hover"
+                popper-class="header-popper">
+                <template #reference>
+                  <el-button class="copy-button"
+                    :icon="ElIconCopyDocument" size="small"
+                    @click="copyShareLink"></el-button>
+                </template>
+              </el-popover>
+            </el-col>
+          </el-row>
+        </template>
       </el-popover>
       <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
         :show-after="helpDelay" :teleported=false trigger="hover"
@@ -145,7 +172,7 @@
           <map-svg-icon icon="permalink"
             ref="permalinkRef"
             class="header-icon"
-            @click="getShareLink"
+            @click="requestShareLink"
             v-show="shareLink"
           />
         </template>
@@ -260,7 +287,7 @@ export default {
     return {
       isFullscreen: false,
       loadingLink: true,
-      shareLinkDisplay: false,
+      displayShareOptions: false,
       independent: true,
       failedSearch: undefined,
       activeViewRef: undefined,
@@ -309,10 +336,17 @@ export default {
     setFailedSearch: function(result) {
       this.failedSearch = result;
     },
-    getShareLink: function() {
+    requestShareLink: function() {
+      if (sessionStorage.getItem('offline-annotation')) {
+        this.displayShareOptions = true;
+      } else {
+        this.getShareLink(false);
+      }
+    },
+    getShareLink: function(withAnnotation) {
+      this.displayShareOptions = false;
       this.loadingLink = true;
-      this.shareLinkDisplay = true;
-      EventBus.emit("updateShareLinkRequested");
+      EventBus.emit("updateShareLinkRequested", withAnnotation);
     },
     viewClicked: function(view) {
       this.splitFlowStore.updateActiveView({
@@ -362,6 +396,17 @@ export default {
 
 .header {
   height:32px;
+}
+
+.share-options.el-button {
+  font-family: inherit;
+
+  &:hover,
+  &:focus {
+    background: $app-primary-color;
+    box-shadow: -3px 2px 4px #00000040;
+    color: #fff;
+  }
 }
 
 :deep(.header-popper.el-popover.el-popper) {
