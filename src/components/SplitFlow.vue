@@ -478,8 +478,12 @@ export default {
             delete entry.viewUrl;
           if (entry.type === "MultiFlatmap" && "uberonId" in entry)
             delete entry.uberonId;
-          if ((offlineAnnotations === false) && "offlineAnnotations" in entry) {
-            delete entry.offlineAnnotations;
+          if (offlineAnnotations === false) {
+            if (entry.type === "Scaffold" && entry?.state?.offlineAnnotations) {
+              delete entry.state.offlineAnnotations;
+            } else if (entry?.state?.state?.offlineAnnotations) {
+              delete entry.state.state.offlineAnnotations;
+            }
           }
         }
       }

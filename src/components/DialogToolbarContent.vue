@@ -114,25 +114,51 @@
         <template v-if="displayShareOptions">
           <el-row>
             <el-col :span="8">
-              <el-button
-                type="primary"
-                size="small"
-                @click="getShareLink(false)"
-                class="share-options"
+              <el-popover class="tooltip"
+                content="Create a permanent link for current views and settings." 
+                placement="bottom-end"
+                :show-after="helpDelay" :teleported=false trigger="hover"
+                popper-class="header-popper"
               >
-                Settings Only
-              </el-button>
+                <template #reference>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="getShareLink(false)"
+                    class="share-options"
+                  >
+                    Settings Only
+                  </el-button>
+                </template>
+              </el-popover>
             </el-col>
             <el-col :span="14">
-              <el-button
-                type="primary"
-                size="small"
-                @click="getShareLink(true)"
-                class="share-options"
+              <el-popover class="tooltip"
+                placement="bottom-end"
+                :show-after="helpDelay" :teleported=false trigger="hover"
+                popper-class="header-popper"
               >
-                Settings with Annotations
-                (Valid for 30 days)
-              </el-button>
+                <template #reference>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="getShareLink(true)"
+                    class="share-options"
+                  >
+                    Settings with Annotations
+                    (Valid for 30 days)
+                  </el-button>
+                </template>
+                <template #default>
+                  Create a link for current views settings 
+                  <br>
+                  and anonymous annotations.
+                  <br>
+                  NOTE: Annotations will only be stored for
+                  <br>
+                  30 days on the server.
+                </template>
+              </el-popover>
             </el-col>
         </el-row>
         </template>
@@ -183,7 +209,6 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-
     </el-row>
   </div>
 </template>
@@ -337,7 +362,7 @@ export default {
       this.failedSearch = result;
     },
     requestShareLink: function() {
-      if (sessionStorage.getItem('offline-annotation')) {
+      if (sessionStorage.getItem('anonymous-annotation')) {
         this.displayShareOptions = true;
       } else {
         this.getShareLink(false);
@@ -417,6 +442,7 @@ export default {
   border: 1px solid $app-primary-color;
   white-space: nowrap;
   min-width: unset;
+
   .el-popper__arrow {
     &:before {
       border-color: $app-primary-color;

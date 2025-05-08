@@ -67,7 +67,8 @@ import {
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
-    let offlineAnnotations = JSON.parse(sessionStorage.getItem('offline-annotation')) || undefined;
+    let offlineAnnotations = JSON.parse(sessionStorage.getItem('anonymous-annotation')) || undefined;
+    console.log(withAnnotation)
     if (withAnnotation && offlineAnnotations) {
       let maxRetry = 3
       const annotationUrl = api + '/annotation/getshareid';
@@ -116,8 +117,7 @@ const getAnnotationState = (api, annotationId) => {
         body: JSON.stringify({ uuid: annotationId }),
       }).then((response) => {
         if (response.ok) {
-          const text = response.text();
-          return JSON.parse(text);
+          return response.json()
         }
         throw new Error('Unsuccessful attempt to get annotations')
       })
@@ -125,6 +125,7 @@ const getAnnotationState = (api, annotationId) => {
         resolve(data);
       })
       .catch((error) => {
+        console.log(error)
         console.log(`Unable to get annotation state: attempt ${attempt} of ${maxRetry}`)
         if (maxRetry > attempt) {
           getState(attempt + 1);
@@ -193,7 +194,7 @@ export default {
     },
     updateUUID: function(withAnnotation) {
       let url = this.api + 'map/getshareid';
-      let state = this.$refs.map.getState();
+      let state = this.$refs.map.getState(false);
 
       const maxRetry = 3;
       const getShareLink = (attempt) => {
@@ -224,6 +225,7 @@ export default {
         if (annotationId) {
           state.annotationId = annotationId;
         }
+        console.log(state)
         getShareLink(1)
       });
 
@@ -307,12 +309,13 @@ export default {
           xmlhttp.onreadystatechange = () => {//Call a function when the state changes.
               if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                 let state = JSON.parse(xmlhttp.responseText);
+                console.log(state)
                 if (state?.state?.annotationId) {
                   getAnnotationState(this.api, state.state.annotationId).
                   then((data) => {
                     console.log(data)
                     if (data) {
-                      sessionStorage.setItem('offline-annotation', JSON.stringify(data.state))
+                      sessionStorage.setItem('anonymous-annotation', JSON.stringify(data.state))
                     }
                     this.state = state.state;
                   });
