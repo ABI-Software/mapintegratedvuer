@@ -507,7 +507,7 @@ export default {
     EventBus.on("connectivity-query-filter", (payload) => {
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (currentFlatmap) {
+        if (currentFlatmap && currentFlatmap.mapImp) {
           this.connectivityQueryFilter(currentFlatmap, payload)
         }
       }

@@ -43,11 +43,9 @@
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
-          @connectivity-clicked="onConnectivityClicked"
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-explorer-clicked="onConnectivityExplorerClicked"
           @connectivity-source-change="onConnectivitySourceChange"
-          @mouseleave="hoverChanged({type: 'manual'})"
         />
         <SplitDialog
           :entries="entries"
@@ -311,19 +309,6 @@ export default {
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
     },
-    onConnectivityClicked: function (data) {
-      if (this.$refs && this.$refs.sideBar) {
-        this.connectivityEntry = [];
-        EventBus.emit("connectivity-query-filter", {
-          id: 2,
-          type: "query-filter-update",
-          query: data.query,
-          filter: data.filter,
-          data: data.data,
-        });
-        this.$refs.sideBar.openConnectivitySearch(data.filter, data.query);
-      }
-    },
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', data);
     },
@@ -339,13 +324,13 @@ export default {
           hoverOrgans = data.organs ? data.organs : [];
           hoverDOI = data.doi ? data.doi : '';
         } else if (data.type === 'connectivity') {
-          hoverConnectivity = data.id ? [data.id] : '';
-        } else if (data.type === 'manual') {
-          hoverConnectivity = this.connectivityHighlight.map(entry => entry.id);
+          hoverConnectivity = data.id ? [data.id] : [];
         }
-        this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-        EventBus.emit("hoverUpdate");
+      } else {
+        hoverConnectivity = this.connectivityHighlight;
       }
+      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
+      EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {
       if (data.id === 1) {
@@ -386,6 +371,7 @@ export default {
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.id === 2) {
+        this.connectivityEntry = [];
         EventBus.emit("connectivity-query-filter", data);
       }
     },
@@ -515,6 +501,8 @@ export default {
     },
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
+        // Use to update the connectivity when switch species
+        EventBus.emit("connectivity-query-filter");
         this.$refs.sideBar.close();
       }
     },
@@ -636,7 +624,10 @@ export default {
         this.connectivityKnowledge = payload.map((entry) => {
           return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
         });
-        this.connectivityHighlight = this.connectivityKnowledge;
+        if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
+          this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
+          this.onShowConnectivity(this.connectivityHighlight);
+        }
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
           this.$refs.sideBar.setDrawerOpen(true);
@@ -660,10 +651,12 @@ export default {
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = [];
-      if (payload.type === "processed") {
-        this.connectivityHighlight = this.connectivityKnowledge;
+      if (payload.state === "processed") {
+        this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);;
+        this.onShowConnectivity(this.connectivityHighlight);
+      } else {
+        this.hoverChanged();
       }
-      this.hoverChanged({type: "manual"})
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
