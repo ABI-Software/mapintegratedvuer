@@ -469,7 +469,6 @@ export default {
       let toHighlight = [...hoverAnatomies, ...hoverConnectivity];
       const globalSettings = this.settingsStore.globalSettings;
       
-
       // to highlight connected paths
       if (globalSettings.highlightConnectedPaths) {
         const hoverEntry = hoverAnatomies.length ? hoverAnatomies :
@@ -505,25 +504,30 @@ export default {
         if (this.scaffoldRef) scaffold = this.$refs.scaffold;
 
         // reset
-        if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
-          flatmap.mapImp.clearSearchResults();
-        } else if (this.scaffoldRef && scaffold) {
-          scaffold.changeHighlightedByName(hoverOrgans, "", false);
-        }
-
-        if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length) {
+        clearTimeout(this.highlightDelay);
+        if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {          
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
-            this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
-              try {
-                flatmap.zoomToFeatures(paths);
-              } catch (error) {
-                console.log(error)
-              }
-            });
+            flatmap.mapImp.clearSearchResults();
           } else if (this.scaffoldRef && scaffold) {
             scaffold.changeHighlightedByName(hoverOrgans, "", false);
           }
         }
+
+        this.highlightDelay = setTimeout(() => {
+          if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length) {
+            if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+              this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
+                try {
+                  flatmap.zoomToFeatures(paths);
+                } catch (error) {
+                  console.log(error)
+                }
+              });
+            } else if (this.scaffoldRef && scaffold) {
+              scaffold.changeHighlightedByName(hoverOrgans, "", false);
+            }
+          }
+        }, 100);
       }
     },
     onAnnotationOpen: function (payload) {
@@ -547,10 +551,23 @@ export default {
         if (item.source === sckanVersion && item.connectivity?.length) return true;
         return false;
       });
-      EventBus.emit("connectivity-knowledge", this.connectivityKnowledge);
+      EventBus.emit("connectivity-knowledge", {type: "default", data: this.connectivityKnowledge});
+    },
+    getSearchedId: function (flatmap, term) {
+      let ids = [];
+      const searchResult = flatmap.mapImp.search(term);
+      const featureIds = searchResult.__featureIds || searchResult.featureIds;
+      featureIds.forEach((id) => {
+        const annotation = flatmap.mapImp.annotation(id);
+        if (annotation.models && !ids.includes(annotation.models)) {
+          ids.push(annotation.models);
+        }
+      });
+      return ids;
     },
     connectivityQueryFilter: async function (flatmap, payload) {
       let results = this.connectivityKnowledge;
+      let knowledgeType = "default";
       if (payload.type === "query-update") {
         if (this.query !== payload.value) this.target = [];
         this.query = payload.value;
@@ -568,24 +585,28 @@ export default {
         return;
       }
       if (this.query) {
-        let flag = "", order = [], suggestions = [], paths = [];
-        this.searchSuggestions(this.query, suggestions);
-        const labels = [...new Set(suggestions)];
-        flag = 'label';
-        order = labels;
-        if (labels.length === 1) {
-          const options = {
-            type: this.filter.map(f => f.facet.toLowerCase()),
-            target: this.target.map(d => d.id),
-          };
-          paths = await flatmap.retrieveConnectedPaths([this.query], options);
-          flag = 'id';
-          order = [this.query, ...paths.filter(item => item !== this.query)];
+        knowledgeType = "processed"
+        let prom1 = [], options = {};
+        const searchTerms = this.query.split(",");
+        for (let index = 0; index < searchTerms.length; index++) {
+          prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
         }
-        results = results.filter(item => paths.includes(item.id) || labels.includes(item.label));
-        results.sort((a, b) => order.indexOf(a[flag]) - order.indexOf(b[flag]));
+        const nestedIds = await Promise.all(prom1);
+        const ids = [...new Set(nestedIds.flat())];
+        if (ids.length === 1) {
+          options = {
+            type: this.filter.map((f) => f.facet.toLowerCase()),
+            target: this.target.map((d) => d.id),
+          };
+        }
+        let paths = await flatmap.retrieveConnectedPaths(ids, options);
+        if (paths.includes(this.query)) {
+          paths = [this.query, ...paths.filter((path) => path !== this.query)];
+        }
+        results = results.filter((item) => paths.includes(item.id));
+        results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
       }
-      EventBus.emit("connectivity-knowledge", results);
+      EventBus.emit("connectivity-knowledge", { type: knowledgeType, data: results });
     }
   },
   data: function () {
@@ -611,6 +632,7 @@ export default {
       query: "",
       filter: [],
       target: [], // Support origins/components/destinations term search
+      highlightDelay: undefined
     };
   },
   created: function () {
