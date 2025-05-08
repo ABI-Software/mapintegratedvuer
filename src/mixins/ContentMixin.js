@@ -507,7 +507,7 @@ export default {
         clearTimeout(this.highlightDelay);
         if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
-            flatmap.mapImp.clearSearchResults();
+            flatmap.mapImp?.clearSearchResults();
           } else if (this.scaffoldRef && scaffold) {
             scaffold.changeHighlightedByName(hoverOrgans, "", false);
           }
@@ -547,17 +547,17 @@ export default {
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
       const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
-      const mapData = await flatmapQueries.queryMapPaths(flatmap.uuid);
-      const pathsFromMap = mapData ? mapData.paths : null;
+      const uuid = flatmap.uuid;
+      const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
+      const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
-      this.connectivityKnowledge = knowledge.filter((item) => {
-        const inMap = pathsFromMap ? pathsFromMap[item.id] : false;
-        if (item.source === sckanVersion && item.connectivity?.length && inMap) {
+      this.connectivityKnowledge[uuid] = knowledge.filter((item) => {
+        if (item.source === sckanVersion && item.connectivity?.length && item.id in pathsFromMap) {
           return true;
         }
         return false;
       });
-      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge });
+      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge[uuid] });
     },
     getSearchedId: function (flatmap, term) {
       let ids = [];
@@ -572,15 +572,18 @@ export default {
       return ids;
     },
     connectivityQueryFilter: async function (flatmap, data) {
+      const uuid = flatmap.mapImp.uuid
       let payload = {
         state: "default",
-        data: [...this.connectivityKnowledge],
-      };
-      if (data.type === "query-update") {
-        if (this.query !== data.value) this.target = [];
-        this.query = data.value;
-      } else if (data.type === "filter-update") {
-        this.filter = data.value;
+        data: [...this.connectivityKnowledge[uuid]],
+      };      
+      if (data) {        
+        if (data.type === "query-update") {
+          if (this.query !== data.value) this.target = [];
+          this.query = data.value;
+        } else if (data.type === "filter-update") {
+          this.filter = data.value;
+        }
       }
       if (this.query) {
         payload.state = "processed";
@@ -595,7 +598,7 @@ export default {
         if (paths.includes(this.query)) {
           paths = [this.query, ...paths.filter(path => path !== this.query)];
         }
-        let results = this.connectivityKnowledge.filter(item => paths.includes(item.id));
+        let results = this.connectivityKnowledge[uuid].filter(item => paths.includes(item.id));
         results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
         payload.data = results;
       }
@@ -621,7 +624,7 @@ export default {
       scaffoldLoaded: false,
       isInHelp: false,
       mapManager: undefined,
-      connectivityKnowledge: [],
+      connectivityKnowledge: {},
       query: "",
       filter: [],
       highlightDelay: undefined

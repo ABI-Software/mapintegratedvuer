@@ -502,7 +502,8 @@ export default {
     },
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
-        this.connectivityKnowledge = [...this.connectivityKnowledge];
+        // Use to update the connectivity when switch species
+        EventBus.emit("connectivity-query-filter");
         this.$refs.sideBar.close();
       }
     },
