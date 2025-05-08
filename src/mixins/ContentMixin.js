@@ -557,7 +557,7 @@ export default {
         }
         return false;
       });
-      EventBus.emit("connectivity-knowledge", {type: "default", data: this.connectivityKnowledge});
+      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge });
     },
     getSearchedId: function (flatmap, term) {
       let ids = [];
@@ -574,7 +574,7 @@ export default {
     connectivityQueryFilter: async function (flatmap, data) {
       let payload = {
         state: "default",
-        data: this.connectivityKnowledge,
+        data: [...this.connectivityKnowledge],
       };
       if (data.type === "query-update") {
         if (this.query !== data.value) this.target = [];

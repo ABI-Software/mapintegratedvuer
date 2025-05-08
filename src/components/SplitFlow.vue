@@ -502,6 +502,7 @@ export default {
     },
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
+        this.connectivityKnowledge = [...this.connectivityKnowledge];
         this.$refs.sideBar.close();
       }
     },
@@ -650,7 +651,7 @@ export default {
       if (payload.state === "processed") {
         this.connectivityHighlight = this.connectivityKnowledge;
       }
-      this.hoverChanged({type: "manual"})
+      this.hoverChanged({ type: "manual" });
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
