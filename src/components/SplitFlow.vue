@@ -626,6 +626,7 @@ export default {
         });
         if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
           this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
+          this.onShowConnectivity(this.connectivityHighlight);
         }
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
@@ -652,6 +653,7 @@ export default {
       this.connectivityHighlight = [];
       if (payload.state === "processed") {
         this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);;
+        this.onShowConnectivity(this.connectivityHighlight);
       } else {
         this.hoverChanged();
       }
