@@ -210,12 +210,12 @@ export default {
      * @public
      * Get the current state of the map viewer, these states can be used to
      * restore settings and viewers using the setState method.
-     * Set offlineAnnotations to true if the user would like to perserve the
-     * state of offline annotations.
-     * @arg `offlineAnnotations` 
+     * Set anonymousAnnotations to true if the user would like to perserve the
+     * state of anonymous annotations.
+     * @arg `anonymousAnnotations` 
      */
-    getState: function(offlineAnnotations = false){
-      return this.$refs.flow.getState(offlineAnnotations);
+    getState: function(anonymousAnnotations = false){
+      return this.$refs.flow.getState(anonymousAnnotations);
     },
     /**
      * @public

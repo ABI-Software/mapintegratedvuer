@@ -67,10 +67,9 @@ import {
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
-    let offlineAnnotations = JSON.parse(sessionStorage.getItem('anonymous-annotation')) || undefined;
-    console.log(withAnnotation)
-    if (withAnnotation && offlineAnnotations) {
-      let maxRetry = 3
+    let anonymousAnnotations = JSON.parse(sessionStorage.getItem('anonymous-annotation')) || undefined;
+    if (withAnnotation && anonymousAnnotations) {
+      let maxRetry = 3;
       const annotationUrl = api + '/annotation/getshareid';
       const getId = (attempt) => {
         fetch(annotationUrl, {
@@ -78,7 +77,7 @@ const getAnnotationId = (api, withAnnotation) => {
           headers: {
             'Content-type': 'application/json',
           },
-          body: JSON.stringify({ state: offlineAnnotations }),
+          body: JSON.stringify({ state: anonymousAnnotations }),
         }).then((response) => {
           if (response.ok) {
             return response.json();
@@ -89,7 +88,6 @@ const getAnnotationId = (api, withAnnotation) => {
           resolve(data.uuid);
         })
         .catch((error) => {
-          console.log(`Unable to create permalink: attempt ${attempt} of ${maxRetry}`)
           if (maxRetry > attempt) {
             getId(attempt + 1);
           } else {
@@ -106,7 +104,7 @@ const getAnnotationId = (api, withAnnotation) => {
 
 const getAnnotationState = (api, annotationId) => {
   return new Promise((resolve) => {
-    let maxRetry = 3
+    let maxRetry = 3;
     const annotationUrl = api + '/annotation/getstate';
     const getState = (attempt) => {
       fetch(annotationUrl, {
@@ -117,16 +115,15 @@ const getAnnotationState = (api, annotationId) => {
         body: JSON.stringify({ uuid: annotationId }),
       }).then((response) => {
         if (response.ok) {
-          return response.json()
+          return response.json();
         }
-        throw new Error('Unsuccessful attempt to get annotations')
+        throw new Error('Unsuccessful attempt to get annotations');
       })
       .then((data) => {
         resolve(data);
       })
       .catch((error) => {
-        console.log(error)
-        console.log(`Unable to get annotation state: attempt ${attempt} of ${maxRetry}`)
+        console.log(`Unable to get annotation state: attempt ${attempt} of ${maxRetry}`);
         if (maxRetry > attempt) {
           getState(attempt + 1);
         } else {
@@ -225,7 +222,6 @@ export default {
         if (annotationId) {
           state.annotationId = annotationId;
         }
-        console.log(state)
         getShareLink(1)
       });
 
@@ -313,7 +309,6 @@ export default {
                 if (state?.state?.annotationId) {
                   getAnnotationState(this.api, state.state.annotationId).
                   then((data) => {
-                    console.log(data)
                     if (data) {
                       sessionStorage.setItem('anonymous-annotation', JSON.stringify(data.state))
                     }
@@ -322,8 +317,6 @@ export default {
                 } else {
                   this.state = state.state;
                 }
-                
-                console.log(state)
               }
           }
           xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
