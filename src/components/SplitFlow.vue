@@ -263,7 +263,7 @@ export default {
       }
       this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
 
-      if (tracking) {        
+      if (tracking) {
         // GA Tagging
         // Event tracking for map on display search
         Tagging.sendEvent({

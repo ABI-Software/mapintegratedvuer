@@ -468,7 +468,7 @@ export default {
     flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
       let toHighlight = [...hoverAnatomies, ...hoverConnectivity];
       const globalSettings = this.settingsStore.globalSettings;
-      
+
       // to highlight connected paths
       if (globalSettings.highlightConnectedPaths) {
         const hoverEntry = hoverAnatomies.length ? hoverAnatomies :
@@ -505,7 +505,7 @@ export default {
 
         // reset
         clearTimeout(this.highlightDelay);
-        if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {          
+        if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
             flatmap.mapImp.clearSearchResults();
           } else if (this.scaffoldRef && scaffold) {
@@ -547,8 +547,14 @@ export default {
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
       const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
+      const mapData = await flatmapQueries.queryMapPaths(flatmap.uuid);
+      const pathsFromMap = mapData ? mapData.paths : null;
+
       this.connectivityKnowledge = knowledge.filter((item) => {
-        if (item.source === sckanVersion && item.connectivity?.length) return true;
+        const inMap = pathsFromMap ? pathsFromMap[item.id] : false;
+        if (item.source === sckanVersion && item.connectivity?.length && inMap) {
+          return true;
+        }
         return false;
       });
       EventBus.emit("connectivity-knowledge", {type: "default", data: this.connectivityKnowledge});
