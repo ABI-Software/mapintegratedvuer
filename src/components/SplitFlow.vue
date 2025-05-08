@@ -43,7 +43,6 @@
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
-          @connectivity-clicked="onConnectivityClicked"
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-explorer-clicked="onConnectivityExplorerClicked"
           @connectivity-source-change="onConnectivitySourceChange"
@@ -311,19 +310,6 @@ export default {
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
     },
-    onConnectivityClicked: function (data) {
-      if (this.$refs && this.$refs.sideBar) {
-        this.connectivityEntry = [];
-        EventBus.emit("connectivity-query-filter", {
-          id: 2,
-          type: "query-filter-update",
-          query: data.query,
-          filter: data.filter,
-          data: data.data,
-        });
-        this.$refs.sideBar.openConnectivitySearch(data.filter, data.query);
-      }
-    },
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', data);
     },
@@ -386,6 +372,7 @@ export default {
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.id === 2) {
+        this.connectivityEntry = [];
         EventBus.emit("connectivity-query-filter", data);
       }
     },
@@ -660,7 +647,7 @@ export default {
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = [];
-      if (payload.type === "processed") {
+      if (payload.state === "processed") {
         this.connectivityHighlight = this.connectivityKnowledge;
       }
       this.hoverChanged({type: "manual"})

@@ -565,27 +565,19 @@ export default {
       });
       return ids;
     },
-    connectivityQueryFilter: async function (flatmap, payload) {
-      let results = this.connectivityKnowledge;
-      let knowledgeType = "default";
-      if (payload.type === "query-update") {
-        if (this.query !== payload.value) this.target = [];
-        this.query = payload.value;
-      } else if (payload.type === "filter-update") {
-        this.filter = payload.value;
-        this.target = [];
-      } else if (payload.type === "query-filter-update") {
-        this.query = payload.query;
-        this.filter = payload.filter;
-        this.target = payload.data;
-        // restore connectivity explorer content
-        if (!this.query) {
-          EventBus.emit("connectivity-knowledge", [...results]);
-        }
-        return;
+    connectivityQueryFilter: async function (flatmap, data) {
+      let payload = {
+        state: "default",
+        data: this.connectivityKnowledge,
+      };
+      if (data.type === "query-update") {
+        if (this.query !== data.value) this.target = [];
+        this.query = data.value;
+      } else if (data.type === "filter-update") {
+        this.filter = data.value;
       }
       if (this.query) {
-        knowledgeType = "processed"
+        payload.state = "processed";
         let prom1 = [], options = {};
         const searchTerms = this.query.split(",");
         for (let index = 0; index < searchTerms.length; index++) {
@@ -593,20 +585,15 @@ export default {
         }
         const nestedIds = await Promise.all(prom1);
         const ids = [...new Set(nestedIds.flat())];
-        if (ids.length === 1) {
-          options = {
-            type: this.filter.map((f) => f.facet.toLowerCase()),
-            target: this.target.map((d) => d.id),
-          };
-        }
         let paths = await flatmap.retrieveConnectedPaths(ids, options);
         if (paths.includes(this.query)) {
-          paths = [this.query, ...paths.filter((path) => path !== this.query)];
+          paths = [this.query, ...paths.filter(path => path !== this.query)];
         }
-        results = results.filter((item) => paths.includes(item.id));
+        let results = this.connectivityKnowledge.filter(item => paths.includes(item.id));
         results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
+        payload.data = results;
       }
-      EventBus.emit("connectivity-knowledge", { type: knowledgeType, data: results });
+      EventBus.emit("connectivity-knowledge", payload);
     }
   },
   data: function () {
@@ -631,7 +618,6 @@ export default {
       connectivityKnowledge: [],
       query: "",
       filter: [],
-      target: [], // Support origins/components/destinations term search
       highlightDelay: undefined
     };
   },
