@@ -99,17 +99,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    /**
-     * The options to highlight features and paths on maps and scaffolds
-     * when hover over the dataset cards on sidebar.
-     */
-    hoverHighlightOptions: {
-      type: Object,
-      default: () => ({
-        highlightConnectedPaths: false,
-        highlightDOIPaths: false,
-      }),
-    },
   },
   data: function () {
     return {
@@ -270,7 +259,7 @@ export default {
             //  biologicalSex - biological sex to be displayed (PATO)
             //  organ - Target organ, flatmap will conduct a local search
             //          using this
-  
+
             //Look for the key in the available species array,
             //it will use the taxo and biologicalSex as hints.
             const key = findSpeciesKey(state);
@@ -398,7 +387,6 @@ export default {
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
     this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
-    this.settingsStore.updateHoverHighlightOptions(this.hoverHighlightOptions);
   }
 }
 

@@ -20,7 +20,6 @@
       @annotation-close="onAnnotationClose"
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
-      @connectivity-info-close="onConnectivityInfoClose"
       @connectivity-graph-error="onConnectivityGraphError"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
@@ -173,9 +172,9 @@ export default {
     },
   },
   mounted: function() {
-    EventBus.on('annotation-close', (payload) => {
+    EventBus.on('annotation-close', () => {
       const currentFlatmap = this.$refs.flatmap;
-      if (payload?.tabClose && currentFlatmap) {
+      if (currentFlatmap) {
         this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
       }
     });
@@ -183,7 +182,7 @@ export default {
       this.flatmapMarkerUpdate(undefined);
     });
     EventBus.on("hoverUpdate", () => {
-      this.mapHoverHighlight();
+      this.cardHoverHighlight();
     });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;

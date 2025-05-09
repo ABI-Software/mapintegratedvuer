@@ -19,7 +19,6 @@
       @annotation-close="onAnnotationClose"
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
-      @connectivity-info-close="onConnectivityInfoClose"
       @connectivity-graph-error="onConnectivityGraphError"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
@@ -308,6 +307,7 @@ export default {
       const imp = this.getFlatmapImp();
       if (imp) {
         let provClone = {id: this.entry.id, prov: imp.provenance};
+        EventBus.emit("mapImpProv", provClone);
         this.$emit("flatmap-provenance-ready", provClone);
       }
     },
@@ -320,7 +320,6 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
-      this.onConnectivityInfoClose();
 
       // GA Tagging
       // Event tracking for maps' species change
@@ -337,6 +336,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
+        this.loadConnectivityKnowledge(flatmapImp);
         EventBus.emit("mapLoaded", flatmap);
       }
     },
@@ -426,6 +426,12 @@ export default {
         flatmap.showConnectivityTooltips(payload);
       }
     },
+    changeConnectivitySource: function (payload) {
+      if (this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.changeConnectivitySource(payload);
+      }
+    },
   },
   computed: {
     facetSpecies() {
@@ -451,8 +457,8 @@ export default {
   mounted: function () {
     this.getFeaturedDatasets();
 
-    EventBus.on('annotation-close', (payload) => {
-      if (payload?.tabClose && this.flatmapReady && this.$refs.multiflatmap) {
+    EventBus.on('annotation-close', () => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
       }
@@ -480,8 +486,12 @@ export default {
       }
     });
 
-    EventBus.on('connectivity-component-click', (payload) => {
+    EventBus.on('connectivity-hovered', (payload) => {
       this.showConnectivityTooltips(payload);
+    });
+
+    EventBus.on('connectivity-source-change', (payload) => {
+      this.changeConnectivitySource(payload);
     });
 
     EventBus.on("markerUpdate", () => {
@@ -491,7 +501,15 @@ export default {
     });
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
-        this.mapHoverHighlight();
+        this.cardHoverHighlight();
+      }
+    });
+    EventBus.on("connectivity-query-filter", (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap && currentFlatmap.mapImp) {
+          this.connectivityQueryFilter(currentFlatmap, payload)
+        }
       }
     });
   },
