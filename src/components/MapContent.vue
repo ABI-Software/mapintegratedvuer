@@ -185,11 +185,26 @@ export default {
         containerB.append(teleportedPopover);
       });
     },
+    /**
+     * @public
+     * Restore state of the map viewer from a state provided in the
+     * state argument, use the getState method to get the current state.
+     * 
+     * @arg `state`
+     */
     setState: function(state){
       return this.$refs.flow.setState(state);
     },
-    getState: function(){
-      return this.$refs.flow.getState();
+    /**
+     * @public
+     * Get the current state of the map viewer, these states can be used to
+     * restore settings and viewers using the setState method.
+     * Set anonymousAnnotations to true if the user would like to perserve the
+     * state of anonymous annotations.
+     * @arg `anonymousAnnotations` 
+     */
+    getState: function(anonymousAnnotations = false){
+      return this.$refs.flow.getState(anonymousAnnotations);
     },
     /**
      * @public
@@ -347,11 +362,11 @@ export default {
     this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },
   mounted: async function() {
-    EventBus.on("updateShareLinkRequested", () => {
+    EventBus.on("updateShareLinkRequested", (data) => {
       /**
        * This event emits when the share link is requested.
        */
-      this.$emit("updateShareLinkRequested");
+      this.$emit("updateShareLinkRequested", data);
     });
     EventBus.on('trackEvent', (taggingData) => {
       /**
