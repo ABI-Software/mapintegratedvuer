@@ -111,31 +111,84 @@
         popper-class="link-popover"
         virtual-triggering
       >
-        <el-row :gutter="20"
-          v-loading="loadingLink"
-          element-loading-text="Creating link...">
-          <el-col :span="20">
-            <el-input
-              class="link-input"
-              size="small"
-              placeholder="Permanant Link Here"
-              :readonly=true
-              v-model="shareLink"
-              ref="linkInput">
-            </el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-popover class="tooltip" content="Copy link" placement="bottom-end"
-              :show-after="helpDelay" :teleported=false trigger="hover"
-              popper-class="header-popper">
-              <template #reference>
-                <el-button class="copy-button"
-                  :icon="ElIconCopyDocument" size="small"
-                  @click="copyShareLink"></el-button>
-              </template>
-            </el-popover>
-          </el-col>
+        <template v-if="displayShareOptions">
+          <el-row>
+            <el-col :span="8">
+              <el-popover class="tooltip"
+                content="Create a permanent link for current views and settings." 
+                placement="bottom-end"
+                :show-after="helpDelay" :teleported=false trigger="hover"
+                popper-class="header-popper"
+              >
+                <template #reference>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="getShareLink(false)"
+                    class="share-options"
+                  >
+                    Settings Only
+                  </el-button>
+                </template>
+              </el-popover>
+            </el-col>
+            <el-col :span="14">
+              <el-popover class="tooltip"
+                placement="bottom-end"
+                :show-after="helpDelay" :teleported=false trigger="hover"
+                popper-class="header-popper"
+              >
+                <template #reference>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="getShareLink(true)"
+                    class="share-options"
+                  >
+                    Settings with Annotations
+                    (Valid for 30 days)
+                  </el-button>
+                </template>
+                <template #default>
+                  Create a link for current views settings 
+                  <br>
+                  and anonymous annotations.
+                  <br>
+                  NOTE: Annotations will only be stored for
+                  <br>
+                  30 days on the server.
+                </template>
+              </el-popover>
+            </el-col>
         </el-row>
+        </template>
+        <template v-else>
+          <el-row :gutter="20"
+            v-loading="loadingLink"
+            element-loading-text="Creating link...">
+            <el-col :span="20">
+              <el-input
+                class="link-input"
+                size="small"
+                placeholder="Permanant Link Here"
+                :readonly=true
+                v-model="shareLink"
+                ref="linkInput">
+              </el-input>
+            </el-col>
+            <el-col :span="4">
+              <el-popover class="tooltip" content="Copy link" placement="bottom-end"
+                :show-after="helpDelay" :teleported=false trigger="hover"
+                popper-class="header-popper">
+                <template #reference>
+                  <el-button class="copy-button"
+                    :icon="ElIconCopyDocument" size="small"
+                    @click="copyShareLink"></el-button>
+                </template>
+              </el-popover>
+            </el-col>
+          </el-row>
+        </template>
       </el-popover>
       <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
         :show-after="helpDelay" :teleported=false trigger="hover"
@@ -145,7 +198,7 @@
           <map-svg-icon icon="permalink"
             ref="permalinkRef"
             class="header-icon"
-            @click="getShareLink"
+            @click="requestShareLink"
             v-show="shareLink"
           />
         </template>
@@ -156,7 +209,6 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-
     </el-row>
   </div>
 </template>
@@ -260,7 +312,7 @@ export default {
     return {
       isFullscreen: false,
       loadingLink: true,
-      shareLinkDisplay: false,
+      displayShareOptions: false,
       independent: true,
       failedSearch: undefined,
       activeViewRef: undefined,
@@ -309,10 +361,17 @@ export default {
     setFailedSearch: function(result) {
       this.failedSearch = result;
     },
-    getShareLink: function() {
+    requestShareLink: function() {
+      if (sessionStorage.getItem('anonymous-annotation')) {
+        this.displayShareOptions = true;
+      } else {
+        this.getShareLink(false);
+      }
+    },
+    getShareLink: function(withAnnotation) {
+      this.displayShareOptions = false;
       this.loadingLink = true;
-      this.shareLinkDisplay = true;
-      EventBus.emit("updateShareLinkRequested");
+      EventBus.emit("updateShareLinkRequested", withAnnotation);
     },
     viewClicked: function(view) {
       this.splitFlowStore.updateActiveView({
@@ -364,6 +423,17 @@ export default {
   height:32px;
 }
 
+.share-options.el-button {
+  font-family: inherit;
+
+  &:hover,
+  &:focus {
+    background: $app-primary-color;
+    box-shadow: -3px 2px 4px #00000040;
+    color: #fff;
+  }
+}
+
 :deep(.header-popper.el-popover.el-popper) {
   padding: 6px 4px;
   font-size:12px;
@@ -372,6 +442,7 @@ export default {
   border: 1px solid $app-primary-color;
   white-space: nowrap;
   min-width: unset;
+
   .el-popper__arrow {
     &:before {
       border-color: $app-primary-color;
