@@ -565,7 +565,10 @@ export default {
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
       featureIds.forEach((id) => {
         const annotation = flatmap.mapImp.annotation(id);
-        if (annotation.models && !ids.includes(annotation.models)) {
+        if (
+          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
+          annotation.models && !ids.includes(annotation.models)
+        ) {
           ids.push(annotation.models);
         }
       });
@@ -588,17 +591,15 @@ export default {
       if (this.query) {
         payload.state = "processed";
         let prom1 = [], options = {};
-        const searchTerms = this.query.split(",");
+        const searchTerms = this.query.split(",").map((term) => term.trim());
         for (let index = 0; index < searchTerms.length; index++) {
           prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
         }
         const nestedIds = await Promise.all(prom1);
         const ids = [...new Set(nestedIds.flat())];
         let paths = await flatmap.retrieveConnectedPaths(ids, options);
-        if (paths.includes(this.query)) {
-          paths = [this.query, ...paths.filter(path => path !== this.query)];
-        }
-        let results = this.connectivityKnowledge[uuid].filter(item => paths.includes(item.id));
+        paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
+        let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
         results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
         payload.data = results;
       }
