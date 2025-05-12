@@ -646,6 +646,11 @@ export default {
       }
       this.connectivityExplorerClicked = false;
     });
+    EventBus.on('connectivity-info-close', payload => {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.resetConnectivitySearch();
+      }
+    });
     EventBus.on('connectivity-graph-error', payload => {
       if (this.$refs.sideBar) {
         this.$refs.sideBar.updateConnectivityGraphError(payload.data);

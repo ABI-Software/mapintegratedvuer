@@ -539,6 +539,9 @@ export default {
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
+    },
     onConnectivityGraphError: function (errorInfo) {
       EventBus.emit('connectivity-graph-error', errorInfo);
     },
@@ -576,8 +579,8 @@ export default {
       let payload = {
         state: "default",
         data: [...this.connectivityKnowledge[uuid]],
-      };      
-      if (data) {        
+      };
+      if (data) {
         if (data.type === "query-update") {
           if (this.query !== data.value) this.target = [];
           this.query = data.value;
