@@ -164,10 +164,10 @@ describe('MapContent', () => {
     cy.get('.side-bar > .open-tab').should('exist').click();
 
     //Type in 76 generic
-    cy.get(':nth-child(1) > .el-card__header > .header > .el-input > .el-input__wrapper').should('exist').type('76 generic');
+    cy.get('.sidebar-content-container > .el-card__header > .header > .el-input > .el-input__wrapper').should('exist').type('76 generic');
 
     //Search
-    cy.get(':nth-child(1) > .el-card__header > .header > .el-button > span').should('exist').click();
+    cy.get('.sidebar-content-container > .el-card__header > .header > .el-button--primary').should('exist').click();
 
     //Check number of dataset card, it should be 1
     cy.get('.dataset-card-container').filter(':visible').should('have.length', 1);

@@ -240,7 +240,6 @@ export default {
           target: value
         });
         this.$nextTick(() => {
-          EventBus.emit('connectivity-info-close');
           setTimeout(() => {
             this.$emit("chooser-changed");
           }, 1200);
