@@ -392,7 +392,7 @@ export default {
     /**
      * Activate Synchronised workflow
      */
-    activateSyncMap: function (data) {
+    activateSyncMap: function (id, data) {
       let newEntry = {};
       Object.assign(newEntry, data);
       newEntry.mode = "normal";
@@ -406,6 +406,7 @@ export default {
       this.entriesStore.addNewEntry(newEntry);
       this.splitFlowStore.setSyncMode({
         flag: true,
+        id, id,
         newId: newEntry.id,
         layout: data.layout,
       });
@@ -518,7 +519,7 @@ export default {
       if (payload) {
         if (payload.flag) {
           if (payload.action) {
-            this.activateSyncMap(payload.action);
+            this.activateSyncMap(payload.id, payload.action);
           }
         } else {
           if (this.splitFlowStore.syncMode) {

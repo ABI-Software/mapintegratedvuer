@@ -325,12 +325,12 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           //Extract pane info form original state and copy to the new layout
           const customLayout = newLayoutWithOrigInfo(
             this.customLayout, this.activeView);
-          const originalKey = findKeyWithId(customLayout, 1);
+          const originalKey = findKeyWithId(customLayout, payload.id);
           const firstPaneId = customLayout["pane-1"].id;
           if (originalKey !== "pane-1") {
             customLayout["pane-1"].id = firstPaneId;
           }
-          customLayout["pane-1"].id = 1;
+          customLayout["pane-1"].id = payload.id;
           customLayout["pane-2"].id = payload.newId;
           for (const [key, value] of Object.entries(customLayout)) {
             this.customLayout[key] = value;
