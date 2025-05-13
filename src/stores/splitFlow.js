@@ -105,6 +105,7 @@ const autoAssignEntryIdsToPane = (entries, layout) => {
       }
     }
   });
+
 }
 
 const extractPaneInfo = (layout) => {
@@ -208,7 +209,6 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         if (this._controller) this._controller.abort();
         this._controller = new AbortController();
         let signal = this._controller.signal;
-        // console.log("getAvailableTerms")
         fetch(`${apiLocation}get-organ-curies`, {
           signal,
         })
@@ -362,14 +362,12 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         this.syncMode = false;
         this.globalCallback = false;
         let availableId = 0;
-        //Primary id cannot be changed
-        if (payload.id === 1) {
-          availableId = 1;
-        } else if (payload.entries) {
+        if (payload.entries) {
           for (let i = 0; i < payload.entries.length &&
             availableId == 0; i++) {
             //Find the first entry not currently in use
-            if (findKeyWithId(payload.entries[i].id) === undefined) {
+            if ((payload.entries[i].id !== payload.id) &&
+              findKeyWithId(payload.entries[i].id) === undefined) {
               availableId = payload.entries[i].id;
             }
           }
@@ -402,7 +400,6 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           const customLayout = newLayoutWithOrigInfo(
             this.customLayout, this.activeView);
           const key = findKeyWithId(customLayout, payload.id);
-        
           // The following move the entry id to the appropriate slot
           // and remove the target id
           switch (key) {
