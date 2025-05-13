@@ -9,6 +9,9 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import Tagging from '../services/tagging.js';
 
+import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
+import { getKnowledgeSource, loadAndStoreKnowledge } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
+
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
 }
@@ -73,8 +76,6 @@ export default {
         EventBus.emit("OpenNewMap", type);
         this.trackOpenMap(`open_new_${type}_map`);
       }
-
-      this.onConnectivityInfoClose();
     },
     onMapmanagerLoaded: function (mapManager) {
       this.settingsStore.updateMapManager(mapManager);
@@ -107,7 +108,8 @@ export default {
     /**
      * Callback when the vuers emit a selected event.
      */
-    resourceSelected: function (type, resource) {
+    resourceSelected: function (type, resources) {
+      const resource = resources[0]
       // Skip processing if resources already has actions
       if (this.resourceHasAction(resource)) {
         EventBus.emit("PopoverActionClick", resource);
@@ -120,29 +122,23 @@ export default {
       const result = {
         paneIndex: this.entry.id,
         type: type,
-        resource: resource,
+        resource: resources,
         internalName: undefined,
         eventType: undefined,
       };
 
-
       if (type == "MultiFlatmap" || type == "Flatmap") {
-        result.internalName = resource?.feature?.label ? resource.feature.label : this.idNamePair[resource.feature.models];
+        result.internalName = resource?.feature?.label ?
+          resource.feature.label : this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
             let label = result.internalName;
-            if (
-              this.settingsStore.isFeaturedMarkerIdentifier(
-                resource.feature.id
-              )
-            ) {
+            if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
               // It is a featured dataset search for DOI.
               returnedAction = {
                 type: "Search",
-                term: this.settingsStore.featuredMarkerDoi(
-                  resource.feature.id
-                ),
+                term: this.settingsStore.featuredMarkerDoi(resource.feature.id),
                 featuredDataset: true,
               };
             } else {
@@ -151,14 +147,25 @@ export default {
                 type: "Facet",
                 facet: label,
                 facetPropPath: "anatomy.organ.category.name",
+                facetSubPropPath: "anatomy.organ.name",
                 term: "Anatomical structure",
               };
+              let labels = new Set();
+              resource.feature['marker-terms'].forEach((term) => {
+                labels.add(term.label)
+              });
+              labels.add(label)
+              if (labels.size > 0) {
+                returnedAction = {
+                  type: "Facets",
+                  labels: [...labels],
+                };
+              }
             }
 
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
-              const flatmap =
-                this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
               flatmap.clearSearchResults();
             }
           } else if (resource.feature.type == "feature") {
@@ -174,16 +181,16 @@ export default {
           fireResourceSelected = true;
         }
       } else if (type == "Scaffold") {
-        if (resource && resource[0]) {
-          if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
-            resource[0].data.id = resource[0].data?.group;
+        if (resource) {
+          if (resource.data?.id === undefined || resource.data?.id === "") {
+            resource.data.id = resource.data?.group;
           }
-          result.internalName = resource[0].data.id;
+          result.internalName = resource.data.id;
           // Facet search if marker is clicked
-          if (resource[0].data.lastActionOnMarker === true) {
+          if (resource.data.lastActionOnMarker === true) {
             returnedAction = {
               type: "Facet",
-              facet: capitalise(resource[0].data.id),
+              facet: capitalise(resource.data.id),
               facetPropPath: "anatomy.organ.category.name",
               term: "Anatomical structure",
             };
@@ -458,76 +465,69 @@ export default {
         this.endHelp();
       }
     },
-    getConnectivitiesByDOI: async function (hoverDOI) {
-      const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-      const response = await currentFlatmap.searchConnectivitiesByReference(hoverDOI);
-      return response;
-    },
-    highlightAnatomies: async function (mapImp, hoverAnatomies, hoverDOI) {
-      const itemsToHighlight = [...hoverAnatomies];
-      const hoverHighlightOptions = this.settingsStore.hoverHighlightOptions;
+    flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
+      let toHighlight = [...hoverAnatomies, ...hoverConnectivity];
+      const globalSettings = this.settingsStore.globalSettings;
 
       // to highlight connected paths
-      if (hoverHighlightOptions.highlightConnectedPaths) {
-        const connectionsFromFeatures = await mapImp.queryPathsForFeatures(hoverAnatomies);
-        if (connectionsFromFeatures) {
-          itemsToHighlight.push(...connectionsFromFeatures);
+      if (globalSettings.highlightConnectedPaths) {
+        const hoverEntry = hoverAnatomies.length ? hoverAnatomies :
+          hoverConnectivity.length ? hoverConnectivity :
+            []
+        const connectedPaths = await flatmap.retrieveConnectedPaths(hoverEntry);
+        if (connectedPaths) {
+          toHighlight.push(...connectedPaths);
         }
       }
 
       // to highlight related paths from reference DOI
-      if (hoverHighlightOptions.highlightDOIPaths) {
-        const connectionsFromDOI = await this.getConnectivitiesByDOI(hoverDOI);
+      if (globalSettings.highlightDOIPaths) {
+        const connectionsFromDOI = await flatmap.searchConnectivitiesByReference(hoverDOI);
         if (connectionsFromDOI) {
-          itemsToHighlight.push(...connectionsFromDOI);
+          toHighlight.push(...connectionsFromDOI);
         }
       }
-
-      return itemsToHighlight;
+      toHighlight = [...new Set(toHighlight)];
+      return toHighlight;
     },
-    mapHoverHighlight: function () {
+    cardHoverHighlight: function () {
       if (this.visible) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
         const hoverDOI = this.settingsStore.hoverDOI;
-        let mapImp = null;
+        const hoverConnectivity = this.settingsStore.hoverConnectivity;
+
+        let flatmap = null;
         let scaffold = null;
-
-        if (this.flatmapRef) {
-          mapImp = this.$refs.flatmap.mapImp;
-        }
-
-        if (this.multiflatmapRef) {
-          mapImp = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-        }
-
-        if (this.scaffoldRef) {
-          scaffold = this.$refs.scaffold;
-        }
+        if (this.flatmapRef) flatmap = this.$refs.flatmap;
+        if (this.multiflatmapRef) flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (this.scaffoldRef) scaffold = this.$refs.scaffold;
 
         // reset
-        if (mapImp) {
-          mapImp.clearSearchResults();
+        clearTimeout(this.highlightDelay);
+        if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
+          if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+            flatmap.mapImp?.clearSearchResults();
+          } else if (this.scaffoldRef && scaffold) {
+            scaffold.changeHighlightedByName(hoverOrgans, "", false);
+          }
         }
 
-        if (hoverAnatomies.length || hoverOrgans.length) {
-          clearTimeout(this.hoverDelay);
-          if (this.multiflatmapRef || this.flatmapRef) {
-            this.highlightAnatomies(mapImp, hoverAnatomies, hoverDOI).then((itemsToHighlight) => {
-              mapImp.selectFeatures(itemsToHighlight);
-            });
-          } else if (this.scaffoldRef) {
-            scaffold?.changeHighlightedByName(hoverOrgans, "", false);
-          }
-        } else {
-          this.hoverDelay = setTimeout(() => {
-            if (this.multiflatmapRef || this.flatmapRef) {
-              mapImp?.clearSearchResults();
-            } else if (this.scaffoldRef) {
-              scaffold?.changeHighlightedByName(hoverOrgans, "", false);
+        this.highlightDelay = setTimeout(() => {
+          if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length) {
+            if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+              this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
+                try {
+                  flatmap.zoomToFeatures(paths);
+                } catch (error) {
+                  console.log(error)
+                }
+              });
+            } else if (this.scaffoldRef && scaffold) {
+              scaffold.changeHighlightedByName(hoverOrgans, "", false);
             }
-          }, 500);
-        }
+          }
+        }, 100);
       }
     },
     onAnnotationOpen: function (payload) {
@@ -539,12 +539,72 @@ export default {
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
-    onConnectivityInfoClose: function () {
-      EventBus.emit('connectivity-info-close');
-    },
     onConnectivityGraphError: function (errorInfo) {
       EventBus.emit('connectivity-graph-error', errorInfo);
     },
+    loadConnectivityKnowledge: async function (flatmap) {
+      const sckanVersion = getKnowledgeSource(flatmap);
+      const flatmapQueries = markRaw(new FlatmapQueries());
+      flatmapQueries.initialise(this.flatmapAPI);
+      const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
+      const uuid = flatmap.uuid;
+      const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
+      const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+
+      this.connectivityKnowledge[uuid] = knowledge.filter((item) => {
+        if (item.source === sckanVersion && item.connectivity?.length && item.id in pathsFromMap) {
+          return true;
+        }
+        return false;
+      });
+      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge[uuid] });
+    },
+    getSearchedId: function (flatmap, term) {
+      let ids = [];
+      const searchResult = flatmap.mapImp.search(term);
+      const featureIds = searchResult.__featureIds || searchResult.featureIds;
+      featureIds.forEach((id) => {
+        const annotation = flatmap.mapImp.annotation(id);
+        if (
+          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
+          annotation.models && !ids.includes(annotation.models)
+        ) {
+          ids.push(annotation.models);
+        }
+      });
+      return ids;
+    },
+    connectivityQueryFilter: async function (flatmap, data) {
+      const uuid = flatmap.mapImp.uuid
+      let payload = {
+        state: "default",
+        data: [...this.connectivityKnowledge[uuid]],
+      };      
+      if (data) {        
+        if (data.type === "query-update") {
+          if (this.query !== data.value) this.target = [];
+          this.query = data.value;
+        } else if (data.type === "filter-update") {
+          this.filter = data.value;
+        }
+      }
+      if (this.query) {
+        payload.state = "processed";
+        let prom1 = [], options = {};
+        const searchTerms = this.query.split(",").map((term) => term.trim());
+        for (let index = 0; index < searchTerms.length; index++) {
+          prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
+        }
+        const nestedIds = await Promise.all(prom1);
+        const ids = [...new Set(nestedIds.flat())];
+        let paths = await flatmap.retrieveConnectedPaths(ids, options);
+        paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
+        let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
+        results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
+        payload.data = results;
+      }
+      EventBus.emit("connectivity-knowledge", payload);
+    }
   },
   data: function () {
     return {
@@ -564,8 +624,11 @@ export default {
       scaffoldRef: null,
       scaffoldLoaded: false,
       isInHelp: false,
-      hoverDelay: undefined,
       mapManager: undefined,
+      connectivityKnowledge: {},
+      query: "",
+      filter: [],
+      highlightDelay: undefined
     };
   },
   created: function () {

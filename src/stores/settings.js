@@ -21,6 +21,7 @@ export const useSettingsStore = defineStore('settings', {
       hoverAnatomies: [],
       hoverOrgans: [],
       hoverDOI: '',
+      hoverConnectivity: [],
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
@@ -30,12 +31,11 @@ export const useSettingsStore = defineStore('settings', {
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
       annotationSidebar: true,
-      hoverHighlightOptions: {
-        highlightConnectedPaths: false,
-        highlightDOIPaths: false,
-      },
       globalSettings: {
-        displayMarker: true,
+        displayMarkers: true,
+        highlightConnectedPaths: false,
+        highlightDOIPaths: false, // comment out to hide in settings
+        interactiveMode: 'dataset', // dataset, connectivity, multiscale
       },
     }
   },
@@ -53,7 +53,7 @@ export const useSettingsStore = defineStore('settings', {
       let updatedSettings = [];
       for (const [key, value] of Object.entries(settings)) {
         const attribute = state.globalSettings[key];
-        if (!attribute || (attribute !== value)) {
+        if (attribute === undefined || (attribute !== value)) {
           updatedSettings.push(key);
         }
       }
@@ -94,10 +94,11 @@ export const useSettingsStore = defineStore('settings', {
     updateMarkers(markers) {
       this.markers = markers;
     },
-    updateHoverFeatures(anatomies, organs, doi) {
+    updateHoverFeatures(anatomies, organs, doi, connectivity) {
       this.hoverAnatomies = anatomies;
       this.hoverOrgans = organs;
       this.hoverDOI = doi;
+      this.hoverConnectivity = connectivity;
     },
     updateFeatured(datasetIdentifiers) {
       this.featuredMarkerIdentifiers = new Array(datasetIdentifiers.length);
@@ -180,9 +181,6 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateAnnotationSidebar(annotationSidebar) {
       this.annotationSidebar = annotationSidebar;
-    },
-    updateHoverHighlightOptions(hoverHighlightOptions) {
-      this.hoverHighlightOptions = hoverHighlightOptions;
     },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {

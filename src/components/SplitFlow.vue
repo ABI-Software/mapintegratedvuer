@@ -23,14 +23,14 @@
           :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
-          :activeTabId="activeDockedId"
           :open-at-start="startUp"
           :annotationEntry="annotationEntry"
           :createData="createData"
-          :connectivityInfo="connectivityInfo"
-          @tab-close="onSidebarTabClose"
+          :connectivityEntry="connectivityEntry"
+          :connectivityKnowledge="connectivityKnowledge"
+          @tabClicked="onSidebarTabClicked"
+          @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
-          @tabClicked="tabClicked"
           @search-changed="searchChanged($event)"
           @anatomy-in-datasets="updateMarkers($event)"
           @annotation-submitted="onAnnotationSubmitted"
@@ -43,7 +43,9 @@
           @datalink-clicked="datalinkClicked($event)"
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
-          @connectivity-component-click="onConnectivityComponentClick"
+          @connectivity-hovered="onConnectivityHovered"
+          @connectivity-explorer-clicked="onConnectivityExplorerClicked"
+          @connectivity-source-change="onConnectivitySourceChange"
         />
         <SplitDialog
           :entries="entries"
@@ -65,6 +67,7 @@ import EventBus from "./EventBus";
 import SplitDialog from "./SplitDialog.vue";
 // import contextCards from './context-cards'
 import { SideBar } from "@abi-software/map-side-bar";
+import "@abi-software/map-side-bar/dist/style.css";
 import {
   capitalise,
   getNewMapEntry,
@@ -82,8 +85,6 @@ import {
   ElHeader as Header,
   ElMain as Main,
 } from "element-plus";
-
-import "@abi-software/map-side-bar/dist/style.css";
 
 /**
  * Component of the floating dialogs.
@@ -117,17 +118,19 @@ export default {
       sideBarVisibility: true,
       startUp: true,
       search: '',
-      activeDockedId : 1,
       filterTriggered: false,
       availableFacets: [],
-      connectivityInfo: null,
-      annotationEntry: {},
+      connectivityEntry: [],
+      annotationEntry: [],
       annotationCallback: undefined,
       confirmCreateCallback: undefined,
       cancelCreateCallback: undefined,
       confirmDeleteCallback: undefined,
       confirmCommentCallback: undefined,
       createData: {},
+      connectivityHighlight: [],
+      connectivityKnowledge: [],
+      connectivityExplorerClicked: false,
     }
   },
   watch: {
@@ -142,6 +145,10 @@ export default {
     },
   },
   methods: {
+    onConnectivityExplorerClicked: function (payload) {
+      this.connectivityExplorerClicked = true;
+      this.onDisplaySearch({ term: payload.id }, false);
+    },
     /**
      * Callback when an action is performed (open new dialogs).
      */
@@ -169,7 +176,6 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
-            this.closeConnectivityInfo();
             this.$refs.sideBar.addFilter(action);
             const { facet } = action;
             // GA Tagging
@@ -191,34 +197,25 @@ export default {
               facetPropPath: "organisms.primary.species.name",
             });
           });
-          if (facets.length == 0)
-            facets.push({
-              facet: "Show All",
-              term: "Species",
-              facetPropPath: "organisms.primary.species.name",
-            });
           facets.push(
             ...action.labels.map(val => ({
               facet: capitalise(val),
               term: "Anatomical structure",
               facetPropPath: "anatomy.organ.category.name",
+              facetSubPropPath: "anatomy.organ.name",
             }))
           );
-          if (this.$refs.sideBar) {
-            this.closeConnectivityInfo();
-            this.$refs.sideBar.openSearch(facets, "");
-
-            const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
-            const filterValues = filterValuesArray.join(', ');
-            // GA Tagging
-            // Event tracking for map action search/filter data
-            Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_filter',
-              'category': filterValues || 'filter',
-              'location': 'map_popup_button'
-            });
-          }
+          this.openSearch(facets, "")
+          const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
+          const filterValues = filterValuesArray.join(', ');
+          // GA Tagging
+          // Event tracking for map action search/filter data
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_filter',
+            'category': filterValues || 'filter',
+            'location': 'map_popup_button'
+          });
         } else {
           this.trackGalleryClick(action);
           this.createNewEntry(action);
@@ -252,7 +249,7 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: function (payload) {
+    onDisplaySearch: function (payload, tracking = true) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
@@ -266,14 +263,16 @@ export default {
       }
       this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
 
-      // GA Tagging
-      // Event tracking for map on display search
-      Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_display_search',
-        'category': payload.term,
-        'location': 'map_toolbar'
-      });
+      if (tracking) {
+        // GA Tagging
+        // Event tracking for map on display search
+        Tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_display_search',
+          'category': payload.term,
+          'location': 'map_toolbar'
+        });
+      }
     },
     fetchSuggestions: function(payload) {
       const suggestions = [];
@@ -311,55 +310,70 @@ export default {
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
     },
-    onConnectivityComponentClick: function (data) {
-      EventBus.emit('connectivity-component-click', {
-        connectivityInfo: this.connectivityInfo,
-        data: data,
-      });
+    onConnectivityHovered: function (data) {
+      EventBus.emit('connectivity-hovered', data);
+    },
+    onConnectivitySourceChange: function (data) {
+      this.connectivityExplorerClicked = true;
+      EventBus.emit('connectivity-source-change', data);
     },
     hoverChanged: function (data) {
-      const hoverAnatomies = data && data.anatomy ? data.anatomy : [];
-      const hoverOrgans = data && data.organs ? data.organs : [];
-      const hoverDOI = data && data.doi ? data.doi : '';
-      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI);
+      let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
+      if (data) {
+        if (data.type === 'dataset') {
+          hoverAnatomies = data.anatomy ? data.anatomy : [];
+          hoverOrgans = data.organs ? data.organs : [];
+          hoverDOI = data.doi ? data.doi : '';
+        } else if (data.type === 'connectivity') {
+          hoverConnectivity = data.id ? [data.id] : [];
+        }
+      } else {
+        hoverConnectivity = this.connectivityHighlight;
+      }
+      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {
-      if (data && data.type == "query-update") {
-        this.search = data.value;
-        if (this.search && !this.filterTriggered) {
-          // GA Tagging
-          // Event tracking for map action search/filter data
-          Tagging.sendEvent({
-            'event': 'interaction_event',
-            'event_name': 'portal_maps_action_search',
-            'category': this.search,
-            'location': 'map_sidebar_search'
-          });
+      if (data.id === 1) {
+        if (data && data.type == "query-update") {
+          this.search = data.value;
+          if (this.search && !this.filterTriggered) {
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_search',
+              'category': this.search,
+              'location': 'map_sidebar_search'
+            });
+          }
+          this.filterTriggered = false; // reset for next action
         }
-        this.filterTriggered = false; // reset for next action
-      }
-      if (data && data.type == "filter-update") {
-        this.settingsStore.updateFacets(data.value);
+        if (data && data.type == "filter-update") {
+          this.settingsStore.updateFacets(data.value);
 
-        // Remove filter event from maps' popup
-        if (!this.filterTriggered) {
-          const { value } = data;
-          const filterValuesArray = value.filter((val) =>
-            val.facet && val.facet.toLowerCase() !== 'show all'
-          ).map((val) => val.facet);
-          const filterValues = filterValuesArray.join(', ');
+          // Remove filter event from maps' popup
+          if (!this.filterTriggered) {
+            const { value } = data;
+            const filterValuesArray = value.filter((val) =>
+              val.facet && val.facet.toLowerCase() !== 'show all'
+            ).map((val) => val.facet);
+            const filterValues = filterValuesArray.join(', ');
 
-          // GA Tagging
-          // Event tracking for map action search/filter data
-          Tagging.sendEvent({
-            'event': 'interaction_event',
-            'event_name': 'portal_maps_action_filter',
-            'category': filterValues || 'filter',
-            'location': 'map_sidebar_filter'
-          });
+            // GA Tagging
+            // Event tracking for map action search/filter data
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': filterValues || 'filter',
+              'location': 'map_sidebar_filter'
+            });
+          }
+          this.filterTriggered = false; // reset for next action
         }
-        this.filterTriggered = false; // reset for next action
+      } else if (data.id === 2) {
+        this.connectivityEntry = [];
+        EventBus.emit("connectivity-query-filter", data);
       }
     },
     updateMarkers: function (data) {
@@ -438,17 +452,10 @@ export default {
       this.search = query;
       this._facets = facets;
       if (this.$refs && this.$refs.sideBar) {
-        this.closeConnectivityInfo();
         this.$refs.sideBar.openSearch(facets, query);
+        this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
       }
       this.startUp = false;
-    },
-    closeConnectivityInfo: function() {
-      // close all opened popups on DOM
-      const containerEl = this.$el;
-      containerEl.querySelectorAll('.maplibregl-popup-close-button').forEach((el) => {
-        el.click();
-      });
     },
     onFullscreen: function (val) {
       this.$emit("onFullscreen", val);
@@ -465,7 +472,7 @@ export default {
       if (state.splitFlow) this.splitFlowStore.setState(state.splitFlow);
       else this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
     },
-    getState: function () {
+    getState: function (anonymousAnnotations = false) {
       let state = JSON.parse(JSON.stringify(this.entriesStore.$state));
       let splitdialog = this.$refs.splitdialog;
       let dialogStates = splitdialog.getContentsState();
@@ -478,6 +485,13 @@ export default {
             delete entry.viewUrl;
           if (entry.type === "MultiFlatmap" && "uberonId" in entry)
             delete entry.uberonId;
+          if (anonymousAnnotations === false) {
+            if (entry.type === "Scaffold" && entry?.state?.offlineAnnotations) {
+              delete entry.state.offlineAnnotations;
+            } else if (entry?.state?.state?.offlineAnnotations) {
+              delete entry.state.state.offlineAnnotations;
+            }
+          }
         }
       }
       state.splitFlow = this.splitFlowStore.getState();
@@ -495,11 +509,10 @@ export default {
     },
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
+        // Use to update the connectivity when switch species
+        EventBus.emit("connectivity-query-filter");
         this.$refs.sideBar.close();
       }
-    },
-    tabClicked: function ({id, type}) {
-      this.activeDockedId = id;
     },
     toggleSyncMode: function (payload) {
       if (payload) {
@@ -561,12 +574,18 @@ export default {
         this.confirmDeleteCallback(payload);
       }
     },
-    onSidebarTabClose: function (id) {
-      if (id === 2) EventBus.emit('connectivity-info-close');
-      if (id === 3) EventBus.emit('annotation-close', { tabClose: true });
+    onSidebarTabClicked: function (tab) {
+      let globalSettings = { ...this.settingsStore.globalSettings };
+      if (tab.id === 1 && tab.type === 'datasetExplorer') {
+        globalSettings.interactiveMode = 'dataset';
+      } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
+        globalSettings.interactiveMode = 'connectivity';
+      }
+      this.settingsStore.updateGlobalSettings(globalSettings);
+      this.$refs.dialogToolbar.loadGlobalSettings();
     },
-    resetActivePathways: function () {
-      this.hoverChanged(undefined);
+    onSidebarTabClosed: function (tab) {
+      if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
     },
   },
   created: function () {
@@ -596,29 +615,36 @@ export default {
       this.confirmDeleteCallback = markRaw(payload.confirmDelete);
       this.confirmCommentCallback = markRaw(payload.confirmComment);
       if (this.$refs.sideBar) {
-        this.tabClicked({id: 3, type: 'annotation'});
+        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on('annotation-close', payload => {
-      this.tabClicked({id:  1, type: 'search'});
-      this.annotationEntry = {};
+    EventBus.on('annotation-close', () => {
+      this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+      this.annotationEntry = [];
       this.createData = {};
       if (this.$refs.sideBar) {
         this.$refs.sideBar.setDrawerOpen(false);
       }
     });
     EventBus.on('connectivity-info-open', payload => {
-      this.connectivityInfo = payload;
-      if (this.$refs.sideBar) {
-        this.tabClicked({id: 2, type: 'connectivity'});
-        this.$refs.sideBar.setDrawerOpen(true);
+      this.connectivityEntry = payload;
+      // click on the flatmap paths/features directly
+      // or onDisplaySearch is performed
+      if (!this.connectivityExplorerClicked) {
+        this.connectivityKnowledge = payload.map((entry) => {
+          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
+        });
+        if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
+          this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
+          this.onShowConnectivity(this.connectivityHighlight);
+        }
+        if (this.$refs.sideBar) {
+          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+          this.$refs.sideBar.setDrawerOpen(true);
+        }
       }
-    });
-    EventBus.on('connectivity-info-close', payload => {
-      this.tabClicked({id: 1, type: 'search'});
-      this.connectivityInfo = null;
-      this.resetActivePathways();
+      this.connectivityExplorerClicked = false;
     });
     EventBus.on('connectivity-graph-error', payload => {
       if (this.$refs.sideBar) {
@@ -633,6 +659,23 @@ export default {
         this.$refs.sideBar.close();
       }
     });
+    EventBus.on("connectivity-knowledge", payload => {
+      this.connectivityKnowledge = payload.data;
+      this.connectivityHighlight = [];
+      if (payload.state === "processed") {
+        this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);;
+        this.onShowConnectivity(this.connectivityHighlight);
+      } else {
+        this.hoverChanged();
+      }
+    })
+    EventBus.on("modeUpdate", payload => {
+      if (payload === "dataset") {
+        this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+      } else if (payload === "connectivity") {
+        this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+      }
+    })
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {
