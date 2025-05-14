@@ -209,6 +209,7 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
+      <!--
       <el-popover
         v-if="globalSettingRef"
         :virtual-ref="globalSettingRef"
@@ -248,7 +249,7 @@
             >
               <el-radio value="dataset">Dataset Exploration</el-radio>
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
-              <!-- <el-radio value="multiscale">Multiscale Model</el-radio> -->
+              <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
           </el-col>
         </el-row>
@@ -263,6 +264,7 @@
           </el-icon>
         </template>
       </el-popover>
+      -->
     </el-row>
   </div>
 </template>
@@ -388,6 +390,7 @@ export default {
         ...this.settingsStore.globalSettings
       };
     },
+    /**
     updateGlobalSettings: function() {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
       this.settingsStore.updateGlobalSettings(this.globalSettings);
@@ -400,6 +403,7 @@ export default {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
     },
+    */
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },

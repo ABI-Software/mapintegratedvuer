@@ -150,9 +150,9 @@ export default {
           };
         }
         if (action)
-          EventBus.emit("SyncModeRequest", { flag: true, action: action });
+          EventBus.emit("SyncModeRequest", { id: this.entry.id, flag: true, action: action });
       } else {
-        EventBus.emit("SyncModeRequest", { flag: false });
+        EventBus.emit("SyncModeRequest", { id: this.entry.id, lag: false });
       }
     },
     getState: function () {

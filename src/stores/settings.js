@@ -31,6 +31,7 @@ export const useSettingsStore = defineStore('settings', {
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
       annotationSidebar: true,
+      allClosable: true,
       globalSettings: {
         displayMarkers: true,
         highlightConnectedPaths: false,
@@ -181,6 +182,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateAnnotationSidebar(annotationSidebar) {
       this.annotationSidebar = annotationSidebar;
+    },
+    updateAllClosable(allClosable) {
+      this.allClosable = allClosable;
     },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {

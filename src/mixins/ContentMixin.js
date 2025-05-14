@@ -499,9 +499,9 @@ export default {
 
         let flatmap = null;
         let scaffold = null;
-        if (this.flatmapRef) flatmap = this.$refs.flatmap;
-        if (this.multiflatmapRef) flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (this.scaffoldRef) scaffold = this.$refs.scaffold;
+        if (this.flatmapRef) flatmap = this.flatmapRef;
+        if (this.multiflatmapRef) flatmap = this.multiflatmapRef.getCurrentFlatmap();
+        if (this.scaffoldRef) scaffold = this.scaffoldRef;
 
         // reset
         clearTimeout(this.highlightDelay);
