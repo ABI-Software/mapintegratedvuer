@@ -252,6 +252,34 @@
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
 
+            <p>Viewing mode</p>
+            <el-radio-group
+              v-model="globalSettings.viewingMode"
+              @change="updateGlobalSettings"
+            >
+              <template v-for="(value, key, index) in viewingModes" :key="key">
+                <el-radio :value="key">
+                  <div>{{ key }}</div>
+                </el-radio>
+                <div class="el-radio__description" v-if="globalSettings.viewingMode === key">
+                  <template v-if="key === 'Annotation'">
+                    <template v-if="authorisedUser">
+                      {{ value[1] }}
+                    </template>
+                    <template v-else>
+                      {{ value[0] }}
+                    </template>
+                    <template v-if="offlineAnnotationEnabled">
+                      (Anonymous annotate)
+                    </template>
+                  </template>
+                  <template v-else>
+                    {{ value }}
+                  </template>
+                </div>
+              </template>
+            </el-radio-group>
+
             <p>Flight path display</p>
             <el-radio-group
               v-model="globalSettings.flightPathDisplay"
@@ -419,6 +447,13 @@ export default {
       globalSettingRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
       globalSettings: {},
+      viewingModes: {
+        'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
+        'Neuron Connection': 'Discover Neuron connections by selecting a neuron and viewing its associated network connections',
+        'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
+      },
+      authorisedUser: false,
+      offlineAnnotationEnabled: false,
     }
   },
   methods: {
@@ -672,5 +707,9 @@ export default {
 :deep(.el-loading-spinner) {
   top: 0px;
   scale: 0.7;
+}
+
+.el-radio__description {
+  font-size: 12px;
 }
 </style>

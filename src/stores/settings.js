@@ -37,6 +37,7 @@ export const useSettingsStore = defineStore('settings', {
         highlightConnectedPaths: false,
         highlightDOIPaths: false, // comment out to hide in settings
         interactiveMode: 'dataset', // dataset, connectivity, multiscale
+        viewingMode: 'Exploration',
         flightPathDisplay: false,
         organsDisplay: true,
         outlinesDisplay: true,
