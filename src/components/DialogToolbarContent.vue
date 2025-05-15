@@ -221,15 +221,17 @@
         popper-class="setting-popover"
         virtual-triggering
         >
-        <el-row :gutter="20">
-          <el-col :span="20">
+        <div class="setting-popover-inner">
+          <div class="setting-popover-block">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
               @change="updateGlobalSettings"
             >
               Display Map Markers
             </el-checkbox>
-            <p>Card Hover</p>
+          </div>
+          <div class="setting-popover-block">
+            <h5>Card Hover</h5>
             <el-checkbox
               v-model="globalSettings.highlightConnectedPaths"
               @change="updateGlobalSettings"
@@ -242,7 +244,9 @@
             >
               Highlight DOI Paths
             </el-checkbox>
-            <p>Interactive Mode</p>
+          </div>
+          <div class="setting-popover-block">
+            <h5>Interactive Mode</h5>
             <el-radio-group
               v-model="globalSettings.interactiveMode"
               @change="updateGlobalSettings"
@@ -251,8 +255,9 @@
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
-
-            <p>Viewing mode</p>
+          </div>
+          <div class="setting-popover-block">
+            <h5>Viewing mode</h5>
             <el-radio-group
               v-model="globalSettings.viewingMode"
               @change="updateGlobalSettings"
@@ -279,8 +284,9 @@
                 </div>
               </template>
             </el-radio-group>
-
-            <p>Flight path display</p>
+          </div>
+          <div class="setting-popover-block">
+            <h5>Flight path display</h5>
             <el-radio-group
               v-model="globalSettings.flightPathDisplay"
               @change="updateGlobalSettings"
@@ -288,8 +294,9 @@
               <el-radio :value="false">2D</el-radio>
               <el-radio :value="true">3D</el-radio>
             </el-radio-group>
-
-            <p>Organs display</p>
+          </div>
+          <div class="setting-popover-block">
+            <h5>Organs display</h5>
             <el-radio-group
               v-model="globalSettings.organsDisplay"
               @change="updateGlobalSettings"
@@ -297,8 +304,9 @@
               <el-radio :value="true">Colour</el-radio>
               <el-radio :value="false">Greyscale</el-radio>
             </el-radio-group>
-
-            <p>Outlines display</p>
+          </div>
+          <div class="setting-popover-block">
+            <h5>Outlines display</h5>
             <el-radio-group
               v-model="globalSettings.outlinesDisplay"
               @change="updateGlobalSettings"
@@ -306,8 +314,9 @@
               <el-radio :value="true">Show</el-radio>
               <el-radio :value="false">Hide</el-radio>
             </el-radio-group>
-
-            <p>Change background</p>
+          </div>
+          <div class="setting-popover-block">
+            <h5>Change background</h5>
             <el-radio-group
               v-model="globalSettings.backgroundDisplay"
               @change="updateGlobalSettings"
@@ -316,9 +325,8 @@
               <el-radio value="blue">blue</el-radio>
               <el-radio value="black">black</el-radio>
             </el-radio-group>
-
-          </el-col>
-        </el-row>
+          </div>
+        </div>
       </el-popover>
       <el-popover class="tooltip" content="Global Settings" placement="bottom-end"
         :show-after="helpDelay" :teleported=false trigger="hover"
@@ -660,7 +668,7 @@ export default {
 }
 
 :deep(.view-icon-popover.el-popper),
-:deep(.setting-popover.el-popper ) {
+:deep(.setting-popover.el-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
@@ -673,6 +681,45 @@ export default {
       border-color: $app-primary-color;
       background-color: #f3ecf6;
     }
+  }
+}
+
+:deep(.setting-popover.el-popper) {
+  padding: 1px !important;
+}
+
+.setting-popover-inner {
+  padding: 4px 8px 12px 8px;
+  max-height: calc(100vh - 135px);
+  overflow-y: auto;
+  border-radius: var(--el-popover-border-radius);
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.setting-popover-block {
+  + .setting-popover-block {
+    position: relative;
+
+    &:before {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 0;
+      border-top: 1px solid var(--el-border-color);
+      position: absolute;
+      top: -0.5rem;
+      left: 0;
+    }
+  }
+
+  h5 {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 32px;
   }
 }
 
