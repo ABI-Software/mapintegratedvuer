@@ -115,7 +115,7 @@
           <el-row>
             <el-col :span="8">
               <el-popover class="tooltip"
-                content="Create a permanent link for current views and settings." 
+                content="Create a permanent link for current views and settings."
                 placement="bottom-end"
                 :show-after="helpDelay" :teleported=false trigger="hover"
                 popper-class="header-popper"
@@ -150,7 +150,7 @@
                   </el-button>
                 </template>
                 <template #default>
-                  Create a link for current views settings 
+                  Create a link for current views settings
                   <br>
                   and anonymous annotations.
                   <br>
@@ -209,7 +209,7 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-      <!--
+
       <el-popover
         v-if="globalSettingRef"
         :virtual-ref="globalSettingRef"
@@ -264,7 +264,7 @@
           </el-icon>
         </template>
       </el-popover>
-      -->
+
     </el-row>
   </div>
 </template>
@@ -390,7 +390,6 @@ export default {
         ...this.settingsStore.globalSettings
       };
     },
-    /**
     updateGlobalSettings: function() {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
       this.settingsStore.updateGlobalSettings(this.globalSettings);
@@ -403,7 +402,6 @@ export default {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
     },
-    */
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
@@ -588,7 +586,7 @@ export default {
   padding-top:7px;
 }
 
-:deep(.view-icon-popover.el-popper), 
+:deep(.view-icon-popover.el-popper),
 :deep(.setting-popover.el-popper ) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
