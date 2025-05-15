@@ -251,6 +251,44 @@
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
+
+            <p>Flight path display</p>
+            <el-radio-group
+              v-model="globalSettings.flightPathDisplay"
+              @change="updateGlobalSettings"
+            >
+              <el-radio :value="false">2D</el-radio>
+              <el-radio :value="true">3D</el-radio>
+            </el-radio-group>
+
+            <p>Organs display</p>
+            <el-radio-group
+              v-model="globalSettings.organsDisplay"
+              @change="updateGlobalSettings"
+            >
+              <el-radio :value="true">Colour</el-radio>
+              <el-radio :value="false">Greyscale</el-radio>
+            </el-radio-group>
+
+            <p>Outlines display</p>
+            <el-radio-group
+              v-model="globalSettings.outlinesDisplay"
+              @change="updateGlobalSettings"
+            >
+              <el-radio :value="true">Show</el-radio>
+              <el-radio :value="false">Hide</el-radio>
+            </el-radio-group>
+
+            <p>Change background</p>
+            <el-radio-group
+              v-model="globalSettings.backgroundDisplay"
+              @change="updateGlobalSettings"
+            >
+              <el-radio value="white">white</el-radio>
+              <el-radio value="blue">blue</el-radio>
+              <el-radio value="black">black</el-radio>
+            </el-radio-group>
+
           </el-col>
         </el-row>
       </el-popover>
