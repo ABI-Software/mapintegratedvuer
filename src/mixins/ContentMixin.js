@@ -539,8 +539,8 @@ export default {
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
-    onConnectivityGraphError: function (errorInfo) {
-      EventBus.emit('connectivity-graph-error', errorInfo);
+    onConnectivityError: function (errorInfo) {
+      EventBus.emit('connectivity-error', errorInfo);
     },
     loadConnectivityKnowledge: async function (flatmap) {
       const sckanVersion = getKnowledgeSource(flatmap);
