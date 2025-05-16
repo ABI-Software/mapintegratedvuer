@@ -551,13 +551,16 @@ export default {
       const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
       const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
-      this.connectivityKnowledge[uuid] = knowledge.filter((item) => {
-        if (item.source === sckanVersion && item.connectivity?.length && item.id in pathsFromMap) {
-          return true;
-        }
-        return false;
-      });
-      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge[uuid] });
+      this.connectivityKnowledge[uuid] = knowledge
+        .filter((item) => {
+          return (
+            item.source === sckanVersion &&
+            item.connectivity?.length &&
+            item.id in pathsFromMap
+          );
+        })
+        .sort((a, b) => a.label.localeCompare(b.label));
+      EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
     },
     getSearchedId: function (flatmap, term) {
       let ids = [];
@@ -600,7 +603,6 @@ export default {
         let paths = await flatmap.retrieveConnectedPaths(ids, options);
         paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
         let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
-        results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
         payload.data = results;
       }
       EventBus.emit("connectivity-knowledge", payload);
