@@ -125,7 +125,6 @@
             </el-col>
             <el-col :span="10">
               <el-popover class="tooltip"
-                content="Create a permanent link for current views and settings."
                 placement="bottom-end"
                 :show-after="helpDelay" :teleported=false trigger="hover"
                 popper-class="header-popper"
