@@ -521,6 +521,18 @@ export default {
                   flatmap.zoomToFeatures(paths);
                 } catch (error) {
                   console.log(error)
+                  // only for connectivity hover highlight
+                  if (hoverConnectivity.length && flatmap.mapImp) {
+                    const uuid = flatmap.mapImp.uuid;
+                    const found = paths.every((path) =>
+                      this.connectivityKnowledge[uuid].some((connectivity) =>
+                        connectivity.id === path
+                      )
+                    );
+                    if (!found) {
+                      flatmap.mapImp.clearSearchResults();
+                    }
+                  }
                 }
               });
             } else if (this.scaffoldRef && scaffold) {
@@ -542,22 +554,24 @@ export default {
     onConnectivityGraphError: function (errorInfo) {
       EventBus.emit('connectivity-graph-error', errorInfo);
     },
-    loadConnectivityKnowledge: async function (flatmap) {
-      const sckanVersion = getKnowledgeSource(flatmap);
+    loadConnectivityKnowledge: async function (flatmapImp) {
+      const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
-      const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
-      const uuid = flatmap.uuid;
-      // const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
-      // const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+      const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
+      const uuid = flatmapImp.uuid;
+      const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
+      const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
-      this.connectivityKnowledge[uuid] = knowledge.filter((item) => {
-        if (item.source === sckanVersion && item.connectivity?.length) {
-          return true;
-        }
-        return false;
-      });
-      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge[uuid] });
+      this.connectivityKnowledge[sckanVersion] = knowledge.filter((item) =>
+        item.source === sckanVersion && item.connectivity?.length
+      );
+
+      this.connectivityKnowledge[uuid] = knowledge.filter((item) =>
+        item.source === sckanVersion && item.connectivity?.length && item.id in pathsFromMap
+      );
+
+      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge[sckanVersion] });
     },
     getSearchedId: function (flatmap, term) {
       let ids = [];
@@ -575,10 +589,11 @@ export default {
       return ids;
     },
     connectivityQueryFilter: async function (flatmap, data) {
-      const uuid = flatmap.mapImp.uuid
+      const flatmapImp = flatmap.mapImp;
+      const sckanVersion = getKnowledgeSource(flatmapImp);
       let payload = {
         state: "default",
-        data: [...this.connectivityKnowledge[uuid]],
+        data: [...this.connectivityKnowledge[sckanVersion]],
       };
       if (data) {
         if (data.type === "query-update") {
@@ -599,7 +614,7 @@ export default {
         const ids = [...new Set(nestedIds.flat())];
         let paths = await flatmap.retrieveConnectedPaths(ids, options);
         paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-        let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
+        let results = this.connectivityKnowledge[sckanVersion].filter((item) => paths.includes(item.id));
         results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
         payload.data = results;
       }
