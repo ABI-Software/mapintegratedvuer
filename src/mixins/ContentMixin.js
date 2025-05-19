@@ -548,11 +548,11 @@ export default {
       flatmapQueries.initialise(this.flatmapAPI);
       const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
       const uuid = flatmap.uuid;
-      const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
-      const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+      // const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
+      // const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
       this.connectivityKnowledge[uuid] = knowledge.filter((item) => {
-        if (item.source === sckanVersion && item.connectivity?.length && item.id in pathsFromMap) {
+        if (item.source === sckanVersion && item.connectivity?.length) {
           return true;
         }
         return false;
@@ -579,8 +579,8 @@ export default {
       let payload = {
         state: "default",
         data: [...this.connectivityKnowledge[uuid]],
-      };      
-      if (data) {        
+      };
+      if (data) {
         if (data.type === "query-update") {
           if (this.query !== data.value) this.target = [];
           this.query = data.value;
