@@ -44,7 +44,7 @@
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-hovered="onConnectivityHovered"
-          @connectivity-explorer-clicked="onConnectivityExplorerClicked"
+          @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
         />
         <SplitDialog
@@ -145,12 +145,12 @@ export default {
     },
     connectivityHighlight: {
       handler: function (value) {
-        this.onShowConnectivity(value);
+        this.onShowConnectivity(value, true);
       },
     },
   },
   methods: {
-    onConnectivityExplorerClicked: function (payload) {
+    onConnectivityCollapseChange: function (payload) {
       this.connectivityExplorerClicked = true;
       this.onDisplaySearch({ term: payload.id }, false);
     },
@@ -303,13 +303,14 @@ export default {
      * This will move the map to the highlighted connectivity area.
      * @arg featureIds
      */
-    onShowConnectivity: function (featureIds) {
+    onShowConnectivity: function (featureIds, filterVisibility = false) {
       const splitFlowState = this.splitFlowStore.getState();
       const activeView = splitFlowState?.activeView || '';
       // offset sidebar only on singlepanel and 2horpanel views
       EventBus.emit('show-connectivity', {
         featureIds: featureIds,
-        offset: activeView === 'singlepanel' || activeView === '2horpanel'
+        offset: activeView === 'singlepanel' || activeView === '2horpanel',
+        filterVisibility: filterVisibility
       });
     },
     onShowReferenceConnectivities: function (refSource) {

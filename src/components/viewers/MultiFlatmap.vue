@@ -465,7 +465,7 @@ export default {
     });
 
     EventBus.on('show-connectivity', (payload) => {
-      const { featureIds, offset } = payload;
+      const { featureIds, offset, filterVisibility } = payload;
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (currentFlatmap) {
@@ -477,7 +477,9 @@ export default {
             });
             filterPayload = { 'models': featureIds }
           }
-          currentFlatmap.setVisibilityFilter(filterPayload);
+          if (filterVisibility) {
+            currentFlatmap.setVisibilityFilter(filterPayload);
+          }
         }
       }
     });
