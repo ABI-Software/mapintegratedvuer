@@ -28,7 +28,7 @@
           :visible="visible"
           :lazy="true"
           ref="viewer"
-          @flatmap-provenance-ready="flatmapProvenacneReady"
+          @flatmap-provenance-ready="flatmapProvenanceReady"
           @resource-selected="resourceSelected"
           @species-changed="speciesChanged"
         />
@@ -78,7 +78,7 @@ export default {
     Simulation,
   },
   methods: {
-    flatmapProvenacneReady: function(prov) {
+    flatmapProvenanceReady: function(prov) {
       this.$refs.contentBar?.setupFlatmapContextCard(prov);
       this.entriesStore.updateMapForEntry(this.entry, prov);
     },
