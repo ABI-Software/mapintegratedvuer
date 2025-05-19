@@ -80,6 +80,7 @@ export default {
   methods: {
     flatmapProvenacneReady: function(prov) {
       this.$refs.contentBar?.setupFlatmapContextCard(prov);
+      this.entriesStore.updateMapForEntry(this.entry, prov);
     },
     /**
      * Toggle sync mode on/off depending on species and current state
