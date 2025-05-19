@@ -469,10 +469,15 @@ export default {
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (currentFlatmap) {
-          currentFlatmap.moveMap(featureIds, {
-            offsetX: offset ? -150 : 0,
-            zoom: 4,
-          });
+          let filterPayload = undefined
+          if (featureIds.length) {
+            currentFlatmap.moveMap({
+              offsetX: offset ? -150 : 0,
+              zoom: 4,
+            });
+            filterPayload = { 'models': featureIds }
+          }
+          currentFlatmap.setVisibilityFilter(filterPayload);
         }
       }
     });

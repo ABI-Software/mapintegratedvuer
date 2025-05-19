@@ -576,10 +576,7 @@ export default {
     },
     connectivityQueryFilter: async function (flatmap, data) {
       const uuid = flatmap.mapImp.uuid
-      let payload = {
-        state: "default",
-        data: [...this.connectivityKnowledge[uuid]],
-      };      
+      let payload = { data: [...this.connectivityKnowledge[uuid]] };      
       if (data) {        
         if (data.type === "query-update") {
           if (this.query !== data.value) this.target = [];
@@ -589,7 +586,6 @@ export default {
         }
       }
       if (this.query) {
-        payload.state = "processed";
         let prom1 = [], options = {};
         const searchTerms = this.query.split(",").map((term) => term.trim());
         for (let index = 0; index < searchTerms.length; index++) {
@@ -599,6 +595,7 @@ export default {
         const ids = [...new Set(nestedIds.flat())];
         let paths = await flatmap.retrieveConnectedPaths(ids, options);
         paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
+        payload.highlight = paths;
         let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
         results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
         payload.data = results;
