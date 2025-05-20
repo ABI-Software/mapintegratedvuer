@@ -7,6 +7,7 @@ import EventBus from "../components/EventBus";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useConnectivitiesStore } from '../stores/connectivities';
 import Tagging from '../services/tagging.js';
 
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
@@ -35,7 +36,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore, useSplitFlowStore),
+    ...mapStores(useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
       return this.splitFlowStore.idNamePair;
     },
@@ -60,6 +61,7 @@ export default {
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
+    this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
   },
   methods: {
     toggleSyncMode: function () {
@@ -560,27 +562,35 @@ export default {
       flatmapQueries.initialise(this.flatmapAPI);
       const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
       const uuid = flatmapImp.uuid;
-      const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
-      const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
-      this.connectivityKnowledge[sckanVersion] = knowledge
-        .filter((item) => {
-          return (
-            item.source === sckanVersion &&
-            item.connectivity?.length
-          );
-        })
-        .sort((a, b) => a.label.localeCompare(b.label));
+      if (!this.connectivityKnowledge[sckanVersion]) {
+        this.connectivityKnowledge[sckanVersion] = knowledge
+          .filter((item) => {
+            return (
+              item.source === sckanVersion &&
+              item.connectivity?.length
+            );
+          })
+          .sort((a, b) => a.label.localeCompare(b.label));
+      }
 
-      this.connectivityKnowledge[uuid] = knowledge
-        .filter((item) => {
-          return (
-            item.source === sckanVersion &&
-            item.connectivity?.length &&
-            item.id in pathsFromMap
-          );
-        })
-        .sort((a, b) => a.label.localeCompare(b.label));
+      if (!this.connectivitiesStore.globalConnectivities[uuid]) {
+        const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
+        const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+
+        this.connectivityKnowledge[uuid] = knowledge
+          .filter((item) => {
+            return (
+              item.source === sckanVersion &&
+              item.connectivity?.length &&
+              item.id in pathsFromMap
+            );
+          })
+          .sort((a, b) => a.label.localeCompare(b.label));
+      }
+
+      this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
+
       EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
     },
     getSearchedId: function (flatmap, term) {
