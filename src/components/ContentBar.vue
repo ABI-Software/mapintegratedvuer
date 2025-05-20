@@ -65,7 +65,7 @@
         :teleported=false trigger="hover" popper-class="header-popper" >
         <template #reference>
           <map-svg-icon icon="close" class="header-icon"
-            v-show="(activeView !== 'singlepanel') && (entry.mode !== 'main')"
+            v-show="(activeView !== 'singlepanel') && ((entry.mode !== 'main') || allClosable )"
             @click="closeAndRemove()"/>
           </template>
       </el-popover>
@@ -131,6 +131,9 @@ export default {
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
+    allClosable() {
+      return this.settingsStore.allClosable;
+    },
     helpDelay() {
       return this.settingsStore.helpDelay;
     },

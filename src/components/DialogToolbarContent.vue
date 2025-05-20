@@ -113,46 +113,32 @@
       >
         <template v-if="displayShareOptions">
           <el-row>
-            <el-col :span="8">
-              <el-popover class="tooltip"
-                content="Create a permanent link for current views and settings." 
-                placement="bottom-end"
-                :show-after="helpDelay" :teleported=false trigger="hover"
-                popper-class="header-popper"
+            <el-col :offset="3" :span="8">
+              <el-button
+                type="primary"
+                size="small"
+                @click="getShareLink(exportAnnotation)"
+                class="share-options"
               >
-                <template #reference>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="getShareLink(false)"
-                    class="share-options"
-                  >
-                    Settings Only
-                  </el-button>
-                </template>
-              </el-popover>
+                Create Permalink
+              </el-button>
             </el-col>
-            <el-col :span="14">
+            <el-col :span="10">
               <el-popover class="tooltip"
                 placement="bottom-end"
                 :show-after="helpDelay" :teleported=false trigger="hover"
                 popper-class="header-popper"
               >
                 <template #reference>
-                  <el-button
-                    type="primary"
+                  <el-checkbox
+                    v-model="exportAnnotation"
                     size="small"
-                    @click="getShareLink(true)"
-                    class="share-options"
                   >
-                    Settings with Annotations
-                    (Valid for 30 days)
-                  </el-button>
+                    Export Annotations
+                  </el-checkbox>
                 </template>
                 <template #default>
-                  Create a link for current views settings 
-                  <br>
-                  and anonymous annotations.
+                  Create a permalink with anonymous annotations.
                   <br>
                   NOTE: Annotations will only be stored for
                   <br>
@@ -209,6 +195,7 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
+      <!--
       <el-popover
         v-if="globalSettingRef"
         :virtual-ref="globalSettingRef"
@@ -248,7 +235,7 @@
             >
               <el-radio value="dataset">Dataset Exploration</el-radio>
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
-              <!-- <el-radio value="multiscale">Multiscale Model</el-radio> -->
+              <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
           </el-col>
         </el-row>
@@ -263,6 +250,7 @@
           </el-icon>
         </template>
       </el-popover>
+      -->
     </el-row>
   </div>
 </template>
@@ -284,6 +272,7 @@ import {
 } from '@element-plus/icons-vue';
 import {
   ElButton as Button,
+  ElCheckbox as Checkbox,
   ElCol as Col,
   ElIcon as Icon,
   ElInput as Input,
@@ -301,6 +290,7 @@ export default {
   name: "DialogToolbarContent",
   components: {
     Button,
+    Checkbox,
     Col,
     Icon,
     Input,
@@ -369,16 +359,17 @@ export default {
   },
   data: function() {
     return {
+      activeViewRef: undefined,
+      displayShareOptions: false,
+      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      exportAnnotation: false,
+      failedSearch: undefined,
+      globalSettings: {},
+      globalSettingRef: undefined,
+      independent: true,
       isFullscreen: false,
       loadingLink: true,
-      displayShareOptions: false,
-      independent: true,
-      failedSearch: undefined,
-      activeViewRef: undefined,
       permalinkRef: undefined,
-      globalSettingRef: undefined,
-      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
-      globalSettings: {},
     }
   },
   methods: {
@@ -388,6 +379,7 @@ export default {
         ...this.settingsStore.globalSettings
       };
     },
+    /**
     updateGlobalSettings: function() {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
       this.settingsStore.updateGlobalSettings(this.globalSettings);
@@ -400,6 +392,7 @@ export default {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
     },
+    */
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },

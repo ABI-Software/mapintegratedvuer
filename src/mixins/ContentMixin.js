@@ -499,9 +499,9 @@ export default {
 
         let flatmap = null;
         let scaffold = null;
-        if (this.flatmapRef) flatmap = this.$refs.flatmap;
-        if (this.multiflatmapRef) flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (this.scaffoldRef) scaffold = this.$refs.scaffold;
+        if (this.flatmapRef) flatmap = this.flatmapRef;
+        if (this.multiflatmapRef) flatmap = this.multiflatmapRef.getCurrentFlatmap();
+        if (this.scaffoldRef) scaffold = this.scaffoldRef;
 
         // reset
         clearTimeout(this.highlightDelay);
@@ -539,8 +539,8 @@ export default {
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
-    onConnectivityGraphError: function (errorInfo) {
-      EventBus.emit('connectivity-graph-error', errorInfo);
+    onConnectivityError: function (errorInfo) {
+      EventBus.emit('connectivity-error', errorInfo);
     },
     loadConnectivityKnowledge: async function (flatmap) {
       const sckanVersion = getKnowledgeSource(flatmap);
@@ -551,12 +551,15 @@ export default {
       const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
       const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
-      this.connectivityKnowledge[uuid] = knowledge.filter((item) => {
-        if (item.source === sckanVersion && item.connectivity?.length && item.id in pathsFromMap) {
-          return true;
-        }
-        return false;
-      });
+      this.connectivityKnowledge[uuid] = knowledge
+        .filter((item) => {
+          return (
+            item.source === sckanVersion &&
+            item.connectivity?.length &&
+            item.id in pathsFromMap
+          );
+        })
+        .sort((a, b) => a.label.localeCompare(b.label));
       EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
     },
     getSearchedId: function (flatmap, term) {
@@ -597,7 +600,6 @@ export default {
         paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
         payload.highlight = paths;
         let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
-        results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
         payload.data = results;
       }
       EventBus.emit("connectivity-knowledge", payload);
