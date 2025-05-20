@@ -46,6 +46,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @filter-visibility="onFilterVisibility"
         />
         <SplitDialog
           :entries="entries"
@@ -145,11 +146,18 @@ export default {
     },
     connectivityHighlight: {
       handler: function (value) {
-        this.onShowConnectivity(value, true);
+        this.onShowConnectivity(value);
+        this.onFilterVisibility(value.length ? true : false);
       },
     },
   },
   methods: {
+    onFilterVisibility: function (filter) {
+      const payload = filter && this.connectivityHighlight.length ?
+        { 'models': this.connectivityHighlight } :
+        undefined
+      EventBus.emit('filter-visibility', payload);
+    },
     onConnectivityCollapseChange: function (payload) {
       this.connectivityExplorerClicked = true;
       this.onDisplaySearch({ term: payload.id }, false);
