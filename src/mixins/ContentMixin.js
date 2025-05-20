@@ -563,9 +563,14 @@ export default {
       const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
       const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
-      this.connectivityKnowledge[sckanVersion] = knowledge.filter((item) =>
-        item.source === sckanVersion && item.connectivity?.length
-      );
+      this.connectivityKnowledge[sckanVersion] = knowledge
+        .filter((item) => {
+          return (
+            item.source === sckanVersion &&
+            item.connectivity?.length
+          );
+        })
+        .sort((a, b) => a.label.localeCompare(b.label));
 
       this.connectivityKnowledge[uuid] = knowledge
         .filter((item) => {
@@ -594,11 +599,12 @@ export default {
       return ids;
     },
     connectivityQueryFilter: async function (flatmap, data) {
+      const uuid = flatmap.mapImp.uuid;
       const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
       let payload = {
         state: "default",
-        data: [...this.connectivityKnowledge[sckanVersion]],
+        data: [...this.connectivityKnowledge[uuid]],
       };
       if (data) {
         if (data.type === "query-update") {
