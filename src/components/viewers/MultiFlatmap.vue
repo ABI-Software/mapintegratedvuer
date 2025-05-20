@@ -471,7 +471,7 @@ export default {
         if (currentFlatmap) {
           let filterPayload = undefined
           if (featureIds.length) {
-            currentFlatmap.moveMap({
+            currentFlatmap.moveMap(featureIds, {
               offsetX: offset ? -150 : 0,
               zoom: 4,
             });

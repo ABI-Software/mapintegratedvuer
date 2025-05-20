@@ -557,7 +557,7 @@ export default {
         }
         return false;
       });
-      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge[uuid] });
+      EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
     },
     getSearchedId: function (flatmap, term) {
       let ids = [];
