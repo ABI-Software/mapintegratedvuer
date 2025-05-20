@@ -465,21 +465,23 @@ export default {
     });
 
     EventBus.on('show-connectivity', (payload) => {
-      const { featureIds, offset, filterVisibility } = payload;
+      const { featureIds, offset } = payload;
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (currentFlatmap) {
-          let filterPayload = undefined
-          if (featureIds.length) {
-            currentFlatmap.moveMap(featureIds, {
-              offsetX: offset ? -150 : 0,
-              zoom: 4,
-            });
-            filterPayload = { 'models': featureIds }
-          }
-          if (filterVisibility) {
-            currentFlatmap.setVisibilityFilter(filterPayload);
-          }
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -150 : 0,
+            zoom: 4,
+          });
+        }
+      }
+    });
+
+    EventBus.on('filter-visibility', (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.setVisibilityFilter(payload);
         }
       }
     });

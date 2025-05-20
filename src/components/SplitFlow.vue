@@ -303,15 +303,16 @@ export default {
      * This will move the map to the highlighted connectivity area.
      * @arg featureIds
      */
-    onShowConnectivity: function (featureIds, filterVisibility = false) {
-      const splitFlowState = this.splitFlowStore.getState();
-      const activeView = splitFlowState?.activeView || '';
-      // offset sidebar only on singlepanel and 2horpanel views
-      EventBus.emit('show-connectivity', {
-        featureIds: featureIds,
-        offset: activeView === 'singlepanel' || activeView === '2horpanel',
-        filterVisibility: filterVisibility
-      });
+    onShowConnectivity: function (featureIds) {
+      if (featureIds.length) {        
+        const splitFlowState = this.splitFlowStore.getState();
+        const activeView = splitFlowState?.activeView || '';
+        // offset sidebar only on singlepanel and 2horpanel views
+        EventBus.emit('show-connectivity', {
+          featureIds: featureIds,
+          offset: activeView === 'singlepanel' || activeView === '2horpanel'
+        });
+      }
     },
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
