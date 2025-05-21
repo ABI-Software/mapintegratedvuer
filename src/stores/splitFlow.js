@@ -560,7 +560,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       }
     },
     updateSplitPanels() {
-      EventBus.emit('split-panels-update');
+      EventBus.emit('species-layout-connectivity-update');
     },
   }
 });

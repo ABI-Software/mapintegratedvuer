@@ -514,7 +514,7 @@ export default {
         // Wait for provenance info with uuid update
         this.$nextTick(() => {
           // EventBus.emit("connectivity-query-filter");
-          EventBus.emit('split-panels-update');
+          EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
         })
       }

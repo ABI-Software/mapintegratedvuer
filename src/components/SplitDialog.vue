@@ -159,7 +159,7 @@ export default {
       }
       this.__userResize__ = false;
     },
-    onSplitPanelsUpdate: function () {
+    onSpeciesLayoutConnectivityUpdate: function () {
       let activePaneIDs = [];
       let availablePaneIDs = [];
       let sckanVersion = '';
@@ -284,8 +284,8 @@ export default {
     EventBus.on("PaneUnmounted", payload => {
       this.hidePane(payload.refName);
     });
-    EventBus.on('split-panels-update', () => {
-      this.onSplitPanelsUpdate();
+    EventBus.on('species-layout-connectivity-update', () => {
+      this.onSpeciesLayoutConnectivityUpdate();
     })
   },
 };
