@@ -217,6 +217,7 @@ export default {
           EventBus.emit("connectivity-knowledge", {
             data: this.connectivitiesStore.globalConnectivities[uuid]
           });
+          this.connectivitiesStore.updateActiveConnectivityKey(uuid);
         } else {
           console.warn(`There has no connectivity for map ${uuid}!`);
         }
@@ -225,6 +226,7 @@ export default {
           EventBus.emit("connectivity-knowledge", {
             data: this.connectivitiesStore.globalConnectivities[sckanVersion]
           });
+          this.connectivitiesStore.updateActiveConnectivityKey(sckanVersion);
         } else {
           console.warn(`There has no connectivity to show!`);
         }

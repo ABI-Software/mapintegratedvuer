@@ -4,6 +4,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
   state: () => {
     return {
       globalConnectivities: {},
+      activeConnectivityKey: '',
     }
   },
   getters: {
@@ -12,6 +13,9 @@ export const useConnectivitiesStore = defineStore('connectivities', {
   actions: {
     updateGlobalConnectivities(globalConnectivities) {
       this.globalConnectivities = globalConnectivities;
-    }
-  },
+    },
+    updateActiveConnectivityKey(activeConnectivityKey) {
+      this.activeConnectivityKey = activeConnectivityKey;
+    },
+  }
 });

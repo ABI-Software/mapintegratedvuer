@@ -611,35 +611,38 @@ export default {
     },
     connectivityQueryFilter: async function (flatmap, data) {
       const uuid = flatmap.mapImp.uuid;
-      const flatmapImp = flatmap.mapImp;
-      const sckanVersion = getKnowledgeSource(flatmapImp);
-      let payload = {
-        state: "default",
-        data: [...this.connectivityKnowledge[uuid]],
-      };
-      if (data) {
-        if (data.type === "query-update") {
-          if (this.query !== data.value) this.target = [];
-          this.query = data.value;
-        } else if (data.type === "filter-update") {
-          this.filter = data.value;
+      // to search from sckan or uuid based on the maps showing on split screens
+      const activeConnectivityKey = this.connectivitiesStore.activeConnectivityKey || uuid;
+      // only for those flatmaps that are shown on the split screen
+      if (flatmap.$el.checkVisibility()) {
+        let payload = {
+          state: "default",
+          data: [...this.connectivityKnowledge[activeConnectivityKey]],
+        };
+        if (data) {
+          if (data.type === "query-update") {
+            if (this.query !== data.value) this.target = [];
+            this.query = data.value;
+          } else if (data.type === "filter-update") {
+            this.filter = data.value;
+          }
         }
-      }
-      if (this.query) {
-        payload.state = "processed";
-        let prom1 = [], options = {};
-        const searchTerms = this.query.split(",").map((term) => term.trim());
-        for (let index = 0; index < searchTerms.length; index++) {
-          prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
+        if (this.query) {
+          payload.state = "processed";
+          let prom1 = [], options = {};
+          const searchTerms = this.query.split(",").map((term) => term.trim());
+          for (let index = 0; index < searchTerms.length; index++) {
+            prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
+          }
+          const nestedIds = await Promise.all(prom1);
+          const ids = [...new Set(nestedIds.flat())];
+          let paths = await flatmap.retrieveConnectedPaths(ids, options);
+          paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
+          let results = this.connectivityKnowledge[activeConnectivityKey].filter((item) => paths.includes(item.id));
+          payload.data = results;
         }
-        const nestedIds = await Promise.all(prom1);
-        const ids = [...new Set(nestedIds.flat())];
-        let paths = await flatmap.retrieveConnectedPaths(ids, options);
-        paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-        let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
-        payload.data = results;
+        EventBus.emit("connectivity-knowledge", payload);
       }
-      EventBus.emit("connectivity-knowledge", payload);
     }
   },
   data: function () {
