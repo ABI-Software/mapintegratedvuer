@@ -511,8 +511,12 @@ export default {
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
         // Use to update the connectivity when switch species
-        EventBus.emit("connectivity-query-filter");
-        this.$refs.sideBar.close();
+        // Wait for provenance info with uuid update
+        this.$nextTick(() => {
+          // EventBus.emit("connectivity-query-filter");
+          EventBus.emit('species-layout-connectivity-update');
+          this.$refs.sideBar.close();
+        })
       }
     },
     toggleSyncMode: function (payload) {
@@ -647,9 +651,9 @@ export default {
       }
       this.connectivityExplorerClicked = false;
     });
-    EventBus.on('connectivity-graph-error', payload => {
+    EventBus.on('connectivity-error', payload => {
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.updateConnectivityGraphError(payload.data);
+        this.$refs.sideBar.updateConnectivityError(payload.data);
       }
     });
     EventBus.on("OpenNewMap", type => {
