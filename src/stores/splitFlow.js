@@ -200,7 +200,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       if (sourceKey) {
         this.customLayout[sourceKey].id = payload.target;
       }
-      this.updateSplitPanels({layout: this.customLayout});
+      this.updateSplitPanels();
     },
     getAvailableTerms(apiLocation) {
       let terms = getAvailableTermsForSpecies();
@@ -248,7 +248,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       for (const [key, value] of Object.entries(customLayout)) {
         this.customLayout[key] = value;
       }
-      this.updateSplitPanels({layout: this.customLayout});
+      this.updateSplitPanels();
     },
     setSplitter(payload) {
       if (this.splitters[payload.name])
@@ -556,11 +556,11 @@ export const useSplitFlowStore = defineStore('splitFlow', {
             this.customLayout[key] = value;
           }
         }
-        this.updateSplitPanels({layout: this.customLayout});
+        this.updateSplitPanels();
       }
     },
-    updateSplitPanels(payload) {
-      EventBus.emit('split-panels-update', payload);
+    updateSplitPanels() {
+      EventBus.emit('split-panels-update');
     },
   }
 });

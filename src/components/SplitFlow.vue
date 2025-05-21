@@ -511,8 +511,12 @@ export default {
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
         // Use to update the connectivity when switch species
-        EventBus.emit("connectivity-query-filter");
-        this.$refs.sideBar.close();
+        // Wait for provenance info with uuid update
+        this.$nextTick(() => {
+          // EventBus.emit("connectivity-query-filter");
+          EventBus.emit('split-panels-update');
+          this.$refs.sideBar.close();
+        })
       }
     },
     toggleSyncMode: function (payload) {

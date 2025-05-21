@@ -591,7 +591,8 @@ export default {
 
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
 
-      EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
+      // EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
+      EventBus.emit('split-panels-update');
     },
     getSearchedId: function (flatmap, term) {
       let ids = [];

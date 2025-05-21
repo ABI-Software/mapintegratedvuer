@@ -159,16 +159,15 @@ export default {
       }
       this.__userResize__ = false;
     },
-    onSplitPanelsUpdate: function (payload) {
-      const { layout } = payload;
+    onSplitPanelsUpdate: function () {
       let activePaneIDs = [];
       let availablePaneIDs = [];
       let sckanVersion = '';
       let uuid = '';
 
-      for (const key in layout) {
-        if (layout[key].id) {
-          availablePaneIDs.push(layout[key].id);
+      for (const key in this.customLayout) {
+        if (this.customLayout[key].id) {
+          availablePaneIDs.push(this.customLayout[key].id);
         }
       }
 
@@ -237,6 +236,9 @@ export default {
     activeView: function() {
       return this.splitFlowStore.activeView;
     },
+    customLayout: function() {
+      return this.splitFlowStore.customLayout;
+    },
     horizontal() {
       if (this.splitFlowStore.activeView === "2horpanel") {
         return true;
@@ -282,8 +284,8 @@ export default {
     EventBus.on("PaneUnmounted", payload => {
       this.hidePane(payload.refName);
     });
-    EventBus.on('split-panels-update', payload => {
-      this.onSplitPanelsUpdate(payload);
+    EventBus.on('split-panels-update', () => {
+      this.onSplitPanelsUpdate();
     })
   },
 };
