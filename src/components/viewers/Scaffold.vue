@@ -31,6 +31,7 @@
       :markerCluster="true"
       :markerLabels="markerLabels"
       :flatmapAPI="flatmapAPI"
+      :showLocalSettings="showLocalSettings"
     />
 
     <HelpModeDialog

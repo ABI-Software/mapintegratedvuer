@@ -28,6 +28,7 @@
       :openMapOptions="openMapOptions"
       :flatmapAPI="flatmapAPI"
       :sparcAPI="apiLocation"
+      :showLocalSettings="showLocalSettings"
       @pan-zoom-callback="flatmapPanZoomCallback"
       @open-map="openMap"
       @finish-help-mode="endHelp"

@@ -30,6 +30,7 @@
       :enableOpenMapUI="true"
       :flatmapAPI="flatmapAPI"
       :sparcAPI="apiLocation"
+      :showLocalSettings="showLocalSettings"
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @mapmanager-loaded="onMapmanagerLoaded"

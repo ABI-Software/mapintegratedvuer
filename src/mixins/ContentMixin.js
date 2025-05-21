@@ -51,6 +51,10 @@ export default {
     annotationSidebar() {
       return this.settingsStore.annotationSidebar;
     },
+    // Hide local settings if global settings are shown
+    showLocalSettings() {
+      return !this.settingsStore.showGlobalSettings;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
@@ -582,8 +586,8 @@ export default {
       let payload = {
         state: "default",
         data: [...this.connectivityKnowledge[uuid]],
-      };      
-      if (data) {        
+      };
+      if (data) {
         if (data.type === "query-update") {
           if (this.query !== data.value) this.target = [];
           this.query = data.value;

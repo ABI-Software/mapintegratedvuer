@@ -314,8 +314,14 @@
           </div>
         </div>
       </el-popover>
-      <el-popover class="tooltip" content="Global Settings" placement="bottom-end"
-        :show-after="helpDelay" :teleported=false trigger="hover"
+      <el-popover
+        v-if="showGlobalSettings"
+        class="tooltip"
+        content="Global Settings"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported=false
+        trigger="hover"
         popper-class="header-popper"
       >
         <template #reference>
@@ -414,7 +420,10 @@ export default {
     },
     globalCallback() {
       return this.splitFlowStore.globalCallback;
-    }
+    },
+    showGlobalSettings() {
+      return this.settingsStore.showGlobalSettings;
+    },
   },
   watch: {
     shareLink: function() {

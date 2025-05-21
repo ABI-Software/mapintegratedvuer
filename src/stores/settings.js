@@ -32,6 +32,7 @@ export const useSettingsStore = defineStore('settings', {
       connectivityInfoSidebar: true,
       annotationSidebar: true,
       allClosable: true,
+      showGlobalSettings: true,
       globalSettings: {
         displayMarkers: true,
         highlightConnectedPaths: false,
@@ -196,5 +197,8 @@ export const useSettingsStore = defineStore('settings', {
         this.globalSettings[key] = value;
       }
     },
+    updateShowGlobalSettings(showGlobalSettings) {
+      this.showGlobalSettings = showGlobalSettings;
+    }
   }
 });
