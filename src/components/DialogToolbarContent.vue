@@ -113,46 +113,32 @@
       >
         <template v-if="displayShareOptions">
           <el-row>
-            <el-col :span="8">
-              <el-popover class="tooltip"
-                content="Create a permanent link for current views and settings."
-                placement="bottom-end"
-                :show-after="helpDelay" :teleported=false trigger="hover"
-                popper-class="header-popper"
+            <el-col :offset="3" :span="8">
+              <el-button
+                type="primary"
+                size="small"
+                @click="getShareLink(exportAnnotation)"
+                class="share-options"
               >
-                <template #reference>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="getShareLink(false)"
-                    class="share-options"
-                  >
-                    Settings Only
-                  </el-button>
-                </template>
-              </el-popover>
+                Create Permalink
+              </el-button>
             </el-col>
-            <el-col :span="14">
+            <el-col :span="10">
               <el-popover class="tooltip"
                 placement="bottom-end"
                 :show-after="helpDelay" :teleported=false trigger="hover"
                 popper-class="header-popper"
               >
                 <template #reference>
-                  <el-button
-                    type="primary"
+                  <el-checkbox
+                    v-model="exportAnnotation"
                     size="small"
-                    @click="getShareLink(true)"
-                    class="share-options"
                   >
-                    Settings with Annotations
-                    (Valid for 30 days)
-                  </el-button>
+                    Export Annotations
+                  </el-checkbox>
                 </template>
                 <template #default>
-                  Create a link for current views settings
-                  <br>
-                  and anonymous annotations.
+                  Create a permalink with anonymous annotations.
                   <br>
                   NOTE: Annotations will only be stored for
                   <br>
@@ -360,6 +346,7 @@ import {
 } from '@element-plus/icons-vue';
 import {
   ElButton as Button,
+  ElCheckbox as Checkbox,
   ElCol as Col,
   ElIcon as Icon,
   ElInput as Input,
@@ -377,6 +364,7 @@ export default {
   name: "DialogToolbarContent",
   components: {
     Button,
+    Checkbox,
     Col,
     Icon,
     Input,
@@ -445,12 +433,16 @@ export default {
   },
   data: function() {
     return {
+      activeViewRef: undefined,
+      displayShareOptions: false,
+      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      exportAnnotation: false,
+      failedSearch: undefined,
+      globalSettings: {},
+      globalSettingRef: undefined,
+      independent: true,
       isFullscreen: false,
       loadingLink: true,
-      displayShareOptions: false,
-      independent: true,
-      failedSearch: undefined,
-      activeViewRef: undefined,
       permalinkRef: undefined,
       globalSettingRef: undefined,
       ElIconCopyDocument: shallowRef(ElIconCopyDocument),
