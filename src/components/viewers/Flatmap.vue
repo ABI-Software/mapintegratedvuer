@@ -188,6 +188,9 @@ export default {
     EventBus.on('flightPathUpdate', (payload) => {
       this.$refs.flatmap.setFlightPath3D(payload);
     });
+    EventBus.on('organsDisplayUpdate', (payload) => {
+      this.$refs.flatmap.setColour(payload);
+    });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       const currentFlatmap = this.$refs.flatmap;

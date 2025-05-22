@@ -511,6 +511,12 @@ export default {
         currentFlatmap.setFlightPath3D(payload);
       }
     });
+    EventBus.on('organsDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.setColour(payload);
+      }
+    });
     EventBus.on("connectivity-query-filter", (payload) => {
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();

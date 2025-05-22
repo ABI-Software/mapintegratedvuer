@@ -487,6 +487,10 @@ export default {
       if (updatedSettings.includes('flightPathDisplay')) {
         EventBus.emit('flightPathUpdate', this.globalSettings.flightPathDisplay);
       }
+      // organs display update
+      if (updatedSettings.includes('organsDisplay')) {
+        EventBus.emit('organsDisplayUpdate', this.globalSettings.organsDisplay);
+      }
     },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
