@@ -162,6 +162,7 @@ export default {
     onSpeciesLayoutConnectivityUpdate: function () {
       let activePaneIDs = [];
       let availablePaneIDs = [];
+      let combinedConnectivities = [];
       let sckanVersion = '';
       let uuid = '';
 
@@ -210,16 +211,25 @@ export default {
         }
       });
 
-      // the same map on all screens
-      if (uuids.length === 1) {
-        uuid = uuids[0];
-        if (uuid in this.connectivitiesStore.globalConnectivities) {
-          EventBus.emit("connectivity-knowledge", {
-            data: this.connectivitiesStore.globalConnectivities[uuid]
-          });
+      // mix connectivites of available maps
+      if (uuids.length) {
+        uuids.forEach((_uuid) => {
+          if (_uuid in this.connectivitiesStore.globalConnectivities) {
+            const connectivity = this.connectivitiesStore.globalConnectivities[_uuid];
+            combinedConnectivities.push(...connectivity);
+          }
+        });
+
+        const uniqueConnectivities = Array.from(
+          new Map(combinedConnectivities.map((item) => [item.id, item])).values()
+        );
+
+        EventBus.emit("connectivity-knowledge", {
+          data: uniqueConnectivities
+        });
+
+        if (uuids.length === 1) {
           this.connectivitiesStore.updateActiveConnectivityKey(uuid);
-        } else {
-          console.warn(`There has no connectivity for map ${uuid}!`);
         }
       } else {
         if (sckanVersion) {
