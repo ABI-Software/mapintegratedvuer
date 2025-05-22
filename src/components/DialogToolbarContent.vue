@@ -483,6 +483,10 @@ export default {
       if (updatedSettings.includes('interactiveMode')) {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
+      // flight path update
+      if (updatedSettings.includes('flightPathDisplay')) {
+        EventBus.emit('flightPathUpdate', this.globalSettings.flightPathDisplay);
+      }
     },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);

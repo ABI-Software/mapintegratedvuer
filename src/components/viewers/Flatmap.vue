@@ -185,6 +185,9 @@ export default {
     EventBus.on("hoverUpdate", () => {
       this.cardHoverHighlight();
     });
+    EventBus.on('flightPathUpdate', (payload) => {
+      this.$refs.flatmap.setFlightPath3D(payload);
+    });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       const currentFlatmap = this.$refs.flatmap;
