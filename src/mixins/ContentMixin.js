@@ -596,11 +596,13 @@ export default {
         }
         const nestedIds = await Promise.all(prom1);
         const ids = [...new Set(nestedIds.flat())];
-        let paths = await flatmap.retrieveConnectedPaths(ids, options);
-        paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
+        const paths = await flatmap.retrieveConnectedPaths(ids, options);
         payload.highlight = paths;
-        let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
-        payload.data = results;
+        const results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
+        payload.data = [
+          ...results.filter((r) => ids.includes(r.id)),
+          ...results.filter((r) => !ids.includes(r.id))
+        ];
       }
       EventBus.emit("connectivity-knowledge", payload);
     }
