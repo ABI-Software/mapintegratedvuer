@@ -130,7 +130,7 @@ export default {
       createData: {},
       connectivityHighlight: [],
       connectivityKnowledge: [],
-      connectivityExplorerClicked: false,
+      connectivityExplorerClicked: [], // to support multi views
     }
   },
   watch: {
@@ -146,8 +146,7 @@ export default {
   },
   methods: {
     onConnectivityExplorerClicked: function (payload) {
-      this.connectivityExplorerClicked = true;
-      this.onDisplaySearch({ term: payload.id }, false);
+      this.onDisplaySearch({ term: payload.id }, false, true);
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -249,13 +248,16 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: function (payload, tracking = true) {
+    onDisplaySearch: function (payload, tracking = true, connectivityExplorerClicked = false) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
         activeContents.forEach(content => {
+          if (connectivityExplorerClicked) {
+            this.connectivityExplorerClicked.push(true);
+          }
           if (content.search(payload.term)) {
             searchFound = true;
           }
@@ -314,7 +316,7 @@ export default {
       EventBus.emit('connectivity-hovered', data);
     },
     onConnectivitySourceChange: function (data) {
-      this.connectivityExplorerClicked = true;
+      this.connectivityExplorerClicked.push(true);
       EventBus.emit('connectivity-source-change', data);
     },
     hoverChanged: function (data) {
@@ -636,7 +638,7 @@ export default {
       this.connectivityEntry = payload;
       // click on the flatmap paths/features directly
       // or onDisplaySearch is performed
-      if (!this.connectivityExplorerClicked) {
+      if (!this.connectivityExplorerClicked.length) {
         this.connectivityKnowledge = payload.map((entry) => {
           return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
         });
@@ -649,7 +651,7 @@ export default {
           this.$refs.sideBar.setDrawerOpen(true);
         }
       }
-      this.connectivityExplorerClicked = false;
+      this.connectivityExplorerClicked.pop();
     });
     EventBus.on('connectivity-error', payload => {
       if (this.$refs.sideBar) {
