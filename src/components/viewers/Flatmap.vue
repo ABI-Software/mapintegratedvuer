@@ -30,6 +30,7 @@
       :enableOpenMapUI="true"
       :flatmapAPI="flatmapAPI"
       :sparcAPI="apiLocation"
+      :showLocalSettings="showLocalSettings"
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @mapmanager-loaded="onMapmanagerLoaded"
@@ -183,6 +184,21 @@ export default {
     });
     EventBus.on("hoverUpdate", () => {
       this.cardHoverHighlight();
+    });
+    EventBus.on('viewingModeUpdate', (payload) => {
+      this.$refs.flatmap.changeViewingMode(payload);
+    });
+    EventBus.on('flightPathUpdate', (payload) => {
+      this.$refs.flatmap.setFlightPath3D(payload);
+    });
+    EventBus.on('organsDisplayUpdate', (payload) => {
+      this.$refs.flatmap.setColour(payload);
+    });
+    EventBus.on('outlinesDisplayUpdate', (payload) => {
+      this.$refs.flatmap.setOutlines(payload);
+    });
+    EventBus.on('backgroundDisplayUpdate', (payload) => {
+      this.$refs.flatmap.backgroundChangeCallback(payload);
     });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;

@@ -31,6 +31,7 @@
       :markerCluster="true"
       :markerLabels="markerLabels"
       :flatmapAPI="flatmapAPI"
+      :showLocalSettings="showLocalSettings"
     />
 
     <HelpModeDialog
@@ -221,6 +222,12 @@ export default {
       if (this.scaffoldLoaded) {
         this.cardHoverHighlight();
       }
+    });
+    EventBus.on('backgroundDisplayUpdate', (payload) => {
+      this.$refs.scaffold.backgroundChangeCallback(payload);
+    });
+    EventBus.on('viewingModeUpdate', (payload) => {
+      this.$refs.scaffold.changeViewingMode(payload);
     });
   },
 };

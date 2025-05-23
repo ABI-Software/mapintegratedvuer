@@ -107,6 +107,15 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to show global settings UI.
+     * Set to `false` to hide the global settings and show local settings for flatmap and scaffold viewers.
+     * Default is `true`.
+     */
+    showGlobalSettings: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: function () {
     return {
@@ -197,7 +206,7 @@ export default {
      * @public
      * Restore state of the map viewer from a state provided in the
      * state argument, use the getState method to get the current state.
-     * 
+     *
      * @arg `state`
      */
     setState: function(state){
@@ -209,7 +218,7 @@ export default {
      * restore settings and viewers using the setState method.
      * Set anonymousAnnotations to true if the user would like to perserve the
      * state of anonymous annotations.
-     * @arg `anonymousAnnotations` 
+     * @arg `anonymousAnnotations`
      */
     getState: function(anonymousAnnotations = false){
       return this.$refs.flow.getState(anonymousAnnotations);
@@ -367,6 +376,7 @@ export default {
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);
+    this.settingsStore.updateShowGlobalSettings(this.showGlobalSettings);
     this.splitFlowStore?.reset();
     this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },
