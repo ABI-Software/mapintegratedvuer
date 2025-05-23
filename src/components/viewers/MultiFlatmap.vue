@@ -523,7 +523,12 @@ export default {
         currentFlatmap.setOutlines(payload);
       }
     });
-
+    EventBus.on('backgroundDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.backgroundChangeCallback(payload);
+      }
+    });
     EventBus.on("connectivity-query-filter", (payload) => {
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();

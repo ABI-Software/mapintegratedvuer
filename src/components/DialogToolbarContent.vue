@@ -308,7 +308,7 @@
               @change="updateGlobalSettings"
             >
               <el-radio value="white">white</el-radio>
-              <el-radio value="blue">blue</el-radio>
+              <el-radio value="lightskyblue">lightskyblue</el-radio>
               <el-radio value="black">black</el-radio>
             </el-radio-group>
           </div>
@@ -494,6 +494,10 @@ export default {
       // outlines display update
       if (updatedSettings.includes('outlinesDisplay')) {
         EventBus.emit('outlinesDisplayUpdate', this.globalSettings.outlinesDisplay);
+      }
+      // background display update
+      if (updatedSettings.includes('backgroundDisplay')) {
+        EventBus.emit('backgroundDisplayUpdate', this.globalSettings.backgroundDisplay);
       }
     },
     titleClicked: function(id) {

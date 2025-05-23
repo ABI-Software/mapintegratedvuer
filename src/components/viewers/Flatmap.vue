@@ -194,6 +194,9 @@ export default {
     EventBus.on('outlinesDisplayUpdate', (payload) => {
       this.$refs.flatmap.setOutlines(payload);
     });
+    EventBus.on('backgroundDisplayUpdate', (payload) => {
+      this.$refs.flatmap.backgroundChangeCallback(payload);
+    });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       const currentFlatmap = this.$refs.flatmap;
