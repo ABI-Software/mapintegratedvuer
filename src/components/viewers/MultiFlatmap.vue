@@ -505,6 +505,12 @@ export default {
         this.cardHoverHighlight();
       }
     });
+    EventBus.on('viewingModeUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.changeViewingMode(payload);
+      }
+    });
     EventBus.on('flightPathUpdate', (payload) => {
       if (this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();

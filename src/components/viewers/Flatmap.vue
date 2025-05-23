@@ -185,6 +185,9 @@ export default {
     EventBus.on("hoverUpdate", () => {
       this.cardHoverHighlight();
     });
+    EventBus.on('viewingModeUpdate', (payload) => {
+      this.$refs.flatmap.changeViewingMode(payload);
+    });
     EventBus.on('flightPathUpdate', (payload) => {
       this.$refs.flatmap.setFlightPath3D(payload);
     });

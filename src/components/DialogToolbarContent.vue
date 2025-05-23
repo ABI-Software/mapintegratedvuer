@@ -483,6 +483,10 @@ export default {
       if (updatedSettings.includes('interactiveMode')) {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
+      // viewing mode update
+      if (updatedSettings.includes('viewingMode')) {
+        EventBus.emit('viewingModeUpdate', this.globalSettings.viewingMode);
+      }
       // flight path update
       if (updatedSettings.includes('flightPathDisplay')) {
         EventBus.emit('flightPathUpdate', this.globalSettings.flightPathDisplay);
