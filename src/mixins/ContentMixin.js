@@ -579,10 +579,7 @@ export default {
     },
     connectivityQueryFilter: async function (flatmap, data) {
       const uuid = flatmap.mapImp.uuid
-      let payload = {
-        state: "default",
-        data: [...this.connectivityKnowledge[uuid]],
-      };      
+      let payload = { data: [...this.connectivityKnowledge[uuid]] };      
       if (data) {        
         if (data.type === "query-update") {
           if (this.query !== data.value) this.target = [];
@@ -592,7 +589,6 @@ export default {
         }
       }
       if (this.query) {
-        payload.state = "processed";
         let prom1 = [], options = {};
         const searchTerms = this.query.split(",").map((term) => term.trim());
         for (let index = 0; index < searchTerms.length; index++) {
@@ -600,10 +596,13 @@ export default {
         }
         const nestedIds = await Promise.all(prom1);
         const ids = [...new Set(nestedIds.flat())];
-        let paths = await flatmap.retrieveConnectedPaths(ids, options);
-        paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-        let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
-        payload.data = results;
+        const paths = await flatmap.retrieveConnectedPaths(ids, options);
+        payload.highlight = paths;
+        const results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
+        payload.data = [
+          ...results.filter((r) => ids.includes(r.id)),
+          ...results.filter((r) => !ids.includes(r.id))
+        ];
       }
       EventBus.emit("connectivity-knowledge", payload);
     }

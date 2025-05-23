@@ -44,8 +44,9 @@
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-hovered="onConnectivityHovered"
-          @connectivity-explorer-clicked="onConnectivityExplorerClicked"
+          @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @filter-visibility="onFilterVisibility"
         />
         <SplitDialog
           :entries="entries"
@@ -143,9 +144,21 @@ export default {
       },
       immediate: true,
     },
+    connectivityHighlight: {
+      handler: function (value) {
+        this.onShowConnectivity(value);
+        this.onFilterVisibility(value.length ? true : false);
+      },
+    },
   },
   methods: {
-    onConnectivityExplorerClicked: function (payload) {
+    onFilterVisibility: function (filter) {
+      const payload = filter && this.connectivityHighlight.length ?
+        { 'models': this.connectivityHighlight } :
+        undefined
+      EventBus.emit('filter-visibility', payload);
+    },
+    onConnectivityCollapseChange: function (payload) {
       this.connectivityExplorerClicked = true;
       this.onDisplaySearch({ term: payload.id }, false);
     },
@@ -299,13 +312,15 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      const splitFlowState = this.splitFlowStore.getState();
-      const activeView = splitFlowState?.activeView || '';
-      // offset sidebar only on singlepanel and 2horpanel views
-      EventBus.emit('show-connectivity', {
-        featureIds: featureIds,
-        offset: activeView === 'singlepanel' || activeView === '2horpanel'
-      });
+      if (featureIds.length) {        
+        const splitFlowState = this.splitFlowStore.getState();
+        const activeView = splitFlowState?.activeView || '';
+        // offset sidebar only on singlepanel and 2horpanel views
+        EventBus.emit('show-connectivity', {
+          featureIds: featureIds,
+          offset: activeView === 'singlepanel' || activeView === '2horpanel'
+        });
+      }
     },
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
@@ -634,14 +649,11 @@ export default {
       // or onDisplaySearch is performed
       if (!this.connectivityExplorerClicked) {
         this.connectivityKnowledge = payload.map((entry) => {
-          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
+          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready };
         });
-        if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
-          this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
-          this.onShowConnectivity(this.connectivityHighlight);
-        }
+        this.connectivityHighlight = payload.map(entry => entry.featureId[0]);
         if (this.$refs.sideBar) {
-          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
           this.$refs.sideBar.setDrawerOpen(true);
         }
       }
@@ -662,13 +674,7 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = [];
-      if (payload.state === "processed") {
-        this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);;
-        this.onShowConnectivity(this.connectivityHighlight);
-      } else {
-        this.hoverChanged();
-      }
+      this.connectivityHighlight = payload.highlight || [];
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
