@@ -74,7 +74,7 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      return this.$refs.flatmap.searchAndShowResult(term);
+      return this.$refs.flatmap.searchAndShowResult(term, true);
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
