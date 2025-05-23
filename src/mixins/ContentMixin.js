@@ -52,6 +52,10 @@ export default {
     annotationSidebar() {
       return this.settingsStore.annotationSidebar;
     },
+    // Hide local settings if global settings are shown
+    showLocalSettings() {
+      return !this.settingsStore.showGlobalSettings;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {

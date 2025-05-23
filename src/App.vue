@@ -42,6 +42,7 @@
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
         :allClosable="false"
+        :showGlobalSettings="true"
         @updateShareLinkRequested="updateUUID"
         @isReady="viewerIsReady"
         @mapLoaded="mapIsLoaded"

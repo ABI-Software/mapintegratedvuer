@@ -28,6 +28,7 @@
       :openMapOptions="openMapOptions"
       :flatmapAPI="flatmapAPI"
       :sparcAPI="apiLocation"
+      :showLocalSettings="showLocalSettings"
       @pan-zoom-callback="flatmapPanZoomCallback"
       @open-map="openMap"
       @finish-help-mode="endHelp"
@@ -502,6 +503,36 @@ export default {
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
         this.cardHoverHighlight();
+      }
+    });
+    EventBus.on('viewingModeUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.changeViewingMode(payload);
+      }
+    });
+    EventBus.on('flightPathUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.setFlightPath3D(payload);
+      }
+    });
+    EventBus.on('organsDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.setColour(payload);
+      }
+    });
+    EventBus.on('outlinesDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.setOutlines(payload);
+      }
+    });
+    EventBus.on('backgroundDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.backgroundChangeCallback(payload);
       }
     });
     EventBus.on("connectivity-query-filter", (payload) => {
