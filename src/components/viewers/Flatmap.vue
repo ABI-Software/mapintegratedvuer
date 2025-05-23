@@ -74,7 +74,7 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      return this.$refs.flatmap.searchAndShowResult(term);
+      return this.$refs.flatmap.searchAndShowResult(term, true);
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
@@ -102,9 +102,11 @@ export default {
     },
     flatmapReadyCall: function (flatmap) {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
+      const flatmapImp = flatmap.mapImp;
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
       this.flatmapReadyForMarkerUpdates(flatmap);
+      this.loadConnectivityKnowledge(flatmapImp);
       EventBus.emit("mapLoaded", flatmap);
     },
     onPathwaySelectionChanged: function (data) {
@@ -198,6 +200,12 @@ export default {
       const currentFlatmap = this.$refs.flatmap;
       if (currentFlatmap) {
         currentFlatmap.showConnectivitiesByReference(payload);
+      }
+    });
+    EventBus.on("connectivity-query-filter", (payload) => {
+      const currentFlatmap = this.$refs.flatmap;
+      if (currentFlatmap && currentFlatmap.mapImp) {
+        this.connectivityQueryFilter(currentFlatmap, payload)
       }
     });
   },
