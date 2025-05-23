@@ -32,11 +32,17 @@ export const useSettingsStore = defineStore('settings', {
       connectivityInfoSidebar: true,
       annotationSidebar: true,
       allClosable: true,
+      showGlobalSettings: true,
       globalSettings: {
         displayMarkers: true,
         highlightConnectedPaths: false,
         highlightDOIPaths: false, // comment out to hide in settings
         interactiveMode: 'dataset', // dataset, connectivity, multiscale
+        viewingMode: 'Exploration',
+        flightPathDisplay: false,
+        organsDisplay: true,
+        outlinesDisplay: true,
+        backgroundDisplay: 'white',
       },
     }
   },
@@ -191,5 +197,8 @@ export const useSettingsStore = defineStore('settings', {
         this.globalSettings[key] = value;
       }
     },
+    updateShowGlobalSettings(showGlobalSettings) {
+      this.showGlobalSettings = showGlobalSettings;
+    }
   }
 });
