@@ -223,6 +223,12 @@ export default {
         this.cardHoverHighlight();
       }
     });
+    EventBus.on('backgroundDisplayUpdate', (payload) => {
+      this.$refs.scaffold.backgroundChangeCallback(payload);
+    });
+    EventBus.on('viewingModeUpdate', (payload) => {
+      this.$refs.scaffold.changeViewingMode(payload);
+    });
   },
 };
 </script>
