@@ -191,6 +191,9 @@ export default {
     EventBus.on('organsDisplayUpdate', (payload) => {
       this.$refs.flatmap.setColour(payload);
     });
+    EventBus.on('outlinesDisplayUpdate', (payload) => {
+      this.$refs.flatmap.setOutlines(payload);
+    });
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       const currentFlatmap = this.$refs.flatmap;

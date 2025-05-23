@@ -491,6 +491,10 @@ export default {
       if (updatedSettings.includes('organsDisplay')) {
         EventBus.emit('organsDisplayUpdate', this.globalSettings.organsDisplay);
       }
+      // outlines display update
+      if (updatedSettings.includes('outlinesDisplay')) {
+        EventBus.emit('outlinesDisplayUpdate', this.globalSettings.outlinesDisplay);
+      }
     },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);

@@ -517,6 +517,13 @@ export default {
         currentFlatmap.setColour(payload);
       }
     });
+    EventBus.on('outlinesDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.setOutlines(payload);
+      }
+    });
+
     EventBus.on("connectivity-query-filter", (payload) => {
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
