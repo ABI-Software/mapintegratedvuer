@@ -30,6 +30,7 @@ import CustomSplitter from "./CustomSplitter.vue";
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useConnectivitiesStore } from '../stores/connectivities';
 
 export default {
   name: "SplitDialog",
@@ -157,12 +158,98 @@ export default {
         });
       }
       this.__userResize__ = false;
-    }
+    },
+    onSpeciesLayoutConnectivityUpdate: function () {
+      let activePaneIDs = [];
+      let availablePaneIDs = [];
+      let combinedConnectivities = [];
+      let sckanVersion = '';
+      let uuid = '';
+
+      for (const key in this.customLayout) {
+        if (this.customLayout[key].id) {
+          availablePaneIDs.push(this.customLayout[key].id);
+        }
+      }
+
+      switch (this.activeView) {
+        case 'singlepanel': {
+          activePaneIDs = availablePaneIDs.slice(0, 1);
+        } break;
+        case '2horpanel':
+        case '2vertpanel': {
+          activePaneIDs = availablePaneIDs.slice(0, 2);
+        } break;
+        case '3panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 3);
+        } break;
+        case '4panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 4);
+        } break;
+        case '5panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 5);
+        } break;
+        case '6panelVertical':
+        case '6panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 6);
+        } break;
+        default:
+          break;
+      }
+
+      const uuids = Array.from(
+        new Set(
+          this.entries
+            .filter(entry => activePaneIDs.includes(entry.id) && entry.uuid)
+            .map(entry => entry.uuid)
+        )
+      );
+
+      this.entries.forEach((entry) => {
+        if (entry.sckanVersion in this.connectivitiesStore.globalConnectivities) {
+          sckanVersion = entry.sckanVersion;
+        }
+      });
+
+      // mix connectivites of available maps
+      if (uuids.length) {
+        uuids.forEach((_uuid) => {
+          if (_uuid in this.connectivitiesStore.globalConnectivities) {
+            const connectivity = this.connectivitiesStore.globalConnectivities[_uuid];
+            combinedConnectivities.push(...connectivity);
+          }
+        });
+
+        const uniqueConnectivities = Array.from(
+          new Map(combinedConnectivities.map((item) => [item.id, item])).values()
+        );
+
+        EventBus.emit("connectivity-knowledge", {
+          data: uniqueConnectivities
+        });
+
+        if (uuids.length === 1) {
+          this.connectivitiesStore.updateActiveConnectivityKey(uuid);
+        }
+      } else {
+        if (sckanVersion) {
+          EventBus.emit("connectivity-knowledge", {
+            data: this.connectivitiesStore.globalConnectivities[sckanVersion]
+          });
+          this.connectivitiesStore.updateActiveConnectivityKey(sckanVersion);
+        } else {
+          console.warn(`There has no connectivity to show!`);
+        }
+      }
+    },
   },
   computed: {
-    ...mapStores(useSplitFlowStore),
+    ...mapStores(useSplitFlowStore, useConnectivitiesStore),
     activeView: function() {
       return this.splitFlowStore.activeView;
+    },
+    customLayout: function() {
+      return this.splitFlowStore.customLayout;
     },
     horizontal() {
       if (this.splitFlowStore.activeView === "2horpanel") {
@@ -209,6 +296,9 @@ export default {
     EventBus.on("PaneUnmounted", payload => {
       this.hidePane(payload.refName);
     });
+    EventBus.on('species-layout-connectivity-update', () => {
+      this.onSpeciesLayoutConnectivityUpdate();
+    })
   },
 };
 </script>
