@@ -21,7 +21,7 @@
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
-      :connectivityInfoSidebar="connectivityInfoSidebar"
+      @connectivity-info-close="onConnectivityInfoClose"
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
