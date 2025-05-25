@@ -610,14 +610,12 @@ export default {
       return ids;
     },
     connectivityQueryFilter: async function (flatmap, data) {
-      const uuid = flatmap.mapImp.uuid;
-      // to search from sckan or uuid based on the maps showing on split screens
-      const activeConnectivityKey = this.connectivitiesStore.activeConnectivityKey || uuid;
+      const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
       // only for those flatmaps that are shown on the split screen
       if (flatmap.$el.checkVisibility()) {
         let payload = {
           state: "default",
-          data: [...this.connectivityKnowledge[activeConnectivityKey]],
+          data: [...uniqueConnectivities],
         };
         if (data) {
           if (data.type === "query-update") {
@@ -638,7 +636,7 @@ export default {
           const ids = [...new Set(nestedIds.flat())];
           let paths = await flatmap.retrieveConnectedPaths(ids, options);
           paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-          let results = this.connectivityKnowledge[activeConnectivityKey].filter((item) => paths.includes(item.id));
+          let results = uniqueConnectivities.filter((item) => paths.includes(item.id));
           payload.data = results;
         }
         EventBus.emit("connectivity-knowledge", payload);
