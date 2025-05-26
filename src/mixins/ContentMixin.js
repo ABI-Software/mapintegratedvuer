@@ -560,6 +560,9 @@ export default {
     onConnectivityError: function (errorInfo) {
       EventBus.emit('connectivity-error', errorInfo);
     },
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
+    },
     loadConnectivityKnowledge: async function (flatmapImp) {
       const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
