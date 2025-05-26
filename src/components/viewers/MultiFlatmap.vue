@@ -338,6 +338,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
+        this.updateSettings();
         this.loadConnectivityKnowledge(flatmapImp);
         EventBus.emit("mapLoaded", flatmap);
       }
@@ -432,6 +433,25 @@ export default {
       if (this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.changeConnectivitySource(payload);
+      }
+    },
+    updateSettings: function () {
+      const {
+        backgroundDisplay,
+        viewingMode,
+        flightPathDisplay,
+        organsDisplay,
+        outlines,
+      } = this.settingsStore.globalSettings;
+
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+
+        currentFlatmap.changeViewingMode(viewingMode);
+        currentFlatmap.setFlightPath3D(flightPathDisplay);
+        currentFlatmap.setColour(organsDisplay);
+        currentFlatmap.setOutlines(outlines);
+        currentFlatmap.backgroundChangeCallback(backgroundDisplay);
       }
     },
   },
