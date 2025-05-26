@@ -202,12 +202,6 @@ export default {
         currentFlatmap.showConnectivitiesByReference(payload);
       }
     });
-    EventBus.on("connectivity-query-filter", (payload) => {
-      const currentFlatmap = this.$refs.flatmap;
-      if (currentFlatmap && currentFlatmap.mapImp) {
-        this.connectivityQueryFilter(currentFlatmap, payload)
-      }
-    });
   },
 };
 </script>

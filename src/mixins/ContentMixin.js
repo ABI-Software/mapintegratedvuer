@@ -597,54 +597,6 @@ export default {
       // EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
       EventBus.emit('species-layout-connectivity-update');
     },
-    getSearchedId: function (flatmap, term) {
-      let ids = [];
-      const searchResult = flatmap.mapImp.search(term);
-      const featureIds = searchResult.__featureIds || searchResult.featureIds;
-      featureIds.forEach((id) => {
-        const annotation = flatmap.mapImp.annotation(id);
-        if (
-          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
-          annotation.models && !ids.includes(annotation.models)
-        ) {
-          ids.push(annotation.models);
-        }
-      });
-      return ids;
-    },
-    connectivityQueryFilter: async function (flatmap, data) {
-      const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-      // only for those flatmaps that are shown on the split screen
-      if (flatmap.$el.checkVisibility()) {
-        let payload = {
-          state: "default",
-          data: [...uniqueConnectivities],
-        };
-        if (data) {
-          if (data.type === "query-update") {
-            if (this.query !== data.value) this.target = [];
-            this.query = data.value;
-          } else if (data.type === "filter-update") {
-            this.filter = data.value;
-          }
-        }
-        if (this.query) {
-          payload.state = "processed";
-          let prom1 = [], options = {};
-          const searchTerms = this.query.split(",").map((term) => term.trim());
-          for (let index = 0; index < searchTerms.length; index++) {
-            prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
-          }
-          const nestedIds = await Promise.all(prom1);
-          const ids = [...new Set(nestedIds.flat())];
-          let paths = await flatmap.retrieveConnectedPaths(ids, options);
-          paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-          let results = uniqueConnectivities.filter((item) => paths.includes(item.id));
-          payload.data = results;
-        }
-        EventBus.emit("connectivity-knowledge", payload);
-      }
-    }
   },
   data: function () {
     return {
@@ -666,8 +618,6 @@ export default {
       isInHelp: false,
       mapManager: undefined,
       connectivityKnowledge: {},
-      query: "",
-      filter: [],
       highlightDelay: undefined
     };
   },
