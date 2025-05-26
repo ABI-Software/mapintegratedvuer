@@ -7,6 +7,7 @@ import EventBus from "../components/EventBus";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useConnectivitiesStore } from '../stores/connectivities';
 import Tagging from '../services/tagging.js';
 
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
@@ -35,7 +36,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore, useSplitFlowStore),
+    ...mapStores(useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
       return this.splitFlowStore.idNamePair;
     },
@@ -60,6 +61,7 @@ export default {
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
+    this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
   },
   methods: {
     toggleSyncMode: function () {
@@ -521,6 +523,18 @@ export default {
                   flatmap.zoomToFeatures(paths);
                 } catch (error) {
                   console.log(error)
+                  // only for connectivity hover highlight
+                  if (hoverConnectivity.length && flatmap.mapImp) {
+                    const uuid = flatmap.mapImp.uuid;
+                    const found = paths.every((path) =>
+                      this.connectivityKnowledge[uuid].some((connectivity) =>
+                        connectivity.id === path
+                      )
+                    );
+                    if (!found) {
+                      flatmap.mapImp.clearSearchResults();
+                    }
+                  }
                 }
               });
             } else if (this.scaffoldRef && scaffold) {
@@ -542,25 +556,46 @@ export default {
     onConnectivityError: function (errorInfo) {
       EventBus.emit('connectivity-error', errorInfo);
     },
-    loadConnectivityKnowledge: async function (flatmap) {
-      const sckanVersion = getKnowledgeSource(flatmap);
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
+    },
+    loadConnectivityKnowledge: async function (flatmapImp) {
+      const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
-      const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
-      const uuid = flatmap.uuid;
-      const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
-      const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+      const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
+      const uuid = flatmapImp.uuid;
 
-      this.connectivityKnowledge[uuid] = knowledge
-        .filter((item) => {
-          return (
-            item.source === sckanVersion &&
-            item.connectivity?.length &&
-            item.id in pathsFromMap
-          );
-        })
-        .sort((a, b) => a.label.localeCompare(b.label));
-      EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
+      if (!this.connectivityKnowledge[sckanVersion]) {
+        this.connectivityKnowledge[sckanVersion] = knowledge
+          .filter((item) => {
+            return (
+              item.source === sckanVersion &&
+              item.connectivity?.length
+            );
+          })
+          .sort((a, b) => a.label.localeCompare(b.label));
+      }
+
+      if (!this.connectivitiesStore.globalConnectivities[uuid]) {
+        const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
+        const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+
+        this.connectivityKnowledge[uuid] = knowledge
+          .filter((item) => {
+            return (
+              item.source === sckanVersion &&
+              item.connectivity?.length &&
+              item.id in pathsFromMap
+            );
+          })
+          .sort((a, b) => a.label.localeCompare(b.label));
+      }
+
+      this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
+
+      // EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
+      EventBus.emit('species-layout-connectivity-update');
     },
     getSearchedId: function (flatmap, term) {
       let ids = [];
@@ -578,33 +613,35 @@ export default {
       return ids;
     },
     connectivityQueryFilter: async function (flatmap, data) {
-      const uuid = flatmap.mapImp.uuid
-      let payload = { data: [...this.connectivityKnowledge[uuid]] };      
-      if (data) {        
-        if (data.type === "query-update") {
-          if (this.query !== data.value) this.target = [];
-          this.query = data.value;
-        } else if (data.type === "filter-update") {
-          this.filter = data.value;
+      const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+      // only for those flatmaps that are shown on the split screen
+      if (flatmap.$el.checkVisibility()) {
+        let payload = { data: [...uniqueConnectivities] };
+        if (data) {
+          if (data.type === "query-update") {
+            this.query = data.value;
+          } else if (data.type === "filter-update") {
+            this.filter = data.value;
+          }
         }
-      }
-      if (this.query) {
-        let prom1 = [], options = {};
-        const searchTerms = this.query.split(",").map((term) => term.trim());
-        for (let index = 0; index < searchTerms.length; index++) {
-          prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
+        if (this.query) {
+          let prom1 = [], options = {};
+          const searchTerms = this.query.split(",").map((term) => term.trim());
+          for (let index = 0; index < searchTerms.length; index++) {
+            prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
+          }
+          const nestedIds = await Promise.all(prom1);
+          const ids = [...new Set(nestedIds.flat())];
+          const paths = await flatmap.retrieveConnectedPaths(ids, options);
+          payload.highlight = paths;
+          const results = uniqueConnectivities.filter((item) => paths.includes(item.id));
+          payload.data = [
+            ...results.filter((r) => ids.includes(r.id)),
+            ...results.filter((r) => !ids.includes(r.id))
+          ];
         }
-        const nestedIds = await Promise.all(prom1);
-        const ids = [...new Set(nestedIds.flat())];
-        const paths = await flatmap.retrieveConnectedPaths(ids, options);
-        payload.highlight = paths;
-        const results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
-        payload.data = [
-          ...results.filter((r) => ids.includes(r.id)),
-          ...results.filter((r) => !ids.includes(r.id))
-        ];
+        EventBus.emit("connectivity-knowledge", payload);
       }
-      EventBus.emit("connectivity-knowledge", payload);
     }
   },
   data: function () {
