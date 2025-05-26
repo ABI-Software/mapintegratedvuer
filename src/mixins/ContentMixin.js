@@ -594,8 +594,7 @@ export default {
 
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
 
-      // EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
-      EventBus.emit('species-layout-connectivity-update');
+      EventBus.emit("species-layout-connectivity-update");
     },
   },
   data: function () {

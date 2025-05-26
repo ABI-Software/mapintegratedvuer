@@ -250,8 +250,7 @@ export default {
     },
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
-      let searchResults = [];
-      let searchState = '';
+      let searchOrders = [], searchHighlights = [], searchResults = [];
 
       for (const activeContent of activeContents) {
         const viewer = activeContent.$refs.viewer;
@@ -267,30 +266,21 @@ export default {
               currentFlatmap = _currentFlatmap;
             }
           }
-
           if (flatmap && flatmap.mapImp) {
             currentFlatmap = flatmap;
           }
 
-          const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
-            let payload = {
-              state: "default",
-              data: [...uniqueConnectivities],
-            };
+            let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
 
             if (data) {
               if (data.type === "query-update") {
-                if (this.query !== data.value) this.target = [];
                 this.query = data.value;
               } else if (data.type === "filter-update") {
                 this.filter = data.value;
               }
             }
-
             if (this.query) {
-              payload.state = "processed";
               let prom1 = [], options = {};
               const searchTerms = this.query.split(",").map((term) => term.trim());
               for (let index = 0; index < searchTerms.length; index++) {
@@ -298,24 +288,31 @@ export default {
               }
               const nestedIds = await Promise.all(prom1);
               const ids = [...new Set(nestedIds.flat())];
-              let paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
-              paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-              let results = uniqueConnectivities.filter((item) => paths.includes(item.id));
-              payload.data = results;
+              searchOrders.push(...ids);
+              const paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
+              searchHighlights.push(...paths);
+              results = results.filter((item) => paths.includes(item.id));
             }
 
-            searchState = payload.state;
-            searchResults = [...searchResults, ...payload.data];
+            searchResults.push(...results);
           }
         }
       }
 
-      const uniqueResults = Array.from(
+      const uniqueOrders = [...new Set(searchOrders)];
+      const uniqueHighlights = [...new Set(searchHighlights)];
+      let uniqueResults = Array.from(
         new Map(searchResults.map((item) => [item.id, item])).values()
       );
+      // Ensure that the results always show search items first
+      // and the rest ordered by alphabetical order
+      uniqueResults = [
+        ...uniqueResults.filter((r) => uniqueOrders.includes(r.id)),
+        ...uniqueResults.filter((r) => !uniqueOrders.includes(r.id))
+      ];
 
       const connectivitiesPayload = {
-        state: searchState,
+        highlight: uniqueHighlights,
         data: uniqueResults,
       };
 
