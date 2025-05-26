@@ -653,6 +653,11 @@ export default {
       }
       this.connectivityExplorerClicked.pop();
     });
+    EventBus.on('connectivity-info-close', payload => {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.resetConnectivitySearch();
+      }
+    });
     EventBus.on('connectivity-error', payload => {
       if (this.$refs.sideBar) {
         this.$refs.sideBar.updateConnectivityError(payload.data);

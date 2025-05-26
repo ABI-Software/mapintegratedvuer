@@ -20,6 +20,7 @@
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
+      @connectivity-info-close="onConnectivityInfoClose"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
