@@ -48,7 +48,10 @@ export default {
   },
   data: function() {
     return {
-      styles: { }
+      styles: { },
+      query: "",
+      filter: [],
+      target: [],
     }
   },
   methods: {
@@ -230,6 +233,94 @@ export default {
         }
       }
     },
+    getSearchedId: function (flatmap, term) {
+      let ids = [];
+      const searchResult = flatmap.mapImp.search(term);
+      const featureIds = searchResult.__featureIds || searchResult.featureIds;
+      featureIds.forEach((id) => {
+        const annotation = flatmap.mapImp.annotation(id);
+        if (
+          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
+          annotation.models && !ids.includes(annotation.models)
+        ) {
+          ids.push(annotation.models);
+        }
+      });
+      return ids;
+    },
+    connectivityQueryFilter: async function (data) {
+      const activeContents = this.getActiveContents();
+      let searchResults = [];
+      let searchState = '';
+
+      for (const activeContent of activeContents) {
+        const viewer = activeContent.$refs.viewer;
+
+        if (viewer) {
+          const multiflatmap = viewer.$refs.multiflatmap;
+          const flatmap = viewer.$refs.flatmap;
+          let currentFlatmap = null;
+
+          if (multiflatmap) {
+            const _currentFlatmap = multiflatmap.getCurrentFlatmap();
+            if (_currentFlatmap && _currentFlatmap.mapImp) {
+              currentFlatmap = _currentFlatmap;
+            }
+          }
+
+          if (flatmap && flatmap.mapImp) {
+            currentFlatmap = flatmap;
+          }
+
+          const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+
+          if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
+            let payload = {
+              state: "default",
+              data: [...uniqueConnectivities],
+            };
+
+            if (data) {
+              if (data.type === "query-update") {
+                if (this.query !== data.value) this.target = [];
+                this.query = data.value;
+              } else if (data.type === "filter-update") {
+                this.filter = data.value;
+              }
+            }
+
+            if (this.query) {
+              payload.state = "processed";
+              let prom1 = [], options = {};
+              const searchTerms = this.query.split(",").map((term) => term.trim());
+              for (let index = 0; index < searchTerms.length; index++) {
+                prom1.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
+              }
+              const nestedIds = await Promise.all(prom1);
+              const ids = [...new Set(nestedIds.flat())];
+              let paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
+              paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
+              let results = uniqueConnectivities.filter((item) => paths.includes(item.id));
+              payload.data = results;
+            }
+
+            searchState = payload.state;
+            searchResults = [...searchResults, ...payload.data];
+          }
+        }
+      }
+
+      const uniqueResults = Array.from(
+        new Map(searchResults.map((item) => [item.id, item])).values()
+      );
+
+      const connectivitiesPayload = {
+        state: searchState,
+        data: uniqueResults,
+      };
+
+      EventBus.emit("connectivity-knowledge", connectivitiesPayload);
+    },
   },
   computed: {
     ...mapStores(useSplitFlowStore, useConnectivitiesStore),
@@ -287,6 +378,9 @@ export default {
     EventBus.on('species-layout-connectivity-update', () => {
       this.onSpeciesLayoutConnectivityUpdate();
     })
+    EventBus.on("connectivity-query-filter", (payload) => {
+      this.connectivityQueryFilter(payload);
+    });
   },
 };
 </script>

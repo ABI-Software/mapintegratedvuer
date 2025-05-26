@@ -664,8 +664,6 @@ export default {
       isInHelp: false,
       mapManager: undefined,
       connectivityKnowledge: {},
-      query: "",
-      filter: [],
       highlightDelay: undefined
     };
   },
