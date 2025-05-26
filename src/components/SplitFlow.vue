@@ -637,13 +637,14 @@ export default {
       }
     });
     EventBus.on('connectivity-info-open', payload => {
-      if (this.search) {
+      if (!this.search || payload.length > 1) {
+        this.connectivityEntry = payload;
+      } else if (this.search && payload.length === 1) {
+        // if search exist, payload should always be an array of one element
         // skip those payload not contain the search
-        if (payload.find(p => p.featureId[0] === this.search)) {
+        if (payload[0].featureId[0] === this.search) {
           this.connectivityEntry = payload;
         }
-      } else {
-        this.connectivityEntry = payload;
       }
       // click on the flatmap paths/features directly
       // or onDisplaySearch is performed
@@ -656,7 +657,7 @@ export default {
           this.onShowConnectivity(this.connectivityHighlight);
         }
         if (this.$refs.sideBar) {
-          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
           this.$refs.sideBar.setDrawerOpen(true);
         }
       }
