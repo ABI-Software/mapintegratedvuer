@@ -159,6 +159,7 @@ export default {
       EventBus.emit('filter-visibility', payload);
     },
     onConnectivityCollapseChange: function (payload) {
+      this.search = payload.id;
       this.onDisplaySearch({ term: payload.id }, false, true);
     },
     /**
@@ -389,6 +390,7 @@ export default {
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.id === 2) {
+        this.search = '';
         this.connectivityEntry = [];
         EventBus.emit("connectivity-query-filter", data);
       }
@@ -650,7 +652,15 @@ export default {
       }
     });
     EventBus.on('connectivity-info-open', payload => {
-      this.connectivityEntry = payload;
+      if (!this.search || payload.length > 1) {
+        this.connectivityEntry = payload;
+      } else if (this.search && payload.length === 1) {
+        // if search exist, payload should always be an array of one element
+        // skip those payload not contain the search
+        if (payload[0].featureId[0] === this.search) {
+          this.connectivityEntry = payload;
+        }
+      }
       // click on the flatmap paths/features directly
       // or onDisplaySearch is performed
       if (!this.connectivityExplorerClicked.length) {
