@@ -594,55 +594,8 @@ export default {
 
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
 
-      // EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
-      EventBus.emit('species-layout-connectivity-update');
+      EventBus.emit("species-layout-connectivity-update");
     },
-    getSearchedId: function (flatmap, term) {
-      let ids = [];
-      const searchResult = flatmap.mapImp.search(term);
-      const featureIds = searchResult.__featureIds || searchResult.featureIds;
-      featureIds.forEach((id) => {
-        const annotation = flatmap.mapImp.annotation(id);
-        if (
-          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
-          annotation.models && !ids.includes(annotation.models)
-        ) {
-          ids.push(annotation.models);
-        }
-      });
-      return ids;
-    },
-    connectivityQueryFilter: async function (flatmap, data) {
-      const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-      // only for those flatmaps that are shown on the split screen
-      if (flatmap.$el.checkVisibility()) {
-        let payload = { data: [...uniqueConnectivities] };
-        if (data) {
-          if (data.type === "query-update") {
-            this.query = data.value;
-          } else if (data.type === "filter-update") {
-            this.filter = data.value;
-          }
-        }
-        if (this.query) {
-          let prom1 = [], options = {};
-          const searchTerms = this.query.split(",").map((term) => term.trim());
-          for (let index = 0; index < searchTerms.length; index++) {
-            prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
-          }
-          const nestedIds = await Promise.all(prom1);
-          const ids = [...new Set(nestedIds.flat())];
-          const paths = await flatmap.retrieveConnectedPaths(ids, options);
-          payload.highlight = paths;
-          const results = uniqueConnectivities.filter((item) => paths.includes(item.id));
-          payload.data = [
-            ...results.filter((r) => ids.includes(r.id)),
-            ...results.filter((r) => !ids.includes(r.id))
-          ];
-        }
-        EventBus.emit("connectivity-knowledge", payload);
-      }
-    }
   },
   data: function () {
     return {
