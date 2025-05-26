@@ -213,30 +213,18 @@ export default {
 
       // mix connectivites of available maps
       if (uuids.length) {
-        uuids.forEach((_uuid) => {
-          if (_uuid in this.connectivitiesStore.globalConnectivities) {
-            const connectivity = this.connectivitiesStore.globalConnectivities[_uuid];
-            combinedConnectivities.push(...connectivity);
-          }
-        });
-
-        const uniqueConnectivities = Array.from(
-          new Map(combinedConnectivities.map((item) => [item.id, item])).values()
-        );
+        this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
+        const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
 
         EventBus.emit("connectivity-knowledge", {
           data: uniqueConnectivities
         });
-
-        if (uuids.length === 1) {
-          this.connectivitiesStore.updateActiveConnectivityKey(uuid);
-        }
       } else {
         if (sckanVersion) {
           EventBus.emit("connectivity-knowledge", {
             data: this.connectivitiesStore.globalConnectivities[sckanVersion]
           });
-          this.connectivitiesStore.updateActiveConnectivityKey(sckanVersion);
+          this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
         } else {
           console.warn(`There has no connectivity to show!`);
         }

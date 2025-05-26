@@ -4,18 +4,32 @@ export const useConnectivitiesStore = defineStore('connectivities', {
   state: () => {
     return {
       globalConnectivities: {},
-      activeConnectivityKey: '',
+      activeConnectivityKeys: [],
     }
   },
   getters: {
+    getUniqueConnectivitiesByKeys: (state) => {
+      let combinedConnectivities = [];
+      state.activeConnectivityKeys.forEach((uuid) => {
+        if (uuid in state.globalConnectivities) {
+          const connectivity = state.globalConnectivities[uuid];
+          combinedConnectivities.push(...connectivity);
+        }
+      });
 
+      const uniqueConnectivities = Array.from(
+        new Map(combinedConnectivities.map((item) => [item.id, item])).values()
+      );
+
+      return uniqueConnectivities;
+    },
   },
   actions: {
     updateGlobalConnectivities(globalConnectivities) {
       this.globalConnectivities = globalConnectivities;
     },
-    updateActiveConnectivityKey(activeConnectivityKey) {
-      this.activeConnectivityKey = activeConnectivityKey;
+    updateActiveConnectivityKeys(activeConnectivityKeys) {
+      this.activeConnectivityKeys = activeConnectivityKeys;
     },
   }
 });
