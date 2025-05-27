@@ -238,10 +238,17 @@ export default {
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
       featureIds.forEach((id) => {
         const annotation = flatmap.mapImp.annotation(id);
-        if (
-          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
-          annotation.models && !ids.includes(annotation.models)
-        ) {
+        const compareRanges = [
+          annotation.id,
+          annotation.name,
+          annotation.label,
+          annotation.models,
+          annotation.source
+        ];
+        const isMatched = compareRanges.some((item) => {
+          return item && item.toLowerCase().includes(term.toLowerCase())
+        });
+        if (isMatched) {
           ids.push(annotation.models);
         }
       });
