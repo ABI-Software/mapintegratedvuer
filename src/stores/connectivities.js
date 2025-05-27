@@ -5,6 +5,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
     return {
       globalConnectivities: {},
       activeConnectivityKeys: [],
+      filterOptions: {},
     }
   },
   getters: {
@@ -30,6 +31,9 @@ export const useConnectivitiesStore = defineStore('connectivities', {
     },
     updateActiveConnectivityKeys(activeConnectivityKeys) {
       this.activeConnectivityKeys = activeConnectivityKeys;
+    },
+    updateFilterOptions(filterOptions) {
+      this.filterOptions = filterOptions;
     },
   }
 });

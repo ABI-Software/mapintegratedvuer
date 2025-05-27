@@ -62,6 +62,7 @@ export default {
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
     this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
+    this.filterOptions = this.connectivitiesStore.filterOptions;
   },
   methods: {
     toggleSyncMode: function () {
@@ -559,7 +560,8 @@ export default {
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
     },
-    loadConnectivityKnowledge: async function (flatmapImp) {
+    loadConnectivityKnowledge: async function (flatmap) {
+      const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
@@ -573,18 +575,19 @@ export default {
           })
           .sort((a, b) => a.label.localeCompare(b.label));
       }
-
       if (!this.connectivityKnowledge[uuid]) {
         const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
         const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
-
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
           .filter((item) => item.id in pathsFromMap);
       }
-
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
 
-      // EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
+      if (!this.filterOptions[uuid]) {
+        this.filterOptions[uuid] = await flatmap.getFilterOptions();
+      }
+      this.connectivitiesStore.updateFilterOptions(this.filterOptions);
+
       EventBus.emit('species-layout-connectivity-update');
     },
   },
@@ -608,6 +611,7 @@ export default {
       isInHelp: false,
       mapManager: undefined,
       connectivityKnowledge: {},
+      filterOptions: {},
       highlightDelay: undefined
     };
   },
