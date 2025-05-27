@@ -22,6 +22,7 @@
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
@@ -216,12 +217,6 @@ export default {
       const currentFlatmap = this.$refs.flatmap;
       if (currentFlatmap) {
         currentFlatmap.showConnectivitiesByReference(payload);
-      }
-    });
-    EventBus.on("connectivity-query-filter", (payload) => {
-      const currentFlatmap = this.$refs.flatmap;
-      if (currentFlatmap && currentFlatmap.mapImp) {
-        this.connectivityQueryFilter(currentFlatmap, payload)
       }
     });
   },
