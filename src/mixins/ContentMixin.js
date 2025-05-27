@@ -569,27 +569,17 @@ export default {
       if (!this.connectivityKnowledge[sckanVersion]) {
         this.connectivityKnowledge[sckanVersion] = knowledge
           .filter((item) => {
-            return (
-              item.source === sckanVersion &&
-              item.connectivity?.length
-            );
+            return item.source === sckanVersion && item.connectivity?.length;
           })
           .sort((a, b) => a.label.localeCompare(b.label));
       }
 
-      if (!this.connectivitiesStore.globalConnectivities[uuid]) {
+      if (!this.connectivityKnowledge[uuid]) {
         const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
         const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
-        this.connectivityKnowledge[uuid] = knowledge
-          .filter((item) => {
-            return (
-              item.source === sckanVersion &&
-              item.connectivity?.length &&
-              item.id in pathsFromMap
-            );
-          })
-          .sort((a, b) => a.label.localeCompare(b.label));
+        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
+          .filter((item) => item.id in pathsFromMap);
       }
 
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);

@@ -532,7 +532,6 @@ export default {
         // Use to update the connectivity when switch species
         // Wait for provenance info with uuid update
         this.$nextTick(() => {
-          // EventBus.emit("connectivity-query-filter");
           EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
         })
