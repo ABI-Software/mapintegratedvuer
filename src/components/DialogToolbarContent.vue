@@ -287,8 +287,8 @@
               v-model="globalSettings.organsDisplay"
               @change="updateGlobalSettings"
             >
-              <el-radio :value="true">Colour</el-radio>
-              <el-radio :value="false">Greyscale</el-radio>
+              <el-radio :value="true">Color</el-radio>
+              <el-radio :value="false">Grayscale</el-radio>
             </el-radio-group>
           </div>
           <div class="setting-popover-block">
