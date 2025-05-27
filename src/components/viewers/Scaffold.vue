@@ -140,6 +140,7 @@ export default {
         if (this.entry.rotation) rotation = this.entry.rotation;
         this.$refs.scaffold.toggleSyncControl(this.splitFlowStore.globalCallback, rotation);
         if (this.splitFlowStore.syncMode) this.$refs.scaffold.fitWindow();
+        this.updateSettings();
       }
       EventBus.emit("mapLoaded", this.$refs.scaffold);
     },
@@ -191,6 +192,15 @@ export default {
      */
     changeViewingMode: function (modeName) {
       this.$refs.scaffold.changeViewingMode(modeName);
+    },
+    updateSettings: function () {
+      const {
+        backgroundDisplay,
+        viewingMode,
+      } = this.settingsStore.globalSettings;
+
+      this.$refs.scaffold.backgroundChangeCallback(backgroundDisplay);
+      this.$refs.scaffold.changeViewingMode(viewingMode);
     },
   },
   computed: {

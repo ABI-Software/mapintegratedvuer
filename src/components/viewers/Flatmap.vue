@@ -22,6 +22,7 @@
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
@@ -107,6 +108,7 @@ export default {
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
       this.flatmapReadyForMarkerUpdates(flatmap);
+      this.updateSettings();
       this.loadConnectivityKnowledge(flatmapImp);
       EventBus.emit("mapLoaded", flatmap);
     },
@@ -168,6 +170,23 @@ export default {
     changeViewingMode: function (modeName) {
       this.$refs.flatmap.changeViewingMode(modeName);
     },
+    updateSettings: function () {
+      const {
+        backgroundDisplay,
+        viewingMode,
+        flightPathDisplay,
+        organsDisplay,
+        outlines,
+      } = this.settingsStore.globalSettings;
+
+      const currentFlatmap = this.$refs.flatmap;
+
+      currentFlatmap.changeViewingMode(viewingMode);
+      currentFlatmap.setFlightPath3D(flightPathDisplay);
+      currentFlatmap.setColour(organsDisplay);
+      currentFlatmap.setOutlines(outlines);
+      currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+    },
   },
   computed: {
     facetSpecies() {
@@ -216,12 +235,6 @@ export default {
       const currentFlatmap = this.$refs.flatmap;
       if (currentFlatmap) {
         currentFlatmap.showConnectivitiesByReference(payload);
-      }
-    });
-    EventBus.on("connectivity-query-filter", (payload) => {
-      const currentFlatmap = this.$refs.flatmap;
-      if (currentFlatmap && currentFlatmap.mapImp) {
-        this.connectivityQueryFilter(currentFlatmap, payload)
       }
     });
   },
