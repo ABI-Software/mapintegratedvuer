@@ -51,7 +51,6 @@ export default {
       styles: { },
       query: "",
       filter: [],
-      target: [],
     }
   },
   methods: {
