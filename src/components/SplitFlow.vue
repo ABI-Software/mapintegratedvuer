@@ -139,6 +139,7 @@ export default {
         if (value) {
           if (!this._externalStateSet) this.setState(value);
           this._externalStateSet = true;
+          this.updateGlobalSettingsFromState(value);
         }
       },
       immediate: true,
@@ -594,6 +595,37 @@ export default {
     onSidebarTabClosed: function (tab) {
       if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
     },
+    updateGlobalSettingsFromStorage: function () {
+      const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
+      if (globalSettingsFromStorage) {
+        this.settingsStore.updateGlobalSettings(JSON.parse(globalSettingsFromStorage));
+      }
+    },
+    updateGlobalSettingsFromState: function (state) {
+      let mappedSettings = null;
+      state.entries.forEach((entry) => {
+        if (entry.state?.state) {
+          const {
+            background,
+            colour,
+            flightPath3D,
+            outlines,
+            viewingMode
+          } = entry.state.state;
+
+          mappedSettings = {
+            viewingMode: viewingMode,
+            flightPathDisplay: flightPath3D,
+            organsDisplay: colour,
+            outlinesDisplay: outlines,
+            backgroundDisplay: background,
+          };
+        }
+      })
+      if (mappedSettings) {
+        this.settingsStore.updateGlobalSettings(mappedSettings);
+      }
+    },
   },
   created: function () {
     this._facets = [];
@@ -688,11 +720,7 @@ export default {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
     })
-    // update global settings from storage
-    const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
-    if (globalSettingsFromStorage) {
-      this.settingsStore.updateGlobalSettings(JSON.parse(globalSettingsFromStorage));
-    }
+    this.updateGlobalSettingsFromStorage();
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {
