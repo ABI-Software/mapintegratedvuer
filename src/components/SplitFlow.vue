@@ -688,6 +688,11 @@ export default {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
     })
+    // update global settings from storage
+    const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
+    if (globalSettingsFromStorage) {
+      this.settingsStore.updateGlobalSettings(JSON.parse(globalSettingsFromStorage));
+    }
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {
