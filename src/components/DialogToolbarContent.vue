@@ -287,8 +287,8 @@
               v-model="globalSettings.organsDisplay"
               @change="updateGlobalSettings"
             >
-              <el-radio :value="true">Colour</el-radio>
-              <el-radio :value="false">Greyscale</el-radio>
+              <el-radio :value="true">Color</el-radio>
+              <el-radio :value="false">Grayscale</el-radio>
             </el-radio-group>
           </div>
           <div class="setting-popover-block">
@@ -304,12 +304,19 @@
           <div class="setting-popover-block">
             <h5>Change background</h5>
             <el-radio-group
+              class="bg-color-radio-group"
               v-model="globalSettings.backgroundDisplay"
               @change="updateGlobalSettings"
             >
-              <el-radio value="white">white</el-radio>
-              <el-radio value="lightskyblue">lightskyblue</el-radio>
-              <el-radio value="black">black</el-radio>
+              <el-radio value="white" class="bg-color-radio">
+                <span style="--bg-color: white">white</span>
+              </el-radio>
+              <el-radio value="lightskyblue" class="bg-color-radio">
+                <span style="--bg-color: lightskyblue">lightskyblue</span>
+              </el-radio>
+              <el-radio value="black" class="bg-color-radio">
+                <span style="--bg-color: black">black</span>
+              </el-radio>
             </el-radio-group>
           </div>
         </div>
@@ -779,5 +786,46 @@ export default {
 
 .el-radio__description {
   font-size: 12px;
+}
+
+.bg-color-radio-group {
+  gap: 0.5rem;
+
+  .el-radio {
+    margin-right: 0;
+    line-height: 0px;
+  }
+}
+
+.bg-color-radio {
+  position: relative;
+
+  :deep(.el-radio__input) {
+    display: none;
+  }
+
+  :deep(.el-radio__label) {
+    height: auto;
+    line-height: 0;
+    padding: 4px;
+
+    > span {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: var(--bg-color);
+      box-shadow: 0px 0px 0px 1px rgb(144, 147, 153);
+      font-size: 0px;
+      line-height: 0;
+      transition: box-shadow 0.3s ease;
+    }
+  }
+
+  &.is-checked {
+    :deep(.el-radio__label) > span {
+      background-color: var(--bg-color);
+      box-shadow: 0px 0px 0px 2px $app-primary-color;
+    }
+  }
 }
 </style>
