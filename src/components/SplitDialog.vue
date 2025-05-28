@@ -216,11 +216,14 @@ export default {
       // mix connectivites of available maps
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
+        
         const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
         EventBus.emit("connectivity-knowledge", {
           data: uniqueConnectivities
         });
+
+        const uniqueFilters = this.connectivitiesStore.getUniqueFiltersByKeys;
+        EventBus.emit("filter-options", uniqueFilters);
       } else {
         if (sckanVersion) {
           EventBus.emit("connectivity-knowledge", {

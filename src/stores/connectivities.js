@@ -24,6 +24,21 @@ export const useConnectivitiesStore = defineStore('connectivities', {
 
       return uniqueConnectivities;
     },
+    getUniqueFiltersByKeys: (state) => {
+      let combinedFilters = [];
+      state.activeConnectivityKeys.forEach((uuid) => {
+        if (uuid in state.filterOptions) {
+          const filterOption = state.filterOptions[uuid];
+          combinedFilters.push(...filterOption);
+        }
+      });
+
+      const uniqueFilters = Array.from(
+        new Map(combinedFilters.map((item) => [item.key, item])).values()
+      );
+
+      return uniqueFilters;
+    },
   },
   actions: {
     updateGlobalConnectivities(globalConnectivities) {
