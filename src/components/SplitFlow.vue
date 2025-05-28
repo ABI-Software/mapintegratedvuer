@@ -594,8 +594,9 @@ export default {
           globalSettings.interactiveMode = 'connectivity';
         }
         this.settingsStore.updateGlobalSettings(globalSettings);
-        this.$refs.dialogToolbar.loadGlobalSettings();
       }
+
+      this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
       if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
