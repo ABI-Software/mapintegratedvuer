@@ -195,7 +195,7 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-      <!--
+
       <el-popover
         v-if="globalSettingRef"
         :virtual-ref="globalSettingRef"
@@ -207,28 +207,34 @@
         popper-class="setting-popover"
         virtual-triggering
         >
-        <el-row :gutter="20">
-          <el-col :span="20">
+        <div class="setting-popover-inner">
+          <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
               @change="updateGlobalSettings"
             >
               Display Map Markers
             </el-checkbox>
-            <p>Card Hover</p>
+          </div>
+          <div class="setting-popover-block" v-if="'highlightConnectedPaths' in globalSettings || 'highlightDOIPaths' in globalSettings">
+            <h5>Card Hover</h5>
             <el-checkbox
+              v-if="'highlightConnectedPaths' in globalSettings"
               v-model="globalSettings.highlightConnectedPaths"
               @change="updateGlobalSettings"
             >
               Highlight Connected Paths
             </el-checkbox>
             <el-checkbox
+              v-if="'highlightDOIPaths' in globalSettings"
               v-model="globalSettings.highlightDOIPaths"
               @change="updateGlobalSettings"
             >
               Highlight DOI Paths
             </el-checkbox>
-            <p>Interactive Mode</p>
+          </div>
+          <div class="setting-popover-block" v-if="'interactiveMode' in globalSettings">
+            <h5>Interactive Mode</h5>
             <el-radio-group
               v-model="globalSettings.interactiveMode"
               @change="updateGlobalSettings"
@@ -237,11 +243,94 @@
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
-          </el-col>
-        </el-row>
+          </div>
+          <div class="setting-popover-block" v-if="'viewingMode' in globalSettings">
+            <h5>Viewing mode</h5>
+            <el-radio-group
+              v-model="globalSettings.viewingMode"
+              @change="updateGlobalSettings"
+            >
+              <template v-for="(value, key, index) in viewingModes" :key="key">
+                <el-radio :value="key">
+                  <div>{{ key }}</div>
+                </el-radio>
+                <div class="el-radio__description" v-if="globalSettings.viewingMode === key">
+                  <template v-if="key === 'Annotation'">
+                    <template v-if="authorisedUser">
+                      {{ value[1] }}
+                    </template>
+                    <template v-else>
+                      {{ value[0] }}
+                    </template>
+                    <template v-if="offlineAnnotationEnabled">
+                      (Anonymous annotate)
+                    </template>
+                  </template>
+                  <template v-else>
+                    {{ value }}
+                  </template>
+                </div>
+              </template>
+            </el-radio-group>
+          </div>
+          <div class="setting-popover-block" v-if="'flightPathDisplay' in globalSettings">
+            <h5>Flight path display</h5>
+            <el-radio-group
+              v-model="globalSettings.flightPathDisplay"
+              @change="updateGlobalSettings"
+            >
+              <el-radio :value="false">2D</el-radio>
+              <el-radio :value="true">3D</el-radio>
+            </el-radio-group>
+          </div>
+          <div class="setting-popover-block" v-if="'organsDisplay' in globalSettings">
+            <h5>Organs display</h5>
+            <el-radio-group
+              v-model="globalSettings.organsDisplay"
+              @change="updateGlobalSettings"
+            >
+              <el-radio :value="true">Color</el-radio>
+              <el-radio :value="false">Grayscale</el-radio>
+            </el-radio-group>
+          </div>
+          <div class="setting-popover-block" v-if="'outlinesDisplay' in globalSettings">
+            <h5>Outlines display</h5>
+            <el-radio-group
+              v-model="globalSettings.outlinesDisplay"
+              @change="updateGlobalSettings"
+            >
+              <el-radio :value="true">Show</el-radio>
+              <el-radio :value="false">Hide</el-radio>
+            </el-radio-group>
+          </div>
+          <div class="setting-popover-block" v-if="'backgroundDisplay' in globalSettings">
+            <h5>Change background</h5>
+            <el-radio-group
+              class="bg-color-radio-group"
+              v-model="globalSettings.backgroundDisplay"
+              @change="updateGlobalSettings"
+            >
+              <el-radio value="white" class="bg-color-radio">
+                <span style="--bg-color: white">white</span>
+              </el-radio>
+              <el-radio value="lightskyblue" class="bg-color-radio">
+                <span style="--bg-color: lightskyblue">lightskyblue</span>
+              </el-radio>
+              <el-radio value="black" class="bg-color-radio">
+                <span style="--bg-color: black">black</span>
+              </el-radio>
+            </el-radio-group>
+          </div>
+        </div>
       </el-popover>
-      <el-popover class="tooltip" content="Global Settings" placement="bottom-end"
-        :show-after="helpDelay" :teleported=false trigger="hover"
+      <el-popover
+        v-if="showGlobalSettings"
+        class="tooltip"
+        content="Global Settings"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported=false
+        trigger="hover"
         popper-class="header-popper"
       >
         <template #reference>
@@ -250,7 +339,7 @@
           </el-icon>
         </template>
       </el-popover>
-      -->
+
     </el-row>
   </div>
 </template>
@@ -321,6 +410,7 @@ export default {
 
     },
   },
+  inject: ['showGlobalSettings'],
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     activeView() {
@@ -340,7 +430,7 @@ export default {
     },
     globalCallback() {
       return this.splitFlowStore.globalCallback;
-    }
+    },
   },
   watch: {
     shareLink: function() {
@@ -370,6 +460,13 @@ export default {
       isFullscreen: false,
       loadingLink: true,
       permalinkRef: undefined,
+      viewingModes: {
+        'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
+        'Neuron Connection': 'Discover Neuron connections by selecting a neuron and viewing its associated network connections',
+        'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
+      },
+      authorisedUser: false,
+      offlineAnnotationEnabled: false,
     }
   },
   methods: {
@@ -379,7 +476,6 @@ export default {
         ...this.settingsStore.globalSettings
       };
     },
-    /**
     updateGlobalSettings: function() {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
       this.settingsStore.updateGlobalSettings(this.globalSettings);
@@ -391,8 +487,27 @@ export default {
       if (updatedSettings.includes('interactiveMode')) {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
+      // viewing mode update
+      if (updatedSettings.includes('viewingMode')) {
+        EventBus.emit('viewingModeUpdate', this.globalSettings.viewingMode);
+      }
+      // flight path update
+      if (updatedSettings.includes('flightPathDisplay')) {
+        EventBus.emit('flightPathUpdate', this.globalSettings.flightPathDisplay);
+      }
+      // organs display update
+      if (updatedSettings.includes('organsDisplay')) {
+        EventBus.emit('organsDisplayUpdate', this.globalSettings.organsDisplay);
+      }
+      // outlines display update
+      if (updatedSettings.includes('outlinesDisplay')) {
+        EventBus.emit('outlinesDisplayUpdate', this.globalSettings.outlinesDisplay);
+      }
+      // background display update
+      if (updatedSettings.includes('backgroundDisplay')) {
+        EventBus.emit('backgroundDisplayUpdate', this.globalSettings.backgroundDisplay);
+      }
     },
-    */
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
@@ -577,8 +692,8 @@ export default {
   padding-top:7px;
 }
 
-:deep(.view-icon-popover.el-popper), 
-:deep(.setting-popover.el-popper ) {
+:deep(.view-icon-popover.el-popper),
+:deep(.setting-popover.el-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
@@ -591,6 +706,45 @@ export default {
       border-color: $app-primary-color;
       background-color: #f3ecf6;
     }
+  }
+}
+
+:deep(.setting-popover.el-popper) {
+  padding: 1px !important;
+}
+
+.setting-popover-inner {
+  padding: 4px 8px 12px 8px;
+  max-height: calc(100vh - 135px);
+  overflow-y: auto;
+  border-radius: var(--el-popover-border-radius);
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.setting-popover-block {
+  + .setting-popover-block {
+    position: relative;
+
+    &:before {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 0;
+      border-top: 1px solid var(--el-border-color);
+      position: absolute;
+      top: -0.5rem;
+      left: 0;
+    }
+  }
+
+  h5 {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 32px;
   }
 }
 
@@ -625,5 +779,50 @@ export default {
 :deep(.el-loading-spinner) {
   top: 0px;
   scale: 0.7;
+}
+
+.el-radio__description {
+  font-size: 12px;
+}
+
+.bg-color-radio-group {
+  gap: 0.5rem;
+
+  .el-radio {
+    margin-right: 0;
+    line-height: 0px;
+  }
+}
+
+.bg-color-radio {
+  position: relative;
+
+  :deep(.el-radio__input) {
+    display: none;
+  }
+
+  :deep(.el-radio__label) {
+    height: auto;
+    line-height: 0;
+    padding: 4px;
+
+    > span {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: var(--bg-color);
+      box-shadow: 0px 0px 0px 1px rgb(144, 147, 153);
+      font-size: 0px;
+      line-height: 0;
+      transition: box-shadow 0.3s ease;
+    }
+  }
+
+  &.is-checked {
+    :deep(.el-radio__label) > span {
+      background-color: var(--bg-color);
+      box-shadow: 0px 0px 0px 2px $app-primary-color;
+    }
+  }
 }
 </style>

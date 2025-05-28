@@ -29,6 +29,8 @@
       :openMapOptions="openMapOptions"
       :flatmapAPI="flatmapAPI"
       :sparcAPI="apiLocation"
+      :showLocalSettings="showLocalSettings"
+      :showOpenMapButton="showOpenMapButton"
       @pan-zoom-callback="flatmapPanZoomCallback"
       @open-map="openMap"
       @finish-help-mode="endHelp"
@@ -337,6 +339,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
+        this.updateSettings();
         this.loadConnectivityKnowledge(flatmapImp);
         EventBus.emit("mapLoaded", flatmap);
       }
@@ -433,6 +436,25 @@ export default {
         flatmap.changeConnectivitySource(payload);
       }
     },
+    updateSettings: function () {
+      const {
+        backgroundDisplay,
+        viewingMode,
+        flightPathDisplay,
+        organsDisplay,
+        outlines,
+      } = this.settingsStore.globalSettings;
+
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+
+        currentFlatmap.changeViewingMode(viewingMode);
+        currentFlatmap.setFlightPath3D(flightPathDisplay);
+        currentFlatmap.setColour(organsDisplay);
+        currentFlatmap.setOutlines(outlines);
+        currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+      }
+    },
   },
   computed: {
     facetSpecies() {
@@ -503,6 +525,36 @@ export default {
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
         this.cardHoverHighlight();
+      }
+    });
+    EventBus.on('viewingModeUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.changeViewingMode(payload);
+      }
+    });
+    EventBus.on('flightPathUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.setFlightPath3D(payload);
+      }
+    });
+    EventBus.on('organsDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.setColour(payload);
+      }
+    });
+    EventBus.on('outlinesDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.setOutlines(payload);
+      }
+    });
+    EventBus.on('backgroundDisplayUpdate', (payload) => {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.backgroundChangeCallback(payload);
       }
     });
   },
