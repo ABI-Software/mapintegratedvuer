@@ -460,9 +460,6 @@ export default {
       isFullscreen: false,
       loadingLink: true,
       permalinkRef: undefined,
-      globalSettingRef: undefined,
-      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
-      globalSettings: {},
       viewingModes: {
         'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
         'Neuron Connection': 'Discover Neuron connections by selecting a neuron and viewing its associated network connections',
