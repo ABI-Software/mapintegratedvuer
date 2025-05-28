@@ -208,7 +208,7 @@
         virtual-triggering
         >
         <div class="setting-popover-inner">
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
               @change="updateGlobalSettings"
@@ -216,22 +216,24 @@
               Display Map Markers
             </el-checkbox>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'highlightConnectedPaths' in globalSettings || 'highlightDOIPaths' in globalSettings">
             <h5>Card Hover</h5>
             <el-checkbox
+              v-if="'highlightConnectedPaths' in globalSettings"
               v-model="globalSettings.highlightConnectedPaths"
               @change="updateGlobalSettings"
             >
               Highlight Connected Paths
             </el-checkbox>
             <el-checkbox
+              v-if="'highlightDOIPaths' in globalSettings"
               v-model="globalSettings.highlightDOIPaths"
               @change="updateGlobalSettings"
             >
               Highlight DOI Paths
             </el-checkbox>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'interactiveMode' in globalSettings">
             <h5>Interactive Mode</h5>
             <el-radio-group
               v-model="globalSettings.interactiveMode"
@@ -242,7 +244,7 @@
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'viewingMode' in globalSettings">
             <h5>Viewing mode</h5>
             <el-radio-group
               v-model="globalSettings.viewingMode"
@@ -271,7 +273,7 @@
               </template>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'flightPathDisplay' in globalSettings">
             <h5>Flight path display</h5>
             <el-radio-group
               v-model="globalSettings.flightPathDisplay"
@@ -281,7 +283,7 @@
               <el-radio :value="true">3D</el-radio>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'organsDisplay' in globalSettings">
             <h5>Organs display</h5>
             <el-radio-group
               v-model="globalSettings.organsDisplay"
@@ -291,7 +293,7 @@
               <el-radio :value="false">Grayscale</el-radio>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'outlinesDisplay' in globalSettings">
             <h5>Outlines display</h5>
             <el-radio-group
               v-model="globalSettings.outlinesDisplay"
@@ -301,7 +303,7 @@
               <el-radio :value="false">Hide</el-radio>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'backgroundDisplay' in globalSettings">
             <h5>Change background</h5>
             <el-radio-group
               class="bg-color-radio-group"

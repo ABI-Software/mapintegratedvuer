@@ -34,10 +34,10 @@ export const useSettingsStore = defineStore('settings', {
       allClosable: true,
       showGlobalSettings: true,
       globalSettings: {
-        displayMarkers: true,
-        highlightConnectedPaths: false,
-        highlightDOIPaths: false, // comment out to hide in settings
-        interactiveMode: 'dataset', // dataset, connectivity, multiscale
+        // displayMarkers: true, // comment out to hide in settings
+        // highlightConnectedPaths: false, // comment out to hide in settings
+        // highlightDOIPaths: false, // comment out to hide in settings
+        // interactiveMode: 'dataset', // dataset, connectivity, multiscale // comment out to hide in settings
         viewingMode: 'Exploration',
         flightPathDisplay: false,
         organsDisplay: true,

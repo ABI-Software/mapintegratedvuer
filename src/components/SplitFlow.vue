@@ -586,13 +586,16 @@ export default {
     },
     onSidebarTabClicked: function (tab) {
       let globalSettings = { ...this.settingsStore.globalSettings };
-      if (tab.id === 1 && tab.type === 'datasetExplorer') {
-        globalSettings.interactiveMode = 'dataset';
-      } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
-        globalSettings.interactiveMode = 'connectivity';
+
+      if ('interactiveMode' in globalSettings) {
+        if (tab.id === 1 && tab.type === 'datasetExplorer') {
+          globalSettings.interactiveMode = 'dataset';
+        } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
+          globalSettings.interactiveMode = 'connectivity';
+        }
+        this.settingsStore.updateGlobalSettings(globalSettings);
+        this.$refs.dialogToolbar.loadGlobalSettings();
       }
-      this.settingsStore.updateGlobalSettings(globalSettings);
-      this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
       if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
