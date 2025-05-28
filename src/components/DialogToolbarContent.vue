@@ -410,6 +410,7 @@ export default {
 
     },
   },
+  inject: ['showGlobalSettings'],
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     activeView() {
@@ -429,9 +430,6 @@ export default {
     },
     globalCallback() {
       return this.splitFlowStore.globalCallback;
-    },
-    showGlobalSettings() {
-      return this.settingsStore.showGlobalSettings;
     },
   },
   watch: {

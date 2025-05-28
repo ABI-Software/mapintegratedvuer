@@ -32,7 +32,6 @@ export const useSettingsStore = defineStore('settings', {
       connectivityInfoSidebar: true,
       annotationSidebar: true,
       allClosable: true,
-      showGlobalSettings: true,
       globalSettings: {
         // displayMarkers: true, // comment out to hide in settings
         // highlightConnectedPaths: false, // comment out to hide in settings
@@ -199,8 +198,5 @@ export const useSettingsStore = defineStore('settings', {
       // add global settins to storage
       localStorage.setItem('mapviewer.globalSettings', JSON.stringify(this.globalSettings));
     },
-    updateShowGlobalSettings(showGlobalSettings) {
-      this.showGlobalSettings = showGlobalSettings;
-    }
   }
 });
