@@ -45,6 +45,7 @@
           class="toolbar-select"
           popper-class="toolbar-select-dropdown"
           v-model="globalSettings.viewingMode"
+          @change="updateGlobalSettings"
         >
           <el-option v-for="(value, key, index) in viewingModes"
             :key="key"
