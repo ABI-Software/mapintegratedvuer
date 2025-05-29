@@ -106,7 +106,7 @@ export default {
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
       this.flatmapReadyForMarkerUpdates(flatmap);
-      this.loadConnectivityKnowledge(flatmap);
+      this.loadConnectivityExplorerConfig(flatmap);
       EventBus.emit("mapLoaded", flatmap);
     },
     onPathwaySelectionChanged: function (data) {

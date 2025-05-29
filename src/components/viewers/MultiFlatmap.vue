@@ -337,7 +337,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
-        this.loadConnectivityKnowledge(flatmap);
+        this.loadConnectivityExplorerConfig(flatmap);
         EventBus.emit("mapLoaded", flatmap);
       }
     },

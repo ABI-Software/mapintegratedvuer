@@ -560,7 +560,7 @@ export default {
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
     },
-    loadConnectivityKnowledge: async function (flatmap) {
+    loadConnectivityExplorerConfig: async function (flatmap) {
       const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
