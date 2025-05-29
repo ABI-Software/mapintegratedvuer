@@ -39,37 +39,56 @@
 
     <el-row class="icon-group">
       <div>
-        <el-select
+        <el-dropdown
           :teleported="false"
-          placeholder="Select"
-          class="toolbar-select"
-          popper-class="toolbar-select-dropdown"
-          v-model="globalSettings.viewingMode"
-          @change="updateGlobalSettings"
+          trigger="click"
+          class="toolbar-dropdown"
+          popper-class="toolbar-dropdown-dropdown"
         >
-          <el-option v-for="(value, key, index) in viewingModes"
-            :key="key"
-            :value="key"
-          >
-            <span>{{ key }}</span>
-            <small class="el-option__description">
-              <template v-if="key === 'Annotation'">
-                <template v-if="authorisedUser">
-                  {{ value[1] }}
+        <span class="el-dropdown-link">
+          {{ globalSettings.viewingMode }}
+          <el-icon class="el-icon--right">
+            <el-icon-arrow-down />
+          </el-icon>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item v-for="(value, key, index) in viewingModes"
+              :key="key"
+              @click="updateViewingMode(key)"
+            >
+              <span>
+                <el-icon class="el-icon--left" v-if="key === 'Exploration'">
+                  <el-icon-compass />
+                </el-icon>
+                <el-icon class="el-icon--left" v-if="key === 'Neuron Connection'">
+                  <el-icon-link />
+                </el-icon>
+                <el-icon class="el-icon--left" v-if="key === 'Annotation'">
+                  <el-icon-edit-pen />
+                </el-icon>
+                {{ key }}
+              </span>
+              <small class="el-option__description">
+                <template v-if="key === 'Annotation'">
+                  <template v-if="authorisedUser">
+                    {{ value[1] }}
+                  </template>
+                  <template v-else>
+                    {{ value[0] }}
+                  </template>
+                  <template v-if="offlineAnnotationEnabled">
+                    (Anonymous annotate)
+                  </template>
                 </template>
                 <template v-else>
-                  {{ value[0] }}
+                  {{ value }}
                 </template>
-                <template v-if="offlineAnnotationEnabled">
-                  (Anonymous annotate)
-                </template>
-              </template>
-              <template v-else>
-                {{ value }}
-              </template>
-            </small>
-          </el-option>
-        </el-select>
+              </small>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+        </el-dropdown>
       </div>
 
       <el-popover
@@ -482,6 +501,10 @@ export default {
         ...this.settingsStore.globalSettings
       };
     },
+    updateViewingMode: function (value) {
+      this.globalSettings.viewingMode = value;
+      this.updateGlobalSettings();
+    },
     updateGlobalSettings: function() {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
       this.settingsStore.updateGlobalSettings(this.globalSettings);
@@ -719,7 +742,7 @@ export default {
   min-width: 200px !important;
 }
 
-:deep(.toolbar-select-dropdown.el-popper) {
+:deep(.toolbar-dropdown-dropdown.el-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   background-color: #f3ecf6;
@@ -732,10 +755,21 @@ export default {
     }
   }
 
-  .el-select-dropdown__item {
+  .el-dropdown-menu {
+    background-color: #f3ecf6;
+  }
+
+  .el-dropdown-menu__item {
     padding: 0.5rem;
     height: auto;
     color: $app-primary-color;
+    flex-direction: column;
+    align-items: start;
+
+    .el-icon {
+      display: inline;
+      vertical-align: middle;
+    }
 
     > span,
     > small {
@@ -762,7 +796,7 @@ export default {
   }
 
   &:hover {
-    .el-select-dropdown__item {
+    .el-dropdown-menu__item {
       opacity: 1;
       transition: all 0.3s ease;
 
@@ -891,21 +925,18 @@ export default {
   }
 }
 
-.toolbar-select {
-  :deep(.el-select__wrapper) {
-    border: 0 none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    height: auto !important;
-    min-height: auto !important;
-  }
-  :deep(.el-select__placeholder) {
-    position: relative;
-    transform: none;
+.toolbar-dropdown {
+  .el-dropdown-link {
+    cursor: pointer;
     color: $app-primary-color;
+    display: flex;
+    align-items: center;
+    height: 24px;
+    font-weight: 500;
+    outline: none;
   }
-  :deep(.el-select__caret) {
+
+  :deep(.el-icon) {
     color: $app-primary-color;
   }
 }
