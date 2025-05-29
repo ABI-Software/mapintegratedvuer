@@ -62,7 +62,7 @@
                   <el-icon-compass />
                 </el-icon>
                 <el-icon class="el-icon--left" v-if="key === 'Neuron Connection'">
-                  <el-icon-link />
+                  <el-icon-share />
                 </el-icon>
                 <el-icon class="el-icon--left" v-if="key === 'Annotation'">
                   <el-icon-edit-pen />
