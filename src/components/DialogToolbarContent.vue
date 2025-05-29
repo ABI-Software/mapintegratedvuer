@@ -278,35 +278,7 @@
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block" v-if="'viewingMode' in globalSettings">
-            <h5>Viewing mode</h5>
-            <el-radio-group
-              v-model="globalSettings.viewingMode"
-              @change="updateGlobalSettings"
-            >
-              <template v-for="(value, key, index) in viewingModes" :key="key">
-                <el-radio :value="key">
-                  <div>{{ key }}</div>
-                </el-radio>
-                <div class="el-radio__description" v-if="globalSettings.viewingMode === key">
-                  <template v-if="key === 'Annotation'">
-                    <template v-if="authorisedUser">
-                      {{ value[1] }}
-                    </template>
-                    <template v-else>
-                      {{ value[0] }}
-                    </template>
-                    <template v-if="offlineAnnotationEnabled">
-                      (Anonymous annotate)
-                    </template>
-                  </template>
-                  <template v-else>
-                    {{ value }}
-                  </template>
-                </div>
-              </template>
-            </el-radio-group>
-          </div>
+
           <div class="setting-popover-block" v-if="'flightPathDisplay' in globalSettings">
             <h5>Flight path display</h5>
             <el-radio-group
@@ -743,6 +715,10 @@ export default {
   }
 }
 
+:deep(.setting-popover.el-popper) {
+  min-width: 200px !important;
+}
+
 :deep(.toolbar-select-dropdown.el-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
@@ -832,6 +808,7 @@ export default {
     margin: 0;
     padding: 0;
     font-size: 14px;
+    font-weight: 500;
     line-height: 32px;
   }
 }
