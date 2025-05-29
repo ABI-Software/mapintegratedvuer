@@ -284,32 +284,31 @@ export default {
             };
 
             if (data) {
+              this.query = data.query;
+              let filters = {}
+              data.filter.forEach((item) => {
+                const key = item.facetPropPath.split('.').pop();;
+                if (!(key in filters)) {
+                  filters[key] = [];
+                }
+                uniqueFilters.forEach((filter) => {
+                  if (filter.key.includes(key)) {
+                    filter.children.forEach((child) => {
+                      if (child.key && child.label === item.facet) {
+                        const childKey = child.key.split('.').pop();
+                        filters[key].push(childKey);
+                      }
+                    });
+                  }
+                });
+              });
+              this.filter = filters;
               if (data.type === "query-update") {
-                if (this.query !== data.value) this.target = [];
                 this.query = data.value;
               } else if (data.type === "filter-update") {
-                let filters = {}
-                data.value.forEach((item) => {
-                  const key = item.facetPropPath.split('.').pop();;
-                  if (!(key in filters)) {
-                    filters[key] = [];
-                  }
-                  uniqueFilters.forEach((filter) => {
-                    if (filter.key.includes(key)) {
-                      filter.children.forEach((child) => {
-                        if (child.key && child.label === item.facet) {
-                          const childKey = child.key.split('.').pop();
-                          filters[key].push(childKey);
-                        }
-                      });
-                    }
-                  });
-                });
-                // this.filter = data.value;
-                this.filter = filters;
+                this.filter = data.value;
               }
             }
-
             if (this.query) {
               payload.state = "processed";
               let prom1 = [], options = {};
@@ -327,6 +326,13 @@ export default {
             for (const [key, value] of Object.entries(this.filter)) {
               if (value.length > 0) {                
                 payload.data = payload.data.filter((item) => {
+                  if (key === "alert") {
+                    if (value.includes("With alerts")) {
+                      return key in item;
+                    } else if (value.includes("Without alerts")) {
+                      return !(key in item);
+                    }
+                  }
                   return key in item && value.includes(item[key][0])
                 });
               }
