@@ -50,7 +50,7 @@ export default {
     return {
       styles: { },
       query: "",
-      filter: [],
+      filter: {},
     }
   },
   methods: {
@@ -275,6 +275,7 @@ export default {
           }
 
           const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+          const uniqueFilters = this.connectivitiesStore.getUniqueFiltersByKeys;
 
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
             let payload = {
@@ -287,7 +288,25 @@ export default {
                 if (this.query !== data.value) this.target = [];
                 this.query = data.value;
               } else if (data.type === "filter-update") {
-                this.filter = data.value;
+                let filters = {}
+                data.value.forEach((item) => {
+                  const key = item.facetPropPath.split('.').pop();;
+                  if (!(key in filters)) {
+                    filters[key] = [];
+                  }
+                  uniqueFilters.forEach((filter) => {
+                    if (filter.key.includes(key)) {
+                      filter.children.forEach((child) => {
+                        if (child.key && child.label === item.facet) {
+                          const childKey = child.key.split('.').pop();
+                          filters[key].push(childKey);
+                        }
+                      });
+                    }
+                  });
+                });
+                // this.filter = data.value;
+                this.filter = filters;
               }
             }
 
@@ -302,10 +321,16 @@ export default {
               const ids = [...new Set(nestedIds.flat())];
               let paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
               paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-              let results = uniqueConnectivities.filter((item) => paths.includes(item.id));
+              const results = uniqueConnectivities.filter((item) => paths.includes(item.id));
               payload.data = results;
             }
-
+            for (const [key, value] of Object.entries(this.filter)) {
+              if (value.length > 0) {                
+                payload.data = payload.data.filter((item) => {
+                  return key in item && value.includes(item[key][0])
+                });
+              }
+            }
             searchState = payload.state;
             searchResults = [...searchResults, ...payload.data];
           }
