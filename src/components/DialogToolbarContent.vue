@@ -38,6 +38,39 @@
     </div>
 
     <el-row class="icon-group">
+      <div>
+        <el-select
+          :teleported="false"
+          placeholder="Select"
+          class="toolbar-select"
+          popper-class="toolbar-select-dropdown"
+          v-model="globalSettings.viewingMode"
+        >
+          <el-option v-for="(value, key, index) in viewingModes"
+            :key="key"
+            :value="key"
+          >
+            <span>{{ key }}</span>
+            <small class="el-option__description">
+              <template v-if="key === 'Annotation'">
+                <template v-if="authorisedUser">
+                  {{ value[1] }}
+                </template>
+                <template v-else>
+                  {{ value[0] }}
+                </template>
+                <template v-if="offlineAnnotationEnabled">
+                  (Anonymous annotate)
+                </template>
+              </template>
+              <template v-else>
+                {{ value }}
+              </template>
+            </small>
+          </el-option>
+        </el-select>
+      </div>
+
       <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
@@ -709,6 +742,60 @@ export default {
   }
 }
 
+:deep(.toolbar-select-dropdown.el-popper) {
+  border: 1px solid $app-primary-color;
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
+  background-color: #f3ecf6;
+  width: 300px;
+
+  .el-popper__arrow {
+    &:before {
+      border-color: $app-primary-color;
+      background-color: #f3ecf6;
+    }
+  }
+
+  .el-select-dropdown__item {
+    padding: 0.5rem;
+    height: auto;
+    color: $app-primary-color;
+
+    > span,
+    > small {
+      display: block;
+    }
+
+    > span {
+      line-height: 1.5;
+    }
+
+    > small {
+      height: auto;
+      line-height: 1.2;
+      font-weight: normal;
+      color: gray;
+      white-space: normal;
+    }
+
+    &.is-selected,
+    &.is-hovering,
+    &:hover {
+      background-color: #f1e4f6;
+    }
+  }
+
+  &:hover {
+    .el-select-dropdown__item {
+      opacity: 1;
+      transition: all 0.3s ease;
+
+      &:not(:hover) {
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
 :deep(.setting-popover.el-popper) {
   padding: 1px !important;
 }
@@ -823,6 +910,25 @@ export default {
       background-color: var(--bg-color);
       box-shadow: 0px 0px 0px 2px $app-primary-color;
     }
+  }
+}
+
+.toolbar-select {
+  :deep(.el-select__wrapper) {
+    border: 0 none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+  :deep(.el-select__placeholder) {
+    position: relative;
+    transform: none;
+    color: $app-primary-color;
+  }
+  :deep(.el-select__caret) {
+    color: $app-primary-color;
   }
 }
 </style>
