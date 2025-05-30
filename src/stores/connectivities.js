@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 export const useConnectivitiesStore = defineStore('connectivities', {
   state: () => {
     return {
-      globalConnectivities: {},
       activeConnectivityKeys: [],
+      globalConnectivities: {},
       filterOptions: {},
     }
   },
@@ -12,40 +12,48 @@ export const useConnectivitiesStore = defineStore('connectivities', {
     getUniqueConnectivitiesByKeys: (state) => {
       let combinedConnectivities = [];
       state.activeConnectivityKeys.forEach((uuid) => {
-        if (uuid in state.globalConnectivities) {
-          const connectivity = state.globalConnectivities[uuid];
-          combinedConnectivities.push(...connectivity);
+        if (uuid in state['globalConnectivities']) {
+          const connectivities = state['globalConnectivities'][uuid];
+          combinedConnectivities.push(...connectivities);
         }
       });
-
       const uniqueConnectivities = Array.from(
-        new Map(combinedConnectivities.map((item) => [item.id, item])).values()
+        new Map(combinedConnectivities.map((item) => [item['id'], item])).values()
       );
-
       return uniqueConnectivities;
     },
-    getUniqueFiltersByKeys: (state) => {
-      let combinedFilters = [];
-      state.activeConnectivityKeys.forEach((uuid) => {
-        if (uuid in state.filterOptions) {
-          const filterOption = state.filterOptions[uuid];
-          combinedFilters.push(...filterOption);
+    getUniqueFilterOptionsByKeys: (state) => {
+      const uniqueFilterOptions = state.activeConnectivityKeys.reduce((acc, uuid) => {
+        const filters = state.filterOptions[uuid];
+        if (!filters) return acc;
+
+        for (const filter of filters) {
+          const existing = acc[filter.key];
+
+          if (!existing) {
+            acc[filter.key] = { ...filter };
+          } else {
+            const mergedChildren = [...existing.children, ...filter.children];
+            const uniqueChildren = Array.from(
+              new Map(mergedChildren.map(child => [child.key, child])).values()
+            );
+            existing.children = uniqueChildren;
+          }
         }
-      });
 
-      const uniqueFilters = Array.from(
-        new Map(combinedFilters.map((item) => [item.key, item])).values()
+        return acc;
+      }, {});
+      return Object.values(uniqueFilterOptions);
+    },
       );
-
-      return uniqueFilters;
     },
   },
   actions: {
-    updateGlobalConnectivities(globalConnectivities) {
-      this.globalConnectivities = globalConnectivities;
-    },
     updateActiveConnectivityKeys(activeConnectivityKeys) {
       this.activeConnectivityKeys = activeConnectivityKeys;
+    },
+    updateGlobalConnectivities(globalConnectivities) {
+      this.globalConnectivities = globalConnectivities;
     },
     updateFilterOptions(filterOptions) {
       this.filterOptions = filterOptions;
