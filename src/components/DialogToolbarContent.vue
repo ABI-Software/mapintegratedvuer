@@ -38,12 +38,14 @@
     </div>
 
     <el-row class="icon-group">
-      <div>
+      <div class="viewing-mode-selector">
+        Viewing Mode:
         <el-dropdown
           :teleported="false"
-          trigger="click"
+          trigger="hover"
           class="toolbar-dropdown"
           popper-class="toolbar-dropdown-dropdown"
+          :hide-on-click="false"
         >
         <span class="el-dropdown-link">
           {{ globalSettings.viewingMode }}
@@ -55,7 +57,8 @@
           <el-dropdown-menu>
             <el-dropdown-item v-for="(value, key, index) in viewingModes"
               :key="key"
-              @click="updateViewingMode(key)"
+              @click="updateViewingMode($event, key)"
+              :class="{'is-selected': globalSettings.viewingMode === key }"
             >
               <span>
                 <el-icon class="el-icon--left" v-if="key === 'Exploration'">
@@ -85,6 +88,29 @@
                   {{ value }}
                 </template>
               </small>
+              <template v-if="key === 'Exploration'">
+                <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
+                  <el-popover
+                    class="tooltip"
+                    content="Switch ot Exploration mode to enable"
+                    :teleported="false"
+                    popper-class="header-popper"
+                    :offset="4"
+                    :disabled="globalSettings.viewingMode === 'Exploration'"
+                  >
+                    <template #reference>
+                      <el-checkbox
+                        v-model="globalSettings.displayMarkers"
+                        @change="updateGlobalSettings"
+                        size="small"
+                        :disabled="globalSettings.viewingMode !== 'Exploration'"
+                      >
+                        Display Map Markers
+                      </el-checkbox>
+                    </template>
+                  </el-popover>
+                </div>
+              </template>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -261,15 +287,15 @@
         virtual-triggering
         >
         <div class="setting-popover-inner">
-          <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
+          <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
               @change="updateGlobalSettings"
             >
               Display Map Markers
             </el-checkbox>
-          </div>
-          <div class="setting-popover-block" v-if="'highlightConnectedPaths' in globalSettings || 'highlightDOIPaths' in globalSettings">
+          </div> -->
+          <!-- <div class="setting-popover-block" v-if="'highlightConnectedPaths' in globalSettings || 'highlightDOIPaths' in globalSettings">
             <h5>Card Hover</h5>
             <el-checkbox
               v-if="'highlightConnectedPaths' in globalSettings"
@@ -285,8 +311,8 @@
             >
               Highlight DOI Paths
             </el-checkbox>
-          </div>
-          <div class="setting-popover-block" v-if="'interactiveMode' in globalSettings">
+          </div> -->
+          <!-- <div class="setting-popover-block" v-if="'interactiveMode' in globalSettings">
             <h5>Interactive Mode</h5>
             <el-radio-group
               v-model="globalSettings.interactiveMode"
@@ -296,7 +322,7 @@
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
-          </div>
+          </div> -->
 
           <div class="setting-popover-block" v-if="'flightPathDisplay' in globalSettings">
             <h5>Flight path display</h5>
@@ -501,9 +527,23 @@ export default {
         ...this.settingsStore.globalSettings
       };
     },
-    updateViewingMode: function (value) {
-      this.globalSettings.viewingMode = value;
-      this.updateGlobalSettings();
+    updateViewingMode: function (event, value) {
+      const { target } = event;
+
+      // prevent clicking inner checkbox
+      if (!target.closest('.el-checkbox')) {
+        this.globalSettings.viewingMode = value;
+
+        if (value === 'Exploration') {
+          this.globalSettings.displayMarkers = true;
+        } else if (value === 'Annotation') {
+          this.globalSettings.displayMarkers = false;
+        } else {
+          this.globalSettings.displayMarkers = false;
+        }
+
+        this.updateGlobalSettings();
+      }
     },
     updateGlobalSettings: function() {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
@@ -742,6 +782,13 @@ export default {
   min-width: 200px !important;
 }
 
+.viewing-mode-selector {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 :deep(.toolbar-dropdown-dropdown.el-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
@@ -765,6 +812,21 @@ export default {
     color: $app-primary-color;
     flex-direction: column;
     align-items: start;
+    gap: 0.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+
+    + .el-dropdown-menu__item {
+      &::before {
+        content: "";
+        display: block;
+        width: calc(100% - 1rem);
+        border-top: 1px solid var(--el-border-color);
+        position: absolute;
+        top: 0;
+        left: 0.5rem;
+      }
+    }
 
     .el-icon {
       display: inline;
@@ -778,6 +840,7 @@ export default {
 
     > span {
       line-height: 1.5;
+      font-weight: 500;
     }
 
     > small {
@@ -789,16 +852,20 @@ export default {
     }
 
     &.is-selected,
-    &.is-hovering,
     &:hover {
       background-color: #f1e4f6;
+    }
+
+    &.is-selected {
+      > span {
+        font-weight: 700;
+      }
     }
   }
 
   &:hover {
     .el-dropdown-menu__item {
       opacity: 1;
-      transition: all 0.3s ease;
 
       &:not(:hover) {
         opacity: 0.5;

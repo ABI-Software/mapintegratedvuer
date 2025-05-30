@@ -33,7 +33,7 @@ export const useSettingsStore = defineStore('settings', {
       annotationSidebar: true,
       allClosable: true,
       globalSettings: {
-        // displayMarkers: true, // comment out to hide in settings
+        displayMarkers: true, // comment out to hide in settings
         // highlightConnectedPaths: false, // comment out to hide in settings
         // highlightDOIPaths: false, // comment out to hide in settings
         // interactiveMode: 'dataset', // dataset, connectivity, multiscale // comment out to hide in settings
