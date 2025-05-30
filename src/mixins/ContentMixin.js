@@ -575,9 +575,11 @@ export default {
           })
           .sort((a, b) => a.label.localeCompare(b.label));
       }
+
       if (!this.connectivityKnowledge[uuid]) {
         const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
         const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
           .filter((item) => item.id in pathsFromMap);
       }

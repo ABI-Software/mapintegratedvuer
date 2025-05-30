@@ -145,6 +145,11 @@ export default {
       },
       immediate: true,
     },
+    connectivityHighlight: {
+      handler: function (value) {
+        this.onShowConnectivity(value);
+      },
+    },
   },
   methods: {
     onConnectivityExplorerClicked: function (payload) {
@@ -304,13 +309,15 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      const splitFlowState = this.splitFlowStore.getState();
-      const activeView = splitFlowState?.activeView || '';
-      // offset sidebar only on singlepanel and 2horpanel views
-      EventBus.emit('show-connectivity', {
-        featureIds: featureIds,
-        offset: activeView === 'singlepanel' || activeView === '2horpanel'
-      });
+      if (featureIds.length) {        
+        const splitFlowState = this.splitFlowStore.getState();
+        const activeView = splitFlowState?.activeView || '';
+        // offset sidebar only on singlepanel and 2horpanel views
+        EventBus.emit('show-connectivity', {
+          featureIds: featureIds,
+          offset: activeView === 'singlepanel' || activeView === '2horpanel'
+        });
+      }
     },
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
@@ -651,11 +658,10 @@ export default {
       // or onDisplaySearch is performed
       if (!this.connectivityExplorerClicked.length) {
         this.connectivityKnowledge = payload.map((entry) => {
-          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
+          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready };
         });
         if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
           this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
-          this.onShowConnectivity(this.connectivityHighlight);
         }
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
@@ -684,13 +690,7 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = [];
-      if (payload.state === "processed") {
-        this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);;
-        this.onShowConnectivity(this.connectivityHighlight);
-      } else {
-        this.hoverChanged();
-      }
+      this.connectivityHighlight = payload.highlight || [];
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {

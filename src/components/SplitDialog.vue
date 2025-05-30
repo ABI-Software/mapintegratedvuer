@@ -241,10 +241,17 @@ export default {
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
       featureIds.forEach((id) => {
         const annotation = flatmap.mapImp.annotation(id);
-        if (
-          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
-          annotation.models && !ids.includes(annotation.models)
-        ) {
+        const compareRanges = [
+          annotation.id,
+          annotation.name,
+          annotation.label,
+          annotation.models,
+          annotation.source
+        ];
+        const isMatched = compareRanges.some((item) => {
+          return item && item.toLowerCase().includes(term.toLowerCase())
+        });
+        if (isMatched) {
           ids.push(annotation.models);
         }
       });
@@ -252,8 +259,7 @@ export default {
     },
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
-      let searchResults = [];
-      let searchState = '';
+      let searchOrders = [], searchHighlights = [], searchResults = [];
 
       for (const activeContent of activeContents) {
         const viewer = activeContent.$refs.viewer;
@@ -269,20 +275,13 @@ export default {
               currentFlatmap = _currentFlatmap;
             }
           }
-
           if (flatmap && flatmap.mapImp) {
             currentFlatmap = flatmap;
           }
 
-          const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
           const uniqueFilters = this.connectivitiesStore.getUniqueFiltersByKeys;
-
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
-            let payload = {
-              state: "default",
-              data: [...uniqueConnectivities],
-            };
-
+            let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
             if (data) {
               this.query = data.query;
               let filters = {}
@@ -310,7 +309,6 @@ export default {
               }
             }
             if (this.query) {
-              payload.state = "processed";
               let prom1 = [], options = {};
               const searchTerms = this.query.split(",").map((term) => term.trim());
               for (let index = 0; index < searchTerms.length; index++) {
@@ -318,14 +316,14 @@ export default {
               }
               const nestedIds = await Promise.all(prom1);
               const ids = [...new Set(nestedIds.flat())];
-              let paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
-              paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-              const results = uniqueConnectivities.filter((item) => paths.includes(item.id));
-              payload.data = results;
+              searchOrders.push(...ids);
+              const paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
+              searchHighlights.push(...paths);
+              results = results.filter((item) => paths.includes(item.id));
             }
             for (const [key, value] of Object.entries(this.filter)) {
               if (value.length > 0) {                
-                payload.data = payload.data.filter((item) => {
+                results = results.filter((item) => {
                   if (key === "alert") {
                     if (value.includes("With alerts")) {
                       return key in item;
@@ -337,18 +335,25 @@ export default {
                 });
               }
             }
-            searchState = payload.state;
-            searchResults = [...searchResults, ...payload.data];
+            searchResults.push(...results);
           }
         }
       }
 
-      const uniqueResults = Array.from(
+      const uniqueOrders = [...new Set(searchOrders)];
+      const uniqueHighlights = [...new Set(searchHighlights)];
+      let uniqueResults = Array.from(
         new Map(searchResults.map((item) => [item.id, item])).values()
       );
+      // Ensure that the results always show search items first
+      // and the rest ordered by alphabetical order
+      uniqueResults = [
+        ...uniqueResults.filter((r) => uniqueOrders.includes(r.id)),
+        ...uniqueResults.filter((r) => !uniqueOrders.includes(r.id))
+      ];
 
       const connectivitiesPayload = {
-        state: searchState,
+        highlight: uniqueHighlights,
         data: uniqueResults,
       };
 
