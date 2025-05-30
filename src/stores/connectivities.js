@@ -1,42 +1,51 @@
 import { defineStore } from 'pinia';
 
-const getUniqueItemsByKeys = (state, sourceKey, itemKey) => {
-  let combinedItems = [];
-  state.activeConnectivityKeys.forEach((uuid) => {
-    if (uuid in state[sourceKey]) {
-      const items = state[sourceKey][uuid];
-      combinedItems.push(...items);
-    }
-  });
-  const uniqueItems = Array.from(
-    new Map(combinedItems.map((item) => [item[itemKey], item])).values()
-  );
-  return uniqueItems;
-}
-
 export const useConnectivitiesStore = defineStore('connectivities', {
   state: () => {
     return {
-      activeConnectivityKeys: [],
       globalConnectivities: {},
+      activeConnectivityKeys: [],
       filterOptions: {},
     }
   },
   getters: {
     getUniqueConnectivitiesByKeys: (state) => {
-      return getUniqueItemsByKeys(state, 'globalConnectivities', 'id');
-    },
+      let combinedConnectivities = [];
+      state.activeConnectivityKeys.forEach((uuid) => {
+        if (uuid in state.globalConnectivities) {
+          const connectivity = state.globalConnectivities[uuid];
+          combinedConnectivities.push(...connectivity);
+        }
+      });
 
+      const uniqueConnectivities = Array.from(
+        new Map(combinedConnectivities.map((item) => [item.id, item])).values()
+      );
+
+      return uniqueConnectivities;
+    },
     getUniqueFiltersByKeys: (state) => {
-      return getUniqueItemsByKeys(state, 'filterOptions', 'key');
+      let combinedFilters = [];
+      state.activeConnectivityKeys.forEach((uuid) => {
+        if (uuid in state.filterOptions) {
+          const filterOption = state.filterOptions[uuid];
+          combinedFilters.push(...filterOption);
+        }
+      });
+
+      const uniqueFilters = Array.from(
+        new Map(combinedFilters.map((item) => [item.key, item])).values()
+      );
+
+      return uniqueFilters;
     },
   },
   actions: {
-    updateActiveConnectivityKeys(activeConnectivityKeys) {
-      this.activeConnectivityKeys = activeConnectivityKeys;
-    },
     updateGlobalConnectivities(globalConnectivities) {
       this.globalConnectivities = globalConnectivities;
+    },
+    updateActiveConnectivityKeys(activeConnectivityKeys) {
+      this.activeConnectivityKeys = activeConnectivityKeys;
     },
     updateFilterOptions(filterOptions) {
       this.filterOptions = filterOptions;
