@@ -222,7 +222,7 @@ export default {
           data: uniqueConnectivities
         });
 
-        const uniqueFilters = this.connectivitiesStore.getUniqueFiltersByKeys;
+        const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
         EventBus.emit("filter-options", uniqueFilters);
       } else {
         if (sckanVersion) {
@@ -279,7 +279,7 @@ export default {
             currentFlatmap = flatmap;
           }
 
-          const uniqueFilters = this.connectivitiesStore.getUniqueFiltersByKeys;
+          const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
             if (data) {
