@@ -22,6 +22,7 @@
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
+      :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
