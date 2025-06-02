@@ -665,11 +665,22 @@ export default {
       }
     });
     EventBus.on('annotation-close', () => {
-      this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+      const globalSettings = { ...this.settingsStore.globalSettings };
+      const { interactiveMode, viewingMode } = globalSettings;
+
       this.annotationEntry = [];
       this.createData = {};
+
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.setDrawerOpen(false);
+        if (interactiveMode === "dataset") {
+          this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+        } else if (interactiveMode === "connectivity") {
+          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+        }
+
+        if (viewingMode === 'Annotation') {
+          this.$refs.sideBar.setDrawerOpen(false);
+        }
       }
     });
     EventBus.on('connectivity-info-open', payload => {

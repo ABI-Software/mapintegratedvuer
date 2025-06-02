@@ -48,6 +48,15 @@
           :hide-on-click="false"
         >
         <span class="el-dropdown-link">
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">
+            <el-icon-compass />
+          </el-icon>
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Neuron Connection'">
+            <el-icon-share />
+          </el-icon>
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Annotation'">
+            <el-icon-edit-pen />
+          </el-icon>
           {{ globalSettings.viewingMode }}
           <el-icon class="el-icon--right">
             <el-icon-arrow-down />
@@ -92,7 +101,7 @@
                 <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
                   <el-popover
                     class="tooltip"
-                    content="Switch ot Exploration mode to enable"
+                    content="Switch to Exploration mode to enable."
                     :teleported="false"
                     popper-class="header-popper"
                     :offset="4"
@@ -536,10 +545,13 @@ export default {
 
         if (value === 'Exploration') {
           this.globalSettings.displayMarkers = true;
+          this.globalSettings.interactiveMode = 'dataset';
         } else if (value === 'Annotation') {
           this.globalSettings.displayMarkers = false;
+          this.globalSettings.interactiveMode = 'dataset';
         } else {
           this.globalSettings.displayMarkers = false;
+          this.globalSettings.interactiveMode = 'connectivity';
         }
 
         this.updateGlobalSettings();
