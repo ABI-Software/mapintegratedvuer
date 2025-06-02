@@ -43,6 +43,7 @@
         :connectivityInfoSidebar="true"
         :allClosable="false"
         :showGlobalSettings="true"
+        :showOpenMapButton="false"
         @updateShareLinkRequested="updateUUID"
         @isReady="viewerIsReady"
         @mapLoaded="mapIsLoaded"

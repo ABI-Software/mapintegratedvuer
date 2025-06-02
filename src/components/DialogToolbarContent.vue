@@ -38,6 +38,94 @@
     </div>
 
     <el-row class="icon-group">
+      <div class="viewing-mode-selector">
+        Viewing Mode:
+        <el-dropdown
+          :teleported="false"
+          trigger="hover"
+          class="toolbar-dropdown"
+          popper-class="toolbar-dropdown-dropdown"
+          :hide-on-click="false"
+        >
+        <span class="el-dropdown-link">
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">
+            <el-icon-compass />
+          </el-icon>
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Neuron Connection'">
+            <el-icon-share />
+          </el-icon>
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Annotation'">
+            <el-icon-edit-pen />
+          </el-icon>
+          {{ globalSettings.viewingMode }}
+          <el-icon class="el-icon--right">
+            <el-icon-arrow-down />
+          </el-icon>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item v-for="(value, key, index) in viewingModes"
+              :key="key"
+              @click="updateViewingMode($event, key)"
+              :class="{'is-selected': globalSettings.viewingMode === key }"
+            >
+              <span>
+                <el-icon class="el-icon--left" v-if="key === 'Exploration'">
+                  <el-icon-compass />
+                </el-icon>
+                <el-icon class="el-icon--left" v-if="key === 'Neuron Connection'">
+                  <el-icon-share />
+                </el-icon>
+                <el-icon class="el-icon--left" v-if="key === 'Annotation'">
+                  <el-icon-edit-pen />
+                </el-icon>
+                {{ key }}
+              </span>
+              <small class="el-option__description">
+                <template v-if="key === 'Annotation'">
+                  <template v-if="authorisedUser">
+                    {{ value[1] }}
+                  </template>
+                  <template v-else>
+                    {{ value[0] }}
+                  </template>
+                  <template v-if="offlineAnnotationEnabled">
+                    (Anonymous annotate)
+                  </template>
+                </template>
+                <template v-else>
+                  {{ value }}
+                </template>
+              </small>
+              <template v-if="key === 'Exploration'">
+                <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
+                  <el-popover
+                    class="tooltip"
+                    content="Switch to Exploration mode to enable."
+                    :teleported="false"
+                    popper-class="header-popper"
+                    :offset="4"
+                    :disabled="globalSettings.viewingMode === 'Exploration'"
+                  >
+                    <template #reference>
+                      <el-checkbox
+                        v-model="globalSettings.displayMarkers"
+                        @change="updateGlobalSettings"
+                        size="small"
+                        :disabled="globalSettings.viewingMode !== 'Exploration'"
+                      >
+                        Display Map Markers
+                      </el-checkbox>
+                    </template>
+                  </el-popover>
+                </div>
+              </template>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+        </el-dropdown>
+      </div>
+
       <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
@@ -208,30 +296,32 @@
         virtual-triggering
         >
         <div class="setting-popover-inner">
-          <div class="setting-popover-block">
+          <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
               @change="updateGlobalSettings"
             >
               Display Map Markers
             </el-checkbox>
-          </div>
-          <div class="setting-popover-block">
+          </div> -->
+          <!-- <div class="setting-popover-block" v-if="'highlightConnectedPaths' in globalSettings || 'highlightDOIPaths' in globalSettings">
             <h5>Card Hover</h5>
             <el-checkbox
+              v-if="'highlightConnectedPaths' in globalSettings"
               v-model="globalSettings.highlightConnectedPaths"
               @change="updateGlobalSettings"
             >
               Highlight Connected Paths
             </el-checkbox>
             <el-checkbox
+              v-if="'highlightDOIPaths' in globalSettings"
               v-model="globalSettings.highlightDOIPaths"
               @change="updateGlobalSettings"
             >
               Highlight DOI Paths
             </el-checkbox>
-          </div>
-          <div class="setting-popover-block">
+          </div> -->
+          <!-- <div class="setting-popover-block" v-if="'interactiveMode' in globalSettings">
             <h5>Interactive Mode</h5>
             <el-radio-group
               v-model="globalSettings.interactiveMode"
@@ -241,37 +331,9 @@
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
-          </div>
-          <div class="setting-popover-block">
-            <h5>Viewing mode</h5>
-            <el-radio-group
-              v-model="globalSettings.viewingMode"
-              @change="updateGlobalSettings"
-            >
-              <template v-for="(value, key, index) in viewingModes" :key="key">
-                <el-radio :value="key">
-                  <div>{{ key }}</div>
-                </el-radio>
-                <div class="el-radio__description" v-if="globalSettings.viewingMode === key">
-                  <template v-if="key === 'Annotation'">
-                    <template v-if="authorisedUser">
-                      {{ value[1] }}
-                    </template>
-                    <template v-else>
-                      {{ value[0] }}
-                    </template>
-                    <template v-if="offlineAnnotationEnabled">
-                      (Anonymous annotate)
-                    </template>
-                  </template>
-                  <template v-else>
-                    {{ value }}
-                  </template>
-                </div>
-              </template>
-            </el-radio-group>
-          </div>
-          <div class="setting-popover-block">
+          </div> -->
+
+          <div class="setting-popover-block" v-if="'flightPathDisplay' in globalSettings">
             <h5>Flight path display</h5>
             <el-radio-group
               v-model="globalSettings.flightPathDisplay"
@@ -281,7 +343,7 @@
               <el-radio :value="true">3D</el-radio>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'organsDisplay' in globalSettings">
             <h5>Organs display</h5>
             <el-radio-group
               v-model="globalSettings.organsDisplay"
@@ -291,7 +353,7 @@
               <el-radio :value="false">Grayscale</el-radio>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'outlinesDisplay' in globalSettings">
             <h5>Outlines display</h5>
             <el-radio-group
               v-model="globalSettings.outlinesDisplay"
@@ -301,7 +363,7 @@
               <el-radio :value="false">Hide</el-radio>
             </el-radio-group>
           </div>
-          <div class="setting-popover-block">
+          <div class="setting-popover-block" v-if="'backgroundDisplay' in globalSettings">
             <h5>Change background</h5>
             <el-radio-group
               class="bg-color-radio-group"
@@ -408,6 +470,7 @@ export default {
 
     },
   },
+  inject: ['showGlobalSettings'],
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     activeView() {
@@ -427,9 +490,6 @@ export default {
     },
     globalCallback() {
       return this.splitFlowStore.globalCallback;
-    },
-    showGlobalSettings() {
-      return this.settingsStore.showGlobalSettings;
     },
   },
   watch: {
@@ -460,9 +520,6 @@ export default {
       isFullscreen: false,
       loadingLink: true,
       permalinkRef: undefined,
-      globalSettingRef: undefined,
-      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
-      globalSettings: {},
       viewingModes: {
         'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
         'Neuron Connection': 'Discover Neuron connections by selecting a neuron and viewing its associated network connections',
@@ -478,6 +535,27 @@ export default {
         ...this.globalSettings,
         ...this.settingsStore.globalSettings
       };
+    },
+    updateViewingMode: function (event, value) {
+      const { target } = event;
+
+      // prevent clicking inner checkbox
+      if (!target.closest('.el-checkbox')) {
+        this.globalSettings.viewingMode = value;
+
+        if (value === 'Exploration') {
+          this.globalSettings.displayMarkers = true;
+          this.globalSettings.interactiveMode = 'dataset';
+        } else if (value === 'Annotation') {
+          this.globalSettings.displayMarkers = false;
+          this.globalSettings.interactiveMode = 'dataset';
+        } else {
+          this.globalSettings.displayMarkers = false;
+          this.globalSettings.interactiveMode = 'connectivity';
+        }
+
+        this.updateGlobalSettings();
+      }
     },
     updateGlobalSettings: function() {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
@@ -713,6 +791,102 @@ export default {
 }
 
 :deep(.setting-popover.el-popper) {
+  min-width: 200px !important;
+}
+
+.viewing-mode-selector {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:deep(.toolbar-dropdown-dropdown.el-popper) {
+  border: 1px solid $app-primary-color;
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
+  background-color: #f3ecf6;
+  width: 300px;
+
+  .el-popper__arrow {
+    &:before {
+      border-color: $app-primary-color;
+      background-color: #f3ecf6;
+    }
+  }
+
+  .el-dropdown-menu {
+    background-color: #f3ecf6;
+  }
+
+  .el-dropdown-menu__item {
+    padding: 0.5rem;
+    height: auto;
+    color: $app-primary-color;
+    flex-direction: column;
+    align-items: start;
+    gap: 0.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+
+    + .el-dropdown-menu__item {
+      &::before {
+        content: "";
+        display: block;
+        width: calc(100% - 1rem);
+        border-top: 1px solid var(--el-border-color);
+        position: absolute;
+        top: 0;
+        left: 0.5rem;
+      }
+    }
+
+    .el-icon {
+      display: inline;
+      vertical-align: middle;
+    }
+
+    > span,
+    > small {
+      display: block;
+    }
+
+    > span {
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    > small {
+      height: auto;
+      line-height: 1.2;
+      font-weight: normal;
+      color: gray;
+      white-space: normal;
+    }
+
+    &.is-selected,
+    &:hover {
+      background-color: #f1e4f6;
+    }
+
+    &.is-selected {
+      > span {
+        font-weight: 700;
+      }
+    }
+  }
+
+  &:hover {
+    .el-dropdown-menu__item {
+      opacity: 1;
+
+      &:not(:hover) {
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+:deep(.setting-popover.el-popper) {
   padding: 1px !important;
 }
 
@@ -747,6 +921,7 @@ export default {
     margin: 0;
     padding: 0;
     font-size: 14px;
+    font-weight: 500;
     line-height: 32px;
   }
 }
@@ -826,6 +1001,22 @@ export default {
       background-color: var(--bg-color);
       box-shadow: 0px 0px 0px 2px $app-primary-color;
     }
+  }
+}
+
+.toolbar-dropdown {
+  .el-dropdown-link {
+    cursor: pointer;
+    color: $app-primary-color;
+    display: flex;
+    align-items: center;
+    height: 24px;
+    font-weight: 500;
+    outline: none;
+  }
+
+  :deep(.el-icon) {
+    color: $app-primary-color;
   }
 }
 </style>
