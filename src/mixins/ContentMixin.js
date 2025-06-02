@@ -35,6 +35,7 @@ export default {
       default: false,
     },
   },
+  inject: ['showGlobalSettings', 'showOpenMapButton'],
   computed: {
     ...mapStores(useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
@@ -54,7 +55,7 @@ export default {
     },
     // Hide local settings if global settings are shown
     showLocalSettings() {
-      return !this.settingsStore.showGlobalSettings;
+      return !this.showGlobalSettings;
     },
   },
   mounted: function () {

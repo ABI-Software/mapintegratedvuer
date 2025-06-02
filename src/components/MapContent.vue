@@ -116,6 +116,19 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to show open new map button
+     */
+    showOpenMapButton: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  provide: function () {
+    return {
+      showGlobalSettings: this.showGlobalSettings,
+      showOpenMapButton: this.showOpenMapButton,
+    };
   },
   data: function () {
     return {
@@ -376,7 +389,6 @@ export default {
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);
-    this.settingsStore.updateShowGlobalSettings(this.showGlobalSettings);
     this.splitFlowStore?.reset();
     this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },

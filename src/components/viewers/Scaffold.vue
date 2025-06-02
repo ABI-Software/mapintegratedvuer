@@ -32,6 +32,7 @@
       :markerLabels="markerLabels"
       :flatmapAPI="flatmapAPI"
       :showLocalSettings="showLocalSettings"
+      :showOpenMapButton="showOpenMapButton"
     />
 
     <HelpModeDialog
