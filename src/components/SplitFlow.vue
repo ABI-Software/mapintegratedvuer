@@ -643,22 +643,28 @@ export default {
       }
     });
     EventBus.on('connectivity-info-open', payload => {
-      if (!this.search || payload.length > 1) {
+      if (!this.search) {
         this.connectivityEntry = payload;
       } else if (this.search && payload.length === 1) {
         // if search exist, payload should always be an array of one element
-        // skip those payload not contain the search
+        // skip those payloads not contain the search
         if (payload[0].featureId[0] === this.search) {
           this.connectivityEntry = payload;
         }
       }
-      // click on the flatmap paths/features directly
-      // or onDisplaySearch is performed
-      if (!this.connectivityExplorerClicked.length) {
-        this.connectivityKnowledge = payload.map((entry) => {
-          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready };
-        });
-        if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
+      this.connectivityEntry = this.connectivityEntry.map(entry => {
+        return { ...entry, label: entry.title, id: entry.featureId[0] };
+      });
+      if (this.connectivityExplorerClicked.length) {
+        // only remove clicked if not placeholder entry
+        if (this.connectivityEntry.every(entry => entry.ready)) {
+          this.connectivityExplorerClicked.pop();
+        }
+      } else {
+        // click on the flatmap paths/features directly
+        // or onDisplaySearch is performed
+        this.connectivityKnowledge = this.connectivityEntry;
+        if (this.connectivityKnowledge.every(conn => conn.ready)) {
           this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
         }
         if (this.$refs.sideBar) {
@@ -666,7 +672,6 @@ export default {
           this.$refs.sideBar.setDrawerOpen(true);
         }
       }
-      this.connectivityExplorerClicked.pop();
     });
     EventBus.on('connectivity-info-close', payload => {
       if (this.$refs.sideBar) {
