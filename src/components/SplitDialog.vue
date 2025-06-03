@@ -326,6 +326,7 @@ export default {
               results = results.filter((item) => paths.includes(item.id));
             }
             if (this.filter.length) {
+              searchHighlights.push(...this.filter);
               results = results.filter((item) => this.filter.includes(item.id));
             }
             searchResults.push(...results);
