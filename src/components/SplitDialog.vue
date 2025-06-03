@@ -251,7 +251,7 @@ export default {
         const isMatched = compareRanges.some((item) => {
           return item && item.toLowerCase().includes(term.toLowerCase())
         });
-        if (isMatched) {
+        if (isMatched && !ids.includes(annotation.models)) {
           ids.push(annotation.models);
         }
       });
@@ -313,12 +313,12 @@ export default {
               }
             }
             if (this.query) {
-              let prom1 = [], options = {};
+              let options = {};
               const searchTerms = this.query.split(",").map((term) => term.trim());
+              const nestedIds = [];
               for (let index = 0; index < searchTerms.length; index++) {
-                prom1.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
+                nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
               }
-              const nestedIds = await Promise.all(prom1);
               const ids = [...new Set(nestedIds.flat())];
               searchOrders.push(...ids);
               const paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
