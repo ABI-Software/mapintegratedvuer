@@ -251,7 +251,7 @@ export default {
         const isMatched = compareRanges.some((item) => {
           return item && item.toLowerCase().includes(term.toLowerCase())
         });
-        if (isMatched && !ids.includes(annotation.models)) {
+        if (isMatched && annotation.models && !ids.includes(annotation.models)) {
           ids.push(annotation.models);
         }
       });
