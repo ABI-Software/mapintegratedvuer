@@ -44,7 +44,7 @@
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-hovered="onConnectivityHovered"
-          @connectivity-explorer-clicked="onConnectivityExplorerClicked"
+          @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
         />
         <SplitDialog
@@ -150,7 +150,7 @@ export default {
     },
   },
   methods: {
-    onConnectivityExplorerClicked: function (payload) {
+    onConnectivityCollapseChange: function (payload) {
       this.search = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
     },
