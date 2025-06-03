@@ -6,7 +6,8 @@ export const useConnectivitiesStore = defineStore('connectivities', {
       activeConnectivityKeys: [],
       globalConnectivities: {},
       filterOptions: {},
-    }
+      filterSources: {},
+    };
   },
   getters: {
     getUniqueConnectivitiesByKeys: (state) => {
@@ -45,7 +46,24 @@ export const useConnectivitiesStore = defineStore('connectivities', {
       }, {});
       return Object.values(uniqueFilterOptions);
     },
-      );
+    getUniqueFilterSourcesByKeys: (state) => {
+      const uniqueFilterSources = state.activeConnectivityKeys.reduce((acc, uuid) => {
+        const filters = state.filterSources[uuid];
+        if (!filters) return acc;
+
+        for (const [filter, options] of Object.entries(filters)) {
+          if (!acc[filter]) acc[filter] = {};
+
+          for (const [option, ids] of Object.entries(options)) {
+            acc[filter][option] = acc[filter][option]
+              ? Array.from(new Set([...acc[filter][option], ...ids]))
+              : [...ids];
+          }
+        }
+
+        return acc;
+      }, {});
+      return uniqueFilterSources;
     },
   },
   actions: {
@@ -58,5 +76,8 @@ export const useConnectivitiesStore = defineStore('connectivities', {
     updateFilterOptions(filterOptions) {
       this.filterOptions = filterOptions;
     },
-  }
+    updateFilterSources(filterSources) {
+      this.filterSources = filterSources;
+    },
+  },
 });

@@ -50,7 +50,7 @@ export default {
     return {
       styles: { },
       query: "",
-      filter: {},
+      filter: [],
     }
   },
   methods: {
@@ -280,6 +280,7 @@ export default {
           }
 
           const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
+          const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
             if (data) {
@@ -290,18 +291,21 @@ export default {
                 if (!(key in filters)) {
                   filters[key] = [];
                 }
-                uniqueFilters.forEach((filter) => {
-                  if (filter.key.includes(key)) {
-                    filter.children.forEach((child) => {
-                      if (child.key && child.label === item.facet) {
-                        const childKey = child.key.split('.').pop();
-                        filters[key].push(childKey);
-                      }
-                    });
-                  }
-                });
+                const matchedFilter = uniqueFilters.find(f => f.key.includes(key));
+                if (matchedFilter) {
+                  matchedFilter.children.forEach((child) => {
+                    if (child.label === item.facet && child.key) {
+                      const childKey = child.key.split('.').pop();
+                      filters[key].push(childKey);
+                    }
+                  });
+                }
               });
-              this.filter = filters;
+              let ids = []
+              for (const [key, value] of Object.entries(filters)) {
+                value.forEach((v) => ids.push(...uniqueFilterSources[key][v]));
+              }
+              this.filter = [...new Set(ids)];
               if (data.type === "query-update") {
                 this.query = data.value;
               } else if (data.type === "filter-update") {
@@ -321,19 +325,8 @@ export default {
               searchHighlights.push(...paths);
               results = results.filter((item) => paths.includes(item.id));
             }
-            for (const [key, value] of Object.entries(this.filter)) {
-              if (value.length > 0) {                
-                results = results.filter((item) => {
-                  if (key === "alert") {
-                    if (value.includes("With alerts")) {
-                      return key in item;
-                    } else if (value.includes("Without alerts")) {
-                      return !(key in item);
-                    }
-                  }
-                  return key in item && value.includes(item[key][0])
-                });
-              }
+            if (this.filter.length) {
+              results = results.filter((item) => this.filter.includes(item.id));
             }
             searchResults.push(...results);
           }
