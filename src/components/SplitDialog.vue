@@ -223,7 +223,7 @@ export default {
         });
 
         const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
-        EventBus.emit("filter-options", uniqueFilters);
+        EventBus.emit("connectivity-filter-options", uniqueFilters);
       } else {
         if (sckanVersion) {
           EventBus.emit("connectivity-knowledge", {

@@ -699,7 +699,7 @@ export default {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
     })
-    EventBus.on("filter-options", payload => {
+    EventBus.on("connectivity-filter-options", payload => {
       this.filterOptions = payload;
     })
     this.$nextTick(() => {

@@ -62,8 +62,8 @@ export default {
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
     this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
-    this.filterOptions = this.connectivitiesStore.filterOptions;
-    this.filterSources = this.connectivitiesStore.filterSources;
+    this.connectivityFilterOptions = this.connectivitiesStore.filterOptions;
+    this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
     toggleSyncMode: function () {
@@ -584,14 +584,14 @@ export default {
           .filter((item) => item.id in pathsFromMap);
       }
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
-      if (!this.filterOptions[uuid]) {
-        this.filterOptions[uuid] = await flatmap.getFilterOptions();
+      if (!this.connectivityFilterOptions[uuid]) {
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
       }
-      this.connectivitiesStore.updateFilterOptions(this.filterOptions);
-      if (!this.filterSources[uuid]) {
-        this.filterSources[uuid] = flatmap.getFilterSources();
+      this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
+      if (!this.connectivityFilterSources[uuid]) {
+        this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
       }
-      this.connectivitiesStore.updateFilterSources(this.filterSources);
+      this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
       EventBus.emit('species-layout-connectivity-update');
     },
   },
@@ -615,8 +615,8 @@ export default {
       isInHelp: false,
       mapManager: undefined,
       connectivityKnowledge: {},
-      filterOptions: {},
-      filterSources: {},
+      connectivityFilterOptions: {},
+      connectivityFilterSources: {},
       highlightDelay: undefined
     };
   },
