@@ -287,16 +287,16 @@ export default {
               this.query = data.query;
               let filters = {}
               data.filter.forEach((item) => {
-                const key = item.facetPropPath.split('.').pop();;
-                if (!(key in filters)) {
-                  filters[key] = [];
+                const facetKey = item.facetPropPath.split('.').pop();;
+                if (!(facetKey in filters)) {
+                  filters[facetKey] = [];
                 }
-                const matchedFilter = uniqueFilters.find(f => f.key.includes(key));
+                const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
                 if (matchedFilter) {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
                       const childKey = child.key.split('.').pop();
-                      filters[key].push(childKey);
+                      filters[facetKey].push(childKey);
                     }
                   });
                 }
