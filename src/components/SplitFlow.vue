@@ -46,6 +46,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-explorer-clicked="onConnectivityExplorerClicked"
           @connectivity-source-change="onConnectivitySourceChange"
+          @connectivity-item-close="onConnectivityItemClose"
         />
         <SplitDialog
           :entries="entries"
@@ -153,6 +154,9 @@ export default {
     onConnectivityExplorerClicked: function (payload) {
       this.search = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
+    },
+    onConnectivityItemClose: function () {
+      EventBus.emit('connectivity-item-close');
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -307,7 +311,7 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      if (featureIds.length) {        
+      if (featureIds.length) {
         const splitFlowState = this.splitFlowStore.getState();
         const activeView = splitFlowState?.activeView || '';
         // offset sidebar only on singlepanel and 2horpanel views
