@@ -63,6 +63,18 @@ export default {
       this.startHelp();
     });
 
+    EventBus.on('connectivity-item-close', () => {
+      if (this.multiflatmapRef) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.closeTooltip();
+        }
+      }
+      if (this.flatmapRef) {
+        this.flatmapRef.closeTooltip();
+      }
+    });
+
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;

@@ -46,6 +46,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-explorer-clicked="onConnectivityExplorerClicked"
           @connectivity-source-change="onConnectivitySourceChange"
+          @connectivity-item-close="onConnectivityItemClose"
         />
         <SplitDialog
           :entries="entries"
@@ -154,6 +155,9 @@ export default {
     onConnectivityExplorerClicked: function (payload) {
       this.search = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
+    },
+    onConnectivityItemClose: function () {
+      EventBus.emit('connectivity-item-close');
     },
     /**
      * Callback when an action is performed (open new dialogs).
