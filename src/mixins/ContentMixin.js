@@ -555,6 +555,9 @@ export default {
     onAnnotationClose: function () {
       EventBus.emit('annotation-close');
     },
+    updateOfflineAnnotationEnabled: function (payload) {
+      EventBus.emit('update-offline-annotation-enabled', payload);
+    },
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },

@@ -697,6 +697,9 @@ export default {
         }
       }
     });
+    EventBus.on('update-offline-annotation-enabled', (payload) => {
+      this.settingsStore.updateOfflineAnnotationEnabled(payload);
+    });
     EventBus.on('connectivity-info-open', payload => {
       if (!this.search || payload.length > 1) {
         this.connectivityEntry = payload;

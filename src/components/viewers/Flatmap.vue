@@ -18,6 +18,7 @@
       @shown-map-tooltip="onMapTooltipShown"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
+      @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"

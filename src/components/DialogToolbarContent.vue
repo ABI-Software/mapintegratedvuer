@@ -482,6 +482,9 @@ export default {
     shareLink() {
       return this.settingsStore.shareLink;
     },
+    offlineAnnotationEnabled() {
+      return this.settingsStore.offlineAnnotationEnabled;
+    },
     syncMode() {
       return this.splitFlowStore.syncMode;
     },
@@ -526,7 +529,6 @@ export default {
         'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
       },
       authorisedUser: false,
-      offlineAnnotationEnabled: false,
     }
   },
   methods: {
