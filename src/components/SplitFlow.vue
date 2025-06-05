@@ -44,7 +44,7 @@
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-hovered="onConnectivityHovered"
-          @connectivity-explorer-clicked="onConnectivityExplorerClicked"
+          @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
           @connectivity-item-close="onConnectivityItemClose"
         />
@@ -119,6 +119,7 @@ export default {
       sideBarVisibility: true,
       startUp: true,
       search: '',
+      expanded: '',
       filterTriggered: false,
       availableFacets: [],
       connectivityEntry: [],
@@ -152,8 +153,8 @@ export default {
     },
   },
   methods: {
-    onConnectivityExplorerClicked: function (payload) {
-      this.search = payload.id
+    onConnectivityCollapseChange: function (payload) {
+      this.expanded = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
     },
     onConnectivityItemClose: function () {
@@ -387,7 +388,7 @@ export default {
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.id === 2) {
-        this.search = '';
+        this.expanded = '';
         this.connectivityEntry = [];
         EventBus.emit("connectivity-query-filter", data);
       }
@@ -708,30 +709,34 @@ export default {
       this.settingsStore.updateOfflineAnnotationEnabled(payload);
     });
     EventBus.on('connectivity-info-open', payload => {
-      if (!this.search || payload.length > 1) {
-        this.connectivityEntry = payload;
-      } else if (this.search && payload.length === 1) {
-        // if search exist, payload should always be an array of one element
-        // skip those payload not contain the search
-        if (payload[0].featureId[0] === this.search) {
-          this.connectivityEntry = payload;
-        }
+      // expand connectivity card and show connectivity info
+      // if expanded exist, payload should be an array of one element
+      // skip payload not match the expanded in multiple views
+      const isMatched = payload.some(entry => entry.featureId[0] === this.expanded);
+      if (this.expanded && this.connectivityExplorerClicked.length && !isMatched) {
+        this.connectivityExplorerClicked.pop();
+        return;
       }
-      // click on the flatmap paths/features directly
-      // or onDisplaySearch is performed
-      if (!this.connectivityExplorerClicked.length) {
-        this.connectivityKnowledge = payload.map((entry) => {
-          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready };
-        });
-        if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
-          this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
+      this.connectivityEntry = payload.map(entry => {
+        return { ...entry, label: entry.title, id: entry.featureId[0] };
+      });
+      if (this.connectivityExplorerClicked.length) {
+        // only remove clicked if not placeholder entry
+        if (this.connectivityEntry.every(entry => entry.ready)) {
+          this.connectivityExplorerClicked.pop();
+        }
+      } else {
+        // click on the flatmap paths/features directly
+        // or onDisplaySearch is performed
+        this.connectivityKnowledge = this.connectivityEntry;
+        if (this.connectivityKnowledge.every(ck => ck.ready)) {
+          this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
         }
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
           this.$refs.sideBar.setDrawerOpen(true);
         }
       }
-      this.connectivityExplorerClicked.pop();
     });
     EventBus.on('connectivity-info-close', payload => {
       if (this.$refs.sideBar) {
