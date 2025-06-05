@@ -46,6 +46,7 @@
           class="toolbar-dropdown"
           popper-class="toolbar-dropdown-dropdown"
           :hide-on-click="false"
+          :disabled="!mapLoaded"
         >
         <span class="el-dropdown-link">
           <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">
@@ -294,6 +295,7 @@
         trigger="click"
         popper-class="setting-popover"
         virtual-triggering
+        :disabled="!mapLoaded"
         >
         <div class="setting-popover-inner">
           <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
@@ -392,9 +394,15 @@
         :teleported=false
         trigger="hover"
         popper-class="header-popper"
+        :disabled="!mapLoaded"
       >
         <template #reference>
-          <el-icon class="header-icon" ref="globalSettingRef">
+          <el-icon
+            ref="globalSettingRef"
+            :disabled="!mapLoaded"
+            class="header-icon"
+            :class="{'disabled': !mapLoaded}"
+          >
             <el-icon-more-filled />
           </el-icon>
         </template>
@@ -529,6 +537,7 @@ export default {
         'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
       },
       authorisedUser: false,
+      mapLoaded: false,
     }
   },
   methods: {
@@ -645,6 +654,10 @@ export default {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
     this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
+
+    EventBus.on("mapLoaded", (map) => {
+      this.mapLoaded = true;
+    });
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
 
@@ -1015,6 +1028,14 @@ export default {
     height: 24px;
     font-weight: 500;
     outline: none;
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+
+    .el-dropdown-link {
+      cursor: default;
+    }
   }
 
   :deep(.el-icon) {
