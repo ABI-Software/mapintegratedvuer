@@ -98,7 +98,7 @@
                   {{ value }}
                 </template>
               </small>
-              <template v-if="key === 'Exploration'">
+              <!-- <template v-if="key === 'Exploration'">
                 <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
                   <el-popover
                     class="tooltip"
@@ -120,7 +120,7 @@
                     </template>
                   </el-popover>
                 </div>
-              </template>
+              </template> -->
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
