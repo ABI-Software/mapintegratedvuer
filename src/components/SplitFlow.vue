@@ -308,7 +308,7 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      if (featureIds.length) {        
+      if (featureIds.length) {
         const splitFlowState = this.splitFlowStore.getState();
         const activeView = splitFlowState?.activeView || '';
         // offset sidebar only on singlepanel and 2horpanel views
@@ -661,10 +661,18 @@ export default {
       } else {
         this.createData = markRaw(payload.createData);
       }
-      this.confirmCreateCallback = markRaw(payload.confirmCreate);
-      this.cancelCreateCallback = markRaw(payload.cancelCreate);
-      this.confirmDeleteCallback = markRaw(payload.confirmDelete);
-      this.confirmCommentCallback = markRaw(payload.confirmComment);
+      if (payload.confirmCreate) {
+        this.confirmCreateCallback = markRaw(payload.confirmCreate);
+      }
+      if (payload.cancelCreate) {
+        this.cancelCreateCallback = markRaw(payload.cancelCreate);
+      }
+      if (payload.confirmDelete) {
+        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+      }
+      if (payload.confirmComment) {
+        this.confirmCommentCallback = markRaw(payload.confirmComment);
+      }
       if (this.$refs.sideBar) {
         this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
