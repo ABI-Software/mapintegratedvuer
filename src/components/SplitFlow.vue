@@ -699,6 +699,9 @@ export default {
         if (viewingMode === 'Annotation') {
           this.$refs.sideBar.setDrawerOpen(false);
         }
+
+        this.$refs.sideBar.closeConnectivity();
+        EventBus.emit('connectivity-item-close');
       }
     });
     EventBus.on('update-offline-annotation-enabled', (payload) => {
