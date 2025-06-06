@@ -32,11 +32,17 @@ export const useSettingsStore = defineStore('settings', {
       connectivityInfoSidebar: true,
       annotationSidebar: true,
       allClosable: true,
+      offlineAnnotationEnabled: false,
       globalSettings: {
-        displayMarkers: true,
-        highlightConnectedPaths: false,
-        highlightDOIPaths: false, // comment out to hide in settings
-        interactiveMode: 'dataset', // dataset, connectivity, multiscale
+        displayMarkers: true, // comment out to hide in settings
+        // highlightConnectedPaths: false, // comment out to hide in settings
+        // highlightDOIPaths: false, // comment out to hide in settings
+        interactiveMode: 'dataset', // dataset, connectivity, multiscale // comment out to hide in settings
+        viewingMode: 'Exploration',
+        flightPathDisplay: false,
+        organsDisplay: true,
+        outlinesDisplay: true,
+        backgroundDisplay: 'white',
       },
     }
   },
@@ -186,10 +192,15 @@ export const useSettingsStore = defineStore('settings', {
     updateAllClosable(allClosable) {
       this.allClosable = allClosable;
     },
+    updateOfflineAnnotationEnabled(offlineAnnotationEnabled) {
+      this.offlineAnnotationEnabled = offlineAnnotationEnabled;
+    },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {
         this.globalSettings[key] = value;
       }
+      // add global settins to storage
+      localStorage.setItem('mapviewer.globalSettings', JSON.stringify(this.globalSettings));
     },
   }
 });

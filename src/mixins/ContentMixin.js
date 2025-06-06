@@ -35,6 +35,7 @@ export default {
       default: false,
     },
   },
+  inject: ['showGlobalSettings', 'showOpenMapButton'],
   computed: {
     ...mapStores(useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
@@ -52,10 +53,26 @@ export default {
     annotationSidebar() {
       return this.settingsStore.annotationSidebar;
     },
+    // Hide local settings if global settings are shown
+    showLocalSettings() {
+      return !this.showGlobalSettings;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
       this.startHelp();
+    });
+
+    EventBus.on('connectivity-item-close', () => {
+      if (this.multiflatmapRef) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.closeTooltip();
+        }
+      }
+      if (this.flatmapRef) {
+        this.flatmapRef.closeTooltip();
+      }
     });
 
     this.multiflatmapRef = this.$refs.multiflatmap;
@@ -549,6 +566,9 @@ export default {
     },
     onAnnotationClose: function () {
       EventBus.emit('annotation-close');
+    },
+    updateOfflineAnnotationEnabled: function (payload) {
+      EventBus.emit('update-offline-annotation-enabled', payload);
     },
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
