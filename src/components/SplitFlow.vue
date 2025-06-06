@@ -44,8 +44,9 @@
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-hovered="onConnectivityHovered"
-          @connectivity-explorer-clicked="onConnectivityExplorerClicked"
+          @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @connectivity-item-close="onConnectivityItemClose"
         />
         <SplitDialog
           :entries="entries"
@@ -118,6 +119,7 @@ export default {
       sideBarVisibility: true,
       startUp: true,
       search: '',
+      expanded: '',
       filterTriggered: false,
       availableFacets: [],
       connectivityEntry: [],
@@ -144,11 +146,19 @@ export default {
       },
       immediate: true,
     },
+    connectivityHighlight: {
+      handler: function (value) {
+        this.onShowConnectivity(value);
+      },
+    },
   },
   methods: {
-    onConnectivityExplorerClicked: function (payload) {
-      this.search = payload.id
+    onConnectivityCollapseChange: function (payload) {
+      this.expanded = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
+    },
+    onConnectivityItemClose: function () {
+      EventBus.emit('connectivity-item-close');
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -303,13 +313,15 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      const splitFlowState = this.splitFlowStore.getState();
-      const activeView = splitFlowState?.activeView || '';
-      // offset sidebar only on singlepanel and 2horpanel views
-      EventBus.emit('show-connectivity', {
-        featureIds: featureIds,
-        offset: activeView === 'singlepanel' || activeView === '2horpanel'
-      });
+      if (featureIds.length) {
+        const splitFlowState = this.splitFlowStore.getState();
+        const activeView = splitFlowState?.activeView || '';
+        // offset sidebar only on singlepanel and 2horpanel views
+        EventBus.emit('show-connectivity', {
+          featureIds: featureIds,
+          offset: activeView === 'singlepanel' || activeView === '2horpanel'
+        });
+      }
     },
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
@@ -376,7 +388,7 @@ export default {
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.id === 2) {
-        this.search = '';
+        this.expanded = '';
         this.connectivityEntry = [];
         EventBus.emit("connectivity-query-filter", data);
       }
@@ -518,7 +530,6 @@ export default {
         // Use to update the connectivity when switch species
         // Wait for provenance info with uuid update
         this.$nextTick(() => {
-          // EventBus.emit("connectivity-query-filter");
           EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
         })
@@ -655,10 +666,18 @@ export default {
       } else {
         this.createData = markRaw(payload.createData);
       }
-      this.confirmCreateCallback = markRaw(payload.confirmCreate);
-      this.cancelCreateCallback = markRaw(payload.cancelCreate);
-      this.confirmDeleteCallback = markRaw(payload.confirmDelete);
-      this.confirmCommentCallback = markRaw(payload.confirmComment);
+      if (payload.confirmCreate) {
+        this.confirmCreateCallback = markRaw(payload.confirmCreate);
+      }
+      if (payload.cancelCreate) {
+        this.cancelCreateCallback = markRaw(payload.cancelCreate);
+      }
+      if (payload.confirmDelete) {
+        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+      }
+      if (payload.confirmComment) {
+        this.confirmCommentCallback = markRaw(payload.confirmComment);
+      }
       if (this.$refs.sideBar) {
         this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
@@ -681,34 +700,43 @@ export default {
         if (viewingMode === 'Annotation') {
           this.$refs.sideBar.setDrawerOpen(false);
         }
+
+        this.$refs.sideBar.closeConnectivity();
+        EventBus.emit('connectivity-item-close');
       }
     });
+    EventBus.on('update-offline-annotation-enabled', (payload) => {
+      this.settingsStore.updateOfflineAnnotationEnabled(payload);
+    });
     EventBus.on('connectivity-info-open', payload => {
-      if (!this.search || payload.length > 1) {
-        this.connectivityEntry = payload;
-      } else if (this.search && payload.length === 1) {
-        // if search exist, payload should always be an array of one element
-        // skip those payload not contain the search
-        if (payload[0].featureId[0] === this.search) {
-          this.connectivityEntry = payload;
-        }
+      // expand connectivity card and show connectivity info
+      // if expanded exist, payload should be an array of one element
+      // skip payload not match the expanded in multiple views
+      const isMatched = payload.some(entry => entry.featureId[0] === this.expanded);
+      if (this.expanded && this.connectivityExplorerClicked.length && !isMatched) {
+        this.connectivityExplorerClicked.pop();
+        return;
       }
-      // click on the flatmap paths/features directly
-      // or onDisplaySearch is performed
-      if (!this.connectivityExplorerClicked.length) {
-        this.connectivityKnowledge = payload.map((entry) => {
-          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
-        });
-        if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
-          this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
-          this.onShowConnectivity(this.connectivityHighlight);
+      this.connectivityEntry = payload.map(entry => {
+        return { ...entry, label: entry.title, id: entry.featureId[0] };
+      });
+      if (this.connectivityExplorerClicked.length) {
+        // only remove clicked if not placeholder entry
+        if (this.connectivityEntry.every(entry => entry.ready)) {
+          this.connectivityExplorerClicked.pop();
+        }
+      } else {
+        // click on the flatmap paths/features directly
+        // or onDisplaySearch is performed
+        this.connectivityKnowledge = this.connectivityEntry;
+        if (this.connectivityKnowledge.every(ck => ck.ready)) {
+          this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
         }
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
           this.$refs.sideBar.setDrawerOpen(true);
         }
       }
-      this.connectivityExplorerClicked.pop();
     });
     EventBus.on('connectivity-info-close', payload => {
       if (this.$refs.sideBar) {
@@ -730,13 +758,7 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = [];
-      if (payload.state === "processed") {
-        this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);;
-        this.onShowConnectivity(this.connectivityHighlight);
-      } else {
-        this.hoverChanged();
-      }
+      this.connectivityHighlight = payload.highlight || [];
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {

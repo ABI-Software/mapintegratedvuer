@@ -17,6 +17,7 @@
       :helpModeDialog="useHelpModeDialog"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
+      @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
       :annotationSidebar="annotationSidebar"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"

@@ -32,6 +32,7 @@ export const useSettingsStore = defineStore('settings', {
       connectivityInfoSidebar: true,
       annotationSidebar: true,
       allClosable: true,
+      offlineAnnotationEnabled: false,
       globalSettings: {
         displayMarkers: true, // comment out to hide in settings
         // highlightConnectedPaths: false, // comment out to hide in settings
@@ -190,6 +191,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateAllClosable(allClosable) {
       this.allClosable = allClosable;
+    },
+    updateOfflineAnnotationEnabled(offlineAnnotationEnabled) {
+      this.offlineAnnotationEnabled = offlineAnnotationEnabled;
     },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {
