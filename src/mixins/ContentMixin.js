@@ -568,6 +568,7 @@ export default {
       flatmapQueries.initialise(this.flatmapAPI);
       const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
       const uuid = flatmapImp.uuid;
+      const pathways = flatmapImp.pathways;
 
       if (!this.connectivityKnowledge[sckanVersion]) {
         this.connectivityKnowledge[sckanVersion] = knowledge
@@ -576,10 +577,8 @@ export default {
           })
           .sort((a, b) => a.label.localeCompare(b.label));
       }
-
       if (!this.connectivityKnowledge[uuid]) {
-        const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
-        const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+        const pathsFromMap = pathways ? pathways.paths : {};
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
           .filter((item) => item.id in pathsFromMap);
       }
