@@ -63,6 +63,18 @@ export default {
       this.startHelp();
     });
 
+    EventBus.on('connectivity-item-close', () => {
+      if (this.multiflatmapRef) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.closeTooltip();
+        }
+      }
+      if (this.flatmapRef) {
+        this.flatmapRef.closeTooltip();
+      }
+    });
+
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
@@ -555,6 +567,9 @@ export default {
     onAnnotationClose: function () {
       EventBus.emit('annotation-close');
     },
+    updateOfflineAnnotationEnabled: function (payload) {
+      EventBus.emit('update-offline-annotation-enabled', payload);
+    },
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
@@ -574,33 +589,22 @@ export default {
       if (!this.connectivityKnowledge[sckanVersion]) {
         this.connectivityKnowledge[sckanVersion] = knowledge
           .filter((item) => {
-            return (
-              item.source === sckanVersion &&
-              item.connectivity?.length
-            );
+            return item.source === sckanVersion && item.connectivity?.length;
           })
           .sort((a, b) => a.label.localeCompare(b.label));
       }
 
-      if (!this.connectivitiesStore.globalConnectivities[uuid]) {
+      if (!this.connectivityKnowledge[uuid]) {
         const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
         const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
 
-        this.connectivityKnowledge[uuid] = knowledge
-          .filter((item) => {
-            return (
-              item.source === sckanVersion &&
-              item.connectivity?.length &&
-              item.id in pathsFromMap
-            );
-          })
-          .sort((a, b) => a.label.localeCompare(b.label));
+        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
+          .filter((item) => item.id in pathsFromMap);
       }
 
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
 
-      // EventBus.emit("connectivity-knowledge", { data: this.connectivityKnowledge[uuid] });
-      EventBus.emit('species-layout-connectivity-update');
+      EventBus.emit("species-layout-connectivity-update");
     },
   },
   data: function () {
