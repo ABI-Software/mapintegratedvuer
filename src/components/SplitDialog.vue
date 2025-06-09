@@ -238,10 +238,17 @@ export default {
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
       featureIds.forEach((id) => {
         const annotation = flatmap.mapImp.annotation(id);
-        if (
-          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
-          annotation.models && !ids.includes(annotation.models)
-        ) {
+        const compareRanges = [
+          annotation.id,
+          annotation.name,
+          annotation.label,
+          annotation.models,
+          annotation.source
+        ];
+        const isMatched = compareRanges.some((item) => {
+          return item && item.toLowerCase().includes(term.toLowerCase())
+        });
+        if (isMatched && annotation.models && !ids.includes(annotation.models)) {
           ids.push(annotation.models);
         }
       });
@@ -280,12 +287,12 @@ export default {
               }
             }
             if (this.query) {
-              let prom1 = [], options = {};
+              let options = {};
               const searchTerms = this.query.split(",").map((term) => term.trim());
+              const nestedIds = [];
               for (let index = 0; index < searchTerms.length; index++) {
-                prom1.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
+                nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
               }
-              const nestedIds = await Promise.all(prom1);
               const ids = [...new Set(nestedIds.flat())];
               searchOrders.push(...ids);
               const paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
