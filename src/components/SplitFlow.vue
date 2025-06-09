@@ -333,11 +333,11 @@ export default {
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
       if (data) {
-        if (data.type === 'dataset') {
+        if (data.tabType === 'dataset') {
           hoverAnatomies = data.anatomy ? data.anatomy : [];
           hoverOrgans = data.organs ? data.organs : [];
           hoverDOI = data.doi ? data.doi : '';
-        } else if (data.type === 'connectivity') {
+        } else if (data.tabType === 'connectivity') {
           hoverConnectivity = data.id ? [data.id] : [];
         }
       } else {
@@ -347,7 +347,7 @@ export default {
       EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {
-      if (data.id === 1) {
+      if (data.tabType === 'dataset') {
         if (data && data.type == "query-update") {
           this.search = data.value;
           if (this.search && !this.filterTriggered) {
@@ -384,7 +384,7 @@ export default {
           }
           this.filterTriggered = false; // reset for next action
         }
-      } else if (data.id === 2) {
+      } else if (data.tabType === 'connectivity') {
         this.expanded = '';
         this.connectivityEntry = [];
         EventBus.emit("connectivity-query-filter", data);
