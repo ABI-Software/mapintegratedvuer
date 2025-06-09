@@ -46,6 +46,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @filter-visibility="onFilterVisibility"
         />
         <SplitDialog
           :entries="entries"
@@ -132,6 +133,7 @@ export default {
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
+      filterVisibility: true,
     }
   },
   watch: {
@@ -147,10 +149,20 @@ export default {
     connectivityHighlight: {
       handler: function (value) {
         this.onShowConnectivity(value);
+        this.onFilterVisibility(this.filterVisibility);
       },
     },
   },
   methods: {
+    onFilterVisibility: function (state) {
+      this.filterVisibility = state;
+      // make sure setting are managed by the side bar
+      const hasHighlight = this.filterVisibility && this.connectivityHighlight.length;
+      const payload = hasHighlight ?
+        { 'models': this.connectivityHighlight } :
+        undefined;
+      EventBus.emit('filter-visibility', payload);
+    },
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
@@ -330,16 +342,12 @@ export default {
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
-      if (data) {
-        if (data.tabType === 'dataset') {
-          hoverAnatomies = data.anatomy ? data.anatomy : [];
-          hoverOrgans = data.organs ? data.organs : [];
-          hoverDOI = data.doi ? data.doi : '';
-        } else if (data.tabType === 'connectivity') {
-          hoverConnectivity = data.id ? [data.id] : [];
-        }
-      } else {
-        hoverConnectivity = this.connectivityHighlight;
+      if (data.tabType === 'dataset') {
+        hoverAnatomies = data.anatomy ? data.anatomy : [];
+        hoverOrgans = data.organs ? data.organs : [];
+        hoverDOI = data.doi ? data.doi : '';
+      } else if (data.tabType === 'connectivity') {
+        hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate");

@@ -50,8 +50,8 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^1.9.2",
-    "@abi-software/map-side-bar": "^2.8.2",
+    "@abi-software/flatmapvuer": "^1.9.3-beta.4",
+    "@abi-software/map-side-bar": "^2.8.3-beta.3",
     "@abi-software/map-utilities": "^1.5.0",
     "@abi-software/plotvuer": "1.0.4",
     "@abi-software/scaffoldvuer": "^1.9.0",
@@ -60,13 +60,13 @@
     "@abi-software/svg-sprite": "^1.0.1",
     "@element-plus/icons-vue": "^2.3.1",
     "@vitejs/plugin-vue": "^4.6.2",
-    "unplugin-vue-components": "^0.26.0",
     "css-element-queries": "^1.2.3",
     "element-plus": "2.8.4",
     "marked": "^4.3.0",
     "mitt": "^3.0.1",
     "pinia": "^2.1.7",
     "splitpanes": "^3.1.5",
+    "unplugin-vue-components": "^0.26.0",
     "vue": "^3.4.21",
     "xss": "^1.0.14"
   },

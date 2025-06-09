@@ -478,6 +478,15 @@ export default {
       }
     });
 
+    EventBus.on('filter-visibility', (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.setVisibilityFilter(payload);
+        }
+      }
+    });
+
     EventBus.on('show-reference-connectivities', (payload) => {
       if (this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
