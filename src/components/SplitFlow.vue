@@ -132,6 +132,7 @@ export default {
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
+      filterVisibility: true,
     }
   },
   watch: {
@@ -147,15 +148,18 @@ export default {
     connectivityHighlight: {
       handler: function (value) {
         this.onShowConnectivity(value);
-        this.onFilterVisibility(value.length ? true : false);
+        this.onFilterVisibility(this.filterVisibility);
       },
     },
   },
   methods: {
-    onFilterVisibility: function (filter) {
-      const payload = filter && this.connectivityHighlight.length ?
+    onFilterVisibility: function (state) {
+      this.filterVisibility = state;
+      // make sure setting are managed by the side bar
+      const hasHighlight = this.filterVisibility && this.connectivityHighlight.length;
+      const payload = hasHighlight ?
         { 'models': this.connectivityHighlight } :
-        undefined
+        undefined;
       EventBus.emit('filter-visibility', payload);
     },
     onConnectivityCollapseChange: function (payload) {
