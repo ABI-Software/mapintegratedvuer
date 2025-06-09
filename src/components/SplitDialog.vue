@@ -15,6 +15,7 @@
         :entry="entry"
         ref="content"
         @resource-selected="resourceSelected"
+        @species-changed="speciesChanged"
         :visible="isIdVisible(entry.id)"
       />
     </div>
@@ -29,6 +30,7 @@ import CustomSplitter from "./CustomSplitter.vue";
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useConnectivitiesStore } from '../stores/connectivities';
 
 export default {
   name: "SplitDialog",
@@ -46,7 +48,9 @@ export default {
   },
   data: function() {
     return {
-      styles: { }
+      styles: { },
+      query: "",
+      filter: [],
     }
   },
   methods: {
@@ -55,6 +59,9 @@ export default {
      */
     resourceSelected: function(result) {
       this.$emit("resource-selected", result);
+    },
+    speciesChanged: function (species) {
+      this.$emit("species-changed", species);
     },
     getClass: function(id) {
       if (this.isIdVisible(id)) {
@@ -153,12 +160,178 @@ export default {
         });
       }
       this.__userResize__ = false;
-    }
+    },
+    onSpeciesLayoutConnectivityUpdate: function () {
+      let activePaneIDs = [];
+      let availablePaneIDs = [];
+      let combinedConnectivities = [];
+      let sckanVersion = '';
+      let uuid = '';
+
+      for (const key in this.customLayout) {
+        if (this.customLayout[key].id) {
+          availablePaneIDs.push(this.customLayout[key].id);
+        }
+      }
+
+      switch (this.activeView) {
+        case 'singlepanel': {
+          activePaneIDs = availablePaneIDs.slice(0, 1);
+        } break;
+        case '2horpanel':
+        case '2vertpanel': {
+          activePaneIDs = availablePaneIDs.slice(0, 2);
+        } break;
+        case '3panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 3);
+        } break;
+        case '4panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 4);
+        } break;
+        case '5panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 5);
+        } break;
+        case '6panelVertical':
+        case '6panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 6);
+        } break;
+        default:
+          break;
+      }
+
+      const uuids = Array.from(
+        new Set(
+          this.entries
+            .filter(entry => activePaneIDs.includes(entry.id) && entry.uuid)
+            .map(entry => entry.uuid)
+        )
+      );
+
+      this.entries.forEach((entry) => {
+        if (entry.sckanVersion in this.connectivitiesStore.globalConnectivities) {
+          sckanVersion = entry.sckanVersion;
+        }
+      });
+
+      // mix connectivites of available maps
+      if (uuids.length) {
+        this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
+        const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+
+        EventBus.emit("connectivity-knowledge", {
+          data: uniqueConnectivities
+        });
+      } else {
+        if (sckanVersion) {
+          EventBus.emit("connectivity-knowledge", {
+            data: this.connectivitiesStore.globalConnectivities[sckanVersion]
+          });
+          this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
+        } else {
+          console.warn(`There has no connectivity to show!`);
+        }
+      }
+    },
+    getSearchedId: function (flatmap, term) {
+      let ids = [];
+      const searchResult = flatmap.mapImp.search(term);
+      const featureIds = searchResult.__featureIds || searchResult.featureIds;
+      featureIds.forEach((id) => {
+        const annotation = flatmap.mapImp.annotation(id);
+        const compareRanges = [
+          annotation.id,
+          annotation.name,
+          annotation.label,
+          annotation.models,
+          annotation.source
+        ];
+        const isMatched = compareRanges.some((item) => {
+          return item && item.toLowerCase().includes(term.toLowerCase())
+        });
+        if (isMatched && annotation.models && !ids.includes(annotation.models)) {
+          ids.push(annotation.models);
+        }
+      });
+      return ids;
+    },
+    connectivityQueryFilter: async function (data) {
+      const activeContents = this.getActiveContents();
+      let searchOrders = [], searchHighlights = [], searchResults = [];
+
+      for (const activeContent of activeContents) {
+        const viewer = activeContent.$refs.viewer;
+
+        if (viewer) {
+          const multiflatmap = viewer.$refs.multiflatmap;
+          const flatmap = viewer.$refs.flatmap;
+          let currentFlatmap = null;
+
+          if (multiflatmap) {
+            const _currentFlatmap = multiflatmap.getCurrentFlatmap();
+            if (_currentFlatmap && _currentFlatmap.mapImp) {
+              currentFlatmap = _currentFlatmap;
+            }
+          }
+          if (flatmap && flatmap.mapImp) {
+            currentFlatmap = flatmap;
+          }
+
+          if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
+            let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+
+            if (data) {
+              if (data.type === "query-update") {
+                this.query = data.value;
+              } else if (data.type === "filter-update") {
+                this.filter = data.value;
+              }
+            }
+            if (this.query) {
+              let options = {};
+              const searchTerms = this.query.split(",").map((term) => term.trim());
+              const nestedIds = [];
+              for (let index = 0; index < searchTerms.length; index++) {
+                nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
+              }
+              const ids = [...new Set(nestedIds.flat())];
+              searchOrders.push(...ids);
+              const paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
+              searchHighlights.push(...paths);
+              results = results.filter((item) => paths.includes(item.id));
+            }
+
+            searchResults.push(...results);
+          }
+        }
+      }
+
+      const uniqueOrders = [...new Set(searchOrders)];
+      const uniqueHighlights = [...new Set(searchHighlights)];
+      let uniqueResults = Array.from(
+        new Map(searchResults.map((item) => [item.id, item])).values()
+      );
+      // Ensure that the results always show search items first
+      // and the rest ordered by alphabetical order
+      uniqueResults = [
+        ...uniqueResults.filter((r) => uniqueOrders.includes(r.id)),
+        ...uniqueResults.filter((r) => !uniqueOrders.includes(r.id))
+      ];
+
+      const connectivitiesPayload = {
+        highlight: uniqueHighlights,
+        data: uniqueResults,
+      };
+
+      EventBus.emit("connectivity-knowledge", connectivitiesPayload);
+    },
   },
   computed: {
-    ...mapStores(useSplitFlowStore),
+    ...mapStores(useSplitFlowStore, useConnectivitiesStore),
     activeView: function() {
       return this.splitFlowStore.activeView;
+    },
+    customLayout: function() {
+      return this.splitFlowStore.customLayout;
     },
     horizontal() {
       if (this.splitFlowStore.activeView === "2horpanel") {
@@ -204,6 +377,12 @@ export default {
     });
     EventBus.on("PaneUnmounted", payload => {
       this.hidePane(payload.refName);
+    });
+    EventBus.on('species-layout-connectivity-update', () => {
+      this.onSpeciesLayoutConnectivityUpdate();
+    })
+    EventBus.on("connectivity-query-filter", (payload) => {
+      this.connectivityQueryFilter(payload);
     });
   },
 };

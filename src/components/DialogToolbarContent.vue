@@ -26,7 +26,7 @@
           <map-svg-icon icon="help" class="sync-help header-icon"/>
         </template>
         <template #default>
-            When in Linked mode the two maps will interact 
+            When in Linked mode the two maps will interact
             <br>
             together. Select an organ in one and it will
             <br>
@@ -111,31 +111,70 @@
         popper-class="link-popover"
         virtual-triggering
       >
-        <el-row :gutter="20"
-          v-loading="loadingLink"
-          element-loading-text="Creating link...">
-          <el-col :span="20">
-            <el-input
-              class="link-input"
-              size="small"
-              placeholder="Permanant Link Here"
-              :readonly=true
-              v-model="shareLink"
-              ref="linkInput">
-            </el-input>
-          </el-col>
-          <el-col :span="4">
-            <el-popover class="tooltip" content="Copy link" placement="bottom-end"
-              :show-after="helpDelay" :teleported=false trigger="hover"
-              popper-class="header-popper">
-              <template #reference>
-                <el-button class="copy-button"
-                  :icon="ElIconCopyDocument" size="small"
-                  @click="copyShareLink"></el-button>
-              </template>
-            </el-popover>
-          </el-col>
+        <template v-if="displayShareOptions">
+          <el-row>
+            <el-col :offset="3" :span="8">
+              <el-button
+                type="primary"
+                size="small"
+                @click="getShareLink(exportAnnotation)"
+                class="share-options"
+              >
+                Create Permalink
+              </el-button>
+            </el-col>
+            <el-col :span="10">
+              <el-popover class="tooltip"
+                placement="bottom-end"
+                :show-after="helpDelay" :teleported=false trigger="hover"
+                popper-class="header-popper"
+              >
+                <template #reference>
+                  <el-checkbox
+                    v-model="exportAnnotation"
+                    size="small"
+                  >
+                    Export Annotations
+                  </el-checkbox>
+                </template>
+                <template #default>
+                  Create a permalink with anonymous annotations.
+                  <br>
+                  NOTE: Annotations will only be stored for
+                  <br>
+                  30 days on the server.
+                </template>
+              </el-popover>
+            </el-col>
         </el-row>
+        </template>
+        <template v-else>
+          <el-row :gutter="20"
+            v-loading="loadingLink"
+            element-loading-text="Creating link...">
+            <el-col :span="20">
+              <el-input
+                class="link-input"
+                size="small"
+                placeholder="Permanant Link Here"
+                :readonly=true
+                v-model="shareLink"
+                ref="linkInput">
+              </el-input>
+            </el-col>
+            <el-col :span="4">
+              <el-popover class="tooltip" content="Copy link" placement="bottom-end"
+                :show-after="helpDelay" :teleported=false trigger="hover"
+                popper-class="header-popper">
+                <template #reference>
+                  <el-button class="copy-button"
+                    :icon="ElIconCopyDocument" size="small"
+                    @click="copyShareLink"></el-button>
+                </template>
+              </el-popover>
+            </el-col>
+          </el-row>
+        </template>
       </el-popover>
       <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
         :show-after="helpDelay" :teleported=false trigger="hover"
@@ -145,7 +184,7 @@
           <map-svg-icon icon="permalink"
             ref="permalinkRef"
             class="header-icon"
-            @click="getShareLink"
+            @click="requestShareLink"
             v-show="shareLink"
           />
         </template>
@@ -156,7 +195,62 @@
           <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
         </template>
       </el-popover>
-
+      <!--
+      <el-popover
+        v-if="globalSettingRef"
+        :virtual-ref="globalSettingRef"
+        ref="settingPopover"
+        placement="bottom"
+        width="133"
+        :teleported=false
+        trigger="click"
+        popper-class="setting-popover"
+        virtual-triggering
+        >
+        <el-row :gutter="20">
+          <el-col :span="20">
+            <el-checkbox
+              v-model="globalSettings.displayMarkers"
+              @change="updateGlobalSettings"
+            >
+              Display Map Markers
+            </el-checkbox>
+            <p>Card Hover</p>
+            <el-checkbox
+              v-model="globalSettings.highlightConnectedPaths"
+              @change="updateGlobalSettings"
+            >
+              Highlight Connected Paths
+            </el-checkbox>
+            <el-checkbox
+              v-model="globalSettings.highlightDOIPaths"
+              @change="updateGlobalSettings"
+            >
+              Highlight DOI Paths
+            </el-checkbox>
+            <p>Interactive Mode</p>
+            <el-radio-group
+              v-model="globalSettings.interactiveMode"
+              @change="updateGlobalSettings"
+            >
+              <el-radio value="dataset">Dataset Exploration</el-radio>
+              <el-radio value="connectivity">Connectivity Exploration</el-radio>
+              <el-radio value="multiscale">Multiscale Model</el-radio>
+            </el-radio-group>
+          </el-col>
+        </el-row>
+      </el-popover>
+      <el-popover class="tooltip" content="Global Settings" placement="bottom-end"
+        :show-after="helpDelay" :teleported=false trigger="hover"
+        popper-class="header-popper"
+      >
+        <template #reference>
+          <el-icon class="header-icon" ref="globalSettingRef">
+            <el-icon-more-filled />
+          </el-icon>
+        </template>
+      </el-popover>
+      -->
     </el-row>
   </div>
 </template>
@@ -174,13 +268,17 @@ import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
 import {
   CopyDocument as ElIconCopyDocument,
+  MoreFilled as ElIconMoreFilled,
 } from '@element-plus/icons-vue';
 import {
   ElButton as Button,
+  ElCheckbox as Checkbox,
   ElCol as Col,
   ElIcon as Icon,
   ElInput as Input,
   ElPopover as Popover,
+  ElRadio as Radio,
+  ElRadioGroup as RadioGroup,
   ElRow as Row,
   ElSwitch as Switch,
 } from "element-plus";
@@ -192,10 +290,13 @@ export default {
   name: "DialogToolbarContent",
   components: {
     Button,
+    Checkbox,
     Col,
     Icon,
     Input,
     Popover,
+    Radio,
+    RadioGroup,
     Row,
     Switch,
     MapSvgIcon,
@@ -254,21 +355,44 @@ export default {
       let flag = !(value === true);
       if (flag !== this.independent)
         this.independent = flag;
-    }
+    },
   },
   data: function() {
     return {
+      activeViewRef: undefined,
+      displayShareOptions: false,
+      ElIconCopyDocument: shallowRef(ElIconCopyDocument),
+      exportAnnotation: false,
+      failedSearch: undefined,
+      globalSettings: {},
+      globalSettingRef: undefined,
+      independent: true,
       isFullscreen: false,
       loadingLink: true,
-      shareLinkDisplay: false,
-      independent: true,
-      failedSearch: undefined,
-      activeViewRef: undefined,
       permalinkRef: undefined,
-      ElIconCopyDocument: shallowRef(ElIconCopyDocument)
     }
   },
   methods: {
+    loadGlobalSettings: function () {
+      this.globalSettings = {
+        ...this.globalSettings,
+        ...this.settingsStore.globalSettings
+      };
+    },
+    /**
+    updateGlobalSettings: function() {
+      const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
+      this.settingsStore.updateGlobalSettings(this.globalSettings);
+
+      // display marker update
+      if (updatedSettings.includes('displayMarkers')) {
+        EventBus.emit('markerUpdate');
+      }
+      if (updatedSettings.includes('interactiveMode')) {
+        EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
+      }
+    },
+    */
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
@@ -278,6 +402,11 @@ export default {
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
+    },
+    onFullscreenEsc: function () {
+      if (!document.fullscreenElement) {
+        this.isFullscreen = false;
+      }
     },
     close: function() {
       this.$emit("close");
@@ -291,21 +420,40 @@ export default {
     setFailedSearch: function(result) {
       this.failedSearch = result;
     },
-    getShareLink: function() {
+    requestShareLink: function() {
+      if (sessionStorage.getItem('anonymous-annotation')) {
+        this.displayShareOptions = true;
+      } else {
+        this.getShareLink(false);
+      }
+    },
+    getShareLink: function(withAnnotation) {
+      this.displayShareOptions = false;
       this.loadingLink = true;
-      this.shareLinkDisplay = true;
-      EventBus.emit("updateShareLinkRequested");
+      EventBus.emit("updateShareLinkRequested", withAnnotation);
     },
     viewClicked: function(view) {
       this.splitFlowStore.updateActiveView({
         view,
         entries: this.entriesStore.entries,
       });
+
+      if (this.$refs.viewPopover) {
+        this.$refs.viewPopover.hide();
+      }
     }
   },
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
+    this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
+
+    document.addEventListener('fullscreenchange', this.onFullscreenEsc);
+
+    this.loadGlobalSettings();
+  },
+  unmounted: function () {
+    document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
   },
 };
 </script>
@@ -337,6 +485,17 @@ export default {
   height:32px;
 }
 
+.share-options.el-button {
+  font-family: inherit;
+
+  &:hover,
+  &:focus {
+    background: $app-primary-color;
+    box-shadow: -3px 2px 4px #00000040;
+    color: #fff;
+  }
+}
+
 :deep(.header-popper.el-popover.el-popper) {
   padding: 6px 4px;
   font-size:12px;
@@ -345,6 +504,7 @@ export default {
   border: 1px solid $app-primary-color;
   white-space: nowrap;
   min-width: unset;
+
   .el-popper__arrow {
     &:before {
       border-color: $app-primary-color;
@@ -372,7 +532,7 @@ export default {
   &:hover, &:focus {
     color:#FFFFFF;
     background-color:$app-primary-color;
-    box-shadow: -3px 2px 4px #000000; 
+    box-shadow: -3px 2px 4px #000000;
   }
 }
 
@@ -417,12 +577,14 @@ export default {
   padding-top:7px;
 }
 
-:deep(.view-icon-popover.el-popper) {
+:deep(.view-icon-popover.el-popper), 
+:deep(.setting-popover.el-popper ) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
   min-width:unset!important;
   width:unset!important;
+  background-color: #f3ecf6;
   cursor:default;
   .el-popper__arrow {
     &:before {
@@ -437,6 +599,9 @@ export default {
   top:2px;
   left: calc(50% - 60px);
   position: absolute;
+  display: flex;
+  align-items: center;
+
   .sync-help {
     left:5px;
     stroke: $app-primary-color;
@@ -450,6 +615,7 @@ export default {
   border: 1px solid rgb(220, 223, 230);
   vertical-align: super;
   height: 28px;
+  box-sizing: border-box;
 }
 
 .sync-help {
@@ -460,5 +626,4 @@ export default {
   top: 0px;
   scale: 0.7;
 }
-
 </style>

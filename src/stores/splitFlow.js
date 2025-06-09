@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import {
   getAvailableTermsForSpecies,
 } from "../components/SimulatedData.js";
+import EventBus from '../components/EventBus.js';
 
 /* eslint-disable no-alert, no-console */
 const presetLayouts = (view) => {
@@ -12,13 +13,13 @@ const presetLayouts = (view) => {
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
       };
-    case "2vertpanel": 
+    case "2vertpanel":
       return {
         "split-1": {content: false, horizontal: false, children: ["pane-1", "pane-2"]},
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
       }
-    case "3panel": 
+    case "3panel":
       return {
         "split-1": {content: false, horizontal: false, children: ["pane-1", "split-2"]},
         "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3"]},
@@ -26,7 +27,7 @@ const presetLayouts = (view) => {
         "pane-2": {content: true,  id: 2},
         "pane-3": {content: true,  id: 3},
       }
-    case "4panel": 
+    case "4panel":
       return {
         "split-1": {content: false, horizontal: false, children: ["split-3", "split-2"]},
         "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3"]},
@@ -36,7 +37,7 @@ const presetLayouts = (view) => {
         "pane-3": {content: true,  id: 3},
         "pane-4": {content: true,  id: 4},
       }
-    case "5panel": 
+    case "5panel":
       return {
         "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
         "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3"]},
@@ -47,7 +48,7 @@ const presetLayouts = (view) => {
         "pane-4": {content: true,  id: 4},
         "pane-5": {content: true,  id: 5},
       }
-    case "6panel": 
+    case "6panel":
       return {
         "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
         "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3", "pane-5"]},
@@ -105,6 +106,7 @@ const autoAssignEntryIdsToPane = (entries, layout) => {
       }
     }
   });
+
 }
 
 const extractPaneInfo = (layout) => {
@@ -198,6 +200,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       if (sourceKey) {
         this.customLayout[sourceKey].id = payload.target;
       }
+      this.updateSplitPanels();
     },
     getAvailableTerms(apiLocation) {
       let terms = getAvailableTermsForSpecies();
@@ -208,7 +211,6 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         if (this._controller) this._controller.abort();
         this._controller = new AbortController();
         let signal = this._controller.signal;
-        // console.log("getAvailableTerms")
         fetch(`${apiLocation}get-organ-curies`, {
           signal,
         })
@@ -246,6 +248,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       for (const [key, value] of Object.entries(customLayout)) {
         this.customLayout[key] = value;
       }
+      this.updateSplitPanels();
     },
     setSplitter(payload) {
       if (this.splitters[payload.name])
@@ -261,7 +264,6 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           customLayout = newState.customLayout;
         } else {
           customLayout = presetLayouts(this.activeView);
-          console.log(newState, customLayout)
           if (newState.slotInfo) {
             for (let i = 0; i < newState.slotInfo.length; i++) {
               switch (newState.slotInfo[i].name) {
@@ -318,7 +320,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
     },
     setSyncMode(payload) {
       if (payload) {
-        //Force the second slot to be the new viewer in payload and change the 
+        //Force the second slot to be the new viewer in payload and change the
         //view to the payload's layout
         //this.customLayout["pane-2"].id = id;
         if (payload.flag === true) {
@@ -326,12 +328,12 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           //Extract pane info form original state and copy to the new layout
           const customLayout = newLayoutWithOrigInfo(
             this.customLayout, this.activeView);
-          const originalKey = findKeyWithId(customLayout, 1);
+          const originalKey = findKeyWithId(customLayout, payload.id);
           const firstPaneId = customLayout["pane-1"].id;
           if (originalKey !== "pane-1") {
             customLayout["pane-1"].id = firstPaneId;
           }
-          customLayout["pane-1"].id = 1;
+          customLayout["pane-1"].id = payload.id;
           customLayout["pane-2"].id = payload.newId;
           for (const [key, value] of Object.entries(customLayout)) {
             this.customLayout[key] = value;
@@ -363,14 +365,12 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         this.syncMode = false;
         this.globalCallback = false;
         let availableId = 0;
-        //Primary id cannot be changed
-        if (payload.id === 1) {
-          availableId = 1;
-        } else if (payload.entries) {
+        if (payload.entries) {
           for (let i = 0; i < payload.entries.length &&
             availableId == 0; i++) {
             //Find the first entry not currently in use
-            if (findKeyWithId(payload.entries[i].id) === undefined) {
+            if ((payload.entries[i].id !== payload.id) &&
+              findKeyWithId(payload.entries[i].id) === undefined) {
               availableId = payload.entries[i].id;
             }
           }
@@ -403,7 +403,6 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           const customLayout = newLayoutWithOrigInfo(
             this.customLayout, this.activeView);
           const key = findKeyWithId(customLayout, payload.id);
-        
           // The following move the entry id to the appropriate slot
           // and remove the target id
           switch (key) {
@@ -557,7 +556,11 @@ export const useSplitFlowStore = defineStore('splitFlow', {
             this.customLayout[key] = value;
           }
         }
+        this.updateSplitPanels();
       }
-    }
+    },
+    updateSplitPanels() {
+      EventBus.emit('species-layout-connectivity-update');
+    },
   }
 });

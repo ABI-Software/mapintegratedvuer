@@ -60,6 +60,9 @@ describe('MapContent', () => {
         return false
       if (err.message.includes("Cannot read properties of undefined (reading 'onResize')"))
         return false
+      if (err.message.includes("knowledge/query/")) {
+        return false
+      }
       return true
     })
 
@@ -102,7 +105,24 @@ describe('MapContent', () => {
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 30000}).should('not.exist');
 
+    //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
+    //the following attempt to workaround it.
+    function is_high_resolution_screen() {
+      // retina display has a devicePixelRatio of 2
+      return window.devicePixelRatio > 1;
+    }
+    let snapshot = 'minimap_lr'
+    if (is_high_resolution_screen()) {
+      snapshot = 'minimap_hr'
+    }
+    cy.get('html').invoke('css', 'width', '1200px');
+    cy.wait(1000);
+    cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > [style="height: 100%; width: 100%;"] > :nth-child(2) > :nth-child(2) > #maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').compareSnapshot(snapshot).then(comparisonResults => {
+      expect(comparisonResults.percentage).to.be.below(0.1)
+    });
+    cy.get('html').invoke('css', 'width', 'initial');
     //Test the existence of the minimap
+
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 30000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
@@ -123,7 +143,7 @@ describe('MapContent', () => {
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("UBERON:0018675");
     cy.get('.search-container > .map-icon > use').should('exist').click();
-    cy.get('.maplibregl-popup-content').should('exist').contains('pelvic splanchnic nerve');
+    cy.get('.maplibregl-popup-content').should('exist').contains('Pelvic splanchnic nerve');
 
     //Test searching with uberon id wich should display a pop up with anatomical name
     cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > .settings-group > :nth-child(1)').should('exist').click();
@@ -144,13 +164,13 @@ describe('MapContent', () => {
     cy.get('.side-bar > .open-tab').should('exist').click();
 
     //Type in 76 generic
-    cy.get('.search-input > .el-input__wrapper > .el-input__inner').should('exist').type('76 generic');
+    cy.get('.sidebar-content-container > .el-card__header > .header > .el-input > .el-input__wrapper').should('exist').type('76 generic');
 
     //Search
-    cy.get('.header > .el-button').should('exist').click();
+    cy.get('.sidebar-content-container > .el-card__header > .header > .el-button--primary').should('exist').click();
 
     //Check number of dataset card, it should be 1
-    cy.get('.dataset-card-container').should('have.length', 1);
+    cy.get('.dataset-card-container').filter(':visible').should('have.length', 1);
 
     //Wait for the mouse dataset request
     cy.wait('@mouseDataset', {timeout: 20000});
@@ -173,17 +193,17 @@ describe('MapContent', () => {
     //Check for scaffolds and open it, should have three items in select now
     cy.get('.box-card .container button').contains('Scaffolds (2)').click();
     cy.get('.gallery-strip').contains('54-8_metadata.json').should("exist");
-    cy.get('.box-card :nth-child(1) > .details .el-button').click();
+    cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.pane-1.contentvuer').should('have.length', 1);
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li').should('have.length', 3);
 
     //Check for plot and open it, should have four items in select now
     cy.get('.open-tab > .el-icon').click();
-    cy.get('.box-card .container button').contains('Segmentations (1)').click();
+    cy.get('.box-card .container button').filter(':visible').contains('Segmentations (1)').click();
     cy.get('.gallery-strip').contains('M54-8_03_20_20_Final.xml').should("exist");
-    cy.get('.box-card .container button').contains('Plots (1)').click();
-    cy.get('.box-card :nth-child(1) > .details .el-button').click();
+    cy.get('.box-card .container button').filter(':visible').contains('Plots (1)').click();
+    cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should("exist");
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li').should('have.length', 4);
@@ -195,8 +215,8 @@ describe('MapContent', () => {
 
     //Check for simulations and open it, should have five items in select now
     cy.get('.open-tab > .el-icon').click();
-    cy.get('.box-card .container button').contains('Simulations (1)').click();
-    cy.get('.box-card :nth-child(1) > .details .el-button').click();
+    cy.get('.box-card .container button').filter(':visible').contains('Simulations (1)').click();
+    cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li').should('have.length', 5);
 

@@ -13,12 +13,15 @@ export const useSettingsStore = defineStore('settings', {
       pennsieveApi: undefined,
       flatmapAPI: undefined,
       nlLinkPrefix: undefined,
+      mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
       numberOfDatasetsForFacets: [],
       markers: [],
       hoverAnatomies: [],
       hoverOrgans: [],
+      hoverDOI: '',
+      hoverConnectivity: [],
       featuredMarkers: [],
       featuredMarkerIdentifiers: [],
       featuredMarkerDois: [],
@@ -27,6 +30,14 @@ export const useSettingsStore = defineStore('settings', {
       helpDelay: 0,
       useHelpModeDialog: false,
       connectivityInfoSidebar: true,
+      annotationSidebar: true,
+      allClosable: true,
+      globalSettings: {
+        displayMarkers: true,
+        highlightConnectedPaths: false,
+        highlightDOIPaths: false, // comment out to hide in settings
+        interactiveMode: 'dataset', // dataset, connectivity, multiscale
+      },
     }
   },
   getters: {
@@ -38,6 +49,16 @@ export const useSettingsStore = defineStore('settings', {
         element => element == identifier
       );
       return state.featuredMarkerDois[index];
+    },
+    getUpdatedGlobalSettingsKey: state => settings => {
+      let updatedSettings = [];
+      for (const [key, value] of Object.entries(settings)) {
+        const attribute = state.globalSettings[key];
+        if (attribute === undefined || (attribute !== value)) {
+          updatedSettings.push(key);
+        }
+      }
+      return updatedSettings;
     },
   },
   actions: {
@@ -62,6 +83,9 @@ export const useSettingsStore = defineStore('settings', {
     updateFlatmapAPI(flatmapAPI) {
       this.flatmapAPI = flatmapAPI;
     },
+    updateMapManager(mapManager) {
+      this.mapManager = mapManager;
+    },
     updateNLLinkPrefix(nlLinkPrefix) {
       this.nlLinkPrefix = nlLinkPrefix;
     },
@@ -71,9 +95,11 @@ export const useSettingsStore = defineStore('settings', {
     updateMarkers(markers) {
       this.markers = markers;
     },
-    updateHoverFeatures(anatomies, organs) {
+    updateHoverFeatures(anatomies, organs, doi, connectivity) {
       this.hoverAnatomies = anatomies;
       this.hoverOrgans = organs;
+      this.hoverDOI = doi;
+      this.hoverConnectivity = connectivity;
     },
     updateFeatured(datasetIdentifiers) {
       this.featuredMarkerIdentifiers = new Array(datasetIdentifiers.length);
@@ -153,6 +179,17 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateConnectivityInfoSidebar(connectivityInfoSidebar) {
       this.connectivityInfoSidebar = connectivityInfoSidebar;
+    },
+    updateAnnotationSidebar(annotationSidebar) {
+      this.annotationSidebar = annotationSidebar;
+    },
+    updateAllClosable(allClosable) {
+      this.allClosable = allClosable;
+    },
+    updateGlobalSettings(globalSettings) {
+      for (const [key, value] of Object.entries(globalSettings)) {
+        this.globalSettings[key] = value;
+      }
     },
   }
 });

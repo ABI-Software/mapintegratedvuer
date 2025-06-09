@@ -5,6 +5,7 @@
       @flatmapChanged="flatmapChanged"
       @ready="multiFlatmapReady"
       :state="entry.state"
+      :mapManager="mapManager"
       @resource-selected="flatmaprResourceSelected(entry.type, $event)"
       style="height: 100%; width: 100%"
       :initial="entry.resource"
@@ -14,7 +15,11 @@
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
       @shown-map-tooltip="onMapTooltipShown"
+      @annotation-open="onAnnotationOpen"
+      @annotation-close="onAnnotationClose"
+      :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
+      @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
@@ -29,6 +34,7 @@
       @finish-help-mode="endHelp"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
+      @mapmanager-loaded="onMapmanagerLoaded"
     />
 
     <HelpModeDialog
@@ -48,6 +54,7 @@ import Tagging from '../../services/tagging.js';
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
+  capitalise,
   availableSpecies,
   getBodyScaffoldInfo,
   transformObjToString
@@ -144,9 +151,9 @@ export default {
           };
         }
         if (action)
-          EventBus.emit("SyncModeRequest", { flag: true, action: action });
+          EventBus.emit("SyncModeRequest", { id: this.entry.id, flag: true, action: action });
       } else {
-        EventBus.emit("SyncModeRequest", { flag: false });
+        EventBus.emit("SyncModeRequest", { id: this.entry.id, lag: false });
       }
     },
     getState: function () {
@@ -179,7 +186,8 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       if (term && flatmap.mapImp) {
         const results = flatmap.mapImp.search(term);
-        results.__featureIds.forEach(id => {
+        const featureIds = results.__featureIds || results.featureIds;
+        featureIds.forEach(id => {
           const annotation = flatmap.mapImp.annotation(id);
           if (annotation && annotation.label)
             suggestions.push(annotation.label);
@@ -300,6 +308,7 @@ export default {
       const imp = this.getFlatmapImp();
       if (imp) {
         let provClone = {id: this.entry.id, prov: imp.provenance};
+        EventBus.emit("mapImpProv", provClone);
         this.$emit("flatmap-provenance-ready", provClone);
       }
     },
@@ -312,7 +321,6 @@ export default {
           await this.toggleSyncMode();
       }
       this.updateProvCard();
-      this.onConnectivityInfoClose();
 
       // GA Tagging
       // Event tracking for maps' species change
@@ -329,6 +337,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
+        this.loadConnectivityKnowledge(flatmapImp);
         EventBus.emit("mapLoaded", flatmap);
       }
     },
@@ -412,6 +421,18 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
+    showConnectivityTooltips: function (payload) {
+      if (this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.showConnectivityTooltips(payload);
+      }
+    },
+    changeConnectivitySource: function (payload) {
+      if (this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.changeConnectivitySource(payload);
+      }
+    },
   },
   computed: {
     facetSpecies() {
@@ -436,6 +457,14 @@ export default {
   },
   mounted: function () {
     this.getFeaturedDatasets();
+
+    EventBus.on('annotation-close', () => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
+      }
+    });
+
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
       if (this.flatmapReady && this.$refs.multiflatmap) {
@@ -449,6 +478,23 @@ export default {
       }
     });
 
+    EventBus.on('show-reference-connectivities', (payload) => {
+      if (this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.showConnectivitiesByReference(payload);
+        }
+      }
+    });
+
+    EventBus.on('connectivity-hovered', (payload) => {
+      this.showConnectivityTooltips(payload);
+    });
+
+    EventBus.on('connectivity-source-change', (payload) => {
+      this.changeConnectivitySource(payload);
+    });
+
     EventBus.on("markerUpdate", () => {
       if (this.flatmapReady) {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
@@ -456,7 +502,7 @@ export default {
     });
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
-        this.mapHoverHighlight(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
+        this.cardHoverHighlight();
       }
     });
   },

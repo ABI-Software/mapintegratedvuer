@@ -1,13 +1,17 @@
+import { markRaw } from "vue";
 import {
   getNerveNames,
   getParentsRegion,
 } from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
-import markerZoomLevels from "../components/markerZoomLevelsHardCoded.js";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useConnectivitiesStore } from '../stores/connectivities';
 import Tagging from '../services/tagging.js';
+
+import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
+import { getKnowledgeSource, loadAndStoreKnowledge } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
@@ -32,7 +36,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore, useSplitFlowStore),
+    ...mapStores(useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
       return this.splitFlowStore.idNamePair;
     },
@@ -45,6 +49,9 @@ export default {
     connectivityInfoSidebar() {
       return this.settingsStore.connectivityInfoSidebar;
     },
+    annotationSidebar() {
+      return this.settingsStore.annotationSidebar;
+    },
   },
   mounted: function () {
     EventBus.on("startHelp", () => {
@@ -54,6 +61,7 @@ export default {
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
+    this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
   },
   methods: {
     toggleSyncMode: function () {
@@ -70,8 +78,9 @@ export default {
         EventBus.emit("OpenNewMap", type);
         this.trackOpenMap(`open_new_${type}_map`);
       }
-
-      this.onConnectivityInfoClose();
+    },
+    onMapmanagerLoaded: function (mapManager) {
+      this.settingsStore.updateMapManager(mapManager);
     },
     trackOpenMap: function (category) {
       // GA Tagging
@@ -101,7 +110,8 @@ export default {
     /**
      * Callback when the vuers emit a selected event.
      */
-    resourceSelected: function (type, resource) {
+    resourceSelected: function (type, resources) {
+      const resource = resources[0]
       // Skip processing if resources already has actions
       if (this.resourceHasAction(resource)) {
         EventBus.emit("PopoverActionClick", resource);
@@ -114,42 +124,24 @@ export default {
       const result = {
         paneIndex: this.entry.id,
         type: type,
-        resource: resource,
+        resource: resources,
         internalName: undefined,
         eventType: undefined,
       };
 
       if (type == "MultiFlatmap" || type == "Flatmap") {
-        result.internalName = this.idNamePair[resource.feature.models];
+        result.internalName = resource?.feature?.label ?
+          resource.feature.label : this.idNamePair[resource.feature.models];
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
-            let label = this.idNamePair[resource.feature.models];
-            let hardcodedAnnotation = markerZoomLevels.filter(
-              mz => mz.id === resource.feature.models
-            );
-
-            if (
-              this.settingsStore.isFeaturedMarkerIdentifier(
-                resource.feature.id
-              )
-            ) {
+            let label = result.internalName;
+            if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
               // It is a featured dataset search for DOI.
               returnedAction = {
                 type: "Search",
-                term: this.settingsStore.featuredMarkerDoi(
-                  resource.feature.id
-                ),
+                term: this.settingsStore.featuredMarkerDoi(resource.feature.id),
                 featuredDataset: true,
-              };
-            } else if (hardcodedAnnotation.filter(h => h.keyword).length > 0) {
-              // if it matches our stored keywords, it is a keyword search
-              // Keyword searches do not contain labels, so switch to keyword search if no label exists
-              returnedAction = {
-                type: "Search",
-                term:
-                  "http://purl.obolibrary.org/obo/" +
-                  resource.feature.models.replace(":", "_"),
               };
             } else {
               // Facet search on anatomy if it is not a keyword search
@@ -157,14 +149,25 @@ export default {
                 type: "Facet",
                 facet: label,
                 facetPropPath: "anatomy.organ.category.name",
+                facetSubPropPath: "anatomy.organ.name",
                 term: "Anatomical structure",
               };
+              let labels = new Set();
+              resource.feature['marker-terms'].forEach((term) => {
+                labels.add(term.label)
+              });
+              labels.add(label)
+              if (labels.size > 0) {
+                returnedAction = {
+                  type: "Facets",
+                  labels: [...labels],
+                };
+              }
             }
 
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
-              const flatmap =
-                this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
               flatmap.clearSearchResults();
             }
           } else if (resource.feature.type == "feature") {
@@ -180,16 +183,16 @@ export default {
           fireResourceSelected = true;
         }
       } else if (type == "Scaffold") {
-        if (resource && resource[0]) {
-          if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
-            resource[0].data.id = resource[0].data?.group;
+        if (resource) {
+          if (resource.data?.id === undefined || resource.data?.id === "") {
+            resource.data.id = resource.data?.group;
           }
-          result.internalName = resource[0].data.id;
+          result.internalName = resource.data.id;
           // Facet search if marker is clicked
-          if (resource[0].data.lastActionOnMarker === true) {
+          if (resource.data.lastActionOnMarker === true) {
             returnedAction = {
               type: "Facet",
-              facet: capitalise(resource[0].data.id),
+              facet: capitalise(resource.data.id),
               facetPropPath: "anatomy.organ.category.name",
               term: "Anatomical structure",
             };
@@ -254,7 +257,7 @@ export default {
             return fetch(`${this.apiLocation}get-related-terms/${id}`)
               .then(response => response.json())
               .then(data => {
-                if (data.uberon.array.length > 0) {
+                if (data.uberon?.array.length > 0) {
                   name =
                     data.uberon.array[0].name.charAt(0).toUpperCase() +
                     data.uberon.array[0].name.slice(1);
@@ -464,33 +467,124 @@ export default {
         this.endHelp();
       }
     },
-    mapHoverHighlight: function (mapImp) {
+    flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
+      let toHighlight = [...hoverAnatomies, ...hoverConnectivity];
+      const globalSettings = this.settingsStore.globalSettings;
+
+      // to highlight connected paths
+      if (globalSettings.highlightConnectedPaths) {
+        const hoverEntry = hoverAnatomies.length ? hoverAnatomies :
+          hoverConnectivity.length ? hoverConnectivity :
+            []
+        const connectedPaths = await flatmap.retrieveConnectedPaths(hoverEntry);
+        if (connectedPaths) {
+          toHighlight.push(...connectedPaths);
+        }
+      }
+
+      // to highlight related paths from reference DOI
+      if (globalSettings.highlightDOIPaths) {
+        const connectionsFromDOI = await flatmap.searchConnectivitiesByReference(hoverDOI);
+        if (connectionsFromDOI) {
+          toHighlight.push(...connectionsFromDOI);
+        }
+      }
+      toHighlight = [...new Set(toHighlight)];
+      return toHighlight;
+    },
+    cardHoverHighlight: function () {
       if (this.visible) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
-        if (hoverAnatomies.length || hoverOrgans.length) {
-          clearTimeout(this.hoverDelay);
-          if (this.multiflatmapRef || this.flatmapRef) {
-            mapImp?.zoomToFeatures(hoverAnatomies, { noZoomIn: true });
-          } else if (this.scaffoldRef) {
-            mapImp?.changeHighlightedByName(hoverOrgans, "", false);
+        const hoverDOI = this.settingsStore.hoverDOI;
+        const hoverConnectivity = this.settingsStore.hoverConnectivity;
+
+        let flatmap = null;
+        let scaffold = null;
+        if (this.flatmapRef) flatmap = this.flatmapRef;
+        if (this.multiflatmapRef) flatmap = this.multiflatmapRef.getCurrentFlatmap();
+        if (this.scaffoldRef) scaffold = this.scaffoldRef;
+
+        // reset
+        clearTimeout(this.highlightDelay);
+        if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
+          if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+            flatmap.mapImp?.clearSearchResults();
+          } else if (this.scaffoldRef && scaffold) {
+            scaffold.changeHighlightedByName(hoverOrgans, "", false);
           }
-        } else {
-          this.hoverDelay = setTimeout(() => {
-            if (this.multiflatmapRef || this.flatmapRef) {
-              mapImp?.clearSearchResults();
-            } else if (this.scaffoldRef) {
-              mapImp?.changeHighlightedByName(hoverOrgans, "", false);
-            }
-          }, 500);
         }
+
+        this.highlightDelay = setTimeout(() => {
+          if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length) {
+            if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
+              this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
+                try {
+                  flatmap.zoomToFeatures(paths);
+                } catch (error) {
+                  console.log(error)
+                  // only for connectivity hover highlight
+                  if (hoverConnectivity.length && flatmap.mapImp) {
+                    const uuid = flatmap.mapImp.uuid;
+                    const found = paths.every((path) =>
+                      this.connectivityKnowledge[uuid].some((connectivity) =>
+                        connectivity.id === path
+                      )
+                    );
+                    if (!found) {
+                      flatmap.mapImp.clearSearchResults();
+                    }
+                  }
+                }
+              });
+            } else if (this.scaffoldRef && scaffold) {
+              scaffold.changeHighlightedByName(hoverOrgans, "", false);
+            }
+          }
+        }, 100);
       }
+    },
+    onAnnotationOpen: function (payload) {
+      EventBus.emit('annotation-open', payload);
+    },
+    onAnnotationClose: function () {
+      EventBus.emit('annotation-close');
     },
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
+    onConnectivityError: function (errorInfo) {
+      EventBus.emit('connectivity-error', errorInfo);
+    },
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
+    },
+    loadConnectivityKnowledge: async function (flatmapImp) {
+      const sckanVersion = getKnowledgeSource(flatmapImp);
+      const flatmapQueries = markRaw(new FlatmapQueries());
+      flatmapQueries.initialise(this.flatmapAPI);
+      const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
+      const uuid = flatmapImp.uuid;
+      const pathways = flatmapImp.pathways;
+
+      if (!this.connectivityKnowledge[sckanVersion]) {
+        this.connectivityKnowledge[sckanVersion] = knowledge
+          .filter((item) => {
+            return item.source === sckanVersion && item.connectivity?.length;
+          })
+          .sort((a, b) => a.label.localeCompare(b.label));
+      }
+
+      if (!this.connectivityKnowledge[uuid]) {
+        const pathsFromMap = pathways ? pathways.paths : {};
+
+        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
+          .filter((item) => item.id in pathsFromMap);
+      }
+
+      this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
+
+      EventBus.emit("species-layout-connectivity-update");
     },
   },
   data: function () {
@@ -511,7 +605,9 @@ export default {
       scaffoldRef: null,
       scaffoldLoaded: false,
       isInHelp: false,
-      hoverDelay: undefined
+      mapManager: undefined,
+      connectivityKnowledge: {},
+      highlightDelay: undefined
     };
   },
   created: function () {
@@ -521,6 +617,9 @@ export default {
       this.flatmapAPI = this.settingsStore.flatmapAPI;
     if (this.settingsStore.sparcApi)
       this.apiLocation = this.settingsStore.sparcApi;
+    if (this.settingsStore.mapManager) {
+      this.mapManager = this.settingsStore.mapManager;
+    }
   },
   watch: {
     helpMode: function (newVal) {

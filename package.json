@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "1.6.0-sim2-1",
+  "version": "1.9.2",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
@@ -50,12 +50,13 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^1.5.5",
-    "@abi-software/map-side-bar": "^2.4.2",
-    "@abi-software/map-utilities": "^1.1.2",
-    "@abi-software/plotvuer": "^1.0.3",
-    "@abi-software/scaffoldvuer": "^1.4.2",
-    "@abi-software/simulationvuer": "^2.0.7",
+    "@abi-software/flatmapvuer": "^1.9.2",
+    "@abi-software/map-side-bar": "^2.8.2",
+    "@abi-software/map-utilities": "^1.5.0",
+    "@abi-software/plotvuer": "1.0.4",
+    "@abi-software/scaffoldvuer": "^1.9.0",
+    "@abi-software/simulationvuer": "^2.0.11-beta.0",
+    "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "^1.0.1",
     "@element-plus/icons-vue": "^2.3.1",
     "@vitejs/plugin-vue": "^4.6.2",
@@ -80,12 +81,13 @@
     "concurrently": "^8.2.2",
     "cypress": "^13.13.0",
     "cypress-multi-reporters": "^1.6.4",
+    "cypress-visual-regression": "^5.2.2",
     "cypress-wait-until": "^1.7.1",
     "dom-parser": "^0.1.6",
     "eslint": "^8.56.0",
     "eslint-plugin-cypress": "^2.15.1",
     "eslint-plugin-vue": "^9.19.2",
-    "happy-dom": "^13.3.8",
+    "happy-dom": "^15.11.6",
     "jsdom": "^16.2.2",
     "jsdom-global": "^3.0.2",
     "mocha": "^10.4.0",
@@ -99,6 +101,9 @@
     "vitest": "^1.2.2",
     "vue-docgen-api": "^4.79.2",
     "vue-router": "^4.2.5"
+  },
+  "optionalDependencies": {
+    "@esbuild/darwin-arm64": "^0.25.3"
   },
   "eslintConfig": {
     "root": true,
@@ -126,7 +131,8 @@
     ]
   },
   "overrides": {
-    "@abi-software/flatmapvuer": "$@abi-software/flatmapvuer"
+    "@abi-software/flatmapvuer": "$@abi-software/flatmapvuer",
+    "@abi-software/map-utilities": "$@abi-software/map-utilities"
   },
   "browserslist": [
     "> 1%",
