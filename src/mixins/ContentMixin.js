@@ -538,6 +538,7 @@ export default {
               this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
                 try {
                   flatmap.zoomToFeatures(paths);
+                  flatmap.removeActiveTooltips();
                 } catch (error) {
                   console.log(error)
                   // only for connectivity hover highlight
