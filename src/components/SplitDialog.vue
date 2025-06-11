@@ -216,11 +216,14 @@ export default {
       // mix connectivites of available maps
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
+        
         const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
         EventBus.emit("connectivity-knowledge", {
           data: uniqueConnectivities
         });
+
+        const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
+        EventBus.emit("connectivity-filter-options", uniqueFilters);
       } else {
         if (sckanVersion) {
           EventBus.emit("connectivity-knowledge", {
@@ -276,10 +279,33 @@ export default {
             currentFlatmap = flatmap;
           }
 
+          const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
+          const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
             if (data) {
+              this.query = data.query;
+              let filters = {}
+              data.filter.forEach((item) => {
+                const facetKey = item.facetPropPath.split('.').pop();;
+                if (!(facetKey in filters)) {
+                  filters[facetKey] = [];
+                }
+                const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
+                if (matchedFilter) {
+                  matchedFilter.children.forEach((child) => {
+                    if (child.label === item.facet && child.key) {
+                      const childKey = child.key.split('.').pop();
+                      filters[facetKey].push(childKey);
+                    }
+                  });
+                }
+              });
+              let ids = []
+              for (const [key, value] of Object.entries(filters)) {
+                value.forEach((v) => ids.push(...uniqueFilterSources[key][v]));
+              }
+              this.filter = [...new Set(ids)];
               if (data.type === "query-update") {
                 this.query = data.value;
               } else if (data.type === "filter-update") {
@@ -299,7 +325,10 @@ export default {
               searchHighlights.push(...paths);
               results = results.filter((item) => paths.includes(item.id));
             }
-
+            if (this.filter.length) {
+              searchHighlights.push(...this.filter);
+              results = results.filter((item) => this.filter.includes(item.id));
+            }
             searchResults.push(...results);
           }
         }
