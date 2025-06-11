@@ -111,7 +111,7 @@ export default {
       this.$emit("flatmap-provenance-ready", provClone);
       this.flatmapReadyForMarkerUpdates(flatmap);
       this.updateSettings();
-      this.loadConnectivityKnowledge(flatmapImp);
+      this.loadConnectivityExplorerConfig(flatmap);
       EventBus.emit("mapLoaded", flatmap);
     },
     onPathwaySelectionChanged: function (data) {

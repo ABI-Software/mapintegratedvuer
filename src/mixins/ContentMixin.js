@@ -79,6 +79,8 @@ export default {
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
     this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
+    this.connectivityFilterOptions = this.connectivitiesStore.filterOptions;
+    this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
     toggleSyncMode: function () {
@@ -580,7 +582,8 @@ export default {
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
     },
-    loadConnectivityKnowledge: async function (flatmapImp) {
+    loadConnectivityExplorerConfig: async function (flatmap) {
+      const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
@@ -595,17 +598,21 @@ export default {
           })
           .sort((a, b) => a.label.localeCompare(b.label));
       }
-
       if (!this.connectivityKnowledge[uuid]) {
         const pathsFromMap = pathways ? pathways.paths : {};
-
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
           .filter((item) => item.id in pathsFromMap);
       }
-
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
-
-      EventBus.emit("species-layout-connectivity-update");
+      if (!this.connectivityFilterOptions[uuid]) {
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
+      }
+      this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
+      if (!this.connectivityFilterSources[uuid]) {
+        this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
+      }
+      this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
+      EventBus.emit('species-layout-connectivity-update');
     },
   },
   data: function () {
@@ -628,6 +635,8 @@ export default {
       isInHelp: false,
       mapManager: undefined,
       connectivityKnowledge: {},
+      connectivityFilterOptions: {},
+      connectivityFilterSources: {},
       highlightDelay: undefined
     };
   },
