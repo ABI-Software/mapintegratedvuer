@@ -28,6 +28,7 @@
           :createData="createData"
           :connectivityEntry="connectivityEntry"
           :connectivityKnowledge="connectivityKnowledge"
+          :filterOptions="filterOptions"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -134,6 +135,7 @@ export default {
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
       filterVisibility: true,
+      filterOptions: [],
     }
   },
   watch: {
@@ -709,6 +711,9 @@ export default {
       } else if (payload === "connectivity") {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
+    })
+    EventBus.on("connectivity-filter-options", payload => {
+      this.filterOptions = payload;
     })
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
