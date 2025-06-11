@@ -134,6 +134,8 @@ export default {
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
       filterOptions: [],
+      hoverHighlight: false,
+      highlightInterval: undefined,
     }
   },
   watch: {
@@ -332,12 +334,17 @@ export default {
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
-      if (data.tabType === 'dataset') {
-        hoverAnatomies = data.anatomy ? data.anatomy : [];
-        hoverOrgans = data.organs ? data.organs : [];
-        hoverDOI = data.doi ? data.doi : '';
-      } else if (data.tabType === 'connectivity') {
-        hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+      if (data) {
+        if (data.tabType === 'dataset') {
+          hoverAnatomies = data.anatomy ? data.anatomy : [];
+          hoverOrgans = data.organs ? data.organs : [];
+          hoverDOI = data.doi ? data.doi : '';
+        } else if (data.tabType === 'connectivity') {
+          hoverConnectivity = data.id ? [data.id] : [];
+        }
+        this.hoverHighlight = hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length;
+      } else {
+        hoverConnectivity = this.connectivityHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate");
@@ -607,6 +614,11 @@ export default {
     this._externalStateSet = false;
   },
   mounted: function () {
+    this.highlightInterval = setInterval(() => {
+      if (!this.hoverHighlight) {
+        this.hoverChanged();
+      }
+    }, 500)
     EventBus.on("RemoveEntryRequest", id => {
       this.removeEntry(id);
     });
@@ -713,6 +725,9 @@ export default {
         }, 2000);
       } else this.openSearch(this._facets, this.search);
     });
+  },
+  unmounted: function () {
+    clearInterval(this.highlightInterval)
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
