@@ -35,6 +35,7 @@
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
       @mapmanager-loaded="onMapmanagerLoaded"
+      :showPathwayFilter="false"
     />
 
     <HelpModeDialog
@@ -337,7 +338,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
-        this.loadConnectivityKnowledge(flatmapImp);
+        this.loadConnectivityExplorerConfig(flatmap);
         EventBus.emit("mapLoaded", flatmap);
       }
     },

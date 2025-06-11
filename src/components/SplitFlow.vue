@@ -28,6 +28,7 @@
           :createData="createData"
           :connectivityEntry="connectivityEntry"
           :connectivityKnowledge="connectivityKnowledge"
+          :filterOptions="filterOptions"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -132,6 +133,9 @@ export default {
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
+      filterOptions: [],
+      hoverHighlight: false,
+      highlightInterval: undefined,
     }
   },
   watch: {
@@ -338,6 +342,7 @@ export default {
         } else if (data.tabType === 'connectivity') {
           hoverConnectivity = data.id ? [data.id] : [];
         }
+        this.hoverHighlight = hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length;
       } else {
         hoverConnectivity = this.connectivityHighlight;
       }
@@ -609,6 +614,11 @@ export default {
     this._externalStateSet = false;
   },
   mounted: function () {
+    this.highlightInterval = setInterval(() => {
+      if (!this.hoverHighlight) {
+        this.hoverChanged();
+      }
+    }, 500)
     EventBus.on("RemoveEntryRequest", id => {
       this.removeEntry(id);
     });
@@ -702,6 +712,9 @@ export default {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
     })
+    EventBus.on("connectivity-filter-options", payload => {
+      this.filterOptions = payload;
+    })
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {
@@ -712,6 +725,9 @@ export default {
         }, 2000);
       } else this.openSearch(this._facets, this.search);
     });
+  },
+  unmounted: function () {
+    clearInterval(this.highlightInterval)
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
