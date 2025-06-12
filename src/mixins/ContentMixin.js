@@ -539,8 +539,10 @@ export default {
             if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
               this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
                 try {
-                  flatmap.zoomToFeatures(paths);
-                  flatmap.removeActiveTooltips();
+                  flatmap.showConnectivityTooltips({
+                    connectivityInfo: { featureId: paths },
+                    data: []
+                  });
                 } catch (error) {
                   console.log(error)
                   // only for connectivity hover highlight

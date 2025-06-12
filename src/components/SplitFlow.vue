@@ -149,8 +149,8 @@ export default {
       immediate: true,
     },
     connectivityHighlight: {
-      handler: function (value) {
-        this.onShowConnectivity(value);
+      handler: function () {
+        this.hoverChanged({ tabType: 'connectivity' });
       },
     },
   },
