@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "1.9.0-externalise.1",
+  "version": "1.9.2",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
@@ -50,12 +50,12 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^1.9.0-beta.2",
-    "@abi-software/map-side-bar": "^2.7.3-beta.5",
-    "@abi-software/map-utilities": "^1.5.0-beta.2",
-    "@abi-software/plotvuer": "^1.0.3",
-    "@abi-software/scaffoldvuer": "^1.9.0-beta.1",
-    "@abi-software/simulationvuer": "1.0.1",
+    "@abi-software/flatmapvuer": "^1.9.3-beta.4",
+    "@abi-software/map-side-bar": "^2.8.3-beta.3",
+    "@abi-software/map-utilities": "^1.5.0",
+    "@abi-software/plotvuer": "1.0.4",
+    "@abi-software/scaffoldvuer": "^1.9.0",
+    "@abi-software/simulationvuer": "1.0.2",
     "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "^1.0.1",
     "@element-plus/icons-vue": "^2.3.1",
@@ -66,6 +66,7 @@
     "mitt": "^3.0.1",
     "pinia": "^2.1.7",
     "splitpanes": "^3.1.5",
+    "unplugin-vue-components": "^0.26.0",
     "vue": "^3.4.21",
     "xss": "^1.0.14"
   },

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { initialDefaultState } from "../components/scripts/utilities";
+import { getKnowledgeSourceFromProvenance } from '@abi-software/flatmapvuer/src/services/flatmapKnowledge.js';
 
 /* eslint-disable no-alert, no-console */
 
@@ -35,6 +36,12 @@ export const useEntriesStore = defineStore('entries', {
       const entry = this.entries.find(entry => entry.id === id);
       entry.viewUrl = viewUrl;
     },
-
+    updateMapForEntry(entry, prov) {
+      if (entry.id === prov.id) {
+        const sckanVersion = getKnowledgeSourceFromProvenance(prov.prov);
+        entry['uuid'] = prov.prov.uuid;
+        entry['sckanVersion'] = sckanVersion;
+      }
+    },
   }
 });

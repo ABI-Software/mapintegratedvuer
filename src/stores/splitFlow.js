@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import {
   getAvailableTermsForSpecies,
 } from "../components/SimulatedData.js";
+import EventBus from '../components/EventBus.js';
 
 /* eslint-disable no-alert, no-console */
 const presetLayouts = (view) => {
@@ -12,13 +13,13 @@ const presetLayouts = (view) => {
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
       };
-    case "2vertpanel": 
+    case "2vertpanel":
       return {
         "split-1": {content: false, horizontal: false, children: ["pane-1", "pane-2"]},
         "pane-1": {content: true,  id: 1},
         "pane-2": {content: true,  id: 2},
       }
-    case "3panel": 
+    case "3panel":
       return {
         "split-1": {content: false, horizontal: false, children: ["pane-1", "split-2"]},
         "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3"]},
@@ -26,7 +27,7 @@ const presetLayouts = (view) => {
         "pane-2": {content: true,  id: 2},
         "pane-3": {content: true,  id: 3},
       }
-    case "4panel": 
+    case "4panel":
       return {
         "split-1": {content: false, horizontal: false, children: ["split-3", "split-2"]},
         "split-2": {content: false, horizontal: true, children: ["pane-2", "pane-3"]},
@@ -36,7 +37,7 @@ const presetLayouts = (view) => {
         "pane-3": {content: true,  id: 3},
         "pane-4": {content: true,  id: 4},
       }
-    case "5panel": 
+    case "5panel":
       return {
         "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
         "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3"]},
@@ -47,7 +48,7 @@ const presetLayouts = (view) => {
         "pane-4": {content: true,  id: 4},
         "pane-5": {content: true,  id: 5},
       }
-    case "6panel": 
+    case "6panel":
       return {
         "split-1": {content: false, horizontal: true, children: ["split-3", "split-2"]},
         "split-2": {content: false, horizontal: false, children: ["pane-2", "pane-3", "pane-5"]},
@@ -199,6 +200,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       if (sourceKey) {
         this.customLayout[sourceKey].id = payload.target;
       }
+      this.updateSplitPanels();
     },
     getAvailableTerms(apiLocation) {
       let terms = getAvailableTermsForSpecies();
@@ -246,6 +248,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       for (const [key, value] of Object.entries(customLayout)) {
         this.customLayout[key] = value;
       }
+      this.updateSplitPanels();
     },
     setSplitter(payload) {
       if (this.splitters[payload.name])
@@ -317,7 +320,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
     },
     setSyncMode(payload) {
       if (payload) {
-        //Force the second slot to be the new viewer in payload and change the 
+        //Force the second slot to be the new viewer in payload and change the
         //view to the payload's layout
         //this.customLayout["pane-2"].id = id;
         if (payload.flag === true) {
@@ -553,7 +556,11 @@ export const useSplitFlowStore = defineStore('splitFlow', {
             this.customLayout[key] = value;
           }
         }
+        this.updateSplitPanels();
       }
-    }
+    },
+    updateSplitPanels() {
+      EventBus.emit('species-layout-connectivity-update');
+    },
   }
 });

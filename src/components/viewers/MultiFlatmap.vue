@@ -19,7 +19,8 @@
       @annotation-close="onAnnotationClose"
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
-      @connectivity-graph-error="onConnectivityGraphError"
+      @connectivity-error="onConnectivityError"
+      @connectivity-info-close="onConnectivityInfoClose"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
@@ -34,6 +35,7 @@
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
       @mapmanager-loaded="onMapmanagerLoaded"
+      :showPathwayFilter="false"
     />
 
     <HelpModeDialog
@@ -336,7 +338,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
-        this.loadConnectivityKnowledge(flatmapImp);
+        this.loadConnectivityExplorerConfig(flatmap);
         EventBus.emit("mapLoaded", flatmap);
       }
     },
@@ -502,14 +504,6 @@ export default {
     EventBus.on("hoverUpdate", () => {
       if (this.flatmapReady) {
         this.cardHoverHighlight();
-      }
-    });
-    EventBus.on("connectivity-query-filter", (payload) => {
-      if (this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (currentFlatmap && currentFlatmap.mapImp) {
-          this.connectivityQueryFilter(currentFlatmap, payload)
-        }
       }
     });
   },

@@ -28,6 +28,7 @@
           :createData="createData"
           :connectivityEntry="connectivityEntry"
           :connectivityKnowledge="connectivityKnowledge"
+          :filterOptions="filterOptions"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -44,7 +45,7 @@
           @show-connectivity="onShowConnectivity"
           @show-reference-connectivities="onShowReferenceConnectivities"
           @connectivity-hovered="onConnectivityHovered"
-          @connectivity-explorer-clicked="onConnectivityExplorerClicked"
+          @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
         />
         <SplitDialog
@@ -118,6 +119,7 @@ export default {
       sideBarVisibility: true,
       startUp: true,
       search: '',
+      expanded: '',
       filterTriggered: false,
       availableFacets: [],
       connectivityEntry: [],
@@ -130,7 +132,8 @@ export default {
       createData: {},
       connectivityHighlight: [],
       connectivityKnowledge: [],
-      connectivityExplorerClicked: false,
+      connectivityExplorerClicked: [], // to support multi views
+      filterOptions: [],
     }
   },
   watch: {
@@ -143,11 +146,16 @@ export default {
       },
       immediate: true,
     },
+    connectivityHighlight: {
+      handler: function (value) {
+        this.onShowConnectivity(value);
+      },
+    },
   },
   methods: {
-    onConnectivityExplorerClicked: function (payload) {
-      this.connectivityExplorerClicked = true;
-      this.onDisplaySearch({ term: payload.id }, false);
+    onConnectivityCollapseChange: function (payload) {
+      this.expanded = payload.id
+      this.onDisplaySearch({ term: payload.id }, false, true);
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -249,13 +257,16 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: function (payload, tracking = true) {
+    onDisplaySearch: function (payload, tracking = true, connectivityExplorerClicked = false) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
         activeContents.forEach(content => {
+          if (connectivityExplorerClicked) {
+            this.connectivityExplorerClicked.push(true);
+          }
           if (content.search(payload.term)) {
             searchFound = true;
           }
@@ -299,13 +310,15 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      const splitFlowState = this.splitFlowStore.getState();
-      const activeView = splitFlowState?.activeView || '';
-      // offset sidebar only on singlepanel and 2horpanel views
-      EventBus.emit('show-connectivity', {
-        featureIds: featureIds,
-        offset: activeView === 'singlepanel' || activeView === '2horpanel'
-      });
+      if (featureIds.length) {        
+        const splitFlowState = this.splitFlowStore.getState();
+        const activeView = splitFlowState?.activeView || '';
+        // offset sidebar only on singlepanel and 2horpanel views
+        EventBus.emit('show-connectivity', {
+          featureIds: featureIds,
+          offset: activeView === 'singlepanel' || activeView === '2horpanel'
+        });
+      }
     },
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
@@ -314,27 +327,23 @@ export default {
       EventBus.emit('connectivity-hovered', data);
     },
     onConnectivitySourceChange: function (data) {
-      this.connectivityExplorerClicked = true;
+      this.connectivityExplorerClicked.push(true);
       EventBus.emit('connectivity-source-change', data);
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
-      if (data) {
-        if (data.type === 'dataset') {
-          hoverAnatomies = data.anatomy ? data.anatomy : [];
-          hoverOrgans = data.organs ? data.organs : [];
-          hoverDOI = data.doi ? data.doi : '';
-        } else if (data.type === 'connectivity') {
-          hoverConnectivity = data.id ? [data.id] : [];
-        }
-      } else {
-        hoverConnectivity = this.connectivityHighlight;
+      if (data.tabType === 'dataset') {
+        hoverAnatomies = data.anatomy ? data.anatomy : [];
+        hoverOrgans = data.organs ? data.organs : [];
+        hoverDOI = data.doi ? data.doi : '';
+      } else if (data.tabType === 'connectivity') {
+        hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {
-      if (data.id === 1) {
+      if (data.tabType === 'dataset') {
         if (data && data.type == "query-update") {
           this.search = data.value;
           if (this.search && !this.filterTriggered) {
@@ -371,7 +380,8 @@ export default {
           }
           this.filterTriggered = false; // reset for next action
         }
-      } else if (data.id === 2) {
+      } else if (data.tabType === 'connectivity') {
+        this.expanded = '';
         this.connectivityEntry = [];
         EventBus.emit("connectivity-query-filter", data);
       }
@@ -511,8 +521,11 @@ export default {
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
         // Use to update the connectivity when switch species
-        EventBus.emit("connectivity-query-filter");
-        this.$refs.sideBar.close();
+        // Wait for provenance info with uuid update
+        this.$nextTick(() => {
+          EventBus.emit('species-layout-connectivity-update');
+          this.$refs.sideBar.close();
+        })
       }
     },
     toggleSyncMode: function (payload) {
@@ -629,27 +642,43 @@ export default {
       }
     });
     EventBus.on('connectivity-info-open', payload => {
-      this.connectivityEntry = payload;
-      // click on the flatmap paths/features directly
-      // or onDisplaySearch is performed
-      if (!this.connectivityExplorerClicked) {
-        this.connectivityKnowledge = payload.map((entry) => {
-          return { label: entry.title, id: entry.featureId[0], detailsReady: entry.ready }
-        });
-        if (this.connectivityKnowledge.every(conn => conn.detailsReady)) {
-          this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);
-          this.onShowConnectivity(this.connectivityHighlight);
+      // expand connectivity card and show connectivity info
+      // if expanded exist, payload should be an array of one element
+      // skip payload not match the expanded in multiple views
+      const isMatched = payload.some(entry => entry.featureId[0] === this.expanded);
+      if (this.expanded && this.connectivityExplorerClicked.length && !isMatched) {
+        this.connectivityExplorerClicked.pop();
+        return;
+      }
+      this.connectivityEntry = payload.map(entry => {
+        return { ...entry, label: entry.title, id: entry.featureId[0] };
+      });
+      if (this.connectivityExplorerClicked.length) {
+        // only remove clicked if not placeholder entry
+        if (this.connectivityEntry.every(entry => entry.ready)) {
+          this.connectivityExplorerClicked.pop();
+        }
+      } else {
+        // click on the flatmap paths/features directly
+        // or onDisplaySearch is performed
+        this.connectivityKnowledge = this.connectivityEntry;
+        if (this.connectivityKnowledge.every(ck => ck.ready)) {
+          this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
         }
         if (this.$refs.sideBar) {
-          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
           this.$refs.sideBar.setDrawerOpen(true);
         }
       }
-      this.connectivityExplorerClicked = false;
     });
-    EventBus.on('connectivity-graph-error', payload => {
+    EventBus.on('connectivity-info-close', payload => {
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.updateConnectivityGraphError(payload.data);
+        this.$refs.sideBar.resetConnectivitySearch();
+      }
+    });
+    EventBus.on('connectivity-error', payload => {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.updateConnectivityError(payload.data);
       }
     });
     EventBus.on("OpenNewMap", type => {
@@ -662,13 +691,7 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = [];
-      if (payload.state === "processed") {
-        this.connectivityHighlight = this.connectivityKnowledge.map(conn => conn.id);;
-        this.onShowConnectivity(this.connectivityHighlight);
-      } else {
-        this.hoverChanged();
-      }
+      this.connectivityHighlight = payload.highlight || [];
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
@@ -676,6 +699,9 @@ export default {
       } else if (payload === "connectivity") {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
+    })
+    EventBus.on("connectivity-filter-options", payload => {
+      this.filterOptions = payload;
     })
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {

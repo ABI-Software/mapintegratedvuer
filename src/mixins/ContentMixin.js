@@ -7,6 +7,7 @@ import EventBus from "../components/EventBus";
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useConnectivitiesStore } from '../stores/connectivities';
 import Tagging from '../services/tagging.js';
 
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
@@ -35,7 +36,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore, useSplitFlowStore),
+    ...mapStores(useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
       return this.splitFlowStore.idNamePair;
     },
@@ -60,6 +61,9 @@ export default {
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
+    this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
+    this.connectivityFilterOptions = this.connectivitiesStore.filterOptions;
+    this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
     toggleSyncMode: function () {
@@ -521,6 +525,18 @@ export default {
                   flatmap.zoomToFeatures(paths);
                 } catch (error) {
                   console.log(error)
+                  // only for connectivity hover highlight
+                  if (hoverConnectivity.length && flatmap.mapImp) {
+                    const uuid = flatmap.mapImp.uuid;
+                    const found = paths.every((path) =>
+                      this.connectivityKnowledge[uuid].some((connectivity) =>
+                        connectivity.id === path
+                      )
+                    );
+                    if (!found) {
+                      flatmap.mapImp.clearSearchResults();
+                    }
+                  }
                 }
               });
             } else if (this.scaffoldRef && scaffold) {
@@ -539,72 +555,44 @@ export default {
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
     },
-    onConnectivityGraphError: function (errorInfo) {
-      EventBus.emit('connectivity-graph-error', errorInfo);
+    onConnectivityError: function (errorInfo) {
+      EventBus.emit('connectivity-error', errorInfo);
     },
-    loadConnectivityKnowledge: async function (flatmap) {
-      const sckanVersion = getKnowledgeSource(flatmap);
+    onConnectivityInfoClose: function () {
+      EventBus.emit('connectivity-info-close');
+    },
+    loadConnectivityExplorerConfig: async function (flatmap) {
+      const flatmapImp = flatmap.mapImp;
+      const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
-      const knowledge = await loadAndStoreKnowledge(flatmap, flatmapQueries);
-      const uuid = flatmap.uuid;
-      const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
-      const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
+      const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
+      const uuid = flatmapImp.uuid;
+      const pathways = flatmapImp.pathways;
 
-      this.connectivityKnowledge[uuid] = knowledge.filter((item) => {
-        if (item.source === sckanVersion && item.connectivity?.length && item.id in pathsFromMap) {
-          return true;
-        }
-        return false;
-      });
-      EventBus.emit("connectivity-knowledge", { type: "default", data: this.connectivityKnowledge[uuid] });
-    },
-    getSearchedId: function (flatmap, term) {
-      let ids = [];
-      const searchResult = flatmap.mapImp.search(term);
-      const featureIds = searchResult.__featureIds || searchResult.featureIds;
-      featureIds.forEach((id) => {
-        const annotation = flatmap.mapImp.annotation(id);
-        if (
-          annotation.label?.toLowerCase().includes(term.toLowerCase()) &&
-          annotation.models && !ids.includes(annotation.models)
-        ) {
-          ids.push(annotation.models);
-        }
-      });
-      return ids;
-    },
-    connectivityQueryFilter: async function (flatmap, data) {
-      const uuid = flatmap.mapImp.uuid
-      let payload = {
-        state: "default",
-        data: [...this.connectivityKnowledge[uuid]],
-      };      
-      if (data) {        
-        if (data.type === "query-update") {
-          if (this.query !== data.value) this.target = [];
-          this.query = data.value;
-        } else if (data.type === "filter-update") {
-          this.filter = data.value;
-        }
+      if (!this.connectivityKnowledge[sckanVersion]) {
+        this.connectivityKnowledge[sckanVersion] = knowledge
+          .filter((item) => {
+            return item.source === sckanVersion && item.connectivity?.length;
+          })
+          .sort((a, b) => a.label.localeCompare(b.label));
       }
-      if (this.query) {
-        payload.state = "processed";
-        let prom1 = [], options = {};
-        const searchTerms = this.query.split(",").map((term) => term.trim());
-        for (let index = 0; index < searchTerms.length; index++) {
-          prom1.push(this.getSearchedId(flatmap, searchTerms[index]));
-        }
-        const nestedIds = await Promise.all(prom1);
-        const ids = [...new Set(nestedIds.flat())];
-        let paths = await flatmap.retrieveConnectedPaths(ids, options);
-        paths = [...ids, ...paths.filter((path) => !ids.includes(path))];
-        let results = this.connectivityKnowledge[uuid].filter((item) => paths.includes(item.id));
-        results.sort((a, b) => paths.indexOf(a.id) - paths.indexOf(b.id));
-        payload.data = results;
+      if (!this.connectivityKnowledge[uuid]) {
+        const pathsFromMap = pathways ? pathways.paths : {};
+        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
+          .filter((item) => item.id in pathsFromMap);
       }
-      EventBus.emit("connectivity-knowledge", payload);
-    }
+      this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
+      if (!this.connectivityFilterOptions[uuid]) {
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
+      }
+      this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
+      if (!this.connectivityFilterSources[uuid]) {
+        this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
+      }
+      this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
+      EventBus.emit('species-layout-connectivity-update');
+    },
   },
   data: function () {
     return {
@@ -626,8 +614,8 @@ export default {
       isInHelp: false,
       mapManager: undefined,
       connectivityKnowledge: {},
-      query: "",
-      filter: [],
+      connectivityFilterOptions: {},
+      connectivityFilterSources: {},
       highlightDelay: undefined
     };
   },

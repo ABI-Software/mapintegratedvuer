@@ -20,7 +20,8 @@
       @annotation-close="onAnnotationClose"
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
-      @connectivity-graph-error="onConnectivityGraphError"
+      @connectivity-error="onConnectivityError"
+      @connectivity-info-close="onConnectivityInfoClose"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
@@ -74,7 +75,7 @@ export default {
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      return this.$refs.flatmap.searchAndShowResult(term);
+      return this.$refs.flatmap.searchAndShowResult(term, true);
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
@@ -102,9 +103,11 @@ export default {
     },
     flatmapReadyCall: function (flatmap) {
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
+      const flatmapImp = flatmap.mapImp;
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
       this.flatmapReadyForMarkerUpdates(flatmap);
+      this.loadConnectivityExplorerConfig(flatmap);
       EventBus.emit("mapLoaded", flatmap);
     },
     onPathwaySelectionChanged: function (data) {
