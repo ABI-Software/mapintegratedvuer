@@ -47,6 +47,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @connectivity-item-close="onConnectivityItemClose"
         />
         <SplitDialog
           :entries="entries"
@@ -142,13 +143,14 @@ export default {
         if (value) {
           if (!this._externalStateSet) this.setState(value);
           this._externalStateSet = true;
+          this.updateGlobalSettingsFromState(value);
         }
       },
       immediate: true,
     },
     connectivityHighlight: {
-      handler: function (value) {
-        this.onShowConnectivity(value);
+      handler: function () {
+        this.hoverChanged({ tabType: 'connectivity' });
       },
     },
   },
@@ -156,6 +158,9 @@ export default {
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
+    },
+    onConnectivityItemClose: function () {
+      EventBus.emit('connectivity-item-close');
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -310,7 +315,7 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      if (featureIds.length) {        
+      if (featureIds.length) {
         const splitFlowState = this.splitFlowStore.getState();
         const activeView = splitFlowState?.activeView || '';
         // offset sidebar only on singlepanel and 2horpanel views
@@ -590,16 +595,51 @@ export default {
     },
     onSidebarTabClicked: function (tab) {
       let globalSettings = { ...this.settingsStore.globalSettings };
-      if (tab.id === 1 && tab.type === 'datasetExplorer') {
-        globalSettings.interactiveMode = 'dataset';
-      } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
-        globalSettings.interactiveMode = 'connectivity';
+
+      if ('interactiveMode' in globalSettings) {
+        if (tab.id === 1 && tab.type === 'datasetExplorer') {
+          globalSettings.interactiveMode = 'dataset';
+        } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
+          globalSettings.interactiveMode = 'connectivity';
+        }
+        this.settingsStore.updateGlobalSettings(globalSettings);
       }
-      this.settingsStore.updateGlobalSettings(globalSettings);
+
       this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
       if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
+    },
+    updateGlobalSettingsFromStorage: function () {
+      const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
+      if (globalSettingsFromStorage) {
+        this.settingsStore.updateGlobalSettings(JSON.parse(globalSettingsFromStorage));
+      }
+    },
+    updateGlobalSettingsFromState: function (state) {
+      let mappedSettings = null;
+      state.entries.forEach((entry) => {
+        if (entry.state?.state) {
+          const {
+            background,
+            colour,
+            flightPath3D,
+            outlines,
+            viewingMode
+          } = entry.state.state;
+
+          mappedSettings = {
+            viewingMode: viewingMode,
+            flightPathDisplay: flightPath3D,
+            organsDisplay: colour,
+            outlinesDisplay: outlines,
+            backgroundDisplay: background,
+          };
+        }
+      })
+      if (mappedSettings) {
+        this.settingsStore.updateGlobalSettings(mappedSettings);
+      }
     },
   },
   created: function () {
@@ -624,22 +664,47 @@ export default {
       } else {
         this.createData = markRaw(payload.createData);
       }
-      this.confirmCreateCallback = markRaw(payload.confirmCreate);
-      this.cancelCreateCallback = markRaw(payload.cancelCreate);
-      this.confirmDeleteCallback = markRaw(payload.confirmDelete);
-      this.confirmCommentCallback = markRaw(payload.confirmComment);
+      if (payload.confirmCreate) {
+        this.confirmCreateCallback = markRaw(payload.confirmCreate);
+      }
+      if (payload.cancelCreate) {
+        this.cancelCreateCallback = markRaw(payload.cancelCreate);
+      }
+      if (payload.confirmDelete) {
+        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+      }
+      if (payload.confirmComment) {
+        this.confirmCommentCallback = markRaw(payload.confirmComment);
+      }
       if (this.$refs.sideBar) {
         this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
     EventBus.on('annotation-close', () => {
-      this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+      const globalSettings = { ...this.settingsStore.globalSettings };
+      const { interactiveMode, viewingMode } = globalSettings;
+
       this.annotationEntry = [];
       this.createData = {};
+
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.setDrawerOpen(false);
+        if (interactiveMode === "dataset") {
+          this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+        } else if (interactiveMode === "connectivity") {
+          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+        }
+
+        if (viewingMode === 'Annotation') {
+          this.$refs.sideBar.setDrawerOpen(false);
+        }
+
+        this.$refs.sideBar.closeConnectivity();
+        EventBus.emit('connectivity-item-close');
       }
+    });
+    EventBus.on('update-offline-annotation-enabled', (payload) => {
+      this.settingsStore.updateOfflineAnnotationEnabled(payload);
     });
     EventBus.on('connectivity-info-open', payload => {
       // expand connectivity card and show connectivity info
@@ -700,6 +765,7 @@ export default {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
     })
+    this.updateGlobalSettingsFromStorage();
     EventBus.on("connectivity-filter-options", payload => {
       this.filterOptions = payload;
     })
