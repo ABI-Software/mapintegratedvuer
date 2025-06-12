@@ -17,6 +17,7 @@
       :helpModeDialog="useHelpModeDialog"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
+      @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
       :annotationSidebar="annotationSidebar"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
@@ -31,6 +32,8 @@
       :markerCluster="true"
       :markerLabels="markerLabels"
       :flatmapAPI="flatmapAPI"
+      :showLocalSettings="showLocalSettings"
+      :showOpenMapButton="showOpenMapButton"
     />
 
     <HelpModeDialog
@@ -139,6 +142,7 @@ export default {
         if (this.entry.rotation) rotation = this.entry.rotation;
         this.$refs.scaffold.toggleSyncControl(this.splitFlowStore.globalCallback, rotation);
         if (this.splitFlowStore.syncMode) this.$refs.scaffold.fitWindow();
+        this.updateSettings();
       }
       EventBus.emit("mapLoaded", this.$refs.scaffold);
     },
@@ -191,6 +195,15 @@ export default {
     changeViewingMode: function (modeName) {
       this.$refs.scaffold.changeViewingMode(modeName);
     },
+    updateSettings: function () {
+      const {
+        backgroundDisplay,
+        viewingMode,
+      } = this.settingsStore.globalSettings;
+
+      this.$refs.scaffold.backgroundChangeCallback(backgroundDisplay);
+      this.$refs.scaffold.changeViewingMode(viewingMode);
+    },
   },
   computed: {
     warningMessage: function() {
@@ -221,6 +234,12 @@ export default {
       if (this.scaffoldLoaded) {
         this.cardHoverHighlight();
       }
+    });
+    EventBus.on('backgroundDisplayUpdate', (payload) => {
+      this.$refs.scaffold.backgroundChangeCallback(payload);
+    });
+    EventBus.on('viewingModeUpdate', (payload) => {
+      this.$refs.scaffold.changeViewingMode(payload);
     });
   },
 };
