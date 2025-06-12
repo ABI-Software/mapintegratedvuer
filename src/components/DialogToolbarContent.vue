@@ -163,7 +163,7 @@
           <map-svg-icon :icon="activeView"
           ref="activeViewRef"
           :class="[{'disabled': (1 >= numberOfEntries)},
-            'header-icon']"
+            'header-icon', 'splitscreen-icon']"
           />
         </template>
       </el-popover>
