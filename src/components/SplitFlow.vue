@@ -135,6 +135,7 @@ export default {
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
       filterOptions: [],
+      annotationHighlight: [],
     }
   },
   watch: {
@@ -151,6 +152,11 @@ export default {
     connectivityHighlight: {
       handler: function () {
         this.hoverChanged({ tabType: 'connectivity' });
+      },
+    },
+    annotationHighlight: {
+      handler: function () {
+        this.hoverChanged({ tabType: 'annotation' });
       },
     },
   },
@@ -343,6 +349,8 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+      } else if (data.tabType === 'annotation') {
+        hoverConnectivity = data.id ? [data.id] : this.annotationHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate");
@@ -658,6 +666,7 @@ export default {
     });
     EventBus.on('annotation-open', payload => {
       this.annotationEntry = payload.annotationEntry;
+      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
       this.annotationCallback = markRaw(payload.commitCallback);
       if (!payload.createData) {
         this.createData = markRaw({});
