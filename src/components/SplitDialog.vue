@@ -301,11 +301,17 @@ export default {
                   });
                 }
               });
-              let ids = []
+              let ids = [];
               for (const [key, value] of Object.entries(filters)) {
-                value.forEach((v) => ids.push(...uniqueFilterSources[key][v]));
+                if (value.length) {
+                  let valueToIds = [];
+                  value.forEach((v) => valueToIds.push(...uniqueFilterSources[key][v]));
+                  ids.push(valueToIds);
+                }
               }
-              this.filter = [...new Set(ids)];
+              this.filter = ids.length ?
+                [...new Set(ids[0].filter(item => ids.every(arr => arr.includes(item))))] :
+                ids;
               if (data.type === "query-update") {
                 this.query = data.value;
               } else if (data.type === "filter-update") {
