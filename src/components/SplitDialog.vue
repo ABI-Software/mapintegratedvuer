@@ -312,8 +312,8 @@ export default {
               }
               // between AND
               this.filter = ids.length ?
-                [...new Set(ids[0].filter(item => ids.every(arr => arr.includes(item))))] :
-                ids;
+                [...new Set(ids.reduce((acc, curr) => acc.filter(id => curr.includes(id))))] :
+                [];
               if (data.type === "query-update") {
                 this.query = data.value;
               } else if (data.type === "filter-update") {
