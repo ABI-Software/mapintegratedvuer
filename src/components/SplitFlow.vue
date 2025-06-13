@@ -350,7 +350,7 @@ export default {
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
       } else if (data.tabType === 'annotation') {
-        hoverConnectivity = data.id ? [data.id] : this.annotationHighlight;
+        hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate");
