@@ -305,10 +305,12 @@ export default {
               for (const [key, value] of Object.entries(filters)) {
                 if (value.length) {
                   let valueToIds = [];
+                  // within AND
                   value.forEach((v) => valueToIds.push(...uniqueFilterSources[key][v]));
                   ids.push(valueToIds);
                 }
               }
+              // between AND
               this.filter = ids.length ?
                 [...new Set(ids[0].filter(item => ids.every(arr => arr.includes(item))))] :
                 ids;
