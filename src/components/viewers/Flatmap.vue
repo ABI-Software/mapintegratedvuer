@@ -197,7 +197,7 @@ export default {
   },
   mounted: function() {
     EventBus.on('annotation-close', () => {
-      if (this.alive) {
+      if (this.?alive) {
         const currentFlatmap = this.$refs.flatmap;
         if (currentFlatmap) {
           this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
@@ -205,28 +205,28 @@ export default {
       }
     });
     EventBus.on("markerUpdate", () => {
-      if (this.alive) this.flatmapMarkerUpdate(undefined);
+      if (this.?alive) this.flatmapMarkerUpdate(undefined);
     });
     EventBus.on("hoverUpdate", () => {
-      if (this.alive) this.cardHoverHighlight();
+      if (this.?alive) this.cardHoverHighlight();
     });
     EventBus.on('viewingModeUpdate', (payload) => {
-      if (this.alive) this.$refs.flatmap.changeViewingMode(payload);
+      if (this.?alive) this.$refs.flatmap.changeViewingMode(payload);
     });
     EventBus.on('flightPathUpdate', (payload) => {
-      if (this.alive) this.$refs.flatmap.setFlightPath3D(payload);
+      if (this.?alive) this.$refs.flatmap.setFlightPath3D(payload);
     });
     EventBus.on('organsDisplayUpdate', (payload) => {
-      if (this.alive) this.$refs.flatmap.setColour(payload);
+      if (this.?alive) this.$refs.flatmap.setColour(payload);
     });
     EventBus.on('outlinesDisplayUpdate', (payload) => {
-      if (this.alive) this.$refs.flatmap.setOutlines(payload);
+      if (this.?alive) this.$refs.flatmap.setOutlines(payload);
     });
     EventBus.on('backgroundDisplayUpdate', (payload) => {
-      if (this.alive) this.$refs.flatmap.backgroundChangeCallback(payload);
+      if (this.?alive) this.$refs.flatmap.backgroundChangeCallback(payload);
     });
     EventBus.on('show-connectivity', (payload) => {
-      if (this.alive) {
+      if (this.?alive) {
         const { featureIds, offset } = payload;
         const currentFlatmap = this.$refs.flatmap;
         if (currentFlatmap) {
@@ -238,7 +238,7 @@ export default {
       }
     });
     EventBus.on('show-reference-connectivities', (payload) => {
-      if (this.alive) {
+      if (this.?alive) {
         const currentFlatmap = this.$refs.flatmap;
         if (currentFlatmap) {
           currentFlatmap.showConnectivitiesByReference(payload);

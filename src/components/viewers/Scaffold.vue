@@ -231,17 +231,17 @@ export default {
       this.startHelp();
     });
     EventBus.on("hoverUpdate", () => {
-      if (this.scaffoldLoaded && this.alive) {
+      if (this.scaffoldLoaded && this.?alive) {
         this.cardHoverHighlight();
       }
     });
     EventBus.on('backgroundDisplayUpdate', (payload) => {
-      if (this.alive) {
+      if (this.?alive) {
         this.$refs.scaffold.backgroundChangeCallback(payload);
       }
     });
     EventBus.on('viewingModeUpdate', (payload) => {
-      if (this.alive) {
+      if (this.?alive) {
         this.$refs.scaffold.changeViewingMode(payload);
       }
     });
