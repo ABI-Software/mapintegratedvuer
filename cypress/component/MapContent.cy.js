@@ -165,6 +165,18 @@ describe('MapContent', () => {
     //Open the sidebar
     cy.get('.side-bar > .open-tab').should('exist').click();
 
+    // connectivity explorer
+    cy.get('.tabs-container > :nth-child(2)').click();
+    cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
+    cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type("heart");
+    cy.get('[data-v-87dd0624=""][data-v-87cced63=""] > .el-card__header > .header > .el-button--primary').click();
+    cy.get('.connectivity-card-container > .connectivity-card').should('have.length', 9);
+    cy.get('.connectivity-card-container > .connectivity-card').first().click();
+    cy.get(':nth-child(1) > .connectivity-info').should('contain', 'Neuron type aacar 10a');
+    cy.get('[style=""] > .el-card__header > .header > .is-link').click();
+
+    // dataset explorer
+    cy.get('.tabs-container > :nth-child(1)').click();
     //Type in 76 generic
     cy.get('.sidebar-content-container > .el-card__header > .header > .el-input > .el-input__wrapper').should('exist').type('76 generic');
 
