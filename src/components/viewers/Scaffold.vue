@@ -231,15 +231,19 @@ export default {
       this.startHelp();
     });
     EventBus.on("hoverUpdate", () => {
-      if (this.scaffoldLoaded) {
+      if (this.scaffoldLoaded && this?.alive) {
         this.cardHoverHighlight();
       }
     });
     EventBus.on('backgroundDisplayUpdate', (payload) => {
-      this.$refs.scaffold.backgroundChangeCallback(payload);
+      if (this?.alive) {
+        this.$refs.scaffold.backgroundChangeCallback(payload);
+      }
     });
     EventBus.on('viewingModeUpdate', (payload) => {
-      this.$refs.scaffold.changeViewingMode(payload);
+      if (this?.alive) {
+        this.$refs.scaffold.changeViewingMode(payload);
+      }
     });
   },
 };
