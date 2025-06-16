@@ -73,7 +73,7 @@ export default {
   },
   methods: {
     onConnectivityItemClose() {
-      if (this.?alive) {
+      if (this?.alive) {
         if (this.multiflatmapRef) {
           const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
           if (currentFlatmap) {
@@ -426,7 +426,7 @@ export default {
       return;
     },
     startHelp: function () {
-      if (this.?alive) {
+      if (this?.alive) {
         if (this.isInHelp === false) {
           this.helpMode = true;
           window.addEventListener("mousedown", this.checkEndHelpMouseDown);
