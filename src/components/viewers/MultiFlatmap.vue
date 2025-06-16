@@ -427,13 +427,13 @@ export default {
       flatmap.changeViewingMode(modeName);
     },
     showConnectivityTooltips: function (payload) {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.showConnectivityTooltips(payload);
       }
     },
     changeConnectivitySource: function (payload) {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.changeConnectivitySource(payload);
       }
@@ -483,7 +483,7 @@ export default {
     this.getFeaturedDatasets();
 
     EventBus.on('annotation-close', () => {
-      if (this.flatmapReady && this.$refs.multiflatmap) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
       }
@@ -491,7 +491,7 @@ export default {
 
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
-      if (this.flatmapReady && this.$refs.multiflatmap) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (currentFlatmap) {
           currentFlatmap.moveMap(featureIds, {
@@ -503,7 +503,7 @@ export default {
     });
 
     EventBus.on('show-reference-connectivities', (payload) => {
-      if (this.flatmapReady && this.$refs.multiflatmap) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         if (currentFlatmap) {
           currentFlatmap.showConnectivitiesByReference(payload);
@@ -520,41 +520,41 @@ export default {
     });
 
     EventBus.on("markerUpdate", () => {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
       }
     });
     EventBus.on("hoverUpdate", () => {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         this.cardHoverHighlight();
       }
     });
     EventBus.on('viewingModeUpdate', (payload) => {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         currentFlatmap.changeViewingMode(payload);
       }
     });
     EventBus.on('flightPathUpdate', (payload) => {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         currentFlatmap.setFlightPath3D(payload);
       }
     });
     EventBus.on('organsDisplayUpdate', (payload) => {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         currentFlatmap.setColour(payload);
       }
     });
     EventBus.on('outlinesDisplayUpdate', (payload) => {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         currentFlatmap.setOutlines(payload);
       }
     });
     EventBus.on('backgroundDisplayUpdate', (payload) => {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         currentFlatmap.backgroundChangeCallback(payload);
       }

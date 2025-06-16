@@ -58,23 +58,12 @@ export default {
       return !this.showGlobalSettings;
     },
   },
+  beforeUnmount: function() {
+    this.alive = false;
+  },
   mounted: function () {
-    EventBus.on("startHelp", () => {
-      this.startHelp();
-    });
-
-    EventBus.on('connectivity-item-close', () => {
-      if (this.multiflatmapRef) {
-        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
-        if (currentFlatmap) {
-          currentFlatmap.closeTooltip();
-        }
-      }
-      if (this.flatmapRef) {
-        this.flatmapRef.closeTooltip();
-      }
-    });
-
+    EventBus.on("startHelp", this.startHelp);
+    EventBus.on('connectivity-item-close', this.onConnectivityItemClose);
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
@@ -83,6 +72,19 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
+    onConnectivityItemClose() {
+      if (this?.alive) {
+        if (this.multiflatmapRef) {
+          const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+          if (currentFlatmap) {
+            currentFlatmap.closeTooltip();
+          }
+        }
+        if (this.flatmapRef) {
+          this.flatmapRef.closeTooltip();
+        }
+      }
+    },
     toggleSyncMode: function () {
       return;
     },
@@ -424,10 +426,12 @@ export default {
       return;
     },
     startHelp: function () {
-      if (this.isInHelp === false) {
-        this.helpMode = true;
-        window.addEventListener("mousedown", this.checkEndHelpMouseDown);
-        this.isInHelp = true;
+      if (this?.alive) {
+        if (this.isInHelp === false) {
+          this.helpMode = true;
+          window.addEventListener("mousedown", this.checkEndHelpMouseDown);
+          this.isInHelp = true;
+        }
       }
     },
     endHelp: function () {
@@ -639,7 +643,8 @@ export default {
       connectivityKnowledge: {},
       connectivityFilterOptions: {},
       connectivityFilterSources: {},
-      highlightDelay: undefined
+      highlightDelay: undefined,
+      alive: true,
     };
   },
   created: function () {
