@@ -245,5 +245,13 @@ describe('MapContent', () => {
     cy.get('.icon-group.el-row .el-popover:visible .el-row').should('have.length', 8);
     cy.get('.icon-group.el-row .el-popover:visible .el-row').contains('Four panes').should('exist').click();
     cy.get('.content-container:visible').should('have.length', 4);
+
+    // Switch to Annotation viewing mode
+    cy.get('.viewing-mode-selector > .toolbar-dropdown').as('changeViewingMode').trigger('mouseenter')
+    cy.get('.el-dropdown-menu__item > span').as('viewingModes').contains('Annotation').click()
+    cy.get('@changeViewingMode').trigger('mouseleave')
+
+    // All available maps should show to annotation tools
+    cy.get('.toolbar-container > .toolbar-icons').should('have.length', 3)
   })
 })
