@@ -87,15 +87,16 @@ const autoAssignEntryIdsToPane = (entries, layout) => {
   const invalidIdKeys = [];
   for (const [key, value] of Object.entries(layout)) {
     if (value.content) {
-      if (assignedIds.includes(value.id)) {
-        //id has got an assigned pane, cache it and find one
-        //later
+      if ((1 > value.id) || assignedIds.includes(value.id)) {
+        //id has got an assigned pane or pane contains an invalid id,
+        //cache it and find one later 
         invalidIdKeys.push(key);
       } else {
         assignedIds.push(value.id);
       }
     }
   }
+
   invalidIdKeys.forEach((key) => {
     let done = false;
     for (let i = 0; i < entries.length && !done; i++) {
