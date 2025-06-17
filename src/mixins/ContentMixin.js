@@ -575,7 +575,7 @@ export default {
       EventBus.emit('annotation-open', payload);
     },
     onAnnotationClose: function () {
-      EventBus.emit('annotation-close');
+      EventBus.emit('sidebar-annotation-close');
     },
     updateOfflineAnnotationEnabled: function (payload) {
       EventBus.emit('update-offline-annotation-enabled', payload);
@@ -588,6 +588,9 @@ export default {
     },
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
+    },
+    onSidebarAnnotationClose: function() {
+      return;
     },
     loadConnectivityExplorerConfig: async function (flatmap) {
       const flatmapImp = flatmap.mapImp;

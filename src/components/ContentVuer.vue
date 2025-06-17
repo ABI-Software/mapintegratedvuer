@@ -149,6 +149,9 @@ export default {
     onConnectivityItemClose: function() {
       this.$refs.viewer?.onConnectivityItemClose();
     },
+    onSidebarAnnotationClose:function() {
+      this.$refs.viewer?.onSidebarAnnotationClose();
+    }
   },
   data: function () {
     return {

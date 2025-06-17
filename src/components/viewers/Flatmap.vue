@@ -131,6 +131,14 @@ export default {
         'location': selectionsTitle
       });
     },
+    onSidebarAnnotationClose: function() {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
+        }
+      }
+    },
     highlightFeatures: function(info) {
       let name = info.name;
       const flatmap = this.$refs.flatmap.mapImp;
@@ -202,14 +210,6 @@ export default {
     },
   },
   mounted: function() {
-    EventBus.on('annotation-close', () => {
-      if (this?.alive) {
-        const currentFlatmap = this.$refs.flatmap;
-        if (currentFlatmap) {
-          this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
-        }
-      }
-    });
     EventBus.on("markerUpdate", () => {
       if (this?.alive) this.flatmapMarkerUpdate(undefined);
     });

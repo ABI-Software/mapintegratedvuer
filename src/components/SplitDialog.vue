@@ -440,6 +440,12 @@ export default {
         content.onConnectivityItemClose();
       });
     });
+    EventBus.on('sidebar-annotation-close', () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onSidebarAnnotationClose();
+      });
+    });
   },
 };
 </script>

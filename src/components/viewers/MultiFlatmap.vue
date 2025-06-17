@@ -231,6 +231,12 @@ export default {
         'location': selectionsTitle
       });
     },
+    onSidebarAnnotationClose: function() {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
+      }
+    },
     onOpenPubmedUrl: function (url) {
       // GA Tagging
       // Event tracking for open pubmed url from popup
@@ -481,13 +487,6 @@ export default {
   },
   mounted: function () {
     this.getFeaturedDatasets();
-
-    EventBus.on('annotation-close', () => {
-      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
-      }
-    });
 
     EventBus.on('show-connectivity', (payload) => {
       const { featureIds, offset } = payload;
