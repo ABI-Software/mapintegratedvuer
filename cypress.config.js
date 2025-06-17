@@ -21,10 +21,12 @@ export default {
     },
     env: {
       visualRegressionType: 'regression',
+      visualRegressionBaseDirectory: 'cypress/snapshots/MapContent.cy.js/base',
+      visualRegressionDiffDirectory: 'cypress/snapshots/diff',
       visualRegressionGenerateDiff: 'always',
       visualRegressionFailSilently: false
     },
-    screenshotsFolder: './cypress/snapshots/actual',
+    screenshotsFolder: './cypress/snapshots',
     setupNodeEvents(on, config) {
       configureVisualRegression(on)
     },

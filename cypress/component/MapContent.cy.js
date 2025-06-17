@@ -84,6 +84,7 @@ describe('MapContent', () => {
     })
 
     Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
+      cy.wait(1000);
       cy.get('.el-icon.header-icon').as('globalSettings').click(); // open
       cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`).as('settingOptions').last().click();
       cy.get('@globalSettings').click(); // close
@@ -147,8 +148,12 @@ describe('MapContent', () => {
     });
     cy.get('html').invoke('css', 'width', 'initial');
 
+    // CLI
+    cy.get('html').screenshot('base/cypress/component/MapContent.cy.js/MapContent_1pane')
+    // UI
+    cy.get('html').screenshot('MapContent.cy.js/base/cypress/component/MapContent.cy.js/MapContent_1pane')
     Object.entries(settings).forEach(([setting, index]) => {
-      cy.checkGlobalSettings('MapContent', setting, index);
+      cy.checkGlobalSettings('MapContent_1pane', setting, index);
     })
 
     //Test the existence of the minimap
@@ -281,6 +286,11 @@ describe('MapContent', () => {
     // All available maps should show to annotation tools
     cy.get('.toolbar-container > .toolbar-icons').should('have.length', 3)
 
+    cy.get('.tree-controls > .drawer-button').click();
+    // CLI
+    cy.get('html').screenshot('base/cypress/component/MapContent.cy.js/MapContent_4panes')
+    // UI
+    cy.get('html').screenshot('MapContent.cy.js/base/cypress/component/MapContent.cy.js/MapContent_4panes')
     Object.entries(settings).forEach(([setting, index]) => {
       if (setting === 'Flight path display' || setting === 'Change background') {
         cy.checkGlobalSettings('MapContent_4panes', setting, index);
