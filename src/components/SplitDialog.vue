@@ -458,6 +458,18 @@ export default {
         content.onFlatmapMarkerUpdate();
       });
     });
+    EventBus.on('connectivity-hovered', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowConnectivityTooltips(payload);
+      });
+    });
+    EventBus.on('connectivity-source-change', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onChangeConnectivitySource(payload);
+      });
+    });
   },
 };
 </script>

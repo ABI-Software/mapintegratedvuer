@@ -510,10 +510,6 @@ export default {
       }
     });
 
-    EventBus.on('connectivity-hovered', (payload) => {
-      this.showConnectivityTooltips(payload);
-    });
-
     EventBus.on('connectivity-source-change', (payload) => {
       this.changeConnectivitySource(payload);
     });

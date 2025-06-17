@@ -158,6 +158,9 @@ export default {
     onFlatmapMarkerUpdate: function() {
       this.$refs.viewer?.flatmapMarkerUpdate();
     },
+    onShowConnectivityTooltips: function(payload) {
+      this.$refs.viewer?.showConnectivityTooltips(payload);
+    }
   },
   data: function () {
     return {
