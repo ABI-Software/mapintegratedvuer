@@ -1,6 +1,13 @@
 /* eslint-disable no-alert, no-console */
 import { MapContent } from '../../src/components/index.js';
 
+const settings = {
+  'Flight path display': 1,
+  'Organs display': 2,
+  'Outlines display': 3,
+  'Change background': 4
+}
+
 describe('MapContent', () => {
 
   //Load in some responses/assets before beginning the test
@@ -76,6 +83,21 @@ describe('MapContent', () => {
       cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
     })
 
+    Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
+      cy.get('.el-icon.header-icon').as('globalSettings').click();
+      cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`).last().click();
+      cy.get('@globalSettings').click();
+      cy.get('@globalSettings').trigger('mouseleave');
+      cy.wait(1000);
+      cy.get('html').compareSnapshot(compare).then(comparisonResults => {
+        expect(comparisonResults.percentage, `${setting} should be applied`).to.be.above(0);
+      });
+      cy.get('@globalSettings').click();
+      cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`).first().click();
+      cy.get('@globalSettings').click();
+      cy.get('@globalSettings').trigger('mouseleave');
+    })
+
     //Wait for the curie response before continuing
    // cy.wait('@categoryResponse');
 
@@ -123,8 +145,12 @@ describe('MapContent', () => {
       expect(comparisonResults.percentage).to.be.below(0.1)
     });
     cy.get('html').invoke('css', 'width', 'initial');
-    //Test the existence of the minimap
 
+    Object.entries(settings).forEach(([setting, index]) => {
+      cy.checkGlobalSettings('MapContent', setting, index);
+    })
+
+    //Test the existence of the minimap
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 45000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
@@ -169,7 +195,7 @@ describe('MapContent', () => {
     cy.get('.tabs-container > :nth-child(2)').click();
     cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
     cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type("heart");
-    cy.get('[data-v-87dd0624=""][data-v-87cced63=""] > .el-card__header > .header > .el-button--primary').click();
+    cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
     cy.get('.connectivity-card-container > .connectivity-card').should('have.length', 9);
     cy.get('.connectivity-card-container > .connectivity-card').first().click();
     cy.get(':nth-child(1) > .connectivity-info').should('contain', 'Neuron type aacar 10a');
@@ -253,5 +279,11 @@ describe('MapContent', () => {
 
     // All available maps should show to annotation tools
     cy.get('.toolbar-container > .toolbar-icons').should('have.length', 3)
+
+    Object.entries(settings).forEach(([setting, index]) => {
+      if (setting === 'Flight path display' || setting === 'Change background') {
+        cy.checkGlobalSettings('MapContent_4panes', setting, index);
+      }
+    })
   })
 })
