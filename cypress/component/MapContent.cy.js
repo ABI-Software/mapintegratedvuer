@@ -84,18 +84,19 @@ describe('MapContent', () => {
     })
 
     Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
-      cy.get('.el-icon.header-icon').as('globalSettings').click();
-      cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`).last().click();
-      cy.get('@globalSettings').click();
+      cy.get('.el-icon.header-icon').as('globalSettings').click(); // open
+      cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`).as('settingOptions').last().click();
+      cy.get('@globalSettings').click(); // close
       cy.get('@globalSettings').trigger('mouseleave');
       cy.wait(1000);
       cy.get('html').compareSnapshot(compare).then(comparisonResults => {
         expect(comparisonResults.percentage, `${setting} should be applied`).to.be.above(0);
       });
-      cy.get('@globalSettings').click();
-      cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`).first().click();
-      cy.get('@globalSettings').click();
+      cy.get('@globalSettings').click(); // open
+      cy.get('@settingOptions').first().click(); // reset to default
+      cy.get('@globalSettings').click(); // close
       cy.get('@globalSettings').trigger('mouseleave');
+      cy.wait(1000);
     })
 
     //Wait for the curie response before continuing
