@@ -509,10 +509,6 @@ export default {
         }
       }
     });
-
-    EventBus.on('connectivity-source-change', (payload) => {
-      this.changeConnectivitySource(payload);
-    });
   },
 };
 </script>

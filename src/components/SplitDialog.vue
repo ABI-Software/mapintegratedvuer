@@ -467,7 +467,7 @@ export default {
     EventBus.on('connectivity-source-change', (payload) => {
       const contents = this.getActiveContents();
       contents.forEach((content) => {
-        content.onChangeConnectivitySource(payload);
+        content.onConnectivitySourceChange(payload);
       });
     });
   },

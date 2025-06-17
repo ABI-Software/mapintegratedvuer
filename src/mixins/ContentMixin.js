@@ -595,6 +595,12 @@ export default {
     onSidebarAnnotationClose: function() {
       return;
     },
+    showConnectivityTooltips: function(payload) {
+      return;
+    },
+    changeConnectivitySource: function(payload) {
+      return;
+    },
     loadConnectivityExplorerConfig: async function (flatmap) {
       const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
