@@ -289,7 +289,11 @@ export default {
             if (data) {
               this.query = data.query;
               if (data.query) {
-                const searchTerms = this.query.split(",").map((term) => term.trim());
+                const searchTerms = this.query
+                  .replace(/["']/g, "")
+                  .split(",")
+                  .map(term => term.trim())
+                  .filter(term => term);
                 const nestedIds = [];
                 for (let index = 0; index < searchTerms.length; index++) {
                   nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
