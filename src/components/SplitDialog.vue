@@ -288,6 +288,7 @@ export default {
             let queryIds = [], facetIds = [];
             if (data) {
               this.query = data.query;
+              // get query search result ids and order
               if (data.query) {
                 const searchTerms = this.query
                   .replace(/["']/g, "")
@@ -303,40 +304,43 @@ export default {
                 searchOrders.push(...flatIds);
                 queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
               }
+
+              // get facet search result ids
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
-                if (!(facetKey in filters)) {
-                  filters[facetKey] = [];
-                }
                 const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
                 if (matchedFilter) {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
                       const childKey = child.key.split('.').pop();
+                      if (!(facetKey in filters)) {
+                        filters[facetKey] = [];
+                      }
                       // within facet search category -> OR
                       filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
                     }
                   });
                 }
               });
-              this.filter = Object.values(filters).filter(filter => filter.length);
+              this.filter = Object.values(filters);
               // between facet search categories -> AND
               facetIds = this.filter.length ?
                 this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) :
                 [];
             }
 
+            let target;
             if (this.query && !this.filter.length) { // pure query search
-              searchHighlights.push(...queryIds);
-              results = results.filter((item) => queryIds.includes(item.id));
+              target = queryIds;
             } else if (!this.query && this.filter.length) { // pure facet search
-              searchHighlights.push(...facetIds);
-              results = results.filter((item) => facetIds.includes(item.id));
+              target = facetIds;
             } else if (this.query && this.filter.length) { // combined query and facet search
               // between query search and facet search -> AND 
-              const combinedIds = queryIds.filter(id => facetIds.includes(id));
-              searchHighlights.push(...combinedIds);
-              results = results.filter((item) => combinedIds.includes(item.id));
+              target = queryIds.filter(id => facetIds.includes(id));
+            }
+            if (target) {
+              searchHighlights.push(...target);
+              results = results.filter((item) => target.includes(item.id));
             }
             searchResults.push(...results);
           }
