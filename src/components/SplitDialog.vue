@@ -294,7 +294,7 @@ export default {
                 for (let index = 0; index < searchTerms.length; index++) {
                   nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
                 }
-                // within query search -> OR
+                // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
                 queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
@@ -309,6 +309,7 @@ export default {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
                       const childKey = child.key.split('.').pop();
+                      // within facet search category -> OR
                       filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
                     }
                   });
