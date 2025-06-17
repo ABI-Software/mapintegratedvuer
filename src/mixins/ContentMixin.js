@@ -595,6 +595,9 @@ export default {
     onSidebarAnnotationClose: function() {
       return;
     },
+    showConnectivity: function(payload) {
+      return;
+    },
     showConnectivityTooltips: function(payload) {
       return;
     },

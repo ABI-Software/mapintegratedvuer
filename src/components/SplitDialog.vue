@@ -470,6 +470,12 @@ export default {
         content.onConnectivitySourceChange(payload);
       });
     });
+    EventBus.on('show-connectivity', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowConnectivity(payload);
+      });
+    });
   },
 };
 </script>

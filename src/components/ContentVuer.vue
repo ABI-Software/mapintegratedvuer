@@ -158,12 +158,16 @@ export default {
     onFlatmapMarkerUpdate: function() {
       this.$refs.viewer?.flatmapMarkerUpdate();
     },
+    onShowConnectivity: function(payload) {
+      this.$refs.viewer?.showConnectivity(payload);
+    },
     onShowConnectivityTooltips: function(payload) {
       this.$refs.viewer?.showConnectivityTooltips(payload);
     },
     onConnectivitySourceChange: function(payload) {
       this.$refs.viewer?.changeConnectivitySource(payload);
     },
+
   },
   data: function () {
     return {

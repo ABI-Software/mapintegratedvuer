@@ -165,6 +165,18 @@ export default {
         });
       }
     },
+    showConnectivity: function (payload) {
+      if (this?.alive) {
+        const { featureIds, offset } = payload;
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -150 : 0,
+            zoom: 4,
+          });
+        }
+      }
+    },
     zoomToFeatures: function(info, forceSelect) {
       let name = info.name;
       const flatmap = this.$refs.flatmap.mapImp;
@@ -210,21 +222,6 @@ export default {
     },
   },
   mounted: function() {
-    EventBus.on("markerUpdate", () => {
-      if (this?.alive) this.flatmapMarkerUpdate(undefined);
-    });
-    EventBus.on('show-connectivity', (payload) => {
-      if (this?.alive) {
-        const { featureIds, offset } = payload;
-        const currentFlatmap = this.$refs.flatmap;
-        if (currentFlatmap) {
-          currentFlatmap.moveMap(featureIds, {
-            offsetX: offset ? -150 : 0,
-            zoom: 4,
-          });
-        }
-      }
-    });
     EventBus.on('show-reference-connectivities', (payload) => {
       if (this?.alive) {
         const currentFlatmap = this.$refs.flatmap;
