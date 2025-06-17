@@ -283,9 +283,9 @@ export default {
           const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+            let filters = {}, ids = [];
             if (data) {
               this.query = data.query;
-              let filters = {}
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
                 if (!(facetKey in filters)) {
@@ -301,7 +301,6 @@ export default {
                   });
                 }
               });
-              let ids = [];
               for (const [key, value] of Object.entries(filters)) {
                 if (value.length) {
                   let valueToIds = [];
@@ -333,7 +332,7 @@ export default {
               searchHighlights.push(...paths);
               results = results.filter((item) => paths.includes(item.id));
             }
-            if (this.filter.length) {
+            if (ids.length) {
               searchHighlights.push(...this.filter);
               results = results.filter((item) => this.filter.includes(item.id));
             }
