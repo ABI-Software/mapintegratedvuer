@@ -178,7 +178,7 @@ export default {
         viewingMode,
         flightPathDisplay,
         organsDisplay,
-        outlines,
+        outlinesDisplay,
       } = this.settingsStore.globalSettings;
 
       const currentFlatmap = this.$refs.flatmap;
@@ -186,7 +186,7 @@ export default {
       currentFlatmap.changeViewingMode(viewingMode);
       currentFlatmap.setFlightPath3D(flightPathDisplay);
       currentFlatmap.setColour(organsDisplay);
-      currentFlatmap.setOutlines(outlines);
+      currentFlatmap.setOutlines(outlinesDisplay);
       currentFlatmap.backgroundChangeCallback(backgroundDisplay);
     },
   },
