@@ -524,11 +524,6 @@ export default {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
       }
     });
-    EventBus.on("hoverUpdate", () => {
-      if (this?.alive && this.flatmapReady) {
-        this.cardHoverHighlight();
-      }
-    });
     EventBus.on('viewingModeUpdate', (payload) => {
       if (this?.alive && this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();

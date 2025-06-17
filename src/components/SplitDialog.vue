@@ -421,6 +421,25 @@ export default {
     EventBus.on("connectivity-query-filter", (payload) => {
       this.connectivityQueryFilter(payload);
     });
+    //The followings are migrated from ContentVuer and its child components to here
+    EventBus.on("hoverUpdate", () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onHoverUpdate();
+      });
+    });
+    EventBus.on("startHelp", () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onStartHelp();
+      });
+    });
+    EventBus.on('connectivity-item-close', () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onConnectivityItemClose();
+      });
+    });
   },
 };
 </script>

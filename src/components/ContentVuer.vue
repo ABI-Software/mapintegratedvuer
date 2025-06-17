@@ -140,6 +140,15 @@ export default {
     onResize: function () {
       this.$refs.viewer?.onResize();
     },
+    onHoverUpdate: function() {
+      this.$refs.viewer?.cardHoverHighlight();
+    },
+    onStartHelp: function() {
+      this.$refs.viewer?.startHelp();
+    },
+    onConnectivityItemClose: function() {
+      this.$refs.viewer?.onConnectivityItemClose();
+    },
   },
   data: function () {
     return {

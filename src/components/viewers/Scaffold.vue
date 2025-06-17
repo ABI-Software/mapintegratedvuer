@@ -227,14 +227,6 @@ export default {
   mounted: function () {
     this.scaffoldCamera =
       this.$refs.scaffold.$module.scene.getZincCameraControls();
-    EventBus.on("startHelp", () => {
-      this.startHelp();
-    });
-    EventBus.on("hoverUpdate", () => {
-      if (this.scaffoldLoaded && this?.alive) {
-        this.cardHoverHighlight();
-      }
-    });
     EventBus.on('backgroundDisplayUpdate', (payload) => {
       if (this?.alive) {
         this.$refs.scaffold.backgroundChangeCallback(payload);

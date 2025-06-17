@@ -62,8 +62,6 @@ export default {
     this.alive = false;
   },
   mounted: function () {
-    EventBus.on("startHelp", this.startHelp);
-    EventBus.on('connectivity-item-close', this.onConnectivityItemClose);
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
@@ -516,7 +514,10 @@ export default {
       return toHighlight;
     },
     cardHoverHighlight: function () {
-      if (this.visible) {
+      if (this.visible && (
+        ((this.flatmapRef || this.multiflatmapRef) && this.flatmapReady) ||
+        (this.scaffoldRef && this.scaffoldLoaded))
+      ) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
         const hoverDOI = this.settingsStore.hoverDOI;
