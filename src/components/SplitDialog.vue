@@ -446,6 +446,12 @@ export default {
         content.onSidebarAnnotationClose();
       });
     });
+    EventBus.on('globalViewerSettingsUpdate', (payload) => {
+      const contents = this.$refs['content'];
+      contents.forEach((content) => {
+        content.onGlobalViewerSettingsUpdate();
+      });
+    });
   },
 };
 </script>

@@ -149,9 +149,12 @@ export default {
     onConnectivityItemClose: function() {
       this.$refs.viewer?.onConnectivityItemClose();
     },
-    onSidebarAnnotationClose:function() {
+    onSidebarAnnotationClose: function() {
       this.$refs.viewer?.onSidebarAnnotationClose();
-    }
+    },
+    onGlobalViewerSettingsUpdate: function(payload) {
+      this.$refs.viewer?.updateViewerSettings();
+    },
   },
   data: function () {
     return {

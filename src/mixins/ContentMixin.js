@@ -423,6 +423,9 @@ export default {
     onResize: function () {
       return;
     },
+    updateViewerSettings: function() {
+      return;
+    },
     startHelp: function () {
       if (this?.alive) {
         if (this.isInHelp === false) {

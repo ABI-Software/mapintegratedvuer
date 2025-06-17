@@ -347,7 +347,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
-        this.updateSettings();
+        this.updateViewerSettings();
         this.loadConnectivityExplorerConfig(flatmap);
         EventBus.emit("mapLoaded", flatmap);
       }
@@ -444,7 +444,7 @@ export default {
         flatmap.changeConnectivitySource(payload);
       }
     },
-    updateSettings: function () {
+    updateViewerSettings: function () {
       const {
         backgroundDisplay,
         viewingMode,
@@ -521,36 +521,6 @@ export default {
     EventBus.on("markerUpdate", () => {
       if (this?.alive && this.flatmapReady) {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
-      }
-    });
-    EventBus.on('viewingModeUpdate', (payload) => {
-      if (this?.alive && this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.changeViewingMode(payload);
-      }
-    });
-    EventBus.on('flightPathUpdate', (payload) => {
-      if (this?.alive && this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.setFlightPath3D(payload);
-      }
-    });
-    EventBus.on('organsDisplayUpdate', (payload) => {
-      if (this?.alive && this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.setColour(payload);
-      }
-    });
-    EventBus.on('outlinesDisplayUpdate', (payload) => {
-      if (this?.alive && this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.setOutlines(payload);
-      }
-    });
-    EventBus.on('backgroundDisplayUpdate', (payload) => {
-      if (this?.alive && this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.backgroundChangeCallback(payload);
       }
     });
   },
