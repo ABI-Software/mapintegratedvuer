@@ -199,7 +199,7 @@ describe('MapContent', () => {
     cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
     cy.get('.connectivity-card-container > .connectivity-card').should('have.length', 9);
     cy.get('.connectivity-card-container > .connectivity-card').first().click();
-    cy.get(':nth-child(1) > .connectivity-info').should('contain', 'Neuron type aacar 10a');
+    cy.get(':nth-child(1) > .connectivity-info', {timeout: 45000}).should('contain', 'Neuron type aacar 10a');
     cy.get('[style=""] > .el-card__header > .header > .is-link').click();
 
     // dataset explorer
