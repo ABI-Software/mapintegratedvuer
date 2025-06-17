@@ -236,7 +236,7 @@ export default {
       }
     },
     getSearchedId: function (flatmap, term) {
-      let ids = [];
+      const ids = [];
       const searchResult = flatmap.mapImp.search(term);
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
       featureIds.forEach((id) => {
@@ -259,7 +259,7 @@ export default {
     },
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
-      let searchOrders = [], searchHighlights = [], searchResults = [];
+      const searchOrders = [], searchHighlights = [], searchResults = [];
 
       for (const activeContent of activeContents) {
         const viewer = activeContent.$refs.viewer;
@@ -283,9 +283,22 @@ export default {
           const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-            let filters = {}, ids = [];
+
+            const filters = {};
+            let queryIds = [], facetIds = [];
             if (data) {
               this.query = data.query;
+              if (data.query) {
+                const searchTerms = this.query.split(",").map((term) => term.trim());
+                const nestedIds = [];
+                for (let index = 0; index < searchTerms.length; index++) {
+                  nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
+                }
+                // within query search -> OR
+                const flatIds = [...new Set(nestedIds.flat())];
+                searchOrders.push(...flatIds);
+                queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
+              }
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
                 if (!(facetKey in filters)) {
@@ -296,45 +309,29 @@ export default {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
                       const childKey = child.key.split('.').pop();
-                      filters[facetKey].push(childKey);
+                      filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
                     }
                   });
                 }
               });
-              for (const [key, value] of Object.entries(filters)) {
-                if (value.length) {
-                  let valueToIds = [];
-                  // within AND
-                  value.forEach((v) => valueToIds.push(...uniqueFilterSources[key][v]));
-                  ids.push(valueToIds);
-                }
-              }
-              // between AND
-              this.filter = ids.length ?
-                [...new Set(ids.reduce((acc, curr) => acc.filter(id => curr.includes(id))))] :
+              this.filter = Object.values(filters).filter(filter => filter.length);
+              // between facet search categories -> AND
+              facetIds = this.filter.length ?
+                this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) :
                 [];
-              if (data.type === "query-update") {
-                this.query = data.value;
-              } else if (data.type === "filter-update") {
-                this.filter = data.value;
-              }
             }
-            if (this.query) {
-              let options = {};
-              const searchTerms = this.query.split(",").map((term) => term.trim());
-              const nestedIds = [];
-              for (let index = 0; index < searchTerms.length; index++) {
-                nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
-              }
-              const ids = [...new Set(nestedIds.flat())];
-              searchOrders.push(...ids);
-              const paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
-              searchHighlights.push(...paths);
-              results = results.filter((item) => paths.includes(item.id));
-            }
-            if (ids.length) {
-              searchHighlights.push(...this.filter);
-              results = results.filter((item) => this.filter.includes(item.id));
+
+            if (this.query && !this.filter.length) { // pure query search
+              searchHighlights.push(...queryIds);
+              results = results.filter((item) => queryIds.includes(item.id));
+            } else if (!this.query && this.filter.length) { // pure facet search
+              searchHighlights.push(...facetIds);
+              results = results.filter((item) => facetIds.includes(item.id));
+            } else if (this.query && this.filter.length) { // combined query and facet search
+              // between query search and facet search -> AND 
+              const combinedIds = queryIds.filter(id => facetIds.includes(id));
+              searchHighlights.push(...combinedIds);
+              results = results.filter((item) => combinedIds.includes(item.id));
             }
             searchResults.push(...results);
           }
