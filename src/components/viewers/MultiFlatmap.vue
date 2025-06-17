@@ -517,12 +517,6 @@ export default {
     EventBus.on('connectivity-source-change', (payload) => {
       this.changeConnectivitySource(payload);
     });
-
-    EventBus.on("markerUpdate", () => {
-      if (this?.alive && this.flatmapReady) {
-        this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
-      }
-    });
   },
 };
 </script>

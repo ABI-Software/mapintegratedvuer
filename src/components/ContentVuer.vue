@@ -152,8 +152,11 @@ export default {
     onSidebarAnnotationClose: function() {
       this.$refs.viewer?.onSidebarAnnotationClose();
     },
-    onGlobalViewerSettingsUpdate: function(payload) {
+    onGlobalViewerSettingsUpdate: function() {
       this.$refs.viewer?.updateViewerSettings();
+    },
+    onFlatmapMarkerUpdate: function() {
+      this.$refs.viewer?.flatmapMarkerUpdate();
     },
   },
   data: function () {

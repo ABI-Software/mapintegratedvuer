@@ -446,10 +446,16 @@ export default {
         content.onSidebarAnnotationClose();
       });
     });
-    EventBus.on('globalViewerSettingsUpdate', (payload) => {
+    EventBus.on('globalViewerSettingsUpdate', () => {
       const contents = this.$refs['content'];
       contents.forEach((content) => {
         content.onGlobalViewerSettingsUpdate();
+      });
+    });
+    EventBus.on("markerUpdate", () => {
+      const contents = this.$refs['content'];
+      contents.forEach((content) => {
+        content.onFlatmapMarkerUpdate();
       });
     });
   },
