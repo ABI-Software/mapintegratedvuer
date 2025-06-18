@@ -596,7 +596,7 @@ export default {
       return;
     },
     onNeuronConnectionClick: function (payload) {
-      console.log('neuron connection click', payload)
+      EventBus.emit('neuron-connection-click', payload);
     },
     showConnectivity: function(payload) {
       return;
