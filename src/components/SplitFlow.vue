@@ -616,7 +616,9 @@ export default {
       this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
+      if (tab.id === 3 && tab.type === "annotation") {
+        EventBus.emit('sidebar-annotation-close');
+      }
     },
     updateGlobalSettingsFromStorage: function () {
       const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
@@ -690,7 +692,7 @@ export default {
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on('annotation-close', () => {
+    EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
       const { interactiveMode, viewingMode } = globalSettings;
 
