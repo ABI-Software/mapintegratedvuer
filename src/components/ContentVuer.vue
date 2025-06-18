@@ -140,23 +140,21 @@ export default {
     onResize: function () {
       this.$refs.viewer?.onResize();
     },
-    onHoverUpdate: function() {
-      this.$refs.viewer?.cardHoverHighlight();
-    },
-    onStartHelp: function() {
-      this.$refs.viewer?.startHelp();
-    },
+    //The following handle EventBus.on from SplitDialog
     onConnectivityItemClose: function() {
       this.$refs.viewer?.onConnectivityItemClose();
     },
-    onSidebarAnnotationClose: function() {
-      this.$refs.viewer?.onSidebarAnnotationClose();
+    onConnectivitySourceChange: function(payload) {
+      this.$refs.viewer?.changeConnectivitySource(payload);
+    },
+    onFlatmapMarkerUpdate: function() {
+      this.$refs.viewer?.flatmapMarkerUpdate();
     },
     onGlobalViewerSettingsUpdate: function() {
       this.$refs.viewer?.updateViewerSettings();
     },
-    onFlatmapMarkerUpdate: function() {
-      this.$refs.viewer?.flatmapMarkerUpdate();
+    onHoverUpdate: function() {
+      this.$refs.viewer?.cardHoverHighlight();
     },
     onShowConnectivity: function(payload) {
       this.$refs.viewer?.showConnectivity(payload);
@@ -164,11 +162,14 @@ export default {
     onShowConnectivityTooltips: function(payload) {
       this.$refs.viewer?.showConnectivityTooltips(payload);
     },
-    onConnectivitySourceChange: function(payload) {
-      this.$refs.viewer?.changeConnectivitySource(payload);
-    },
     onShowReferenceConnectivity: function(payload) {
       this.$refs.viewer?.showConnectivitiesByReference(payload);
+    },
+    onSidebarAnnotationClose: function() {
+      this.$refs.viewer?.onSidebarAnnotationClose();
+    },
+    onStartHelp: function() {
+      this.$refs.viewer?.startHelp();
     },
   },
   data: function () {
