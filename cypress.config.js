@@ -24,12 +24,13 @@ export default {
       visualRegressionBaseDirectory: 'cypress/snapshots/MapContent.cy.js/base',
       visualRegressionDiffDirectory: 'cypress/snapshots/diff',
       visualRegressionGenerateDiff: 'always',
-      visualRegressionFailSilently: false
+      visualRegressionFailSilently: false,
     },
     screenshotsFolder: './cypress/snapshots',
     setupNodeEvents(on, config) {
       configureVisualRegression(on)
     },
+    trashAssetsBeforeRuns: false,
   },
   video: true,
   videoCompression: true,
