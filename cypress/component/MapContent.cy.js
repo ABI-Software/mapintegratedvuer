@@ -148,6 +148,7 @@ describe('MapContent', () => {
     });
     cy.get('html').invoke('css', 'width', 'initial');
 
+    cy.wait(1000);
     // CLI
     cy.get('html').screenshot('base/cypress/component/MapContent.cy.js/MapContent_1pane')
     // UI
@@ -286,6 +287,8 @@ describe('MapContent', () => {
     // All available maps should show to annotation tools
     cy.get('.toolbar-container > .toolbar-icons').should('have.length', 3)
 
+    cy.wait(1000);
+    cy.get('.viewer-container > .flatmap-container > [style="height: 100%; width: 100%; position: relative;"] > .pathway-location > .drawer-button').click();
     cy.get('.tree-controls > .drawer-button').click();
     // CLI
     cy.get('html').screenshot('base/cypress/component/MapContent.cy.js/MapContent_4panes')
