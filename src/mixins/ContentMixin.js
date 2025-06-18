@@ -598,6 +598,9 @@ export default {
     showConnectivity: function(payload) {
       return;
     },
+    showConnectivitiesByReference: function(payload) {
+      return;
+    },
     showConnectivityTooltips: function(payload) {
       return;
     },

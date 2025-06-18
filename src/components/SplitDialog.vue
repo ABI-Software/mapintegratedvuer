@@ -476,6 +476,12 @@ export default {
         content.onShowConnectivity(payload);
       });
     });
+    EventBus.on('show-reference-connectivities', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowReferenceConnectivity(payload);
+      });
+    });
   },
 };
 </script>

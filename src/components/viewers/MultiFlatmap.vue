@@ -432,10 +432,30 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
+    showConnectivity: function (payload) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
+        const { featureIds, offset } = payload;
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -150 : 0,
+            zoom: 4,
+          });
+        }
+      }
+    },
     showConnectivityTooltips: function (payload) {
       if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.showConnectivityTooltips(payload);
+      }
+    },
+    showConnectivitiesByReference: function (payload) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.showConnectivitiesByReference(payload);
+        }
       }
     },
     changeConnectivitySource: function (payload) {
@@ -487,28 +507,6 @@ export default {
   },
   mounted: function () {
     this.getFeaturedDatasets();
-
-    EventBus.on('show-connectivity', (payload) => {
-      const { featureIds, offset } = payload;
-      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (currentFlatmap) {
-          currentFlatmap.moveMap(featureIds, {
-            offsetX: offset ? -150 : 0,
-            zoom: 4,
-          });
-        }
-      }
-    });
-
-    EventBus.on('show-reference-connectivities', (payload) => {
-      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (currentFlatmap) {
-          currentFlatmap.showConnectivitiesByReference(payload);
-        }
-      }
-    });
   },
 };
 </script>

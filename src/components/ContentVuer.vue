@@ -167,7 +167,9 @@ export default {
     onConnectivitySourceChange: function(payload) {
       this.$refs.viewer?.changeConnectivitySource(payload);
     },
-
+    onShowReferenceConnectivity: function(payload) {
+      this.$refs.viewer?.showConnectivitiesByReference(payload);
+    },
   },
   data: function () {
     return {

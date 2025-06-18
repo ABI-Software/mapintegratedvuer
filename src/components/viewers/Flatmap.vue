@@ -177,6 +177,14 @@ export default {
         }
       }
     },
+    showConnectivitiesByReference: function (payload) {
+      if (this?.alive) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          currentFlatmap.showConnectivitiesByReference(payload);
+        }
+      }
+    },
     zoomToFeatures: function(info, forceSelect) {
       let name = info.name;
       const flatmap = this.$refs.flatmap.mapImp;
@@ -220,16 +228,6 @@ export default {
     facetSpecies() {
       return this.settingsStore.facets.species;
     },
-  },
-  mounted: function() {
-    EventBus.on('show-reference-connectivities', (payload) => {
-      if (this?.alive) {
-        const currentFlatmap = this.$refs.flatmap;
-        if (currentFlatmap) {
-          currentFlatmap.showConnectivitiesByReference(payload);
-        }
-      }
-    });
   },
 };
 </script>
