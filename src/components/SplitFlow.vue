@@ -757,6 +757,29 @@ export default {
         this.$refs.sideBar.updateConnectivityError(payload.data);
       }
     });
+    EventBus.on('neuron-connection-click', payload => {
+      let splitdialog = this.$refs.splitdialog;
+
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+
+        activeContents.forEach(content => {
+          if (content?.$refs['viewer']) {
+            const contentViewer = content.$refs['viewer'];
+            const flatmapRef = contentViewer.flatmapRef;
+            const multiflatmapRef = contentViewer.multiflatmapRef;
+            let flatmap = null;
+
+            if (flatmapRef) flatmap = flatmapRef;
+            if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
+
+            if (flatmap && flatmap.$el.checkVisibility()) {
+              flatmap.highlightConnectedPaths(payload);
+            }
+          }
+        });
+      }
+    });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
     });
