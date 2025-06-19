@@ -524,9 +524,9 @@ export default {
         this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
       }
     });
-    EventBus.on("hoverUpdate", () => {
+    EventBus.on("hoverUpdate", (payload) => {
       if (this.flatmapReady) {
-        this.cardHoverHighlight();
+        this.sidebarHoverHighlight(payload);
       }
     });
     EventBus.on('viewingModeUpdate', (payload) => {

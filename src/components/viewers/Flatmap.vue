@@ -205,8 +205,8 @@ export default {
     EventBus.on("markerUpdate", () => {
       this.flatmapMarkerUpdate(undefined);
     });
-    EventBus.on("hoverUpdate", () => {
-      this.cardHoverHighlight();
+    EventBus.on("hoverUpdate", (payload) => {
+      this.sidebarHoverHighlight(payload);
     });
     EventBus.on('viewingModeUpdate', (payload) => {
       this.$refs.flatmap.changeViewingMode(payload);

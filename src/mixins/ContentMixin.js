@@ -511,7 +511,7 @@ export default {
       toHighlight = [...new Set(toHighlight)];
       return toHighlight;
     },
-    cardHoverHighlight: function () {
+    sidebarHoverHighlight: function (payload) {
       if (this.visible) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
@@ -529,6 +529,10 @@ export default {
         if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
             flatmap.mapImp?.clearSearchResults();
+            if (payload.connectivitySearch) {
+              // grey out all connectivity if no search results
+              flatmap.mapImp?.setPaint({ dimmed: true })
+            }
           } else if (this.scaffoldRef && scaffold) {
             scaffold.changeHighlightedByName(hoverOrgans, "", false);
           }

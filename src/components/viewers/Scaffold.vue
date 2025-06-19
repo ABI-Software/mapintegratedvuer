@@ -230,9 +230,9 @@ export default {
     EventBus.on("startHelp", () => {
       this.startHelp();
     });
-    EventBus.on("hoverUpdate", () => {
+    EventBus.on("hoverUpdate", (payload) => {
       if (this.scaffoldLoaded) {
-        this.cardHoverHighlight();
+        this.sidebarHoverHighlight(payload);
       }
     });
     EventBus.on('backgroundDisplayUpdate', (payload) => {

@@ -260,6 +260,7 @@ export default {
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
       const searchOrders = [], searchHighlights = [], searchResults = [];
+      let processed = false;
 
       for (const activeContent of activeContents) {
         const viewer = activeContent.$refs.viewer;
@@ -338,9 +339,11 @@ export default {
               // between query search and facet search -> AND 
               target = queryIds.filter(id => facetIds.includes(id));
             }
+            // This can be empty array due to the AND operation
             if (target) {
               searchHighlights.push(...target);
               results = results.filter((item) => target.includes(item.id));
+              processed = true;
             }
             searchResults.push(...results);
           }
@@ -360,8 +363,9 @@ export default {
       ];
 
       const connectivitiesPayload = {
-        highlight: uniqueHighlights,
         data: uniqueResults,
+        highlight: uniqueHighlights,
+        processed: processed
       };
 
       EventBus.emit("connectivity-knowledge", connectivitiesPayload);
