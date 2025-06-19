@@ -431,10 +431,10 @@ export default {
       this.connectivityQueryFilter(payload);
     });
     //The followings are migrated from ContentVuer and its child components to here
-    EventBus.on("hoverUpdate", () => {
+    EventBus.on("hoverUpdate", (payload) => {
       const contents = this.getActiveContents();
       contents.forEach((content) => {
-        content.onHoverUpdate();
+        content.onHoverUpdate(payload);
       });
     });
     EventBus.on("startHelp", () => {

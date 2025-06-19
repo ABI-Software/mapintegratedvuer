@@ -516,7 +516,7 @@ export default {
       toHighlight = [...new Set(toHighlight)];
       return toHighlight;
     },
-    sidebarHoverHighlight: function () {
+    sidebarHoverHighlight: function (payload) {
       if (this.visible && (
         ((this.flatmapRef || this.multiflatmapRef) && this.flatmapReady) ||
         (this.scaffoldRef && this.scaffoldLoaded))
