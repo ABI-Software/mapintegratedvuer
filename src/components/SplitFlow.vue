@@ -136,6 +136,7 @@ export default {
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
       filterOptions: [],
+      annotationHighlight: [],
     }
   },
   watch: {
@@ -152,6 +153,11 @@ export default {
     connectivityHighlight: {
       handler: function () {
         this.hoverChanged({ tabType: 'connectivity' });
+      },
+    },
+    annotationHighlight: {
+      handler: function () {
+        this.hoverChanged({ tabType: 'annotation' });
       },
     },
   },
@@ -344,6 +350,8 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+      } else if (data.tabType === 'annotation') {
+        hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
@@ -609,7 +617,9 @@ export default {
       this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
+      if (tab.id === 3 && tab.type === "annotation") {
+        EventBus.emit('sidebar-annotation-close');
+      }
     },
     updateGlobalSettingsFromStorage: function () {
       const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
@@ -659,6 +669,7 @@ export default {
     });
     EventBus.on('annotation-open', payload => {
       this.annotationEntry = payload.annotationEntry;
+      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
       this.annotationCallback = markRaw(payload.commitCallback);
       if (!payload.createData) {
         this.createData = markRaw({});
@@ -682,7 +693,7 @@ export default {
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on('annotation-close', () => {
+    EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
       const { interactiveMode, viewingMode } = globalSettings;
 

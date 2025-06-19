@@ -231,6 +231,12 @@ export default {
         'location': selectionsTitle
       });
     },
+    onSidebarAnnotationClose: function() {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
+      }
+    },
     onOpenPubmedUrl: function (url) {
       // GA Tagging
       // Event tracking for open pubmed url from popup
@@ -341,7 +347,7 @@ export default {
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
-        this.updateSettings();
+        this.updateViewerSettings();
         this.loadConnectivityExplorerConfig(flatmap);
         EventBus.emit("mapLoaded", flatmap);
       }
@@ -426,25 +432,45 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       flatmap.changeViewingMode(modeName);
     },
+    showConnectivity: function (payload) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
+        const { featureIds, offset } = payload;
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -150 : 0,
+            zoom: 4,
+          });
+        }
+      }
+    },
     showConnectivityTooltips: function (payload) {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.showConnectivityTooltips(payload);
       }
     },
+    showConnectivitiesByReference: function (payload) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.showConnectivitiesByReference(payload);
+        }
+      }
+    },
     changeConnectivitySource: function (payload) {
-      if (this.flatmapReady) {
+      if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.changeConnectivitySource(payload);
       }
     },
-    updateSettings: function () {
+    updateViewerSettings: function () {
       const {
         backgroundDisplay,
         viewingMode,
         flightPathDisplay,
         organsDisplay,
-        outlines,
+        outlinesDisplay,
       } = this.settingsStore.globalSettings;
 
       if (this.flatmapReady) {
@@ -453,7 +479,7 @@ export default {
         currentFlatmap.changeViewingMode(viewingMode);
         currentFlatmap.setFlightPath3D(flightPathDisplay);
         currentFlatmap.setColour(organsDisplay);
-        currentFlatmap.setOutlines(outlines);
+        currentFlatmap.setOutlines(outlinesDisplay);
         currentFlatmap.backgroundChangeCallback(backgroundDisplay);
       }
     },
@@ -481,84 +507,6 @@ export default {
   },
   mounted: function () {
     this.getFeaturedDatasets();
-
-    EventBus.on('annotation-close', () => {
-      if (this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
-      }
-    });
-
-    EventBus.on('show-connectivity', (payload) => {
-      const { featureIds, offset } = payload;
-      if (this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (currentFlatmap) {
-          currentFlatmap.moveMap(featureIds, {
-            offsetX: offset ? -150 : 0,
-            zoom: 4,
-          });
-        }
-      }
-    });
-
-    EventBus.on('show-reference-connectivities', (payload) => {
-      if (this.flatmapReady && this.$refs.multiflatmap) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        if (currentFlatmap) {
-          currentFlatmap.showConnectivitiesByReference(payload);
-        }
-      }
-    });
-
-    EventBus.on('connectivity-hovered', (payload) => {
-      this.showConnectivityTooltips(payload);
-    });
-
-    EventBus.on('connectivity-source-change', (payload) => {
-      this.changeConnectivitySource(payload);
-    });
-
-    EventBus.on("markerUpdate", () => {
-      if (this.flatmapReady) {
-        this.flatmapMarkerUpdate(this.$refs.multiflatmap.getCurrentFlatmap().mapImp);
-      }
-    });
-    EventBus.on("hoverUpdate", (payload) => {
-      if (this.flatmapReady) {
-        this.sidebarHoverHighlight(payload);
-      }
-    });
-    EventBus.on('viewingModeUpdate', (payload) => {
-      if (this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.changeViewingMode(payload);
-      }
-    });
-    EventBus.on('flightPathUpdate', (payload) => {
-      if (this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.setFlightPath3D(payload);
-      }
-    });
-    EventBus.on('organsDisplayUpdate', (payload) => {
-      if (this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.setColour(payload);
-      }
-    });
-    EventBus.on('outlinesDisplayUpdate', (payload) => {
-      if (this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.setOutlines(payload);
-      }
-    });
-    EventBus.on('backgroundDisplayUpdate', (payload) => {
-      if (this.flatmapReady) {
-        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.backgroundChangeCallback(payload);
-      }
-    });
   },
 };
 </script>
