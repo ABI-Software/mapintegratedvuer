@@ -131,6 +131,7 @@ export default {
       confirmDeleteCallback: undefined,
       confirmCommentCallback: undefined,
       createData: {},
+      connectivitySearch: false,
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
@@ -353,7 +354,7 @@ export default {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate");
+      EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
@@ -768,6 +769,7 @@ export default {
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = payload.highlight || [];
+      this.connectivitySearch = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
