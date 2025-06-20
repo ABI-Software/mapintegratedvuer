@@ -58,29 +58,31 @@ export default {
       return !this.showGlobalSettings;
     },
   },
+  beforeUnmount: function() {
+    this.alive = false;
+  },
   mounted: function () {
-    EventBus.on("startHelp", () => {
-      this.startHelp();
-    });
-
-    EventBus.on('connectivity-item-close', () => {
-      if (this.multiflatmapRef) {
-        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
-        if (currentFlatmap) {
-          currentFlatmap.closeTooltip();
-        }
-      }
-      if (this.flatmapRef) {
-        this.flatmapRef.closeTooltip();
-      }
-    });
-
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
     this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
+    this.connectivityFilterOptions = this.connectivitiesStore.filterOptions;
+    this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
+    onConnectivityItemClose() {
+      if (this?.alive) {
+        if (this.multiflatmapRef) {
+          const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+          if (currentFlatmap) {
+            currentFlatmap.closeTooltip();
+          }
+        }
+        if (this.flatmapRef) {
+          this.flatmapRef.closeTooltip();
+        }
+      }
+    },
     toggleSyncMode: function () {
       return;
     },
@@ -421,11 +423,16 @@ export default {
     onResize: function () {
       return;
     },
+    updateViewerSettings: function() {
+      return;
+    },
     startHelp: function () {
-      if (this.isInHelp === false) {
-        this.helpMode = true;
-        window.addEventListener("mousedown", this.checkEndHelpMouseDown);
-        this.isInHelp = true;
+      if (this?.alive) {
+        if (this.isInHelp === false) {
+          this.helpMode = true;
+          window.addEventListener("mousedown", this.checkEndHelpMouseDown);
+          this.isInHelp = true;
+        }
       }
     },
     endHelp: function () {
@@ -510,7 +517,10 @@ export default {
       return toHighlight;
     },
     cardHoverHighlight: function () {
-      if (this.visible) {
+      if (this.visible && (
+        ((this.flatmapRef || this.multiflatmapRef) && this.flatmapReady) ||
+        (this.scaffoldRef && this.scaffoldLoaded))
+      ) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
         const hoverDOI = this.settingsStore.hoverDOI;
@@ -537,7 +547,10 @@ export default {
             if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
               this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
                 try {
-                  flatmap.zoomToFeatures(paths);
+                  flatmap.showConnectivityTooltips({
+                    connectivityInfo: { featureId: paths },
+                    data: []
+                  });
                 } catch (error) {
                   console.log(error)
                   // only for connectivity hover highlight
@@ -565,7 +578,7 @@ export default {
       EventBus.emit('annotation-open', payload);
     },
     onAnnotationClose: function () {
-      EventBus.emit('annotation-close');
+      EventBus.emit('sidebar-annotation-close');
     },
     updateOfflineAnnotationEnabled: function (payload) {
       EventBus.emit('update-offline-annotation-enabled', payload);
@@ -579,12 +592,29 @@ export default {
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
     },
-    loadConnectivityKnowledge: async function (flatmapImp) {
+    onSidebarAnnotationClose: function() {
+      return;
+    },
+    showConnectivity: function(payload) {
+      return;
+    },
+    showConnectivitiesByReference: function(payload) {
+      return;
+    },
+    showConnectivityTooltips: function(payload) {
+      return;
+    },
+    changeConnectivitySource: function(payload) {
+      return;
+    },
+    loadConnectivityExplorerConfig: async function (flatmap) {
+      const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
       const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
       const uuid = flatmapImp.uuid;
+      const pathways = flatmapImp.pathways;
 
       if (!this.connectivityKnowledge[sckanVersion]) {
         this.connectivityKnowledge[sckanVersion] = knowledge
@@ -593,18 +623,21 @@ export default {
           })
           .sort((a, b) => a.label.localeCompare(b.label));
       }
-
       if (!this.connectivityKnowledge[uuid]) {
-        const mapPathsData = await flatmapQueries.queryMapPaths(uuid);
-        const pathsFromMap = mapPathsData ? mapPathsData.paths : {};
-
+        const pathsFromMap = pathways ? pathways.paths : {};
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
           .filter((item) => item.id in pathsFromMap);
       }
-
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
-
-      EventBus.emit("species-layout-connectivity-update");
+      if (!this.connectivityFilterOptions[uuid]) {
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
+      }
+      this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
+      if (!this.connectivityFilterSources[uuid]) {
+        this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
+      }
+      this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
+      EventBus.emit('species-layout-connectivity-update');
     },
   },
   data: function () {
@@ -627,7 +660,10 @@ export default {
       isInHelp: false,
       mapManager: undefined,
       connectivityKnowledge: {},
-      highlightDelay: undefined
+      connectivityFilterOptions: {},
+      connectivityFilterSources: {},
+      highlightDelay: undefined,
+      alive: true,
     };
   },
   created: function () {

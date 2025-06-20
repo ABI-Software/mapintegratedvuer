@@ -28,6 +28,7 @@
           :createData="createData"
           :connectivityEntry="connectivityEntry"
           :connectivityKnowledge="connectivityKnowledge"
+          :filterOptions="filterOptions"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -133,6 +134,8 @@ export default {
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
+      filterOptions: [],
+      annotationHighlight: [],
     }
   },
   watch: {
@@ -147,8 +150,13 @@ export default {
       immediate: true,
     },
     connectivityHighlight: {
-      handler: function (value) {
-        this.onShowConnectivity(value);
+      handler: function () {
+        this.hoverChanged({ tabType: 'connectivity' });
+      },
+    },
+    annotationHighlight: {
+      handler: function () {
+        this.hoverChanged({ tabType: 'annotation' });
       },
     },
   },
@@ -335,22 +343,20 @@ export default {
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
-      if (data) {
-        if (data.type === 'dataset') {
-          hoverAnatomies = data.anatomy ? data.anatomy : [];
-          hoverOrgans = data.organs ? data.organs : [];
-          hoverDOI = data.doi ? data.doi : '';
-        } else if (data.type === 'connectivity') {
-          hoverConnectivity = data.id ? [data.id] : [];
-        }
-      } else {
-        hoverConnectivity = this.connectivityHighlight;
+      if (data.tabType === 'dataset') {
+        hoverAnatomies = data.anatomy ? data.anatomy : [];
+        hoverOrgans = data.organs ? data.organs : [];
+        hoverDOI = data.doi ? data.doi : '';
+      } else if (data.tabType === 'connectivity') {
+        hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+      } else if (data.tabType === 'annotation') {
+        hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate");
     },
     searchChanged: function (data) {
-      if (data.id === 1) {
+      if (data.tabType === 'dataset') {
         if (data && data.type == "query-update") {
           this.search = data.value;
           if (this.search && !this.filterTriggered) {
@@ -387,7 +393,7 @@ export default {
           }
           this.filterTriggered = false; // reset for next action
         }
-      } else if (data.id === 2) {
+      } else if (data.tabType === 'connectivity') {
         this.expanded = '';
         this.connectivityEntry = [];
         EventBus.emit("connectivity-query-filter", data);
@@ -610,7 +616,9 @@ export default {
       this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
+      if (tab.id === 3 && tab.type === "annotation") {
+        EventBus.emit('sidebar-annotation-close');
+      }
     },
     updateGlobalSettingsFromStorage: function () {
       const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
@@ -660,6 +668,7 @@ export default {
     });
     EventBus.on('annotation-open', payload => {
       this.annotationEntry = payload.annotationEntry;
+      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
       this.annotationCallback = markRaw(payload.commitCallback);
       if (!payload.createData) {
         this.createData = markRaw({});
@@ -683,7 +692,7 @@ export default {
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on('annotation-close', () => {
+    EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
       const { interactiveMode, viewingMode } = globalSettings;
 
@@ -768,6 +777,9 @@ export default {
       }
     })
     this.updateGlobalSettingsFromStorage();
+    EventBus.on("connectivity-filter-options", payload => {
+      this.filterOptions = payload;
+    })
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {
