@@ -216,11 +216,14 @@ export default {
       // mix connectivites of available maps
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
+        
         const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
         EventBus.emit("connectivity-knowledge", {
           data: uniqueConnectivities
         });
+
+        const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
+        EventBus.emit("connectivity-filter-options", uniqueFilters);
       } else {
         if (sckanVersion) {
           EventBus.emit("connectivity-knowledge", {
@@ -276,10 +279,41 @@ export default {
             currentFlatmap = flatmap;
           }
 
+          const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
+          const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
             if (data) {
+              this.query = data.query;
+              let filters = {}
+              data.filter.forEach((item) => {
+                const facetKey = item.facetPropPath.split('.').pop();;
+                if (!(facetKey in filters)) {
+                  filters[facetKey] = [];
+                }
+                const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
+                if (matchedFilter) {
+                  matchedFilter.children.forEach((child) => {
+                    if (child.label === item.facet && child.key) {
+                      const childKey = child.key.split('.').pop();
+                      filters[facetKey].push(childKey);
+                    }
+                  });
+                }
+              });
+              let ids = [];
+              for (const [key, value] of Object.entries(filters)) {
+                if (value.length) {
+                  let valueToIds = [];
+                  // within AND
+                  value.forEach((v) => valueToIds.push(...uniqueFilterSources[key][v]));
+                  ids.push(valueToIds);
+                }
+              }
+              // between AND
+              this.filter = ids.length ?
+                [...new Set(ids.reduce((acc, curr) => acc.filter(id => curr.includes(id))))] :
+                [];
               if (data.type === "query-update") {
                 this.query = data.value;
               } else if (data.type === "filter-update") {
@@ -299,7 +333,10 @@ export default {
               searchHighlights.push(...paths);
               results = results.filter((item) => paths.includes(item.id));
             }
-
+            if (this.filter.length) {
+              searchHighlights.push(...this.filter);
+              results = results.filter((item) => this.filter.includes(item.id));
+            }
             searchResults.push(...results);
           }
         }
@@ -383,6 +420,67 @@ export default {
     })
     EventBus.on("connectivity-query-filter", (payload) => {
       this.connectivityQueryFilter(payload);
+    });
+    //The followings are migrated from ContentVuer and its child components to here
+    EventBus.on("hoverUpdate", () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onHoverUpdate();
+      });
+    });
+    EventBus.on("startHelp", () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onStartHelp();
+      });
+    });
+    EventBus.on('connectivity-item-close', () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onConnectivityItemClose();
+      });
+    });
+    EventBus.on('sidebar-annotation-close', () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onSidebarAnnotationClose();
+      });
+    });
+    EventBus.on('globalViewerSettingsUpdate', () => {
+      const contents = this.$refs['content'];
+      contents.forEach((content) => {
+        content.onGlobalViewerSettingsUpdate();
+      });
+    });
+    EventBus.on("markerUpdate", () => {
+      const contents = this.$refs['content'];
+      contents.forEach((content) => {
+        content.onFlatmapMarkerUpdate();
+      });
+    });
+    EventBus.on('connectivity-hovered', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowConnectivityTooltips(payload);
+      });
+    });
+    EventBus.on('connectivity-source-change', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onConnectivitySourceChange(payload);
+      });
+    });
+    EventBus.on('show-connectivity', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowConnectivity(payload);
+      });
+    });
+    EventBus.on('show-reference-connectivities', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowReferenceConnectivity(payload);
+      });
     });
   },
 };

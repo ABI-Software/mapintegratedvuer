@@ -163,7 +163,7 @@
           <map-svg-icon :icon="activeView"
           ref="activeViewRef"
           :class="[{'disabled': (1 >= numberOfEntries)},
-            'header-icon']"
+            'header-icon', 'splitscreen-icon']"
           />
         </template>
       </el-popover>
@@ -580,24 +580,12 @@ export default {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
       // viewing mode update
-      if (updatedSettings.includes('viewingMode')) {
-        EventBus.emit('viewingModeUpdate', this.globalSettings.viewingMode);
-      }
-      // flight path update
-      if (updatedSettings.includes('flightPathDisplay')) {
-        EventBus.emit('flightPathUpdate', this.globalSettings.flightPathDisplay);
-      }
-      // organs display update
-      if (updatedSettings.includes('organsDisplay')) {
-        EventBus.emit('organsDisplayUpdate', this.globalSettings.organsDisplay);
-      }
-      // outlines display update
-      if (updatedSettings.includes('outlinesDisplay')) {
-        EventBus.emit('outlinesDisplayUpdate', this.globalSettings.outlinesDisplay);
-      }
-      // background display update
-      if (updatedSettings.includes('backgroundDisplay')) {
-        EventBus.emit('backgroundDisplayUpdate', this.globalSettings.backgroundDisplay);
+      if (updatedSettings.includes('viewingMode') ||
+        updatedSettings.includes('flightPathDisplay') ||
+        updatedSettings.includes('organsDisplay') ||
+        updatedSettings.includes('outlinesDisplay') ||
+        updatedSettings.includes('backgroundDisplay')) {
+        EventBus.emit('globalViewerSettingsUpdate');
       }
     },
     titleClicked: function(id) {
