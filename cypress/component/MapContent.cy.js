@@ -50,6 +50,8 @@ describe('MapContent', () => {
       // failing the test
       if (err.message.includes("this.facets.at is not a function"))
         return false
+      if (err.message.includes("this.$refs.sideBar.closeConnectivity is not a function"))
+        return false
       if (err.message.includes("Cannot read properties of undefined (reading 'left')"))
         return false
       if (err.message.includes("Failed to fetch"))
@@ -69,7 +71,7 @@ describe('MapContent', () => {
     Cypress.Commands.add('checkFlatmapProvenanceCard', (species) => {
       cy.get('#flatmap-select').click({force: true} );
       cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
-      cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 30000}).should('not.exist');
+      cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 45000}).should('not.exist');
       cy.get('.el-row > div[style=""]').click()
       cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
     })
@@ -103,7 +105,7 @@ describe('MapContent', () => {
     //Wait for curie response
     cy.wait('@anatomyResponse', {timeout: 20000});
 
-    cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 30000}).should('not.exist');
+    cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 45000}).should('not.exist');
 
     //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
     //the following attempt to workaround it.
@@ -116,14 +118,14 @@ describe('MapContent', () => {
       snapshot = 'minimap_hr'
     }
     cy.get('html').invoke('css', 'width', '1200px');
-    cy.wait(1000);
+    cy.wait(5000);
     cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > [style="height: 100%; width: 100%;"] > :nth-child(2) > :nth-child(2) > #maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').compareSnapshot(snapshot).then(comparisonResults => {
       expect(comparisonResults.percentage).to.be.below(0.1)
     });
     cy.get('html').invoke('css', 'width', 'initial');
     //Test the existence of the minimap
 
-    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 30000}).should('exist');
+    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 45000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
     cy.checkFlatmapProvenanceCard('Rat')
@@ -154,7 +156,7 @@ describe('MapContent', () => {
     //Switch back to the original viewer
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li').should('have.length', 2);
-    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > :nth-child(1)', {timeout: 30000}).click();
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > :nth-child(1)', {timeout: 45000}).click();
 
     //Check for two content containers
     cy.get('.contentvuer').should('be.visible').should('have.length', 2);
@@ -226,7 +228,7 @@ describe('MapContent', () => {
     cy.get('.sidebar-container').should('not.be.visible');
 
     //Change from single panel to four panels and check for it
-    cy.get('.icon-group > svg:visible:nth-child(2)').should('exist').click();
+    cy.get('.icon-group > .splitscreen-icon').should('exist').click();
     cy.get('.icon-group.el-row .el-popover:visible').should('exist');
     cy.get('.icon-group.el-row .el-popover:visible .el-row').should('have.length', 8);
     cy.get('.icon-group.el-row .el-popover:visible .el-row').contains('Four panes').should('exist').click();

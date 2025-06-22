@@ -301,11 +301,19 @@ export default {
                   });
                 }
               });
-              let ids = []
+              let ids = [];
               for (const [key, value] of Object.entries(filters)) {
-                value.forEach((v) => ids.push(...uniqueFilterSources[key][v]));
+                if (value.length) {
+                  let valueToIds = [];
+                  // within AND
+                  value.forEach((v) => valueToIds.push(...uniqueFilterSources[key][v]));
+                  ids.push(valueToIds);
+                }
               }
-              this.filter = [...new Set(ids)];
+              // between AND
+              this.filter = ids.length ?
+                [...new Set(ids.reduce((acc, curr) => acc.filter(id => curr.includes(id))))] :
+                [];
               if (data.type === "query-update") {
                 this.query = data.value;
               } else if (data.type === "filter-update") {
@@ -412,6 +420,67 @@ export default {
     })
     EventBus.on("connectivity-query-filter", (payload) => {
       this.connectivityQueryFilter(payload);
+    });
+    //The followings are migrated from ContentVuer and its child components to here
+    EventBus.on("hoverUpdate", () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onHoverUpdate();
+      });
+    });
+    EventBus.on("startHelp", () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onStartHelp();
+      });
+    });
+    EventBus.on('connectivity-item-close', () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onConnectivityItemClose();
+      });
+    });
+    EventBus.on('sidebar-annotation-close', () => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onSidebarAnnotationClose();
+      });
+    });
+    EventBus.on('globalViewerSettingsUpdate', () => {
+      const contents = this.$refs['content'];
+      contents.forEach((content) => {
+        content.onGlobalViewerSettingsUpdate();
+      });
+    });
+    EventBus.on("markerUpdate", () => {
+      const contents = this.$refs['content'];
+      contents.forEach((content) => {
+        content.onFlatmapMarkerUpdate();
+      });
+    });
+    EventBus.on('connectivity-hovered', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowConnectivityTooltips(payload);
+      });
+    });
+    EventBus.on('connectivity-source-change', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onConnectivitySourceChange(payload);
+      });
+    });
+    EventBus.on('show-connectivity', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowConnectivity(payload);
+      });
+    });
+    EventBus.on('show-reference-connectivities', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowReferenceConnectivity(payload);
+      });
     });
   },
 };
