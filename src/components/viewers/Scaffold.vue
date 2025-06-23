@@ -17,6 +17,7 @@
       :helpModeDialog="useHelpModeDialog"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
+      @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
       :annotationSidebar="annotationSidebar"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
@@ -141,7 +142,7 @@ export default {
         if (this.entry.rotation) rotation = this.entry.rotation;
         this.$refs.scaffold.toggleSyncControl(this.splitFlowStore.globalCallback, rotation);
         if (this.splitFlowStore.syncMode) this.$refs.scaffold.fitWindow();
-        this.updateSettings();
+        this.updateViewerSettings();
       }
       EventBus.emit("mapLoaded", this.$refs.scaffold);
     },
@@ -194,7 +195,7 @@ export default {
     changeViewingMode: function (modeName) {
       this.$refs.scaffold.changeViewingMode(modeName);
     },
-    updateSettings: function () {
+    updateViewerSettings: function () {
       const {
         backgroundDisplay,
         viewingMode,
@@ -226,20 +227,6 @@ export default {
   mounted: function () {
     this.scaffoldCamera =
       this.$refs.scaffold.$module.scene.getZincCameraControls();
-    EventBus.on("startHelp", () => {
-      this.startHelp();
-    });
-    EventBus.on("hoverUpdate", () => {
-      if (this.scaffoldLoaded) {
-        this.cardHoverHighlight();
-      }
-    });
-    EventBus.on('backgroundDisplayUpdate', (payload) => {
-      this.$refs.scaffold.backgroundChangeCallback(payload);
-    });
-    EventBus.on('viewingModeUpdate', (payload) => {
-      this.$refs.scaffold.changeViewingMode(payload);
-    });
   },
 };
 </script>

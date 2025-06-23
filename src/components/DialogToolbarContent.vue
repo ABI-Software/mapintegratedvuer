@@ -38,6 +38,95 @@
     </div>
 
     <el-row class="icon-group">
+      <div class="viewing-mode-selector">
+        Viewing Mode:
+        <el-dropdown
+          :teleported="false"
+          trigger="hover"
+          class="toolbar-dropdown"
+          popper-class="toolbar-dropdown-dropdown"
+          :hide-on-click="false"
+          :disabled="!mapLoaded"
+        >
+        <span class="el-dropdown-link">
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">
+            <el-icon-compass />
+          </el-icon>
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Neuron Connection'">
+            <el-icon-share />
+          </el-icon>
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Annotation'">
+            <el-icon-edit-pen />
+          </el-icon>
+          {{ globalSettings.viewingMode }}
+          <el-icon class="el-icon--right">
+            <el-icon-arrow-down />
+          </el-icon>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item v-for="(value, key, index) in viewingModes"
+              :key="key"
+              @click="updateViewingMode($event, key)"
+              :class="{'is-selected': globalSettings.viewingMode === key }"
+            >
+              <span>
+                <el-icon class="el-icon--left" v-if="key === 'Exploration'">
+                  <el-icon-compass />
+                </el-icon>
+                <el-icon class="el-icon--left" v-if="key === 'Neuron Connection'">
+                  <el-icon-share />
+                </el-icon>
+                <el-icon class="el-icon--left" v-if="key === 'Annotation'">
+                  <el-icon-edit-pen />
+                </el-icon>
+                {{ key }}
+              </span>
+              <small class="el-option__description">
+                <template v-if="key === 'Annotation'">
+                  <template v-if="authorisedUser">
+                    {{ value[1] }}
+                  </template>
+                  <template v-else>
+                    {{ value[0] }}
+                  </template>
+                  <template v-if="offlineAnnotationEnabled">
+                    (Anonymous annotate)
+                  </template>
+                </template>
+                <template v-else>
+                  {{ value }}
+                </template>
+              </small>
+              <!-- <template v-if="key === 'Exploration'">
+                <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
+                  <el-popover
+                    class="tooltip"
+                    content="Switch to Exploration mode to enable."
+                    :teleported="false"
+                    popper-class="header-popper"
+                    :offset="4"
+                    :disabled="globalSettings.viewingMode === 'Exploration'"
+                  >
+                    <template #reference>
+                      <el-checkbox
+                        v-model="globalSettings.displayMarkers"
+                        @change="updateGlobalSettings"
+                        size="small"
+                        :disabled="globalSettings.viewingMode !== 'Exploration'"
+                      >
+                        Display Map Markers
+                      </el-checkbox>
+                    </template>
+                  </el-popover>
+                </div>
+              </template> -->
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+        </el-dropdown>
+      </div>
+
       <el-popover
         v-if="activeViewRef"
         :virtual-ref="activeViewRef"
@@ -74,7 +163,7 @@
           <map-svg-icon :icon="activeView"
           ref="activeViewRef"
           :class="[{'disabled': (1 >= numberOfEntries)},
-            'header-icon']"
+            'header-icon', 'splitscreen-icon']"
           />
         </template>
       </el-popover>
@@ -206,17 +295,18 @@
         trigger="click"
         popper-class="setting-popover"
         virtual-triggering
+        :disabled="!mapLoaded"
         >
         <div class="setting-popover-inner">
-          <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
+          <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
               @change="updateGlobalSettings"
             >
               Display Map Markers
             </el-checkbox>
-          </div>
-          <div class="setting-popover-block" v-if="'highlightConnectedPaths' in globalSettings || 'highlightDOIPaths' in globalSettings">
+          </div> -->
+          <!-- <div class="setting-popover-block" v-if="'highlightConnectedPaths' in globalSettings || 'highlightDOIPaths' in globalSettings">
             <h5>Card Hover</h5>
             <el-checkbox
               v-if="'highlightConnectedPaths' in globalSettings"
@@ -232,8 +322,8 @@
             >
               Highlight DOI Paths
             </el-checkbox>
-          </div>
-          <div class="setting-popover-block" v-if="'interactiveMode' in globalSettings">
+          </div> -->
+          <!-- <div class="setting-popover-block" v-if="'interactiveMode' in globalSettings">
             <h5>Interactive Mode</h5>
             <el-radio-group
               v-model="globalSettings.interactiveMode"
@@ -243,36 +333,8 @@
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
               <el-radio value="multiscale">Multiscale Model</el-radio>
             </el-radio-group>
-          </div>
-          <div class="setting-popover-block" v-if="'viewingMode' in globalSettings">
-            <h5>Viewing mode</h5>
-            <el-radio-group
-              v-model="globalSettings.viewingMode"
-              @change="updateGlobalSettings"
-            >
-              <template v-for="(value, key, index) in viewingModes" :key="key">
-                <el-radio :value="key">
-                  <div>{{ key }}</div>
-                </el-radio>
-                <div class="el-radio__description" v-if="globalSettings.viewingMode === key">
-                  <template v-if="key === 'Annotation'">
-                    <template v-if="authorisedUser">
-                      {{ value[1] }}
-                    </template>
-                    <template v-else>
-                      {{ value[0] }}
-                    </template>
-                    <template v-if="offlineAnnotationEnabled">
-                      (Anonymous annotate)
-                    </template>
-                  </template>
-                  <template v-else>
-                    {{ value }}
-                  </template>
-                </div>
-              </template>
-            </el-radio-group>
-          </div>
+          </div> -->
+
           <div class="setting-popover-block" v-if="'flightPathDisplay' in globalSettings">
             <h5>Flight path display</h5>
             <el-radio-group
@@ -332,9 +394,15 @@
         :teleported=false
         trigger="hover"
         popper-class="header-popper"
+        :disabled="!mapLoaded"
       >
         <template #reference>
-          <el-icon class="header-icon" ref="globalSettingRef">
+          <el-icon
+            ref="globalSettingRef"
+            :disabled="!mapLoaded"
+            class="header-icon"
+            :class="{'disabled': !mapLoaded}"
+          >
             <el-icon-more-filled />
           </el-icon>
         </template>
@@ -422,6 +490,9 @@ export default {
     shareLink() {
       return this.settingsStore.shareLink;
     },
+    offlineAnnotationEnabled() {
+      return this.settingsStore.offlineAnnotationEnabled;
+    },
     syncMode() {
       return this.splitFlowStore.syncMode;
     },
@@ -466,7 +537,7 @@ export default {
         'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
       },
       authorisedUser: false,
-      offlineAnnotationEnabled: false,
+      mapLoaded: false,
     }
   },
   methods: {
@@ -475,6 +546,27 @@ export default {
         ...this.globalSettings,
         ...this.settingsStore.globalSettings
       };
+    },
+    updateViewingMode: function (event, value) {
+      const { target } = event;
+
+      // prevent clicking inner checkbox
+      if (!target.closest('.el-checkbox')) {
+        this.globalSettings.viewingMode = value;
+
+        if (value === 'Exploration') {
+          this.globalSettings.displayMarkers = true;
+          this.globalSettings.interactiveMode = 'dataset';
+        } else if (value === 'Annotation') {
+          this.globalSettings.displayMarkers = false;
+          this.globalSettings.interactiveMode = 'dataset';
+        } else {
+          this.globalSettings.displayMarkers = false;
+          this.globalSettings.interactiveMode = 'connectivity';
+        }
+
+        this.updateGlobalSettings();
+      }
     },
     updateGlobalSettings: function() {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
@@ -488,24 +580,12 @@ export default {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
       // viewing mode update
-      if (updatedSettings.includes('viewingMode')) {
-        EventBus.emit('viewingModeUpdate', this.globalSettings.viewingMode);
-      }
-      // flight path update
-      if (updatedSettings.includes('flightPathDisplay')) {
-        EventBus.emit('flightPathUpdate', this.globalSettings.flightPathDisplay);
-      }
-      // organs display update
-      if (updatedSettings.includes('organsDisplay')) {
-        EventBus.emit('organsDisplayUpdate', this.globalSettings.organsDisplay);
-      }
-      // outlines display update
-      if (updatedSettings.includes('outlinesDisplay')) {
-        EventBus.emit('outlinesDisplayUpdate', this.globalSettings.outlinesDisplay);
-      }
-      // background display update
-      if (updatedSettings.includes('backgroundDisplay')) {
-        EventBus.emit('backgroundDisplayUpdate', this.globalSettings.backgroundDisplay);
+      if (updatedSettings.includes('viewingMode') ||
+        updatedSettings.includes('flightPathDisplay') ||
+        updatedSettings.includes('organsDisplay') ||
+        updatedSettings.includes('outlinesDisplay') ||
+        updatedSettings.includes('backgroundDisplay')) {
+        EventBus.emit('globalViewerSettingsUpdate');
       }
     },
     titleClicked: function(id) {
@@ -562,6 +642,10 @@ export default {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
     this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
+
+    EventBus.on("mapLoaded", (map) => {
+      this.mapLoaded = true;
+    });
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
 
@@ -710,6 +794,102 @@ export default {
 }
 
 :deep(.setting-popover.el-popper) {
+  min-width: 200px !important;
+}
+
+.viewing-mode-selector {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:deep(.toolbar-dropdown-dropdown.el-popper) {
+  border: 1px solid $app-primary-color;
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
+  background-color: #f3ecf6;
+  width: 300px;
+
+  .el-popper__arrow {
+    &:before {
+      border-color: $app-primary-color;
+      background-color: #f3ecf6;
+    }
+  }
+
+  .el-dropdown-menu {
+    background-color: #f3ecf6;
+  }
+
+  .el-dropdown-menu__item {
+    padding: 0.5rem;
+    height: auto;
+    color: $app-primary-color;
+    flex-direction: column;
+    align-items: start;
+    gap: 0.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+
+    + .el-dropdown-menu__item {
+      &::before {
+        content: "";
+        display: block;
+        width: calc(100% - 1rem);
+        border-top: 1px solid var(--el-border-color);
+        position: absolute;
+        top: 0;
+        left: 0.5rem;
+      }
+    }
+
+    .el-icon {
+      display: inline;
+      vertical-align: middle;
+    }
+
+    > span,
+    > small {
+      display: block;
+    }
+
+    > span {
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    > small {
+      height: auto;
+      line-height: 1.2;
+      font-weight: normal;
+      color: gray;
+      white-space: normal;
+    }
+
+    &.is-selected,
+    &:hover {
+      background-color: #f1e4f6;
+    }
+
+    &.is-selected {
+      > span {
+        font-weight: 700;
+      }
+    }
+  }
+
+  &:hover {
+    .el-dropdown-menu__item {
+      opacity: 1;
+
+      &:not(:hover) {
+        opacity: 0.5;
+      }
+    }
+  }
+}
+
+:deep(.setting-popover.el-popper) {
   padding: 1px !important;
 }
 
@@ -744,6 +924,7 @@ export default {
     margin: 0;
     padding: 0;
     font-size: 14px;
+    font-weight: 500;
     line-height: 32px;
   }
 }
@@ -823,6 +1004,30 @@ export default {
       background-color: var(--bg-color);
       box-shadow: 0px 0px 0px 2px $app-primary-color;
     }
+  }
+}
+
+.toolbar-dropdown {
+  .el-dropdown-link {
+    cursor: pointer;
+    color: $app-primary-color;
+    display: flex;
+    align-items: center;
+    height: 24px;
+    font-weight: 500;
+    outline: none;
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+
+    .el-dropdown-link {
+      cursor: default;
+    }
+  }
+
+  :deep(.el-icon) {
+    color: $app-primary-color;
   }
 }
 </style>
