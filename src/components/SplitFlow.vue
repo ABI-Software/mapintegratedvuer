@@ -47,6 +47,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
         />
         <SplitDialog
@@ -135,6 +136,7 @@ export default {
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
+      filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
     }
@@ -153,6 +155,7 @@ export default {
     connectivityHighlight: {
       handler: function () {
         this.hoverChanged({ tabType: 'connectivity' });
+        this.onFilterVisibility(this.filterVisibility);
       },
     },
     annotationHighlight: {
@@ -162,6 +165,15 @@ export default {
     },
   },
   methods: {
+    onFilterVisibility: function (state) {
+      this.filterVisibility = state;
+      // make sure setting are managed by the side bar
+      const hasHighlight = this.filterVisibility && this.connectivityHighlight.length;
+      const payload = hasHighlight ?
+        { 'models': this.connectivityHighlight } :
+        undefined;
+      EventBus.emit('filter-visibility', payload);
+    },
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
