@@ -290,7 +290,7 @@
         :virtual-ref="globalSettingRef"
         ref="settingPopover"
         placement="bottom"
-        width="133"
+        width="230"
         :teleported=false
         trigger="click"
         popper-class="setting-popover"
@@ -298,6 +298,7 @@
         :disabled="!mapLoaded"
         >
         <div class="setting-popover-inner">
+          <h4>Display options:</h4>
           <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
@@ -336,7 +337,7 @@
           </div> -->
 
           <div class="setting-popover-block" v-if="'flightPathDisplay' in globalSettings">
-            <h5>Flight path display</h5>
+            <h5>Flight path</h5>
             <el-radio-group
               v-model="globalSettings.flightPathDisplay"
               @change="updateGlobalSettings"
@@ -346,7 +347,7 @@
             </el-radio-group>
           </div>
           <div class="setting-popover-block" v-if="'organsDisplay' in globalSettings">
-            <h5>Organs display</h5>
+            <h5>Organs</h5>
             <el-radio-group
               v-model="globalSettings.organsDisplay"
               @change="updateGlobalSettings"
@@ -356,7 +357,7 @@
             </el-radio-group>
           </div>
           <div class="setting-popover-block" v-if="'outlinesDisplay' in globalSettings">
-            <h5>Outlines display</h5>
+            <h5>Apply outlines</h5>
             <el-radio-group
               v-model="globalSettings.outlinesDisplay"
               @change="updateGlobalSettings"
@@ -366,7 +367,7 @@
             </el-radio-group>
           </div>
           <div class="setting-popover-block" v-if="'backgroundDisplay' in globalSettings">
-            <h5>Change background</h5>
+            <h5>Background color</h5>
             <el-radio-group
               class="bg-color-radio-group"
               v-model="globalSettings.backgroundDisplay"
@@ -794,7 +795,7 @@ export default {
 }
 
 :deep(.setting-popover.el-popper) {
-  min-width: 200px !important;
+  min-width: 230px !important;
 }
 
 .viewing-mode-selector {
@@ -894,31 +895,28 @@ export default {
 }
 
 .setting-popover-inner {
-  padding: 4px 8px 12px 8px;
+  padding: 0.5rem 0.75rem;
   max-height: calc(100vh - 135px);
   overflow-y: auto;
   border-radius: var(--el-popover-border-radius);
   scrollbar-width: thin;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
+
+  > h4 {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    color: $app-primary-color;
+    text-align: center;
+  }
 }
 
 .setting-popover-block {
-  + .setting-popover-block {
-    position: relative;
-
-    &:before {
-      content: "";
-      display: block;
-      width: 100%;
-      height: 0;
-      border-top: 1px solid var(--el-border-color);
-      position: absolute;
-      top: -0.5rem;
-      left: 0;
-    }
-  }
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
 
   h5 {
     margin: 0;
@@ -926,6 +924,7 @@ export default {
     font-size: 14px;
     font-weight: 500;
     line-height: 32px;
+    color: #303133;
   }
 }
 
@@ -967,7 +966,9 @@ export default {
 }
 
 .bg-color-radio-group {
+  display: flex;
   gap: 0.5rem;
+  margin-top: 0.25rem;
 
   .el-radio {
     margin-right: 0;
@@ -988,7 +989,7 @@ export default {
     padding: 4px;
 
     > span {
-      display: inline-block;
+      display: block;
       width: 20px;
       height: 20px;
       background-color: var(--bg-color);
