@@ -47,6 +47,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
         />
         <SplitDialog
@@ -131,9 +132,11 @@ export default {
       confirmDeleteCallback: undefined,
       confirmCommentCallback: undefined,
       createData: {},
+      connectivitySearch: false,
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
+      filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
     }
@@ -152,6 +155,7 @@ export default {
     connectivityHighlight: {
       handler: function () {
         this.hoverChanged({ tabType: 'connectivity' });
+        this.onFilterVisibility(this.filterVisibility);
       },
     },
     annotationHighlight: {
@@ -161,6 +165,15 @@ export default {
     },
   },
   methods: {
+    onFilterVisibility: function (state) {
+      this.filterVisibility = state;
+      // make sure setting are managed by the side bar
+      const hasHighlight = this.filterVisibility && this.connectivityHighlight.length;
+      const payload = hasHighlight ?
+        { 'models': this.connectivityHighlight } :
+        undefined;
+      EventBus.emit('filter-visibility', payload);
+    },
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
@@ -353,7 +366,7 @@ export default {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate");
+      EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
@@ -768,6 +781,7 @@ export default {
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = payload.highlight || [];
+      this.connectivitySearch = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {

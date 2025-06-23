@@ -153,8 +153,8 @@ export default {
     onGlobalViewerSettingsUpdate: function() {
       this.$refs.viewer?.updateViewerSettings();
     },
-    onHoverUpdate: function() {
-      this.$refs.viewer?.cardHoverHighlight();
+    onHoverUpdate: function(payload) {
+      this.$refs.viewer?.sidebarHoverHighlight(payload);
     },
     onShowConnectivity: function(payload) {
       this.$refs.viewer?.showConnectivity(payload);
@@ -170,6 +170,9 @@ export default {
     },
     onStartHelp: function() {
       this.$refs.viewer?.startHelp();
+    },
+    onFilterVisibility: function(payload) {
+      this.$refs.viewer?.setVisibilityFilter(payload);
     },
   },
   data: function () {

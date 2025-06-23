@@ -236,7 +236,7 @@ export default {
       }
     },
     getSearchedId: function (flatmap, term) {
-      let ids = [];
+      const ids = [];
       const searchResult = flatmap.mapImp.search(term);
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
       featureIds.forEach((id) => {
@@ -259,7 +259,8 @@ export default {
     },
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
-      let searchOrders = [], searchHighlights = [], searchResults = [];
+      const searchOrders = [], searchHighlights = [], searchResults = [];
+      let processed = false;
 
       for (const activeContent of activeContents) {
         const viewer = activeContent.$refs.viewer;
@@ -283,59 +284,66 @@ export default {
           const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+
+            const filters = {};
+            let queryIds = [], facetIds = [];
             if (data) {
               this.query = data.query;
-              let filters = {}
+              // get query search result ids and order
+              if (data.query) {
+                const searchTerms = this.query
+                  .replace(/["']/g, "")
+                  .split(",")
+                  .map(term => term.trim())
+                  .filter(term => term);
+                const nestedIds = [];
+                for (let index = 0; index < searchTerms.length; index++) {
+                  nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
+                }
+                // within query search (split terms by comma) -> OR
+                const flatIds = [...new Set(nestedIds.flat())];
+                searchOrders.push(...flatIds);
+                queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
+              }
+
+              // get facet search result ids
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
-                if (!(facetKey in filters)) {
-                  filters[facetKey] = [];
-                }
                 const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
                 if (matchedFilter) {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
                       const childKey = child.key.split('.').pop();
-                      filters[facetKey].push(childKey);
+                      if (!(facetKey in filters)) {
+                        filters[facetKey] = [];
+                      }
+                      // within facet search category -> OR
+                      filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
                     }
                   });
                 }
               });
-              let ids = [];
-              for (const [key, value] of Object.entries(filters)) {
-                if (value.length) {
-                  let valueToIds = [];
-                  // within AND
-                  value.forEach((v) => valueToIds.push(...uniqueFilterSources[key][v]));
-                  ids.push(valueToIds);
-                }
-              }
-              // between AND
-              this.filter = ids.length ?
-                [...new Set(ids.reduce((acc, curr) => acc.filter(id => curr.includes(id))))] :
+              this.filter = Object.values(filters);
+              // between facet search categories -> AND
+              facetIds = this.filter.length ?
+                this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) :
                 [];
-              if (data.type === "query-update") {
-                this.query = data.value;
-              } else if (data.type === "filter-update") {
-                this.filter = data.value;
-              }
             }
-            if (this.query) {
-              let options = {};
-              const searchTerms = this.query.split(",").map((term) => term.trim());
-              const nestedIds = [];
-              for (let index = 0; index < searchTerms.length; index++) {
-                nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
-              }
-              const ids = [...new Set(nestedIds.flat())];
-              searchOrders.push(...ids);
-              const paths = await currentFlatmap.retrieveConnectedPaths(ids, options);
-              searchHighlights.push(...paths);
-              results = results.filter((item) => paths.includes(item.id));
+
+            let target;
+            if (this.query && !this.filter.length) { // pure query search
+              target = queryIds;
+            } else if (!this.query && this.filter.length) { // pure facet search
+              target = facetIds;
+            } else if (this.query && this.filter.length) { // combined query and facet search
+              // between query search and facet search -> AND 
+              target = queryIds.filter(id => facetIds.includes(id));
             }
-            if (this.filter.length) {
-              searchHighlights.push(...this.filter);
-              results = results.filter((item) => this.filter.includes(item.id));
+            // This can be empty array due to the AND operation
+            if (target) {
+              searchHighlights.push(...target);
+              results = results.filter((item) => target.includes(item.id));
+              processed = true;
             }
             searchResults.push(...results);
           }
@@ -355,8 +363,9 @@ export default {
       ];
 
       const connectivitiesPayload = {
-        highlight: uniqueHighlights,
         data: uniqueResults,
+        highlight: uniqueHighlights,
+        processed: processed
       };
 
       EventBus.emit("connectivity-knowledge", connectivitiesPayload);
@@ -422,10 +431,10 @@ export default {
       this.connectivityQueryFilter(payload);
     });
     //The followings are migrated from ContentVuer and its child components to here
-    EventBus.on("hoverUpdate", () => {
+    EventBus.on("hoverUpdate", (payload) => {
       const contents = this.getActiveContents();
       contents.forEach((content) => {
-        content.onHoverUpdate();
+        content.onHoverUpdate(payload);
       });
     });
     EventBus.on("startHelp", () => {
@@ -480,6 +489,12 @@ export default {
       const contents = this.getActiveContents();
       contents.forEach((content) => {
         content.onShowReferenceConnectivity(payload);
+      });
+    });
+    EventBus.on('filter-visibility', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onFilterVisibility(payload);
       });
     });
   },
