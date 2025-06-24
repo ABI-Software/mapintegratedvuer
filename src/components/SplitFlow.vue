@@ -494,8 +494,13 @@ export default {
     setState: function (state) {
       this.entriesStore.setAll(state.entries);
       //Support both old and new permalink.
-      if (state.splitFlow) this.splitFlowStore.setState(state.splitFlow);
-      else this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+      if (state.splitFlow) {
+        this.splitFlowStore.setState(state.splitFlow);
+      }
+      else {
+        this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+      }
+      this.updateGlobalSettingsFromState(state);
     },
     getState: function (anonymousAnnotations = false) {
       let state = JSON.parse(JSON.stringify(this.entriesStore.$state));
@@ -520,6 +525,7 @@ export default {
         }
       }
       state.splitFlow = this.splitFlowStore.getState();
+      state.globalSettings = this.settingsStore.getGlobalSettings();
       return state;
     },
     removeEntry: function (id) {
@@ -628,28 +634,8 @@ export default {
       }
     },
     updateGlobalSettingsFromState: function (state) {
-      let mappedSettings = null;
-      state.entries.forEach((entry) => {
-        if (entry.state?.state) {
-          const {
-            background,
-            colour,
-            flightPath3D,
-            outlines,
-            viewingMode
-          } = entry.state.state;
-
-          mappedSettings = {
-            viewingMode: viewingMode,
-            flightPathDisplay: flightPath3D,
-            organsDisplay: colour,
-            outlinesDisplay: outlines,
-            backgroundDisplay: background,
-          };
-        }
-      })
-      if (mappedSettings) {
-        this.settingsStore.updateGlobalSettings(mappedSettings);
+      if (state?.globalSettings) {
+        this.settingsStore.updateGlobalSettings(state.globalSettings);
       }
     },
   },
