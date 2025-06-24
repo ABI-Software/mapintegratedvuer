@@ -2,10 +2,10 @@
 import { MapContent } from '../../src/components/index.js';
 
 const settings = {
-  'Flight path display': 1,
-  'Organs display': 2,
-  'Outlines display': 3,
-  'Change background': 4
+  'Flight path display': 2,
+  'Organs display': 3,
+  'Outlines display': 4,
+  'Change background': 5
 }
 
 describe('MapContent', () => {
