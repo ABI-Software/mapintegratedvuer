@@ -216,7 +216,7 @@ export default {
       // mix connectivites of available maps
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
-        
+
         const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
         EventBus.emit("connectivity-knowledge", {
           data: uniqueConnectivities
@@ -231,7 +231,7 @@ export default {
           });
           this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
         } else {
-          console.warn(`There has no connectivity to show!`);
+          console.warn(`There is no connectivity to show!`);
         }
       }
     },
@@ -336,7 +336,7 @@ export default {
             } else if (!this.query && this.filter.length) { // pure facet search
               target = facetIds;
             } else if (this.query && this.filter.length) { // combined query and facet search
-              // between query search and facet search -> AND 
+              // between query search and facet search -> AND
               target = queryIds.filter(id => facetIds.includes(id));
             }
             // This can be empty array due to the AND operation
