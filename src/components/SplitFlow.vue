@@ -131,6 +131,7 @@ export default {
       confirmDeleteCallback: undefined,
       confirmCommentCallback: undefined,
       createData: {},
+      connectivitySearch: false,
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
@@ -353,7 +354,7 @@ export default {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate");
+      EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
@@ -493,8 +494,13 @@ export default {
     setState: function (state) {
       this.entriesStore.setAll(state.entries);
       //Support both old and new permalink.
-      if (state.splitFlow) this.splitFlowStore.setState(state.splitFlow);
-      else this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+      if (state.splitFlow) {
+        this.splitFlowStore.setState(state.splitFlow);
+      }
+      else {
+        this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+      }
+      this.updateGlobalSettingsFromState(state);
     },
     getState: function (anonymousAnnotations = false) {
       let state = JSON.parse(JSON.stringify(this.entriesStore.$state));
@@ -519,6 +525,7 @@ export default {
         }
       }
       state.splitFlow = this.splitFlowStore.getState();
+      state.globalSettings = this.settingsStore.getGlobalSettings();
       return state;
     },
     removeEntry: function (id) {
@@ -616,7 +623,9 @@ export default {
       this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
+      if (tab.id === 3 && tab.type === "annotation") {
+        EventBus.emit('sidebar-annotation-close');
+      }
     },
     updateGlobalSettingsFromStorage: function () {
       const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
@@ -625,28 +634,8 @@ export default {
       }
     },
     updateGlobalSettingsFromState: function (state) {
-      let mappedSettings = null;
-      state.entries.forEach((entry) => {
-        if (entry.state?.state) {
-          const {
-            background,
-            colour,
-            flightPath3D,
-            outlines,
-            viewingMode
-          } = entry.state.state;
-
-          mappedSettings = {
-            viewingMode: viewingMode,
-            flightPathDisplay: flightPath3D,
-            organsDisplay: colour,
-            outlinesDisplay: outlines,
-            backgroundDisplay: background,
-          };
-        }
-      })
-      if (mappedSettings) {
-        this.settingsStore.updateGlobalSettings(mappedSettings);
+      if (state?.globalSettings) {
+        this.settingsStore.updateGlobalSettings(state.globalSettings);
       }
     },
   },
@@ -690,7 +679,7 @@ export default {
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on('annotation-close', () => {
+    EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
       const { interactiveMode, viewingMode } = globalSettings;
 
@@ -766,6 +755,7 @@ export default {
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = payload.highlight || [];
+      this.connectivitySearch = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
