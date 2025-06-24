@@ -472,6 +472,7 @@ export default {
         flightPathDisplay,
         organsDisplay,
         outlinesDisplay,
+        connectionType,
       } = this.settingsStore.globalSettings;
 
       if (this.flatmapReady) {
@@ -482,6 +483,7 @@ export default {
         currentFlatmap.setColour(organsDisplay);
         currentFlatmap.setOutlines(outlinesDisplay);
         currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+        currentFlatmap.setConnectionType(connectionType);
       }
     },
   },

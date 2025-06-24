@@ -43,6 +43,7 @@ export const useSettingsStore = defineStore('settings', {
         organsDisplay: true,
         outlinesDisplay: true,
         backgroundDisplay: 'white',
+        connectionType: '', // 'origins', 'vias', 'destinations'
       },
     }
   },

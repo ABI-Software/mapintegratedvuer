@@ -214,6 +214,7 @@ export default {
         flightPathDisplay,
         organsDisplay,
         outlinesDisplay,
+        connectionType,
       } = this.settingsStore.globalSettings;
 
       const currentFlatmap = this.$refs.flatmap;
@@ -223,6 +224,7 @@ export default {
       currentFlatmap.setColour(organsDisplay);
       currentFlatmap.setOutlines(outlinesDisplay);
       currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+      currentFlatmap.setConnectionType(connectionType);
     },
   },
   computed: {

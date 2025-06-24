@@ -121,6 +121,18 @@
                   </el-popover>
                 </div>
               </template> -->
+              <template v-if="key === 'Neuron Connection'">
+                <div class="setting-popover-block" v-if="'connectionType' in globalSettings">
+                  <el-radio-group
+                    v-model="globalSettings.connectionType"
+                    @change="updateGlobalSettings"
+                  >
+                    <el-radio value="origins">Origins</el-radio>
+                    <el-radio value="vias">Vias</el-radio>
+                    <el-radio value="destinations">Destinations</el-radio>
+                  </el-radio-group>
+                </div>
+              </template>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -581,6 +593,7 @@ export default {
       }
       // viewing mode update
       if (updatedSettings.includes('viewingMode') ||
+        updatedSettings.includes('connectionType') ||
         updatedSettings.includes('flightPathDisplay') ||
         updatedSettings.includes('organsDisplay') ||
         updatedSettings.includes('outlinesDisplay') ||
