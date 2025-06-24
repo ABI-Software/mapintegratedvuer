@@ -48,6 +48,8 @@
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
           @connectivity-item-close="onConnectivityItemClose"
+          @mouseenter="() => mouseOnSidebar = true"
+          @mouseleave="() => mouseOnSidebar = false"
         />
         <SplitDialog
           :entries="entries"
@@ -124,21 +126,22 @@ export default {
       filterTriggered: false,
       availableFacets: [],
       connectivityEntry: [],
+      connectivitySearch: false,
+      connectivityHighlight: [],
+      connectivityKnowledge: [],
+      connectivityExplorerClicked: [], // to support multi views
       annotationEntry: [],
+      annotationHighlight: [],
+      createData: {},
       annotationCallback: undefined,
       confirmCreateCallback: undefined,
       cancelCreateCallback: undefined,
       confirmDeleteCallback: undefined,
       confirmCommentCallback: undefined,
-      createData: {},
-      connectivitySearch: false,
-      connectivityHighlight: [],
-      connectivityKnowledge: [],
-      connectivityExplorerClicked: [], // to support multi views
       filterOptions: [],
-      hoverHighlight: false,
+      mouseOnSidebar: false,
+      hoverHighlight: [],
       highlightInterval: undefined,
-      annotationHighlight: [],
     }
   },
   watch: {
@@ -346,19 +349,17 @@ export default {
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
-      if (data) {
-        if (data.tabType === 'dataset') {
-          hoverAnatomies = data.anatomy ? data.anatomy : [];
-          hoverOrgans = data.organs ? data.organs : [];
-          hoverDOI = data.doi ? data.doi : '';
-        } else if (data.tabType === 'connectivity') {
-          hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
-        } else if (data.tabType === 'annotation') {
-          hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
-        }
-        this.hoverHighlight = hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length;
-      } else {
-        hoverConnectivity = this.connectivityHighlight;
+      if (data.tabType === 'dataset') {
+        hoverAnatomies = data.anatomy ? data.anatomy : [];
+        hoverOrgans = data.organs ? data.organs : [];
+        hoverDOI = data.doi ? data.doi : '';
+      } else if (data.tabType === 'connectivity') {
+        hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+        this.hoverHighlight = hoverConnectivity;
+      } else if (data.tabType === 'annotation') {
+        hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
+      } else if (data.tabType === 'recursive') {
+        hoverConnectivity = this.hoverHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
@@ -666,8 +667,8 @@ export default {
   },
   mounted: function () {
     this.highlightInterval = setInterval(() => {
-      if (!this.hoverHighlight) {
-        this.hoverChanged();
+      if (this.hoverHighlight.length && !this.mouseOnSidebar) {
+        this.hoverChanged({ tabType: 'recursive' });
       }
     }, 500)
     EventBus.on("RemoveEntryRequest", id => {
