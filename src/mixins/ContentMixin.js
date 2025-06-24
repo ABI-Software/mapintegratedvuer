@@ -226,11 +226,13 @@ export default {
     },
     resourceHasAction: function (resource) {
       return (
-        resource.type === "URL" ||
-        resource.type === "Search" ||
-        resource.type === "Neuron Search" ||
-        resource.type == "Facet" ||
-        resource.type == "Facets"
+        resource && (
+          resource.type === "URL" ||
+          resource.type === "Search" ||
+          resource.type === "Neuron Search" ||
+          resource.type == "Facet" ||
+          resource.type == "Facets"
+        )
       );
     },
     /**
