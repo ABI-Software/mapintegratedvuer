@@ -47,6 +47,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @connectivity-item-close="onConnectivityItemClose"
         />
         <SplitDialog
           :entries="entries"
@@ -130,12 +131,14 @@ export default {
       confirmDeleteCallback: undefined,
       confirmCommentCallback: undefined,
       createData: {},
+      connectivitySearch: false,
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
       filterOptions: [],
       hoverHighlight: false,
       highlightInterval: undefined,
+      annotationHighlight: [],
     }
   },
   watch: {
@@ -144,13 +147,19 @@ export default {
         if (value) {
           if (!this._externalStateSet) this.setState(value);
           this._externalStateSet = true;
+          this.updateGlobalSettingsFromState(value);
         }
       },
       immediate: true,
     },
     connectivityHighlight: {
-      handler: function (value) {
-        this.onShowConnectivity(value);
+      handler: function () {
+        this.hoverChanged({ tabType: 'connectivity' });
+      },
+    },
+    annotationHighlight: {
+      handler: function () {
+        this.hoverChanged({ tabType: 'annotation' });
       },
     },
   },
@@ -158,6 +167,9 @@ export default {
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
       this.onDisplaySearch({ term: payload.id }, false, true);
+    },
+    onConnectivityItemClose: function () {
+      EventBus.emit('connectivity-item-close');
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -312,7 +324,7 @@ export default {
      * @arg featureIds
      */
     onShowConnectivity: function (featureIds) {
-      if (featureIds.length) {        
+      if (featureIds.length) {
         const splitFlowState = this.splitFlowStore.getState();
         const activeView = splitFlowState?.activeView || '';
         // offset sidebar only on singlepanel and 2horpanel views
@@ -340,14 +352,16 @@ export default {
           hoverOrgans = data.organs ? data.organs : [];
           hoverDOI = data.doi ? data.doi : '';
         } else if (data.tabType === 'connectivity') {
-          hoverConnectivity = data.id ? [data.id] : [];
+          hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+        } else if (data.tabType === 'annotation') {
+          hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
         }
         this.hoverHighlight = hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length;
       } else {
         hoverConnectivity = this.connectivityHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate");
+      EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
@@ -597,16 +611,53 @@ export default {
     },
     onSidebarTabClicked: function (tab) {
       let globalSettings = { ...this.settingsStore.globalSettings };
-      if (tab.id === 1 && tab.type === 'datasetExplorer') {
-        globalSettings.interactiveMode = 'dataset';
-      } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
-        globalSettings.interactiveMode = 'connectivity';
+
+      if ('interactiveMode' in globalSettings) {
+        if (tab.id === 1 && tab.type === 'datasetExplorer') {
+          globalSettings.interactiveMode = 'dataset';
+        } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
+          globalSettings.interactiveMode = 'connectivity';
+        }
+        this.settingsStore.updateGlobalSettings(globalSettings);
       }
-      this.settingsStore.updateGlobalSettings(globalSettings);
+
       this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 3 && tab.type === "annotation") EventBus.emit('annotation-close');
+      if (tab.id === 3 && tab.type === "annotation") {
+        EventBus.emit('sidebar-annotation-close');
+      }
+    },
+    updateGlobalSettingsFromStorage: function () {
+      const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
+      if (globalSettingsFromStorage) {
+        this.settingsStore.updateGlobalSettings(JSON.parse(globalSettingsFromStorage));
+      }
+    },
+    updateGlobalSettingsFromState: function (state) {
+      let mappedSettings = null;
+      state.entries.forEach((entry) => {
+        if (entry.state?.state) {
+          const {
+            background,
+            colour,
+            flightPath3D,
+            outlines,
+            viewingMode
+          } = entry.state.state;
+
+          mappedSettings = {
+            viewingMode: viewingMode,
+            flightPathDisplay: flightPath3D,
+            organsDisplay: colour,
+            outlinesDisplay: outlines,
+            backgroundDisplay: background,
+          };
+        }
+      })
+      if (mappedSettings) {
+        this.settingsStore.updateGlobalSettings(mappedSettings);
+      }
     },
   },
   created: function () {
@@ -630,28 +681,54 @@ export default {
     });
     EventBus.on('annotation-open', payload => {
       this.annotationEntry = payload.annotationEntry;
+      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
       this.annotationCallback = markRaw(payload.commitCallback);
       if (!payload.createData) {
         this.createData = markRaw({});
       } else {
         this.createData = markRaw(payload.createData);
       }
-      this.confirmCreateCallback = markRaw(payload.confirmCreate);
-      this.cancelCreateCallback = markRaw(payload.cancelCreate);
-      this.confirmDeleteCallback = markRaw(payload.confirmDelete);
-      this.confirmCommentCallback = markRaw(payload.confirmComment);
+      if (payload.confirmCreate) {
+        this.confirmCreateCallback = markRaw(payload.confirmCreate);
+      }
+      if (payload.cancelCreate) {
+        this.cancelCreateCallback = markRaw(payload.cancelCreate);
+      }
+      if (payload.confirmDelete) {
+        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+      }
+      if (payload.confirmComment) {
+        this.confirmCommentCallback = markRaw(payload.confirmComment);
+      }
       if (this.$refs.sideBar) {
         this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on('annotation-close', () => {
-      this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+    EventBus.on('sidebar-annotation-close', () => {
+      const globalSettings = { ...this.settingsStore.globalSettings };
+      const { interactiveMode, viewingMode } = globalSettings;
+
       this.annotationEntry = [];
       this.createData = {};
+
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.setDrawerOpen(false);
+        if (interactiveMode === "dataset") {
+          this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+        } else if (interactiveMode === "connectivity") {
+          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+        }
+
+        if (viewingMode === 'Annotation') {
+          this.$refs.sideBar.setDrawerOpen(false);
+        }
+
+        this.$refs.sideBar.closeConnectivity();
+        EventBus.emit('connectivity-item-close');
       }
+    });
+    EventBus.on('update-offline-annotation-enabled', (payload) => {
+      this.settingsStore.updateOfflineAnnotationEnabled(payload);
     });
     EventBus.on('connectivity-info-open', payload => {
       // expand connectivity card and show connectivity info
@@ -704,6 +781,7 @@ export default {
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = payload.highlight || [];
+      this.connectivitySearch = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
@@ -712,6 +790,7 @@ export default {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
     })
+    this.updateGlobalSettingsFromStorage();
     EventBus.on("connectivity-filter-options", payload => {
       this.filterOptions = payload;
     })

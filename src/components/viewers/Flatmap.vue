@@ -18,6 +18,7 @@
       @shown-map-tooltip="onMapTooltipShown"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
+      @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
       :annotationSidebar="annotationSidebar"
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
@@ -31,6 +32,8 @@
       :enableOpenMapUI="true"
       :flatmapAPI="flatmapAPI"
       :sparcAPI="apiLocation"
+      :showLocalSettings="showLocalSettings"
+      :showOpenMapButton="showOpenMapButton"
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @mapmanager-loaded="onMapmanagerLoaded"
@@ -67,6 +70,11 @@ export default {
     FlatmapVuer,
     HelpModeDialog,
   },
+  data: function () {
+    return {
+      flatmapReady: false,
+    }
+  },
   methods: {
     getState: function () {
       return this.$refs.flatmap.getState();
@@ -102,11 +110,13 @@ export default {
       }
     },
     flatmapReadyCall: function (flatmap) {
+      this.flatmapReady = true;
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
       const flatmapImp = flatmap.mapImp;
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
       this.flatmapReadyForMarkerUpdates(flatmap);
+      this.updateViewerSettings();
       this.loadConnectivityExplorerConfig(flatmap);
       EventBus.emit("mapLoaded", flatmap);
     },
@@ -120,6 +130,14 @@ export default {
         'category': label + ' [' + property + '] ' + checked,
         'location': selectionsTitle
       });
+    },
+    onSidebarAnnotationClose: function() {
+      if (this.flatmapReady) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
+        }
+      }
     },
     highlightFeatures: function(info) {
       let name = info.name;
@@ -147,6 +165,26 @@ export default {
         });
       }
     },
+    showConnectivity: function (payload) {
+      if (this?.alive) {
+        const { featureIds, offset } = payload;
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          currentFlatmap.moveMap(featureIds, {
+            offsetX: offset ? -150 : 0,
+            zoom: 4,
+          });
+        }
+      }
+    },
+    showConnectivitiesByReference: function (payload) {
+      if (this?.alive) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          currentFlatmap.showConnectivitiesByReference(payload);
+        }
+      }
+    },
     zoomToFeatures: function(info, forceSelect) {
       let name = info.name;
       const flatmap = this.$refs.flatmap.mapImp;
@@ -168,41 +206,28 @@ export default {
     changeViewingMode: function (modeName) {
       this.$refs.flatmap.changeViewingMode(modeName);
     },
+    updateViewerSettings: function () {
+      const {
+        backgroundDisplay,
+        viewingMode,
+        flightPathDisplay,
+        organsDisplay,
+        outlinesDisplay,
+      } = this.settingsStore.globalSettings;
+
+      const currentFlatmap = this.$refs.flatmap;
+
+      currentFlatmap.changeViewingMode(viewingMode);
+      currentFlatmap.setFlightPath3D(flightPathDisplay);
+      currentFlatmap.setColour(organsDisplay);
+      currentFlatmap.setOutlines(outlinesDisplay);
+      currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+    },
   },
   computed: {
     facetSpecies() {
       return this.settingsStore.facets.species;
     },
-  },
-  mounted: function() {
-    EventBus.on('annotation-close', () => {
-      const currentFlatmap = this.$refs.flatmap;
-      if (currentFlatmap) {
-        this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
-      }
-    });
-    EventBus.on("markerUpdate", () => {
-      this.flatmapMarkerUpdate(undefined);
-    });
-    EventBus.on("hoverUpdate", () => {
-      this.cardHoverHighlight();
-    });
-    EventBus.on('show-connectivity', (payload) => {
-      const { featureIds, offset } = payload;
-      const currentFlatmap = this.$refs.flatmap;
-      if (currentFlatmap) {
-        currentFlatmap.moveMap(featureIds, {
-          offsetX: offset ? -150 : 0,
-          zoom: 4,
-        });
-      }
-    });
-    EventBus.on('show-reference-connectivities', (payload) => {
-      const currentFlatmap = this.$refs.flatmap;
-      if (currentFlatmap) {
-        currentFlatmap.showConnectivitiesByReference(payload);
-      }
-    });
   },
 };
 </script>

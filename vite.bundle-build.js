@@ -12,13 +12,16 @@ export default defineConfig((configEnv) => {
       fileName: "mapintegratedvuer",
     },
     rollupOptions: {
-      external: ["vue", "pinia", "@abi-software/plotvuer", "@abi-software/simulationvuer"],
+      external: ["vue", "pinia", "@abi-software/flatmapvuer", "@abi-software/plotvuer",
+        "@abi-software/scaffoldvuer", "@abi-software/simulationvuer"],
       output: {
         globals: {
           vue: "Vue",
           pinia: "pinia",
-          "@abi-software/simulationvuer": "simulationvuer",
+          "@abi-software/flatmapvuer": "flatmapvuer",
           "@abi-software/plotvuer": "plotvuer",
+          "@abi-software/scaffoldvuer": "scaffoldvuer",
+          "@abi-software/simulationvuer": "simulationvuer",
         },
       },
     },

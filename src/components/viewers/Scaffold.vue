@@ -17,6 +17,7 @@
       :helpModeDialog="useHelpModeDialog"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
+      @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
       :annotationSidebar="annotationSidebar"
       @help-mode-last-item="onHelpModeLastItem"
       @shown-tooltip="onTooltipShown"
@@ -31,6 +32,8 @@
       :markerCluster="true"
       :markerLabels="markerLabels"
       :flatmapAPI="flatmapAPI"
+      :showLocalSettings="showLocalSettings"
+      :showOpenMapButton="showOpenMapButton"
     />
 
     <HelpModeDialog
@@ -139,6 +142,7 @@ export default {
         if (this.entry.rotation) rotation = this.entry.rotation;
         this.$refs.scaffold.toggleSyncControl(this.splitFlowStore.globalCallback, rotation);
         if (this.splitFlowStore.syncMode) this.$refs.scaffold.fitWindow();
+        this.updateViewerSettings();
       }
       EventBus.emit("mapLoaded", this.$refs.scaffold);
     },
@@ -191,6 +195,15 @@ export default {
     changeViewingMode: function (modeName) {
       this.$refs.scaffold.changeViewingMode(modeName);
     },
+    updateViewerSettings: function () {
+      const {
+        backgroundDisplay,
+        viewingMode,
+      } = this.settingsStore.globalSettings;
+
+      this.$refs.scaffold.backgroundChangeCallback(backgroundDisplay);
+      this.$refs.scaffold.changeViewingMode(viewingMode);
+    },
   },
   computed: {
     warningMessage: function() {
@@ -214,14 +227,6 @@ export default {
   mounted: function () {
     this.scaffoldCamera =
       this.$refs.scaffold.$module.scene.getZincCameraControls();
-    EventBus.on("startHelp", () => {
-      this.startHelp();
-    });
-    EventBus.on("hoverUpdate", () => {
-      if (this.scaffoldLoaded) {
-        this.cardHoverHighlight();
-      }
-    });
   },
 };
 </script>

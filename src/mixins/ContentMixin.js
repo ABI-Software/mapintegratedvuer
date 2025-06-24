@@ -35,6 +35,7 @@ export default {
       default: false,
     },
   },
+  inject: ['showGlobalSettings', 'showOpenMapButton'],
   computed: {
     ...mapStores(useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
@@ -52,12 +53,15 @@ export default {
     annotationSidebar() {
       return this.settingsStore.annotationSidebar;
     },
+    // Hide local settings if global settings are shown
+    showLocalSettings() {
+      return !this.showGlobalSettings;
+    },
+  },
+  beforeUnmount: function() {
+    this.alive = false;
   },
   mounted: function () {
-    EventBus.on("startHelp", () => {
-      this.startHelp();
-    });
-
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
@@ -66,6 +70,19 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
+    onConnectivityItemClose() {
+      if (this?.alive) {
+        if (this.multiflatmapRef) {
+          const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+          if (currentFlatmap) {
+            currentFlatmap.closeTooltip();
+          }
+        }
+        if (this.flatmapRef) {
+          this.flatmapRef.closeTooltip();
+        }
+      }
+    },
     toggleSyncMode: function () {
       return;
     },
@@ -406,11 +423,16 @@ export default {
     onResize: function () {
       return;
     },
+    updateViewerSettings: function() {
+      return;
+    },
     startHelp: function () {
-      if (this.isInHelp === false) {
-        this.helpMode = true;
-        window.addEventListener("mousedown", this.checkEndHelpMouseDown);
-        this.isInHelp = true;
+      if (this?.alive) {
+        if (this.isInHelp === false) {
+          this.helpMode = true;
+          window.addEventListener("mousedown", this.checkEndHelpMouseDown);
+          this.isInHelp = true;
+        }
       }
     },
     endHelp: function () {
@@ -494,8 +516,11 @@ export default {
       toHighlight = [...new Set(toHighlight)];
       return toHighlight;
     },
-    cardHoverHighlight: function () {
-      if (this.visible) {
+    sidebarHoverHighlight: function (payload) {
+      if (this.visible && (
+        ((this.flatmapRef || this.multiflatmapRef) && this.flatmapReady) ||
+        (this.scaffoldRef && this.scaffoldLoaded))
+      ) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies;
         const hoverOrgans = this.settingsStore.hoverOrgans;
         const hoverDOI = this.settingsStore.hoverDOI;
@@ -512,6 +537,10 @@ export default {
         if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
             flatmap.mapImp?.clearSearchResults();
+            if (payload.connectivitySearch) {
+              // grey out all connectivity if no search results
+              flatmap.mapImp?.setPaint({ dimmed: true })
+            }
           } else if (this.scaffoldRef && scaffold) {
             scaffold.changeHighlightedByName(hoverOrgans, "", false);
           }
@@ -522,7 +551,10 @@ export default {
             if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
               this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
                 try {
-                  flatmap.zoomToFeatures(paths);
+                  flatmap.showConnectivityTooltips({
+                    connectivityInfo: { featureId: paths },
+                    data: []
+                  });
                 } catch (error) {
                   console.log(error)
                   // only for connectivity hover highlight
@@ -550,7 +582,10 @@ export default {
       EventBus.emit('annotation-open', payload);
     },
     onAnnotationClose: function () {
-      EventBus.emit('annotation-close');
+      EventBus.emit('sidebar-annotation-close');
+    },
+    updateOfflineAnnotationEnabled: function (payload) {
+      EventBus.emit('update-offline-annotation-enabled', payload);
     },
     onConnectivityInfoOpen: function (connectivityInfoData) {
       EventBus.emit('connectivity-info-open', connectivityInfoData);
@@ -560,6 +595,21 @@ export default {
     },
     onConnectivityInfoClose: function () {
       EventBus.emit('connectivity-info-close');
+    },
+    onSidebarAnnotationClose: function() {
+      return;
+    },
+    showConnectivity: function(payload) {
+      return;
+    },
+    showConnectivitiesByReference: function(payload) {
+      return;
+    },
+    showConnectivityTooltips: function(payload) {
+      return;
+    },
+    changeConnectivitySource: function(payload) {
+      return;
     },
     loadConnectivityExplorerConfig: async function (flatmap) {
       const flatmapImp = flatmap.mapImp;
@@ -616,7 +666,8 @@ export default {
       connectivityKnowledge: {},
       connectivityFilterOptions: {},
       connectivityFilterSources: {},
-      highlightDelay: undefined
+      highlightDelay: undefined,
+      alive: true,
     };
   },
   created: function () {

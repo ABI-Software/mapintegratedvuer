@@ -190,6 +190,9 @@ export default {
     closeAndRemove: function() {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries});
       EventBus.emit("RemoveEntryRequest", this.entry.id);
+      this.$nextTick(() => {
+        this.splitFlowStore.updateSplitPanels();
+      });
     },
     getEntryTitle: function(entry) {
       if (entry) {
