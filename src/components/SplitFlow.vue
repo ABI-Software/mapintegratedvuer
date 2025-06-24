@@ -708,7 +708,7 @@ export default {
     });
     EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
-      const { interactiveMode, viewingMode } = globalSettings;
+      const interactiveMode = globalSettings.interactiveMode;
 
       this.annotationEntry = [];
       this.annotationHighlight = [];
@@ -719,10 +719,6 @@ export default {
           this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
         } else if (interactiveMode === "connectivity") {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
-        }
-
-        if (viewingMode === 'Annotation') {
-          this.$refs.sideBar.setDrawerOpen(false);
         }
 
         this.$refs.sideBar.closeConnectivity();
@@ -763,8 +759,9 @@ export default {
       }
     });
     EventBus.on('connectivity-info-close', () => {
-      const viewingMode  = this.settingsStore.globalSettings.viewingMode;
-      if (this.$refs.sideBar && viewingMode === 'Exploration') {
+      const globalSettings = { ...this.settingsStore.globalSettings };
+      const viewingMode = globalSettings.viewingMode;
+      if (this.$refs.sideBar && viewingMode === "Exploration") {
         this.$refs.sideBar.resetConnectivitySearch();
       }
     });
