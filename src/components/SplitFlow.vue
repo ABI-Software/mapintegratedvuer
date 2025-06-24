@@ -357,7 +357,7 @@ export default {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
-      } else if (data.tabType === 'recursive') {
+      } else if (data.highlightType === 'recursive') {
         hoverConnectivity = this.hoverHighlight;
       }
       this.hoverHighlight = hoverConnectivity;
@@ -668,7 +668,7 @@ export default {
   mounted: function () {
     this.highlightInterval = setInterval(() => {
       if (this.hoverHighlight.length && !this.mouseOnSidebar) {
-        this.hoverChanged({ tabType: 'recursive' });
+        this.hoverChanged({ highlightType: 'recursive' });
       }
     }, 500)
     EventBus.on("RemoveEntryRequest", id => {
