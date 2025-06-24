@@ -355,12 +355,12 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
-        this.hoverHighlight = hoverConnectivity;
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       } else if (data.tabType === 'recursive') {
         hoverConnectivity = this.hoverHighlight;
       }
+      this.hoverHighlight = hoverConnectivity;
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
       EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
     },
@@ -711,6 +711,7 @@ export default {
       const { interactiveMode, viewingMode } = globalSettings;
 
       this.annotationEntry = [];
+      this.annotationHighlight = [];
       this.createData = {};
 
       if (this.$refs.sideBar) {
@@ -761,8 +762,9 @@ export default {
         }
       }
     });
-    EventBus.on('connectivity-info-close', payload => {
-      if (this.$refs.sideBar) {
+    EventBus.on('connectivity-info-close', () => {
+      const viewingMode  = this.settingsStore.globalSettings.viewingMode;
+      if (this.$refs.sideBar && viewingMode === 'Exploration') {
         this.$refs.sideBar.resetConnectivitySearch();
       }
     });
