@@ -667,7 +667,11 @@ export default {
   },
   mounted: function () {
     this.highlightInterval = setInterval(() => {
-      if (this.hoverHighlight.length && !this.mouseOnSidebar) {
+      if (
+        this.hoverHighlight.length &&
+        !this.mouseOnSidebar &&
+        (this.connectivitySearch || this.annotationHighlight.length)
+      ) {
         this.hoverChanged({ highlightType: 'recursive' });
       }
     }, 500)
