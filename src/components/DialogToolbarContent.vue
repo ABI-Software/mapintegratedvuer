@@ -127,10 +127,26 @@
                     v-model="globalSettings.connectionType"
                     @change="updateGlobalSettings"
                   >
-                    <el-radio value="origins">Origins</el-radio>
-                    <el-radio value="vias">Vias</el-radio>
-                    <el-radio value="destinations">Destinations</el-radio>
+                    <el-radio-button value="origins" size="small">Origins</el-radio-button>
+                    <el-radio-button value="vias" size="small">Vias</el-radio-button>
+                    <el-radio-button value="destinations" size="small">Destinations</el-radio-button>
+                    <el-radio-button value="" size="small">All</el-radio-button>
                   </el-radio-group>
+                  <div class="el-radio__description">
+                    <small v-if="globalSettings.connectionType === 'origins'">
+                      Neuron populations beginning at a location.
+                    </small>
+                    <small v-else-if="globalSettings.connectionType === 'vias'">
+                      Neuron populations via a location.
+                    </small>
+                    <small v-else-if="globalSettings.connectionType === 'destinations'">
+                      Neuron populations terminating at a location.
+                    </small>
+                    <small v-else>
+                      Neuron populations associated with a location (or)
+                      Neuron populations that share at least one edge with another neuron population.
+                    </small>
+                  </div>
                 </div>
               </template>
             </el-dropdown-item>
@@ -871,14 +887,6 @@ export default {
       font-weight: 500;
     }
 
-    > small {
-      height: auto;
-      line-height: 1.2;
-      font-weight: normal;
-      color: gray;
-      white-space: normal;
-    }
-
     &.is-selected,
     &:hover {
       background-color: #f1e4f6;
@@ -975,8 +983,21 @@ export default {
   scale: 0.7;
 }
 
-.el-radio__description {
+.el-option__description,
+.el-radio__description small {
+  display: inline-block;
   font-size: 12px;
+  white-space: normal;
+  line-height: 1.2;
+  height: auto;
+  font-weight: normal;
+  color: gray;
+}
+
+.el-radio__description {
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+  font-style: italic;
 }
 
 .bg-color-radio-group {
