@@ -86,28 +86,6 @@ export default {
         if (item.suggestion) suggestions.push(item.suggestion);
       });
     },
-    /**
-     * Handle sync pan zoom event
-     */
-    handleSyncPanZoomEvent: function (data) {
-      //Prevent recursive callback
-      if (!this.mouseHovered) {
-        if (data.type !== this.entry.type) {
-          const origin = data.payload.origin;
-          const size = data.payload.size;
-          const center = [origin[0] + size[0] / 2, origin[1] + size[1] / 2];
-          const convertedCenter = [
-            (center[0] - 0.5) * 2,
-            (0.5 - center[1]) * 2,
-          ];
-          const zoom = 1 / Math.max(size[0], size[1]);
-          this.$refs.scaffold.$module.setSyncControlCenterZoom(
-            convertedCenter,
-            zoom
-          );
-        }
-      }
-    },
     displayTooltip: function(info) {
       let name = undefined;
       if (info) {
@@ -140,18 +118,9 @@ export default {
       if (this.isVisible()) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
-        this.$refs.scaffold.toggleSyncControl(this.splitFlowStore.globalCallback, rotation);
-        if (this.splitFlowStore.syncMode) this.$refs.scaffold.fitWindow();
       }
       this.updateViewerSettings();
       EventBus.emit("mapLoaded", this.$refs.scaffold);
-    },
-    requestSynchronisedEvent: function (flag) {
-      if (this.scaffoldLoaded) {
-        let rotation = "free";
-        if (this.entry.rotation) rotation = this.entry.rotation;
-        this.$refs.scaffold.toggleSyncControl(flag, rotation);
-      }
     },
     /**
      * Callback when the vuers emit a selected event.

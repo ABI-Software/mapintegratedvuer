@@ -1,6 +1,5 @@
 import { markRaw } from "vue";
 import {
-  getNerveNames,
   getParentsRegion,
 } from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
@@ -41,9 +40,6 @@ export default {
     idNamePair() {
       return this.splitFlowStore.idNamePair;
     },
-    syncMode() {
-      return this.splitFlowStore.syncMode;
-    },
     useHelpModeDialog() {
       return this.settingsStore.useHelpModeDialog;
     },
@@ -83,20 +79,12 @@ export default {
         }
       }
     },
-    toggleSyncMode: function () {
-      return;
-    },
     getState: function () {
       return undefined;
     },
     openMap: function (type) {
-      if (type === "SYNC") {
-        this.toggleSyncMode();
-        this.trackOpenMap('toggle_map_sync_mode');
-      } else {
-        EventBus.emit("OpenNewMap", type);
-        this.trackOpenMap(`open_new_${type}_map`);
-      }
+      EventBus.emit("OpenNewMap", type);
+      this.trackOpenMap(`open_new_${type}_map`);
     },
     onMapmanagerLoaded: function (mapManager) {
       this.settingsStore.updateMapManager(mapManager);
@@ -188,13 +176,6 @@ export default {
             if (type == "MultiFlatmap") {
               const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
               flatmap.clearSearchResults();
-            }
-          } else if (resource.feature.type == "feature") {
-            // Do no open scaffold in sync map
-            if (this.syncMode) {
-              fireResourceSelected = true;
-            } else {
-              action = "scaffold";
             }
           }
         } else if (resource.eventType == "mouseenter") {
@@ -384,39 +365,7 @@ export default {
     zoomToFeatures: function () {
       return;
     },
-    handleSyncMouseEvent: async function (data) {
-      let info = await this.getNameAndIdFromSyncData(data);
-      if (data.eventType === "highlighted") {
-        this.highlightFeatures(info);
-      } else if (data.eventType === "selected") {
-        this.displayTooltip(info);
-        //this.zoomToFeatures(info, true);
-      }
-    },
-    /**
-     * Handle sync pan zoom event
-     */
-    handleSyncPanZoomEvent: function () {
-      return;
-    },
     highlightFeatures: function () {
-      return;
-    },
-    receiveSynchronisedEvent: async function (data) {
-      if (data.paneIndex !== this.entry.id) {
-        if (data.eventType == "panZoom") {
-          //this.handleSyncPanZoomEvent(data);
-        } else {
-          this.handleSyncMouseEvent(data);
-        }
-      } else {
-        if (data.eventType == "selected") {
-          let info = await this.getNameAndIdFromSyncData(data);
-          this.zoomToFeatures(info, false);
-        }
-      }
-    },
-    requestSynchronisedEvent: function () {
       return;
     },
     flatmapMarkerUpdate() {
