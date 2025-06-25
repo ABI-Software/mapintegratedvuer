@@ -414,29 +414,6 @@ export default {
       return 1;
     },
     /**
-     * Activate Synchronised workflow
-     */
-    activateSyncMap: function (id, data) {
-      let newEntry = {};
-      Object.assign(newEntry, data);
-      newEntry.mode = "normal";
-      newEntry.id = this.getNewEntryId();
-      newEntry.state = undefined;
-      newEntry.type = "Scaffold";
-      newEntry.discoverId = data.discoverId;
-      newEntry.rotation = "free";
-      if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
-      else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
-      this.entriesStore.addNewEntry(newEntry);
-      this.splitFlowStore.setSyncMode({
-        flag: true,
-        id, id,
-        newId: newEntry.id,
-        layout: data.layout,
-      });
-      return newEntry.id;
-    },
-    /**
      * Add new entry which will sequentially create a
      * new dialog.
      */
@@ -450,10 +427,6 @@ export default {
       newEntry.discoverId = data.discoverId;
       this.entriesStore.addNewEntry(newEntry);
       this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
-      if (this.splitFlowStore.syncMode) {
-        this.splitFlowStore.setSyncMode({ flag: false });
-      }
-
       //close sidebar on entry creation to see the context card
       if (this.$refs.sideBar) {
         this.$refs.sideBar.setDrawerOpen(false);
@@ -534,9 +507,6 @@ export default {
     },
     resourceSelected: function (result) {
       this.$emit("resource-selected", result);
-      if (this.splitFlowStore.globalCallback) {
-        this.$refs.splitdialog.sendSynchronisedEvent(result);
-      }
     },
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
@@ -546,21 +516,6 @@ export default {
           EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
         })
-      }
-    },
-    toggleSyncMode: function (payload) {
-      if (payload) {
-        if (payload.flag) {
-          if (payload.action) {
-            this.activateSyncMap(payload.id, payload.action);
-          }
-        } else {
-          if (this.splitFlowStore.syncMode) {
-            this.splitFlowStore.setSyncMode({
-              flag: false,
-            });
-          }
-        }
       }
     },
     contextUpdate: function (payload) {
@@ -646,9 +601,6 @@ export default {
   mounted: function () {
     EventBus.on("RemoveEntryRequest", id => {
       this.removeEntry(id);
-    });
-    EventBus.on("SyncModeRequest", payload => {
-      this.toggleSyncMode(payload);
     });
     EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);

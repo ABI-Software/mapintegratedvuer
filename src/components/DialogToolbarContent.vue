@@ -7,36 +7,6 @@
       :failedSearch="failedSearch"
     />
 
-    <div v-if="syncMode" class="switch-control">
-      <el-switch
-        class="switch"
-        v-model="independent"
-        active-text="Independent"
-        :width=30
-        inactive-text="Linked">
-      </el-switch>
-      <el-popover
-        class="tooltip"
-        placement="bottom-end"
-        :show-after="helpDelay"
-        :teleported=false
-        trigger="hover"
-        popper-class="header-popper">
-        <template #reference>
-          <map-svg-icon icon="help" class="sync-help header-icon"/>
-        </template>
-        <template #default>
-            When in Linked mode the two maps will interact
-            <br>
-            together. Select an organ in one and it will
-            <br>
-            be automatically selected in the other.
-            <br>
-            In Independent mode the maps will work separately."
-        </template>
-      </el-popover>
-    </div>
-
     <el-row class="icon-group">
       <div class="viewing-mode-selector">
         Viewing Mode:
@@ -438,7 +408,6 @@ import {
   ElRadio as Radio,
   ElRadioGroup as RadioGroup,
   ElRow as Row,
-  ElSwitch as Switch,
 } from "element-plus";
 
 /**
@@ -456,7 +425,6 @@ export default {
     Radio,
     RadioGroup,
     Row,
-    Switch,
     MapSvgIcon,
     MapSvgSpriteColor,
     SearchControls,
@@ -494,29 +462,13 @@ export default {
     offlineAnnotationEnabled() {
       return this.settingsStore.offlineAnnotationEnabled;
     },
-    syncMode() {
-      return this.splitFlowStore.syncMode;
-    },
     viewIcons() {
       return this.splitFlowStore.viewIcons;
-    },
-    globalCallback() {
-      return this.splitFlowStore.globalCallback;
     },
   },
   watch: {
     shareLink: function() {
       this.loadingLink = false;
-    },
-    independent: function(value) {
-      let flag = !(value === true);
-      if (this.globalCallback !== flag)
-        this.splitFlowStore.toggleGlobalCallback(flag);
-    },
-    globalCallback: function(value) {
-      let flag = !(value === true);
-      if (flag !== this.independent)
-        this.independent = flag;
     },
   },
   data: function() {
@@ -528,7 +480,6 @@ export default {
       failedSearch: undefined,
       globalSettings: {},
       globalSettingRef: undefined,
-      independent: true,
       isFullscreen: false,
       loadingLink: true,
       permalinkRef: undefined,
@@ -926,34 +877,6 @@ export default {
     line-height: 32px;
     color: #303133;
   }
-}
-
-.switch-control {
-  width:250px;
-  top:2px;
-  left: calc(50% - 60px);
-  position: absolute;
-  display: flex;
-  align-items: center;
-
-  .sync-help {
-    left:5px;
-    stroke: $app-primary-color;
-  }
-}
-
-.switch {
-  padding-right: 0.5rem;
-  padding-left: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid rgb(220, 223, 230);
-  vertical-align: super;
-  height: 28px;
-  box-sizing: border-box;
-}
-
-.sync-help {
-  margin-left: 5px;
 }
 
 :deep(.el-loading-spinner) {

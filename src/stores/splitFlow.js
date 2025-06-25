@@ -162,8 +162,6 @@ const getOriginalState = () => {
       */
     },
     splitters: { "first": 50, "second": 50, "third": 50 },
-    globalCallback: false,
-    syncMode: false,
   };
 }
 
@@ -179,9 +177,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       return {
         activeView: state.activeView,
         splitters: state.splitters,
-        globalCallback: state.globalCallback,
         customLayout: state.customLayout,
-        syncMode: state.syncMode,
       };
     },
   },
@@ -189,12 +185,6 @@ export const useSplitFlowStore = defineStore('splitFlow', {
     assignOrSwapPaneWithIds(payload) {
       let sourceKey = findKeyWithId(this.customLayout, payload.source);
       let targetKey = findKeyWithId(this.customLayout, payload.target);
-      // Check if it is on syncMode
-      if (this.syncMode && (!(targetKey || sourceKey))) {
-        //exit syncMod if the two panel in sync mode are not swapping
-        this.syncMode = false;
-        this.globalCallback = false;
-      }
       if (targetKey) {
         this.customLayout[targetKey].id = payload.source;
       }
@@ -226,22 +216,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           });
       }
     },
-    toggleGlobalCallback(flag) {
-      this.globalCallback = flag;
-    },
     updateActiveView(payload) {
-      //Deactivate sync mode if current or future view
-      //is not in 2 split panels/
-      if (this.syncMode) {
-        const view1 = this.viewIcons.find(
-          view => this.activeView === view.icon);
-        const view2 = this.viewIcons.find(
-          view => payload.view === view.icon);
-        if (!(view1.min == 2 && view2.min == 2)) {
-          this.syncMode = false;
-          this.globalCallback = false;
-        }
-      }
       this.activeView = payload.view;
       const customLayout = newLayoutWithOrigInfo(
         this.customLayout, this.activeView);
@@ -300,14 +275,8 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         for (const [key, value] of Object.entries(customLayout)) {
           this.customLayout[key] = value;
         }
-        if (newState.globalCallback) {
-          this.globalCallback = newState.globalCallback;
-        }
         for (const [key, value] of Object.entries(newState.splitters)) {
           this.splitters[key] = value;
-        }
-        if (newState.syncMode) {
-          this.syncMode = newState.syncMode;
         }
       }
     },
@@ -319,52 +288,14 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         this.customLayout[currentKey].id = firstPaneId;
       }
     },
-    setSyncMode(payload) {
-      if (payload) {
-        //Force the second slot to be the new viewer in payload and change the
-        //view to the payload's layout
-        //this.customLayout["pane-2"].id = id;
-        if (payload.flag === true) {
-          this.activeView = payload.layout;
-          //Extract pane info form original state and copy to the new layout
-          const customLayout = newLayoutWithOrigInfo(
-            this.customLayout, this.activeView);
-          const originalKey = findKeyWithId(customLayout, payload.id);
-          const firstPaneId = customLayout["pane-1"].id;
-          if (originalKey !== "pane-1") {
-            customLayout["pane-1"].id = firstPaneId;
-          }
-          customLayout["pane-1"].id = payload.id;
-          customLayout["pane-2"].id = payload.newId;
-          for (const [key, value] of Object.entries(customLayout)) {
-            this.customLayout[key] = value;
-          }
-          this.syncMode = true;
-          this.globalCallback = true;
-        } else {
-          this.activeView = "singlepanel";
-          const customLayout = newLayoutWithOrigInfo(
-            this.customLayout, this.activeView);
-          for (const [key, value] of Object.entries(customLayout)) {
-            this.customLayout[key] = value;
-          }
-          this.syncMode = false;
-          this.globalCallback = false;
-        }
-      }
-    },
     reset() {
       const original = getOriginalState();
       this.activeView = original.activeView;
       this.customLayout = original.customLayout;
       this.splitters = original.splitters;
-      this.globalCallback = original.globalCallback;
-      this.syncMode = original.syncMode;
     },
     closeSlot(payload) {
       if (payload) {
-        this.syncMode = false;
-        this.globalCallback = false;
         let availableId = 0;
         if (payload.entries) {
           for (let i = 0; i < payload.entries.length &&

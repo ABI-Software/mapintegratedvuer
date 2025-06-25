@@ -82,12 +82,6 @@ export default {
       this.$refs.contentBar?.setupFlatmapContextCard(prov);
       this.entriesStore.updateMapForEntry(this.entry, prov);
     },
-    /**
-     * Toggle sync mode on/off depending on species and current state
-     */
-    toggleSyncMode: function () {
-      this.$refs.viewer?.toggleSyncMode();
-    },
     getId: function () {
       return this.entry.id;
     },
@@ -123,12 +117,6 @@ export default {
     speciesChanged: function (species) {
       this.activeSpecies = species;
       this.$emit("species-changed", species);
-    },
-    receiveSynchronisedEvent: async function (data) {
-      this.$refs.viewer?.receiveSynchronisedEvent(data);
-    },
-    requestSynchronisedEvent: function (flag) {
-      this.$refs.viewer?.requestSynchronisedEvent(flag);
     },
     /**
      * Check if this viewer is currently visible
@@ -180,9 +168,6 @@ export default {
   },
   computed: {
     ...mapStores(useEntriesStore, useSplitFlowStore),
-    syncMode() {
-      return this.splitFlowStore.syncMode;
-    },
     viewerType() {
       switch (this.entry.type) {
         case "Biolucida":
