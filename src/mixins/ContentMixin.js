@@ -551,6 +551,9 @@ export default {
     onSidebarAnnotationClose: function() {
       return;
     },
+    onNeuronConnectionClick: function (payload) {
+      EventBus.emit('neuron-connection-click', payload);
+    },
     showConnectivity: function(payload) {
       return;
     },
