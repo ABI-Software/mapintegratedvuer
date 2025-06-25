@@ -107,12 +107,6 @@ export default {
       const refName = this.splitFlowStore.getPaneNameById(id);
       return refName !== undefined;
     },
-    sendSynchronisedEvent: function(resource) {
-      const activeContents = this.getActiveContents();
-      activeContents.forEach(content => {
-        content.receiveSynchronisedEvent(resource);
-      });
-    },
     getContentsWithId: function(id) {
       let contents = this.$refs["content"];
       for (let i = 0; i < contents.length; i++) {
@@ -387,34 +381,6 @@ export default {
     },
     splitters() {
       return this.splitFlowStore.splitters;
-    },
-    globalCallback() {
-      return this.splitFlowStore.globalCallback;
-    },
-  },
-  watch: {
-    globalCallback: {
-      handler: function(val) {
-        //Only activate for active
-        if (val) {
-          const contents = this.getActiveContents();
-          if (contents) {
-            contents.forEach(content => {
-              content.requestSynchronisedEvent(val);
-            });
-          }
-        } else {
-          //Turn sync off, this can be requested for all contents
-          const contents = this.$refs['content'];
-          if (contents) {
-            contents.forEach(content => {
-              content.requestSynchronisedEvent(false);
-            });
-          }
-        }
-      },
-      immediate: true,
-      deep: true
     },
   },
   mounted: function () {

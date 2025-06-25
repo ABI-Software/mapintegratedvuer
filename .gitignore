@@ -5,11 +5,10 @@ test_html
 .env.local
 .yalc
 yalc.lock
-cypress/videos
 results
-cypress/screenshots/
-cypress/snapshots/actual/
-cypress/snapshots/diff/
+cypress/results/
+cypress/snapshots/
+cypress/videos/
 cypress/reports/
 test/src/
 docs/.vitepress/dist
