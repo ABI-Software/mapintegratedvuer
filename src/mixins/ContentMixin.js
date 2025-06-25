@@ -1,5 +1,6 @@
 import { markRaw } from "vue";
 import {
+  getNerveNames,
   getParentsRegion,
 } from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";

@@ -408,7 +408,6 @@ import {
   ElRadio as Radio,
   ElRadioGroup as RadioGroup,
   ElRow as Row,
-  ElSwitch as Switch,
 } from "element-plus";
 
 /**
@@ -426,7 +425,6 @@ export default {
     Radio,
     RadioGroup,
     Row,
-    Switch,
     MapSvgIcon,
     MapSvgSpriteColor,
     SearchControls,
@@ -879,16 +877,6 @@ export default {
     line-height: 32px;
     color: #303133;
   }
-}
-
-.switch {
-  padding-right: 0.5rem;
-  padding-left: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid rgb(220, 223, 230);
-  vertical-align: super;
-  height: 28px;
-  box-sizing: border-box;
 }
 
 :deep(.el-loading-spinner) {
