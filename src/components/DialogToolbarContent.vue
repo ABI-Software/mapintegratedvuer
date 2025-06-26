@@ -29,6 +29,10 @@
             <el-icon-edit-pen />
           </el-icon>
           {{ globalSettings.viewingMode }}
+          <template v-if="globalSettings.viewingMode === 'Neuron Connection'">
+            &nbsp;
+            <small class="toolbar-dropdown-badge"><em>{{ globalSettings.connectionType }}</em></small>
+          </template>
           <el-icon class="el-icon--right">
             <el-icon-arrow-down />
           </el-icon>
@@ -97,19 +101,19 @@
                     v-model="globalSettings.connectionType"
                     @change="updateGlobalSettings"
                   >
-                    <el-radio-button value="origin" size="small">Origin</el-radio-button>
-                    <el-radio-button value="via" size="small">Via</el-radio-button>
-                    <el-radio-button value="destination" size="small">Destination</el-radio-button>
-                    <el-radio-button value="" size="small">All</el-radio-button>
+                    <el-radio-button value="Origin" size="small">Origin</el-radio-button>
+                    <el-radio-button value="Via" size="small">Via</el-radio-button>
+                    <el-radio-button value="Destination" size="small">Destination</el-radio-button>
+                    <el-radio-button value="All" size="small">All</el-radio-button>
                   </el-radio-group>
                   <div class="el-radio__description">
-                    <small v-if="globalSettings.connectionType === 'origin'">
+                    <small v-if="globalSettings.connectionType === 'Origin'">
                       Neuron populations beginning at a location.
                     </small>
-                    <small v-else-if="globalSettings.connectionType === 'via'">
+                    <small v-else-if="globalSettings.connectionType === 'Via'">
                       Neuron populations via a location.
                     </small>
-                    <small v-else-if="globalSettings.connectionType === 'destination'">
+                    <small v-else-if="globalSettings.connectionType === 'Destination'">
                       Neuron populations terminating at a location.
                     </small>
                     <small v-else>
@@ -860,6 +864,13 @@ export default {
       }
     }
   }
+}
+
+.toolbar-dropdown-badge {
+  color: white;
+  background-color: $app-primary-color;
+  border-radius: 4px;
+  padding: 2px 4px;
 }
 
 :deep(.setting-popover.el-popper) {
