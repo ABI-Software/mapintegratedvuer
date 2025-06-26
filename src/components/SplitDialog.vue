@@ -226,14 +226,18 @@ export default {
         
         const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
         EventBus.emit("connectivity-knowledge", {
-          data: uniqueConnectivities
+          data: uniqueConnectivities,
+          highlight: [],
+          processed: false
         });
 
         const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
         EventBus.emit("connectivity-filter-options", uniqueFilters);
       } else {
         EventBus.emit("connectivity-knowledge", {
-          data: this.connectivitiesStore.globalConnectivities[sckanVersion]
+                      data: this.connectivitiesStore.globalConnectivities[sckanVersion],
+            highlight: [],
+            processed: false,
         });
         EventBus.emit("connectivity-filter-options", []);
         this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);

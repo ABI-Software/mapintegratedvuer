@@ -757,7 +757,7 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = payload.highlight || [];
+      this.connectivityHighlight = payload.highlight;
       this.connectivityProcessed = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {
