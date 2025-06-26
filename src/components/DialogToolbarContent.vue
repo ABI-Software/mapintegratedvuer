@@ -14,7 +14,7 @@
           :teleported="false"
           trigger="hover"
           class="toolbar-dropdown"
-          popper-class="toolbar-dropdown-dropdown"
+          popper-class="toolbar-dropdown-popper"
           :hide-on-click="false"
           :disabled="!mapLoaded"
         >
@@ -789,7 +789,7 @@ export default {
   gap: 0.5rem;
 }
 
-:deep(.toolbar-dropdown-dropdown.el-popper) {
+:deep(.toolbar-dropdown-popper.el-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   background-color: #f3ecf6;
