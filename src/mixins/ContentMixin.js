@@ -537,7 +537,7 @@ export default {
         if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
             flatmap.mapImp?.clearSearchResults();
-            if (payload.connectivitySearch) {
+            if (payload.connectivityProcessed) {
               // grey out all connectivity if no search results
               flatmap.mapImp?.setPaint({ dimmed: true })
             }

@@ -219,7 +219,9 @@ export default {
         
         const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
         EventBus.emit("connectivity-knowledge", {
-          data: uniqueConnectivities
+          data: uniqueConnectivities,
+          highlight: [],
+          processed: false
         });
 
         const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
@@ -227,7 +229,9 @@ export default {
       } else {
         if (sckanVersion) {
           EventBus.emit("connectivity-knowledge", {
-            data: this.connectivitiesStore.globalConnectivities[sckanVersion]
+            data: this.connectivitiesStore.globalConnectivities[sckanVersion],
+            highlight: [],
+            processed: false,
           });
           this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
         } else {

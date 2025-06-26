@@ -48,8 +48,6 @@
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
           @connectivity-item-close="onConnectivityItemClose"
-          @mouseenter="() => mouseOnSidebar = true"
-          @mouseleave="() => mouseOnSidebar = false"
         />
         <SplitDialog
           :entries="entries"
@@ -126,7 +124,7 @@ export default {
       filterTriggered: false,
       availableFacets: [],
       connectivityEntry: [],
-      connectivitySearch: false,
+      connectivityProcessed: false,
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
@@ -139,9 +137,6 @@ export default {
       confirmDeleteCallback: undefined,
       confirmCommentCallback: undefined,
       filterOptions: [],
-      mouseOnSidebar: false,
-      hoverHighlight: [],
-      highlightInterval: undefined,
     }
   },
   watch: {
@@ -357,12 +352,9 @@ export default {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
-      } else if (data.highlightType === 'recursive') {
-        hoverConnectivity = this.hoverHighlight;
       }
-      this.hoverHighlight = hoverConnectivity;
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
+      EventBus.emit("hoverUpdate", { connectivityProcessed: this.connectivityProcessed });
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
@@ -666,15 +658,6 @@ export default {
     this._externalStateSet = false;
   },
   mounted: function () {
-    this.highlightInterval = setInterval(() => {
-      if (
-        this.hoverHighlight.length &&
-        !this.mouseOnSidebar &&
-        (this.connectivitySearch || this.annotationHighlight.length)
-      ) {
-        this.hoverChanged({ highlightType: 'recursive' });
-      }
-    }, 500)
     EventBus.on("RemoveEntryRequest", id => {
       this.removeEntry(id);
     });
@@ -784,8 +767,8 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = payload.highlight || [];
-      this.connectivitySearch = payload.processed;
+      this.connectivityHighlight = payload.highlight;
+      this.connectivityProcessed = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
