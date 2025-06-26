@@ -97,19 +97,19 @@
                     v-model="globalSettings.connectionType"
                     @change="updateGlobalSettings"
                   >
-                    <el-radio-button value="origins" size="small">Origins</el-radio-button>
-                    <el-radio-button value="vias" size="small">Vias</el-radio-button>
-                    <el-radio-button value="destinations" size="small">Destinations</el-radio-button>
+                    <el-radio-button value="origin" size="small">Origin</el-radio-button>
+                    <el-radio-button value="via" size="small">Via</el-radio-button>
+                    <el-radio-button value="destination" size="small">Destination</el-radio-button>
                     <el-radio-button value="" size="small">All</el-radio-button>
                   </el-radio-group>
                   <div class="el-radio__description">
-                    <small v-if="globalSettings.connectionType === 'origins'">
+                    <small v-if="globalSettings.connectionType === 'origin'">
                       Neuron populations beginning at a location.
                     </small>
-                    <small v-else-if="globalSettings.connectionType === 'vias'">
+                    <small v-else-if="globalSettings.connectionType === 'via'">
                       Neuron populations via a location.
                     </small>
-                    <small v-else-if="globalSettings.connectionType === 'destinations'">
+                    <small v-else-if="globalSettings.connectionType === 'destination'">
                       Neuron populations terminating at a location.
                     </small>
                     <small v-else>
