@@ -136,7 +136,7 @@ export default {
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
-      filterVisibility: true,
+      filterVisibility: false,
       filterOptions: [],
       annotationHighlight: [],
     }
