@@ -495,6 +495,12 @@ export default {
         content.onShowReferenceConnectivity(payload);
       });
     });
+    EventBus.on('enable-reset-on-click', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onEnableFeatureResetOnClick(payload);
+      });
+    });
   },
 };
 </script>

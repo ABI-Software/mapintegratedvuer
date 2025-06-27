@@ -611,6 +611,9 @@ export default {
     changeConnectivitySource: function(payload) {
       return;
     },
+    onEnableFeatureResetOnClick: function() {
+      return;
+    },
     loadConnectivityExplorerConfig: async function (flatmap) {
       const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);

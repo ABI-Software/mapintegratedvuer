@@ -171,6 +171,9 @@ export default {
     onStartHelp: function() {
       this.$refs.viewer?.startHelp();
     },
+    onEnableFeatureResetOnClick: function(payload) {
+      this.$refs.viewer?.enableFeatureResetOnClick(payload);
+    },
   },
   data: function () {
     return {

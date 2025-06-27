@@ -464,6 +464,12 @@ export default {
         flatmap.changeConnectivitySource(payload);
       }
     },
+    enableFeatureResetOnClick: function (payload) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.enableFeatureResetOnClick(payload);
+      }
+    },
     updateViewerSettings: function () {
       const {
         backgroundDisplay,

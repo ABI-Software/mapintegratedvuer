@@ -156,8 +156,9 @@ export default {
       },
     },
     annotationHighlight: {
-      handler: function () {
+      handler: function (value) {
         this.hoverChanged({ tabType: 'annotation' });
+        EventBus.emit('enable-reset-on-click', !value.length)
       },
     },
   },
@@ -769,6 +770,8 @@ export default {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = payload.highlight;
       this.connectivityProcessed = payload.processed;
+
+      EventBus.emit('enable-reset-on-click', !payload.processed);
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
