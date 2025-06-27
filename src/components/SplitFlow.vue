@@ -795,9 +795,6 @@ export default {
       } else this.openSearch(this._facets, this.search);
     });
   },
-  unmounted: function () {
-    clearInterval(this.highlightInterval)
-  },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     envVars: function () {
