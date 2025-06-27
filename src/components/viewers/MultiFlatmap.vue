@@ -87,18 +87,6 @@ const getOpenMapOptions = (species) => {
       key: "3D"
     },
   ]
-  switch (species) {
-    case "Human Male":
-    case "Human Female":
-    case "Rat":
-      options.push({
-        display: "Open Sync Map",
-        key: "SYNC"
-      });
-      break;
-    default:
-      break;
-  }
   return options;
 }
 
@@ -120,46 +108,6 @@ export default {
     }
   },
   methods: {
-    /**
-     * Toggle sync mode on/off depending on species and current state
-     */
-    toggleSyncMode: async function () {
-      if (this.syncMode == false) {
-        let action = undefined;
-        if (this.activeSpecies === "Rat") {
-          action = {
-            contextCard: undefined,
-            discoverId: undefined,
-            label: "Rat Body",
-            resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json",
-            title: "View 3D scaffold",
-            layout: "2horpanel",
-            type: "SyncMap",
-          };
-        } else if ((this.activeSpecies === "Human Male") || (this.activeSpecies === "Human Female")) {
-          //Dynamically construct the whole body scaffold for human and store it
-          if (!("human" in this.scaffoldResource)) {
-            this.scaffoldResource["human"] = await getBodyScaffoldInfo(this.apiLocation, "human");
-          }
-          action = {
-            contextCardUrl: this.scaffoldResource["human"].datasetInfo.contextCardUrl,
-            discoverId: this.scaffoldResource["human"].datasetInfo.discoverId,
-            s3uri: this.scaffoldResource["human"].datasetInfo.s3uri,
-            version: this.scaffoldResource["human"].datasetInfo.version,
-            label: "Human Body",
-            resource: this.scaffoldResource["human"].url,
-            title: "View 3D scaffold",
-            layout: "2vertpanel",
-            type: "SyncMap",
-            isBodyScaffold: true,
-          };
-        }
-        if (action)
-          EventBus.emit("SyncModeRequest", { id: this.entry.id, flag: true, action: action });
-      } else {
-        EventBus.emit("SyncModeRequest", { id: this.entry.id, lag: false });
-      }
-    },
     getState: function () {
       if (this.flatmapReady) return this.$refs.multiflatmap.getState();
       else return undefined;
@@ -247,30 +195,6 @@ export default {
         'location': 'map_popup_button',
       });
     },
-    /**
-     * Handle sync pan zoom event
-     */
-    handleSyncPanZoomEvent: function (data) {
-      //Prevent recursive callback
-      if (!this.mouseHovered) {
-        if (data.type !== this.entry.type) {
-          const zoom = data.payload.zoom;
-          const center = data.payload.target;
-          const height = this.$el.clientHeight;
-          const width = this.$el.clientWidth;
-          const max = Math.max(width, height);
-          let sW = width / max / zoom;
-          const sH = height / max / zoom;
-          const origin = [
-            center[0] / 2 + 0.5 - sW / 2,
-            0.5 - center[1] / 2 - sH / 2,
-          ];
-          this.$refs.multiflatmap
-            .getCurrentFlatmap()
-            .mapImp.panZoomTo(origin, [sW, sH]);
-        }
-      }
-    },
     displayTooltip: function (info) {
       if (info) {
         let name = info.name;
@@ -326,10 +250,6 @@ export default {
       this.activeSpecies = activeSpecies;
       this.openMapOptions = getOpenMapOptions(activeSpecies);
       this.$emit("species-changed", activeSpecies);
-      if (!(this.entry.state && (this.entry.state.species === this.activeSpecies))) {
-        if (this.syncMode == true)
-          await this.toggleSyncMode();
-      }
       this.updateProvCard();
 
       // GA Tagging
@@ -501,10 +421,6 @@ export default {
     },
   },
   watch: {
-    syncMode: function (val) {
-      if (this.$refs.multiflatmap.getCurrentFlatmap())
-        this.$refs.multiflatmap.getCurrentFlatmap().enablePanZoomEvents(val);
-    },
     featuredMarkers: function (markers) {
       if (!this.flatmapReady) {
         return;
