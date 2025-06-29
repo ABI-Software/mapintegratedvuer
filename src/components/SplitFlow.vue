@@ -136,7 +136,7 @@ export default {
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
-      filterVisibility: false,
+      filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
     }
@@ -170,7 +170,17 @@ export default {
       // make sure setting are managed by the side bar
       const hasHighlight = this.filterVisibility && this.connectivityHighlight.length;
       const payload = hasHighlight ?
-        { 'models': this.connectivityHighlight } :
+        {
+          OR: [
+            { NOT: { 'tile-layer': 'pathways' } },
+            {
+              AND: [
+                { 'tile-layer': 'pathways' },
+                { 'models': this.connectivityHighlight }
+              ]
+            }
+          ]
+        } :
         undefined;
       EventBus.emit('filter-visibility', payload);
     },
