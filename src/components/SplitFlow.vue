@@ -29,6 +29,7 @@
           :connectivityEntry="connectivityEntry"
           :connectivityKnowledge="connectivityKnowledge"
           :filterOptions="filterOptions"
+          :showVisibilityFilter="showVisibilityFilter"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -136,6 +137,7 @@ export default {
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
+      showVisibilityFilter: false,
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
