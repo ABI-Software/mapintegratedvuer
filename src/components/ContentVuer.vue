@@ -159,6 +159,9 @@ export default {
     onStartHelp: function() {
       this.$refs.viewer?.startHelp();
     },
+    onFilterVisibility: function(payload) {
+      this.$refs.viewer?.setVisibilityFilter(payload);
+    },
   },
   data: function () {
     return {
