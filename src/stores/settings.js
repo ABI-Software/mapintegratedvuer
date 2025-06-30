@@ -56,6 +56,13 @@ export const useSettingsStore = defineStore('settings', {
       );
       return state.featuredMarkerDois[index];
     },
+    getGlobalSettings: state => () => {
+      const globalSettings = {};
+      for (const [key, value] of Object.entries(state.globalSettings)) {
+        globalSettings[key] = value;
+      }
+      return globalSettings;
+    },
     getUpdatedGlobalSettingsKey: state => settings => {
       let updatedSettings = [];
       for (const [key, value] of Object.entries(settings)) {

@@ -415,29 +415,6 @@ export default {
       return 1;
     },
     /**
-     * Activate Synchronised workflow
-     */
-    activateSyncMap: function (id, data) {
-      let newEntry = {};
-      Object.assign(newEntry, data);
-      newEntry.mode = "normal";
-      newEntry.id = this.getNewEntryId();
-      newEntry.state = undefined;
-      newEntry.type = "Scaffold";
-      newEntry.discoverId = data.discoverId;
-      newEntry.rotation = "free";
-      if (data.layout == "2vertpanel") newEntry.rotation = "horizontal";
-      else if (data.layout == "2horpanel") newEntry.rotation = "vertical";
-      this.entriesStore.addNewEntry(newEntry);
-      this.splitFlowStore.setSyncMode({
-        flag: true,
-        id, id,
-        newId: newEntry.id,
-        layout: data.layout,
-      });
-      return newEntry.id;
-    },
-    /**
      * Add new entry which will sequentially create a
      * new dialog.
      */
@@ -451,10 +428,6 @@ export default {
       newEntry.discoverId = data.discoverId;
       this.entriesStore.addNewEntry(newEntry);
       this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
-      if (this.splitFlowStore.syncMode) {
-        this.splitFlowStore.setSyncMode({ flag: false });
-      }
-
       //close sidebar on entry creation to see the context card
       if (this.$refs.sideBar) {
         this.$refs.sideBar.setDrawerOpen(false);
@@ -495,8 +468,13 @@ export default {
     setState: function (state) {
       this.entriesStore.setAll(state.entries);
       //Support both old and new permalink.
-      if (state.splitFlow) this.splitFlowStore.setState(state.splitFlow);
-      else this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+      if (state.splitFlow) {
+        this.splitFlowStore.setState(state.splitFlow);
+      }
+      else {
+        this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+      }
+      this.updateGlobalSettingsFromState(state);
     },
     getState: function (anonymousAnnotations = false) {
       let state = JSON.parse(JSON.stringify(this.entriesStore.$state));
@@ -521,6 +499,7 @@ export default {
         }
       }
       state.splitFlow = this.splitFlowStore.getState();
+      state.globalSettings = this.settingsStore.getGlobalSettings();
       return state;
     },
     removeEntry: function (id) {
@@ -529,9 +508,6 @@ export default {
     },
     resourceSelected: function (result) {
       this.$emit("resource-selected", result);
-      if (this.splitFlowStore.globalCallback) {
-        this.$refs.splitdialog.sendSynchronisedEvent(result);
-      }
     },
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
@@ -541,21 +517,6 @@ export default {
           EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
         })
-      }
-    },
-    toggleSyncMode: function (payload) {
-      if (payload) {
-        if (payload.flag) {
-          if (payload.action) {
-            this.activateSyncMap(payload.id, payload.action);
-          }
-        } else {
-          if (this.splitFlowStore.syncMode) {
-            this.splitFlowStore.setSyncMode({
-              flag: false,
-            });
-          }
-        }
       }
     },
     contextUpdate: function (payload) {
@@ -629,28 +590,8 @@ export default {
       }
     },
     updateGlobalSettingsFromState: function (state) {
-      let mappedSettings = null;
-      state.entries.forEach((entry) => {
-        if (entry.state?.state) {
-          const {
-            background,
-            colour,
-            flightPath3D,
-            outlines,
-            viewingMode
-          } = entry.state.state;
-
-          mappedSettings = {
-            viewingMode: viewingMode,
-            flightPathDisplay: flightPath3D,
-            organsDisplay: colour,
-            outlinesDisplay: outlines,
-            backgroundDisplay: background,
-          };
-        }
-      })
-      if (mappedSettings) {
-        this.settingsStore.updateGlobalSettings(mappedSettings);
+      if (state?.globalSettings) {
+        this.settingsStore.updateGlobalSettings(state.globalSettings);
       }
     },
   },
@@ -661,9 +602,6 @@ export default {
   mounted: function () {
     EventBus.on("RemoveEntryRequest", id => {
       this.removeEntry(id);
-    });
-    EventBus.on("SyncModeRequest", payload => {
-      this.toggleSyncMode(payload);
     });
     EventBus.on("PopoverActionClick", payload => {
       this.actionClick(payload);
