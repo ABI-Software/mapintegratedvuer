@@ -132,7 +132,7 @@ export default {
       confirmDeleteCallback: undefined,
       confirmCommentCallback: undefined,
       createData: {},
-      connectivitySearch: false,
+      connectivityProcessed: false,
       connectivityHighlight: [],
       connectivityKnowledge: [],
       connectivityExplorerClicked: [], // to support multi views
@@ -167,21 +167,19 @@ export default {
   methods: {
     onFilterVisibility: function (state) {
       this.filterVisibility = state;
-      // make sure setting are managed by the side bar
-      const hasHighlight = this.filterVisibility && this.connectivityHighlight.length;
-      const payload = hasHighlight ?
-        {
-          OR: [
-            { NOT: { 'tile-layer': 'pathways' } },
-            {
-              AND: [
-                { 'tile-layer': 'pathways' },
-                { 'models': this.connectivityHighlight }
-              ]
-            }
-          ]
-        } :
-        undefined;
+      const filterExpression = {
+        OR: [
+          { NOT: { 'tile-layer': 'pathways' } },
+          {
+            AND: [
+              { 'tile-layer': 'pathways' },
+              { 'models': this.connectivityHighlight }
+            ]
+          }
+        ]
+      };
+      const validFilter = this.filterVisibility && this.connectivityProcessed;
+      const payload = validFilter ? filterExpression : undefined;
       EventBus.emit('filter-visibility', payload);
     },
     onConnectivityCollapseChange: function (payload) {
@@ -376,7 +374,7 @@ export default {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
       this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate", { connectivitySearch: this.connectivitySearch });
+      EventBus.emit("hoverUpdate", { connectivityProcessed: this.connectivityProcessed });
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
@@ -701,6 +699,7 @@ export default {
         this.connectivityKnowledge = this.connectivityEntry;
         if (this.connectivityKnowledge.every(ck => ck.ready)) {
           this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
+          this.connectivityProcessed = true;
         }
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
@@ -710,6 +709,7 @@ export default {
     });
     EventBus.on('connectivity-info-close', payload => {
       if (this.$refs.sideBar) {
+        this.connectivityProcessed = false;
         this.$refs.sideBar.resetConnectivitySearch();
       }
     });
@@ -729,7 +729,7 @@ export default {
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = payload.highlight || [];
-      this.connectivitySearch = payload.processed;
+      this.connectivityProcessed = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
