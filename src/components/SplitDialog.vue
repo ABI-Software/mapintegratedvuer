@@ -254,7 +254,8 @@ export default {
     },
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
-      const searchOrders = [], searchHighlights = [], searchResults = [];
+      const searchOrders = [], searchResults = [];
+      let searchHighlights = [];
       let processed = false;
 
       for (const activeContent of activeContents) {
@@ -282,6 +283,7 @@ export default {
 
             const filters = {};
             let queryIds = [], facetIds = [];
+            let hasConnectionTargets = false;
             if (data) {
               this.query = data.query;
               // get query search result ids and order
@@ -319,15 +321,18 @@ export default {
                   });
                 }
                 if (isNeuronConnection && item.facet !== 'Show all') {
-                  const facet = JSON.parse(item.facet);
+                  const facet2 = item.facet2;
+                  const facet = item.facet;
+                  const feature = facet2 ? JSON.parse(facet2) : JSON.parse(facet);
                   const mode = item.facetSubPropPath.split('.').pop();
+                  hasConnectionTargets = true;
 
                   if (mode === 'origin') {
-                    results = findPathsByOriginItem(results, facet);
+                    results = findPathsByOriginItem(results, feature);
                   } else if (mode === 'destination') {
-                    results = findPathsByDestinationItem(results, facet);
+                    results = findPathsByDestinationItem(results, feature);
                   } else if (mode === 'via') {
-                    results = findPathsByViaItem(results, facet);
+                    results = findPathsByViaItem(results, feature);
                   }
                 }
               });
@@ -352,6 +357,14 @@ export default {
               searchHighlights.push(...target);
               results = results.filter((item) => target.includes(item.id));
               processed = true;
+            }
+            if (hasConnectionTargets) {
+              const connectionTargets = results.map((item) => item.id);
+              if (searchHighlights.length) {
+                searchHighlights = searchHighlights.filter((item) => connectionTargets.includes(item));
+              } else {
+                searchHighlights = connectionTargets;
+              }
             }
             searchResults.push(...results);
           }
