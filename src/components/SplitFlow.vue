@@ -29,6 +29,7 @@
           :connectivityEntry="connectivityEntry"
           :connectivityKnowledge="connectivityKnowledge"
           :filterOptions="filterOptions"
+          :showVisibilityFilter="true"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
