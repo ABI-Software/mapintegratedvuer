@@ -48,6 +48,7 @@
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
           @connectivity-item-close="onConnectivityItemClose"
+          @connectivity-explorer-reset="onConnectivityExplorerReset"
         />
         <SplitDialog
           :entries="entries"
@@ -168,6 +169,37 @@ export default {
     },
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
+    },
+    onConnectivityExplorerReset: function () {
+      const activeFlatmaps = this.getActiveFlatmaps();
+      activeFlatmaps.forEach((activeFlatmap) => {
+        activeFlatmap.resetConnectivityfilters();
+      });
+    },
+    getActiveFlatmaps: function () {
+      const activeFlatmaps = [];
+      let splitdialog = this.$refs.splitdialog;
+
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+
+        activeContents.forEach(content => {
+          if (content?.$refs['viewer']) {
+            const contentViewer = content.$refs['viewer'];
+            const flatmapRef = contentViewer.flatmapRef;
+            const multiflatmapRef = contentViewer.multiflatmapRef;
+            let flatmap = null;
+
+            if (flatmapRef) flatmap = flatmapRef;
+            if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
+
+            if (flatmap && flatmap.$el.checkVisibility()) {
+              activeFlatmaps.push(flatmap);
+            }
+          }
+        });
+      }
+      return activeFlatmaps;
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -697,27 +729,10 @@ export default {
       }
     });
     EventBus.on('neuron-connection-click', payload => {
-      let splitdialog = this.$refs.splitdialog;
-
-      if (splitdialog) {
-        const activeContents = splitdialog.getActiveContents();
-
-        activeContents.forEach(content => {
-          if (content?.$refs['viewer']) {
-            const contentViewer = content.$refs['viewer'];
-            const flatmapRef = contentViewer.flatmapRef;
-            const multiflatmapRef = contentViewer.multiflatmapRef;
-            let flatmap = null;
-
-            if (flatmapRef) flatmap = flatmapRef;
-            if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
-
-            if (flatmap && flatmap.$el.checkVisibility()) {
-              flatmap.highlightConnectedPaths(payload);
-            }
-          }
-        });
-      }
+      const activeFlatmaps = this.getActiveFlatmaps();
+      activeFlatmaps.forEach((activeFlatmap) => {
+        activeFlatmap.highlightConnectedPaths(payload);
+      });
     });
     EventBus.on('neuron-connection-feature-click', payload => {
       if (this.$refs.sideBar) {
