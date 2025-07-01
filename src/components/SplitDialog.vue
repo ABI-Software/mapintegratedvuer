@@ -31,6 +31,7 @@ import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
+import { findPathsByDestinationItem, findPathsByOriginItem, findPathsByViaItem } from "@abi-software/map-utilities";
 
 export default {
   name: "SplitDialog",
@@ -304,7 +305,8 @@ export default {
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
                 const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
-                if (matchedFilter) {
+                const isNeuronConnection = Boolean(item.facetPropPath === 'flatmap.connectivity.source');
+                if (matchedFilter && !isNeuronConnection) {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
                       const childKey = child.key.split('.').pop();
@@ -315,6 +317,18 @@ export default {
                       filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
                     }
                   });
+                }
+                if (isNeuronConnection && item.facet !== 'Show all') {
+                  const facet = JSON.parse(item.facet);
+                  const mode = item.facetSubPropPath.split('.').pop();
+
+                  if (mode === 'origin') {
+                    results = findPathsByOriginItem(results, facet);
+                  } else if (mode === 'destination') {
+                    results = findPathsByDestinationItem(results, facet);
+                  } else if (mode === 'via') {
+                    results = findPathsByViaItem(results, facet);
+                  }
                 }
               });
               this.filter = Object.values(filters);
