@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "1.10.1-beta.1",
+  "version": "1.10.1",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
@@ -10,8 +10,10 @@
     "start": "vite build && vite preview",
     "test-unit": "mochapack --webpack-config test/unit/webpack.config.js --require test/unit/setup.js test/unit/**/*.spec.js",
     "test": "vitest --dom",
+    "cypress-prepare": "node cypress/support/fileUtils.js",
     "cypress": "cypress",
-    "cypress-component": "cypress run --component",
+    "cypress-open": "npm run cypress-prepare && cypress open",
+    "cypress-component": "npm run cypress-prepare && cypress run --component",
     "report:merge": "mochawesome-merge cypress/results/json/*json > cypress/results/mochawesome-bundle.json",
     "report:generate": "marge cypress/results/mochawesome-bundle.json -o cypress/reports/html",
     "changelog": "auto-changelog -p --output CHANGELOG.md --template keepachangelog",
@@ -50,12 +52,12 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^1.10.0-beta.1",
-    "@abi-software/map-side-bar": "^2.8.3-beta.7",
-    "@abi-software/map-utilities": "^1.6.0-beta.0",
+    "@abi-software/flatmapvuer": "^1.10.1-beta.1",
+    "@abi-software/map-side-bar": "^2.9.1-beta.0",
+    "@abi-software/map-utilities": "^1.6.1-beta.0",
     "@abi-software/plotvuer": "1.0.4",
-    "@abi-software/scaffoldvuer": "^1.10.0-beta.0",
-    "@abi-software/simulationvuer": "^2.0.11-beta.0",
+    "@abi-software/scaffoldvuer": "^1.10.0",
+    "@abi-software/simulationvuer": "^2.0.11",
     "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "^1.0.1",
     "@element-plus/icons-vue": "^2.3.1",

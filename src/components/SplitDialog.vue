@@ -31,6 +31,7 @@ import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
+import { findPathsByDestinationItem, findPathsByOriginItem, findPathsByViaItem } from "@abi-software/map-utilities";
 
 export default {
   name: "SplitDialog",
@@ -106,12 +107,6 @@ export default {
     isIdVisible: function(id) {
       const refName = this.splitFlowStore.getPaneNameById(id);
       return refName !== undefined;
-    },
-    sendSynchronisedEvent: function(resource) {
-      const activeContents = this.getActiveContents();
-      activeContents.forEach(content => {
-        content.receiveSynchronisedEvent(resource);
-      });
     },
     getContentsWithId: function(id) {
       let contents = this.$refs["content"];
@@ -216,7 +211,7 @@ export default {
       // mix connectivites of available maps
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
-        
+
         const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
         EventBus.emit("connectivity-knowledge", {
           data: uniqueConnectivities
@@ -231,7 +226,7 @@ export default {
           });
           this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
         } else {
-          console.warn(`There has no connectivity to show!`);
+          console.warn(`There is no connectivity to show!`);
         }
       }
     },
@@ -259,7 +254,8 @@ export default {
     },
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
-      const searchOrders = [], searchHighlights = [], searchResults = [];
+      const searchOrders = [], searchResults = [];
+      let searchHighlights = [];
       let processed = false;
 
       for (const activeContent of activeContents) {
@@ -287,6 +283,7 @@ export default {
 
             const filters = {};
             let queryIds = [], facetIds = [];
+            let hasConnectionTargets = false;
             if (data) {
               this.query = data.query;
               // get query search result ids and order
@@ -310,7 +307,8 @@ export default {
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
                 const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
-                if (matchedFilter) {
+                const isNeuronConnection = Boolean(item.facetPropPath.includes('flatmap.connectivity.source'));
+                if (matchedFilter && !isNeuronConnection) {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
                       const childKey = child.key.split('.').pop();
@@ -321,6 +319,20 @@ export default {
                       filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
                     }
                   });
+                }
+                if (isNeuronConnection && item.facet !== 'Show all') {
+                  const facet = item.facet;
+                  const feature = JSON.parse(facet);
+                  const mode = item.facetPropPath.split('.').pop();
+                  hasConnectionTargets = true;
+
+                  if (mode === 'origin') {
+                    results = findPathsByOriginItem(results, feature);
+                  } else if (mode === 'destination') {
+                    results = findPathsByDestinationItem(results, feature);
+                  } else if (mode === 'via') {
+                    results = findPathsByViaItem(results, feature);
+                  }
                 }
               });
               this.filter = Object.values(filters);
@@ -336,7 +348,7 @@ export default {
             } else if (!this.query && this.filter.length) { // pure facet search
               target = facetIds;
             } else if (this.query && this.filter.length) { // combined query and facet search
-              // between query search and facet search -> AND 
+              // between query search and facet search -> AND
               target = queryIds.filter(id => facetIds.includes(id));
             }
             // This can be empty array due to the AND operation
@@ -344,6 +356,14 @@ export default {
               searchHighlights.push(...target);
               results = results.filter((item) => target.includes(item.id));
               processed = true;
+            }
+            if (hasConnectionTargets) {
+              const connectionTargets = results.map((item) => item.id);
+              if (searchHighlights.length) {
+                searchHighlights = searchHighlights.filter((item) => connectionTargets.includes(item));
+              } else {
+                searchHighlights = connectionTargets;
+              }
             }
             searchResults.push(...results);
           }
@@ -387,34 +407,6 @@ export default {
     },
     splitters() {
       return this.splitFlowStore.splitters;
-    },
-    globalCallback() {
-      return this.splitFlowStore.globalCallback;
-    },
-  },
-  watch: {
-    globalCallback: {
-      handler: function(val) {
-        //Only activate for active
-        if (val) {
-          const contents = this.getActiveContents();
-          if (contents) {
-            contents.forEach(content => {
-              content.requestSynchronisedEvent(val);
-            });
-          }
-        } else {
-          //Turn sync off, this can be requested for all contents
-          const contents = this.$refs['content'];
-          if (contents) {
-            contents.forEach(content => {
-              content.requestSynchronisedEvent(false);
-            });
-          }
-        }
-      },
-      immediate: true,
-      deep: true
     },
   },
   mounted: function () {
