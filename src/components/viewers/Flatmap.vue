@@ -23,6 +23,7 @@
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
+      @neuron-connection-click="onNeuronConnectionClick"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
