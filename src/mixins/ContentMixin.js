@@ -554,6 +554,9 @@ export default {
     onNeuronConnectionClick: function (payload) {
       EventBus.emit('neuron-connection-click', payload);
     },
+    onNeuronConnectionFeatureClick: function (payload) {
+      EventBus.emit('neuron-connection-feature-click', payload);
+    },
     showConnectivity: function(payload) {
       return;
     },

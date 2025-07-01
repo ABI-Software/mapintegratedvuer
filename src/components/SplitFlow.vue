@@ -719,6 +719,13 @@ export default {
         });
       }
     });
+    EventBus.on('neuron-connection-feature-click', payload => {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.openConnectivitySearch(payload, '');
+        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
     });
