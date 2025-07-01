@@ -128,10 +128,10 @@ export default {
     /**
      * Perform a local search on this contentvuer
      */
-    search: function (term) {
+    search: function (term, connectivityExplorerClicked) {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       //First search and show the result
-      return flatmap.searchAndShowResult(term, true);
+      return flatmap.searchAndShowResult(term, true, connectivityExplorerClicked);
     },
     /**
      * Append the list of suggested terms to suggestions
