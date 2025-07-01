@@ -23,6 +23,8 @@
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
+      @neuron-connection-click="onNeuronConnectionClick"
+      @neuron-connection-feature-click="onNeuronConnectionFeatureClick"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
@@ -213,6 +215,7 @@ export default {
         flightPathDisplay,
         organsDisplay,
         outlinesDisplay,
+        connectionType,
       } = this.settingsStore.globalSettings;
 
       const currentFlatmap = this.$refs.flatmap;
@@ -222,6 +225,7 @@ export default {
       currentFlatmap.setColour(organsDisplay);
       currentFlatmap.setOutlines(outlinesDisplay);
       currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+      currentFlatmap.setConnectionType(connectionType);
     },
     setVisibilityFilter: function (payload) {
       if (this?.alive) {

@@ -43,6 +43,7 @@ export const useSettingsStore = defineStore('settings', {
         organsDisplay: true,
         outlinesDisplay: true,
         backgroundDisplay: 'white',
+        connectionType: 'All', // 'Origin', 'Via', 'Destination', 'All
       },
     }
   },
@@ -55,6 +56,13 @@ export const useSettingsStore = defineStore('settings', {
         element => element == identifier
       );
       return state.featuredMarkerDois[index];
+    },
+    getGlobalSettings: state => () => {
+      const globalSettings = {};
+      for (const [key, value] of Object.entries(state.globalSettings)) {
+        globalSettings[key] = value;
+      }
+      return globalSettings;
     },
     getUpdatedGlobalSettingsKey: state => settings => {
       let updatedSettings = [];

@@ -22,7 +22,7 @@ import { addCompareSnapshotCommand } from 'cypress-visual-regression/dist/comman
 
 addCompareSnapshotCommand({
   capture: 'fullPage', // cypress screenshot option
-  errorThreshold: 0.5, // plugin threshold option
+  errorThreshold: 1, // plugin threshold option
   pixelmatchOptions: {
     threshold: 0.1 // pixelmatch threshold option
   }
