@@ -323,7 +323,7 @@ export default {
           if (connectivityExplorerClicked) {
             this.connectivityExplorerClicked.push(true);
           }
-          if (content.search(payload.term)) {
+          if (content.search(payload.term, connectivityExplorerClicked)) {
             searchFound = true;
           }
         });
