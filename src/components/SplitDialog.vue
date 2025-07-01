@@ -307,7 +307,7 @@ export default {
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
                 const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
-                const isNeuronConnection = Boolean(item.facetPropPath === 'flatmap.connectivity.source');
+                const isNeuronConnection = Boolean(item.facetPropPath.includes('flatmap.connectivity.source'));
                 if (matchedFilter && !isNeuronConnection) {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
@@ -321,10 +321,9 @@ export default {
                   });
                 }
                 if (isNeuronConnection && item.facet !== 'Show all') {
-                  const facet2 = item.facet2;
                   const facet = item.facet;
-                  const feature = facet2 ? JSON.parse(facet2) : JSON.parse(facet);
-                  const mode = item.facetSubPropPath.split('.').pop();
+                  const feature = JSON.parse(facet);
+                  const mode = item.facetPropPath.split('.').pop();
                   hasConnectionTargets = true;
 
                   if (mode === 'origin') {
