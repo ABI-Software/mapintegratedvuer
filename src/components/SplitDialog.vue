@@ -158,9 +158,7 @@ export default {
     onSpeciesLayoutConnectivityUpdate: function () {
       let activePaneIDs = [];
       let availablePaneIDs = [];
-      let combinedConnectivities = [];
       let sckanVersion = '';
-      let uuid = '';
 
       for (const key in this.customLayout) {
         if (this.customLayout[key].id) {
@@ -276,21 +274,25 @@ export default {
         if (viewer) {
           const multiflatmap = viewer.$refs.multiflatmap;
           const flatmap = viewer.$refs.flatmap;
-          let currentFlatmap = null;
+          const scaffold = viewer.$refs.scaffold;
+          let currentMap = null;
 
           if (multiflatmap) {
-            const _currentFlatmap = multiflatmap.getCurrentFlatmap();
-            if (_currentFlatmap && _currentFlatmap.mapImp) {
-              currentFlatmap = _currentFlatmap;
+            const _currentMap = multiflatmap.getCurrentFlatmap();
+            if (_currentMap && _currentMap.mapImp) {
+              currentMap = _currentMap;
             }
           }
           if (flatmap && flatmap.mapImp) {
-            currentFlatmap = flatmap;
+            currentMap = flatmap;
+          }
+          if (scaffold) {
+            currentMap = scaffold;
           }
 
           const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
           const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
-          if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
+          if (currentMap && currentMap.$el.checkVisibility()) {
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
 
             const filters = {};
@@ -306,12 +308,12 @@ export default {
                   .filter(term => term);
                 const nestedIds = [];
                 for (let index = 0; index < searchTerms.length; index++) {
-                  nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
+                  nestedIds.push(this.getSearchedId(currentMap, searchTerms[index]));
                 }
                 // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
-                queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
+                queryIds = await currentMap.retrieveConnectedPaths(flatIds);
               }
 
               // get facet search result ids
