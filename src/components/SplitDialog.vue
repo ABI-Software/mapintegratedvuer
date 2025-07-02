@@ -196,8 +196,22 @@ export default {
       const uuids = Array.from(
         new Set(
           this.entries
-            .filter(entry => activePaneIDs.includes(entry.id) && entry.uuid)
-            .map(entry => entry.uuid)
+            .filter((entry) => {
+              return (
+                activePaneIDs.includes(entry.id) &&
+                (
+                  ((entry.type === 'Flatmap' || entry.type === 'MultiFlatmap') && entry.uuid) ||
+                  entry.type === 'Scaffold' && entry.resource
+                )
+              )
+            })
+            .map((entry) => {
+              if ((entry.type === 'Flatmap' || entry.type === 'MultiFlatmap')) {
+                return entry.uuid;
+              } else if (entry.type === 'Scaffold') {
+                return entry.resource;
+              }
+            })
         )
       );
 

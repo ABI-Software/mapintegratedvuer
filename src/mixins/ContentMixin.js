@@ -564,35 +564,40 @@ export default {
       return;
     },
     loadConnectivityExplorerConfig: async function (flatmap) {
-      const flatmapImp = flatmap.mapImp;
-      const sckanVersion = getKnowledgeSource(flatmapImp);
       const flatmapQueries = markRaw(new FlatmapQueries());
       flatmapQueries.initialise(this.flatmapAPI);
+      const flatmapImp = flatmap.mapImp;
       const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
-      const uuid = flatmapImp.uuid;
-      const pathways = flatmapImp.pathways;
+      const sckanVersion = getKnowledgeSource(flatmapImp);
+      const uuid = flatmap.mockup ? flatmapImp.resource : flatmapImp.uuid;
+      const pathways = flatmapImp.pathways?.paths || {};
 
       if (!this.connectivityKnowledge[sckanVersion]) {
         this.connectivityKnowledge[sckanVersion] = knowledge
-          .filter((item) => {
-            return item.source === sckanVersion && item.connectivity?.length;
-          })
+          .filter(item => item.source === sckanVersion && item.connectivity?.length)
           .sort((a, b) => a.label.localeCompare(b.label));
       }
       if (!this.connectivityKnowledge[uuid]) {
-        const pathsFromMap = pathways ? pathways.paths : {};
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
-          .filter((item) => item.id in pathsFromMap);
+          .filter(item => item.id in pathways);
+      }
+      if (flatmap.mockup) {
+        for (const [key, value] of Object.entries(this.connectivityKnowledge)) {
+          this.connectivityKnowledge[key] = value.map(item => {
+            return { ...item, nerves: pathways[item.id] }
+          })
+        }
+      } else {
+        if (!this.connectivityFilterOptions[uuid]) {
+          this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
+        }
+        this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
+        if (!this.connectivityFilterSources[uuid]) {
+          this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
+        }
+        this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
       }
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
-      if (!this.connectivityFilterOptions[uuid]) {
-        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
-      }
-      this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
-      if (!this.connectivityFilterSources[uuid]) {
-        this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
-      }
-      this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
       EventBus.emit('species-layout-connectivity-update');
     },
   },

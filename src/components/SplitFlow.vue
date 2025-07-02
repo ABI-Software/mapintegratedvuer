@@ -350,6 +350,7 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+        hoverOrgans = data.nerves ? data.nerves : [];
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }

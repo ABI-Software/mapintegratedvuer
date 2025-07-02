@@ -53,6 +53,7 @@ import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 
 import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
+import { getNerveMaps, getTermNerveMaps } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
 import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
@@ -112,12 +113,59 @@ export default {
       else names = [ info.name ];
       this.$refs.scaffold.changeHighlightedByName(names, "", false);
     },
-    scaffoldIsReady: function () {
+    getMockUpFlatmap: async function() {
+      const flatmapResponse = await fetch(this.flatmapAPI);
+      const flatmapJson = await flatmapResponse.json();
+      const latestHumanFlatmapMale = flatmapJson
+        .filter(f => f.id === 'human-flatmap_male')
+        .sort((a, b) => b.created.localeCompare(a.created))[0];
+      const flatmapUuid = latestHumanFlatmapMale.uuid;
+      const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
+      const pathwaysJson = await pathwaysResponse.json();
+      const paths = {};
+      const termNerveMaps = getTermNerveMaps();
+      for (const [key, value] of Object.entries(pathwaysJson.paths)) {
+        const terms = value.connectivity?.flat(Infinity);
+        if (!terms?.length) continue;
+
+        const nerves = terms.reduce((acc, term) => {
+          const mapped = termNerveMaps[term];
+          if (Array.isArray(mapped) && mapped.length) {
+            acc.push(...mapped);
+          }
+          return acc;
+        }, []);
+
+        if (nerves.length) {
+          paths[key] = [...new Set(nerves)];
+        }
+      }
+      return {
+        mockup: true,
+        mapImp: {
+          provenance: {
+            connectivity: {
+              ...latestHumanFlatmapMale.sckan,
+            }
+          },
+          'uuid': flatmapUuid,
+          'pathways': {
+            paths: paths
+          },
+          'resource': this.entry.resource
+        },
+      }
+    },
+    scaffoldIsReady: async function () {
       this.scaffoldLoaded = true;
       this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
       if (this.isVisible()) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
+        if (this.entry.label === 'Human') {    
+          const flatmap = await this.getMockUpFlatmap()
+          this.loadConnectivityExplorerConfig(flatmap);
+        }
       }
       this.updateViewerSettings();
       EventBus.emit("mapLoaded", this.$refs.scaffold);
