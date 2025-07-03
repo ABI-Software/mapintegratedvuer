@@ -30,8 +30,14 @@ import CustomSplitter from "./CustomSplitter.vue";
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useSettingsStore } from '../stores/settings';
 import { useConnectivitiesStore } from '../stores/connectivities';
-import { findPathsByDestinationItem, findPathsByOriginItem, findPathsByViaItem } from "@abi-software/map-utilities";
+import {
+  findPathsByDestinationItem,
+  findPathsByOriginItem,
+  findPathsByViaItem,
+  queryPathsByRoute
+} from "@abi-software/map-utilities";
 
 export default {
   name: "SplitDialog",
@@ -346,6 +352,19 @@ export default {
               const destinationFeatures = connectivityQueries.destinations;
               const viaFeatures = connectivityQueries.vias;
 
+              // TODO: to replace this competency query when available
+              // queryPathsByRoute(
+              //   this.settingsStore.flatmapAPI,
+              //   currentFlatmap.mapImp.uuid,
+              //   originFeatures,
+              //   destinationFeatures,
+              //   viaFeatures
+              // ).then((res) => {
+              //   // results
+              // }).catch((err) => {
+              //   // error
+              // });
+
               if (originFeatures.length) {
                 results = findPathsByOriginItem(results, originFeatures);
               }
@@ -413,7 +432,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSplitFlowStore, useConnectivitiesStore),
+    ...mapStores(useSplitFlowStore, useConnectivitiesStore, useSettingsStore),
     activeView: function() {
       return this.splitFlowStore.activeView;
     },
