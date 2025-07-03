@@ -551,16 +551,19 @@ export default {
     onSidebarAnnotationClose: function() {
       return;
     },
-    showConnectivity: function(payload) {
+    showConnectivity: function() {
       return;
     },
-    showConnectivitiesByReference: function(payload) {
+    showConnectivitiesByReference: function() {
       return;
     },
-    showConnectivityTooltips: function(payload) {
+    showConnectivityTooltips: function() {
       return;
     },
-    changeConnectivitySource: function(payload) {
+    changeConnectivitySource: function() {
+      return;
+    },
+    setVisibilityFilter: function() {
       return;
     },
     onEnableFeatureResetOnClick: function() {

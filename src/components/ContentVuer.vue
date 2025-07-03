@@ -162,6 +162,9 @@ export default {
     onEnableFeatureResetOnClick: function(payload) {
       this.$refs.viewer?.enableFeatureResetOnClick(payload);
     },
+    onFilterVisibility: function(payload) {
+      this.$refs.viewer?.setVisibilityFilter(payload);
+    },
   },
   data: function () {
     return {

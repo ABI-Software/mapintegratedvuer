@@ -223,6 +223,14 @@ export default {
       currentFlatmap.setOutlines(outlinesDisplay);
       currentFlatmap.backgroundChangeCallback(backgroundDisplay);
     },
+    setVisibilityFilter: function (payload) {
+      if (this?.alive) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          currentFlatmap.setVisibilityFilter(payload);
+        }
+      }
+    },
   },
   computed: {
     facetSpecies() {

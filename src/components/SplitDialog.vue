@@ -467,6 +467,12 @@ export default {
         content.onEnableFeatureResetOnClick(payload);
       });
     });
+    EventBus.on('filter-visibility', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onFilterVisibility(payload);
+      });
+    });
   },
 };
 </script>
