@@ -303,6 +303,12 @@ export default {
                 queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
               }
 
+              const connectivityQueries = {
+                origins: [],
+                vias: [],
+                destinations: [],
+              };
+
               // get facet search result ids
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
@@ -327,14 +333,29 @@ export default {
                   hasConnectionTargets = true;
 
                   if (mode === 'origin') {
-                    results = findPathsByOriginItem(results, feature);
+                    connectivityQueries.origins.push(feature);
                   } else if (mode === 'destination') {
-                    results = findPathsByDestinationItem(results, feature);
+                    connectivityQueries.destinations.push(feature);
                   } else if (mode === 'via') {
-                    results = findPathsByViaItem(results, feature);
+                    connectivityQueries.vias.push(feature);
                   }
                 }
               });
+
+              const originFeatures = connectivityQueries.origins;
+              const destinationFeatures = connectivityQueries.destinations;
+              const viaFeatures = connectivityQueries.vias;
+
+              if (originFeatures.length) {
+                results = findPathsByOriginItem(results, originFeatures);
+              }
+              if (destinationFeatures.length) {
+                results = findPathsByDestinationItem(results, destinationFeatures);
+              }
+              if (viaFeatures.length) {
+                results = findPathsByViaItem(results, viaFeatures);
+              }
+
               this.filter = Object.values(filters);
               // between facet search categories -> AND
               facetIds = this.filter.length ?
