@@ -37,6 +37,7 @@
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @mapmanager-loaded="onMapmanagerLoaded"
+      :showPathwayFilter="false"
     />
 
     <HelpModeDialog
