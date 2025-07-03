@@ -457,6 +457,12 @@ export default {
         content.onShowReferenceConnectivity(payload);
       });
     });
+    EventBus.on('filter-visibility', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onFilterVisibility(payload);
+      });
+    });
   },
 };
 </script>
