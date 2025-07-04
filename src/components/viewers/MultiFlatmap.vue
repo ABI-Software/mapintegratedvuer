@@ -407,6 +407,14 @@ export default {
         currentFlatmap.setConnectionType(connectionType);
       }
     },
+    setVisibilityFilter: function (payload) {
+      if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
+        const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        if (currentFlatmap) {
+          currentFlatmap.setVisibilityFilter(payload);
+        }
+      }
+    },
   },
   computed: {
     facetSpecies() {

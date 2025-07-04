@@ -489,7 +489,7 @@ export default {
         if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
             flatmap.mapImp?.clearSearchResults();
-            if (payload.connectivitySearch) {
+            if (payload.connectivityProcessed) {
               // grey out all connectivity if no search results
               flatmap.mapImp?.setPaint({ dimmed: true })
             }
@@ -557,16 +557,19 @@ export default {
     onNeuronConnectionFeatureClick: function (payload) {
       EventBus.emit('neuron-connection-feature-click', payload);
     },
-    showConnectivity: function(payload) {
+    showConnectivity: function() {
       return;
     },
-    showConnectivitiesByReference: function(payload) {
+    showConnectivitiesByReference: function() {
       return;
     },
-    showConnectivityTooltips: function(payload) {
+    showConnectivityTooltips: function() {
       return;
     },
-    changeConnectivitySource: function(payload) {
+    changeConnectivitySource: function() {
+      return;
+    },
+    setVisibilityFilter: function() {
       return;
     },
     loadConnectivityExplorerConfig: async function (flatmap) {
