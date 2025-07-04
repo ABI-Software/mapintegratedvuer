@@ -192,10 +192,10 @@ export default {
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
     },
-    onConnectivityExplorerReset: function () {
+    onConnectivityExplorerReset: function (payload) {
       const activeFlatmaps = this.getActiveFlatmaps();
       activeFlatmaps.forEach((activeFlatmap) => {
-        activeFlatmap.resetConnectivityfilters();
+        activeFlatmap.resetConnectivityfilters(payload);
       });
     },
     getActiveFlatmaps: function () {
