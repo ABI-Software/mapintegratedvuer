@@ -551,6 +551,12 @@ export default {
     onSidebarAnnotationClose: function() {
       return;
     },
+    onNeuronConnectionClick: function (payload) {
+      EventBus.emit('neuron-connection-click', payload);
+    },
+    onNeuronConnectionFeatureClick: function (payload) {
+      EventBus.emit('neuron-connection-feature-click', payload);
+    },
     showConnectivity: function() {
       return;
     },
@@ -589,7 +595,7 @@ export default {
       }
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
       if (!this.connectivityFilterOptions[uuid]) {
-        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(this.connectivityKnowledge[uuid]);
       }
       this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
       if (!this.connectivityFilterSources[uuid]) {

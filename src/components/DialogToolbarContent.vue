@@ -14,9 +14,10 @@
           :teleported="false"
           trigger="hover"
           class="toolbar-dropdown"
-          popper-class="toolbar-dropdown-dropdown"
+          popper-class="toolbar-dropdown-popper"
           :hide-on-click="false"
           :disabled="!mapLoaded"
+          placement="bottom-end"
         >
         <span class="el-dropdown-link">
           <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">
@@ -29,6 +30,10 @@
             <el-icon-edit-pen />
           </el-icon>
           {{ globalSettings.viewingMode }}
+          <template v-if="globalSettings.viewingMode === 'Neuron Connection'">
+            &nbsp;
+            <small class="toolbar-dropdown-badge"><em>{{ globalSettings.connectionType }}</em></small>
+          </template>
           <el-icon class="el-icon--right">
             <el-icon-arrow-down />
           </el-icon>
@@ -91,6 +96,34 @@
                   </el-popover>
                 </div>
               </template> -->
+              <template v-if="key === 'Neuron Connection'">
+                <div class="setting-popover-block" v-if="'connectionType' in globalSettings">
+                  <el-radio-group
+                    v-model="globalSettings.connectionType"
+                    @change="updateGlobalSettings"
+                  >
+                    <el-radio-button value="Origin" size="small">Origin</el-radio-button>
+                    <el-radio-button value="Via" size="small">Via</el-radio-button>
+                    <el-radio-button value="Destination" size="small">Destination</el-radio-button>
+                    <el-radio-button value="All" size="small">All</el-radio-button>
+                  </el-radio-group>
+                  <div class="el-radio__description">
+                    <small v-if="globalSettings.connectionType === 'Origin'">
+                      Neuron populations beginning at a location.
+                    </small>
+                    <small v-else-if="globalSettings.connectionType === 'Via'">
+                      Neuron populations via a location.
+                    </small>
+                    <small v-else-if="globalSettings.connectionType === 'Destination'">
+                      Neuron populations terminating at a location.
+                    </small>
+                    <small v-else>
+                      Neuron populations associated with a location (or)
+                      Neuron populations that share at least one edge with another neuron population.
+                    </small>
+                  </div>
+                </div>
+              </template>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -485,7 +518,7 @@ export default {
       permalinkRef: undefined,
       viewingModes: {
         'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
-        'Neuron Connection': 'Discover Neuron connections by selecting a neuron and viewing its associated network connections',
+        'Neuron Connection': 'Discover Neuron connections by selecting a feature and viewing its associated network connections',
         'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
       },
       authorisedUser: false,
@@ -533,6 +566,7 @@ export default {
       }
       // viewing mode update
       if (updatedSettings.includes('viewingMode') ||
+        updatedSettings.includes('connectionType') ||
         updatedSettings.includes('flightPathDisplay') ||
         updatedSettings.includes('organsDisplay') ||
         updatedSettings.includes('outlinesDisplay') ||
@@ -756,7 +790,7 @@ export default {
   gap: 0.5rem;
 }
 
-:deep(.toolbar-dropdown-dropdown.el-popper) {
+:deep(.toolbar-dropdown-popper.el-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   background-color: #f3ecf6;
@@ -810,14 +844,6 @@ export default {
       font-weight: 500;
     }
 
-    > small {
-      height: auto;
-      line-height: 1.2;
-      font-weight: normal;
-      color: gray;
-      white-space: normal;
-    }
-
     &.is-selected,
     &:hover {
       background-color: #f1e4f6;
@@ -839,6 +865,13 @@ export default {
       }
     }
   }
+}
+
+.toolbar-dropdown-badge {
+  color: white;
+  background-color: $app-primary-color;
+  border-radius: 4px;
+  padding: 2px 4px;
 }
 
 :deep(.setting-popover.el-popper) {
@@ -884,8 +917,21 @@ export default {
   scale: 0.7;
 }
 
-.el-radio__description {
+.el-option__description,
+.el-radio__description small {
+  display: inline-block;
   font-size: 12px;
+  white-space: normal;
+  line-height: 1.2;
+  height: auto;
+  font-weight: normal;
+  color: gray;
+}
+
+.el-radio__description {
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+  font-style: italic;
 }
 
 .bg-color-radio-group {

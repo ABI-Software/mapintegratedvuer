@@ -102,8 +102,8 @@ export default {
     /**
      * Perform a local search on this contentvuer
      */
-    search: function (term) {
-      return this.$refs.viewer?.search(term);
+    search: function (term, connectivityExplorerClicked) {
+      return this.$refs.viewer?.search(term, connectivityExplorerClicked);
     },
     /**
      * Push the suggested terms into the suggestions array
