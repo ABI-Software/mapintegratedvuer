@@ -36,7 +36,8 @@ import {
   findPathsByDestinationItem,
   findPathsByOriginItem,
   findPathsByViaItem,
-  queryPathsByRoute
+  queryPathsByRoute,
+  queryPathsByRouteFromKnowledge,
 } from "@abi-software/map-utilities";
 
 export default {
@@ -353,27 +354,34 @@ export default {
               const viaFeatures = connectivityQueries.vias;
 
               // TODO: to replace this competency query when available
-              // queryPathsByRoute(
-              //   this.settingsStore.flatmapAPI,
-              //   currentFlatmap.mapImp.uuid,
-              //   originFeatures,
-              //   destinationFeatures,
-              //   viaFeatures
-              // ).then((res) => {
-              //   // results
-              // }).catch((err) => {
-              //   // error
-              // });
+              // const options = {
+              //   flatmapAPI: this.settingsStore.flatmapAPI,
+              //   knowledgeSource: currentFlatmap.mapImp.uuid,
+              //   origins: originFeatures,
+              //   destinations: destinationFeatures,
+              //   vias: viaFeatures,
+              // };
+              // const connectivityFilterResults = await queryPathsByRoute(options);
+              const options = {
+                knowledge: results,
+                origins: originFeatures,
+                destinations: destinationFeatures,
+                vias: viaFeatures,
+              };
+              const connectivityFilterResults = await queryPathsByRouteFromKnowledge(options);
+              if (connectivityFilterResults) {
+                results = connectivityFilterResults;
+              }
 
-              if (originFeatures.length) {
-                results = findPathsByOriginItem(results, originFeatures);
-              }
-              if (destinationFeatures.length) {
-                results = findPathsByDestinationItem(results, destinationFeatures);
-              }
-              if (viaFeatures.length) {
-                results = findPathsByViaItem(results, viaFeatures);
-              }
+              // if (originFeatures.length) {
+              //   results = findPathsByOriginItem(results, originFeatures);
+              // }
+              // if (destinationFeatures.length) {
+              //   results = findPathsByDestinationItem(results, destinationFeatures);
+              // }
+              // if (viaFeatures.length) {
+              //   results = findPathsByViaItem(results, viaFeatures);
+              // }
 
               this.filter = Object.values(filters);
               // between facet search categories -> AND
