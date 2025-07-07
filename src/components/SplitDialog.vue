@@ -399,6 +399,7 @@ export default {
             }
             if (hasConnectionTargets) {
               const connectionTargets = results.map((item) => item.id);
+              processed = true;
               if (searchHighlights.length) {
                 searchHighlights = searchHighlights.filter((item) => connectionTargets.includes(item));
               } else {
