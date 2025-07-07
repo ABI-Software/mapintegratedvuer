@@ -373,16 +373,6 @@ export default {
                 results = connectivityFilterResults;
               }
 
-              // if (originFeatures.length) {
-              //   results = findPathsByOriginItem(results, originFeatures);
-              // }
-              // if (destinationFeatures.length) {
-              //   results = findPathsByDestinationItem(results, destinationFeatures);
-              // }
-              // if (viaFeatures.length) {
-              //   results = findPathsByViaItem(results, viaFeatures);
-              // }
-
               this.filter = Object.values(filters);
               // between facet search categories -> AND
               facetIds = this.filter.length ?
