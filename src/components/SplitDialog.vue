@@ -349,24 +349,20 @@ export default {
                 }
               });
 
-              const originFeatures = connectivityQueries.origins;
-              const destinationFeatures = connectivityQueries.destinations;
-              const viaFeatures = connectivityQueries.vias;
-
               // TODO: to replace this competency query when available
               // const options = {
               //   flatmapAPI: this.settingsStore.flatmapAPI,
               //   knowledgeSource: currentFlatmap.mapImp.uuid,
-              //   origins: originFeatures,
-              //   destinations: destinationFeatures,
-              //   vias: viaFeatures,
+              //   origins: connectivityQueries.origins,
+              //   destinations: connectivityQueries.destinations,
+              //   vias: connectivityQueries.vias,
               // };
               // const connectivityFilterResults = await queryPathsByRoute(options);
               const options = {
                 knowledge: results,
-                origins: originFeatures,
-                destinations: destinationFeatures,
-                vias: viaFeatures,
+                origins: connectivityQueries.origins,
+                destinations: connectivityQueries.destinations,
+                vias: connectivityQueries.vias,
               };
               const connectivityFilterResults = await queryPathsByRouteFromKnowledge(options);
               if (connectivityFilterResults) {
