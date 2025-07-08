@@ -164,7 +164,7 @@ export default {
   methods: {
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
-      this.onDisplaySearch({ term: payload.id }, false, true);
+      this.onDisplaySearch({ ...payload, term: payload.id }, false, true);
     },
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
@@ -269,7 +269,7 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: function (payload, tracking = true, connectivityExplorerClicked = false) {
+    onDisplaySearch: async function (payload, tracking = true, connectivityExplorerClicked = false) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
@@ -283,6 +283,24 @@ export default {
             searchFound = true;
           }
         });
+        EventBus.emit('connectivity-info-open', [{ title: payload.label, featureId: [payload.id], ready: false }])
+        const scaffoldContent = activeContents.find(content => content.entry.isBodyScaffold)
+        if (scaffoldContent) {
+          const scaffold = await scaffoldContent.$refs.viewer.getMockUpFlatmap()
+          await scaffold.flatmapQueries.retrieveFlatmapKnowledgeForEvent(scaffold.mapImp, { resource: [payload.term] })
+          let tooltip = await scaffold.flatmapQueries.createTooltipData(scaffold.mapImp, {
+            resource: [payload.term],
+            provenanceTaxonomy: payload.taxons,
+            label: payload.label,
+            feature: []
+          })
+          tooltip['knowledgeSource'] = scaffold.mapImp.provenance.connectivity['knowledge-source'];
+          tooltip['mapId'] = scaffold.mapImp.provenance.id;
+          tooltip['mapuuid'] = scaffold.mapImp.provenance.uuid;
+          tooltip['ready'] = true;
+          searchFound = true;
+          EventBus.emit('connectivity-info-open', [tooltip])
+        }
       }
       this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
 

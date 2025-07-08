@@ -49,6 +49,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { markRaw } from "vue";
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 
@@ -57,6 +58,8 @@ import { getNerveMaps, getTermNerveMaps } from "@abi-software/scaffoldvuer/src/s
 import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
+import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
+import { getKnowledgeSource } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
 
 export default {
   name: "Scaffold",
@@ -120,20 +123,70 @@ export default {
         .filter(f => f.id === 'human-flatmap_male')
         .sort((a, b) => b.created.localeCompare(a.created))[0];
       const flatmapUuid = latestHumanFlatmapMale.uuid;
+      const flatmapSource = latestHumanFlatmapMale.sckan['knowledge-source']
       const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
       const pathwaysJson = await pathwaysResponse.json();
-      const termNerveMaps = getTermNerveMaps();
+
+      const flatmapQueries = markRaw(new FlatmapQueries());
+      flatmapQueries.initialise(this.flatmapAPI);
+
+      const queryKnowledge = async (sql, params) => {
+        const url = `${this.flatmapAPI}/knowledge/query/`;
+        const query = { sql, params };
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(query),
+        })
+        if (!response.ok) {
+            throw new Error(`Cannot access ${url}`);
+        }
+        const data = await response.json();
+        if ('error' in data) {
+            throw new TypeError(data.error);
+        }
+        return data.values
+      }
+
       return {
         'mockup': true,
+        flatmapQueries: flatmapQueries,
         'mapImp': {
           'provenance': {
+            'uuid': flatmapUuid,
             'connectivity': {
               ...latestHumanFlatmapMale.sckan,
-            }
+            },
           },
           'pathways': pathwaysJson,
           'resource': this.entry.resource,
-          'nerveMaps': termNerveMaps,
+          'nerveMaps': getTermNerveMaps(),
+          queryKnowledge : async (keastId) => {
+            const sql = 'select knowledge from knowledge where (source=? or source is null) and entity=? order by source desc';
+            const params = [flatmapSource, keastId];
+            const response = await queryKnowledge(sql, params);
+            return JSON.parse(response);
+          },
+          queryLabels : async (entities) => {
+            const sql = `select source, entity, knowledge from knowledge where (source=? or source is null) and entity in (?${', ?'.repeat(entities.length-1)}) order by entity, source desc`;
+            const params = [flatmapSource, ...entities];
+            const response = await queryKnowledge(sql, params);
+            const entityLabels = [];
+            let last_entity;
+            for (const row of response) {
+                if (row[1] !== last_entity) {
+                    const knowledge = JSON.parse(row[2])
+                    entityLabels.push({
+                        entity: row[1],
+                        label: knowledge['label'] || row[1]
+                    })
+                    last_entity = row[1];
+                }
+            }
+            return entityLabels;
+          },
         },
       }
     },
