@@ -564,29 +564,41 @@ export default {
       return;
     },
     loadConnectivityExplorerConfig: async function (flatmap) {
-      const flatmapQueries = markRaw(new FlatmapQueries());
-      flatmapQueries.initialise(this.flatmapAPI);
       const flatmapImp = flatmap.mapImp;
-      const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
       const sckanVersion = getKnowledgeSource(flatmapImp);
       const uuid = flatmap.mockup ? flatmapImp.resource : flatmapImp.uuid;
-      const pathways = flatmapImp.pathways?.paths || {};
 
       if (!this.connectivityKnowledge[sckanVersion]) {
+        const flatmapQueries = markRaw(new FlatmapQueries());
+        flatmapQueries.initialise(this.flatmapAPI);
+        const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
         this.connectivityKnowledge[sckanVersion] = knowledge
           .filter(item => item.source === sckanVersion && item.connectivity?.length)
           .sort((a, b) => a.label.localeCompare(b.label));
       }
       if (!this.connectivityKnowledge[uuid]) {
+        const pathways = flatmapImp.pathways?.paths || {};
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
           .filter(item => item.id in pathways);
       }
       if (flatmap.mockup) {
-        for (const [key, value] of Object.entries(this.connectivityKnowledge)) {
-          this.connectivityKnowledge[key] = value.map(item => {
-            return { ...item, nerves: pathways[item.id] }
-          })
-        }
+        const nerveMaps = flatmapImp.nerveMaps || {};
+        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[uuid].map((item) => {
+          let payload = item;
+          if (item.nerves.length) {
+            const terms = item.nerves.flat(Infinity);
+            const nerveLabels = terms.reduce((acc, term) => {
+              if (term in nerveMaps) {
+                acc.push(...nerveMaps[term]);
+              }
+              return acc;
+            }, []);
+            if (nerveLabels.length) {
+              payload['nerve-label'] = [...new Set(nerveLabels)];
+            }
+          }
+          return payload;
+        }).filter(item => item['nerve-label']);
       } else {
         if (!this.connectivityFilterOptions[uuid]) {
           this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();

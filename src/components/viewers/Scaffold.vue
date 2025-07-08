@@ -122,37 +122,18 @@ export default {
       const flatmapUuid = latestHumanFlatmapMale.uuid;
       const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
       const pathwaysJson = await pathwaysResponse.json();
-      const paths = {};
       const termNerveMaps = getTermNerveMaps();
-      for (const [key, value] of Object.entries(pathwaysJson.paths)) {
-        const terms = value.connectivity?.flat(Infinity);
-        if (!terms?.length) continue;
-
-        const nerves = terms.reduce((acc, term) => {
-          const mapped = termNerveMaps[term];
-          if (Array.isArray(mapped) && mapped.length) {
-            acc.push(...mapped);
-          }
-          return acc;
-        }, []);
-
-        if (nerves.length) {
-          paths[key] = [...new Set(nerves)];
-        }
-      }
       return {
-        mockup: true,
-        mapImp: {
-          provenance: {
-            connectivity: {
+        'mockup': true,
+        'mapImp': {
+          'provenance': {
+            'connectivity': {
               ...latestHumanFlatmapMale.sckan,
             }
           },
-          'uuid': flatmapUuid,
-          'pathways': {
-            paths: paths
-          },
-          'resource': this.entry.resource
+          'pathways': pathwaysJson,
+          'resource': this.entry.resource,
+          'nerveMaps': termNerveMaps,
         },
       }
     },
