@@ -11,17 +11,21 @@ export const useConnectivitiesStore = defineStore('connectivities', {
   },
   getters: {
     getUniqueConnectivitiesByKeys: (state) => {
-      let combinedConnectivities = [];
-      state.activeConnectivityKeys.forEach((uuid) => {
-        if (uuid in state['globalConnectivities']) {
-          const connectivities = state['globalConnectivities'][uuid];
-          combinedConnectivities.push(...connectivities);
+      const combinedConnectivities = state.activeConnectivityKeys.reduce((acc, uuid) => {
+        const connectivities = state.globalConnectivities[uuid];
+        if (!connectivities) return acc;
+
+        for (const connectivity of connectivities) {
+          const key = connectivity.id;
+
+          acc[key] = acc[key] ?
+            { ...acc[key], ...connectivity } :
+            { ...connectivity };
         }
-      });
-      const uniqueConnectivities = Array.from(
-        new Map(combinedConnectivities.map((item) => [item['id'], item])).values()
-      );
-      return uniqueConnectivities;
+
+        return acc;
+      }, {});
+      return Object.values(combinedConnectivities);
     },
     getUniqueFilterOptionsByKeys: (state) => {
       const uniqueFilterOptions = state.activeConnectivityKeys.reduce((acc, uuid) => {
@@ -29,16 +33,14 @@ export const useConnectivitiesStore = defineStore('connectivities', {
         if (!filters) return acc;
 
         for (const filter of filters) {
-          const existing = acc[filter.key];
-
-          if (!existing) {
-            acc[filter.key] = { ...filter };
-          } else {
-            const mergedChildren = [...existing.children, ...filter.children];
+          if (acc[filter.key]) {
+            const mergedChildren = [...acc[filter.key].children, ...filter.children];
             const uniqueChildren = Array.from(
               new Map(mergedChildren.map(child => [child.key, child])).values()
             );
-            existing.children = uniqueChildren;
+            acc[filter.key].children = uniqueChildren;
+          } else {
+            acc[filter.key] = { ...filter };
           }
         }
 
