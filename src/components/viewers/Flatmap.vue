@@ -37,6 +37,7 @@
       @open-map="openMap"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @mapmanager-loaded="onMapmanagerLoaded"
+      :showPathwayFilter="false"
     />
 
     <HelpModeDialog
@@ -222,6 +223,14 @@ export default {
       currentFlatmap.setColour(organsDisplay);
       currentFlatmap.setOutlines(outlinesDisplay);
       currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+    },
+    setVisibilityFilter: function (payload) {
+      if (this?.alive) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          currentFlatmap.setVisibilityFilter(payload);
+        }
+      }
     },
   },
   computed: {
