@@ -52,7 +52,7 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "^1.10.3-beta.0",
+    "@abi-software/flatmapvuer": "^1.10.3-beta.1",
     "@abi-software/map-side-bar": "^2.9.2-beta.0",
     "@abi-software/map-utilities": "^1.6.1-beta.1",
     "@abi-software/plotvuer": "1.0.4",
