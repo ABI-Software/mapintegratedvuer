@@ -17,6 +17,7 @@
           popper-class="toolbar-dropdown-popper"
           :hide-on-click="false"
           :disabled="!mapLoaded"
+          placement="bottom-end"
         >
         <span class="el-dropdown-link">
           <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">

@@ -192,10 +192,10 @@ export default {
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
     },
-    onConnectivityExplorerReset: function () {
+    onConnectivityExplorerReset: function (payload) {
       const activeFlatmaps = this.getActiveFlatmaps();
       activeFlatmaps.forEach((activeFlatmap) => {
-        activeFlatmap.resetConnectivityfilters();
+        activeFlatmap.resetConnectivityfilters(payload);
       });
     },
     getActiveFlatmaps: function () {
@@ -451,6 +451,11 @@ export default {
       } else if (data.tabType === 'connectivity') {
         this.expanded = '';
         this.connectivityEntry = [];
+        // update connectivity filters in flatmap
+        const activeFlatmaps = this.getActiveFlatmaps();
+        activeFlatmaps.forEach((activeFlatmap) => {
+          activeFlatmap.updateConnectivityFilters(data.filter);
+        });
         EventBus.emit("connectivity-query-filter", data);
       }
     },

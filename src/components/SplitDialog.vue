@@ -30,8 +30,15 @@ import CustomSplitter from "./CustomSplitter.vue";
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useSettingsStore } from '../stores/settings';
 import { useConnectivitiesStore } from '../stores/connectivities';
-import { findPathsByDestinationItem, findPathsByOriginItem, findPathsByViaItem } from "@abi-software/map-utilities";
+import {
+  findPathsByDestinationItem,
+  findPathsByOriginItem,
+  findPathsByViaItem,
+  queryPathsByRoute,
+  queryPathsByRouteFromKnowledge,
+} from "@abi-software/map-utilities";
 
 export default {
   name: "SplitDialog",
@@ -303,6 +310,12 @@ export default {
                 queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
               }
 
+              const connectivityQueries = {
+                origins: [],
+                vias: [],
+                destinations: [],
+              };
+
               // get facet search result ids
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
@@ -322,19 +335,54 @@ export default {
                 }
                 if (isNeuronConnection && item.facet !== 'Show all') {
                   const facet = item.facet;
-                  const feature = JSON.parse(facet);
+                  // string format with a space for CQ
+                  const feature = facet.replace(",\[", ", \[");
+                  // array format for flatmap query
+                  // const feature = JSON.parse(facet);
                   const mode = item.facetPropPath.split('.').pop();
                   hasConnectionTargets = true;
 
                   if (mode === 'origin') {
-                    results = findPathsByOriginItem(results, feature);
+                    connectivityQueries.origins.push(feature);
                   } else if (mode === 'destination') {
-                    results = findPathsByDestinationItem(results, feature);
+                    connectivityQueries.destinations.push(feature);
                   } else if (mode === 'via') {
-                    results = findPathsByViaItem(results, feature);
+                    connectivityQueries.vias.push(feature);
                   }
                 }
               });
+
+              if (
+                connectivityQueries.origins.length ||
+                connectivityQueries.destinations.length ||
+                connectivityQueries.vias.length
+              ) {
+                // Competency query 24
+                const options = {
+                  flatmapAPI: this.settingsStore.flatmapAPI,
+                  knowledgeSource: currentFlatmap.mapImp.uuid,
+                  origins: connectivityQueries.origins,
+                  destinations: connectivityQueries.destinations,
+                  vias: connectivityQueries.vias,
+                };
+                const connectivityFilterResults = await queryPathsByRoute(options);
+                if (connectivityFilterResults) {
+                  results = results.filter((item) => connectivityFilterResults.includes(item.id));
+                }
+
+                // Flatmap query
+                // const options = {
+                //   knowledge: results,
+                //   origins: connectivityQueries.origins,
+                //   destinations: connectivityQueries.destinations,
+                //   vias: connectivityQueries.vias,
+                // };
+                // const connectivityFilterResults = await queryPathsByRouteFromKnowledge(options);
+                // if (connectivityFilterResults) {
+                //   results = connectivityFilterResults;
+                // }
+              }
+
               this.filter = Object.values(filters);
               // between facet search categories -> AND
               facetIds = this.filter.length ?
@@ -359,6 +407,7 @@ export default {
             }
             if (hasConnectionTargets) {
               const connectionTargets = results.map((item) => item.id);
+              processed = true;
               if (searchHighlights.length) {
                 searchHighlights = searchHighlights.filter((item) => connectionTargets.includes(item));
               } else {
@@ -392,7 +441,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSplitFlowStore, useConnectivitiesStore),
+    ...mapStores(useSplitFlowStore, useConnectivitiesStore, useSettingsStore),
     activeView: function() {
       return this.splitFlowStore.activeView;
     },
