@@ -335,6 +335,8 @@ export default {
                 }
                 if (isNeuronConnection && item.facet !== 'Show all') {
                   const facet = item.facet;
+                  // TODO: to replace this competency query when available
+                  // const feature = facet; // string format for CQ
                   const feature = JSON.parse(facet);
                   const mode = item.facetPropPath.split('.').pop();
                   hasConnectionTargets = true;
