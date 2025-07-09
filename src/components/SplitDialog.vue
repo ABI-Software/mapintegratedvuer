@@ -241,7 +241,25 @@ export default {
         }
       }
     },
-    getSearchedId: function (flatmap, term) {
+    getScaffoldSearchedId: function (entry, term) {
+      const ids = [];
+      entry.forEach((data) => {
+        const compareRanges = [
+          data.id,
+          data.label,
+          data['long-label'],
+          data['nerve-label'].join(',')
+        ];
+        const isMatched = compareRanges.some((data) => {
+          return data.toLowerCase().includes(term.toLowerCase())
+        });
+        if (isMatched && !ids.includes(data.id)) {
+          ids.push(data.id);
+        }
+      });
+      return ids;
+    },
+    getFlatmapSearchedId: function (flatmap, term) {
       const ids = [];
       const searchResult = flatmap.mapImp.search(term);
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
@@ -308,12 +326,20 @@ export default {
                   .filter(term => term);
                 const nestedIds = [];
                 for (let index = 0; index < searchTerms.length; index++) {
-                  nestedIds.push(this.getSearchedId(currentMap, searchTerms[index]));
+                  if (scaffold) {
+                    nestedIds.push(this.getScaffoldSearchedId(results, searchTerms[index]));
+                  } else {
+                    nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index]));
+                  }
                 }
                 // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
-                queryIds = await currentMap.retrieveConnectedPaths(flatIds);
+                if (scaffold) {
+                  queryIds = flatIds;
+                } else {
+                  queryIds = await currentMap.retrieveConnectedPaths(flatIds);
+                }
               }
 
               // get facet search result ids
