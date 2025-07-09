@@ -335,9 +335,10 @@ export default {
                 }
                 if (isNeuronConnection && item.facet !== 'Show all') {
                   const facet = item.facet;
-                  // TODO: to replace this competency query when available
-                  // const feature = facet; // string format for CQ
-                  const feature = JSON.parse(facet);
+                  // string format with a space for CQ
+                  const feature = facet.replace(",\[", ", \[");
+                  // array format for flatmap query
+                  // const feature = JSON.parse(facet);
                   const mode = item.facetPropPath.split('.').pop();
                   hasConnectionTargets = true;
 
@@ -351,24 +352,35 @@ export default {
                 }
               });
 
-              // TODO: to replace this competency query when available
-              // const options = {
-              //   flatmapAPI: this.settingsStore.flatmapAPI,
-              //   knowledgeSource: currentFlatmap.mapImp.uuid,
-              //   origins: connectivityQueries.origins,
-              //   destinations: connectivityQueries.destinations,
-              //   vias: connectivityQueries.vias,
-              // };
-              // const connectivityFilterResults = await queryPathsByRoute(options);
-              const options = {
-                knowledge: results,
-                origins: connectivityQueries.origins,
-                destinations: connectivityQueries.destinations,
-                vias: connectivityQueries.vias,
-              };
-              const connectivityFilterResults = await queryPathsByRouteFromKnowledge(options);
-              if (connectivityFilterResults) {
-                results = connectivityFilterResults;
+              if (
+                connectivityQueries.origins.length ||
+                connectivityQueries.destinations.length ||
+                connectivityQueries.vias.length
+              ) {
+                // Competency query 24
+                const options = {
+                  flatmapAPI: this.settingsStore.flatmapAPI,
+                  knowledgeSource: currentFlatmap.mapImp.uuid,
+                  origins: connectivityQueries.origins,
+                  destinations: connectivityQueries.destinations,
+                  vias: connectivityQueries.vias,
+                };
+                const connectivityFilterResults = await queryPathsByRoute(options);
+                if (connectivityFilterResults) {
+                  results = results.filter((item) => connectivityFilterResults.includes(item.id));
+                }
+
+                // Flatmap query
+                // const options = {
+                //   knowledge: results,
+                //   origins: connectivityQueries.origins,
+                //   destinations: connectivityQueries.destinations,
+                //   vias: connectivityQueries.vias,
+                // };
+                // const connectivityFilterResults = await queryPathsByRouteFromKnowledge(options);
+                // if (connectivityFilterResults) {
+                //   results = connectivityFilterResults;
+                // }
               }
 
               this.filter = Object.values(filters);
