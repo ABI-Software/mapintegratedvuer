@@ -557,7 +557,7 @@ export default {
     onNeuronConnectionFeatureClick: function (payload) {
       EventBus.emit('neuron-connection-feature-click', payload);
     },
-    showConnectivity: function(payload) {
+    showConnectivity: function() {
       return;
     },
     showConnectivitiesByReference: function() {
@@ -595,7 +595,7 @@ export default {
       }
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
       if (!this.connectivityFilterOptions[uuid]) {
-        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(this.connectivityKnowledge[uuid]);
       }
       this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
       if (!this.connectivityFilterSources[uuid]) {
