@@ -304,25 +304,11 @@ export default {
           if (content.search(payload.term)) {
             searchFound = true;
           }
+          if (content.entry.isBodyScaffold) {
+            EventBus.emit('connectivity-detail', payload)
+            searchFound = true;
+          }
         });
-        EventBus.emit('connectivity-info-open', [{ title: payload.label, featureId: [payload.id], ready: false }])
-        const scaffoldContent = activeContents.find(content => content.entry.isBodyScaffold)
-        if (scaffoldContent) {
-          const scaffold = await scaffoldContent.$refs.viewer.getMockUpFlatmap()
-          await scaffold.flatmapQueries.retrieveFlatmapKnowledgeForEvent(scaffold.mapImp, { resource: [payload.term] })
-          let tooltip = await scaffold.flatmapQueries.createTooltipData(scaffold.mapImp, {
-            resource: [payload.term],
-            provenanceTaxonomy: payload.taxons,
-            label: payload.label,
-            feature: []
-          })
-          tooltip['knowledgeSource'] = scaffold.mapImp.provenance.connectivity['knowledge-source'];
-          tooltip['mapId'] = scaffold.mapImp.provenance.id;
-          tooltip['mapuuid'] = scaffold.mapImp.provenance.uuid;
-          tooltip['ready'] = true;
-          searchFound = true;
-          EventBus.emit('connectivity-info-open', [tooltip])
-        }
       }
       this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
 

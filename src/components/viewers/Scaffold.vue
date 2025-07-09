@@ -69,6 +69,81 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    changeConnectivitySource: async function (payload) {
+      const { entry, connectivitySource } = payload;
+      await this.flatmapService.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
+      const tooltip = this.flatmapService.flatmapQueries.updateTooltipData(entry)
+      EventBus.emit('connectivity-info-open', [tooltip])
+    },
+    getKnowledgeTooltip: async function (payload) {
+      EventBus.emit('connectivity-info-open', [{ title: payload.label, featureId: [payload.id], ready: false }])
+      await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [payload.term] })
+      let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
+        resource: [payload.term],
+        label: payload.label,
+        provenanceTaxonomy: payload.taxons,
+        feature: []
+      })
+      tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
+      tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
+      tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
+      tooltip['ready'] = true;
+      EventBus.emit('connectivity-info-open', [tooltip])
+    },
+    mockUpFlatmapService: async function(mapType = 'human-flatmap_male') {
+      const flatmapResponse = await fetch(this.flatmapAPI);
+      const flatmapJson = await flatmapResponse.json();
+      const latestHumanFlatmapMale = flatmapJson
+        .filter(f => f.id === mapType)
+        .sort((a, b) => b.created.localeCompare(a.created))[0];
+      const flatmapUuid = latestHumanFlatmapMale.uuid;
+      const flatmapSource = latestHumanFlatmapMale.sckan['knowledge-source']
+      const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
+      const pathwaysJson = await pathwaysResponse.json();
+
+      const flatmapQueries = markRaw(new FlatmapQueries());
+      flatmapQueries.initialise(this.flatmapAPI);
+
+      return {
+        'mockup': true,
+        flatmapQueries: flatmapQueries,
+        'mapImp': {
+          'provenance': {
+            'uuid': flatmapUuid,
+            'connectivity': {
+              ...latestHumanFlatmapMale.sckan,
+            },
+          },
+          'pathways': pathwaysJson,
+          'resource': this.entry.resource,
+          'nerveMaps': getTermNerveMaps(),
+          queryKnowledge : async (keastId) => {
+            const sql = 'select knowledge from knowledge where (source=? or source is null) and entity=? order by source desc';
+            const params = [flatmapSource, keastId];
+            const response = await flatmapQueries.queryKnowledge(sql, params);
+            return JSON.parse(response);
+          },
+          queryLabels : async (entities) => {
+            const sql = `select source, entity, knowledge from knowledge where (source=? or source is null) and entity in (?${', ?'.repeat(entities.length-1)}) order by entity, source desc`;
+            const params = [flatmapSource, ...entities];
+            const response = await flatmapQueries.queryKnowledge(sql, params);
+            const entityLabels = [];
+            let last_entity;
+            for (const row of response) {
+                if (row[1] !== last_entity) {
+                    const knowledge = JSON.parse(row[2])
+                    entityLabels.push({
+                        entity: row[1],
+                        label: knowledge['label'] || row[1]
+                    })
+                    last_entity = row[1];
+                }
+            }
+            return entityLabels;
+          },
+        },
+      }
+    },
     onResize: function () {
       this.scaffoldCamera.onResize();
     },
@@ -116,89 +191,15 @@ export default {
       else names = [ info.name ];
       this.$refs.scaffold.changeHighlightedByName(names, "", false);
     },
-    getMockUpFlatmap: async function() {
-      const flatmapResponse = await fetch(this.flatmapAPI);
-      const flatmapJson = await flatmapResponse.json();
-      const latestHumanFlatmapMale = flatmapJson
-        .filter(f => f.id === 'human-flatmap_male')
-        .sort((a, b) => b.created.localeCompare(a.created))[0];
-      const flatmapUuid = latestHumanFlatmapMale.uuid;
-      const flatmapSource = latestHumanFlatmapMale.sckan['knowledge-source']
-      const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
-      const pathwaysJson = await pathwaysResponse.json();
-
-      const flatmapQueries = markRaw(new FlatmapQueries());
-      flatmapQueries.initialise(this.flatmapAPI);
-
-      const queryKnowledge = async (sql, params) => {
-        const url = `${this.flatmapAPI}/knowledge/query/`;
-        const query = { sql, params };
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(query),
-        })
-        if (!response.ok) {
-            throw new Error(`Cannot access ${url}`);
-        }
-        const data = await response.json();
-        if ('error' in data) {
-            throw new TypeError(data.error);
-        }
-        return data.values
-      }
-
-      return {
-        'mockup': true,
-        flatmapQueries: flatmapQueries,
-        'mapImp': {
-          'provenance': {
-            'uuid': flatmapUuid,
-            'connectivity': {
-              ...latestHumanFlatmapMale.sckan,
-            },
-          },
-          'pathways': pathwaysJson,
-          'resource': this.entry.resource,
-          'nerveMaps': getTermNerveMaps(),
-          queryKnowledge : async (keastId) => {
-            const sql = 'select knowledge from knowledge where (source=? or source is null) and entity=? order by source desc';
-            const params = [flatmapSource, keastId];
-            const response = await queryKnowledge(sql, params);
-            return JSON.parse(response);
-          },
-          queryLabels : async (entities) => {
-            const sql = `select source, entity, knowledge from knowledge where (source=? or source is null) and entity in (?${', ?'.repeat(entities.length-1)}) order by entity, source desc`;
-            const params = [flatmapSource, ...entities];
-            const response = await queryKnowledge(sql, params);
-            const entityLabels = [];
-            let last_entity;
-            for (const row of response) {
-                if (row[1] !== last_entity) {
-                    const knowledge = JSON.parse(row[2])
-                    entityLabels.push({
-                        entity: row[1],
-                        label: knowledge['label'] || row[1]
-                    })
-                    last_entity = row[1];
-                }
-            }
-            return entityLabels;
-          },
-        },
-      }
-    },
     scaffoldIsReady: async function () {
       this.scaffoldLoaded = true;
       this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
       if (this.isVisible()) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
-        if (this.entry.label === 'Human') {    
-          const flatmap = await this.getMockUpFlatmap()
-          this.loadConnectivityExplorerConfig(flatmap);
+        if (this.entry.isBodyScaffold) {    
+          this.flatmapService = await this.mockUpFlatmapService()
+          this.loadConnectivityExplorerConfig(this.flatmapService);
         }
       }
       this.updateViewerSettings();
@@ -276,6 +277,7 @@ export default {
       apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
+      flatmapService: undefined,
     };
   },
   mounted: function () {

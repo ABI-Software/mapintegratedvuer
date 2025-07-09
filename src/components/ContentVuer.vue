@@ -162,6 +162,9 @@ export default {
     onFilterVisibility: function(payload) {
       this.$refs.viewer?.setVisibilityFilter(payload);
     },
+    onLoadConnectivityDetail: function(payload) {
+      this.$refs.viewer?.getKnowledgeTooltip(payload);
+    },
   },
   data: function () {
     return {
