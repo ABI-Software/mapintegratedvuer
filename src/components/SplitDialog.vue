@@ -248,7 +248,8 @@ export default {
           data.id,
           data.label,
           data['long-label'],
-          data['nerve-label']?.join(',')
+          data['nerve-label']?.join(','),
+          data['nerves']?.flat(Infinity).join(','),
         ];
         const isMatched = compareRanges.some((data) => {
           return data?.toLowerCase().includes(term.toLowerCase())
