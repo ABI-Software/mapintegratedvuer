@@ -190,7 +190,6 @@ export default {
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
         activeContents.forEach((content) => {
-          this.connectivityExplorerClicked.push(true)
           if (
             content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap' || 
             (
@@ -203,6 +202,7 @@ export default {
               !activeContents.find(c => c.activeSpecies === "Human Male")
             )
           ) {
+            this.connectivityExplorerClicked.push(true)
             EventBus.emit('connectivity-detail', { ...payload, entry: content.entry })
           }
         });
