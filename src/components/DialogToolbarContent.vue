@@ -901,6 +901,8 @@ export default {
   background-color: rgba(0, 0, 0, 0.05);
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
 
   h5 {
     margin: 0;
