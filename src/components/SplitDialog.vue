@@ -248,10 +248,10 @@ export default {
           data.id,
           data.label,
           data['long-label'],
-          data['nerve-label'].join(',')
+          data['nerve-label']?.join(',')
         ];
         const isMatched = compareRanges.some((data) => {
-          return data.toLowerCase().includes(term.toLowerCase())
+          return data?.toLowerCase().includes(term.toLowerCase())
         });
         if (isMatched && !ids.includes(data.id)) {
           ids.push(data.id);
