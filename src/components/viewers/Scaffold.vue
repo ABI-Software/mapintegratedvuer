@@ -72,23 +72,23 @@ export default {
     changeConnectivitySource: async function (payload) {
       const { entry, connectivitySource } = payload;
       await this.flatmapService.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
-      const tooltip = this.flatmapService.flatmapQueries.updateTooltipData(entry)
-      EventBus.emit('connectivity-info-open', [tooltip])
+      const tooltip = this.flatmapService.flatmapQueries.updateTooltipData(entry);
+      EventBus.emit('connectivity-info-open', [tooltip]);
     },
     getKnowledgeTooltip: async function (payload) {
-      EventBus.emit('connectivity-info-open', [{ title: payload.label, featureId: [payload.id], ready: false }])
-      await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [payload.term] })
-      let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
-        resource: [payload.term],
-        label: payload.label,
-        provenanceTaxonomy: payload.taxons,
-        feature: []
-      })
-      tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
-      tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
-      tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
-      tooltip['ready'] = true;
-      EventBus.emit('connectivity-info-open', [tooltip])
+        EventBus.emit('connectivity-info-open', [{ title: payload.label, featureId: [payload.id], ready: false }]);
+        await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [payload.id] });
+        let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
+          resource: [payload.id],
+          label: payload.label,
+          provenanceTaxonomy: payload.taxons,
+          feature: []
+        })
+        tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
+        tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
+        tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
+        tooltip['ready'] = true;
+        EventBus.emit('connectivity-info-open', [tooltip]);
     },
     mockUpFlatmapService: async function(mapType = 'human-flatmap_male') {
       const flatmapResponse = await fetch(this.flatmapAPI);
@@ -97,7 +97,7 @@ export default {
         .filter(f => f.id === mapType)
         .sort((a, b) => b.created.localeCompare(a.created))[0];
       const flatmapUuid = latestHumanFlatmapMale.uuid;
-      const flatmapSource = latestHumanFlatmapMale.sckan['knowledge-source']
+      const flatmapSource = latestHumanFlatmapMale.sckan['knowledge-source'];
       const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
       const pathwaysJson = await pathwaysResponse.json();
 
@@ -197,8 +197,8 @@ export default {
       if (this.isVisible()) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
-        if (this.entry.isBodyScaffold) {    
-          this.flatmapService = await this.mockUpFlatmapService()
+        if (this.entry.isBodyScaffold || this.entry.discoverId === "307") {    
+          this.flatmapService = await this.mockUpFlatmapService();
           this.loadConnectivityExplorerConfig(this.flatmapService);
         }
       }

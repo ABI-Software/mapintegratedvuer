@@ -232,6 +232,14 @@ export default {
         }
       }
     },
+    getKnowledgeTooltip: async function (payload) {
+        if (this?.alive) {
+          const currentFlatmap = this.$refs.flatmap;
+          if (currentFlatmap) {
+            currentFlatmap.searchAndShowResult(payload.id, true);
+          }
+        }
+    },
   },
   computed: {
     facetSpecies() {

@@ -186,7 +186,13 @@ export default {
     },
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
-      this.onDisplaySearch({ ...payload, term: payload.id }, false, true);
+      const splitdialog = this.$refs.splitdialog;
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+        activeContents.forEach(() => this.connectivityExplorerClicked.push(true));
+        let detailPayload = payload;
+        EventBus.emit('connectivity-detail', detailPayload)
+      }
     },
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
@@ -291,21 +297,14 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: async function (payload, tracking = true, connectivityExplorerClicked = false) {
+    onDisplaySearch: async function (payload, tracking = true) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
         activeContents.forEach(content => {
-          if (connectivityExplorerClicked) {
-            this.connectivityExplorerClicked.push(true);
-          }
           if (content.search(payload.term)) {
-            searchFound = true;
-          }
-          if (content.entry.isBodyScaffold) {
-            EventBus.emit('connectivity-detail', payload)
             searchFound = true;
           }
         });

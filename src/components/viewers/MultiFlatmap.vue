@@ -411,6 +411,12 @@ export default {
         }
       }
     },
+    getKnowledgeTooltip: async function (payload) {
+        if (this?.alive && this.flatmapReady) {
+          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+          flatmap.searchAndShowResult(payload.id, true);
+        }
+    },
   },
   computed: {
     facetSpecies() {
