@@ -91,6 +91,7 @@ export default {
         tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
         tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
         tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
+        tooltip['nerve-label'] = payload['nerve-label'];
         tooltip['ready'] = true;
         EventBus.emit('connectivity-info-open', [tooltip]);
       }

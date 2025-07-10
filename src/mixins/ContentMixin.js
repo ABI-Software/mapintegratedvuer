@@ -586,22 +586,25 @@ export default {
       }
       if (flatmap.mockup) {
         const nerveMaps = flatmapImp.nerveMaps || {};
-        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[uuid].map((item) => {
-          let payload = item;
-          if (item.nerves.length) {
-            const terms = item.nerves.flat(Infinity);
-            const nerveLabels = terms.reduce((acc, term) => {
-              if (term in nerveMaps) {
-                acc.push(...nerveMaps[term]);
+        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[uuid]
+          .map((item) => {
+            let payload = item;
+            if (item.nerves.length) {
+              const terms = item.nerves.flat(Infinity);
+              const nerveLabels = terms.reduce((acc, term) => {
+                if (term in nerveMaps) {
+                  acc.push(...nerveMaps[term]);
+                }
+                return acc;
+              }, []);
+              if (nerveLabels.length) {
+                payload["nerve-label"] = [...new Set(nerveLabels)]
+                  .sort((a, b) => a.localeCompare(b));
               }
-              return acc;
-            }, []);
-            if (nerveLabels.length) {
-              payload['nerve-label'] = [...new Set(nerveLabels)];
             }
-          }
-          return payload;
-        }).filter(item => item['nerve-label']);
+            return payload;
+          })
+          .filter((item) => item["nerve-label"]);
       } else {
         if (!this.connectivityFilterOptions[uuid]) {
           this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
