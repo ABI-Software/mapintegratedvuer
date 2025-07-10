@@ -189,9 +189,23 @@ export default {
       const splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
-        activeContents.forEach(() => this.connectivityExplorerClicked.push(true));
-        let detailPayload = payload;
-        EventBus.emit('connectivity-detail', detailPayload)
+        activeContents.forEach((content) => {
+          this.connectivityExplorerClicked.push(true)
+          if (
+            content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap' || 
+            (
+              content.viewerType === 'Scaffold' && 
+              (
+                content.entry.isBodyScaffold || content.entry.discoverId === "307"
+              ) &&
+              // human scaffold connectivity based on human male flatmap
+              // if has active human male flatmap, no need to fetch through scaffold
+              !activeContents.find(c => c.activeSpecies === "Human Male")
+            )
+          ) {
+            EventBus.emit('connectivity-detail', { ...payload, entry: content.entry })
+          }
+        });
       }
     },
     onConnectivityItemClose: function () {

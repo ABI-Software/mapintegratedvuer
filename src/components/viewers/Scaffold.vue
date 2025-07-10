@@ -69,6 +69,9 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    isViewerMatch: function (entry) {
+      return JSON.stringify(this.entry) === JSON.stringify(entry);
+    },
     changeConnectivitySource: async function (payload) {
       const { entry, connectivitySource } = payload;
       await this.flatmapService.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
@@ -76,6 +79,7 @@ export default {
       EventBus.emit('connectivity-info-open', [tooltip]);
     },
     getKnowledgeTooltip: async function (payload) {
+      if (this.isViewerMatch(payload.entry)) {        
         EventBus.emit('connectivity-info-open', [{ title: payload.label, featureId: [payload.id], ready: false }]);
         await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [payload.id] });
         let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
@@ -89,6 +93,7 @@ export default {
         tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
         tooltip['ready'] = true;
         EventBus.emit('connectivity-info-open', [tooltip]);
+      }
     },
     mockUpFlatmapService: async function(mapType = 'human-flatmap_male') {
       const flatmapResponse = await fetch(this.flatmapAPI);

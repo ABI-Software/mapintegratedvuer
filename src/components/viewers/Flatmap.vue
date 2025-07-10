@@ -77,6 +77,9 @@ export default {
     }
   },
   methods: {
+    isViewerMatch: function (entry) {
+      return JSON.stringify(this.entry) === JSON.stringify(entry);
+    },
     getState: function () {
       return this.$refs.flatmap.getState();
     },
@@ -233,12 +236,14 @@ export default {
       }
     },
     getKnowledgeTooltip: async function (payload) {
+      if (this.isViewerMatch(payload.entry)) {
         if (this?.alive) {
           const currentFlatmap = this.$refs.flatmap;
           if (currentFlatmap) {
             currentFlatmap.searchAndShowResult(payload.id, true);
           }
         }
+      }
     },
   },
   computed: {

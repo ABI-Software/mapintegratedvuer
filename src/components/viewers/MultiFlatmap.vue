@@ -108,6 +108,9 @@ export default {
     }
   },
   methods: {
+    isViewerMatch: function (entry) {
+      return JSON.stringify(this.entry) === JSON.stringify(entry);
+    },
     getState: function () {
       if (this.flatmapReady) return this.$refs.multiflatmap.getState();
       else return undefined;
@@ -412,10 +415,12 @@ export default {
       }
     },
     getKnowledgeTooltip: async function (payload) {
+      if (this.isViewerMatch(payload.entry)) {
         if (this?.alive && this.flatmapReady) {
           const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
           flatmap.searchAndShowResult(payload.id, true);
         }
+      }
     },
   },
   computed: {
