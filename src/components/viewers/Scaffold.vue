@@ -91,7 +91,6 @@ export default {
         tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
         tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
         tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
-        tooltip['nerve-label'] = payload['nerve-label'];
         tooltip['ready'] = true;
         EventBus.emit('connectivity-info-open', [tooltip]);
       }
@@ -170,6 +169,13 @@ export default {
       items.forEach(item => {
         if (item.suggestion) suggestions.push(item.suggestion);
       });
+    },
+    showConnectivityTooltips: function (payload) {
+      if (payload.label) {
+        this.$refs.scaffold.showRegionTooltip(payload.label, true, false);
+      } else {
+        this.$refs.scaffold.hideRegionTooltip();
+      }
     },
     displayTooltip: function(info) {
       let name = undefined;
