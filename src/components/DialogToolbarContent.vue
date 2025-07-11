@@ -39,13 +39,14 @@
           </el-icon>
         </span>
         <template #dropdown>
+          <h4>Viewing Mode:</h4>
           <el-dropdown-menu>
             <el-dropdown-item v-for="(value, key, index) in viewingModes"
               :key="key"
               @click="updateViewingMode($event, key)"
               :class="{'is-selected': globalSettings.viewingMode === key }"
             >
-              <span>
+              <h5>
                 <el-icon class="el-icon--left" v-if="key === 'Exploration'">
                   <el-icon-compass />
                 </el-icon>
@@ -56,7 +57,7 @@
                   <el-icon-edit-pen />
                 </el-icon>
                 {{ key }}
-              </span>
+              </h5>
               <small class="el-option__description">
                 <template v-if="key === 'Annotation'">
                   <template v-if="authorisedUser">
@@ -790,11 +791,15 @@ export default {
   gap: 0.5rem;
 }
 
-:deep(.toolbar-dropdown-popper.el-popper) {
+:deep(.el-popper.el-dropdown__popper.toolbar-dropdown-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   background-color: #f3ecf6;
-  width: 300px;
+  width: 320px;
+
+  h4 {
+    line-height: 1.4;
+  }
 
   .el-popper__arrow {
     &:before {
@@ -804,53 +809,49 @@ export default {
   }
 
   .el-dropdown-menu {
+    padding: 0;
     background-color: #f3ecf6;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .el-dropdown-menu__item {
-    padding: 0.5rem;
+    padding: 0.75rem !important;
     height: auto;
-    color: $app-primary-color;
     flex-direction: column;
     align-items: start;
-    gap: 0.5rem;
+    gap: 0.75rem;
     position: relative;
     transition: all 0.3s ease;
 
-    + .el-dropdown-menu__item {
-      &::before {
-        content: "";
-        display: block;
-        width: calc(100% - 1rem);
-        border-top: 1px solid var(--el-border-color);
-        position: absolute;
-        top: 0;
-        left: 0.5rem;
-      }
-    }
-
     .el-icon {
       display: inline;
+      color: inherit;
       vertical-align: middle;
     }
 
-    > span,
+    > h5,
     > small {
       display: block;
     }
 
-    > span {
-      line-height: 1.5;
-      font-weight: 500;
+    h5 {
+      line-height: 1.5 !important;
     }
 
     &.is-selected,
     &:hover {
+      color: $app-primary-color;
       background-color: #f1e4f6;
+
+      h5 {
+        color: inherit;
+      }
     }
 
     &.is-selected {
-      > span {
+      > h5 {
         font-weight: 700;
       }
     }
@@ -861,7 +862,7 @@ export default {
       opacity: 1;
 
       &:not(:hover) {
-        opacity: 0.5;
+        opacity: 0.75;
       }
     }
   }
@@ -878,6 +879,7 @@ export default {
   padding: 1px !important;
 }
 
+:deep(.el-popper.el-dropdown__popper.toolbar-dropdown-popper .el-dropdown__list),
 .setting-popover-inner {
   padding: 0.5rem 0.75rem;
   max-height: calc(100vh - 135px);
@@ -897,6 +899,7 @@ export default {
   }
 }
 
+:deep(.el-popper.el-dropdown__popper.toolbar-dropdown-popper .el-dropdown-menu__item),
 .setting-popover-block {
   background-color: rgba(0, 0, 0, 0.05);
   padding: 0.5rem 0.75rem;
