@@ -172,8 +172,10 @@ export default {
     },
     showConnectivityTooltips: function (payload) {
       if (payload.label) {
-        this.$refs.scaffold.showRegionTooltip(payload.label, true, false);
+        this.highlightFeatures([payload.label])
+        this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
+        this.highlightFeatures(payload.connectivityInfo['nerve-label']);
         this.$refs.scaffold.hideRegionTooltip();
       }
     },
