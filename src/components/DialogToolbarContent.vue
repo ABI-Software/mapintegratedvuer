@@ -816,6 +816,11 @@ export default {
     gap: 0.5rem;
   }
 
+  .el-radio-group .el-radio-button {
+    --el-radio-button-checked-bg-color: gray;
+    --el-radio-button-checked-border-color: gray;
+  }
+
   .el-dropdown-menu__item {
     padding: 0.75rem !important;
     height: auto;
@@ -847,6 +852,11 @@ export default {
 
       h5 {
         color: inherit;
+      }
+
+      .el-radio-group .el-radio-button {
+        --el-radio-button-checked-bg-color: #{$app-primary-color};
+        --el-radio-button-checked-border-color: #{$app-primary-color};
       }
     }
 
