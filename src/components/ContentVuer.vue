@@ -101,6 +101,8 @@ export default {
     },
     /**
      * Perform a local search on this contentvuer
+     * @param {string} term - The search term to look for
+     * @param {boolean} connectivityExplorerClicked - If true, the search is triggered from the Connectivity Explorer
      */
     search: function (term, connectivityExplorerClicked) {
       return this.$refs.viewer?.search(term, connectivityExplorerClicked);

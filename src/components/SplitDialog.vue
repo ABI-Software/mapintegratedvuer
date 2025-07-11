@@ -33,11 +33,7 @@ import { useSplitFlowStore } from '../stores/splitFlow';
 import { useSettingsStore } from '../stores/settings';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import {
-  findPathsByDestinationItem,
-  findPathsByOriginItem,
-  findPathsByViaItem,
   queryPathsByRoute,
-  queryPathsByRouteFromKnowledge,
 } from "@abi-software/map-utilities";
 
 export default {
@@ -318,9 +314,9 @@ export default {
 
               // get facet search result ids
               data.filter.forEach((item) => {
-                const facetKey = item.facetPropPath.split('.').pop();;
+                const facetKey = item.facetPropPath.split('.').pop();
                 const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
-                const isNeuronConnection = Boolean(item.facetPropPath.includes('flatmap.connectivity.source'));
+                const isNeuronConnection = item.facetPropPath.includes('flatmap.connectivity.source');
                 if (matchedFilter && !isNeuronConnection) {
                   matchedFilter.children.forEach((child) => {
                     if (child.label === item.facet && child.key) {
@@ -333,12 +329,10 @@ export default {
                     }
                   });
                 }
-                if (isNeuronConnection && item.facet !== 'Show all') {
+                if (isNeuronConnection && item.facet?.toLowerCase() !== 'show all') {
                   const facet = item.facet;
                   // string format with a space for CQ
                   const feature = facet.replace(",\[", ", \[");
-                  // array format for flatmap query
-                  // const feature = JSON.parse(facet);
                   const mode = item.facetPropPath.split('.').pop();
                   hasConnectionTargets = true;
 
@@ -357,7 +351,6 @@ export default {
                 connectivityQueries.destinations.length ||
                 connectivityQueries.vias.length
               ) {
-                // Competency query 24
                 const options = {
                   flatmapAPI: this.settingsStore.flatmapAPI,
                   knowledgeSource: currentFlatmap.mapImp.uuid,
@@ -369,18 +362,6 @@ export default {
                 if (connectivityFilterResults) {
                   results = results.filter((item) => connectivityFilterResults.includes(item.id));
                 }
-
-                // Flatmap query
-                // const options = {
-                //   knowledge: results,
-                //   origins: connectivityQueries.origins,
-                //   destinations: connectivityQueries.destinations,
-                //   vias: connectivityQueries.vias,
-                // };
-                // const connectivityFilterResults = await queryPathsByRouteFromKnowledge(options);
-                // if (connectivityFilterResults) {
-                //   results = connectivityFilterResults;
-                // }
               }
 
               this.filter = Object.values(filters);

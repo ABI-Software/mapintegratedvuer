@@ -757,12 +757,6 @@ export default {
         this.$refs.sideBar.updateConnectivityError(payload.data);
       }
     });
-    EventBus.on('neuron-connection-click', payload => {
-      const activeFlatmaps = this.getActiveFlatmaps();
-      activeFlatmaps.forEach((activeFlatmap) => {
-        activeFlatmap.highlightConnectedPaths(payload);
-      });
-    });
     EventBus.on('neuron-connection-feature-click', payload => {
       if (this.$refs.sideBar) {
         this.$refs.sideBar.openConnectivitySearch(payload, '');
