@@ -172,21 +172,10 @@ export default {
     },
     showConnectivityTooltips: function (payload) {
       if (payload.label) {
-        this.highlightFeatures([payload.label])
+        this.$refs.scaffold.changeHighlightedByName([payload.label], "", false);
         this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
-        this.highlightFeatures(payload.connectivityInfo['nerve-label']);
-        this.$refs.scaffold.hideRegionTooltip();
-      }
-    },
-    displayTooltip: function(info) {
-      let name = undefined;
-      if (info) {
-        name = info.name;
-      }
-      if (name) {
-        this.$refs.scaffold.search(name, true);
-      } else {
+        this.$refs.scaffold.changeHighlightedByName(payload.connectivityInfo['nerve-label'], "", false);
         this.$refs.scaffold.hideRegionTooltip();
       }
     },
@@ -198,12 +187,6 @@ export default {
         this.$refs.scaffold.changeActiveByName(names, "", false);
       }
       this.$refs.scaffold.viewRegion(names);
-    },
-    highlightFeatures: function(info) {
-      let names = undefined;
-      if (Array.isArray(info)) names = info;
-      else names = [ info.name ];
-      this.$refs.scaffold.changeHighlightedByName(names, "", false);
     },
     scaffoldIsReady: async function () {
       this.scaffoldLoaded = true;

@@ -143,18 +143,6 @@ export default {
         }
       }
     },
-    highlightFeatures: function(info) {
-      let name = info.name;
-      const flatmap = this.$refs.flatmap.mapImp;
-      if (name) {
-        const results = flatmap.search(name);
-        if (results.featureIds[0]) {
-          flatmap.highlightFeatures([
-            flatmap.modelForFeature(results.featureIds[0]),
-          ]);
-        }
-      }
-    },
     /**
      * Append the list of suggested terms to suggestions
      */
@@ -181,12 +169,24 @@ export default {
         }
       }
     },
+    showConnectivityTooltips: function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.showConnectivityTooltips(payload);
+      }
+    },
     showConnectivitiesByReference: function (payload) {
       if (this?.alive) {
         const currentFlatmap = this.$refs.flatmap;
         if (currentFlatmap) {
           currentFlatmap.showConnectivitiesByReference(payload);
         }
+      }
+    },
+    changeConnectivitySource: function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.changeConnectivitySource(payload);
       }
     },
     zoomToFeatures: function(info, forceSelect) {

@@ -220,12 +220,9 @@ export default {
     /**
      * Check if this viewer is currently visible
      */
-     isVisible: function() {
+    isVisible: function() {
       const paneName = this.splitFlowStore.getPaneNameById(this.entry.id);
       return paneName !== undefined;
-    },
-    displayTooltip: function() {
-      return;
     },
     /**
      * Get the term to zoom/highlight in a synchronisation event,
@@ -362,12 +359,6 @@ export default {
       datasetIds.forEach(element => {
         this.getDatasetAnatomyInfo(element)
       });
-    },
-    zoomToFeatures: function () {
-      return;
-    },
-    highlightFeatures: function () {
-      return;
     },
     flatmapMarkerUpdate() {
       return;
@@ -555,12 +546,6 @@ export default {
       return;
     },
     showConnectivitiesByReference: function() {
-      return;
-    },
-    showConnectivityTooltips: function() {
-      return;
-    },
-    changeConnectivitySource: function() {
       return;
     },
     setVisibilityFilter: function() {

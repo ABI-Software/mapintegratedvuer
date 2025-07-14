@@ -198,17 +198,6 @@ export default {
         'location': 'map_popup_button',
       });
     },
-    displayTooltip: function (info) {
-      if (info) {
-        let name = info.name;
-        if (name) {
-          this.search(name);
-        } else {
-          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-          flatmap.mapImp.clearSearchResults();
-        }
-      }
-    },
     zoomToFeatures: function (info, forceSelect) {
       let name = info.name;
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
@@ -224,21 +213,6 @@ export default {
         }
       } else {
         flatmap.clearSearchResults();
-      }
-    },
-    highlightFeatures: function (info) {
-      let name = info.name;
-      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-      if (name) {
-        const results = flatmap.search(name);
-        if (results.featureIds.length > 0) {
-          flatmap.zoomToFeatures(results.featureIds, { noZoomIn: true });
-          /*
-          flatmap.highlightFeatures([
-            flatmap.modelForFeature(results.featureIds[0]),
-          ]);
-          */
-        }
       }
     },
     updateProvCard: function() {
