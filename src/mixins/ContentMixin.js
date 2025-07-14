@@ -571,7 +571,10 @@ export default {
       }
       if (flatmap.mockup) {
         const nerveMaps = flatmapImp.nerveMaps || {};
-        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[uuid]
+        // deep copy the connectivity knowledge
+        // to avoid modifying the original data
+        const deepCopyConnectivity = JSON.parse(JSON.stringify(this.connectivityKnowledge[uuid]));
+        this.connectivityKnowledge[uuid] = deepCopyConnectivity
           .map((item) => {
             let payload = item;
             if (item.nerves.length) {
