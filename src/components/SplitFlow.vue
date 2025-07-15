@@ -203,7 +203,7 @@ export default {
             )
           ) {
             this.connectivityExplorerClicked.push(true)
-            EventBus.emit('connectivity-detail', { ...payload, entry: content.entry })
+            EventBus.emit('connectivity-detail', { data: [payload], type: content.entry })
           }
         });
       }

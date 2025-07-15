@@ -389,10 +389,13 @@ export default {
       }
     },
     getKnowledgeTooltip: async function (payload) {
-      if (this.isViewerMatch(payload.entry)) {
+      if (this.isViewerMatch(payload.type)) {
         if (this?.alive && this.flatmapReady) {
+          // This is for expanding connectivity card
+          // The length of payload.data should always be 1
+          const data = payload.data[0];
           const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-          flatmap.searchAndShowResult(payload.id, true);
+          flatmap.searchAndShowResult(data.id, true);
         }
       }
     },

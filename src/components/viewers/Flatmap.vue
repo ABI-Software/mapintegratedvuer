@@ -236,11 +236,14 @@ export default {
       }
     },
     getKnowledgeTooltip: async function (payload) {
-      if (this.isViewerMatch(payload.entry)) {
+      if (this.isViewerMatch(payload.type)) {
         if (this?.alive) {
           const currentFlatmap = this.$refs.flatmap;
           if (currentFlatmap) {
-            currentFlatmap.searchAndShowResult(payload.id, true);
+            // This is for expanding connectivity card
+            // The length of payload.data should always be 1
+            const data = payload.data[0];
+            currentFlatmap.searchAndShowResult(data.id, true);
           }
         }
       }
