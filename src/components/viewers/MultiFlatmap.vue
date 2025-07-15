@@ -6,7 +6,7 @@
       @ready="multiFlatmapReady"
       :state="entry.state"
       :mapManager="mapManager"
-      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      @resource-selected="flatmapResourceSelected(entry.type, $event)"
       style="height: 100%; width: 100%"
       :initial="entry.resource"
       :helpMode="helpMode"
@@ -149,7 +149,7 @@ export default {
         });
       }
     },
-    flatmaprResourceSelected: function (type, resource) {
+    flatmapResourceSelected: function (type, resource) {
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
       this.resourceSelected(type, resource);
 
