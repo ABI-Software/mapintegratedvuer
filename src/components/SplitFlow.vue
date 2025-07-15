@@ -706,13 +706,15 @@ export default {
         return;
       }
       this.connectivityEntry = payload.map(entry => {
-        const ck = this.connectivityKnowledge.find(ck => ck.id === entry.featureId[0]);
-        return {
+        let result = {
           ...entry,
           label: entry.title,
           id: entry.featureId[0],
-          'nerve-label': ck['nerve-label']
-        };
+        }
+        if (entry.ready) {
+          result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
+        }
+        return result;
       });
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
