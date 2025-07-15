@@ -4,7 +4,7 @@
       :state="entry.state"
       :url="entry.resource"
       :region="entry.region"
-      @scaffold-selected="resourceSelected(entry.type, $event, true)"
+      @scaffold-selected="scaffoldResourceSelected(entry.type, $event)"
       @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
       @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
       @on-ready="scaffoldIsReady"
@@ -69,6 +69,24 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    scaffoldResourceSelected: function (type, resource) {
+      this.resourceSelected(type, resource, true)
+
+      if (resource.length) {        
+        const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+        const nerveKnowledge = connectivity
+          .filter((knowledge) => {
+            const clickedNerve = resource[0].data;
+            if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+              const label = clickedNerve.id.toLowerCase();
+              return knowledge['nerve-label']?.includes(label);
+            }
+          });
+        this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
+      } else {
+        EventBus.emit("connectivity-info-close");
+      }
+    },
     isViewerMatch: function (entry) {
       return JSON.stringify(this.entry) === JSON.stringify(entry);
     },
@@ -78,21 +96,36 @@ export default {
       const tooltip = this.flatmapService.flatmapQueries.updateTooltipData(entry);
       EventBus.emit('connectivity-info-open', [tooltip]);
     },
+    knowledgeTooltipQuery: async function (data) {
+      await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [data.id] });
+      let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
+        resource: [data.id],
+        label: data.label,
+        provenanceTaxonomy: data.taxons,
+        feature: []
+      })
+      tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
+      tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
+      tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
+      tooltip['ready'] = true;
+      return tooltip;
+    },
     getKnowledgeTooltip: async function (payload) {
-      if (this.isViewerMatch(payload.entry)) {        
-        EventBus.emit('connectivity-info-open', [{ title: payload.label, featureId: [payload.id], ready: false }]);
-        await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [payload.id] });
-        let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
-          resource: [payload.id],
-          label: payload.label,
-          provenanceTaxonomy: payload.taxons,
-          feature: []
-        })
-        tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
-        tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
-        tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
-        tooltip['ready'] = true;
-        EventBus.emit('connectivity-info-open', [tooltip]);
+      if (this.isViewerMatch(payload.type)) {
+        const tooltipPlaceholder = []
+        payload.data.forEach(d => tooltipPlaceholder.push({ title: d.label, featureId: [d.id], ready: false }));
+        EventBus.emit('connectivity-info-open', tooltipPlaceholder);
+
+        let prom1 = [];
+        // While having placeholders displayed, get details for all paths and then replace.
+        for (let index = 0; index < payload.data.length; index++) {
+          prom1.push(await this.knowledgeTooltipQuery(payload.data[index]))
+        }
+        const tooltipEntry = await Promise.all(prom1)
+        const featureIds = tooltipEntry.map(tooltip => tooltip.featureId[0])
+        if (featureIds.length > 0) {
+          EventBus.emit('connectivity-info-open', tooltipEntry);
+        }
       }
     },
     mockUpFlatmapService: async function(mapType = 'human-flatmap_male') {
