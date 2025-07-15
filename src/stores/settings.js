@@ -48,7 +48,9 @@ export const useSettingsStore = defineStore('settings', {
   },
   getters: {
     isFeaturedMarkerIdentifier: state => identifier => {
-      return state.featuredMarkerIdentifiers.includes(identifier);
+      // state.featuredMarkerIdentifiers can be nested array
+      const flatIds = state.featuredMarkerIdentifiers.flat(Infinity);
+      return flatIds.includes(identifier);
     },
     featuredMarkerDoi: state => identifier => {
       const index = state.featuredMarkerIdentifiers.findIndex(
