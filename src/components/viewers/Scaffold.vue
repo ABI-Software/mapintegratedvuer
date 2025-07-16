@@ -93,8 +93,13 @@ export default {
     changeConnectivitySource: async function (payload) {
       const { entry, connectivitySource } = payload;
       await this.flatmapService.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
-      const tooltip = this.flatmapService.flatmapQueries.updateTooltipData(entry);
-      EventBus.emit('connectivity-info-open', [tooltip]);
+      this.tooltipEntry = this.tooltipEntry.map((tooltip) => {
+        if (tooltip.featureId[0] === entry.featureId[0]) {
+          return this.flatmapService.flatmapQueries.updateTooltipData(tooltip);
+        }
+        return tooltip;
+      })
+      EventBus.emit('connectivity-info-open', this.tooltipEntry);
     },
     knowledgeTooltipQuery: async function (data) {
       await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [data.id] });
@@ -113,19 +118,19 @@ export default {
     },
     getKnowledgeTooltip: async function (payload) {
       if (this.isViewerMatch(payload.type)) {
-        const tooltipPlaceholder = []
-        payload.data.forEach(d => tooltipPlaceholder.push({ title: d.label, featureId: [d.id], ready: false }));
-        EventBus.emit('connectivity-info-open', tooltipPlaceholder);
+        this.tooltipEntry = []
+        payload.data.forEach(d => this.tooltipEntry.push({ title: d.label, featureId: [d.id], ready: false }));
+        EventBus.emit('connectivity-info-open', this.tooltipEntry);
 
         let prom1 = [];
         // While having placeholders displayed, get details for all paths and then replace.
         for (let index = 0; index < payload.data.length; index++) {
           prom1.push(await this.knowledgeTooltipQuery(payload.data[index]))
         }
-        const tooltipEntry = await Promise.all(prom1)
-        const featureIds = tooltipEntry.map(tooltip => tooltip.featureId[0])
+        this.tooltipEntry = await Promise.all(prom1)
+        const featureIds = this.tooltipEntry.map(tooltip => tooltip.featureId[0])
         if (featureIds.length > 0) {
-          EventBus.emit('connectivity-info-open', tooltipEntry);
+          EventBus.emit('connectivity-info-open', this.tooltipEntry);
         }
       }
     },
@@ -309,6 +314,7 @@ export default {
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
       flatmapService: undefined,
+      tooltipEntry: [],
     };
   },
   mounted: function () {
