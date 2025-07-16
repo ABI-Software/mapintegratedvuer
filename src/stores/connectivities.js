@@ -25,7 +25,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
 
         return acc;
       }, {});
-      return Object.values(combinedConnectivities);
+      return Object.values(combinedConnectivities).sort((a, b) => a.label.localeCompare(b.label));
     },
     getUniqueFilterOptionsByKeys: (state) => {
       const uniqueFilterOptions = state.activeConnectivityKeys.reduce((acc, uuid) => {

@@ -711,6 +711,7 @@ export default {
           label: entry.title,
           id: entry.featureId[0],
         }
+        const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
         if (entry.ready) {
           result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
         }
