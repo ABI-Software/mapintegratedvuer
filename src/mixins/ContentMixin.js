@@ -594,15 +594,15 @@ export default {
           })
           .filter((item) => item["nerve-label"]);
       } else {
-        if (!this.connectivityFilterOptions[uuid]) {
-          this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
-        }
-        this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
         if (!this.connectivityFilterSources[uuid]) {
           this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
         }
         this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
       }
+      if (!this.connectivityFilterOptions[uuid]) {
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
+      }
+      this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
       EventBus.emit('species-layout-connectivity-update');
     },

@@ -241,16 +241,21 @@ export default {
         }
       }
     },
-    getScaffoldSearchedId: function (entry, term) {
+    getScaffoldSearchedId: function (entry, term, type = 'query') {
       const ids = [];
       entry.forEach((data) => {
-        const compareRanges = [
-          data.id,
-          data.label,
-          data['long-label'],
-          data['nerve-label']?.join(','),
-          data['nerves']?.flat(Infinity).join(','),
+        let compareRanges = [
+          data['nerve-label']?.join(',')
         ];
+        if (type = 'query') {
+          compareRanges = [
+            ...compareRanges,
+            data.id,
+            data.label,
+            data['long-label'],
+            data['nerves']?.flat(Infinity).join(',')
+          ]
+        }
         const isMatched = compareRanges.some((data) => {
           return data?.toLowerCase().includes(term.toLowerCase())
         });
@@ -328,7 +333,7 @@ export default {
                 const nestedIds = [];
                 for (let index = 0; index < searchTerms.length; index++) {
                   if (scaffold) {
-                    nestedIds.push(this.getScaffoldSearchedId(results, searchTerms[index]));
+                    nestedIds.push(this.getScaffoldSearchedId(results, searchTerms[index]), 'query');
                   } else {
                     nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index]));
                   }
@@ -346,18 +351,28 @@ export default {
               // get facet search result ids
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
-                const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
-                if (matchedFilter) {
-                  matchedFilter.children.forEach((child) => {
-                    if (child.label === item.facet && child.key) {
-                      const childKey = child.key.split('.').pop();
-                      if (!(facetKey in filters)) {
-                        filters[facetKey] = [];
-                      }
-                      // within facet search category -> OR
-                      filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
+                if (scaffold) {
+                  if (item.facet !== 'Show all') {             
+                    if (!(facetKey in filters)) {
+                      filters[facetKey] = [];
                     }
-                  });
+                    // within facet search category -> OR
+                    filters[facetKey].push(...this.getScaffoldSearchedId(results, item.facet, 'facet'));
+                  }
+                } else {                
+                  const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
+                  if (matchedFilter) {
+                    matchedFilter.children.forEach((child) => {
+                      if (child.label === item.facet && child.key) {
+                        const childKey = child.key.split('.').pop();
+                        if (!(facetKey in filters)) {
+                          filters[facetKey] = [];
+                        }
+                        // within facet search category -> OR
+                        filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
+                      }
+                    });
+                  }
                 }
               });
               this.filter = Object.values(filters);

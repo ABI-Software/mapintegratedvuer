@@ -54,7 +54,7 @@ import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 
 import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
-import { getNerveMaps, getTermNerveMaps } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
+import { getNerveMaps, getTermNerveMaps, getFilterOptions } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
 import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
@@ -151,6 +151,7 @@ export default {
       return {
         'mockup': true,
         flatmapQueries: flatmapQueries,
+        getFilterOptions: getFilterOptions,
         'mapImp': {
           'provenance': {
             'uuid': flatmapUuid,
