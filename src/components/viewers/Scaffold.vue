@@ -84,17 +84,19 @@ export default {
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
 
-      if (resource.length) {        
-        const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
-        const nerveKnowledge = connectivity
-          .filter((knowledge) => {
-            const clickedNerve = resource[0].data;
-            if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
-              const label = clickedNerve.id.toLowerCase();
-              return knowledge['nerve-label'].includes(label);
-            }
-          });
-        this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
+      if (resource.length ) {        
+        if (resource[0].data.anatomicalId) {
+          const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+          const nerveKnowledge = connectivity
+            .filter((knowledge) => {
+              const clickedNerve = resource[0].data;
+              if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+                const label = clickedNerve.id.toLowerCase();
+                return knowledge['nerve-label'].includes(label);
+              }
+            });
+          this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
+        }
       } else {
         EventBus.emit("connectivity-info-close");
       }
