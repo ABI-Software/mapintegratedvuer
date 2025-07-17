@@ -70,8 +70,10 @@ export default {
   },
   methods: {
     setVisibilityFilter: function (payload) {
-      let names = [];
-      if (payload) {        
+      const names = [];
+      let processed = false;
+      if (payload) {     
+        processed = true;
         const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
         const ids = payload['OR'][1]['AND'][1].models;
         for (const id of ids) {
@@ -83,7 +85,7 @@ export default {
           }
         }
       }
-      this.$refs.scaffold.zoomToNerves(names);
+      this.$refs.scaffold.zoomToNerves(names, processed);
     },
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
