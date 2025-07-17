@@ -113,7 +113,7 @@
                       Neuron populations beginning at a location.
                     </small>
                     <small v-else-if="globalSettings.connectionType === 'Via'">
-                      Neuron populations via a location.
+                      Neuron populations that run through a location.
                     </small>
                     <small v-else-if="globalSettings.connectionType === 'Destination'">
                       Neuron populations terminating at a location.
@@ -519,7 +519,7 @@ export default {
       permalinkRef: undefined,
       viewingModes: {
         'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
-        'Neuron Connection': 'Discover Neuron connections by selecting a feature and viewing its associated network connections',
+        'Neuron Connection': 'Discover neuron connections by selecting a feature and viewing its associated network connections',
         'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
       },
       authorisedUser: false,
