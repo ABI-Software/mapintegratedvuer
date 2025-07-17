@@ -14,9 +14,10 @@
           :teleported="false"
           trigger="hover"
           class="toolbar-dropdown"
-          popper-class="toolbar-dropdown-dropdown"
+          popper-class="toolbar-dropdown-popper"
           :hide-on-click="false"
           :disabled="!mapLoaded"
+          placement="bottom-end"
         >
         <span class="el-dropdown-link">
           <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">
@@ -29,18 +30,23 @@
             <el-icon-edit-pen />
           </el-icon>
           {{ globalSettings.viewingMode }}
+          <template v-if="globalSettings.viewingMode === 'Neuron Connection'">
+            &nbsp;
+            <small class="toolbar-dropdown-badge"><em>{{ globalSettings.connectionType }}</em></small>
+          </template>
           <el-icon class="el-icon--right">
             <el-icon-arrow-down />
           </el-icon>
         </span>
         <template #dropdown>
+          <h4>Viewing Mode:</h4>
           <el-dropdown-menu>
             <el-dropdown-item v-for="(value, key, index) in viewingModes"
               :key="key"
               @click="updateViewingMode($event, key)"
               :class="{'is-selected': globalSettings.viewingMode === key }"
             >
-              <span>
+              <h5>
                 <el-icon class="el-icon--left" v-if="key === 'Exploration'">
                   <el-icon-compass />
                 </el-icon>
@@ -51,7 +57,7 @@
                   <el-icon-edit-pen />
                 </el-icon>
                 {{ key }}
-              </span>
+              </h5>
               <small class="el-option__description">
                 <template v-if="key === 'Annotation'">
                   <template v-if="authorisedUser">
@@ -91,6 +97,34 @@
                   </el-popover>
                 </div>
               </template> -->
+              <template v-if="key === 'Neuron Connection'">
+                <div class="setting-popover-block" v-if="'connectionType' in globalSettings">
+                  <el-radio-group
+                    v-model="globalSettings.connectionType"
+                    @change="updateGlobalSettings"
+                  >
+                    <el-radio-button value="Origin" size="small">Origin</el-radio-button>
+                    <el-radio-button value="Via" size="small">Via</el-radio-button>
+                    <el-radio-button value="Destination" size="small">Destination</el-radio-button>
+                    <el-radio-button value="All" size="small">All</el-radio-button>
+                  </el-radio-group>
+                  <div class="el-radio__description">
+                    <small v-if="globalSettings.connectionType === 'Origin'">
+                      Neuron populations beginning at a location.
+                    </small>
+                    <small v-else-if="globalSettings.connectionType === 'Via'">
+                      Neuron populations that run through a location.
+                    </small>
+                    <small v-else-if="globalSettings.connectionType === 'Destination'">
+                      Neuron populations terminating at a location.
+                    </small>
+                    <small v-else>
+                      Neuron populations associated with a location (or)
+                      Neuron populations that share at least one edge with another neuron population.
+                    </small>
+                  </div>
+                </div>
+              </template>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -485,7 +519,7 @@ export default {
       permalinkRef: undefined,
       viewingModes: {
         'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
-        'Neuron Connection': 'Discover Neuron connections by selecting a neuron and viewing its associated network connections',
+        'Neuron Connection': 'Discover neuron connections by selecting a feature and viewing its associated network connections',
         'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
       },
       authorisedUser: false,
@@ -533,6 +567,7 @@ export default {
       }
       // viewing mode update
       if (updatedSettings.includes('viewingMode') ||
+        updatedSettings.includes('connectionType') ||
         updatedSettings.includes('flightPathDisplay') ||
         updatedSettings.includes('organsDisplay') ||
         updatedSettings.includes('outlinesDisplay') ||
@@ -756,11 +791,15 @@ export default {
   gap: 0.5rem;
 }
 
-:deep(.toolbar-dropdown-dropdown.el-popper) {
+:deep(.el-popper.el-dropdown__popper.toolbar-dropdown-popper) {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   background-color: #f3ecf6;
-  width: 300px;
+  width: 320px;
+
+  h4 {
+    line-height: 1.4;
+  }
 
   .el-popper__arrow {
     &:before {
@@ -770,61 +809,59 @@ export default {
   }
 
   .el-dropdown-menu {
+    padding: 0;
     background-color: #f3ecf6;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .el-radio-group .el-radio-button {
+    --el-radio-button-checked-bg-color: gray;
+    --el-radio-button-checked-border-color: gray;
   }
 
   .el-dropdown-menu__item {
-    padding: 0.5rem;
+    padding: 0.75rem !important;
     height: auto;
-    color: $app-primary-color;
     flex-direction: column;
     align-items: start;
-    gap: 0.5rem;
+    gap: 0.75rem;
     position: relative;
     transition: all 0.3s ease;
 
-    + .el-dropdown-menu__item {
-      &::before {
-        content: "";
-        display: block;
-        width: calc(100% - 1rem);
-        border-top: 1px solid var(--el-border-color);
-        position: absolute;
-        top: 0;
-        left: 0.5rem;
-      }
-    }
-
     .el-icon {
       display: inline;
+      color: inherit;
       vertical-align: middle;
     }
 
-    > span,
+    > h5,
     > small {
       display: block;
     }
 
-    > span {
-      line-height: 1.5;
-      font-weight: 500;
-    }
-
-    > small {
-      height: auto;
-      line-height: 1.2;
-      font-weight: normal;
-      color: gray;
-      white-space: normal;
+    h5 {
+      line-height: 1.5 !important;
     }
 
     &.is-selected,
     &:hover {
+      color: $app-primary-color;
       background-color: #f1e4f6;
+
+      h5 {
+        color: inherit;
+      }
+
+      .el-radio-group .el-radio-button {
+        --el-radio-button-checked-bg-color: #{$app-primary-color};
+        --el-radio-button-checked-border-color: #{$app-primary-color};
+      }
     }
 
     &.is-selected {
-      > span {
+      > h5 {
         font-weight: 700;
       }
     }
@@ -835,16 +872,24 @@ export default {
       opacity: 1;
 
       &:not(:hover) {
-        opacity: 0.5;
+        opacity: 0.75;
       }
     }
   }
+}
+
+.toolbar-dropdown-badge {
+  color: white;
+  background-color: $app-primary-color;
+  border-radius: 4px;
+  padding: 2px 4px;
 }
 
 :deep(.setting-popover.el-popper) {
   padding: 1px !important;
 }
 
+:deep(.el-popper.el-dropdown__popper.toolbar-dropdown-popper .el-dropdown__list),
 .setting-popover-inner {
   padding: 0.5rem 0.75rem;
   max-height: calc(100vh - 135px);
@@ -864,10 +909,13 @@ export default {
   }
 }
 
+:deep(.el-popper.el-dropdown__popper.toolbar-dropdown-popper .el-dropdown-menu__item),
 .setting-popover-block {
   background-color: rgba(0, 0, 0, 0.05);
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
 
   h5 {
     margin: 0;
@@ -884,8 +932,21 @@ export default {
   scale: 0.7;
 }
 
-.el-radio__description {
+.el-option__description,
+.el-radio__description small {
+  display: inline-block;
   font-size: 12px;
+  white-space: normal;
+  line-height: 1.2;
+  height: auto;
+  font-weight: normal;
+  color: gray;
+}
+
+.el-radio__description {
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+  font-style: italic;
 }
 
 .bg-color-radio-group {
