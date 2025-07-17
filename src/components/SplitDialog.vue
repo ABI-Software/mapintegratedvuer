@@ -241,15 +241,21 @@ export default {
         }
       }
     },
-    getScaffoldSearchedId: function (entry, term) {
+    getScaffoldSearchedId: function (entry, term, type = 'query') {
       const ids = [];
       entry.forEach((data) => {
-        const compareRanges = [
-          data.id,
-          data.label,
-          data['long-label'],
+        let compareRanges = [
           data['nerve-label']?.join(',')
         ];
+        if (type = 'query') {
+          compareRanges = [
+            ...compareRanges,
+            data.id,
+            data.label,
+            data['long-label'],
+            data['nerves']?.flat(Infinity).join(',')
+          ]
+        }
         const isMatched = compareRanges.some((data) => {
           return data?.toLowerCase().includes(term.toLowerCase())
         });
@@ -282,19 +288,24 @@ export default {
       return ids;
     },
     connectivityQueryFilter: async function (data) {
+      this.query = "";
+      this.filter = [];
       const activeContents = this.getActiveContents();
       const searchOrders = [], searchHighlights = [], searchResults = [];
       let processed = false;
+      let queryIds = [], facetIds = [];
+
+      const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
+      const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
+      let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
 
       for (const activeContent of activeContents) {
         const viewer = activeContent.$refs.viewer;
-
         if (viewer) {
           const multiflatmap = viewer.$refs.multiflatmap;
           const flatmap = viewer.$refs.flatmap;
           const scaffold = viewer.$refs.scaffold;
           let currentMap = null;
-
           if (multiflatmap) {
             const _currentMap = multiflatmap.getCurrentFlatmap();
             if (_currentMap && _currentMap.mapImp) {
@@ -308,13 +319,7 @@ export default {
             currentMap = scaffold;
           }
 
-          const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
-          const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentMap && currentMap.$el.checkVisibility()) {
-            let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
-            const filters = {};
-            let queryIds = [], facetIds = [];
             if (data) {
               this.query = data.query;
               // get query search result ids and order
@@ -327,64 +332,72 @@ export default {
                 const nestedIds = [];
                 for (let index = 0; index < searchTerms.length; index++) {
                   if (scaffold) {
-                    nestedIds.push(this.getScaffoldSearchedId(results, searchTerms[index]));
-                  } else {
+                    nestedIds.push(this.getScaffoldSearchedId(results, searchTerms[index]), 'query');
+                  } else if (flatmap || multiflatmap) {
                     nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index]));
                   }
                 }
                 // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
-                if (scaffold) {
-                  queryIds = flatIds;
-                } else {
-                  queryIds = await currentMap.retrieveConnectedPaths(flatIds);
-                }
+                const ids = scaffold ? flatIds : await currentMap.retrieveConnectedPaths(flatIds);
+                queryIds.push(...ids);
               }
 
+              let filters = {};
               // get facet search result ids
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
-                const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
-                if (matchedFilter) {
-                  matchedFilter.children.forEach((child) => {
-                    if (child.label === item.facet && child.key) {
-                      const childKey = child.key.split('.').pop();
-                      if (!(facetKey in filters)) {
-                        filters[facetKey] = [];
-                      }
-                      // within facet search category -> OR
-                      filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
+                if (scaffold) {
+                  if (item.facet !== 'Show all') {             
+                    if (!(facetKey in filters)) {
+                      filters[facetKey] = [];
                     }
-                  });
+                    // within facet search category -> OR
+                    filters[facetKey].push(...this.getScaffoldSearchedId(results, item.facet, 'facet'));
+                  }
+                } else if (flatmap || multiflatmap) {                
+                  const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
+                  if (matchedFilter) {
+                    matchedFilter.children.forEach((child) => {
+                      if (child.label === item.facet && child.key) {
+                        const childKey = child.key.split('.').pop();
+                        if (!(facetKey in filters)) {
+                          filters[facetKey] = [];
+                        }
+                        // within facet search category -> OR
+                        filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
+                      }
+                    });
+                  }
                 }
               });
-              this.filter = Object.values(filters);
+              const nestedIds = Object.values(filters);
+              this.filter = [...this.filter, ...nestedIds];
               // between facet search categories -> AND
-              facetIds = this.filter.length ?
-                this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) :
-                [];
+              const ids = this.filter.length ? this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) : [];
+              facetIds.push(...ids);
             }
-
-            let target;
-            if (this.query && !this.filter.length) { // pure query search
-              target = queryIds;
-            } else if (!this.query && this.filter.length) { // pure facet search
-              target = facetIds;
-            } else if (this.query && this.filter.length) { // combined query and facet search
-              // between query search and facet search -> AND 
-              target = queryIds.filter(id => facetIds.includes(id));
-            }
-            // This can be empty array due to the AND operation
-            if (target) {
-              searchHighlights.push(...target);
-              results = results.filter((item) => target.includes(item.id));
-              processed = true;
-            }
-            searchResults.push(...results);
           }
         }
       }
+
+      let target;
+      if (this.query && !this.filter.length) { // pure query search
+        target = queryIds;
+      } else if (!this.query && this.filter.length) { // pure facet search
+        target = facetIds;
+      } else if (this.query && this.filter.length) { // combined query and facet search
+        // between query search and facet search -> AND 
+        target = queryIds.filter(id => facetIds.includes(id));
+      }
+      // This can be empty array due to the AND operation
+      if (target) {
+        searchHighlights.push(...target);
+        results = results.filter((item) => target.includes(item.id));
+        processed = true;
+      }
+      searchResults.push(...results);
 
       const uniqueOrders = [...new Set(searchOrders)];
       const uniqueHighlights = [...new Set(searchHighlights)];

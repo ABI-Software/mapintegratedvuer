@@ -203,7 +203,7 @@ export default {
             )
           ) {
             this.connectivityExplorerClicked.push(true)
-            EventBus.emit('connectivity-detail', { ...payload, entry: content.entry })
+            EventBus.emit('connectivity-detail', { data: [payload], type: content.entry })
           }
         });
       }
@@ -706,7 +706,16 @@ export default {
         return;
       }
       this.connectivityEntry = payload.map(entry => {
-        return { ...entry, label: entry.title, id: entry.featureId[0] };
+        let result = {
+          ...entry,
+          label: entry.title,
+          id: entry.featureId[0],
+        }
+        const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
+        if (entry.ready) {
+          result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
+        }
+        return result;
       });
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry

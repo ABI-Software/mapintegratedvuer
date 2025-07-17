@@ -4,7 +4,7 @@
       :state="entry.state"
       :url="entry.resource"
       :region="entry.region"
-      @scaffold-selected="resourceSelected(entry.type, $event, true)"
+      @scaffold-selected="scaffoldResourceSelected(entry.type, $event)"
       @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
       @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
       @on-ready="scaffoldIsReady"
@@ -54,7 +54,7 @@ import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 
 import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
-import { getNerveMaps, getTermNerveMaps } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
+import { getNerveMaps, getTermNerveMaps, getFilterOptions } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
 import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
@@ -69,30 +69,83 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    setVisibilityFilter: function (payload) {
+      let names = [];
+      if (payload) {        
+        const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+        const ids = payload['OR'][1]['AND'][1].models;
+        for (const id of ids) {
+          const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
+          names.push(nerveKnowledge['nerve-label']);
+        }
+      }
+      this.$refs.scaffold.zoomToNerves(names);
+    },
+    scaffoldResourceSelected: function (type, resource) {
+      this.resourceSelected(type, resource, true)
+
+      if (resource.length ) {        
+        if (resource[0].data.anatomicalId) {
+          const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+          const nerveKnowledge = connectivity
+            .filter((knowledge) => {
+              const clickedNerve = resource[0].data;
+              if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+                const label = clickedNerve.id.toLowerCase();
+                return knowledge['nerve-label'].includes(label);
+              }
+            });
+          this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
+        }
+      } else {
+        EventBus.emit("connectivity-info-close");
+      }
+    },
     isViewerMatch: function (entry) {
       return JSON.stringify(this.entry) === JSON.stringify(entry);
     },
     changeConnectivitySource: async function (payload) {
       const { entry, connectivitySource } = payload;
       await this.flatmapService.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
-      const tooltip = this.flatmapService.flatmapQueries.updateTooltipData(entry);
-      EventBus.emit('connectivity-info-open', [tooltip]);
+      this.tooltipEntry = this.tooltipEntry.map((tooltip) => {
+        if (tooltip.featureId[0] === entry.featureId[0]) {
+          return this.flatmapService.flatmapQueries.updateTooltipData(tooltip);
+        }
+        return tooltip;
+      })
+      EventBus.emit('connectivity-info-open', this.tooltipEntry);
+    },
+    knowledgeTooltipQuery: async function (data) {
+      await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [data.id] });
+      let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
+        resource: [data.id],
+        label: data.label,
+        provenanceTaxonomy: data.taxons,
+        feature: []
+      })
+      tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
+      tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
+      tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
+      tooltip['nerve-label'] = data['nerve-label'];
+      tooltip['ready'] = true;
+      return tooltip;
     },
     getKnowledgeTooltip: async function (payload) {
-      if (this.isViewerMatch(payload.entry)) {        
-        EventBus.emit('connectivity-info-open', [{ title: payload.label, featureId: [payload.id], ready: false }]);
-        await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [payload.id] });
-        let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
-          resource: [payload.id],
-          label: payload.label,
-          provenanceTaxonomy: payload.taxons,
-          feature: []
-        })
-        tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
-        tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
-        tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
-        tooltip['ready'] = true;
-        EventBus.emit('connectivity-info-open', [tooltip]);
+      if (this.isViewerMatch(payload.type)) {
+        this.tooltipEntry = []
+        payload.data.forEach(d => this.tooltipEntry.push({ title: d.label, featureId: [d.id], ready: false }));
+        EventBus.emit('connectivity-info-open', this.tooltipEntry);
+
+        let prom1 = [];
+        // While having placeholders displayed, get details for all paths and then replace.
+        for (let index = 0; index < payload.data.length; index++) {
+          prom1.push(await this.knowledgeTooltipQuery(payload.data[index]))
+        }
+        this.tooltipEntry = await Promise.all(prom1)
+        const featureIds = this.tooltipEntry.map(tooltip => tooltip.featureId[0])
+        if (featureIds.length > 0) {
+          EventBus.emit('connectivity-info-open', this.tooltipEntry);
+        }
       }
     },
     mockUpFlatmapService: async function(mapType = 'human-flatmap_male') {
@@ -112,6 +165,7 @@ export default {
       return {
         'mockup': true,
         flatmapQueries: flatmapQueries,
+        getFilterOptions: getFilterOptions,
         'mapImp': {
           'provenance': {
             'uuid': flatmapUuid,
@@ -170,14 +224,12 @@ export default {
         if (item.suggestion) suggestions.push(item.suggestion);
       });
     },
-    displayTooltip: function(info) {
-      let name = undefined;
-      if (info) {
-        name = info.name;
-      }
-      if (name) {
-        this.$refs.scaffold.search(name, true);
+    showConnectivityTooltips: function (payload) {
+      if (payload.label) {
+        this.$refs.scaffold.changeHighlightedByName([payload.label], "", false);
+        this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
+        this.$refs.scaffold.changeHighlightedByName(payload.connectivityInfo['nerve-label'], "", false);
         this.$refs.scaffold.hideRegionTooltip();
       }
     },
@@ -189,12 +241,6 @@ export default {
         this.$refs.scaffold.changeActiveByName(names, "", false);
       }
       this.$refs.scaffold.viewRegion(names);
-    },
-    highlightFeatures: function(info) {
-      let names = undefined;
-      if (Array.isArray(info)) names = info;
-      else names = [ info.name ];
-      this.$refs.scaffold.changeHighlightedByName(names, "", false);
     },
     scaffoldIsReady: async function () {
       this.scaffoldLoaded = true;
@@ -283,6 +329,7 @@ export default {
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
       flatmapService: undefined,
+      tooltipEntry: [],
     };
   },
   mounted: function () {

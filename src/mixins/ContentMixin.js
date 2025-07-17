@@ -220,12 +220,9 @@ export default {
     /**
      * Check if this viewer is currently visible
      */
-     isVisible: function() {
+    isVisible: function() {
       const paneName = this.splitFlowStore.getPaneNameById(this.entry.id);
       return paneName !== undefined;
-    },
-    displayTooltip: function() {
-      return;
     },
     /**
      * Get the term to zoom/highlight in a synchronisation event,
@@ -362,12 +359,6 @@ export default {
       datasetIds.forEach(element => {
         this.getDatasetAnatomyInfo(element)
       });
-    },
-    zoomToFeatures: function () {
-      return;
-    },
-    highlightFeatures: function () {
-      return;
     },
     flatmapMarkerUpdate() {
       return;
@@ -557,15 +548,6 @@ export default {
     showConnectivitiesByReference: function() {
       return;
     },
-    showConnectivityTooltips: function() {
-      return;
-    },
-    changeConnectivitySource: function() {
-      return;
-    },
-    setVisibilityFilter: function() {
-      return;
-    },
     loadConnectivityExplorerConfig: async function (flatmap) {
       const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
@@ -586,32 +568,38 @@ export default {
       }
       if (flatmap.mockup) {
         const nerveMaps = flatmapImp.nerveMaps || {};
-        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[uuid].map((item) => {
-          let payload = item;
-          if (item.nerves.length) {
-            const terms = item.nerves.flat(Infinity);
-            const nerveLabels = terms.reduce((acc, term) => {
-              if (term in nerveMaps) {
-                acc.push(...nerveMaps[term]);
+        // deep copy the connectivity knowledge
+        // to avoid modifying the original data
+        const deepCopyConnectivity = JSON.parse(JSON.stringify(this.connectivityKnowledge[uuid]));
+        this.connectivityKnowledge[uuid] = deepCopyConnectivity
+          .map((item) => {
+            let payload = item;
+            if (item.nerves.length) {
+              const terms = item.nerves.flat(Infinity);
+              const nerveLabels = terms.reduce((acc, term) => {
+                if (term in nerveMaps) {
+                  acc.push(...nerveMaps[term]);
+                }
+                return acc;
+              }, []);
+              if (nerveLabels.length) {
+                payload["nerve-label"] = [...new Set(nerveLabels)]
+                  .sort((a, b) => a.localeCompare(b));
               }
-              return acc;
-            }, []);
-            if (nerveLabels.length) {
-              payload['nerve-label'] = [...new Set(nerveLabels)];
             }
-          }
-          return payload;
-        }).filter(item => item['nerve-label']);
+            return payload;
+          })
+          .filter((item) => item["nerve-label"]);
       } else {
-        if (!this.connectivityFilterOptions[uuid]) {
-          this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
-        }
-        this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
         if (!this.connectivityFilterSources[uuid]) {
           this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
         }
         this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
       }
+      if (!this.connectivityFilterOptions[uuid]) {
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions();
+      }
+      this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
       EventBus.emit('species-layout-connectivity-update');
     },

@@ -6,7 +6,7 @@
       @ready="multiFlatmapReady"
       :state="entry.state"
       :mapManager="mapManager"
-      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      @resource-selected="flatmapResourceSelected(entry.type, $event)"
       style="height: 100%; width: 100%"
       :initial="entry.resource"
       :helpMode="helpMode"
@@ -149,7 +149,7 @@ export default {
         });
       }
     },
-    flatmaprResourceSelected: function (type, resource) {
+    flatmapResourceSelected: function (type, resource) {
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
       this.resourceSelected(type, resource);
 
@@ -198,17 +198,6 @@ export default {
         'location': 'map_popup_button',
       });
     },
-    displayTooltip: function (info) {
-      if (info) {
-        let name = info.name;
-        if (name) {
-          this.search(name);
-        } else {
-          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-          flatmap.mapImp.clearSearchResults();
-        }
-      }
-    },
     zoomToFeatures: function (info, forceSelect) {
       let name = info.name;
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
@@ -224,21 +213,6 @@ export default {
         }
       } else {
         flatmap.clearSearchResults();
-      }
-    },
-    highlightFeatures: function (info) {
-      let name = info.name;
-      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-      if (name) {
-        const results = flatmap.search(name);
-        if (results.featureIds.length > 0) {
-          flatmap.zoomToFeatures(results.featureIds, { noZoomIn: true });
-          /*
-          flatmap.highlightFeatures([
-            flatmap.modelForFeature(results.featureIds[0]),
-          ]);
-          */
-        }
       }
     },
     updateProvCard: function() {
@@ -415,10 +389,13 @@ export default {
       }
     },
     getKnowledgeTooltip: async function (payload) {
-      if (this.isViewerMatch(payload.entry)) {
+      if (this.isViewerMatch(payload.type)) {
         if (this?.alive && this.flatmapReady) {
+          // This is for expanding connectivity card
+          // The length of payload.data should always be 1
+          const data = payload.data[0];
           const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-          flatmap.searchAndShowResult(payload.id, true);
+          flatmap.searchAndShowResult(data.id, true);
         }
       }
     },
