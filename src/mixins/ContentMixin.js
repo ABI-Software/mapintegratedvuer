@@ -578,13 +578,12 @@ export default {
               const terms = item.nerves.flat(Infinity);
               const nerveLabels = terms.reduce((acc, term) => {
                 if (term in nerveMaps) {
-                  acc.push(...nerveMaps[term]);
+                  acc.push(nerveMaps[term]);
                 }
                 return acc;
               }, []);
               if (nerveLabels.length) {
-                payload["nerve-label"] = [...new Set(nerveLabels)]
-                  .sort((a, b) => a.localeCompare(b));
+                payload["nerve-label"] = nerveLabels.sort((a, b) => a.nerve.localeCompare(b.nerve));
               }
             }
             return payload;

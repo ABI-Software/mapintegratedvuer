@@ -76,7 +76,11 @@ export default {
         const ids = payload['OR'][1]['AND'][1].models;
         for (const id of ids) {
           const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
-          names.push(nerveKnowledge['nerve-label']);
+          if (nerveKnowledge) {
+            const nerves = nerveKnowledge['nerve-label'];
+            const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
+            names.push(nerveLabels);
+          }
         }
       }
       this.$refs.scaffold.zoomToNerves(names);
@@ -229,7 +233,9 @@ export default {
         this.$refs.scaffold.changeHighlightedByName([payload.label], "", false);
         this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
-        this.$refs.scaffold.changeHighlightedByName(payload.connectivityInfo['nerve-label'], "", false);
+        const nerves = payload.connectivityInfo['nerve-label'];
+        const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
+        this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
         this.$refs.scaffold.hideRegionTooltip();
       }
     },

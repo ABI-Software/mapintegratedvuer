@@ -245,7 +245,7 @@ export default {
       const ids = [];
       entry.forEach((data) => {
         let compareRanges = [
-          data['nerve-label']?.join(',')
+          JSON.stringify(data['nerve-label'])
         ];
         if (type = 'query') {
           compareRanges = [
@@ -253,7 +253,7 @@ export default {
             data.id,
             data.label,
             data['long-label'],
-            data['nerves']?.flat(Infinity).join(',')
+            JSON.stringify(data['nerves'])
           ]
         }
         const isMatched = compareRanges.some((data) => {
