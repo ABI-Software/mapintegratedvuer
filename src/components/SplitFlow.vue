@@ -759,7 +759,8 @@ export default {
     });
     EventBus.on('neuron-connection-feature-click', payload => {
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.openConnectivitySearch(payload, '');
+        const { filters, search } = payload;
+        this.$refs.sideBar.openConnectivitySearch(filters, search);
         this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
         this.$refs.sideBar.setDrawerOpen(true);
       }
