@@ -69,6 +69,18 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    setVisibilityFilter: function (payload) {
+      let names = [];
+      if (payload) {        
+        const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+        const ids = payload['OR'][1]['AND'][1].models;
+        for (const id of ids) {
+          const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
+          names.push(nerveKnowledge['nerve-label']);
+        }
+      }
+      this.$refs.scaffold.zoomToNerves(names);
+    },
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
 
