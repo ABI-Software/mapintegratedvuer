@@ -311,7 +311,7 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: async function (payload, tracking = true) {
+    onDisplaySearch: function (payload, tracking = true) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
