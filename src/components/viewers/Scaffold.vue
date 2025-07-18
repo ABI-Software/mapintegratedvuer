@@ -4,7 +4,7 @@
       :state="entry.state"
       :url="entry.resource"
       :region="entry.region"
-      @scaffold-selected="resourceSelected(entry.type, $event, true)"
+      @scaffold-selected="scaffoldResourceSelected(entry.type, $event)"
       @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
       @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
       @on-ready="scaffoldIsReady"
@@ -49,13 +49,17 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { markRaw } from "vue";
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 
 import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
+import { getNerveMaps, getTermNerveMaps, getFilterOptions } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
 import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
+import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
+import { getKnowledgeSource } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
 
 export default {
   name: "Scaffold",
@@ -65,6 +69,146 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    setVisibilityFilter: function (payload) {
+      const names = [];
+      let processed = false;
+      if (payload) {     
+        processed = true;
+        const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+        const ids = payload['OR'][1]['AND'][1].models;
+        for (const id of ids) {
+          const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
+          if (nerveKnowledge) {
+            const nerves = nerveKnowledge['nerve-label'];
+            const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
+            names.push(...nerveLabels);
+          }
+        }
+      }
+      this.$refs.scaffold.zoomToNerves(names, processed);
+    },
+    scaffoldResourceSelected: function (type, resource) {
+      this.resourceSelected(type, resource, true)
+
+      if (resource.length) {        
+        if (resource[0].data.anatomicalId) {
+          const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+          const nerveKnowledge = connectivity
+            .filter((knowledge) => {
+              const clickedNerve = resource[0].data;
+              if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+                const label = clickedNerve.id.toLowerCase();
+                return JSON.stringify(knowledge['nerve-label']).includes(label);
+              }
+            });
+          this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
+        }
+      } else {
+        EventBus.emit("connectivity-info-close");
+      }
+    },
+    isViewerMatch: function (entry) {
+      return JSON.stringify(this.entry) === JSON.stringify(entry);
+    },
+    changeConnectivitySource: async function (payload) {
+      const { entry, connectivitySource } = payload;
+      await this.flatmapService.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
+      this.tooltipEntry = this.tooltipEntry.map((tooltip) => {
+        if (tooltip.featureId[0] === entry.featureId[0]) {
+          return this.flatmapService.flatmapQueries.updateTooltipData(tooltip);
+        }
+        return tooltip;
+      })
+      EventBus.emit('connectivity-info-open', this.tooltipEntry);
+    },
+    knowledgeTooltipQuery: async function (data) {
+      await this.flatmapService.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [data.id] });
+      let tooltip = await this.flatmapService.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
+        resource: [data.id],
+        label: data.label,
+        provenanceTaxonomy: data.taxons,
+        feature: []
+      })
+      tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
+      tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
+      tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
+      tooltip['nerve-label'] = data['nerve-label'];
+      tooltip['ready'] = true;
+      return tooltip;
+    },
+    getKnowledgeTooltip: async function (payload) {
+      if (this.isViewerMatch(payload.type)) {
+        this.tooltipEntry = []
+        payload.data.forEach(d => this.tooltipEntry.push({ title: d.label, featureId: [d.id], ready: false }));
+        EventBus.emit('connectivity-info-open', this.tooltipEntry);
+
+        let prom1 = [];
+        // While having placeholders displayed, get details for all paths and then replace.
+        for (let index = 0; index < payload.data.length; index++) {
+          prom1.push(await this.knowledgeTooltipQuery(payload.data[index]))
+        }
+        this.tooltipEntry = await Promise.all(prom1)
+        const featureIds = this.tooltipEntry.map(tooltip => tooltip.featureId[0])
+        if (featureIds.length > 0) {
+          EventBus.emit('connectivity-info-open', this.tooltipEntry);
+        }
+      }
+    },
+    mockUpFlatmapService: async function(mapType = 'human-flatmap_male') {
+      const flatmapResponse = await fetch(this.flatmapAPI);
+      const flatmapJson = await flatmapResponse.json();
+      const latestHumanFlatmapMale = flatmapJson
+        .filter(f => f.id === mapType)
+        .sort((a, b) => b.created.localeCompare(a.created))[0];
+      const flatmapUuid = latestHumanFlatmapMale.uuid;
+      const flatmapSource = latestHumanFlatmapMale.sckan['knowledge-source'];
+      const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
+      const pathwaysJson = await pathwaysResponse.json();
+
+      const flatmapQueries = markRaw(new FlatmapQueries());
+      flatmapQueries.initialise(this.flatmapAPI);
+
+      return {
+        'mockup': true,
+        flatmapQueries: flatmapQueries,
+        getFilterOptions: getFilterOptions,
+        'mapImp': {
+          'provenance': {
+            'uuid': flatmapUuid,
+            'connectivity': {
+              ...latestHumanFlatmapMale.sckan,
+            },
+          },
+          'pathways': pathwaysJson,
+          'resource': this.entry.resource,
+          'nerveMaps': getTermNerveMaps(),
+          queryKnowledge : async (keastId) => {
+            const sql = 'select knowledge from knowledge where (source=? or source is null) and entity=? order by source desc';
+            const params = [flatmapSource, keastId];
+            const response = await flatmapQueries.queryKnowledge(sql, params);
+            return JSON.parse(response);
+          },
+          queryLabels : async (entities) => {
+            const sql = `select source, entity, knowledge from knowledge where (source=? or source is null) and entity in (?${', ?'.repeat(entities.length-1)}) order by entity, source desc`;
+            const params = [flatmapSource, ...entities];
+            const response = await flatmapQueries.queryKnowledge(sql, params);
+            const entityLabels = [];
+            let last_entity;
+            for (const row of response) {
+                if (row[1] !== last_entity) {
+                    const knowledge = JSON.parse(row[2])
+                    entityLabels.push({
+                        entity: row[1],
+                        label: knowledge['label'] || row[1]
+                    })
+                    last_entity = row[1];
+                }
+            }
+            return entityLabels;
+          },
+        },
+      }
+    },
     onResize: function () {
       this.scaffoldCamera.onResize();
     },
@@ -86,14 +230,14 @@ export default {
         if (item.suggestion) suggestions.push(item.suggestion);
       });
     },
-    displayTooltip: function(info) {
-      let name = undefined;
-      if (info) {
-        name = info.name;
-      }
-      if (name) {
-        this.$refs.scaffold.search(name, true);
+    showConnectivityTooltips: function (payload) {
+      if (payload.label) {
+        this.$refs.scaffold.changeHighlightedByName([payload.label], "", false);
+        this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
+        const nerves = payload.connectivityInfo['nerve-label'];
+        const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
+        this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
         this.$refs.scaffold.hideRegionTooltip();
       }
     },
@@ -106,18 +250,16 @@ export default {
       }
       this.$refs.scaffold.viewRegion(names);
     },
-    highlightFeatures: function(info) {
-      let names = undefined;
-      if (Array.isArray(info)) names = info;
-      else names = [ info.name ];
-      this.$refs.scaffold.changeHighlightedByName(names, "", false);
-    },
-    scaffoldIsReady: function () {
+    scaffoldIsReady: async function () {
       this.scaffoldLoaded = true;
       this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
       if (this.isVisible()) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
+        if (this.entry.isBodyScaffold || this.entry.discoverId === "307") {    
+          this.flatmapService = await this.mockUpFlatmapService();
+          this.loadConnectivityExplorerConfig(this.flatmapService);
+        }
       }
       this.updateViewerSettings();
       EventBus.emit("mapLoaded", this.$refs.scaffold);
@@ -194,6 +336,8 @@ export default {
       apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
+      flatmapService: undefined,
+      tooltipEntry: [],
     };
   },
   mounted: function () {

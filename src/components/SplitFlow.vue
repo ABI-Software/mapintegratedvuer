@@ -186,7 +186,27 @@ export default {
     },
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
-      this.onDisplaySearch({ term: payload.id }, false, true);
+      const splitdialog = this.$refs.splitdialog;
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+        activeContents.forEach((content) => {
+          if (
+            content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap' || 
+            (
+              content.viewerType === 'Scaffold' && 
+              (
+                content.entry.isBodyScaffold || content.entry.discoverId === "307"
+              ) &&
+              // human scaffold connectivity based on human male flatmap
+              // if has active human male flatmap, no need to fetch through scaffold
+              !activeContents.find(c => c.activeSpecies === "Human Male")
+            )
+          ) {
+            this.connectivityExplorerClicked.push(true)
+            EventBus.emit('connectivity-detail', { data: [payload], type: content.entry })
+          }
+        });
+      }
     },
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
@@ -291,16 +311,13 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: function (payload, tracking = true, connectivityExplorerClicked = false) {
+    onDisplaySearch: function (payload, tracking = true) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
         activeContents.forEach(content => {
-          if (connectivityExplorerClicked) {
-            this.connectivityExplorerClicked.push(true);
-          }
           if (content.search(payload.term)) {
             searchFound = true;
           }
@@ -372,6 +389,7 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+        hoverOrgans = data['nerve-label'] ? data['nerve-label'].map(nerve => Object.values(nerve)).flat(Infinity) : [];
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
@@ -688,7 +706,16 @@ export default {
         return;
       }
       this.connectivityEntry = payload.map(entry => {
-        return { ...entry, label: entry.title, id: entry.featureId[0] };
+        let result = {
+          ...entry,
+          label: entry.title,
+          id: entry.featureId[0],
+        }
+        const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
+        if (entry.ready) {
+          result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
+        }
+        return result;
       });
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
