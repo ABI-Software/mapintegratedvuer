@@ -81,7 +81,7 @@ export default {
           if (nerveKnowledge) {
             const nerves = nerveKnowledge['nerve-label'];
             const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
-            names.push(nerveLabels);
+            names.push(...nerveLabels);
           }
         }
       }
@@ -90,7 +90,7 @@ export default {
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
 
-      if (resource.length ) {        
+      if (resource.length) {        
         if (resource[0].data.anatomicalId) {
           const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
           const nerveKnowledge = connectivity
