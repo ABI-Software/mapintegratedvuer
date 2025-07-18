@@ -98,7 +98,7 @@ export default {
               const clickedNerve = resource[0].data;
               if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
                 const label = clickedNerve.id.toLowerCase();
-                return knowledge['nerve-label'].includes(label);
+                return JSON.stringify(knowledge['nerve-label']).includes(label);
               }
             });
           this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
