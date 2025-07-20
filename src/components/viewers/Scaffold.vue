@@ -80,7 +80,7 @@ export default {
           const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
           if (nerveKnowledge) {
             const nerves = nerveKnowledge['nerve-label'];
-            const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
+            const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
             names.push(...nerveLabels);
           }
         }
@@ -236,7 +236,7 @@ export default {
         this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
         const nerves = payload.connectivityInfo['nerve-label'];
-        const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
+        const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
         this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
         this.$refs.scaffold.hideRegionTooltip();
       }
