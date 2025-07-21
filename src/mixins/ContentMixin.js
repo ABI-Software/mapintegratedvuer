@@ -545,6 +545,9 @@ export default {
     showConnectivity: function() {
       return;
     },
+    setVisibilityFilter: function() {
+      return;
+    },
     loadConnectivityExplorerConfig: async function (flatmap) {
       const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
