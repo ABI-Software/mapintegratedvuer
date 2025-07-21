@@ -59,7 +59,7 @@ import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
-import { getKnowledgeSource } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
+import { getKnowledgeSource, getReferenceConnectivitiesFromStorage, getReferenceConnectivitiesByAPI } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
 
 export default {
   name: "Scaffold",
@@ -69,6 +69,26 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    showConnectivitiesByReference: async function (resource) {
+      const flatmapKnowledge = sessionStorage.getItem('flatmap-knowledge');
+      let featureIds = [];
+      if (flatmapKnowledge) {
+        featureIds = await getReferenceConnectivitiesFromStorage(resource);
+      } else {
+        featureIds = await getReferenceConnectivitiesByAPI(this.flatmapService.mapImp, resource, this.flatmapService.flatmapQueries);
+      }
+      const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+      let names = []
+      for (const id of featureIds) {
+        const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
+        if (nerveKnowledge) {
+          const nerves = nerveKnowledge['nerve-label'];
+          const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
+          names.push(...nerveLabels);
+        }
+      }
+      this.$refs.scaffold.changeHighlightedByName(names, "", false);
+    },
     setVisibilityFilter: function (payload) {
       const names = [];
       let processed = false;
