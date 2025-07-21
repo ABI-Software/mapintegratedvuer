@@ -311,7 +311,7 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: async function (payload, tracking = true) {
+    onDisplaySearch: function (payload, tracking = true) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
@@ -389,7 +389,7 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
-        hoverOrgans = data['nerve-label'] ? data['nerve-label'].map(nerve => Object.values(nerve)).flat(Infinity) : [];
+        hoverOrgans = data['nerve-label'] ? data['nerve-label'].map(nerve => nerve.subNerves).flat(Infinity) : [];
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }

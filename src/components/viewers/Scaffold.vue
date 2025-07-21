@@ -59,7 +59,7 @@ import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
-import { getKnowledgeSource } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
+import { getKnowledgeSource, getReferenceConnectivitiesFromStorage, getReferenceConnectivitiesByAPI } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
 
 export default {
   name: "Scaffold",
@@ -69,26 +69,48 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    showConnectivitiesByReference: async function (resource) {
+      const flatmapKnowledge = sessionStorage.getItem('flatmap-knowledge');
+      let featureIds = [];
+      if (flatmapKnowledge) {
+        featureIds = await getReferenceConnectivitiesFromStorage(resource);
+      } else {
+        featureIds = await getReferenceConnectivitiesByAPI(this.flatmapService.mapImp, resource, this.flatmapService.flatmapQueries);
+      }
+      const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+      let names = []
+      for (const id of featureIds) {
+        const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
+        if (nerveKnowledge) {
+          const nerves = nerveKnowledge['nerve-label'];
+          const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
+          names.push(...nerveLabels);
+        }
+      }
+      this.$refs.scaffold.changeHighlightedByName(names, "", false);
+    },
     setVisibilityFilter: function (payload) {
-      let names = [];
-      if (payload) {        
+      const names = [];
+      let processed = false;
+      if (payload) {     
+        processed = true;
         const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
         const ids = payload['OR'][1]['AND'][1].models;
         for (const id of ids) {
           const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
           if (nerveKnowledge) {
             const nerves = nerveKnowledge['nerve-label'];
-            const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
-            names.push(nerveLabels);
+            const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
+            names.push(...nerveLabels);
           }
         }
       }
-      this.$refs.scaffold.zoomToNerves(names);
+      this.$refs.scaffold.zoomToNerves(names, processed);
     },
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
 
-      if (resource.length ) {        
+      if (resource.length) {        
         if (resource[0].data.anatomicalId) {
           const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
           const nerveKnowledge = connectivity
@@ -96,7 +118,7 @@ export default {
               const clickedNerve = resource[0].data;
               if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
                 const label = clickedNerve.id.toLowerCase();
-                return knowledge['nerve-label'].includes(label);
+                return JSON.stringify(knowledge['nerve-label']).includes(label);
               }
             });
           this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
@@ -234,7 +256,7 @@ export default {
         this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
         const nerves = payload.connectivityInfo['nerve-label'];
-        const nerveLabels = nerves.map(nerve => Object.values(nerve)).flat(Infinity);
+        const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
         this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
         this.$refs.scaffold.hideRegionTooltip();
       }
