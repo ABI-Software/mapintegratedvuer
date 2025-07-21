@@ -1,7 +1,7 @@
 <template>
   <SimulationVuer
     :apiLocation="apiLocation"
-    :id="entry.discoverId"
+    :id="id"
   />
 </template>
 
@@ -17,5 +17,12 @@ export default {
   components: {
     SimulationVuer,
   },
+  computed: {
+    id: function() {
+      //resource field is only available for simulation omex file and it will run locally.
+      //discoverId field is used for simulations running on O2SPARC.
+      return this.entry.resource ? this.entry.resource: this.entry.discoverId;
+    }
+  }
 };
 </script>
