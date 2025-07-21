@@ -389,7 +389,7 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
-        hoverOrgans = data['nerve-label'] ? data['nerve-label'].map(nerve => nerve.subNerves).flat(Infinity) : [];
+        hoverOrgans = data['nerve-label'] ? data['nerve-label'].flatMap(nerve => nerve.subNerves) : [];
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
