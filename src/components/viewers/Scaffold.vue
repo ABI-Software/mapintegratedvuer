@@ -90,6 +90,12 @@ export default {
       this.$refs.scaffold.changeHighlightedByName(names, "", false);
     },
     setVisibilityFilter: function (payload) {
+      if (
+        !this.connectivityKnowledge.length && 
+        this.entry.resource in this.connectivitiesStore.globalConnectivities
+      ) {
+        this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+      }
       const names = [];
       let processed = false;
       if (payload) {     
@@ -111,16 +117,15 @@ export default {
       this.resourceSelected(type, resource, true)
 
       if (resource.length) {        
-        if (resource[0].data.anatomicalId) {
-          const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
-          const nerveKnowledge = connectivity
-            .filter((knowledge) => {
-              const clickedNerve = resource[0].data;
-              if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
-                const label = clickedNerve.id.toLowerCase();
-                return JSON.stringify(knowledge['nerve-label']).includes(label);
-              }
-            });
+        const nerveKnowledge = this.connectivityKnowledge
+          .filter((knowledge) => {
+            const clickedNerve = resource[0].data;
+            if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+              const label = clickedNerve.id.toLowerCase();
+              return JSON.stringify(knowledge['nerve-label']).includes(label);
+            }
+          });
+        if (nerveKnowledge.length) {
           this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
         }
       } else {
@@ -351,6 +356,21 @@ export default {
       return this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.numberOfDatasetsForFacets : {};
     },
   },
+  watch: {
+    connectivityKnowledge: {
+      handler: function (value) {
+        if (value.length) {
+          const nerves = value.reduce((acc, val) => {
+            return acc.concat(val['nerve-label'] || []);
+          }, [])
+          const names = nerves.reduce((acc, nerve) => {
+            return acc.concat(nerve.subNerves || []);
+          }, [])
+          this.$refs.scaffold.setGreyScale(true, names)
+        }
+      },
+    },
+  },
   data: function () {
     return {
       apiLocation: process.env.VUE_APP_API_LOCATION,
@@ -358,6 +378,7 @@ export default {
       scaffoldLoaded: false,
       flatmapService: undefined,
       tooltipEntry: [],
+      connectivityKnowledge: []
     };
   },
   mounted: function () {
