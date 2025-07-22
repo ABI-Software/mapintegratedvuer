@@ -77,50 +77,53 @@ export default {
       } else {
         featureIds = await getReferenceConnectivitiesByAPI(this.flatmapService.mapImp, resource, this.flatmapService.flatmapQueries);
       }
-      const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
-      let names = []
+      const nerveLabels = [];
       for (const id of featureIds) {
-        const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
-        if (nerveKnowledge) {
-          const nerves = nerveKnowledge['nerve-label'];
-          const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
-          names.push(...nerveLabels);
-        }
+        const knowledge = this.connectivityKnowledge.find(k => k.id === id);
+        if (!knowledge) continue;
+
+        const nerves = knowledge['nerve-label'];
+        const subNerves = nerves.flatMap(n => n.subNerves);
+        nerveLabels.push(...subNerves);
       }
-      this.$refs.scaffold.changeHighlightedByName(names, "", false);
+      this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
     },
     setVisibilityFilter: function (payload) {
-      const names = [];
+      if (
+        !this.connectivityKnowledge.length && 
+        this.entry.resource in this.connectivitiesStore.globalConnectivities
+      ) {
+        this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+      }
+      const nerveLabels = [];
       let processed = false;
       if (payload) {     
         processed = true;
-        const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
         const ids = payload['OR'][1]['AND'][1].models;
         for (const id of ids) {
-          const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
-          if (nerveKnowledge) {
-            const nerves = nerveKnowledge['nerve-label'];
-            const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
-            names.push(...nerveLabels);
-          }
+          const knowledge = this.connectivityKnowledge.find(k => k.id === id);
+          if (!knowledge) continue;
+
+          const nerves = knowledge['nerve-label'];
+          const subNerves = nerves.flatMap(n => n.subNerves);
+          nerveLabels.push(...subNerves);
         }
       }
-      this.$refs.scaffold.zoomToNerves(names, processed);
+      this.$refs.scaffold.zoomToNerves(nerveLabels, processed);
     },
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
 
       if (resource.length) {        
-        if (resource[0].data.anatomicalId) {
-          const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
-          const nerveKnowledge = connectivity
-            .filter((knowledge) => {
-              const clickedNerve = resource[0].data;
-              if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
-                const label = clickedNerve.id.toLowerCase();
-                return JSON.stringify(knowledge['nerve-label']).includes(label);
-              }
-            });
+        const nerveKnowledge = this.connectivityKnowledge
+          .filter((knowledge) => {
+            const clickedNerve = resource[0].data;
+            if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+              const label = clickedNerve.id.toLowerCase();
+              return JSON.stringify(knowledge['nerve-label']).includes(label);
+            }
+          });
+        if (nerveKnowledge.length) {
           this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
         }
       } else {
@@ -158,17 +161,17 @@ export default {
     },
     getKnowledgeTooltip: async function (payload) {
       if (this.isViewerMatch(payload.type)) {
-        this.tooltipEntry = []
+        this.tooltipEntry = [];
         payload.data.forEach(d => this.tooltipEntry.push({ title: d.label, featureId: [d.id], ready: false }));
         EventBus.emit('connectivity-info-open', this.tooltipEntry);
 
         let prom1 = [];
         // While having placeholders displayed, get details for all paths and then replace.
         for (let index = 0; index < payload.data.length; index++) {
-          prom1.push(await this.knowledgeTooltipQuery(payload.data[index]))
+          prom1.push(await this.knowledgeTooltipQuery(payload.data[index]));
         }
-        this.tooltipEntry = await Promise.all(prom1)
-        const featureIds = this.tooltipEntry.map(tooltip => tooltip.featureId[0])
+        this.tooltipEntry = await Promise.all(prom1);
+        const featureIds = this.tooltipEntry.map(tooltip => tooltip.featureId[0]);
         if (featureIds.length > 0) {
           EventBus.emit('connectivity-info-open', this.tooltipEntry);
         }
@@ -216,7 +219,7 @@ export default {
             let last_entity;
             for (const row of response) {
                 if (row[1] !== last_entity) {
-                    const knowledge = JSON.parse(row[2])
+                    const knowledge = JSON.parse(row[2]);
                     entityLabels.push({
                         entity: row[1],
                         label: knowledge['label'] || row[1]
@@ -256,7 +259,7 @@ export default {
         this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
         const nerves = payload.connectivityInfo['nerve-label'];
-        const nerveLabels = nerves.map(nerve => nerve.subNerves).flat(Infinity);
+        const nerveLabels = nerves.flatMap(n => n.subNerves);
         this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
         this.$refs.scaffold.hideRegionTooltip();
       }
@@ -351,6 +354,21 @@ export default {
       return this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.numberOfDatasetsForFacets : {};
     },
   },
+  watch: {
+    connectivityKnowledge: {
+      handler: function (value) {
+        if (value.length) {
+          const nerves = value.reduce((acc, val) => {
+            return acc.concat(val['nerve-label'] || []);
+          }, []);
+          const nerveLabels = nerves.reduce((acc, nerve) => {
+            return acc.concat(nerve.subNerves || []);
+          }, []);
+          this.$refs.scaffold.setGreyScale(true, nerveLabels);
+        }
+      },
+    },
+  },
   data: function () {
     return {
       apiLocation: process.env.VUE_APP_API_LOCATION,
@@ -358,6 +376,7 @@ export default {
       scaffoldLoaded: false,
       flatmapService: undefined,
       tooltipEntry: [],
+      connectivityKnowledge: []
     };
   },
   mounted: function () {
