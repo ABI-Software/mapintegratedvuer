@@ -89,27 +89,15 @@ export default {
       this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
     },
     setVisibilityFilter: function (payload) {
+      // Store scaffold knowledge locally
       if (
         !this.connectivityKnowledge.length && 
         this.entry.resource in this.connectivitiesStore.globalConnectivities
       ) {
         this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities[this.entry.resource];
       }
-      const nerveLabels = [];
-      let processed = false;
-      if (payload) {     
-        processed = true;
-        const ids = payload['OR'][1]['AND'][1].models;
-        for (const id of ids) {
-          const knowledge = this.connectivityKnowledge.find(k => k.id === id);
-          if (!knowledge) continue;
-
-          const nerves = knowledge['nerve-label'];
-          const subNerves = nerves.flatMap(n => n.subNerves);
-          nerveLabels.push(...subNerves);
-        }
-      }
-      this.$refs.scaffold.zoomToNerves(nerveLabels, processed);
+      const processed = payload ? true : false;
+      this.$refs.scaffold.zoomToNerves([], processed);
     },
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
