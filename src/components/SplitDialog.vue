@@ -235,6 +235,7 @@ export default {
         EventBus.emit("connectivity-knowledge", {
           data: this.connectivitiesStore.globalConnectivities[sckanVersion]
         });
+        EventBus.emit("connectivity-filter-options", []);
         this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
       }
     },
