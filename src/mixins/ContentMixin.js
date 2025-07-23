@@ -63,6 +63,13 @@ export default {
     this.multiflatmapRef = this.$refs.multiflatmap;
     this.flatmapRef = this.$refs.flatmap;
     this.scaffoldRef = this.$refs.scaffold;
+    this.iframeRef = this.$refs.iframe;
+    this.plotRef = this.$refs.plot;
+    this.simulationRef = this.$refs.simulation;
+    // load connectivity with mock human male flatmap
+    if (this.scaffoldRef || this.iframeRef || this.plotRef || this.simulationRef) {
+      this.loadExplorerConfig();
+    }
     this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
     this.connectivityFilterOptions = this.connectivitiesStore.filterOptions;
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
