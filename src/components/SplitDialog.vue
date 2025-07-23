@@ -34,6 +34,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import {
   queryPathsByRoute,
+  queryAllConnectedPaths,
 } from "@abi-software/map-utilities";
 
 export default {
@@ -310,6 +311,7 @@ export default {
                 origins: [],
                 vias: [],
                 destinations: [],
+                all: [],
               };
 
               // get facet search result ids
@@ -342,6 +344,9 @@ export default {
                     connectivityQueries.destinations.push(feature);
                   } else if (mode === 'via') {
                     connectivityQueries.vias.push(feature);
+                  } else {
+                    const featuresArray = JSON.parse(feature).flat(Infinity);
+                    connectivityQueries.all.push(...featuresArray);
                   }
                 }
               });
@@ -360,7 +365,15 @@ export default {
                 };
                 const connectivityFilterResults = await queryPathsByRoute(options);
                 if (connectivityFilterResults) {
-                  results = results.filter((item) => connectivityFilterResults.includes(item.id));
+                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
+                }
+              } else if (connectivityQueries.all.length) {
+                const flatmapAPI = this.settingsStore.flatmapAPI;
+                const sourceId = currentFlatmap.mapImp.uuid;
+                const featureIds = connectivityQueries.all;
+                const connectivityFilterResults = await queryAllConnectedPaths(flatmapAPI, sourceId, featureIds);
+                if (connectivityFilterResults) {
+                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
                 }
               }
 
