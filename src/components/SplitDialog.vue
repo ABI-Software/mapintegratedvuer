@@ -304,7 +304,9 @@ export default {
                 // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
-                queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
+                const sourceId = currentFlatmap.mapImp.uuid;
+                const flatmapAPI = this.settingsStore.flatmapAPI;
+                queryIds = await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds);
               }
 
               const connectivityQueries = {
