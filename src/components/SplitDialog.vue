@@ -158,7 +158,8 @@ export default {
     onSpeciesLayoutConnectivityUpdate: function () {
       let activePaneIDs = [];
       let availablePaneIDs = [];
-      let sckanVersion = '';
+      const sckanVersion = Object.keys(this.connectivitiesStore.globalConnectivities)
+        .find(key => key.includes('sckan'));
 
       for (const key in this.customLayout) {
         if (this.customLayout[key].id) {
@@ -198,8 +199,14 @@ export default {
               return (
                 activePaneIDs.includes(entry.id) &&
                 (
-                  ((entry.type === 'Flatmap' || entry.type === 'MultiFlatmap') && entry.uuid) ||
-                  entry.type === 'Scaffold' && entry.resource
+                  (
+                    entry.uuid &&
+                    (entry.type === 'Flatmap' || entry.type === 'MultiFlatmap')
+                  ) ||
+                  (
+                    entry.type === 'Scaffold' && entry.resource &&
+                    (entry.isBodyScaffold || entry.discoverId === "307")
+                  )
                 )
               )
             })
@@ -213,12 +220,6 @@ export default {
         )
       );
 
-      this.entries.forEach((entry) => {
-        if (entry.sckanVersion in this.connectivitiesStore.globalConnectivities) {
-          sckanVersion = entry.sckanVersion;
-        }
-      });
-
       // mix connectivites of available maps
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
@@ -231,14 +232,10 @@ export default {
         const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
         EventBus.emit("connectivity-filter-options", uniqueFilters);
       } else {
-        if (sckanVersion) {
-          EventBus.emit("connectivity-knowledge", {
-            data: this.connectivitiesStore.globalConnectivities[sckanVersion]
-          });
-          this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
-        } else {
-          console.warn(`There has no connectivity to show!`);
-        }
+        EventBus.emit("connectivity-knowledge", {
+          data: this.connectivitiesStore.globalConnectivities[sckanVersion]
+        });
+        this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
       }
     },
     getScaffoldSearchedId: function (entry, term, type = 'query') {

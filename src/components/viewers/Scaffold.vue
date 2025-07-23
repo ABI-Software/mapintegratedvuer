@@ -83,8 +83,10 @@ export default {
         if (!knowledge) continue;
 
         const nerves = knowledge['nerve-label'];
-        const subNerves = nerves.flatMap(n => n.subNerves);
-        nerveLabels.push(...subNerves);
+        if (nerves) {          
+          const subNerves = nerves.flatMap(n => n.subNerves);
+          nerveLabels.push(...subNerves);
+        }
       }
       this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
     },
@@ -165,14 +167,14 @@ export default {
         }
       }
     },
-    mockUpFlatmapService: async function(mapType = 'human-flatmap_male') {
+    mockUpFlatmapService: async function() {
       const flatmapResponse = await fetch(this.flatmapAPI);
       const flatmapJson = await flatmapResponse.json();
-      const latestHumanFlatmapMale = flatmapJson
-        .filter(f => f.id === mapType)
+      const latestFlatmap = flatmapJson
+        .filter(f => f.id === 'human-flatmap_male')
         .sort((a, b) => b.created.localeCompare(a.created))[0];
-      const flatmapUuid = latestHumanFlatmapMale.uuid;
-      const flatmapSource = latestHumanFlatmapMale.sckan['knowledge-source'];
+      const flatmapUuid = latestFlatmap.uuid;
+      const flatmapSource = latestFlatmap.sckan['knowledge-source'];
       const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
       const pathwaysJson = await pathwaysResponse.json();
 
@@ -183,16 +185,16 @@ export default {
         'mockup': true,
         flatmapQueries: flatmapQueries,
         getFilterOptions: getFilterOptions,
+        getTermNerveMaps: getTermNerveMaps,
         'mapImp': {
           'provenance': {
             'uuid': flatmapUuid,
             'connectivity': {
-              ...latestHumanFlatmapMale.sckan,
+              ...latestFlatmap.sckan,
             },
           },
           'pathways': pathwaysJson,
           'resource': this.entry.resource,
-          'nerveMaps': getTermNerveMaps(),
           queryKnowledge : async (keastId) => {
             const sql = 'select knowledge from knowledge where (source=? or source is null) and entity=? order by source desc';
             const params = [flatmapSource, keastId];
@@ -247,8 +249,10 @@ export default {
         this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
         const nerves = payload.connectivityInfo['nerve-label'];
-        const nerveLabels = nerves.flatMap(n => n.subNerves);
-        this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
+        if (nerves) {
+          const nerveLabels = nerves.flatMap(n => n.subNerves);
+          this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
+        }
         this.$refs.scaffold.hideRegionTooltip();
       }
     },
@@ -267,10 +271,8 @@ export default {
       if (this.isVisible()) {
         let rotation = "free";
         if (this.entry.rotation) rotation = this.entry.rotation;
-        if (this.entry.isBodyScaffold || this.entry.discoverId === "307") {    
-          this.flatmapService = await this.mockUpFlatmapService();
-          this.loadConnectivityExplorerConfig(this.flatmapService);
-        }
+        this.flatmapService = await this.mockUpFlatmapService();
+        this.loadConnectivityExplorerConfig(this.flatmapService);
       }
       this.updateViewerSettings();
       EventBus.emit("mapLoaded", this.$refs.scaffold);

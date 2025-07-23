@@ -194,10 +194,7 @@ export default {
             content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap' || 
             (
               content.viewerType === 'Scaffold' && 
-              (
-                content.entry.isBodyScaffold || content.entry.discoverId === "307"
-              ) &&
-              // human scaffold connectivity based on human male flatmap
+              // scaffold connectivity based on human male flatmap
               // if has active human male flatmap, no need to fetch through scaffold
               !activeContents.find(c => c.activeSpecies === "Human Male")
             )

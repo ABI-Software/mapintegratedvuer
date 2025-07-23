@@ -545,7 +545,13 @@ export default {
     showConnectivity: function() {
       return;
     },
+    showConnectivityTooltips: function () {
+      return;
+    },
     setVisibilityFilter: function() {
+      return;
+    },
+    getKnowledgeTooltip: function() {
       return;
     },
     loadConnectivityExplorerConfig: async function (flatmap) {
@@ -567,7 +573,7 @@ export default {
           .filter(item => item.id in pathways);
       }
       if (flatmap.mockup) {
-        const nerveMaps = flatmapImp.nerveMaps || {};
+        const nerveMaps = flatmap.getTermNerveMaps() || {};
         // deep copy the connectivity knowledge
         // to avoid modifying the original data
         const deepCopyConnectivity = JSON.parse(JSON.stringify(this.connectivityKnowledge[uuid]));
