@@ -12,6 +12,7 @@ import Tagging from '../services/tagging.js';
 
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
 import { getKnowledgeSource, loadAndStoreKnowledge } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
+import { getTermNerveMaps, getFilterOptions } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
@@ -554,15 +555,73 @@ export default {
     getKnowledgeTooltip: function() {
       return;
     },
+    loadExplorerConfig: async function () {
+      this.flatmapService = await this.mockUpFlatmapService();
+      this.loadConnectivityExplorerConfig(this.flatmapService);
+    },
+    mockUpFlatmapService: async function() {
+      const flatmapResponse = await fetch(this.flatmapAPI);
+      const flatmapJson = await flatmapResponse.json();
+      const latestFlatmap = flatmapJson
+        .filter(f => f.id === 'human-flatmap_male')
+        .sort((a, b) => b.created.localeCompare(a.created))[0];
+      const flatmapUuid = latestFlatmap.uuid;
+      const flatmapSource = latestFlatmap.sckan['knowledge-source'];
+      const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
+      const pathwaysJson = await pathwaysResponse.json();
+
+      this.flatmapQueries = markRaw(new FlatmapQueries());
+      this.flatmapQueries.initialise(this.flatmapAPI);
+
+      return {
+        'mockup': true,
+        getFilterOptions: getFilterOptions,
+        getTermNerveMaps: getTermNerveMaps,
+        'mapImp': {
+          'provenance': {
+            'uuid': flatmapUuid,
+            'connectivity': {
+              ...latestFlatmap.sckan,
+            },
+          },
+          'pathways': pathwaysJson,
+          'resource': this.entry.resource,
+          queryKnowledge : async (keastId) => {
+            const sql = 'select knowledge from knowledge where (source=? or source is null) and entity=? order by source desc';
+            const params = [flatmapSource, keastId];
+            const response = await this.flatmapQueries.queryKnowledge(sql, params);
+            return JSON.parse(response);
+          },
+          queryLabels : async (entities) => {
+            const sql = `select source, entity, knowledge from knowledge where (source=? or source is null) and entity in (?${', ?'.repeat(entities.length-1)}) order by entity, source desc`;
+            const params = [flatmapSource, ...entities];
+            const response = await this.flatmapQueries.queryKnowledge(sql, params);
+            const entityLabels = [];
+            let last_entity;
+            for (const row of response) {
+                if (row[1] !== last_entity) {
+                    const knowledge = JSON.parse(row[2]);
+                    entityLabels.push({
+                        entity: row[1],
+                        label: knowledge['label'] || row[1]
+                    })
+                    last_entity = row[1];
+                }
+            }
+            return entityLabels;
+          },
+        },
+      }
+    },
     loadConnectivityExplorerConfig: async function (flatmap) {
       const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
       const uuid = flatmap.mockup ? flatmapImp.resource : flatmapImp.uuid;
 
       if (!this.connectivityKnowledge[sckanVersion]) {
-        const flatmapQueries = markRaw(new FlatmapQueries());
-        flatmapQueries.initialise(this.flatmapAPI);
-        const knowledge = await loadAndStoreKnowledge(flatmapImp, flatmapQueries);
+        this.flatmapQueries = markRaw(new FlatmapQueries());
+        this.flatmapQueries.initialise(this.flatmapAPI);
+        const knowledge = await loadAndStoreKnowledge(flatmapImp, this.flatmapQueries);
         this.connectivityKnowledge[sckanVersion] = knowledge
           .filter(item => item.source === sckanVersion && item.connectivity?.length)
           .sort((a, b) => a.label.localeCompare(b.label));
@@ -608,6 +667,48 @@ export default {
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
       EventBus.emit('species-layout-connectivity-update');
     },
+    knowledgeTooltipQuery: async function (data) {
+      await this.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [data.id] });
+      let tooltip = await this.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
+        resource: [data.id],
+        label: data.label,
+        provenanceTaxonomy: data.taxons,
+        feature: []
+      })
+      tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
+      tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
+      tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
+      tooltip['nerve-label'] = data['nerve-label'];
+      tooltip['ready'] = true;
+      return tooltip;
+    },
+    getKnowledgeTooltip: async function (payload) {
+      this.tooltipEntry = [];
+      payload.data.forEach(d => this.tooltipEntry.push({ title: d.label, featureId: [d.id], ready: false }));
+      EventBus.emit('connectivity-info-open', this.tooltipEntry);
+      
+      let prom1 = [];
+      // While having placeholders displayed, get details for all paths and then replace.
+      for (let index = 0; index < payload.data.length; index++) {
+        prom1.push(await this.knowledgeTooltipQuery(payload.data[index]));
+      }
+      this.tooltipEntry = await Promise.all(prom1);
+      const featureIds = this.tooltipEntry.map(tooltip => tooltip.featureId[0]);
+      if (featureIds.length > 0) {
+        EventBus.emit('connectivity-info-open', this.tooltipEntry);
+      }
+    },
+    changeConnectivitySource: async function (payload) {
+      const { entry, connectivitySource } = payload;
+      await this.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
+      this.tooltipEntry = this.tooltipEntry.map((tooltip) => {
+        if (tooltip.featureId[0] === entry.featureId[0]) {
+          return this.flatmapQueries.updateTooltipData(tooltip);
+        }
+        return tooltip;
+      })
+      EventBus.emit('connectivity-info-open', this.tooltipEntry);
+    },
   },
   data: function () {
     return {
@@ -633,6 +734,9 @@ export default {
       connectivityFilterSources: {},
       highlightDelay: undefined,
       alive: true,
+      flatmapService: undefined,
+      flatmapQueries: undefined,
+      tooltipEntry: [],
     };
   },
   created: function () {
