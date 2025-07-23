@@ -239,7 +239,7 @@ export default {
         this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
       }
     },
-    getScaffoldSearchedId: function (entry, term, type = 'query') {
+    getGeneralSearchedId: function (entry, term, type = 'query') {
       const ids = [];
       entry.forEach((data) => {
         let compareRanges = [
@@ -303,21 +303,22 @@ export default {
           const multiflatmap = viewer.$refs.multiflatmap;
           const flatmap = viewer.$refs.flatmap;
           const scaffold = viewer.$refs.scaffold;
+          const iframe = viewer.$refs.iframe;
+          const plot = viewer.$refs.plot;
+          const simulation = viewer.$refs.simulation;
           let currentMap = null;
           if (multiflatmap) {
             const _currentMap = multiflatmap.getCurrentFlatmap();
             if (_currentMap && _currentMap.mapImp) {
               currentMap = _currentMap;
             }
-          }
-          if (flatmap && flatmap.mapImp) {
+          } else if (flatmap && flatmap.mapImp) {
             currentMap = flatmap;
+          } else {
+            currentMap = scaffold || iframe || plot || simulation;
           }
-          if (scaffold) {
-            currentMap = scaffold;
-          }
-
           if (currentMap && currentMap.$el.checkVisibility()) {
+            const isFlatmap = flatmap || multiflatmap;
             if (data) {
               this.query = data.query;
               // get query search result ids and order
@@ -329,16 +330,14 @@ export default {
                   .filter(term => term);
                 const nestedIds = [];
                 for (let index = 0; index < searchTerms.length; index++) {
-                  if (scaffold) {
-                    nestedIds.push(this.getScaffoldSearchedId(results, searchTerms[index]), 'query');
-                  } else if (flatmap || multiflatmap) {
-                    nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index]));
-                  }
+                  isFlatmap ?
+                    nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index])) :
+                    nestedIds.push(this.getGeneralSearchedId(results, searchTerms[index]), 'query');
                 }
                 // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
-                const ids = scaffold ? flatIds : await currentMap.retrieveConnectedPaths(flatIds);
+                const ids = isFlatmap ? await currentMap.retrieveConnectedPaths(flatIds) : flatIds;
                 queryIds.push(...ids);
               }
 
@@ -347,14 +346,14 @@ export default {
               data.filter.forEach((item) => {
                 const facetKey = item.facetPropPath.split('.').pop();;
                 if (scaffold) {
-                  if (item.facet !== 'Show all') {             
+                  if (item.facet !== 'Show all') {
                     if (!(facetKey in filters)) {
                       filters[facetKey] = [];
                     }
                     // within facet search category -> OR
-                    filters[facetKey].push(...this.getScaffoldSearchedId(results, item.facet, 'facet'));
+                    filters[facetKey].push(...this.getGeneralSearchedId(results, item.facet, 'facet'));
                   }
-                } else if (flatmap || multiflatmap) {                
+                } else if (isFlatmap) {
                   const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
                   if (matchedFilter) {
                     matchedFilter.children.forEach((child) => {
