@@ -258,6 +258,7 @@ export default {
     },
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
+      const flatmapAPI = this.settingsStore.flatmapAPI;
       const searchOrders = [], searchResults = [];
       let searchHighlights = [];
       let processed = false;
@@ -283,6 +284,7 @@ export default {
           const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
           const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
+            const sourceId = currentFlatmap.mapImp.uuid;
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
 
             const filters = {};
@@ -304,8 +306,7 @@ export default {
                 // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
-                const sourceId = currentFlatmap.mapImp.uuid;
-                const flatmapAPI = this.settingsStore.flatmapAPI;
+
                 queryIds = await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds);
               }
 
@@ -359,7 +360,7 @@ export default {
                 connectivityQueries.vias.length
               ) {
                 const options = {
-                  flatmapAPI: this.settingsStore.flatmapAPI,
+                  flatmapAPI: flatmapAPI,
                   knowledgeSource: currentFlatmap.mapImp.uuid,
                   origins: connectivityQueries.origins,
                   destinations: connectivityQueries.destinations,
@@ -370,8 +371,6 @@ export default {
                   results = results.filter((result) => connectivityFilterResults.includes(result.id));
                 }
               } else if (connectivityQueries.all.length) {
-                const flatmapAPI = this.settingsStore.flatmapAPI;
-                const sourceId = currentFlatmap.mapImp.uuid;
                 const featureIds = connectivityQueries.all;
                 const connectivityFilterResults = await queryAllConnectedPaths(flatmapAPI, sourceId, featureIds);
                 if (connectivityFilterResults) {
