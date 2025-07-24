@@ -495,6 +495,9 @@ export default {
       else {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
+      if (state.sidebar) {
+        this.$refs.sideBar.setState(state.sidebar);
+      }
       this.updateGlobalSettingsFromState(state);
     },
     getState: function (anonymousAnnotations = false) {
