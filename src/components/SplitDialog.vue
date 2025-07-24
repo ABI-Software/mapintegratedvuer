@@ -34,6 +34,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import {
   queryPathsByRoute,
+  queryAllConnectedPaths,
 } from "@abi-software/map-utilities";
 
 export default {
@@ -257,6 +258,7 @@ export default {
     },
     connectivityQueryFilter: async function (data) {
       const activeContents = this.getActiveContents();
+      const flatmapAPI = this.settingsStore.flatmapAPI;
       const searchOrders = [], searchResults = [];
       let searchHighlights = [];
       let processed = false;
@@ -282,6 +284,7 @@ export default {
           const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
           const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
           if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
+            const sourceId = currentFlatmap.mapImp.uuid;
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
 
             const filters = {};
@@ -303,13 +306,17 @@ export default {
                 // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
-                queryIds = await currentFlatmap.retrieveConnectedPaths(flatIds);
+
+                if (flatIds.length) {
+                  queryIds = await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds);
+                }
               }
 
               const connectivityQueries = {
                 origins: [],
                 vias: [],
                 destinations: [],
+                all: [],
               };
 
               // get facet search result ids
@@ -342,6 +349,9 @@ export default {
                     connectivityQueries.destinations.push(feature);
                   } else if (mode === 'via') {
                     connectivityQueries.vias.push(feature);
+                  } else {
+                    const featuresArray = JSON.parse(feature).flat(Infinity);
+                    connectivityQueries.all.push(...featuresArray);
                   }
                 }
               });
@@ -352,7 +362,7 @@ export default {
                 connectivityQueries.vias.length
               ) {
                 const options = {
-                  flatmapAPI: this.settingsStore.flatmapAPI,
+                  flatmapAPI: flatmapAPI,
                   knowledgeSource: currentFlatmap.mapImp.uuid,
                   origins: connectivityQueries.origins,
                   destinations: connectivityQueries.destinations,
@@ -360,7 +370,16 @@ export default {
                 };
                 const connectivityFilterResults = await queryPathsByRoute(options);
                 if (connectivityFilterResults) {
-                  results = results.filter((item) => connectivityFilterResults.includes(item.id));
+                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
+                }
+              } else if (connectivityQueries.all.length) {
+                const featureIds = connectivityQueries.all;
+                let connectivityFilterResults = null;
+                if (featureIds.length) {
+                  connectivityFilterResults = await queryAllConnectedPaths(flatmapAPI, sourceId, featureIds);
+                }
+                if (connectivityFilterResults) {
+                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
                 }
               }
 
