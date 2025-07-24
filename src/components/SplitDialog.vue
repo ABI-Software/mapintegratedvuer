@@ -307,7 +307,9 @@ export default {
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
 
-                queryIds = await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds);
+                if (flatIds.length) {
+                  queryIds = await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds);
+                }
               }
 
               const connectivityQueries = {
@@ -372,7 +374,10 @@ export default {
                 }
               } else if (connectivityQueries.all.length) {
                 const featureIds = connectivityQueries.all;
-                const connectivityFilterResults = await queryAllConnectedPaths(flatmapAPI, sourceId, featureIds);
+                let connectivityFilterResults = null;
+                if (featureIds.length) {
+                  connectivityFilterResults = await queryAllConnectedPaths(flatmapAPI, sourceId, featureIds);
+                }
                 if (connectivityFilterResults) {
                   results = results.filter((result) => connectivityFilterResults.includes(result.id));
                 }
