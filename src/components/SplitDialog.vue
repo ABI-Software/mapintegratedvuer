@@ -317,7 +317,7 @@ export default {
           } else {
             currentMap = scaffold || iframe || plot || simulation;
           }
-          if (currentMap && currentMap.$el.checkVisibility()) {
+          if (currentMap && currentMap.$el?.checkVisibility()) {
             const isFlatmap = flatmap || multiflatmap;
             if (data) {
               this.query = data.query;
