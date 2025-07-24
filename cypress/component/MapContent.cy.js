@@ -281,7 +281,7 @@ describe('MapContent', () => {
 
     // Switch to Annotation viewing mode
     cy.get('.viewing-mode-selector > .toolbar-dropdown').as('changeViewingMode').trigger('mouseenter')
-    cy.get('.el-dropdown-menu__item > span').as('viewingModes').contains('Annotation').click()
+    cy.get('.toolbar-dropdown-popper .el-dropdown-menu__item > h5').as('viewingModes').contains('Annotation').click()
     cy.get('@changeViewingMode').trigger('mouseleave')
 
     // All available maps should show to annotation tools

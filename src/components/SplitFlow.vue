@@ -532,6 +532,9 @@ export default {
       else {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
+      if (state.sidebar) {
+        this.$refs.sideBar.setState(state.sidebar);
+      }
       this.updateGlobalSettingsFromState(state);
     },
     getState: function (anonymousAnnotations = false) {
@@ -558,6 +561,9 @@ export default {
       }
       state.splitFlow = this.splitFlowStore.getState();
       state.globalSettings = this.settingsStore.getGlobalSettings();
+      if (this.$refs.sideBar) {
+        state.sidebar = this.$refs.sideBar.getState();
+      }
       return state;
     },
     removeEntry: function (id) {
