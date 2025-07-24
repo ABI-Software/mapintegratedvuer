@@ -646,7 +646,7 @@ export default {
         this.connectivityKnowledge[uuid] = deepCopyConnectivity
           .map((item) => {
             let payload = item;
-            if (item.nerves.length) {
+            if (item.nerves?.length) {
               const terms = item.nerves.flat(Infinity);
               const nerveLabels = terms.reduce((acc, term) => {
                 if (term in nerveMaps) {
@@ -654,7 +654,7 @@ export default {
                 }
                 return acc;
               }, []);
-              if (nerveLabels.length) {
+              if (nerveLabels?.length) {
                 payload["nerve-label"] = nerveLabels.sort((a, b) => a.nerve.localeCompare(b.nerve));
               }
             }
