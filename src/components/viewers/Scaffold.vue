@@ -87,6 +87,17 @@ export default {
       }
       this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
     },
+    setNerveGreyScale: function () {
+      if (this.connectivityKnowledge.length) {
+        const nerves = this.connectivityKnowledge.reduce((acc, val) => {
+          return acc.concat(val['nerve-label'] || []);
+        }, []);
+        const nerveLabels = nerves.reduce((acc, nerve) => {
+          return acc.concat(nerve.subNerves || []);
+        }, []);
+        this.$refs.scaffold.setGreyScale(true, nerveLabels);
+      }
+    },
     setVisibilityFilter: function (payload) {
       // Store scaffold knowledge locally
       if (
@@ -168,6 +179,7 @@ export default {
         if (this.entry.rotation) rotation = this.entry.rotation;
       }
       this.updateViewerSettings();
+      this.setNerveGreyScale();
       EventBus.emit("mapLoaded", this.$refs.scaffold);
     },
     /**
@@ -235,21 +247,6 @@ export default {
     },
     markerLabels: function () {
       return this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.numberOfDatasetsForFacets : {};
-    },
-  },
-  watch: {
-    connectivityKnowledge: {
-      handler: function (value) {
-        if (value.length) {
-          const nerves = value.reduce((acc, val) => {
-            return acc.concat(val['nerve-label'] || []);
-          }, []);
-          const nerveLabels = nerves.reduce((acc, nerve) => {
-            return acc.concat(nerve.subNerves || []);
-          }, []);
-          this.$refs.scaffold.setGreyScale(true, nerveLabels);
-        }
-      },
     },
   },
   data: function () {
