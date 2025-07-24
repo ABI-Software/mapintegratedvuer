@@ -189,16 +189,21 @@ export default {
       const splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
+        const hasFlatmap = activeContents.find(c => c.viewerType.includes('Flatmap'));
         const hasHumanMaleFlatmap = activeContents.find(c => c.activeSpecies === "Human Male");
-        activeContents.forEach((content) => {
+        let nonFlatmapLoad = false
+        activeContents.forEach(content => {
           const isFlatmap = content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap';
-          // load detail if flatmap
-          // if other maps, check whether has active human male flatmap
-          // if has, detail from flatmap
-          // if not, detail from mock flatmap
-          if (isFlatmap || !hasHumanMaleFlatmap) {
-            this.connectivityExplorerClicked.push(true)
+          // minimise connectivity detail fetch
+          const shouldLoad =
+            (hasFlatmap && isFlatmap) ||
+            (hasFlatmap && !hasHumanMaleFlatmap && !isFlatmap && !nonFlatmapLoad) ||
+            (!hasFlatmap && !nonFlatmapLoad);
+
+          if (shouldLoad) {
+            this.connectivityExplorerClicked.push(true);
             content.onLoadConnectivityDetail({ data: [payload] });
+            if (!isFlatmap) nonFlatmapLoad = true;
           }
         });
       }
