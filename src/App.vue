@@ -184,6 +184,7 @@ export default {
       Message({
         message: `Settings saved successfully! There are ${this.mapSettings.length} saved settings.`,
         type: 'success',
+        showClose: true,
       });
     },
     restoreSettings: function() {
@@ -192,11 +193,13 @@ export default {
         Message({
           message: 'Settings restored successfully!',
           type: 'success',
+          showClose: true,
         });
       } else {
         Message({
           message: 'There are no saved settings to restore.',
           type: 'warning',
+          showClose: true,
         })
       }
     },
