@@ -515,12 +515,6 @@ export default {
         content.onFilterVisibility(payload);
       });
     });
-    EventBus.on('connectivity-detail', (payload) => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onLoadConnectivityDetail(payload);
-      });
-    });
   },
 };
 </script>

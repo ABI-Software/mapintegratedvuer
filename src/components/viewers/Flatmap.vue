@@ -77,9 +77,6 @@ export default {
     }
   },
   methods: {
-    isViewerMatch: function (entry) {
-      return JSON.stringify(this.entry) === JSON.stringify(entry);
-    },
     getState: function () {
       return this.$refs.flatmap.getState();
     },
@@ -236,15 +233,13 @@ export default {
       }
     },
     getKnowledgeTooltip: async function (payload) {
-      if (this.isViewerMatch(payload.type)) {
-        if (this?.alive) {
-          const currentFlatmap = this.$refs.flatmap;
-          if (currentFlatmap) {
-            // This is for expanding connectivity card
-            // The length of payload.data should always be 1
-            const data = payload.data[0];
-            currentFlatmap.searchAndShowResult(data.id, true);
-          }
+      if (this?.alive) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          // This is for expanding connectivity card
+          // The length of payload.data should always be 1
+          const data = payload.data[0];
+          currentFlatmap.searchAndShowResult(data.id, true);
         }
       }
     },
