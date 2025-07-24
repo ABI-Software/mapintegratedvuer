@@ -62,8 +62,9 @@ import {
   ElCol as Col,
   ElPopover as Popover,
   ElRow as Row,
+  ElMessage as Message,
 } from 'element-plus';
-
+import 'element-plus/es/components/message/style/css';
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
@@ -180,10 +181,24 @@ export default {
     },
     saveSettings: function() {
       this.mapSettings.push(this.$refs.map.getState());
+      Message({
+        message: `Settings saved successfully! There are ${this.mapSettings.length} saved settings.`,
+        type: 'success',
+      });
     },
     restoreSettings: function() {
-      if (this.mapSettings.length > 0)
+      if (this.mapSettings.length > 0) {
         this.$refs.map.setState(this.mapSettings.pop());
+        Message({
+          message: 'Settings restored successfully!',
+          type: 'success',
+        });
+      } else {
+        Message({
+          message: 'There are no saved settings to restore.',
+          type: 'warning',
+        })
+      }
     },
     updateUUID: function(withAnnotation) {
       let url = this.api + 'map/getshareid';
