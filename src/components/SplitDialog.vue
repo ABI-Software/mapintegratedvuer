@@ -235,7 +235,7 @@ export default {
         EventBus.emit("connectivity-filter-options", uniqueFilters);
       } else {
         EventBus.emit("connectivity-knowledge", {
-                      data: this.connectivitiesStore.globalConnectivities[sckanVersion],
+            data: this.connectivitiesStore.globalConnectivities[sckanVersion],
             highlight: [],
             processed: false,
         });
