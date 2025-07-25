@@ -334,7 +334,6 @@ export default {
           if (currentMap?.$el?.checkVisibility() || currentMap?.checkVisibility()) {
             const isFlatmap = flatmap || multiflatmap;
 
-            let hasConnectionTargets = false;
             if (data) {
               this.query = data.query;
               // get query search result ids and order
@@ -384,7 +383,6 @@ export default {
                       // string format with a space for CQ
                       const feature = facet.replace(",\[", ", \[");
                       const mode = item.facetPropPath.split('.').pop();
-                      hasConnectionTargets = true;
     
                       if (mode === 'origin') {
                         connectivityQueries.origins.push(feature);
@@ -415,7 +413,6 @@ export default {
                 }
               });
 
-
               if (
                 connectivityQueries.origins.length ||
                 connectivityQueries.destinations.length ||
@@ -428,55 +425,22 @@ export default {
                   destinations: connectivityQueries.destinations,
                   vias: connectivityQueries.vias,
                 };
-                const connectivityFilterResults = await queryPathsByRoute(options);
-                console.log("🚀 ~ connectivityFilterResults:", connectivityFilterResults)
-                if (connectivityFilterResults) {
-                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
+                if (!('ovd' in filters)) {
+                  filters['ovd'] = [];
                 }
+                filters['ovd'].push(...await queryPathsByRoute(options));
               } else if (connectivityQueries.all.length) {
-                const featureIds = connectivityQueries.all;
-                let connectivityFilterResults = null;
-                if (featureIds.length) {
-                  connectivityFilterResults = await queryAllConnectedPaths(flatmapAPI, sourceId, featureIds);
-                  console.log("🚀 ~ connectivityFilterResults:", connectivityFilterResults)
+                if (!('all' in filters)) {
+                  filters['all'] = [];
                 }
-                if (connectivityFilterResults) {
-                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
-                }
+                filters['all'].push(...await queryAllConnectedPaths(flatmapAPI, sourceId, connectivityQueries.all));
               }
-
               const nestedIds = Object.values(filters);
               this.filter = [...this.filter, ...nestedIds];
               // between facet search categories -> AND
               const ids = this.filter.length ? this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) : [];
               facetIds.push(...ids);
             }
-
-            let target;
-            if (this.query && !this.filter.length) { // pure query search
-              target = queryIds;
-            } else if (!this.query && this.filter.length) { // pure facet search
-              target = facetIds;
-            } else if (this.query && this.filter.length) { // combined query and facet search
-              // between query search and facet search -> AND
-              target = queryIds.filter(id => facetIds.includes(id));
-            }
-            // This can be empty array due to the AND operation
-            if (target) {
-              searchHighlights.push(...target);
-              results = results.filter((item) => target.includes(item.id));
-              processed = true;
-            }
-            if (hasConnectionTargets) {
-              const connectionTargets = results.map((item) => item.id);
-              processed = true;
-              if (searchHighlights.length) {
-                searchHighlights = searchHighlights.filter((item) => connectionTargets.includes(item));
-              } else {
-                searchHighlights = connectionTargets;
-              }
-            }
-            searchResults.push(...results);
           }
         }
       }
