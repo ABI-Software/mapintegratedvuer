@@ -23,6 +23,7 @@
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
+      @neuron-connection-feature-click="onNeuronConnectionFeatureClick"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
@@ -83,8 +84,8 @@ export default {
     /**
      * Perform a local search on this contentvuer
      */
-    search: function (term) {
-      return this.$refs.flatmap.searchAndShowResult(term, true);
+    search: function (term, connectivityExplorerClicked) {
+      return this.$refs.flatmap.searchAndShowResult(term, true, connectivityExplorerClicked);
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
@@ -214,6 +215,7 @@ export default {
         flightPathDisplay,
         organsDisplay,
         outlinesDisplay,
+        connectionType,
       } = this.settingsStore.globalSettings;
 
       const currentFlatmap = this.$refs.flatmap;
@@ -223,6 +225,7 @@ export default {
       currentFlatmap.setColour(organsDisplay);
       currentFlatmap.setOutlines(outlinesDisplay);
       currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+      currentFlatmap.setConnectionType(connectionType);
     },
     setVisibilityFilter: function (payload) {
       if (this?.alive) {
