@@ -385,6 +385,32 @@ export default {
         }
       }
     },
+    openAnnotation: function (payload) {
+      this.annotationEntry = payload.annotationEntry;
+      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
+      this.annotationCallback = markRaw(payload.commitCallback);
+      if (!payload.createData) {
+        this.createData = markRaw({});
+      } else {
+        this.createData = markRaw(payload.createData);
+      }
+      if (payload.confirmCreate) {
+        this.confirmCreateCallback = markRaw(payload.confirmCreate);
+      }
+      if (payload.cancelCreate) {
+        this.cancelCreateCallback = markRaw(payload.cancelCreate);
+      }
+      if (payload.confirmDelete) {
+        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+      }
+      if (payload.confirmComment) {
+        this.confirmCommentCallback = markRaw(payload.confirmComment);
+      }
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    },
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
     },
@@ -670,30 +696,7 @@ export default {
       this.actionClick(payload);
     });
     EventBus.on('annotation-open', payload => {
-      this.annotationEntry = payload.annotationEntry;
-      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
-      this.annotationCallback = markRaw(payload.commitCallback);
-      if (!payload.createData) {
-        this.createData = markRaw({});
-      } else {
-        this.createData = markRaw(payload.createData);
-      }
-      if (payload.confirmCreate) {
-        this.confirmCreateCallback = markRaw(payload.confirmCreate);
-      }
-      if (payload.cancelCreate) {
-        this.cancelCreateCallback = markRaw(payload.cancelCreate);
-      }
-      if (payload.confirmDelete) {
-        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
-      }
-      if (payload.confirmComment) {
-        this.confirmCommentCallback = markRaw(payload.confirmComment);
-      }
-      if (this.$refs.sideBar) {
-        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
-        this.$refs.sideBar.setDrawerOpen(true);
-      }
+      this.openAnnotation(payload);
     });
     EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
