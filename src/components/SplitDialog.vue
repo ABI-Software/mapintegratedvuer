@@ -377,11 +377,12 @@ export default {
                   }
                 } else if (isFlatmap) {
                   const isNeuronConnection = item.facetPropPath.includes('flatmap.connectivity.source');
+                  // origins/vias/destinations/all filter logic
+                  // generate connectivityQueries to query related ids
                   if (isNeuronConnection) {
                     if (item.facet?.toLowerCase() !== 'show all') {
-                      const facet = item.facet;
                       // string format with a space for CQ
-                      const feature = facet.replace(",\[", ", \[");
+                      const feature = item.facet.replace(",\[", ", \[");
                       const mode = item.facetPropPath.split('.').pop();
     
                       if (mode === 'origin') {
@@ -396,6 +397,7 @@ export default {
                       }
                     }
                   } else {
+                    // all other flatmap filter logic
                     const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
                     if (matchedFilter) {
                       matchedFilter.children.forEach((child) => {
@@ -413,6 +415,7 @@ export default {
                 }
               });
 
+              // query ids for origins/vias/destinations/all filter
               if (
                 connectivityQueries.origins.length ||
                 connectivityQueries.destinations.length ||
@@ -425,6 +428,10 @@ export default {
                   destinations: connectivityQueries.destinations,
                   vias: connectivityQueries.vias,
                 };
+                // expectation
+                // result should already applied the following
+                // between origins, destinations and vias -> AND
+                // within origins, destinations and vias -> OR
                 if (!('ovd' in filters)) {
                   filters['ovd'] = [];
                 }
@@ -435,6 +442,7 @@ export default {
                 }
                 filters['all'].push(...await queryAllConnectedPaths(flatmapAPI, sourceId, connectivityQueries.all));
               }
+
               const nestedIds = Object.values(filters);
               this.filter = [...this.filter, ...nestedIds];
               // between facet search categories -> AND
