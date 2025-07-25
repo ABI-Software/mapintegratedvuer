@@ -30,7 +30,12 @@ import CustomSplitter from "./CustomSplitter.vue";
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useSettingsStore } from '../stores/settings';
 import { useConnectivitiesStore } from '../stores/connectivities';
+import {
+  queryPathsByRoute,
+  queryAllConnectedPaths,
+} from "@abi-software/map-utilities";
 
 export default {
   name: "SplitDialog",
@@ -223,7 +228,7 @@ export default {
       // mix connectivites of available maps
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
-        
+
         const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
         EventBus.emit("connectivity-knowledge", {
           data: uniqueConnectivities,
@@ -293,9 +298,12 @@ export default {
       this.query = "";
       this.filter = [];
       const activeContents = this.getActiveContents();
-      const searchOrders = [], searchHighlights = [], searchResults = [];
+      const flatmapAPI = this.settingsStore.flatmapAPI;
+      const searchOrders = [], searchResults = [];
+      let searchHighlights = [];
       let processed = false;
       let queryIds = [], facetIds = [];
+      let sourceId = "";
 
       const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
       const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
@@ -315,20 +323,18 @@ export default {
             const _currentMap = multiflatmap.getCurrentFlatmap();
             if (_currentMap && _currentMap.mapImp) {
               currentMap = _currentMap;
+              sourceId = currentMap.mapImp.uuid;
             }
           } else if (flatmap && flatmap.mapImp) {
             currentMap = flatmap;
+            sourceId = currentMap.mapImp.uuid;
           } else {
             currentMap = scaffold || iframe || plot || simulation;
           }
-          if (
-            currentMap &&
-            (
-              currentMap.$el?.checkVisibility() ||
-              (iframe && currentMap.checkVisibility())
-            )
-          ) {
+          if (currentMap?.$el?.checkVisibility() || currentMap?.checkVisibility()) {
             const isFlatmap = flatmap || multiflatmap;
+
+            let hasConnectionTargets = false;
             if (data) {
               this.query = data.query;
               // get query search result ids and order
@@ -347,9 +353,16 @@ export default {
                 // within query search (split terms by comma) -> OR
                 const flatIds = [...new Set(nestedIds.flat())];
                 searchOrders.push(...flatIds);
-                const ids = isFlatmap ? await currentMap.retrieveConnectedPaths(flatIds) : flatIds;
+                const ids = isFlatmap ? await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds) : flatIds;
                 queryIds.push(...ids);
               }
+
+              const connectivityQueries = {
+                origins: [],
+                vias: [],
+                destinations: [],
+                all: [],
+              };
 
               let filters = {};
               // get facet search result ids
@@ -364,27 +377,106 @@ export default {
                     filters[facetKey].push(...this.getGeneralSearchedId(results, item.facet, 'facet'));
                   }
                 } else if (isFlatmap) {
-                  const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
-                  if (matchedFilter) {
-                    matchedFilter.children.forEach((child) => {
-                      if (child.label === item.facet && child.key) {
-                        const childKey = child.key.split('.').pop();
-                        if (!(facetKey in filters)) {
-                          filters[facetKey] = [];
-                        }
-                        // within facet search category -> OR
-                        filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
+                  const isNeuronConnection = item.facetPropPath.includes('flatmap.connectivity.source');
+                  if (isNeuronConnection) {
+                    if (item.facet?.toLowerCase() !== 'show all') {
+                      const facet = item.facet;
+                      // string format with a space for CQ
+                      const feature = facet.replace(",\[", ", \[");
+                      const mode = item.facetPropPath.split('.').pop();
+                      hasConnectionTargets = true;
+    
+                      if (mode === 'origin') {
+                        connectivityQueries.origins.push(feature);
+                      } else if (mode === 'destination') {
+                        connectivityQueries.destinations.push(feature);
+                      } else if (mode === 'via') {
+                        connectivityQueries.vias.push(feature);
+                      } else {
+                        const featuresArray = JSON.parse(feature).flat(Infinity);
+                        connectivityQueries.all.push(...featuresArray);
                       }
-                    });
+                    }
+                  } else {
+                    const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
+                    if (matchedFilter) {
+                      matchedFilter.children.forEach((child) => {
+                        if (child.label === item.facet && child.key) {
+                          const childKey = child.key.split('.').pop();
+                          if (!(facetKey in filters)) {
+                            filters[facetKey] = [];
+                          }
+                          // within facet search category -> OR
+                          filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
+                        }
+                      });
+                    }
                   }
                 }
               });
+
+
+              if (
+                connectivityQueries.origins.length ||
+                connectivityQueries.destinations.length ||
+                connectivityQueries.vias.length
+              ) {
+                const options = {
+                  flatmapAPI: flatmapAPI,
+                  knowledgeSource: sourceId,
+                  origins: connectivityQueries.origins,
+                  destinations: connectivityQueries.destinations,
+                  vias: connectivityQueries.vias,
+                };
+                const connectivityFilterResults = await queryPathsByRoute(options);
+                console.log("🚀 ~ connectivityFilterResults:", connectivityFilterResults)
+                if (connectivityFilterResults) {
+                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
+                }
+              } else if (connectivityQueries.all.length) {
+                const featureIds = connectivityQueries.all;
+                let connectivityFilterResults = null;
+                if (featureIds.length) {
+                  connectivityFilterResults = await queryAllConnectedPaths(flatmapAPI, sourceId, featureIds);
+                  console.log("🚀 ~ connectivityFilterResults:", connectivityFilterResults)
+                }
+                if (connectivityFilterResults) {
+                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
+                }
+              }
+
               const nestedIds = Object.values(filters);
               this.filter = [...this.filter, ...nestedIds];
               // between facet search categories -> AND
               const ids = this.filter.length ? this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) : [];
               facetIds.push(...ids);
             }
+
+            let target;
+            if (this.query && !this.filter.length) { // pure query search
+              target = queryIds;
+            } else if (!this.query && this.filter.length) { // pure facet search
+              target = facetIds;
+            } else if (this.query && this.filter.length) { // combined query and facet search
+              // between query search and facet search -> AND
+              target = queryIds.filter(id => facetIds.includes(id));
+            }
+            // This can be empty array due to the AND operation
+            if (target) {
+              searchHighlights.push(...target);
+              results = results.filter((item) => target.includes(item.id));
+              processed = true;
+            }
+            if (hasConnectionTargets) {
+              const connectionTargets = results.map((item) => item.id);
+              processed = true;
+              if (searchHighlights.length) {
+                searchHighlights = searchHighlights.filter((item) => connectionTargets.includes(item));
+              } else {
+                searchHighlights = connectionTargets;
+              }
+            }
+            searchResults.push(...results);
           }
         }
       }
@@ -428,7 +520,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSplitFlowStore, useConnectivitiesStore),
+    ...mapStores(useSplitFlowStore, useConnectivitiesStore, useSettingsStore),
     activeView: function() {
       return this.splitFlowStore.activeView;
     },
