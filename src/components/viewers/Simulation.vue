@@ -2,6 +2,7 @@
   <SimulationVuer
     :apiLocation="apiLocation"
     :id="id"
+    ref="simulation"
   />
 </template>
 

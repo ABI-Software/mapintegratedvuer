@@ -1,6 +1,6 @@
 <template>
   <div class="map-iframe-container">
-      <iframe class="my-iframe"  :src="entry.resource.share_link"></iframe>
+      <iframe class="my-iframe"  :src="entry.resource.share_link" ref="iframe"></iframe>
   </div>
 </template>
 

@@ -4,6 +4,7 @@
     :metadata="entry.resource.metadata"
     :supplemental-data="entry.resource.supplementalData"
     style="overflow: hidden"
+    ref="plot"
   />
 </template>
 
