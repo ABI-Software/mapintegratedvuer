@@ -210,7 +210,7 @@ export default {
                   ) ||
                   (
                     entry.type === 'Scaffold' && entry.resource &&
-                    (entry.isBodyScaffold || entry.discoverId === 307)
+                    (entry.isBodyScaffold || entry.discoverId == 307)
                   )
                 )
               )
