@@ -250,9 +250,15 @@ export default {
     flatmapChanged: async function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.openMapOptions = getOpenMapOptions(activeSpecies);
+      const flatmapImp = this.getFlatmapImp();
+      //If the viewer is loading a new map, flatmapImp is not defined here yet.
+      //The following will be handled by multiFlatmapReady instead
+      if (flatmapImp) {
+        this.updateProvCard();
+        this.flatmapMarkerUpdate(flatmapImp);
+        this.updateViewerSettings();
+      }
       this.$emit("species-changed", activeSpecies);
-      this.updateProvCard();
-
       // GA Tagging
       // Event tracking for maps' species change
       Tagging.sendEvent({
