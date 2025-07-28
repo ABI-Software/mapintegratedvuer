@@ -114,14 +114,19 @@ export default {
       if (resource.length) {
         const clickedNerve = resource[0].data;
         if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
-          const nerveKnowledge = this.connectivityKnowledge
-            .filter((knowledge) => {
-              const label = clickedNerve.id.toLowerCase();
-              return JSON.stringify(knowledge['nerve-label']).includes(label);
+          const label = clickedNerve.id.toLowerCase();
+          if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
+            // add nerve label to search input
+            EventBus.emit("neuron-connection-feature-click", {
+              filters: [],
+              search: label
+            })
+          } else if (this.$refs.scaffold.viewingMode === "Exploration") {
+            const nerveKnowledge = this.connectivityKnowledge
+              .filter(knowledge => JSON.stringify(knowledge['nerve-label']).includes(label));
+            if (nerveKnowledge.length) {
+              this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
             }
-          );
-          if (nerveKnowledge.length) {
-            this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
           }
         }
       } else {
