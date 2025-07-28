@@ -84,8 +84,8 @@ export default {
     /**
      * Perform a local search on this contentvuer
      */
-    search: function (term, connectivityExplorerClicked) {
-      return this.$refs.flatmap.searchAndShowResult(term, true, connectivityExplorerClicked);
+    search: function (term) {
+      return this.$refs.flatmap.searchAndShowResult(term, true);
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
@@ -242,7 +242,7 @@ export default {
           // This is for expanding connectivity card
           // The length of payload.data should always be 1
           const data = payload.data[0];
-          currentFlatmap.searchAndShowResult(data.id, true, true);
+          currentFlatmap.searchAndShowResult(data.id, true);
         }
       }
     },
