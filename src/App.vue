@@ -180,7 +180,8 @@ export default {
       this.$refs.map.changeViewingMode(modeName);
     },
     saveSettings: function() {
-      this.mapSettings.push(this.$refs.map.getState());
+      const mapState = JSON.parse(JSON.stringify(this.$refs.map.getState()));
+      this.mapSettings.push(mapState);
       Message({
         message: `Settings saved successfully! There are ${this.mapSettings.length} saved setting(s).`,
         type: 'success',
