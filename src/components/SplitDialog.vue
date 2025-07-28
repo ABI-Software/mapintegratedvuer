@@ -163,6 +163,8 @@ export default {
     onSpeciesLayoutConnectivityUpdate: function () {
       let activePaneIDs = [];
       let availablePaneIDs = [];
+      const wholeBodyScaffoldIDs = [307];
+
       const sckanVersion = Object.keys(this.connectivitiesStore.globalConnectivities)
         .find(key => key.includes('sckan'));
 
@@ -210,7 +212,7 @@ export default {
                   ) ||
                   (
                     entry.type === 'Scaffold' && entry.resource &&
-                    (entry.isBodyScaffold || entry.discoverId == 307)
+                    (entry.isBodyScaffold || wholeBodyScaffoldIDs.includes(entry.discoverId))
                   )
                 )
               )
