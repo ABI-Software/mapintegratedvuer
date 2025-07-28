@@ -170,6 +170,41 @@ export const useSplitFlowStore = defineStore('splitFlow', {
     return getOriginalState();
   },
   getters: {
+    getActivePaneIds: (state) => () => {
+      const availablePaneIDs = [];
+      let activePaneIDs = undefined;
+      for (const key in state.customLayout) {
+        if (state.customLayout[key].id) {
+          availablePaneIDs.push(state.customLayout[key].id);
+        }
+      }
+      switch (state.activeView) {
+        case 'singlepanel': {
+          activePaneIDs = availablePaneIDs.slice(0, 1);
+        } break;
+        case '2horpanel':
+        case '2vertpanel': {
+          activePaneIDs = availablePaneIDs.slice(0, 2);
+        } break;
+        case '3panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 3);
+        } break;
+        case '4panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 4);
+        } break;
+        case '5panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 5);
+        } break;
+        case '6panelVertical':
+        case '6panel': {
+          activePaneIDs = availablePaneIDs.slice(0, 6);
+        } break;
+        default:
+          activePaneIDs = [];
+          break;
+      }
+      return activePaneIDs;
+    },
     getPaneNameById: (state) => (id) => {
       return findKeyWithId(state.customLayout, id);
     },
