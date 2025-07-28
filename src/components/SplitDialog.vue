@@ -283,7 +283,7 @@ export default {
 
           const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
           const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
-          if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
+          if (currentFlatmap) {
             const sourceId = currentFlatmap.mapImp.uuid;
             let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
 

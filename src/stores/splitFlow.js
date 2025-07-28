@@ -180,6 +180,10 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         customLayout: state.customLayout,
       };
     },
+    isPaneActive: (state) => (panelName) => {
+      const layout = presetLayouts(state.activeView);
+      return (Object.keys(layout).includes(panelName));
+    },
   },
   actions: {
     assignOrSwapPaneWithIds(payload) {
