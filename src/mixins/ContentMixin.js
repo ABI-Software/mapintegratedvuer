@@ -562,9 +562,6 @@ export default {
     setVisibilityFilter: function() {
       return;
     },
-    getKnowledgeTooltip: function() {
-      return;
-    },
     loadExplorerConfig: async function () {
       this.flatmapService = await this.mockUpFlatmapService();
       this.loadConnectivityExplorerConfig(this.flatmapService);
