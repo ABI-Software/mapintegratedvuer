@@ -592,12 +592,7 @@ export default {
       if (state.sidebar) {
         this.$refs.sideBar.setState(state.sidebar);
         this.annotationEntry = state.sidebar.annotationEntry;
-
-        if (state.sidebar.connectivityEntry) {
-          this.$nextTick(() => {
-            this.openConnectivityInfo(state.sidebar.connectivityEntry);
-          })
-        }
+        // connectivityEntry state restore in mapLoaded event
       }
       this.updateGlobalSettingsFromState(state);
     },
@@ -808,6 +803,13 @@ export default {
     EventBus.on("connectivity-filter-options", payload => {
       this.filterOptions = payload;
     })
+    // TODO - to use another map/connectivity loaded event
+    EventBus.on("mapLoaded", (map) => {
+      const sidebarState = this.$refs.sideBar?.getState();
+      if (sidebarState?.connectivityEntry) {
+        this.openConnectivityInfo(sidebarState.connectivityEntry);
+      }
+    });
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {
