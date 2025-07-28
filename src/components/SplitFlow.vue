@@ -593,9 +593,11 @@ export default {
         this.$refs.sideBar.setState(state.sidebar);
         this.annotationEntry = state.sidebar.annotationEntry;
 
-        this.$nextTick(() => {
-          this.openConnectivityInfo(state.sidebar.connectivityEntry);
-        })
+        if (state.sidebar.connectivityEntry) {
+          this.$nextTick(() => {
+            this.openConnectivityInfo(state.sidebar.connectivityEntry);
+          })
+        }
       }
       this.updateGlobalSettingsFromState(state);
     },
