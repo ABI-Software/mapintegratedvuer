@@ -162,7 +162,8 @@ export default {
     },
     onSpeciesLayoutConnectivityUpdate: function () {
       let activePaneIDs = this.splitFlowStore.getActivePaneIds();
-      const wholeBodyScaffoldIDs = [307];
+      // body scaffold id may be a string depends on situation
+      const wholeBodyScaffoldIDs = [307, '307'];
       const sckanVersion = Object.keys(this.connectivitiesStore.globalConnectivities)
         .find(key => key.includes('sckan'));
       const uuids = Array.from(
