@@ -242,7 +242,7 @@ export default {
           // This is for expanding connectivity card
           // The length of payload.data should always be 1
           const data = payload.data[0];
-          currentFlatmap.searchAndShowResult(data.id, true);
+          currentFlatmap.searchAndShowResult(data.id, true, true);
         }
       }
     },
