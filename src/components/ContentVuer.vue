@@ -125,7 +125,11 @@ export default {
      */
     isVisible: function() {
       const paneName = this.splitFlowStore.getPaneNameById(this.entry.id);
-      return paneName !== undefined;
+      let visible = false;
+      if (paneName !== undefined) {
+        visible = this.splitFlowStore.isPaneActive(paneName);
+      }
+      return visible;
     },
     onResize: function () {
       this.$refs.viewer?.onResize();

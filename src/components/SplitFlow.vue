@@ -215,7 +215,7 @@ export default {
             if (flatmapRef) flatmap = flatmapRef;
             if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
 
-            if (flatmap && flatmap.$el.checkVisibility()) {
+            if (flatmap) {
               activeFlatmaps.push(flatmap);
             }
           }
