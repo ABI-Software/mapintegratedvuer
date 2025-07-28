@@ -592,7 +592,7 @@ export default {
       if (state.sidebar) {
         this.$refs.sideBar.setState(state.sidebar);
         this.annotationEntry = state.sidebar.annotationEntry;
-        // connectivityEntry state restore in mapLoaded event
+        // connectivityEntry state restore in species-layout-connectivity-update event
       }
       this.updateGlobalSettingsFromState(state);
     },
@@ -803,8 +803,8 @@ export default {
     EventBus.on("connectivity-filter-options", payload => {
       this.filterOptions = payload;
     })
-    // TODO - to use another map/connectivity loaded event
-    EventBus.on("mapLoaded", (map) => {
+    // Wait for the connectivity knowledge to be loaded
+    EventBus.on('species-layout-connectivity-update', () => {
       const sidebarState = this.$refs.sideBar?.getState();
       if (sidebarState?.connectivityEntry) {
         this.openConnectivityInfo(sidebarState.connectivityEntry);
