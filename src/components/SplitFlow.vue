@@ -50,6 +50,7 @@
           @connectivity-source-change="onConnectivitySourceChange"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
+          @connectivity-explorer-reset="onConnectivityExplorerReset"
         />
         <SplitDialog
           :entries="entries"
@@ -189,27 +190,58 @@ export default {
       const splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
-        activeContents.forEach((content) => {
-          if (
-            content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap' || 
-            (
-              content.viewerType === 'Scaffold' && 
-              (
-                content.entry.isBodyScaffold || content.entry.discoverId === "307"
-              ) &&
-              // human scaffold connectivity based on human male flatmap
-              // if has active human male flatmap, no need to fetch through scaffold
-              !activeContents.find(c => c.activeSpecies === "Human Male")
-            )
-          ) {
-            this.connectivityExplorerClicked.push(true)
-            EventBus.emit('connectivity-detail', { data: [payload], type: content.entry })
+        const hasFlatmap = activeContents.find(c => c.viewerType.includes('Flatmap'));
+        const hasHumanMaleFlatmap = activeContents.find(c => c.activeSpecies === "Human Male");
+        let nonFlatmapLoad = false
+        activeContents.forEach(content => {
+          const isFlatmap = content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap';
+          // minimise connectivity detail fetch
+          const shouldLoad =
+            (hasFlatmap && isFlatmap) ||
+            (hasFlatmap && !hasHumanMaleFlatmap && !isFlatmap && !nonFlatmapLoad) ||
+            (!hasFlatmap && !nonFlatmapLoad);
+
+          if (shouldLoad) {
+            this.connectivityExplorerClicked.push(true);
+            content.onLoadConnectivityDetail({ data: [payload] });
+            if (!isFlatmap) nonFlatmapLoad = true;
           }
         });
       }
     },
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
+    },
+    onConnectivityExplorerReset: function (payload) {
+      const activeFlatmaps = this.getActiveFlatmaps();
+      activeFlatmaps.forEach((activeFlatmap) => {
+        activeFlatmap.resetConnectivityfilters(payload);
+      });
+    },
+    getActiveFlatmaps: function () {
+      const activeFlatmaps = [];
+      let splitdialog = this.$refs.splitdialog;
+
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+
+        activeContents.forEach(content => {
+          if (content?.$refs['viewer']) {
+            const contentViewer = content.$refs['viewer'];
+            const flatmapRef = contentViewer.flatmapRef;
+            const multiflatmapRef = contentViewer.multiflatmapRef;
+            let flatmap = null;
+
+            if (flatmapRef) flatmap = flatmapRef;
+            if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
+
+            if (flatmap && flatmap.$el.checkVisibility()) {
+              activeFlatmaps.push(flatmap);
+            }
+          }
+        });
+      }
+      return activeFlatmaps;
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -437,6 +469,11 @@ export default {
       } else if (data.tabType === 'connectivity') {
         this.expanded = '';
         this.connectivityEntry = [];
+        // update connectivity filters in flatmap
+        const activeFlatmaps = this.getActiveFlatmaps();
+        activeFlatmaps.forEach((activeFlatmap) => {
+          activeFlatmap.updateConnectivityFilters(data.filter);
+        });
         EventBus.emit("connectivity-query-filter", data);
       }
     },
@@ -513,6 +550,9 @@ export default {
       else {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
+      if (state.sidebar) {
+        this.$refs.sideBar.setState(state.sidebar);
+      }
       this.updateGlobalSettingsFromState(state);
     },
     getState: function (anonymousAnnotations = false) {
@@ -539,6 +579,9 @@ export default {
       }
       state.splitFlow = this.splitFlowStore.getState();
       state.globalSettings = this.settingsStore.getGlobalSettings();
+      if (this.$refs.sideBar) {
+        state.sidebar = this.$refs.sideBar.getState();
+      }
       return state;
     },
     removeEntry: function (id) {
@@ -673,7 +716,7 @@ export default {
     });
     EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
-      const { interactiveMode, viewingMode } = globalSettings;
+      const interactiveMode = globalSettings.interactiveMode;
 
       this.annotationEntry = [];
       this.createData = {};
@@ -683,10 +726,6 @@ export default {
           this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
         } else if (interactiveMode === "connectivity") {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
-        }
-
-        if (viewingMode === 'Annotation') {
-          this.$refs.sideBar.setDrawerOpen(false);
         }
 
         this.$refs.sideBar.closeConnectivity();
@@ -747,6 +786,14 @@ export default {
         this.$refs.sideBar.updateConnectivityError(payload.data);
       }
     });
+    EventBus.on('neuron-connection-feature-click', payload => {
+      if (this.$refs.sideBar) {
+        const { filters, search } = payload;
+        this.$refs.sideBar.openConnectivitySearch(filters, search);
+        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    });
     EventBus.on("OpenNewMap", type => {
       this.openNewMap(type);
     });
@@ -757,7 +804,7 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = payload.highlight || [];
+      this.connectivityHighlight = payload.highlight;
       this.connectivityProcessed = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {

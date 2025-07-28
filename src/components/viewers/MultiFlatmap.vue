@@ -22,6 +22,7 @@
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
+      @neuron-connection-feature-click="onNeuronConnectionFeatureClick"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
       :displayMinimap="true"
@@ -108,9 +109,6 @@ export default {
     }
   },
   methods: {
-    isViewerMatch: function (entry) {
-      return JSON.stringify(this.entry) === JSON.stringify(entry);
-    },
     getState: function () {
       if (this.flatmapReady) return this.$refs.multiflatmap.getState();
       else return undefined;
@@ -129,10 +127,10 @@ export default {
     /**
      * Perform a local search on this contentvuer
      */
-    search: function (term) {
+    search: function (term, connectivityExplorerClicked) {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       //First search and show the result
-      return flatmap.searchAndShowResult(term, true);
+      return flatmap.searchAndShowResult(term, true, connectivityExplorerClicked);
     },
     /**
      * Append the list of suggested terms to suggestions
@@ -226,9 +224,15 @@ export default {
     flatmapChanged: async function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.openMapOptions = getOpenMapOptions(activeSpecies);
+      const flatmapImp = this.getFlatmapImp();
+      //If the viewer is loading a new map, flatmapImp is not defined here yet.
+      //The following will be handled by multiFlatmapReady instead
+      if (flatmapImp) {
+        this.updateProvCard();
+        this.flatmapMarkerUpdate(flatmapImp);
+        this.updateViewerSettings();
+      }
       this.$emit("species-changed", activeSpecies);
-      this.updateProvCard();
-
       // GA Tagging
       // Event tracking for maps' species change
       Tagging.sendEvent({
@@ -368,6 +372,7 @@ export default {
         flightPathDisplay,
         organsDisplay,
         outlinesDisplay,
+        connectionType,
       } = this.settingsStore.globalSettings;
 
       if (this.flatmapReady) {
@@ -378,6 +383,7 @@ export default {
         currentFlatmap.setColour(organsDisplay);
         currentFlatmap.setOutlines(outlinesDisplay);
         currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+        currentFlatmap.setConnectionType(connectionType);
       }
     },
     setVisibilityFilter: function (payload) {
@@ -389,14 +395,12 @@ export default {
       }
     },
     getKnowledgeTooltip: async function (payload) {
-      if (this.isViewerMatch(payload.type)) {
-        if (this?.alive && this.flatmapReady) {
-          // This is for expanding connectivity card
-          // The length of payload.data should always be 1
-          const data = payload.data[0];
-          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-          flatmap.searchAndShowResult(data.id, true);
-        }
+      if (this?.alive && this.flatmapReady) {
+        // This is for expanding connectivity card
+        // The length of payload.data should always be 1
+        const data = payload.data[0];
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.searchAndShowResult(data.id, true);
       }
     },
   },

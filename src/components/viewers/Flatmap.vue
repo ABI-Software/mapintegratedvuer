@@ -23,6 +23,7 @@
       @connectivity-info-open="onConnectivityInfoOpen"
       @connectivity-error="onConnectivityError"
       @connectivity-info-close="onConnectivityInfoClose"
+      @neuron-connection-feature-click="onNeuronConnectionFeatureClick"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       :pathControls="true"
       ref="flatmap"
@@ -77,17 +78,14 @@ export default {
     }
   },
   methods: {
-    isViewerMatch: function (entry) {
-      return JSON.stringify(this.entry) === JSON.stringify(entry);
-    },
     getState: function () {
       return this.$refs.flatmap.getState();
     },
     /**
      * Perform a local search on this contentvuer
      */
-    search: function (term) {
-      return this.$refs.flatmap.searchAndShowResult(term, true);
+    search: function (term, connectivityExplorerClicked) {
+      return this.$refs.flatmap.searchAndShowResult(term, true, connectivityExplorerClicked);
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
@@ -217,6 +215,7 @@ export default {
         flightPathDisplay,
         organsDisplay,
         outlinesDisplay,
+        connectionType,
       } = this.settingsStore.globalSettings;
 
       const currentFlatmap = this.$refs.flatmap;
@@ -226,6 +225,7 @@ export default {
       currentFlatmap.setColour(organsDisplay);
       currentFlatmap.setOutlines(outlinesDisplay);
       currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+      currentFlatmap.setConnectionType(connectionType);
     },
     setVisibilityFilter: function (payload) {
       if (this?.alive) {
@@ -236,15 +236,13 @@ export default {
       }
     },
     getKnowledgeTooltip: async function (payload) {
-      if (this.isViewerMatch(payload.type)) {
-        if (this?.alive) {
-          const currentFlatmap = this.$refs.flatmap;
-          if (currentFlatmap) {
-            // This is for expanding connectivity card
-            // The length of payload.data should always be 1
-            const data = payload.data[0];
-            currentFlatmap.searchAndShowResult(data.id, true);
-          }
+      if (this?.alive) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          // This is for expanding connectivity card
+          // The length of payload.data should always be 1
+          const data = payload.data[0];
+          currentFlatmap.searchAndShowResult(data.id, true);
         }
       }
     },
