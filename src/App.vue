@@ -182,7 +182,7 @@ export default {
     saveSettings: function() {
       this.mapSettings.push(this.$refs.map.getState());
       Message({
-        message: `Settings saved successfully! There are ${this.mapSettings.length} saved settings.`,
+        message: `Settings saved successfully! There are ${this.mapSettings.length} saved setting(s).`,
         type: 'success',
         showClose: true,
       });
