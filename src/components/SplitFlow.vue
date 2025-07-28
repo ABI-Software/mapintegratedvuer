@@ -50,6 +50,7 @@
           @connectivity-source-change="onConnectivitySourceChange"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
+          @connectivity-explorer-reset="onConnectivityExplorerReset"
         />
         <SplitDialog
           :entries="entries"
@@ -191,6 +192,37 @@ export default {
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
     },
+    onConnectivityExplorerReset: function (payload) {
+      const activeFlatmaps = this.getActiveFlatmaps();
+      activeFlatmaps.forEach((activeFlatmap) => {
+        activeFlatmap.resetConnectivityfilters(payload);
+      });
+    },
+    getActiveFlatmaps: function () {
+      const activeFlatmaps = [];
+      let splitdialog = this.$refs.splitdialog;
+
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+
+        activeContents.forEach(content => {
+          if (content?.$refs['viewer']) {
+            const contentViewer = content.$refs['viewer'];
+            const flatmapRef = contentViewer.flatmapRef;
+            const multiflatmapRef = contentViewer.multiflatmapRef;
+            let flatmap = null;
+
+            if (flatmapRef) flatmap = flatmapRef;
+            if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
+
+            if (flatmap && flatmap.$el.checkVisibility()) {
+              activeFlatmaps.push(flatmap);
+            }
+          }
+        });
+      }
+      return activeFlatmaps;
+    },
     /**
      * Callback when an action is performed (open new dialogs).
      */
@@ -301,7 +333,7 @@ export default {
           if (connectivityExplorerClicked) {
             this.connectivityExplorerClicked.push(true);
           }
-          if (content.search(payload.term)) {
+          if (content.search(payload.term, connectivityExplorerClicked)) {
             searchFound = true;
           }
         });
@@ -476,6 +508,11 @@ export default {
       } else if (data.tabType === 'connectivity') {
         this.expanded = '';
         this.connectivityEntry = [];
+        // update connectivity filters in flatmap
+        const activeFlatmaps = this.getActiveFlatmaps();
+        activeFlatmaps.forEach((activeFlatmap) => {
+          activeFlatmap.updateConnectivityFilters(data.filter);
+        });
         EventBus.emit("connectivity-query-filter", data);
       }
     },
@@ -735,6 +772,14 @@ export default {
     EventBus.on('connectivity-error', payload => {
       if (this.$refs.sideBar) {
         this.$refs.sideBar.updateConnectivityError(payload.data);
+      }
+    });
+    EventBus.on('neuron-connection-feature-click', payload => {
+      if (this.$refs.sideBar) {
+        const { filters, search } = payload;
+        this.$refs.sideBar.openConnectivitySearch(filters, search);
+        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
+        this.$refs.sideBar.setDrawerOpen(true);
       }
     });
     EventBus.on("OpenNewMap", type => {
