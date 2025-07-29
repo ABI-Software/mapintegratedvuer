@@ -83,9 +83,10 @@ export default {
     },
     /**
      * Perform a local search on this contentvuer
+     * This is similar to directly clicking onthe map
      */
     search: function (term) {
-      return this.$refs.flatmap.searchAndShowResult(term, true);
+      return this.$refs.flatmap.searchAndShowResult(term, true, true);
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
@@ -242,7 +243,7 @@ export default {
           // This is for expanding connectivity card
           // The length of payload.data should always be 1
           const data = payload.data[0];
-          currentFlatmap.searchAndShowResult(data.id, true);
+          currentFlatmap.searchAndShowResult(data.id, true, false);
         }
       }
     },

@@ -130,7 +130,7 @@ export default {
     search: function (term) {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       //First search and show the result
-      return flatmap.searchAndShowResult(term, true);
+      return flatmap.searchAndShowResult(term, true, true);
     },
     /**
      * Append the list of suggested terms to suggestions
@@ -400,7 +400,7 @@ export default {
         // The length of payload.data should always be 1
         const data = payload.data[0];
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        flatmap.searchAndShowResult(data.id, true);
+        flatmap.searchAndShowResult(data.id, true, false);
       }
     },
   },
