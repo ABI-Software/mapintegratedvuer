@@ -581,6 +581,16 @@ export default {
     setIdToPrimaryPane: function (id) {
       this.splitFlowStore.setIdToPrimaryPane(id);
     },
+    restoreSidebarState: function (sidebarState) {
+      if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge.length) {
+        if (sidebarState.connectivityEntry) {
+          this.openConnectivityInfo(sidebarState.connectivityEntry);
+        } else {
+          this.$refs.sideBar.setState(sidebarState);
+        }
+        this.sidebarStateRestored = true;
+      }
+    },
     setState: function (state) {
       this.entriesStore.setAll(state.entries);
       //Support both old and new permalink.
@@ -592,10 +602,8 @@ export default {
       }
       // Restore sidebar state
       if (state.sidebar) {
-        this.$refs.sideBar.setState(state.sidebar);
+        this.restoreSidebarState(state.sidebar);
         this.annotationEntry = state.sidebar.annotationEntry;
-        // connectivityEntry state restore in `connectivity-knowledge` event
-        // to wait for connectivity knowledge to be loaded
       }
       this.updateGlobalSettingsFromState(state);
     },
@@ -798,14 +806,7 @@ export default {
       // Restore sidebar state if it exists and not restored yet
       // after loading connectivity knowledge
       const sidebarState = this.state?.sidebar;
-      if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge.length) {
-        if (sidebarState.connectivityEntry) {
-          this.openConnectivityInfo(sidebarState.connectivityEntry);
-        } else {
-          this.$refs.sideBar.setState(sidebarState);
-        }
-        this.sidebarStateRestored = true;
-      }
+      this.restoreSidebarState(sidebarState);
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
