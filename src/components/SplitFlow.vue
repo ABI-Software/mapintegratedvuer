@@ -187,7 +187,27 @@ export default {
     },
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
-      this.onDisplaySearch({ term: payload.id }, false, true);
+      const splitdialog = this.$refs.splitdialog;
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+        const hasFlatmap = activeContents.find(c => c.viewerType.includes('Flatmap'));
+        const hasHumanMaleFlatmap = activeContents.find(c => c.activeSpecies === "Human Male");
+        let nonFlatmapLoad = false
+        activeContents.forEach(content => {
+          const isFlatmap = content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap';
+          // minimise connectivity detail fetch
+          const shouldLoad =
+            (hasFlatmap && isFlatmap) ||
+            (hasFlatmap && !hasHumanMaleFlatmap && !isFlatmap && !nonFlatmapLoad) ||
+            (!hasFlatmap && !nonFlatmapLoad);
+
+          if (shouldLoad) {
+            this.connectivityExplorerClicked.push(true);
+            content.onLoadConnectivityDetail({ data: [payload] });
+            if (!isFlatmap) nonFlatmapLoad = true;
+          }
+        });
+      }
     },
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
@@ -323,17 +343,14 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: function (payload, tracking = true, connectivityExplorerClicked = false) {
+    onDisplaySearch: function (payload, tracking = true) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
         activeContents.forEach(content => {
-          if (connectivityExplorerClicked) {
-            this.connectivityExplorerClicked.push(true);
-          }
-          if (content.search(payload.term, connectivityExplorerClicked)) {
+          if (content.search(payload.term)) {
             searchFound = true;
           }
         });
@@ -404,6 +421,7 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+        hoverOrgans = data['nerve-label'] ? data['nerve-label'].flatMap(nerve => nerve.subNerves) : [];
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
@@ -698,7 +716,7 @@ export default {
     });
     EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
-      const { interactiveMode, viewingMode } = globalSettings;
+      const interactiveMode = globalSettings.interactiveMode;
 
       this.annotationEntry = [];
       this.createData = {};
@@ -708,10 +726,6 @@ export default {
           this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
         } else if (interactiveMode === "connectivity") {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
-        }
-
-        if (viewingMode === 'Annotation') {
-          this.$refs.sideBar.setDrawerOpen(false);
         }
 
         this.$refs.sideBar.closeConnectivity();
@@ -731,7 +745,16 @@ export default {
         return;
       }
       this.connectivityEntry = payload.map(entry => {
-        return { ...entry, label: entry.title, id: entry.featureId[0] };
+        let result = {
+          ...entry,
+          label: entry.title,
+          id: entry.featureId[0],
+        }
+        const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
+        if (entry.ready) {
+          result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
+        }
+        return result;
       });
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
@@ -781,7 +804,7 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = payload.highlight || [];
+      this.connectivityHighlight = payload.highlight;
       this.connectivityProcessed = payload.processed;
     })
     EventBus.on("modeUpdate", payload => {
