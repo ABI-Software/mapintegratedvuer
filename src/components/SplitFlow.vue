@@ -590,6 +590,7 @@ export default {
       else {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
+      // Restore sidebar state
       if (state.sidebar) {
         this.$refs.sideBar.setState(state.sidebar);
         this.annotationEntry = state.sidebar.annotationEntry;
@@ -797,8 +798,12 @@ export default {
       // Restore sidebar state if it exists and not restored yet
       // after loading connectivity knowledge
       const sidebarState = this.state?.sidebar;
-      if (!this.sidebarStateRestored && sidebarState?.connectivityEntry && this.connectivityKnowledge.length) {
-        this.openConnectivityInfo(sidebarState.connectivityEntry);
+      if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge.length) {
+        if (sidebarState.connectivityEntry) {
+          this.openConnectivityInfo(sidebarState.connectivityEntry);
+        } else {
+          this.$refs.sideBar.setState(sidebarState);
+        }
         this.sidebarStateRestored = true;
       }
     })
