@@ -122,6 +122,7 @@ export default {
     return {
       sideBarVisibility: true,
       startUp: true,
+      sidebarStateRestored: false,
       search: '',
       expanded: '',
       filterTriggered: false,
@@ -592,7 +593,8 @@ export default {
       if (state.sidebar) {
         this.$refs.sideBar.setState(state.sidebar);
         this.annotationEntry = state.sidebar.annotationEntry;
-        // connectivityEntry state restore in species-layout-connectivity-update event
+        // connectivityEntry state restore in `connectivity-knowledge` event
+        // to wait for connectivity knowledge to be loaded
       }
       this.updateGlobalSettingsFromState(state);
     },
@@ -791,6 +793,14 @@ export default {
       this.connectivityKnowledge = payload.data;
       this.connectivityHighlight = payload.highlight || [];
       this.connectivityProcessed = payload.processed;
+
+      // Restore sidebar state if it exists and not restored yet
+      // after loading connectivity knowledge
+      const sidebarState = this.state?.sidebar;
+      if (!this.sidebarStateRestored && sidebarState?.connectivityEntry && this.connectivityKnowledge.length) {
+        this.openConnectivityInfo(sidebarState.connectivityEntry);
+        this.sidebarStateRestored = true;
+      }
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
@@ -803,13 +813,6 @@ export default {
     EventBus.on("connectivity-filter-options", payload => {
       this.filterOptions = payload;
     })
-    // Wait for the connectivity knowledge to be loaded
-    EventBus.on('species-layout-connectivity-update', () => {
-      const sidebarState = this.state?.sidebar;
-      if (sidebarState?.connectivityEntry) {
-        this.openConnectivityInfo(sidebarState.connectivityEntry);
-      }
-    });
     this.$nextTick(() => {
       if (this.search === "" && this._facets.length === 0) {
         if (this.$refs.sideBar) {
