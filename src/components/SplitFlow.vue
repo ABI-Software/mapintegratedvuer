@@ -805,7 +805,7 @@ export default {
     })
     // Wait for the connectivity knowledge to be loaded
     EventBus.on('species-layout-connectivity-update', () => {
-      const sidebarState = this.$refs.sideBar?.getState();
+      const sidebarState = this.state?.sidebar;
       if (sidebarState?.connectivityEntry) {
         this.openConnectivityInfo(sidebarState.connectivityEntry);
       }
