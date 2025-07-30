@@ -6,7 +6,7 @@
       @ready="multiFlatmapReady"
       :state="entry.state"
       :mapManager="mapManager"
-      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      @resource-selected="flatmapResourceSelected(entry.type, $event)"
       style="height: 100%; width: 100%"
       :initial="entry.resource"
       :helpMode="helpMode"
@@ -127,10 +127,10 @@ export default {
     /**
      * Perform a local search on this contentvuer
      */
-    search: function (term, connectivityExplorerClicked) {
+    search: function (term) {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       //First search and show the result
-      return flatmap.searchAndShowResult(term, true, connectivityExplorerClicked);
+      return flatmap.searchAndShowResult(term, true, true);
     },
     /**
      * Append the list of suggested terms to suggestions
@@ -147,7 +147,7 @@ export default {
         });
       }
     },
-    flatmaprResourceSelected: function (type, resource) {
+    flatmapResourceSelected: function (type, resource) {
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
       this.resourceSelected(type, resource);
 
@@ -196,17 +196,6 @@ export default {
         'location': 'map_popup_button',
       });
     },
-    displayTooltip: function (info) {
-      if (info) {
-        let name = info.name;
-        if (name) {
-          this.search(name);
-        } else {
-          const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-          flatmap.mapImp.clearSearchResults();
-        }
-      }
-    },
     zoomToFeatures: function (info, forceSelect) {
       let name = info.name;
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
@@ -224,21 +213,6 @@ export default {
         flatmap.clearSearchResults();
       }
     },
-    highlightFeatures: function (info) {
-      let name = info.name;
-      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-      if (name) {
-        const results = flatmap.search(name);
-        if (results.featureIds.length > 0) {
-          flatmap.zoomToFeatures(results.featureIds, { noZoomIn: true });
-          /*
-          flatmap.highlightFeatures([
-            flatmap.modelForFeature(results.featureIds[0]),
-          ]);
-          */
-        }
-      }
-    },
     updateProvCard: function() {
       const imp = this.getFlatmapImp();
       if (imp) {
@@ -250,9 +224,15 @@ export default {
     flatmapChanged: async function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.openMapOptions = getOpenMapOptions(activeSpecies);
+      const flatmapImp = this.getFlatmapImp();
+      //If the viewer is loading a new map, flatmapImp is not defined here yet.
+      //The following will be handled by multiFlatmapReady instead
+      if (flatmapImp) {
+        this.updateProvCard();
+        this.flatmapMarkerUpdate(flatmapImp);
+        this.updateViewerSettings();
+      }
       this.$emit("species-changed", activeSpecies);
-      this.updateProvCard();
-
       // GA Tagging
       // Event tracking for maps' species change
       Tagging.sendEvent({
@@ -412,6 +392,15 @@ export default {
         if (currentFlatmap) {
           currentFlatmap.setVisibilityFilter(payload);
         }
+      }
+    },
+    getKnowledgeTooltip: async function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        // This is for expanding connectivity card
+        // The length of payload.data should always be 1
+        const data = payload.data[0];
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.searchAndShowResult(data.id, true, false);
       }
     },
   },

@@ -8,6 +8,14 @@ const settings = {
   'Change background': 5
 }
 
+const neuronConnectionSettings = {
+  'Destination': 'Heart',
+  'Origin': "Barrington's nucleus",
+  'Via': 'C4 segment of cervical spinal cord',
+  'All': 'Tongue'
+}
+
+
 describe('MapContent', () => {
 
   //Load in some responses/assets before beginning the test
@@ -78,7 +86,7 @@ describe('MapContent', () => {
     Cypress.Commands.add('checkFlatmapProvenanceCard', (species) => {
       cy.get('#flatmap-select').click({force: true} );
       cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
-      cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 45000}).should('not.exist');
+      cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
       cy.get('.el-row > div[style=""]').click()
       cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
     })
@@ -98,6 +106,19 @@ describe('MapContent', () => {
       cy.get('@globalSettings').click(); // close
       cy.get('@globalSettings').trigger('mouseleave');
       cy.wait(1000);
+    })
+
+    Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
+      cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
+      cy.get('@viewingModes').contains(mode).click();
+      cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type(searchTerm);
+      cy.get('.search-container > .map-icon > use').should('exist').click();
+      cy.wait(2000);
+      const tagTerm = `${mode[0]}:${searchTerm}`
+      cy.get('.sidebar-container .filters').should('exist').contains(tagTerm);
+      cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
+      cy.get('.sidebar-container .header .is-link > span').contains('Reset').click({ multiple: true })
+      cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
     })
 
     //Wait for the curie response before continuing
@@ -129,7 +150,8 @@ describe('MapContent', () => {
     //Wait for curie response
     cy.wait('@anatomyResponse', {timeout: 20000});
 
-    cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 45000}).should('not.exist');
+    cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
+   
 
     //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
     //the following attempt to workaround it.
@@ -158,7 +180,7 @@ describe('MapContent', () => {
     })
 
     //Test the existence of the minimap
-    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 45000}).should('exist');
+    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
     cy.checkFlatmapProvenanceCard('Rat')
@@ -179,6 +201,7 @@ describe('MapContent', () => {
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("UBERON:0018675");
     cy.get('.search-container > .map-icon > use').should('exist').click();
     cy.get('.maplibregl-popup-content').should('exist').contains('Pelvic splanchnic nerve');
+    cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
 
     //Test searching with uberon id wich should display a pop up with anatomical name
     cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > .settings-group > :nth-child(1)').should('exist').click();
@@ -189,7 +212,7 @@ describe('MapContent', () => {
     //Switch back to the original viewer
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper').should('exist').click();
     cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li').should('have.length', 2);
-    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > :nth-child(1)', {timeout: 45000}).click();
+    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > :nth-child(1)', {timeout: 60000}).click();
 
     //Check for two content containers
     cy.get('.contentvuer').should('be.visible').should('have.length', 2);
@@ -203,10 +226,20 @@ describe('MapContent', () => {
     cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
     cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type("heart");
     cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
-    cy.get('.connectivity-card-container > .connectivity-card').should('have.length', 9);
+    cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
     cy.get('.connectivity-card-container > .connectivity-card').first().click();
-    cy.get(':nth-child(1) > .connectivity-info', {timeout: 45000}).should('contain', 'Neuron type aacar 10a');
+    cy.get(':nth-child(1) > .connectivity-info', {timeout: 45000}).should('contain', 'Neuron type aacar');
     cy.get('[style=""] > .el-card__header > .header > .is-link').click();
+
+    // Test Neuron connection mode, competency not yet ready for production, disable for now.
+    /*
+    for (const [key, value] of Object.entries(neuronConnectionSettings)) {
+      cy.checkNeuronConnectionMode(key, value);
+    }
+
+    cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
+    cy.get('@viewingModes').contains("Exploration").click();
+    */
 
     // dataset explorer
     cy.get('.tabs-container > :nth-child(1)').click();

@@ -4,7 +4,7 @@
       :state="entry.state"
       :url="entry.resource"
       :region="entry.region"
-      @scaffold-selected="resourceSelected(entry.type, $event, true)"
+      @scaffold-selected="scaffoldResourceSelected(entry.type, $event)"
       @scaffold-highlighted="scaffoldHighlighted(entry.type, $event)"
       @scaffold-navigated="scaffoldNavigated(entry.type, $event)"
       @on-ready="scaffoldIsReady"
@@ -56,6 +56,7 @@ import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
 import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
+import { getReferenceConnectivitiesFromStorage, getReferenceConnectivitiesByAPI } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
 
 export default {
   name: "Scaffold",
@@ -65,6 +66,73 @@ export default {
     HelpModeDialog,
   },
   methods: {
+    showConnectivitiesByReference: async function (resource) {
+      const flatmapKnowledge = sessionStorage.getItem('flatmap-knowledge');
+      let featureIds = [];
+      if (flatmapKnowledge) {
+        featureIds = await getReferenceConnectivitiesFromStorage(resource);
+      } else {
+        featureIds = await getReferenceConnectivitiesByAPI(this.flatmapService.mapImp, resource, this.flatmapService.flatmapQueries);
+      }
+      const nerveLabels = [];
+      for (const id of featureIds) {
+        const knowledge = this.connectivityKnowledge.find(k => k.id === id);
+        if (!knowledge) continue;
+
+        const nerves = knowledge['nerve-label'];
+        if (nerves) {          
+          const subNerves = nerves.flatMap(n => n.subNerves);
+          nerveLabels.push(...subNerves);
+        }
+      }
+      this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
+    },
+    setNerveGreyScale: function () {
+      if (this.connectivityKnowledge.length) {
+        const nerves = this.connectivityKnowledge.reduce((acc, val) => {
+          return acc.concat(val['nerve-label'] || []);
+        }, []);
+        const nerveLabels = nerves.reduce((acc, nerve) => {
+          return acc.concat(nerve.subNerves || []);
+        }, []);
+        this.$refs.scaffold.setGreyScale(true, nerveLabels);
+      }
+    },
+    setVisibilityFilter: function (payload) {
+      // Store scaffold knowledge locally
+      if (
+        !this.connectivityKnowledge.length && 
+        this.entry.resource in this.connectivitiesStore.globalConnectivities
+      ) {
+        this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+      }
+      const processed = payload ? true : false;
+      this.$refs.scaffold.zoomToNerves([], processed);
+    },
+    scaffoldResourceSelected: function (type, resource) {
+      this.resourceSelected(type, resource, true)
+      if (resource.length) {
+        const clickedNerve = resource[0].data;
+        if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+          const label = clickedNerve.id.toLowerCase();
+          if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
+            // add nerve label to search input
+            EventBus.emit("neuron-connection-feature-click", {
+              filters: [],
+              search: label
+            })
+          } else if (this.$refs.scaffold.viewingMode === "Exploration") {
+            const nerveKnowledge = this.connectivityKnowledge
+              .filter(knowledge => JSON.stringify(knowledge['nerve-label']).includes(label));
+            if (nerveKnowledge.length) {
+              this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
+            }
+          }
+        }
+      } else {
+        EventBus.emit("connectivity-info-close");
+      }
+    },
     onResize: function () {
       this.scaffoldCamera.onResize();
     },
@@ -86,14 +154,16 @@ export default {
         if (item.suggestion) suggestions.push(item.suggestion);
       });
     },
-    displayTooltip: function(info) {
-      let name = undefined;
-      if (info) {
-        name = info.name;
-      }
-      if (name) {
-        this.$refs.scaffold.search(name, true);
+    showConnectivityTooltips: function (payload) {
+      if (payload.label) {
+        this.$refs.scaffold.changeHighlightedByName([payload.label], "", false);
+        this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
       } else {
+        const nerves = payload.connectivityInfo['nerve-label'];
+        if (nerves) {
+          const nerveLabels = nerves.flatMap(n => n.subNerves);
+          this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
+        }
         this.$refs.scaffold.hideRegionTooltip();
       }
     },
@@ -106,12 +176,6 @@ export default {
       }
       this.$refs.scaffold.viewRegion(names);
     },
-    highlightFeatures: function(info) {
-      let names = undefined;
-      if (Array.isArray(info)) names = info;
-      else names = [ info.name ];
-      this.$refs.scaffold.changeHighlightedByName(names, "", false);
-    },
     scaffoldIsReady: function () {
       this.scaffoldLoaded = true;
       this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
@@ -120,6 +184,7 @@ export default {
         if (this.entry.rotation) rotation = this.entry.rotation;
       }
       this.updateViewerSettings();
+      this.setNerveGreyScale();
       EventBus.emit("mapLoaded", this.$refs.scaffold);
     },
     /**
@@ -194,6 +259,7 @@ export default {
       apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
+      connectivityKnowledge: []
     };
   },
   mounted: function () {
