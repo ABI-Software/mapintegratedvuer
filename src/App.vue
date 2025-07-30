@@ -186,7 +186,7 @@ export default {
         message: `Settings saved successfully! There are ${this.mapSettings.length} saved setting(s).`,
         type: 'success',
         showClose: true,
-        duration: 1000,
+        duration: 1200,
       });
     },
     restoreSettings: function() {
@@ -197,14 +197,14 @@ export default {
           message: 'Settings restored successfully!',
           type: 'success',
           showClose: true,
-          duration: 1000,
+          duration: 1200,
         });
       } else {
         Message({
           message: 'There are no saved settings to restore.',
           type: 'warning',
           showClose: true,
-          duration: 1000,
+          duration: 1200,
         })
       }
     },
@@ -408,5 +408,16 @@ body {
 
 .map-icon {
   color: $app-primary-color!important;
+}
+
+.el-message.is-closable {
+  border-radius: var(--el-border-radius-base);
+  --el-message-border-color: #{$app-primary-color};
+  --el-message-text-color: #{$app-primary-color};
+
+  .el-message__content {
+    font-family: "Asap",sans-serif;
+    font-size: 12px;
+  }
 }
 </style>
