@@ -667,11 +667,11 @@ export default {
           })
           .filter((item) => item["nerve-label"]);
 
-        validNerves = validNerves.map(nerve => nerve.nerve);
+        validNerves = validNerves.map(nerve => nerve.nerve.toLowerCase());
         const deepCopyFilterOption = JSON.parse(JSON.stringify(this.connectivityFilterOptions[uuid]));
         this.connectivityFilterOptions[uuid] = deepCopyFilterOption
           .map((option) => {
-            const newChildren = option.children.filter((child) => validNerves.includes(child.label));
+            const newChildren = option.children.filter((child) => validNerves.includes(child.label.toLowerCase()));
             return { ...option, children: newChildren };
           })
       } else {
