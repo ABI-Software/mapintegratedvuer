@@ -612,7 +612,7 @@ export default {
       this.splitFlowStore.setIdToPrimaryPane(id);
     },
     restoreSidebarState: function (sidebarState) {
-      if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge.length) {
+      if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge?.length) {
         if (sidebarState.connectivityEntry?.length) {
           this.openConnectivityInfo(sidebarState.connectivityEntry);
         } else if (sidebarState.annotationEntry?.length) {
