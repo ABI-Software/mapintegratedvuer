@@ -421,7 +421,9 @@ export default {
     openAnnotation: function (payload) {
       this.annotationEntry = payload.annotationEntry;
       this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
-      this.annotationCallback = markRaw(payload.commitCallback);
+      if (payload.commitCallback) {
+        this.annotationCallback = markRaw(payload.commitCallback);
+      }
       if (!payload.createData) {
         this.createData = markRaw({});
       } else {
@@ -583,8 +585,10 @@ export default {
     },
     restoreSidebarState: function (sidebarState) {
       if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge.length) {
-        if (sidebarState.connectivityEntry) {
+        if (sidebarState.connectivityEntry?.length) {
           this.openConnectivityInfo(sidebarState.connectivityEntry);
+        } else if (sidebarState.annotationEntry?.length) {
+          this.openAnnotation({annotationEntry: sidebarState.annotationEntry});
         } else {
           this.$refs.sideBar.setState(sidebarState);
         }
@@ -603,7 +607,6 @@ export default {
       // Restore sidebar state
       if (state.sidebar) {
         this.restoreSidebarState(state.sidebar);
-        this.annotationEntry = state.sidebar.annotationEntry;
       }
       this.updateGlobalSettingsFromState(state);
     },
