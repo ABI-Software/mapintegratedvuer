@@ -102,10 +102,9 @@ export default {
     /**
      * Perform a local search on this contentvuer
      * @param {string} term - The search term to look for
-     * @param {boolean} connectivityExplorerClicked - If true, the search is triggered from the Connectivity Explorer
      */
-    search: function (term, connectivityExplorerClicked) {
-      return this.$refs.viewer?.search(term, connectivityExplorerClicked);
+    search: function (term) {
+      return this.$refs.viewer?.search(term);
     },
     /**
      * Push the suggested terms into the suggestions array
@@ -125,7 +124,11 @@ export default {
      */
     isVisible: function() {
       const paneName = this.splitFlowStore.getPaneNameById(this.entry.id);
-      return paneName !== undefined;
+      let visible = false;
+      if (paneName !== undefined) {
+        visible = this.splitFlowStore.isPaneActive(paneName);
+      }
+      return visible;
     },
     onResize: function () {
       this.$refs.viewer?.onResize();
@@ -163,6 +166,9 @@ export default {
     },
     onFilterVisibility: function(payload) {
       this.$refs.viewer?.setVisibilityFilter(payload);
+    },
+    onLoadConnectivityDetail: function(payload) {
+      this.$refs.viewer?.getKnowledgeTooltip(payload);
     },
   },
   data: function () {

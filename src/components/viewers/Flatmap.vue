@@ -4,7 +4,7 @@
       :state="entry.state"
       :entry="entry.resource"
       :mapManager="mapManager"
-      @resource-selected="flatmaprResourceSelected(entry.type, $event)"
+      @resource-selected="flatmapResourceSelected(entry.type, $event)"
       @pan-zoom-callback="flatmapPanZoomCallback"
       :name="entry.resource"
       style="height: 100%; width: 100%"
@@ -83,14 +83,15 @@ export default {
     },
     /**
      * Perform a local search on this contentvuer
+     * This is similar to directly clicking onthe map
      */
-    search: function (term, connectivityExplorerClicked) {
-      return this.$refs.flatmap.searchAndShowResult(term, true, connectivityExplorerClicked);
+    search: function (term) {
+      return this.$refs.flatmap.searchAndShowResult(term, true, true);
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
     },
-    flatmaprResourceSelected: function (type, resource) {
+    flatmapResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource);
 
       if (resource.eventType === 'click' && resource.feature.type === 'feature') {
@@ -141,18 +142,6 @@ export default {
         }
       }
     },
-    highlightFeatures: function(info) {
-      let name = info.name;
-      const flatmap = this.$refs.flatmap.mapImp;
-      if (name) {
-        const results = flatmap.search(name);
-        if (results.featureIds[0]) {
-          flatmap.highlightFeatures([
-            flatmap.modelForFeature(results.featureIds[0]),
-          ]);
-        }
-      }
-    },
     /**
      * Append the list of suggested terms to suggestions
      */
@@ -179,12 +168,24 @@ export default {
         }
       }
     },
+    showConnectivityTooltips: function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.showConnectivityTooltips(payload);
+      }
+    },
     showConnectivitiesByReference: function (payload) {
       if (this?.alive) {
         const currentFlatmap = this.$refs.flatmap;
         if (currentFlatmap) {
           currentFlatmap.showConnectivitiesByReference(payload);
         }
+      }
+    },
+    changeConnectivitySource: function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+        flatmap.changeConnectivitySource(payload);
       }
     },
     zoomToFeatures: function(info, forceSelect) {
@@ -232,6 +233,17 @@ export default {
         const currentFlatmap = this.$refs.flatmap;
         if (currentFlatmap) {
           currentFlatmap.setVisibilityFilter(payload);
+        }
+      }
+    },
+    getKnowledgeTooltip: async function (payload) {
+      if (this?.alive) {
+        const currentFlatmap = this.$refs.flatmap;
+        if (currentFlatmap) {
+          // This is for expanding connectivity card
+          // The length of payload.data should always be 1
+          const data = payload.data[0];
+          currentFlatmap.searchAndShowResult(data.id, true, false);
         }
       }
     },

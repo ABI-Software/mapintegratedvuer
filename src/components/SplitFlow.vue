@@ -122,6 +122,8 @@ export default {
     return {
       sideBarVisibility: true,
       startUp: true,
+      sidebarStateRestored: false,
+      annotationStateRestored: false,
       search: '',
       expanded: '',
       filterTriggered: false,
@@ -187,7 +189,27 @@ export default {
     },
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
-      this.onDisplaySearch({ term: payload.id }, false, true);
+      const splitdialog = this.$refs.splitdialog;
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+        const hasFlatmap = activeContents.find(c => c.viewerType.includes('Flatmap'));
+        const hasHumanMaleFlatmap = activeContents.find(c => c.activeSpecies === "Human Male");
+        let nonFlatmapLoad = false
+        activeContents.forEach(content => {
+          const isFlatmap = content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap';
+          // minimise connectivity detail fetch
+          const shouldLoad =
+            (hasFlatmap && isFlatmap) ||
+            (hasFlatmap && !hasHumanMaleFlatmap && !isFlatmap && !nonFlatmapLoad) ||
+            (!hasFlatmap && !nonFlatmapLoad);
+
+          if (shouldLoad) {
+            this.connectivityExplorerClicked.push(true);
+            content.onLoadConnectivityDetail({ data: [payload] });
+            if (!isFlatmap) nonFlatmapLoad = true;
+          }
+        });
+      }
     },
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
@@ -215,7 +237,7 @@ export default {
             if (flatmapRef) flatmap = flatmapRef;
             if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
 
-            if (flatmap && flatmap.$el.checkVisibility()) {
+            if (flatmap) {
               activeFlatmaps.push(flatmap);
             }
           }
@@ -323,17 +345,14 @@ export default {
         'file_path': filePath,
       });
     },
-    onDisplaySearch: function (payload, tracking = true, connectivityExplorerClicked = false) {
+    onDisplaySearch: function (payload, tracking = true) {
       let searchFound = false;
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
         activeContents.forEach(content => {
-          if (connectivityExplorerClicked) {
-            this.connectivityExplorerClicked.push(true);
-          }
-          if (content.search(payload.term, connectivityExplorerClicked)) {
+          if (content.search(payload.term)) {
             searchFound = true;
           }
         });
@@ -386,6 +405,74 @@ export default {
         });
       }
     },
+    openConnectivityInfo: function (payload) {
+      // expand connectivity card and show connectivity info
+      // if expanded exist, payload should be an array of one element
+      // skip payload not match the expanded in multiple views
+      const isMatched = payload.some(entry => entry.featureId[0] === this.expanded);
+      if (this.expanded && this.connectivityExplorerClicked.length && !isMatched) {
+        this.connectivityExplorerClicked.pop();
+        return;
+      }
+      this.connectivityEntry = payload.map(entry => {
+        let result = {
+          ...entry,
+          label: entry.title,
+          id: entry.featureId[0],
+        }
+        const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
+        if (entry.ready) {
+          result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
+        }
+        return result;
+      });
+      if (this.connectivityExplorerClicked.length) {
+        // only remove clicked if not placeholder entry
+        if (this.connectivityEntry.every(entry => entry.ready)) {
+          this.connectivityExplorerClicked.pop();
+        }
+      } else {
+        // click on the flatmap paths/features directly
+        // or onDisplaySearch is performed
+        this.connectivityKnowledge = this.connectivityEntry;
+        if (this.connectivityKnowledge.every(ck => ck.ready)) {
+          this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
+          this.connectivityProcessed = true;
+        }
+        if (this.$refs.sideBar) {
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
+          this.$refs.sideBar.setDrawerOpen(true);
+        }
+      }
+    },
+    openAnnotation: function (payload) {
+      this.annotationEntry = payload.annotationEntry;
+      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
+      if (payload.commitCallback) {
+        this.annotationCallback = markRaw(payload.commitCallback);
+      }
+      if (!payload.createData) {
+        this.createData = markRaw({});
+      } else {
+        this.createData = markRaw(payload.createData);
+      }
+      if (payload.confirmCreate) {
+        this.confirmCreateCallback = markRaw(payload.confirmCreate);
+      }
+      if (payload.cancelCreate) {
+        this.cancelCreateCallback = markRaw(payload.cancelCreate);
+      }
+      if (payload.confirmDelete) {
+        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+      }
+      if (payload.confirmComment) {
+        this.confirmCommentCallback = markRaw(payload.confirmComment);
+      }
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    },
     onShowReferenceConnectivities: function (refSource) {
       EventBus.emit('show-reference-connectivities', refSource);
     },
@@ -404,6 +491,7 @@ export default {
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
+        hoverOrgans = data['nerve-label'] ? data['nerve-label'].flatMap(nerve => nerve.subNerves) : [];
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
@@ -523,6 +611,19 @@ export default {
     setIdToPrimaryPane: function (id) {
       this.splitFlowStore.setIdToPrimaryPane(id);
     },
+    restoreSidebarState: function (sidebarState) {
+      if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge.length) {
+        if (sidebarState.connectivityEntry?.length) {
+          this.openConnectivityInfo(sidebarState.connectivityEntry);
+        } else if (sidebarState.annotationEntry?.length) {
+          this.openAnnotation({annotationEntry: sidebarState.annotationEntry});
+          this.annotationStateRestored = true;
+        } else {
+          this.$refs.sideBar.setState(sidebarState);
+        }
+        this.sidebarStateRestored = true;
+      }
+    },
     setState: function (state) {
       this.entriesStore.setAll(state.entries);
       //Support both old and new permalink.
@@ -532,8 +633,9 @@ export default {
       else {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
+      // Restore sidebar state
       if (state.sidebar) {
-        this.$refs.sideBar.setState(state.sidebar);
+        this.restoreSidebarState(state.sidebar);
       }
       this.updateGlobalSettingsFromState(state);
     },
@@ -671,34 +773,21 @@ export default {
       this.actionClick(payload);
     });
     EventBus.on('annotation-open', payload => {
-      this.annotationEntry = payload.annotationEntry;
-      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
-      this.annotationCallback = markRaw(payload.commitCallback);
-      if (!payload.createData) {
-        this.createData = markRaw({});
-      } else {
-        this.createData = markRaw(payload.createData);
-      }
-      if (payload.confirmCreate) {
-        this.confirmCreateCallback = markRaw(payload.confirmCreate);
-      }
-      if (payload.cancelCreate) {
-        this.cancelCreateCallback = markRaw(payload.cancelCreate);
-      }
-      if (payload.confirmDelete) {
-        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
-      }
-      if (payload.confirmComment) {
-        this.confirmCommentCallback = markRaw(payload.confirmComment);
-      }
-      if (this.$refs.sideBar) {
-        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
-        this.$refs.sideBar.setDrawerOpen(true);
-      }
+      this.openAnnotation(payload);
     });
     EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
-      const { interactiveMode, viewingMode } = globalSettings;
+      const interactiveMode = globalSettings.interactiveMode;
+
+      // Sidebar annotation close event emits
+      // whenever viewing mode is changed.
+      // if annotation state is being restored on first load
+      // do no proceed with annotation tab close.
+      if (this.annotationStateRestored) {
+        this.annotationStateRestored = false;
+        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
+        return;
+      }
 
       this.annotationEntry = [];
       this.createData = {};
@@ -710,10 +799,6 @@ export default {
           this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
         }
 
-        if (viewingMode === 'Annotation') {
-          this.$refs.sideBar.setDrawerOpen(false);
-        }
-
         this.$refs.sideBar.closeConnectivity();
         EventBus.emit('connectivity-item-close');
       }
@@ -722,35 +807,7 @@ export default {
       this.settingsStore.updateOfflineAnnotationEnabled(payload);
     });
     EventBus.on('connectivity-info-open', payload => {
-      // expand connectivity card and show connectivity info
-      // if expanded exist, payload should be an array of one element
-      // skip payload not match the expanded in multiple views
-      const isMatched = payload.some(entry => entry.featureId[0] === this.expanded);
-      if (this.expanded && this.connectivityExplorerClicked.length && !isMatched) {
-        this.connectivityExplorerClicked.pop();
-        return;
-      }
-      this.connectivityEntry = payload.map(entry => {
-        return { ...entry, label: entry.title, id: entry.featureId[0] };
-      });
-      if (this.connectivityExplorerClicked.length) {
-        // only remove clicked if not placeholder entry
-        if (this.connectivityEntry.every(entry => entry.ready)) {
-          this.connectivityExplorerClicked.pop();
-        }
-      } else {
-        // click on the flatmap paths/features directly
-        // or onDisplaySearch is performed
-        this.connectivityKnowledge = this.connectivityEntry;
-        if (this.connectivityKnowledge.every(ck => ck.ready)) {
-          this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
-          this.connectivityProcessed = true;
-        }
-        if (this.$refs.sideBar) {
-          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
-          this.$refs.sideBar.setDrawerOpen(true);
-        }
-      }
+      this.openConnectivityInfo(payload);
     });
     EventBus.on('connectivity-info-close', payload => {
       if (this.$refs.sideBar) {
@@ -781,8 +838,13 @@ export default {
     });
     EventBus.on("connectivity-knowledge", payload => {
       this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = payload.highlight || [];
+      this.connectivityHighlight = payload.highlight;
       this.connectivityProcessed = payload.processed;
+
+      // Restore sidebar state if it exists and not restored yet
+      // after loading connectivity knowledge
+      const sidebarState = this.state?.sidebar;
+      this.restoreSidebarState(sidebarState);
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {

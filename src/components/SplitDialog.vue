@@ -161,80 +161,82 @@ export default {
       this.__userResize__ = false;
     },
     onSpeciesLayoutConnectivityUpdate: function () {
-      let activePaneIDs = [];
-      let availablePaneIDs = [];
-      let combinedConnectivities = [];
-      let sckanVersion = '';
-      let uuid = '';
-
-      for (const key in this.customLayout) {
-        if (this.customLayout[key].id) {
-          availablePaneIDs.push(this.customLayout[key].id);
-        }
-      }
-
-      switch (this.activeView) {
-        case 'singlepanel': {
-          activePaneIDs = availablePaneIDs.slice(0, 1);
-        } break;
-        case '2horpanel':
-        case '2vertpanel': {
-          activePaneIDs = availablePaneIDs.slice(0, 2);
-        } break;
-        case '3panel': {
-          activePaneIDs = availablePaneIDs.slice(0, 3);
-        } break;
-        case '4panel': {
-          activePaneIDs = availablePaneIDs.slice(0, 4);
-        } break;
-        case '5panel': {
-          activePaneIDs = availablePaneIDs.slice(0, 5);
-        } break;
-        case '6panelVertical':
-        case '6panel': {
-          activePaneIDs = availablePaneIDs.slice(0, 6);
-        } break;
-        default:
-          break;
-      }
-
+      let activePaneIDs = this.splitFlowStore.getActivePaneIds();
+      // body scaffold id may be a string depends on situation
+      const wholeBodyScaffoldIDs = [307, '307'];
+      const sckanVersion = Object.keys(this.connectivitiesStore.globalConnectivities)
+        .find(key => key.includes('sckan'));
       const uuids = Array.from(
         new Set(
           this.entries
-            .filter(entry => activePaneIDs.includes(entry.id) && entry.uuid)
-            .map(entry => entry.uuid)
+            .filter((entry) => {
+              return (
+                activePaneIDs.includes(entry.id) &&
+                (
+                  (
+                    entry.uuid &&
+                    (entry.type === 'Flatmap' || entry.type === 'MultiFlatmap')
+                  ) ||
+                  (
+                    entry.type === 'Scaffold' && entry.resource &&
+                    (entry.isBodyScaffold || wholeBodyScaffoldIDs.includes(entry.discoverId))
+                  )
+                )
+              )
+            })
+            .map((entry) => {
+              if ((entry.type === 'Flatmap' || entry.type === 'MultiFlatmap')) {
+                return entry.uuid;
+              } else if (entry.type === 'Scaffold') {
+                return entry.resource;
+              }
+            })
         )
       );
-
-      this.entries.forEach((entry) => {
-        if (entry.sckanVersion in this.connectivitiesStore.globalConnectivities) {
-          sckanVersion = entry.sckanVersion;
-        }
-      });
 
       // mix connectivites of available maps
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
 
-        const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-        EventBus.emit("connectivity-knowledge", {
-          data: uniqueConnectivities
-        });
+        // emit connectivity-knowledge event will be at connectivityQueryFilter
 
         const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
         EventBus.emit("connectivity-filter-options", uniqueFilters);
       } else {
-        if (sckanVersion) {
-          EventBus.emit("connectivity-knowledge", {
-            data: this.connectivitiesStore.globalConnectivities[sckanVersion]
-          });
-          this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
-        } else {
-          console.warn(`There is no connectivity to show!`);
-        }
+        EventBus.emit("connectivity-knowledge", {
+            data: this.connectivitiesStore.globalConnectivities[sckanVersion],
+            highlight: [],
+            processed: false,
+        });
+        EventBus.emit("connectivity-filter-options", []);
+        this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
       }
     },
-    getSearchedId: function (flatmap, term) {
+    getGeneralSearchedId: function (entry, term, type = 'query') {
+      const ids = [];
+      entry.forEach((data) => {
+        let compareRanges = [
+          JSON.stringify(data['nerve-label'])
+        ];
+        if (type = 'query') {
+          compareRanges = [
+            ...compareRanges,
+            data.id,
+            data.label,
+            data['long-label'],
+            JSON.stringify(data['nerves'])
+          ]
+        }
+        const isMatched = compareRanges.some((data) => {
+          return data?.toLowerCase().includes(term.toLowerCase())
+        });
+        if (isMatched && !ids.includes(data.id)) {
+          ids.push(data.id);
+        }
+      });
+      return ids;
+    },
+    getFlatmapSearchedId: function (flatmap, term) {
       const ids = [];
       const searchResult = flatmap.mapImp.search(term);
       const featureIds = searchResult.__featureIds || searchResult.featureIds;
@@ -257,167 +259,178 @@ export default {
       return ids;
     },
     connectivityQueryFilter: async function (data) {
+      this.query = "";
+      this.filter = [];
       const activeContents = this.getActiveContents();
       const flatmapAPI = this.settingsStore.flatmapAPI;
       const searchOrders = [], searchResults = [];
       let searchHighlights = [];
       let processed = false;
+      let queryIds = [], facetIds = [];
+      let sourceId = "";
+
+      const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
+      const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
+      let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
 
       for (const activeContent of activeContents) {
         const viewer = activeContent.$refs.viewer;
-
         if (viewer) {
           const multiflatmap = viewer.$refs.multiflatmap;
           const flatmap = viewer.$refs.flatmap;
-          let currentFlatmap = null;
-
+          const scaffold = viewer.$refs.scaffold;
+          const iframe = viewer.$refs.iframe;
+          const plot = viewer.$refs.plot;
+          const simulation = viewer.$refs.simulation;
+          let currentMap = null;
           if (multiflatmap) {
-            const _currentFlatmap = multiflatmap.getCurrentFlatmap();
-            if (_currentFlatmap && _currentFlatmap.mapImp) {
-              currentFlatmap = _currentFlatmap;
+            const _currentMap = multiflatmap.getCurrentFlatmap();
+            if (_currentMap && _currentMap.mapImp) {
+              currentMap = _currentMap;
+              sourceId = currentMap.mapImp.uuid;
             }
+          } else if (flatmap && flatmap.mapImp) {
+            currentMap = flatmap;
+            sourceId = currentMap.mapImp.uuid;
+          } else {
+            currentMap = scaffold || iframe || plot || simulation;
           }
-          if (flatmap && flatmap.mapImp) {
-            currentFlatmap = flatmap;
-          }
 
-          const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
-          const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
-          if (currentFlatmap && currentFlatmap.$el.checkVisibility()) {
-            const sourceId = currentFlatmap.mapImp.uuid;
-            let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
-            const filters = {};
-            let queryIds = [], facetIds = [];
-            let hasConnectionTargets = false;
-            if (data) {
-              this.query = data.query;
-              // get query search result ids and order
-              if (data.query) {
-                const searchTerms = this.query
-                  .replace(/["']/g, "")
-                  .split(",")
-                  .map(term => term.trim())
-                  .filter(term => term);
-                const nestedIds = [];
-                for (let index = 0; index < searchTerms.length; index++) {
-                  nestedIds.push(this.getSearchedId(currentFlatmap, searchTerms[index]));
-                }
-                // within query search (split terms by comma) -> OR
-                const flatIds = [...new Set(nestedIds.flat())];
-                searchOrders.push(...flatIds);
-
-                if (flatIds.length) {
-                  queryIds = await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds);
-                }
+          const isFlatmap = flatmap || multiflatmap;
+          if (data) {
+            this.query = data.query;
+            // get query search result ids and order
+            if (data.query) {
+              const searchTerms = this.query
+                .replace(/["']/g, "")
+                .split(",")
+                .map(term => term.trim())
+                .filter(term => term);
+              const nestedIds = [];
+              for (let index = 0; index < searchTerms.length; index++) {
+                isFlatmap ?
+                  nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index])) :
+                  nestedIds.push(this.getGeneralSearchedId(results, searchTerms[index]), 'query');
               }
+              // within query search (split terms by comma) -> OR
+              const flatIds = [...new Set(nestedIds.flat())];
+              searchOrders.push(...flatIds);
+              const ids = isFlatmap ? await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds) : flatIds;
+              queryIds.push(...ids);
+            }
 
-              const connectivityQueries = {
-                origins: [],
-                vias: [],
-                destinations: [],
-                all: [],
-              };
+            const connectivityQueries = {
+              origins: [],
+              vias: [],
+              destinations: [],
+              all: [],
+            };
 
-              // get facet search result ids
-              data.filter.forEach((item) => {
-                const facetKey = item.facetPropPath.split('.').pop();
-                const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
-                const isNeuronConnection = item.facetPropPath.includes('flatmap.connectivity.source');
-                if (matchedFilter && !isNeuronConnection) {
-                  matchedFilter.children.forEach((child) => {
-                    if (child.label === item.facet && child.key) {
-                      const childKey = child.key.split('.').pop();
-                      if (!(facetKey in filters)) {
-                        filters[facetKey] = [];
-                      }
-                      // within facet search category -> OR
-                      filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
-                    }
-                  });
+            let filters = {};
+            // get facet search result ids
+            data.filter.forEach((item) => {
+              const facetKey = item.facetPropPath.split('.').pop();;
+              if (scaffold) {
+                if (item.facet !== 'Show all') {
+                  if (!(facetKey in filters)) {
+                    filters[facetKey] = [];
+                  }
+                  // within facet search category -> OR
+                  filters[facetKey].push(...this.getGeneralSearchedId(results, item.facet, 'facet'));
                 }
-                if (isNeuronConnection && item.facet?.toLowerCase() !== 'show all') {
-                  const facet = item.facet;
-                  // string format with a space for CQ
-                  const feature = facet.replace(",\[", ", \[");
-                  const mode = item.facetPropPath.split('.').pop();
-                  hasConnectionTargets = true;
+              } else if (isFlatmap) {
+                const isNeuronConnection = item.facetPropPath.includes('flatmap.connectivity.source');
+                // origins/vias/destinations/all filter logic
+                // generate connectivityQueries to query related ids
+                if (isNeuronConnection) {
+                  if (item.facet?.toLowerCase() !== 'show all') {
+                    // string format with a space for CQ
+                    const feature = item.facet.replace(",\[", ", \[");
+                    const mode = item.facetPropPath.split('.').pop();
 
-                  if (mode === 'origin') {
-                    connectivityQueries.origins.push(feature);
-                  } else if (mode === 'destination') {
-                    connectivityQueries.destinations.push(feature);
-                  } else if (mode === 'via') {
-                    connectivityQueries.vias.push(feature);
-                  } else {
-                    const featuresArray = JSON.parse(feature).flat(Infinity);
-                    connectivityQueries.all.push(...featuresArray);
+                    if (mode === 'origin') {
+                      connectivityQueries.origins.push(feature);
+                    } else if (mode === 'destination') {
+                      connectivityQueries.destinations.push(feature);
+                    } else if (mode === 'via') {
+                      connectivityQueries.vias.push(feature);
+                    } else {
+                      const featuresArray = JSON.parse(feature).flat(Infinity);
+                      connectivityQueries.all.push(...featuresArray);
+                    }
+                  }
+                } else {
+                  // all other flatmap filter logic
+                  const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
+                  if (matchedFilter) {
+                    matchedFilter.children.forEach((child) => {
+                      if (child.label === item.facet && child.key) {
+                        const childKey = child.key.split('.').pop();
+                        if (!(facetKey in filters)) {
+                          filters[facetKey] = [];
+                        }
+                        // within facet search category -> OR
+                        filters[facetKey].push(...uniqueFilterSources[facetKey][childKey]);
+                      }
+                    });
                   }
                 }
-              });
-
-              if (
-                connectivityQueries.origins.length ||
-                connectivityQueries.destinations.length ||
-                connectivityQueries.vias.length
-              ) {
-                const options = {
-                  flatmapAPI: flatmapAPI,
-                  knowledgeSource: currentFlatmap.mapImp.uuid,
-                  origins: connectivityQueries.origins,
-                  destinations: connectivityQueries.destinations,
-                  vias: connectivityQueries.vias,
-                };
-                const connectivityFilterResults = await queryPathsByRoute(options);
-                if (connectivityFilterResults) {
-                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
-                }
-              } else if (connectivityQueries.all.length) {
-                const featureIds = connectivityQueries.all;
-                let connectivityFilterResults = null;
-                if (featureIds.length) {
-                  connectivityFilterResults = await queryAllConnectedPaths(flatmapAPI, sourceId, featureIds);
-                }
-                if (connectivityFilterResults) {
-                  results = results.filter((result) => connectivityFilterResults.includes(result.id));
-                }
               }
+            });
 
-              this.filter = Object.values(filters);
-              // between facet search categories -> AND
-              facetIds = this.filter.length ?
-                this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) :
-                [];
-            }
-
-            let target;
-            if (this.query && !this.filter.length) { // pure query search
-              target = queryIds;
-            } else if (!this.query && this.filter.length) { // pure facet search
-              target = facetIds;
-            } else if (this.query && this.filter.length) { // combined query and facet search
-              // between query search and facet search -> AND
-              target = queryIds.filter(id => facetIds.includes(id));
-            }
-            // This can be empty array due to the AND operation
-            if (target) {
-              searchHighlights.push(...target);
-              results = results.filter((item) => target.includes(item.id));
-              processed = true;
-            }
-            if (hasConnectionTargets) {
-              const connectionTargets = results.map((item) => item.id);
-              processed = true;
-              if (searchHighlights.length) {
-                searchHighlights = searchHighlights.filter((item) => connectionTargets.includes(item));
-              } else {
-                searchHighlights = connectionTargets;
+            // query ids for origins/vias/destinations/all filter
+            if (
+              connectivityQueries.origins.length ||
+              connectivityQueries.destinations.length ||
+              connectivityQueries.vias.length
+            ) {
+              const options = {
+                flatmapAPI: flatmapAPI,
+                knowledgeSource: sourceId,
+                origins: connectivityQueries.origins,
+                destinations: connectivityQueries.destinations,
+                vias: connectivityQueries.vias,
+              };
+              // expectation
+              // result should already applied the following
+              // between origins, destinations and vias -> AND
+              // within origins, destinations and vias -> OR
+              if (!('ovd' in filters)) {
+                filters['ovd'] = [];
               }
+              filters['ovd'].push(...await queryPathsByRoute(options));
+            } else if (connectivityQueries.all.length) {
+              if (!('all' in filters)) {
+                filters['all'] = [];
+              }
+              filters['all'].push(...await queryAllConnectedPaths(flatmapAPI, sourceId, connectivityQueries.all));
             }
-            searchResults.push(...results);
+
+            const nestedIds = Object.values(filters);
+            this.filter = [...this.filter, ...nestedIds];
+            // between facet search categories -> AND
+            const ids = this.filter.length ? this.filter.reduce((acc, curr) => acc.filter(id => curr.includes(id))) : [];
+            facetIds.push(...ids);
           }
         }
       }
+
+      let target;
+      if (this.query && !this.filter.length) { // pure query search
+        target = queryIds;
+      } else if (!this.query && this.filter.length) { // pure facet search
+        target = facetIds;
+      } else if (this.query && this.filter.length) { // combined query and facet search
+        // between query search and facet search -> AND
+        target = queryIds.filter(id => facetIds.includes(id));
+      }
+      // This can be empty array due to the AND operation
+      if (target) {
+        searchHighlights.push(...target);
+        results = results.filter((item) => target.includes(item.id));
+        processed = true;
+      }
+      searchResults.push(...results);
 
       const uniqueOrders = [...new Set(searchOrders)];
       const uniqueHighlights = [...new Set(searchHighlights)];
@@ -442,12 +455,6 @@ export default {
   },
   computed: {
     ...mapStores(useSplitFlowStore, useConnectivitiesStore, useSettingsStore),
-    activeView: function() {
-      return this.splitFlowStore.activeView;
-    },
-    customLayout: function() {
-      return this.splitFlowStore.customLayout;
-    },
     horizontal() {
       if (this.splitFlowStore.activeView === "2horpanel") {
         return true;
