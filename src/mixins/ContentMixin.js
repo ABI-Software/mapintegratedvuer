@@ -624,6 +624,7 @@ export default {
       const flatmapImp = flatmap.mapImp;
       const sckanVersion = getKnowledgeSource(flatmapImp);
       const uuid = flatmap.mockup ? flatmapImp.resource : flatmapImp.uuid;
+      let validNerves = [];
 
       if (!this.connectivityKnowledge[sckanVersion]) {
         this.flatmapQueries = markRaw(new FlatmapQueries());
@@ -638,12 +639,15 @@ export default {
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
           .filter(item => item.id in pathways);
       }
+      if (!this.connectivityFilterOptions[uuid]) {
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(this.connectivityKnowledge[uuid]);
+      }
       if (flatmap.mockup) {
         const nerveMaps = flatmap.getTermNerveMaps() || {};
         // deep copy the connectivity knowledge
         // to avoid modifying the original data
-        const deepCopyConnectivity = JSON.parse(JSON.stringify(this.connectivityKnowledge[uuid]));
-        this.connectivityKnowledge[uuid] = deepCopyConnectivity
+        const deepCopyConnectivityKnowledge = JSON.parse(JSON.stringify(this.connectivityKnowledge[uuid]));
+        this.connectivityKnowledge[uuid] = deepCopyConnectivityKnowledge
           .map((item) => {
             let payload = item;
             if (item.nerves?.length) {
@@ -655,20 +659,26 @@ export default {
                 return acc;
               }, []);
               if (nerveLabels?.length) {
+                validNerves.push(...nerveLabels);
                 payload["nerve-label"] = nerveLabels.sort((a, b) => a.nerve.localeCompare(b.nerve));
               }
             }
             return payload;
           })
           .filter((item) => item["nerve-label"]);
+
+        validNerves = validNerves.map(nerve => nerve.nerve.toLowerCase());
+        const deepCopyFilterOption = JSON.parse(JSON.stringify(this.connectivityFilterOptions[uuid]));
+        this.connectivityFilterOptions[uuid] = deepCopyFilterOption
+          .map((option) => {
+            const newChildren = option.children.filter((child) => validNerves.includes(child.label.toLowerCase()));
+            return { ...option, children: newChildren };
+          })
       } else {
         if (!this.connectivityFilterSources[uuid]) {
           this.connectivityFilterSources[uuid] = flatmap.getFilterSources();
         }
         this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources);
-      }
-      if (!this.connectivityFilterOptions[uuid]) {
-        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(this.connectivityKnowledge[uuid]);
       }
       this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions);
       this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge);
