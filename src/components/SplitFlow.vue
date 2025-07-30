@@ -611,10 +611,28 @@ export default {
     setIdToPrimaryPane: function (id) {
       this.splitFlowStore.setIdToPrimaryPane(id);
     },
+    restoreConnectivityEntries: function (connectivityEntries) {
+      const activeFlatmaps = this.getActiveFlatmaps();
+      activeFlatmaps.forEach((activeFlatmap) => {
+        const featureIds = connectivityEntries.map((entry) => {
+          const featureId = activeFlatmap.mapImp.modelFeatureIds(entry)[0];
+          const feature = activeFlatmap.mapImp.featureProperties(featureId);
+          const data = {
+            resource: [feature.models],
+            feature: feature,
+            label: feature.label,
+            provenanceTaxonomy: feature.taxons,
+            alert: feature.alert,
+          };
+          return data;
+        });
+        activeFlatmap.checkAndCreatePopups(featureIds, true)
+      });
+    },
     restoreSidebarState: function (sidebarState) {
       if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge?.length) {
-        if (sidebarState.connectivityEntry?.length) {
-          this.openConnectivityInfo(sidebarState.connectivityEntry);
+        if (sidebarState.connectivityEntries?.length) {
+          this.restoreConnectivityEntries(sidebarState.connectivityEntries);
         } else if (sidebarState.annotationEntry?.length) {
           this.openAnnotation({annotationEntry: sidebarState.annotationEntry});
           this.annotationStateRestored = true;
