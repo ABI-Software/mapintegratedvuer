@@ -123,7 +123,7 @@ export default {
       sideBarVisibility: true,
       startUp: true,
       sidebarStateRestored: false,
-      sidebarAnnotationState: undefined,
+      sidebarAnnotationState: false,
       search: '',
       expanded: '',
       filterTriggered: false,
@@ -634,8 +634,8 @@ export default {
         if (sidebarState.connectivityEntries?.length) {
           this.restoreConnectivityEntries(sidebarState.connectivityEntries);
         } else if (sidebarState.annotationEntries?.length) {
-          // annotation from state will open after viewing mode change
-          this.sidebarAnnotationState = sidebarState.annotationEntries;
+          this.restoreConnectivityEntries(sidebarState.annotationEntries);
+          this.sidebarAnnotationState = true;
         } else {
           this.$refs.sideBar.setState(sidebarState);
         }
@@ -797,13 +797,11 @@ export default {
       const globalSettings = { ...this.settingsStore.globalSettings };
       const { interactiveMode, viewingMode } = globalSettings;
 
-      // Sidebar annotation close event emits
-      // whenever viewing mode is changed.
+      // Sidebar annotation close event emits whenever viewing mode is changed.
       // if annotation state is being restored on first load for annotation viewing mode,
-      // open the anootation state.
+      // open the anootation tab and return.
       if (this.sidebarAnnotationState && viewingMode === 'Annotation') {
-        this.restoreConnectivityEntries(this.sidebarAnnotationState);
-        this.sidebarAnnotationState = undefined;
+        this.sidebarAnnotationState = false;
         this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         return;
       }
