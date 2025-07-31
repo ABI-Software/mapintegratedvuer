@@ -300,7 +300,7 @@ export default {
           } else {
             currentMap = scaffold || iframe || plot || simulation;
           }
-        
+
           const isFlatmap = flatmap || multiflatmap;
           if (data) {
             this.query = data.query;
@@ -319,9 +319,11 @@ export default {
               }
               // within query search (split terms by comma) -> OR
               const flatIds = [...new Set(nestedIds.flat())];
-              searchOrders.push(...flatIds);
-              const ids = isFlatmap ? await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds) : flatIds;
-              queryIds.push(...ids);
+              if (flatIds.length) {
+                searchOrders.push(...flatIds);
+                const ids = isFlatmap ? await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds) : flatIds;
+                queryIds.push(...ids);
+              }
             }
 
             const connectivityQueries = {
@@ -352,7 +354,7 @@ export default {
                     // string format with a space for CQ
                     const feature = item.facet.replace(",\[", ", \[");
                     const mode = item.facetPropPath.split('.').pop();
-  
+
                     if (mode === 'origin') {
                       connectivityQueries.origins.push(feature);
                     } else if (mode === 'destination') {
@@ -426,7 +428,7 @@ export default {
       } else if (!this.query && this.filter.length) { // pure facet search
         target = facetIds;
       } else if (this.query && this.filter.length) { // combined query and facet search
-        // between query search and facet search -> AND 
+        // between query search and facet search -> AND
         target = queryIds.filter(id => facetIds.includes(id));
       }
       // This can be empty array due to the AND operation
