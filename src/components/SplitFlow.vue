@@ -123,7 +123,7 @@ export default {
       sideBarVisibility: true,
       startUp: true,
       sidebarStateRestored: false,
-      annotationStateRestored: false,
+      sidebarAnnotationState: undefined,
       search: '',
       expanded: '',
       filterTriggered: false,
@@ -633,9 +633,9 @@ export default {
       if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge?.length) {
         if (sidebarState.connectivityEntries?.length) {
           this.restoreConnectivityEntries(sidebarState.connectivityEntries);
-        } else if (sidebarState.annotationEntry?.length) {
-          this.openAnnotation({annotationEntry: sidebarState.annotationEntry});
-          this.annotationStateRestored = true;
+        } else if (sidebarState.annotationEntries?.length) {
+          // annotation from state will open after viewing mode change
+          this.sidebarAnnotationState = sidebarState.annotationEntries;
         } else {
           this.$refs.sideBar.setState(sidebarState);
         }
@@ -795,14 +795,15 @@ export default {
     });
     EventBus.on('sidebar-annotation-close', () => {
       const globalSettings = { ...this.settingsStore.globalSettings };
-      const interactiveMode = globalSettings.interactiveMode;
+      const { interactiveMode, viewingMode } = globalSettings;
 
       // Sidebar annotation close event emits
       // whenever viewing mode is changed.
-      // if annotation state is being restored on first load
-      // do no proceed with annotation tab close.
-      if (this.annotationStateRestored) {
-        this.annotationStateRestored = false;
+      // if annotation state is being restored on first load for annotation viewing mode,
+      // open the anootation state.
+      if (this.sidebarAnnotationState && viewingMode === 'Annotation') {
+        this.restoreConnectivityEntries(this.sidebarAnnotationState);
+        this.sidebarAnnotationState = undefined;
         this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
         return;
       }
