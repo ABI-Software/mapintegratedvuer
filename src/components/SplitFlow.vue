@@ -550,7 +550,7 @@ export default {
       else {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
-      if (state.sidebar) {
+      if (state.sidebar && this.$refs.sideBar) {
         this.$refs.sideBar.setState(state.sidebar);
       }
       this.updateGlobalSettingsFromState(state);
