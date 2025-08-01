@@ -198,12 +198,7 @@ export default {
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
 
-        const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-        EventBus.emit("connectivity-knowledge", {
-          data: uniqueConnectivities,
-          highlight: [],
-          processed: false
-        });
+        // emit connectivity-knowledge event will be at connectivityQueryFilter
 
         const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
         EventBus.emit("connectivity-filter-options", uniqueFilters);
@@ -300,7 +295,7 @@ export default {
           } else {
             currentMap = scaffold || iframe || plot || simulation;
           }
-        
+
           const isFlatmap = flatmap || multiflatmap;
           if (data) {
             this.query = data.query;
@@ -352,7 +347,7 @@ export default {
                     // string format with a space for CQ
                     const feature = item.facet.replace(",\[", ", \[");
                     const mode = item.facetPropPath.split('.').pop();
-  
+
                     if (mode === 'origin') {
                       connectivityQueries.origins.push(feature);
                     } else if (mode === 'destination') {
@@ -426,7 +421,7 @@ export default {
       } else if (!this.query && this.filter.length) { // pure facet search
         target = facetIds;
       } else if (this.query && this.filter.length) { // combined query and facet search
-        // between query search and facet search -> AND 
+        // between query search and facet search -> AND
         target = queryIds.filter(id => facetIds.includes(id));
       }
       // This can be empty array due to the AND operation
