@@ -629,11 +629,18 @@ export default {
         activeFlatmap.checkAndCreatePopups(featureIds, true)
       });
     },
-    restoreSidebarState: function (sidebarState) {
-      if (!this.sidebarStateRestored && sidebarState && this.connectivityKnowledge?.length) {
+    restoreSidebarState: function (state) {
+      // Restore sidebar state only if
+      // - there is sidebar state
+      // - sidebar component is loaded
+      // - connectivity knowledge is loaded
+      // - if sidebar state is not restored yet
+      const sidebarState = state?.sidebar;
+      if (!this.sidebarStateRestored && sidebarState && this.$refs.sideBar && this.connectivityKnowledge?.length) {
         if (sidebarState.connectivityEntries?.length) {
           this.restoreConnectivityEntries(sidebarState.connectivityEntries);
-        } else if (sidebarState.annotationEntries?.length) {
+        } else if (sidebarState.annotationEntries?.length && state.annotationId) {
+          // Restore annotation state only if the state has annotationId
           this.restoreConnectivityEntries(sidebarState.annotationEntries);
           this.sidebarAnnotationState = true;
         } else {
@@ -651,10 +658,8 @@ export default {
       else {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
-      // Restore sidebar state
-      if (state.sidebar) {
-        this.restoreSidebarState(state.sidebar);
-      }
+
+      this.restoreSidebarState(state);
       this.updateGlobalSettingsFromState(state);
     },
     getState: function (anonymousAnnotations = false) {
@@ -860,8 +865,7 @@ export default {
 
       // Restore sidebar state if it exists and not restored yet
       // after loading connectivity knowledge
-      const sidebarState = this.state?.sidebar;
-      this.restoreSidebarState(sidebarState);
+      this.restoreSidebarState(this.state);
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
