@@ -192,6 +192,7 @@ export default {
     restoreSettings: function() {
       if (this.mapSettings.length > 0) {
         this.$refs.map.$refs.flow.sidebarStateRestored = false; // reset sidebar state flag
+        this.$refs.map.$refs.flow._externalStateSet = false; // reset state flag
         // this.$refs.map.setState(this.mapSettings.pop());
         this.state = this.mapSettings.pop();
         Message({
