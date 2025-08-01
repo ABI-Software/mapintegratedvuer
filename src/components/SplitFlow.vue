@@ -652,7 +652,7 @@ export default {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
       // Restore sidebar state
-      if (state.sidebar) {
+      if (state.sidebar && this.$refs.sideBar) {
         this.restoreSidebarState(state.sidebar);
       }
       this.updateGlobalSettingsFromState(state);
