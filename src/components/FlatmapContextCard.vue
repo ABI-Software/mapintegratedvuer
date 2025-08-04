@@ -13,7 +13,7 @@
 
     <!-- Copy to clipboard button container -->
     <div class="float-button-container">
-      <CopyToClipboard :content="copyContent" theme="light" />
+      <CopyToClipboard :content="updatedCopyContent" theme="light" />
     </div>
   </div>
 </template>
@@ -101,12 +101,7 @@ export default {
       }
       return flatmapSource
     },
-  },
-  mounted: function () {
-    this.updateCopyContent();
-  },
-  methods: {
-    updateCopyContent: function () {
+    updatedCopyContent: function () {
       const contentArray = [];
 
       // Use <div> instead of <h1>..<h6> or <p>
@@ -129,9 +124,9 @@ export default {
       publicationContent += `<div><a href="${this.flatmapSource}">${this.flatmapSource}</a></div>`;
       contentArray.push(publicationContent);
 
-      this.copyContent = contentArray.join('\n\n<br>');
+      return contentArray.join('\n\n<br>');
     },
-  }
+  },
 };
 </script>
 
