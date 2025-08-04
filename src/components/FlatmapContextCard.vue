@@ -47,7 +47,6 @@ export default {
       showContextCard: true,
       sampleDetails: {},
       loading: false,
-      copyContent: '',
     };
   },
   computed: {
