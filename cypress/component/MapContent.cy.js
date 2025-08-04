@@ -89,6 +89,9 @@ describe('MapContent', () => {
       cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
       cy.get('.el-row > div[style=""]').click()
       cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
+      cy.get('.flatmap-context-card').within(() => {
+        cy.get('.publication-link').invoke('attr', 'href').as('publicationLink');
+      });
     })
 
     Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
@@ -151,7 +154,7 @@ describe('MapContent', () => {
     cy.wait('@anatomyResponse', {timeout: 20000});
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
-   
+
 
     //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
     //the following attempt to workaround it.
@@ -183,7 +186,13 @@ describe('MapContent', () => {
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
-    cy.checkFlatmapProvenanceCard('Rat')
+    cy.get('@publicationLink').then((mousePublicationLink) => {
+      cy.checkFlatmapProvenanceCard('Rat')
+      cy.get('@publicationLink').then((ratPublicationLink) => {
+        // To verify data change
+        expect(ratPublicationLink).to.not.equal(mousePublicationLink);
+      });
+    });
 
     //Search for non existance feature, expect not-found text
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("NON_EXISTANCE");

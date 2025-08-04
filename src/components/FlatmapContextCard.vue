@@ -7,7 +7,7 @@
         Published on:
         {{flatmapPublishedDisplay}}
         <br>
-        View publication <a :href="flatmapSource" target="_blank">here</a>
+        View publication <a :href="flatmapSource" class="publication-link" target="_blank">here</a>
       <br/>
     </div>
 
