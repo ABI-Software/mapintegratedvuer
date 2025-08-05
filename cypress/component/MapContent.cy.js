@@ -83,14 +83,41 @@ describe('MapContent', () => {
       return true
     })
 
-    Cypress.Commands.add('checkFlatmapProvenanceCard', (species) => {
+    Cypress.Commands.add('checkFlatmapProvenanceCard', (species, prevPublicationLink) => {
       cy.get('#flatmap-select').click({force: true} );
       cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
       cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
       cy.get('.el-row > div[style=""]').click()
       cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
+      cy.get('.flatmap-context-card').trigger('mouseover');
       cy.get('.flatmap-context-card').within(() => {
-        cy.get('.publication-link').invoke('attr', 'href').as('publicationLink');
+        cy.get('.publication-link').invoke('attr', 'href').as(`${species}_publicationLink`);
+
+        // To verify data change
+        if (prevPublicationLink) {
+          cy.get('.float-button-container').invoke('css', {
+            'opacity': '1',
+            'visibility': 'visible'
+          });
+          cy.get('.float-button-container button').click({ force: true });
+
+          cy.get(`@${species}_publicationLink`).then((publicationLink) => {
+
+            if (prevPublicationLink) {
+              expect(publicationLink).to.not.equal(prevPublicationLink);
+            }
+
+            cy.window().then((win) => {
+              win.navigator.clipboard.readText().then((text) => {
+                expect(text).to.include(publicationLink);
+
+                if (prevPublicationLink) {
+                  expect(text).to.not.include(prevPublicationLink);
+                }
+              });
+            });
+          });
+        }
       });
     })
 
@@ -186,12 +213,8 @@ describe('MapContent', () => {
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
-    cy.get('@publicationLink').then((mousePublicationLink) => {
-      cy.checkFlatmapProvenanceCard('Rat')
-      cy.get('@publicationLink').then((ratPublicationLink) => {
-        // To verify data change
-        expect(ratPublicationLink).to.not.equal(mousePublicationLink);
-      });
+    cy.get('@Mouse_publicationLink').then((mousePublicationLink) => {
+      cy.checkFlatmapProvenanceCard('Rat', mousePublicationLink);
     });
 
     //Search for non existance feature, expect not-found text
