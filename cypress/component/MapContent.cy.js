@@ -107,6 +107,7 @@ describe('MapContent', () => {
               expect(publicationLink).to.not.equal(prevPublicationLink);
             }
 
+            cy.window().its('navigator.clipboard').invoke('readText');
             cy.window().then((win) => {
               win.navigator.clipboard.readText().then((text) => {
                 expect(text).to.include(publicationLink);
