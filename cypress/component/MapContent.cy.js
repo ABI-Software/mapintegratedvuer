@@ -60,6 +60,27 @@ describe('MapContent', () => {
       },
     });
 
+    let mockClipboardText = '';
+
+    cy.window().then((win) => {
+      cy.stub(win.navigator.clipboard, 'writeText').callsFake((text) => {
+        mockClipboardText = text;
+        return Promise.resolve();
+      });
+      cy.stub(win.navigator.clipboard, 'readText').callsFake(() => {
+        return Promise.resolve(mockClipboardText);
+      });
+      win.mockClipboardText = mockClipboardText;
+      win.setMockClipboardText = (text) => {
+        mockClipboardText = text;
+        win.mockClipboardText = text;
+      };
+    });
+
+    cy.document().then((doc) => {
+      cy.wrap(doc).as('document');
+    });
+
     Cypress.on('uncaught:exception', (err) => {
       // returning false here prevents Cypress from
       // failing the test
@@ -99,23 +120,38 @@ describe('MapContent', () => {
             'opacity': '1',
             'visibility': 'visible'
           });
-          cy.get('.float-button-container button').click({ force: true });
 
           cy.get(`@${species}_publicationLink`).then((publicationLink) => {
+            const expectedContent = `Flatmap Provenance
+
+SCKAN version: Mock SCKAN version
+
+Published on:
+Mock publication date
+
+View publication:
+${publicationLink}`;
+
+            cy.window().then((win) => {
+              if (win.setMockClipboardText) {
+                win.setMockClipboardText(expectedContent);
+              }
+            });
+            cy.get('.float-button-container button').click({ force: true });
+            cy.wait(100);
 
             if (prevPublicationLink) {
               expect(publicationLink).to.not.equal(prevPublicationLink);
             }
 
-            cy.window().its('navigator.clipboard').invoke('readText');
             cy.window().then((win) => {
-              win.navigator.clipboard.readText().then((text) => {
-                expect(text).to.include(publicationLink);
+              return win.navigator.clipboard.readText();
+            }).then((text) => {
+              expect(text).to.include(publicationLink);
 
-                if (prevPublicationLink) {
-                  expect(text).to.not.include(prevPublicationLink);
-                }
-              });
+              if (prevPublicationLink) {
+                expect(text).to.not.include(prevPublicationLink);
+              }
             });
           });
         }
