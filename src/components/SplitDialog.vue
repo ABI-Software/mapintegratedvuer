@@ -198,12 +198,7 @@ export default {
       if (uuids.length) {
         this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
 
-        const uniqueConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-        EventBus.emit("connectivity-knowledge", {
-          data: uniqueConnectivities,
-          highlight: [],
-          processed: false
-        });
+        // emit connectivity-knowledge event will be at connectivityQueryFilter
 
         const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
         EventBus.emit("connectivity-filter-options", uniqueFilters);

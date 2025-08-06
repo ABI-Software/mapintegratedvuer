@@ -62,8 +62,9 @@ import {
   ElCol as Col,
   ElPopover as Popover,
   ElRow as Row,
+  ElMessage as Message,
 } from 'element-plus';
-
+import 'element-plus/es/components/message/style/css';
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
@@ -179,11 +180,35 @@ export default {
       this.$refs.map.changeViewingMode(modeName);
     },
     saveSettings: function() {
-      this.mapSettings.push(this.$refs.map.getState());
+      const mapState = JSON.parse(JSON.stringify(this.$refs.map.getState()));
+      this.mapSettings.push(mapState);
+      Message({
+        message: `Settings saved successfully! There are ${this.mapSettings.length} saved setting(s).`,
+        type: 'success',
+        showClose: true,
+        duration: 1200,
+      });
     },
     restoreSettings: function() {
-      if (this.mapSettings.length > 0)
-        this.$refs.map.setState(this.mapSettings.pop());
+      if (this.mapSettings.length > 0) {
+        this.$refs.map.$refs.flow.sidebarStateRestored = false; // reset sidebar state flag
+        this.$refs.map.$refs.flow._externalStateSet = false; // reset state flag
+        // this.$refs.map.setState(this.mapSettings.pop());
+        this.state = this.mapSettings.pop();
+        Message({
+          message: 'Settings restored successfully!',
+          type: 'success',
+          showClose: true,
+          duration: 1200,
+        });
+      } else {
+        Message({
+          message: 'There are no saved settings to restore.',
+          type: 'warning',
+          showClose: true,
+          duration: 1200,
+        })
+      }
     },
     updateUUID: function(withAnnotation) {
       let url = this.api + 'map/getshareid';
@@ -385,5 +410,16 @@ body {
 
 .map-icon {
   color: $app-primary-color!important;
+}
+
+.el-message.is-closable {
+  border-radius: var(--el-border-radius-base);
+  --el-message-border-color: #{$app-primary-color};
+  --el-message-text-color: #{$app-primary-color};
+
+  .el-message__content {
+    font-family: "Asap",sans-serif;
+    font-size: 12px;
+  }
 }
 </style>
