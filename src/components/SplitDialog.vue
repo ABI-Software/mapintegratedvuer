@@ -314,9 +314,11 @@ export default {
               }
               // within query search (split terms by comma) -> OR
               const flatIds = [...new Set(nestedIds.flat())];
-              searchOrders.push(...flatIds);
-              const ids = isFlatmap ? await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds) : flatIds;
-              queryIds.push(...ids);
+              if (flatIds.length) {
+                searchOrders.push(...flatIds);
+                const ids = isFlatmap ? await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds) : flatIds;
+                queryIds.push(...ids);
+              }
             }
 
             const connectivityQueries = {
