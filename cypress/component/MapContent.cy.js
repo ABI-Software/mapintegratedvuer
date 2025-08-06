@@ -60,6 +60,27 @@ describe('MapContent', () => {
       },
     });
 
+    let mockClipboardText = '';
+
+    cy.window().then((win) => {
+      cy.stub(win.navigator.clipboard, 'writeText').callsFake((text) => {
+        mockClipboardText = text;
+        return Promise.resolve();
+      });
+      cy.stub(win.navigator.clipboard, 'readText').callsFake(() => {
+        return Promise.resolve(mockClipboardText);
+      });
+      win.mockClipboardText = mockClipboardText;
+      win.setMockClipboardText = (text) => {
+        mockClipboardText = text;
+        win.mockClipboardText = text;
+      };
+    });
+
+    cy.document().then((doc) => {
+      cy.wrap(doc).as('document');
+    });
+
     Cypress.on('uncaught:exception', (err) => {
       // returning false here prevents Cypress from
       // failing the test
@@ -83,12 +104,58 @@ describe('MapContent', () => {
       return true
     })
 
-    Cypress.Commands.add('checkFlatmapProvenanceCard', (species) => {
+    Cypress.Commands.add('checkFlatmapProvenanceCard', (species, prevPublicationLink) => {
       cy.get('#flatmap-select').click({force: true} );
       cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
       cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
       cy.get('.el-row > div[style=""]').click()
       cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
+      cy.get('.flatmap-context-card').trigger('mouseover');
+      cy.get('.flatmap-context-card').within(() => {
+        cy.get('.publication-link').invoke('attr', 'href').as(`${species}_publicationLink`);
+
+        // To verify data change
+        if (prevPublicationLink) {
+          cy.get('.float-button-container').invoke('css', {
+            'opacity': '1',
+            'visibility': 'visible'
+          });
+
+          cy.get(`@${species}_publicationLink`).then((publicationLink) => {
+            const expectedContent = `Flatmap Provenance
+
+SCKAN version: Mock SCKAN version
+
+Published on:
+Mock publication date
+
+View publication:
+${publicationLink}`;
+
+            cy.window().then((win) => {
+              if (win.setMockClipboardText) {
+                win.setMockClipboardText(expectedContent);
+              }
+            });
+            cy.get('.float-button-container button').click({ force: true });
+            cy.wait(100);
+
+            if (prevPublicationLink) {
+              expect(publicationLink).to.not.equal(prevPublicationLink);
+            }
+
+            cy.window().then((win) => {
+              return win.navigator.clipboard.readText();
+            }).then((text) => {
+              expect(text).to.include(publicationLink);
+
+              if (prevPublicationLink) {
+                expect(text).to.not.include(prevPublicationLink);
+              }
+            });
+          });
+        }
+      });
     })
 
     Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
@@ -151,7 +218,7 @@ describe('MapContent', () => {
     cy.wait('@anatomyResponse', {timeout: 20000});
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
-   
+
 
     //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
     //the following attempt to workaround it.
@@ -183,7 +250,9 @@ describe('MapContent', () => {
     cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
-    cy.checkFlatmapProvenanceCard('Rat')
+    cy.get('@Mouse_publicationLink').then((mousePublicationLink) => {
+      cy.checkFlatmapProvenanceCard('Rat', mousePublicationLink);
+    });
 
     //Search for non existance feature, expect not-found text
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("NON_EXISTANCE");
