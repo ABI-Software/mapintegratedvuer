@@ -13,6 +13,11 @@
           </div>
         </div>
         <div class="card-bottom">
+          <div v-if="flatmapUUID">
+            <span  @click="flatmapClick(flatmapUUID)" class="context-card-view">
+              <strong> Open Corresponding Flatmap</strong>
+            </span>
+          </div>
           <div>
             <!-- Show sampeles and views seperately if they do not match -->
             <template v-if="!samplesUnderViews">
@@ -74,7 +79,7 @@
 /* eslint-disable no-alert, no-console */
 import { CopyToClipboard } from "@abi-software/map-utilities";
 import '@abi-software/map-utilities/dist/style.css';
-
+import EventBus from './EventBus';
 //provide the s3Bucket related methods and data.
 import S3Bucket from "../mixins/S3Bucket.vue";
 
@@ -150,6 +155,9 @@ export default {
     }
   },
   computed: {
+    flatmapUUID: function(){
+      return this?.contextData?.flatmap?.uuid;
+    },
     samplesUnderViews: function(){
       if (this.contextData){
         if (this.contextData.samplesUnderViews){
@@ -251,6 +259,14 @@ export default {
     },
   },
   methods: {
+    flatmapClick: function(uuid) {
+      const newView = {
+        type: "Flatmap",
+        resource: uuid,
+        label: this.contextData.heading
+      };
+      EventBus.emit("CreateNewEntry", newView);
+    },
     samplesMatching: function(viewId){
       if (this.contextData && this.contextData.samples){
         return this.contextData.samples.filter(s=>s.view == viewId)[0]
