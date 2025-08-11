@@ -13,6 +13,17 @@
           </div>
         </div>
         <div class="card-bottom">
+          <div v-loading="loadingOriginalSource">
+            <strong>View Original Source:</strong>
+            <div v-if="originalSource && originalSource.length">
+              <template v-for="(source, i) in originalSource" :key="'source-'+i">
+                <a v-if="source && source.path" :href="generateFileLink(source)" target="_blank">{{source.name}}</a>
+              </template>
+            </div>
+            <div v-else>
+              Not Available
+            </div>
+          </div>
           <div v-if="flatmapUUID">
             <span  @click="flatmapClick(flatmapUUID)" class="context-card-view">
               <strong> Open Corresponding Flatmap</strong>
@@ -128,6 +139,8 @@ export default {
       showContextCard: true,
       sampleDetails: {},
       loading: false,
+      loadingOriginalSource: true,
+      originalSource: undefined,
     };
   },
   watch: {
@@ -295,7 +308,6 @@ export default {
         .catch((err) => {
           //set defaults if we hit an error
           console.error('caught error!', err)
-          this.discoverId = undefined
           this.loading = false
         });
     },
@@ -351,7 +363,7 @@ export default {
     },
     generateFileLink(sample){
       const path = this.processPathForUrl(sample.path);
-      let link = `${this.envVars.ROOT_URL}/file/${sample.discoverId}/${sample.version}` + '?path=';
+      let link = `${this.envVars.ROOT_URL}/datasets/file/${sample.discoverId}/${sample.version}` + '?path=';
       link = link + path;
       return link;
     },
@@ -364,7 +376,40 @@ export default {
       // note that we assume that the view file is in the same directory as the scaffold (viewUrls take relative paths)
       const viewUrl = this.getFileFromPath(view.path)
       this.$emit("scaffold-view-clicked", viewUrl);
+    },
+    getOriginalSource: function() {
+      const discoverId = this.entry.discoverId
+      const filesPos = 'files/'.length
+      const path =  this.entry.resource.substring(
+        this.entry.resource.indexOf("files/") + filesPos,
+        this.entry.resource.lastIndexOf("?"))
+      const params = new URLSearchParams({
+        discoverId,
+        path
+      });
+      const url = `${this.envVars.API_LOCATION}/file_info/get_original_source?${paramw.toString()}`
+      fetch(url)
+        .then((response) =>{
+          if (!response.ok){
+            throw Error(response.statusText)
+          } else {
+             return response.json()
+          }
+        })
+        .then((data) => {
+          this.loadingOriginalSource = false
+          this.originalSource = data.results
+        })
+        .catch((err) => {
+          //set defaults if we hit an error
+          console.error('caught error!', err)
+          this.loadingOriginalSource = false
+        });
     }
+  },
+  mounted: function() {
+    console.log(this.entry)
+    this.getOriginalSource()
   }
 };
 </script>
