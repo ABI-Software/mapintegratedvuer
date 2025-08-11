@@ -50,7 +50,6 @@
           @connectivity-source-change="onConnectivitySourceChange"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
-          @connectivity-explorer-reset="onConnectivityExplorerReset"
         />
         <SplitDialog
           :entries="entries"
@@ -214,12 +213,6 @@ export default {
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
     },
-    onConnectivityExplorerReset: function (payload) {
-      const activeFlatmaps = this.getActiveFlatmaps();
-      activeFlatmaps.forEach((activeFlatmap) => {
-        activeFlatmap.resetConnectivityfilters(payload);
-      });
-    },
     getActiveFlatmaps: function () {
       const activeFlatmaps = [];
       let splitdialog = this.$refs.splitdialog;
@@ -272,14 +265,21 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
-            this.$refs.sideBar.addFilter(action);
-            const { facet } = action;
+            const sendAction = {
+              facetPropPath: "anatomy.organ.category.name",
+              facetSubPropPath: "anatomy.organ.name",
+              term: "Anatomical structure",
+            };
+            const filters = [];
+            const facetString = action.facets.join(', ');
+            action.facets.forEach(facet => filters.push({...sendAction, facet}));
+            this.$refs.sideBar.addFilter(filters);
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_filter',
-              'category': facet || 'filter',
+              'category': facetString || 'filter',
               'location': 'map_location_pin'
             });
             this.filterTriggered = true;
@@ -294,7 +294,7 @@ export default {
             });
           });
           facets.push(
-            ...action.labels.map(val => ({
+            ...action.facets.map(val => ({
               facet: capitalise(val),
               term: "Anatomical structure",
               facetPropPath: "anatomy.organ.category.name",
@@ -312,6 +312,7 @@ export default {
             'category': filterValues || 'filter',
             'location': 'map_popup_button'
           });
+          this.filterTriggered = true;
         } else {
           this.trackGalleryClick(action);
           this.createNewEntry(action);
@@ -500,6 +501,9 @@ export default {
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
+        if (data && data.type == "reset-update") {
+          this.settingsStore.updateAppliedFacets([]);
+        }
         if (data && data.type == "query-update") {
           this.search = data.value;
           if (this.search && !this.filterTriggered) {
@@ -516,15 +520,18 @@ export default {
         }
         if (data && data.type == "filter-update") {
           this.settingsStore.updateFacets(data.value);
-
           // Remove filter event from maps' popup
           if (!this.filterTriggered) {
-            const { value } = data;
-            const filterValuesArray = value.filter((val) =>
-              val.facet && val.facet.toLowerCase() !== 'show all'
-            ).map((val) => val.facet);
+            const filterValuesArray = data.value.filter((val) => {
+              return val.facet && val.facet.toLowerCase() !== 'show all';
+            }).map((val) => val.facet);
+            const labels = filterValuesArray.map((val) => val.toLowerCase());
+            const newFacets = [...new Set([
+              ...this.settingsStore.appliedFacets,
+              ...labels
+            ])];
+            this.settingsStore.updateAppliedFacets(newFacets);
             const filterValues = filterValuesArray.join(', ');
-
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
@@ -537,14 +544,21 @@ export default {
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.tabType === 'connectivity') {
-        this.expanded = '';
-        this.connectivityEntry = [];
-        // update connectivity filters in flatmap
-        const activeFlatmaps = this.getActiveFlatmaps();
-        activeFlatmaps.forEach((activeFlatmap) => {
-          activeFlatmap.updateConnectivityFilters(data.filter);
-        });
-        EventBus.emit("connectivity-query-filter", data);
+        if (data && data.type == "reset-update") {
+          const activeFlatmaps = this.getActiveFlatmaps();
+          activeFlatmaps.forEach((activeFlatmap) => {
+            activeFlatmap.resetConnectivityfilters(data.value);
+          });
+        } else {
+          this.expanded = '';
+          this.connectivityEntry = [];
+          // update connectivity filters in flatmap
+          const activeFlatmaps = this.getActiveFlatmaps();
+          activeFlatmaps.forEach((activeFlatmap) => {
+            activeFlatmap.updateConnectivityFilters(data.filter);
+          });
+          EventBus.emit("connectivity-query-filter", data);
+        }
       }
     },
     updateMarkers: function (data) {

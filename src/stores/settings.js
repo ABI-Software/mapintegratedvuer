@@ -16,6 +16,7 @@ export const useSettingsStore = defineStore('settings', {
       mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
+      appliedFacets: [],
       numberOfDatasetsForFacets: [],
       markers: [],
       hoverAnatomies: [],
@@ -76,6 +77,16 @@ export const useSettingsStore = defineStore('settings', {
       }
       return updatedSettings;
     },
+    hasAppliedFacets: state => facets => {
+      for (const facet of facets) {
+        for (const appliedFacet of state.appliedFacets) {
+          if (facet.toLowerCase() === appliedFacet.toLowerCase()) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
   },
   actions: {
     updateShareLink(newLink) {
@@ -139,6 +150,9 @@ export const useSettingsStore = defineStore('settings', {
       this.featuredMarkerIdentifiers = new Array(
         this.featuredDatasetIdentifiers.length
       );
+    },
+    updateAppliedFacets(facetsIn) {
+      this.appliedFacets = facetsIn;
     },
     updateFacets(facetsIn) {
       // The following codes aim to minimise changes on the array
