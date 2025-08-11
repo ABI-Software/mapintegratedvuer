@@ -265,14 +265,21 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
-            this.$refs.sideBar.addFilter(action);
-            const { facet } = action;
+            const sendAction = {
+              facetPropPath: "anatomy.organ.category.name",
+              facetSubPropPath: "anatomy.organ.name",
+              term: "Anatomical structure",
+            };
+            const filters = [];
+            const facetString = action.facets.join(', ');
+            action.facets.forEach(facet => filters.push({...sendAction, facet}));
+            this.$refs.sideBar.addFilter(filters);
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_filter',
-              'category': facet || 'filter',
+              'category': facetString || 'filter',
               'location': 'map_location_pin'
             });
             this.filterTriggered = true;
@@ -287,7 +294,7 @@ export default {
             });
           });
           facets.push(
-            ...action.labels.map(val => ({
+            ...action.facets.map(val => ({
               facet: capitalise(val),
               term: "Anatomical structure",
               facetPropPath: "anatomy.organ.category.name",
@@ -513,12 +520,17 @@ export default {
         }
         if (data && data.type == "filter-update") {
           this.settingsStore.updateFacets(data.value);
-          const filterValuesArray = data.value.filter((val) => {
-            return val.facet && val.facet.toLowerCase() !== 'show all';
-          }).map((val) => val.facet);
-          this.settingsStore.updateAppliedFacets(filterValuesArray)
           // Remove filter event from maps' popup
           if (!this.filterTriggered) {
+            const filterValuesArray = data.value.filter((val) => {
+              return val.facet && val.facet.toLowerCase() !== 'show all';
+            }).map((val) => val.facet);
+            const labels = filterValuesArray.map((val) => val.toLowerCase());
+            const newFacets = [...new Set([
+              ...this.settingsStore.appliedFacets,
+              ...labels
+            ])];
+            this.settingsStore.updateAppliedFacets(newFacets);
             const filterValues = filterValuesArray.join(', ');
             // GA Tagging
             // Event tracking for map action search/filter data
