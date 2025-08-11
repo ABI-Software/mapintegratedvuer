@@ -175,7 +175,7 @@ export default {
 
               if (
                 this.settingsStore.hasAppliedFacets(labels) &&
-                this.settingsStore.appliedFacets.length < labels.size
+                this.settingsStore.appliedFacets.length <= labels.size
               ) {
                 return;
               }
