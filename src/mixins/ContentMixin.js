@@ -172,30 +172,30 @@ export default {
               if (labels.size === 0) {
                 labels.add(label);
               }
-
+              returnedAction.facets = [...labels];
+              // The number of current level labels will reduce as zoom in flatmap
               if (
                 this.settingsStore.hasAppliedFacets(labels) &&
                 this.settingsStore.appliedFacets.length <= labels.size
               ) {
                 return;
               }
-
               /* Add to the filter list as and if there is selected facets */
               if (this.settingsStore.appliedFacets.length) {
-                returnedAction.facets = [...labels];
-                const newFacets = [...this.settingsStore.appliedFacets, ...labels];
-                this.settingsStore.updateAppliedFacets(newFacets);
+                if (!this.settingsStore.hasAppliedFacets(labels)) {
+                  const newFacets = [...new Set([
+                    ...this.settingsStore.appliedFacets,
+                    ...labels
+                  ])];
+                  this.settingsStore.updateAppliedFacets(newFacets);
+                }
               } else {
                 if (labels.size > 1) {
-                  returnedAction = {
-                    type: "Facets",
-                    labels: [...labels],
-                  };
-                  this.settingsStore.updateAppliedFacets(returnedAction.labels);
+                  returnedAction.type = "Facets";
                 }
+                this.settingsStore.updateAppliedFacets(returnedAction.facets);
               }
             }
-
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
               const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;

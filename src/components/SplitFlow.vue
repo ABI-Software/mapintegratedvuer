@@ -294,7 +294,7 @@ export default {
             });
           });
           facets.push(
-            ...action.labels.map(val => ({
+            ...action.facets.map(val => ({
               facet: capitalise(val),
               term: "Anatomical structure",
               facetPropPath: "anatomy.organ.category.name",
@@ -520,12 +520,17 @@ export default {
         }
         if (data && data.type == "filter-update") {
           this.settingsStore.updateFacets(data.value);
-          const filterValuesArray = data.value.filter((val) => {
-            return val.facet && val.facet.toLowerCase() !== 'show all';
-          }).map((val) => val.facet);
-          this.settingsStore.updateAppliedFacets(filterValuesArray)
           // Remove filter event from maps' popup
           if (!this.filterTriggered) {
+            const filterValuesArray = data.value.filter((val) => {
+              return val.facet && val.facet.toLowerCase() !== 'show all';
+            }).map((val) => val.facet);
+            const labels = filterValuesArray.map((val) => val.toLowerCase());
+            const newFacets = [...new Set([
+              ...this.settingsStore.appliedFacets,
+              ...labels
+            ])];
+            this.settingsStore.updateAppliedFacets(newFacets);
             const filterValues = filterValuesArray.join(', ');
             // GA Tagging
             // Event tracking for map action search/filter data
