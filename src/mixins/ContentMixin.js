@@ -163,28 +163,36 @@ export default {
               // Facet search on anatomy if it is not a keyword search
               returnedAction = {
                 type: "Facet",
-                facet: label,
-                facetPropPath: "anatomy.organ.category.name",
-                facetSubPropPath: "anatomy.organ.name",
-                term: "Anatomical structure",
+                facets: [label],
               };
               let labels = new Set();
               resource.feature['marker-terms'].forEach((term) => {
-                labels.add(term.label)
+                labels.add(term.label);
               });
-              labels.add(label)
+              if (labels.size === 0) {
+                labels.add(label);
+              }
+
               if (
                 this.settingsStore.hasAppliedFacets(labels) &&
                 this.settingsStore.appliedFacets.length < labels.size
               ) {
                 return;
               }
-              if (labels.size > 0) {
-                returnedAction = {
-                  type: "Facets",
-                  labels: [...labels],
-                };
-                this.settingsStore.updateAppliedFacets(returnedAction.labels);
+
+              /* Add to the filter list as and if there is selected facets */
+              if (this.settingsStore.appliedFacets.length) {
+                returnedAction.facets = [...labels];
+                const newFacets = [...this.settingsStore.appliedFacets, ...labels];
+                this.settingsStore.updateAppliedFacets(newFacets);
+              } else {
+                if (labels.size > 1) {
+                  returnedAction = {
+                    type: "Facets",
+                    labels: [...labels],
+                  };
+                  this.settingsStore.updateAppliedFacets(returnedAction.labels);
+                }
               }
             }
 
@@ -208,9 +216,7 @@ export default {
           if (resource.data.lastActionOnMarker === true) {
             returnedAction = {
               type: "Facet",
-              facet: capitalise(resource.data.id),
-              facetPropPath: "anatomy.organ.category.name",
-              term: "Anatomical structure",
+              facets: [capitalise(resource.data.id)],
             };
           }
         }

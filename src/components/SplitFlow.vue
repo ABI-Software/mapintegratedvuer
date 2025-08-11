@@ -265,14 +265,21 @@ export default {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
           if (this.$refs.sideBar) {
-            this.$refs.sideBar.addFilter(action);
-            const { facet } = action;
+            const sendAction = {
+              facetPropPath: "anatomy.organ.category.name",
+              facetSubPropPath: "anatomy.organ.name",
+              term: "Anatomical structure",
+            };
+            const filters = [];
+            const facetString = action.facets.join(', ');
+            action.facets.forEach(facet => filters.push({...sendAction, facet}));
+            this.$refs.sideBar.addFilter(filters);
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_filter',
-              'category': facet || 'filter',
+              'category': facetString || 'filter',
               'location': 'map_location_pin'
             });
             this.filterTriggered = true;
