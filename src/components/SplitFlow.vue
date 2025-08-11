@@ -516,15 +516,13 @@ export default {
         }
         if (data && data.type == "filter-update") {
           this.settingsStore.updateFacets(data.value);
-
+          const filterValuesArray = data.value.filter((val) => {
+            return val.facet && val.facet.toLowerCase() !== 'show all';
+          }).map((val) => val.facet);
+          this.settingsStore.updateAppliedFacets(filterValuesArray)
           // Remove filter event from maps' popup
           if (!this.filterTriggered) {
-            const { value } = data;
-            const filterValuesArray = value.filter((val) =>
-              val.facet && val.facet.toLowerCase() !== 'show all'
-            ).map((val) => val.facet);
             const filterValues = filterValuesArray.join(', ');
-
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({

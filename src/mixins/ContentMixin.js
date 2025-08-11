@@ -173,11 +173,18 @@ export default {
                 labels.add(term.label)
               });
               labels.add(label)
+              if (
+                this.settingsStore.hasAppliedFacets(labels) &&
+                this.settingsStore.appliedFacets.length < labels.size
+              ) {
+                return;
+              }
               if (labels.size > 0) {
                 returnedAction = {
                   type: "Facets",
                   labels: [...labels],
                 };
+                this.settingsStore.updateAppliedFacets(returnedAction.labels);
               }
             }
 
