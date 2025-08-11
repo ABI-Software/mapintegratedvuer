@@ -50,7 +50,6 @@
           @connectivity-source-change="onConnectivitySourceChange"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
-          @connectivity-explorer-reset="onConnectivityExplorerReset"
         />
         <SplitDialog
           :entries="entries"
@@ -214,12 +213,6 @@ export default {
     onConnectivityItemClose: function () {
       EventBus.emit('connectivity-item-close');
     },
-    onConnectivityExplorerReset: function (payload) {
-      const activeFlatmaps = this.getActiveFlatmaps();
-      activeFlatmaps.forEach((activeFlatmap) => {
-        activeFlatmap.resetConnectivityfilters(payload);
-      });
-    },
     getActiveFlatmaps: function () {
       const activeFlatmaps = [];
       let splitdialog = this.$refs.splitdialog;
@@ -312,6 +305,7 @@ export default {
             'category': filterValues || 'filter',
             'location': 'map_popup_button'
           });
+          this.filterTriggered = true;
         } else {
           this.trackGalleryClick(action);
           this.createNewEntry(action);
@@ -500,6 +494,9 @@ export default {
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
+        if (data && data.type == "reset-update") {
+          this.settingsStore.updateAppliedFacets([]);
+        }
         if (data && data.type == "query-update") {
           this.search = data.value;
           if (this.search && !this.filterTriggered) {
@@ -535,14 +532,21 @@ export default {
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.tabType === 'connectivity') {
-        this.expanded = '';
-        this.connectivityEntry = [];
-        // update connectivity filters in flatmap
-        const activeFlatmaps = this.getActiveFlatmaps();
-        activeFlatmaps.forEach((activeFlatmap) => {
-          activeFlatmap.updateConnectivityFilters(data.filter);
-        });
-        EventBus.emit("connectivity-query-filter", data);
+        if (data && data.type == "reset-update") {
+          const activeFlatmaps = this.getActiveFlatmaps();
+          activeFlatmaps.forEach((activeFlatmap) => {
+            activeFlatmap.resetConnectivityfilters(data.value);
+          });
+        } else {
+          this.expanded = '';
+          this.connectivityEntry = [];
+          // update connectivity filters in flatmap
+          const activeFlatmaps = this.getActiveFlatmaps();
+          activeFlatmaps.forEach((activeFlatmap) => {
+            activeFlatmap.updateConnectivityFilters(data.filter);
+          });
+          EventBus.emit("connectivity-query-filter", data);
+        }
       }
     },
     updateMarkers: function (data) {
