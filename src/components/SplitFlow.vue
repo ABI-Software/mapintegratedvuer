@@ -526,10 +526,7 @@ export default {
               return val.facet && val.facet.toLowerCase() !== 'show all';
             }).map((val) => val.facet);
             const labels = filterValuesArray.map((val) => val.toLowerCase());
-            const newFacets = [...new Set([
-              ...this.settingsStore.appliedFacets,
-              ...labels
-            ])];
+            const newFacets = [...new Set([...labels])];
             this.settingsStore.updateAppliedFacets(newFacets);
             const filterValues = filterValuesArray.join(', ');
             // GA Tagging
