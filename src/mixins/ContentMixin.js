@@ -10,9 +10,12 @@ import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import Tagging from '../services/tagging.js';
 
+import {
+  getFlatmapFilterOptions,
+} from '@abi-software/map-utilities'
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
 import { getKnowledgeSource, loadAndStoreKnowledge } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
-import { getTermNerveMaps, getFilterOptions } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
+import { getTermNerveMaps, getFilterOptions as getScaffoldFilterOptions } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
@@ -163,24 +166,39 @@ export default {
               // Facet search on anatomy if it is not a keyword search
               returnedAction = {
                 type: "Facet",
-                facet: label,
-                facetPropPath: "anatomy.organ.category.name",
-                facetSubPropPath: "anatomy.organ.name",
-                term: "Anatomical structure",
+                facets: [label],
               };
               let labels = new Set();
               resource.feature['marker-terms'].forEach((term) => {
-                labels.add(term.label)
+                labels.add(term.label);
               });
-              labels.add(label)
-              if (labels.size > 0) {
-                returnedAction = {
-                  type: "Facets",
-                  labels: [...labels],
-                };
+              if (labels.size === 0) {
+                labels.add(label);
+              }
+              returnedAction.facets = [...labels];
+              // The number of current level labels will reduce as zoom in flatmap
+              if (
+                this.settingsStore.hasAppliedFacets(labels) &&
+                this.settingsStore.appliedFacets.length <= labels.size
+              ) {
+                return;
+              }
+              /* Add to the filter list as and if there is selected facets */
+              if (this.settingsStore.appliedFacets.length) {
+                if (!this.settingsStore.hasAppliedFacets(labels)) {
+                  const newFacets = [...new Set([
+                    ...this.settingsStore.appliedFacets,
+                    ...labels
+                  ])];
+                  this.settingsStore.updateAppliedFacets(newFacets);
+                }
+              } else {
+                if (labels.size > 1) {
+                  returnedAction.type = "Facets";
+                }
+                this.settingsStore.updateAppliedFacets(returnedAction.facets);
               }
             }
-
             fireResourceSelected = true;
             if (type == "MultiFlatmap") {
               const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
@@ -201,9 +219,7 @@ export default {
           if (resource.data.lastActionOnMarker === true) {
             returnedAction = {
               type: "Facet",
-              facet: capitalise(resource.data.id),
-              facetPropPath: "anatomy.organ.category.name",
-              term: "Anatomical structure",
+              facets: [capitalise(resource.data.id)],
             };
           }
         }
@@ -580,44 +596,53 @@ export default {
       this.flatmapQueries = markRaw(new FlatmapQueries());
       this.flatmapQueries.initialise(this.flatmapAPI);
 
-      return {
-        'mockup': true,
-        getFilterOptions: getFilterOptions,
-        getTermNerveMaps: getTermNerveMaps,
-        'mapImp': {
-          'provenance': {
-            'uuid': flatmapUuid,
-            'connectivity': {
-              ...latestFlatmap.sckan,
-            },
-          },
-          'pathways': pathwaysJson,
-          'resource': this.entry.resource,
-          queryKnowledge : async (keastId) => {
-            const sql = 'select knowledge from knowledge where (source=? or source is null) and entity=? order by source desc';
-            const params = [flatmapSource, keastId];
-            const response = await this.flatmapQueries.queryKnowledge(sql, params);
-            return JSON.parse(response);
-          },
-          queryLabels : async (entities) => {
-            const sql = `select source, entity, knowledge from knowledge where (source=? or source is null) and entity in (?${', ?'.repeat(entities.length-1)}) order by entity, source desc`;
-            const params = [flatmapSource, ...entities];
-            const response = await this.flatmapQueries.queryKnowledge(sql, params);
-            const entityLabels = [];
-            let last_entity;
-            for (const row of response) {
-                if (row[1] !== last_entity) {
-                    const knowledge = JSON.parse(row[2]);
-                    entityLabels.push({
-                        entity: row[1],
-                        label: knowledge['label'] || row[1]
-                    })
-                    last_entity = row[1];
-                }
-            }
-            return entityLabels;
+      const mapImp = {
+        'provenance': {
+          'uuid': flatmapUuid,
+          'connectivity': {
+            ...latestFlatmap.sckan,
           },
         },
+        'pathways': pathwaysJson,
+        'resource': this.entry.resource,
+        knowledgeSource: flatmapSource,
+        queryKnowledge : async (keastId) => {
+          const sql = 'select knowledge from knowledge where (source=? or source is null) and entity=? order by source desc';
+          const params = [flatmapSource, keastId];
+          const response = await this.flatmapQueries.queryKnowledge(sql, params);
+          return JSON.parse(response);
+        },
+        queryLabels : async (entities) => {
+          const sql = `select source, entity, knowledge from knowledge where (source=? or source is null) and entity in (?${', ?'.repeat(entities.length-1)}) order by entity, source desc`;
+          const params = [flatmapSource, ...entities];
+          const response = await this.flatmapQueries.queryKnowledge(sql, params);
+          const entityLabels = [];
+          let last_entity;
+          for (const row of response) {
+              if (row[1] !== last_entity) {
+                  const knowledge = JSON.parse(row[2]);
+                  entityLabels.push({
+                      entity: row[1],
+                      label: knowledge['label'] || row[1]
+                  })
+                  last_entity = row[1];
+              }
+          }
+          return entityLabels;
+        },
+      };
+
+      const providedKnowledge = this.connectivityKnowledge[flatmapUuid];
+      const providedPathways = undefined;
+      const flatmapFilterOptions = await getFlatmapFilterOptions(this.flatmapAPI, mapImp, providedKnowledge, providedPathways);
+      const scaffoldFilterOptions = getScaffoldFilterOptions();
+      const combinedFilterOptions = () => [...scaffoldFilterOptions, ...flatmapFilterOptions];
+
+      return {
+        'mockup': true,
+        getFilterOptions: combinedFilterOptions,
+        getTermNerveMaps: getTermNerveMaps,
+        'mapImp': mapImp,
       }
     },
     loadConnectivityExplorerConfig: async function (flatmap) {
@@ -640,7 +665,7 @@ export default {
           .filter(item => item.id in pathways);
       }
       if (!this.connectivityFilterOptions[uuid]) {
-        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(this.connectivityKnowledge[uuid]);
+        this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(flatmapImp , this.connectivityKnowledge[uuid]);
       }
       if (flatmap.mockup) {
         const nerveMaps = flatmap.getTermNerveMaps() || {};
@@ -671,8 +696,12 @@ export default {
         const deepCopyFilterOption = JSON.parse(JSON.stringify(this.connectivityFilterOptions[uuid]));
         this.connectivityFilterOptions[uuid] = deepCopyFilterOption
           .map((option) => {
-            const newChildren = option.children.filter((child) => validNerves.includes(child.label.toLowerCase()));
-            return { ...option, children: newChildren };
+            if (option.key === 'scaffold.connectivity.nerve') {
+              const newChildren = option.children.filter((child) => validNerves.includes(child.label.toLowerCase()));
+              return { ...option, children: newChildren };
+            } else {
+              return option;
+            }
           })
       } else {
         if (!this.connectivityFilterSources[uuid]) {
@@ -703,7 +732,7 @@ export default {
       this.tooltipEntry = [];
       payload.data.forEach(d => this.tooltipEntry.push({ title: d.label, featureId: [d.id], ready: false }));
       EventBus.emit('connectivity-info-open', this.tooltipEntry);
-      
+
       let prom1 = [];
       // While having placeholders displayed, get details for all paths and then replace.
       for (let index = 0; index < payload.data.length; index++) {
