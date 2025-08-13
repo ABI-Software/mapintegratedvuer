@@ -57,6 +57,7 @@ import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
 import { getReferenceConnectivitiesFromStorage, getReferenceConnectivitiesByAPI } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
+import { resolveUberon } from "../scripts/utilities";
 
 export default {
   name: "Scaffold",
@@ -109,7 +110,7 @@ export default {
       const processed = payload ? true : false;
       this.$refs.scaffold.zoomToNerves([], processed);
     },
-    scaffoldResourceSelected: function (type, resource) {
+    scaffoldResourceSelected: async function (type, resource) {
       this.resourceSelected(type, resource, true)
       if (resource.length) {
         const clickedNerve = resource[0].data;
@@ -170,6 +171,18 @@ export default {
                   tagLabel: neuronFilter.tagLabel,
                   term: connectionType,
                 };
+              } else {
+                // search UBERON term from label before UBERON terms are available
+                const uberonTerm = await resolveUberon(label);
+
+                if (uberonTerm) {
+                  filterItem = {
+                    facet: `["${uberonTerm}", []]`,
+                    facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
+                    tagLabel: label,
+                    term: connectionType,
+                  };
+                }
               }
             }
 
