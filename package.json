@@ -56,7 +56,7 @@
     "@abi-software/map-side-bar": "2.10.0-beta.8",
     "@abi-software/map-utilities": "^1.6.1-beta.8",
     "@abi-software/plotvuer": "1.0.4",
-    "@abi-software/scaffoldvuer": "1.11.0-beta.3",
+    "@abi-software/scaffoldvuer": "^1.11.0-beta.4",
     "@abi-software/simulationvuer": "2.0.14",
     "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "^1.0.1",
