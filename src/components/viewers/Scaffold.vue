@@ -80,7 +80,7 @@ export default {
         if (!knowledge) continue;
 
         const nerves = knowledge['nerve-label'];
-        if (nerves) {          
+        if (nerves) {
           const subNerves = nerves.flatMap(n => n.subNerves);
           nerveLabels.push(...subNerves);
         }
@@ -101,7 +101,7 @@ export default {
     setVisibilityFilter: function (payload) {
       // Store scaffold knowledge locally
       if (
-        !this.connectivityKnowledge.length && 
+        !this.connectivityKnowledge.length &&
         this.entry.resource in this.connectivitiesStore.globalConnectivities
       ) {
         this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities[this.entry.resource];
@@ -113,13 +113,63 @@ export default {
       this.resourceSelected(type, resource, true)
       if (resource.length) {
         const clickedNerve = resource[0].data;
-        if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+
+        if (clickedNerve.isNerves || clickedNerve.hasOwnProperty('anatomicalId')) {
           const label = clickedNerve.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
-            // add nerve label to search input
+            // get filterOptions from store
+            const connectionType = this.settingsStore.globalSettings.connectionType.toLowerCase();
+            const filterOptions = this.connectivitiesStore.filterOptions[this.entry.resource];
+            let filterItem;
+
+            // nerve click
+            if (clickedNerve.isNerves) {
+              const filterOption = filterOptions.find((option) => option.key === 'scaffold.connectivity.nerve');
+
+              let nerveFilter;
+              filterOption?.children.forEach((child) => {
+                if (child.label.toLowerCase() === label) {
+                  nerveFilter = child;
+                }
+                child.children?.forEach((grandChild) => {
+                  if (grandChild.label.toLowerCase() === label) {
+                    nerveFilter = grandChild;
+                  }
+                });
+              });
+
+              // transform
+              if (nerveFilter) {
+                filterItem = {
+                  facet: nerveFilter.label,
+                  facetPropPath: 'scaffold.connectivity.nerve',
+                  tagLabel: nerveFilter.label,
+                  term: 'Nerves',
+                };
+              }
+            } else {
+              // get neuron connection mode
+              const filterOption = filterOptions.find((option) => option.key === `flatmap.connectivity.source.${connectionType}`);
+
+              filterOption?.children.forEach((child) => {
+                if (child.label.toLowerCase() === label) {
+                  filterItem = child;
+                }
+                child.children?.forEach((grandChild) => {
+                  if (grandChild.label.toLowerCase() === label) {
+                    filterItem = grandChild;
+                  }
+                });
+              });
+            }
+
+            // Add the resource to filters if found, otherwise use it as the search term
+            const filters = filterItem ? [filterItem] : [];
+            const search = filterItem ? '' : label;
+
             EventBus.emit("neuron-connection-feature-click", {
-              filters: [],
-              search: label
+              filters: filters,
+              search: search
             })
           } else if (this.$refs.scaffold.viewingMode === "Exploration") {
             const nerveKnowledge = this.connectivityKnowledge
