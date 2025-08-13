@@ -24,10 +24,13 @@
               Not Available
             </div>
           </div>
-          <div v-if="flatmapUUID">
-            <span  @click="flatmapClick(flatmapUUID)" class="context-card-view">
-              <strong> Open Corresponding Flatmap</strong>
-            </span>
+          <div v-if="flatmapUUIDs && flatmapUUIDs.length">
+            <strong> Open Corresponding Flatmap</strong>
+            <template v-for="(uuid, i) in flatmapUUIDs" :key="'flatmap_' + 1">
+              <span @click="flatmapClick(uuid)" class="context-card-view">
+                <strong> {{ "Flatmap " + i}}</strong>
+              </span>
+            </template>
           </div>
           <div>
             <!-- Show sampeles and views seperately if they do not match -->
@@ -140,7 +143,8 @@ export default {
       sampleDetails: {},
       loading: false,
       loadingOriginalSource: true,
-      originalSource: undefined,
+      originalSource: [],
+      flatmapUUIDs: []
     };
   },
   watch: {
@@ -168,9 +172,6 @@ export default {
     }
   },
   computed: {
-    flatmapUUID: function(){
-      return this?.contextData?.flatmap?.uuid;
-    },
     samplesUnderViews: function(){
       if (this.contextData){
         if (this.contextData.samplesUnderViews){
@@ -398,7 +399,13 @@ export default {
         })
         .then((data) => {
           this.loadingOriginalSource = false
-          this.originalSource = data.results
+          data.results.forEach(result => {
+            if (result.flatmapUUID) {
+              this.flatmapUUIDs.push(result.flatmapUUID)
+            } else {
+              this.originalSource.push(result)
+            }
+          })
         })
         .catch((err) => {
           //set defaults if we hit an error
