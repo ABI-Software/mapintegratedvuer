@@ -57,6 +57,7 @@ import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
 import { getReferenceConnectivitiesFromStorage, getReferenceConnectivitiesByAPI } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
+import { resolveUberon } from "../scripts/utilities";
 
 export default {
   name: "Scaffold",
@@ -80,7 +81,7 @@ export default {
         if (!knowledge) continue;
 
         const nerves = knowledge['nerve-label'];
-        if (nerves) {          
+        if (nerves) {
           const subNerves = nerves.flatMap(n => n.subNerves);
           nerveLabels.push(...subNerves);
         }
@@ -101,7 +102,7 @@ export default {
     setVisibilityFilter: function (payload) {
       // Store scaffold knowledge locally
       if (
-        !this.connectivityKnowledge.length && 
+        !this.connectivityKnowledge.length &&
         this.entry.resource in this.connectivitiesStore.globalConnectivities
       ) {
         this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities[this.entry.resource];
@@ -109,17 +110,89 @@ export default {
       const processed = payload ? true : false;
       this.$refs.scaffold.zoomToNerves([], processed);
     },
-    scaffoldResourceSelected: function (type, resource) {
+    scaffoldResourceSelected: async function (type, resource) {
       this.resourceSelected(type, resource, true)
       if (resource.length) {
         const clickedNerve = resource[0].data;
-        if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
+
+        if (clickedNerve.isNerves || clickedNerve.hasOwnProperty('anatomicalId')) {
           const label = clickedNerve.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
-            // add nerve label to search input
+            // get filterOptions from store
+            const connectionType = this.settingsStore.globalSettings.connectionType;
+            const filterOptions = this.connectivitiesStore.filterOptions[this.entry.resource];
+            let filterItem;
+
+            // nerve click
+            if (clickedNerve.isNerves) {
+              const filterOption = filterOptions.find((option) => option.key === 'scaffold.connectivity.nerve');
+              let nerveFilter;
+              filterOption?.children.forEach((child) => {
+                if (child.label.toLowerCase() === label) {
+                  nerveFilter = child;
+                }
+                child.children?.forEach((grandChild) => {
+                  if (grandChild.label.toLowerCase() === label) {
+                    nerveFilter = grandChild;
+                  }
+                });
+              });
+
+              // transform
+              if (nerveFilter) {
+                filterItem = {
+                  facet: nerveFilter.label,
+                  facetPropPath: 'scaffold.connectivity.nerve',
+                  tagLabel: nerveFilter.label,
+                  term: 'Nerves',
+                };
+              }
+            } else {
+              // get neuron connection mode
+              const connectionTypeKey = connectionType.toLowerCase();
+              const filterOption = filterOptions.find((option) => option.key === `flatmap.connectivity.source.${connectionTypeKey}`);
+              let neuronFilter;
+              filterOption?.children.forEach((child) => {
+                if (child.label.toLowerCase() === label) {
+                  neuronFilter = child;
+                }
+                child.children?.forEach((grandChild) => {
+                  if (grandChild.label.toLowerCase() === label) {
+                    neuronFilter = grandChild;
+                  }
+                });
+              });
+
+              if (neuronFilter) {
+                const uberonTerm = neuronFilter.key.replace(`flatmap.connectivity.source.${connectionTypeKey}.`, '');
+                filterItem = {
+                  facet: uberonTerm,
+                  facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
+                  tagLabel: neuronFilter.tagLabel,
+                  term: connectionType,
+                };
+              } else {
+                // search UBERON term from label before UBERON terms are available
+                const uberonTerm = await resolveUberon(label);
+
+                if (uberonTerm) {
+                  filterItem = {
+                    facet: `["${uberonTerm}", []]`,
+                    facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
+                    tagLabel: label,
+                    term: connectionType,
+                  };
+                }
+              }
+            }
+
+            // Add the resource to filters if found, otherwise use it as the search term
+            const filters = filterItem ? [filterItem] : [];
+            const search = filterItem ? '' : label;
+
             EventBus.emit("neuron-connection-feature-click", {
-              filters: [],
-              search: label
+              filters: filters,
+              search: search
             })
           } else if (this.$refs.scaffold.viewingMode === "Exploration") {
             const nerveKnowledge = this.connectivityKnowledge
