@@ -118,14 +118,13 @@ export default {
           const label = clickedNerve.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
             // get filterOptions from store
-            const connectionType = this.settingsStore.globalSettings.connectionType.toLowerCase();
+            const connectionType = this.settingsStore.globalSettings.connectionType;
             const filterOptions = this.connectivitiesStore.filterOptions[this.entry.resource];
             let filterItem;
 
             // nerve click
             if (clickedNerve.isNerves) {
               const filterOption = filterOptions.find((option) => option.key === 'scaffold.connectivity.nerve');
-
               let nerveFilter;
               filterOption?.children.forEach((child) => {
                 if (child.label.toLowerCase() === label) {
@@ -149,18 +148,29 @@ export default {
               }
             } else {
               // get neuron connection mode
-              const filterOption = filterOptions.find((option) => option.key === `flatmap.connectivity.source.${connectionType}`);
-
+              const connectionTypeKey = connectionType.toLowerCase();
+              const filterOption = filterOptions.find((option) => option.key === `flatmap.connectivity.source.${connectionTypeKey}`);
+              let neuronFilter;
               filterOption?.children.forEach((child) => {
                 if (child.label.toLowerCase() === label) {
-                  filterItem = child;
+                  neuronFilter = child;
                 }
                 child.children?.forEach((grandChild) => {
                   if (grandChild.label.toLowerCase() === label) {
-                    filterItem = grandChild;
+                    neuronFilter = grandChild;
                   }
                 });
               });
+
+              if (neuronFilter) {
+                const uberonTerm = neuronFilter.key.replace(`flatmap.connectivity.source.${connectionTypeKey}.`, '');
+                filterItem = {
+                  facet: uberonTerm,
+                  facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
+                  tagLabel: neuronFilter.tagLabel,
+                  term: connectionType,
+                };
+              }
             }
 
             // Add the resource to filters if found, otherwise use it as the search term
