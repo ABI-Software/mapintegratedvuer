@@ -106,8 +106,18 @@ export default {
       ) {
         this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities[this.entry.resource];
       }
+      let names = [];
       const processed = payload ? true : false;
-      this.$refs.scaffold.zoomToNerves([], processed);
+      if (payload) {        
+        const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
+        const ids = payload['OR'][1]['AND'][1].models;
+        for (const id of ids) {
+          const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
+          const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
+          names.push(...nerves);
+        }
+      }
+      this.$refs.scaffold.zoomToNerves(names, processed);
     },
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
@@ -118,8 +128,12 @@ export default {
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
             // add nerve label to search input
             EventBus.emit("neuron-connection-feature-click", {
-              filters: [],
-              search: label
+              filters: [{
+                facet: label,
+                term: 'Nerves',
+                facetPropPath: 'scaffold.connectivity.subnerve',
+              }],
+              search: ''
             })
           } else if (this.$refs.scaffold.viewingMode === "Exploration") {
             const nerveKnowledge = this.connectivityKnowledge
