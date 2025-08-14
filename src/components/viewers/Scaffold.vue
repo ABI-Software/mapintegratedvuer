@@ -128,8 +128,12 @@ export default {
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
             // add nerve label to search input
             EventBus.emit("neuron-connection-feature-click", {
-              filters: [],
-              search: label
+              filters: [{
+                facet: label,
+                term: 'Nerves',
+                facetPropPath: 'scaffold.connectivity.subnerve',
+              }],
+              search: ''
             })
           } else if (this.$refs.scaffold.viewingMode === "Exploration") {
             const nerveKnowledge = this.connectivityKnowledge
