@@ -37,7 +37,7 @@ const getNewMapEntry = async (type, sparcApi) => {
   } else if (type === "3D") {
     const data = await getBodyScaffoldInfo(sparcApi, "human");
     entry = {
-      resource: data.url,
+      resource: "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/nerves_lines/nerve_coloring_metadata.json",
       type: "Scaffold",
       mode: "main",
       state: undefined,

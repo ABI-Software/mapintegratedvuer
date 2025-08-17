@@ -34,6 +34,7 @@
       :flatmapAPI="flatmapAPI"
       :showLocalSettings="showLocalSettings"
       :showOpenMapButton="showOpenMapButton"
+      :usageConfig="usageConfig"
     />
 
     <HelpModeDialog
@@ -273,7 +274,10 @@ export default {
       apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
-      connectivityKnowledge: []
+      connectivityKnowledge: [],
+      usageConfig: {
+        showTubeLinesControls: false
+      }
     };
   },
   mounted: function () {
