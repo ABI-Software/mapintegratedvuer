@@ -224,17 +224,26 @@ ${publicationLink}`;
                     const flatmapImp = contentViewer.getFlatmapImp();
 
                     if (flatmapImp && markers.length) {
-                      let fmMarkers = contentViewer.removeMarkersNotOnFlatmap(flatmapImp, markers);
+                      const flatmapId = flatmapImp.id
+                      const fmMarkers = contentViewer.removeMarkersNotOnFlatmap(flatmapImp, markers);
                       const flatTerms = fmMarkers.map(t => t.terms).flat(Infinity);
+                      const duplicateTerms = [];
 
                       flatTerms.forEach(term => {
                         const featureId = flatmapImp.modelFeatureIds(term);
                         if (featureId.length > 1) {
-                          if (!markerFeatureIds.includes(term)) {
-                            markerFeatureIds.push(term);
+                          if (!duplicateTerms.includes(term)) {
+                            duplicateTerms.push(term);
                           }
                         }
                       });
+
+                      if (duplicateTerms.length > 0) {
+                        markerFeatureIds.push({
+                          flatmapId,
+                          duplicateTerms
+                        });
+                      }
                     }
                   }
                 });
