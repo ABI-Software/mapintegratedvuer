@@ -34,6 +34,7 @@
       :flatmapAPI="flatmapAPI"
       :showLocalSettings="showLocalSettings"
       :showOpenMapButton="showOpenMapButton"
+      :usageConfig="usageConfig"
     />
 
     <HelpModeDialog
@@ -76,7 +77,7 @@ export default {
       }
       const nerveLabels = [];
       for (const id of featureIds) {
-        const knowledge = this.connectivityKnowledge.find(k => k.id === id);
+        const knowledge = this.nervesKnowledge.find(k => k.id === id);
         if (!knowledge) continue;
 
         const nerves = knowledge['nerve-label'];
@@ -88,24 +89,17 @@ export default {
       this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
     },
     setNerveGreyScale: function () {
-      if (this.connectivityKnowledge.length) {
-        const nerves = this.connectivityKnowledge.reduce((acc, val) => {
+      if (this.nervesKnowledge.length) {
+        const nerves = this.nervesKnowledge.reduce((acc, val) => {
           return acc.concat(val['nerve-label'] || []);
         }, []);
-        const nerveLabels = nerves.reduce((acc, nerve) => {
+        const excludedLabels = nerves.reduce((acc, nerve) => {
           return acc.concat(nerve.subNerves || []);
         }, []);
-        this.$refs.scaffold.setGreyScale(true, nerveLabels);
+        this.$refs.scaffold.setGreyScale(true, excludedLabels);
       }
     },
     setVisibilityFilter: function (payload) {
-      // Store scaffold knowledge locally
-      if (
-        !this.connectivityKnowledge.length && 
-        this.entry.resource in this.connectivitiesStore.globalConnectivities
-      ) {
-        this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities[this.entry.resource];
-      }
       let names = [];
       const processed = payload ? true : false;
       if (payload) {        
@@ -136,7 +130,7 @@ export default {
               search: ''
             })
           } else if (this.$refs.scaffold.viewingMode === "Exploration") {
-            const nerveKnowledge = this.connectivityKnowledge
+            const nerveKnowledge = this.nervesKnowledge
               .filter(knowledge => JSON.stringify(knowledge['nerve-label']).includes(label));
             if (nerveKnowledge.length) {
               this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
@@ -198,8 +192,10 @@ export default {
         if (this.entry.rotation) rotation = this.entry.rotation;
       }
       this.updateViewerSettings();
-      this.setNerveGreyScale();
       EventBus.emit("mapLoaded", this.$refs.scaffold);
+      setTimeout(() => {
+        this.setNerveGreyScale();
+      }, 500);
     },
     /**
      * Callback when the vuers emit a selected event.
@@ -268,12 +264,29 @@ export default {
       return this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.numberOfDatasetsForFacets : {};
     },
   },
+  watch: {
+    connectivityKnowledge: {
+      handler(newVal, oldVal) {
+        // Store scaffold knowledge locally
+        if (this.entry.resource in newVal) {
+          const scaffoldKnowledge = newVal[this.entry.resource];
+          if (scaffoldKnowledge.length !== this.nervesKnowledge.length) {
+            this.nervesKnowledge = scaffoldKnowledge;
+          }
+        }
+      },
+      deep: true
+    },
+  },
   data: function () {
     return {
       apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
-      connectivityKnowledge: []
+      nervesKnowledge: [],
+      usageConfig: {
+        showTubeLinesControls: false
+      }
     };
   },
   mounted: function () {
