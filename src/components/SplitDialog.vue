@@ -310,13 +310,15 @@ export default {
               for (let index = 0; index < searchTerms.length; index++) {
                 isFlatmap ?
                   nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index])) :
-                  nestedIds.push(this.getGeneralSearchedId(results, searchTerms[index]), 'query');
+                  nestedIds.push(this.getGeneralSearchedId(results, searchTerms[index], 'query'));
               }
               // within query search (split terms by comma) -> OR
               const flatIds = [...new Set(nestedIds.flat())];
-              searchOrders.push(...flatIds);
-              const ids = isFlatmap ? await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds) : flatIds;
-              queryIds.push(...ids);
+              if (flatIds.length) {
+                searchOrders.push(...flatIds);
+                const ids = isFlatmap ? await queryAllConnectedPaths(flatmapAPI, sourceId, flatIds) : flatIds;
+                queryIds.push(...ids);
+              }
             }
 
             const connectivityQueries = {
