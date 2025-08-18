@@ -190,13 +190,17 @@ ${publicationLink}`;
 
     Cypress.Commands.add('markerFeatureIdsTest', () => {
       const markerFeatureIds = [];
+      cy.get('#flatmap-select').click({force: true});
       cy.get('.el-scrollbar__view.el-select-dropdown__list > li').then($lis => {
         const liCount = Cypress.$($lis).filter(':visible').length;
 
         function clickAndProcess(index) {
-          // TODO: to fix index issue
           if (index >= liCount) return;
-          cy.get('#flatmap-select').click({force: true});
+          // if no visible list items, reopen the dropdown
+          if (!Cypress.$($lis).eq(index).is(':visible')) {
+            cy.get('#flatmap-select').click({force: true});
+          }
+
           cy.get('.el-scrollbar__view.el-select-dropdown__list > li')
             .eq(index)
             .should('be.visible')
@@ -237,7 +241,9 @@ ${publicationLink}`;
               }
             }
           }).then(() => {
-            // TODO: to print out markerFeatureIds
+            if (markerFeatureIds.length > 0) {
+              cy.writeFile('cypress/output/duplicate_marker_feature_ids.json', markerFeatureIds);
+            }
             clickAndProcess(index + 1);
           });
         }
@@ -276,6 +282,7 @@ ${publicationLink}`;
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
 
+    // Testing duplicate marker feature IDs
     cy.markerFeatureIdsTest();
 
     //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
