@@ -106,10 +106,9 @@ export default {
       let names = [];
       const processed = payload ? true : false;
       if (payload) {        
-        const connectivity = this.connectivitiesStore.globalConnectivities[this.entry.resource];
         const ids = payload['OR'][1]['AND'][1].models;
         for (const id of ids) {
-          const nerveKnowledge = connectivity.find((knowledge) => knowledge.id === id);
+          const nerveKnowledge = this.nervesKnowledge.find((knowledge) => knowledge.id === id);
           const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
           names.push(...nerves);
         }
@@ -118,10 +117,10 @@ export default {
     },
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
-      if (resource.length) {
-        const clickedNerve = resource[0].data;
-        if (clickedNerve.isNerves && clickedNerve.anatomicalId) {
-          const label = clickedNerve.id.toLowerCase();
+      if (resource.length === 1) {
+        this.clickedNerve = resource[0].data;
+        if (this.clickedNerve.isNerves && this.clickedNerve.anatomicalId) {
+          const label = this.clickedNerve.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
             // add nerve label to search input
             EventBus.emit("neuron-connection-feature-click", {
@@ -140,7 +139,15 @@ export default {
             }
           }
         }
+      } else if (resource.length > 1) {
+        // zoomToNerves will lead multiple resources selected
+        // if multiple resources selected is because of directly clicking on a nerve
+        // enable picking again
+        if (this.clickedNerve) {
+          this.$refs.scaffold.$module.setIgnorePicking(false);
+        }
       } else {
+        this.clickedNerve = undefined;
         EventBus.emit("connectivity-info-close");
       }
     },
@@ -287,6 +294,7 @@ export default {
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
       nervesKnowledge: [],
+      clickedNerve: undefined,
     };
   },
   mounted: function () {
