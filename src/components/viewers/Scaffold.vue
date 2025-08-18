@@ -282,10 +282,14 @@ export default {
           const scaffoldKnowledge = newVal[this.entry.resource];
           if (scaffoldKnowledge.length !== this.nervesKnowledge.length) {
             this.nervesKnowledge = scaffoldKnowledge;
+            if (this.scaffoldLoaded) {
+              this.setNerveGreyScale();
+            }
           }
         }
       },
-      deep: true
+      deep: true,
+      immediate: true,
     },
   },
   data: function () {
