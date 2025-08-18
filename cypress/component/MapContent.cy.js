@@ -232,8 +232,11 @@ ${publicationLink}`;
                       flatTerms.forEach(term => {
                         const featureId = flatmapImp.modelFeatureIds(term);
                         if (featureId.length > 1) {
-                          if (!duplicateTerms.includes(term)) {
-                            duplicateTerms.push(term);
+                          if (!duplicateTerms.some(item => item.term === term)) {
+                            duplicateTerms.push({
+                              term,
+                              featureIdCount: featureId.length
+                            });
                           }
                         }
                       });
