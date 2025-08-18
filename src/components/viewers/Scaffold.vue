@@ -117,9 +117,6 @@ export default {
     },
     scaffoldResourceSelected: function (type, resource) {
       this.resourceSelected(type, resource, true)
-      // When we directly click on a nerve, there will only be only one resource selected.
-      // Both EventBus.emit and getKnowledgeTooltip will trigger sidebar content update
-      // Then setVisibilityFilter will be called to zoom to the clicked nerve.
       if (resource.length === 1) {
         this.clickedNerve = resource[0].data;
         if (this.clickedNerve.isNerves && this.clickedNerve.anatomicalId) {
@@ -143,10 +140,9 @@ export default {
           }
         }
       } else if (resource.length > 1) {
-        // zoomToNerves will cause multiple resources selected
+        // zoomToNerves will lead multiple resources selected
         // if multiple resources selected is because of directly clicking on a nerve
         // enable picking again
-        // otherwise, it is related to the explorer search
         if (this.clickedNerve) {
           this.$refs.scaffold.$module.setIgnorePicking(false);
         }

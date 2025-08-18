@@ -53,7 +53,7 @@ describe('MapContent', () => {
       props: {
         options: {
           sparcApi: "https://mock-test/sparc-api/",
-          flatmapAPI: "https://mapcore-demo.org/devel/flatmap/v4/",
+          flatmapAPI: "https://mapcore-demo.org/current/flatmap/v3/",
           algoliaKey: Cypress.env('ALGOLIA_KEY'),
           algoliaId: Cypress.env('ALGOLIA_ID'),
         }
