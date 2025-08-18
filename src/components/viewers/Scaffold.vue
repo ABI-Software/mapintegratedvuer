@@ -34,7 +34,10 @@
       :flatmapAPI="flatmapAPI"
       :showLocalSettings="showLocalSettings"
       :showOpenMapButton="showOpenMapButton"
-      :usageConfig="usageConfig"
+      :usageConfig="{
+        showTubeLinesControls: false,
+        tubeLines: (entry.discoverId === '307')
+      }"
     />
 
     <HelpModeDialog
@@ -284,9 +287,6 @@ export default {
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
       nervesKnowledge: [],
-      usageConfig: {
-        showTubeLinesControls: false
-      }
     };
   },
   mounted: function () {
