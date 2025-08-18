@@ -632,11 +632,12 @@ export default {
         },
       };
 
-      const providedKnowledge = this.connectivityKnowledge[flatmapUuid];
-      const providedPathways = undefined;
-      const flatmapFilterOptions = await getFlatmapFilterOptions(this.flatmapAPI, mapImp, providedKnowledge, providedPathways);
       const scaffoldFilterOptions = getScaffoldFilterOptions();
-      const combinedFilterOptions = () => [...scaffoldFilterOptions, ...flatmapFilterOptions];
+      const combinedFilterOptions = async (flatmapImp, providedKnowledge) => {
+        const providedPathways = undefined;
+        const flatmapFilterOptions = await getFlatmapFilterOptions(this.flatmapAPI, flatmapImp, providedKnowledge, providedPathways);
+        return [...scaffoldFilterOptions, ...flatmapFilterOptions];
+      };
 
       return {
         'mockup': true,
@@ -664,7 +665,7 @@ export default {
         this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion]
           .filter(item => item.id in pathways);
       }
-      if (!this.connectivityFilterOptions[uuid]) {
+      if (!this.connectivityFilterOptions[uuid] && !flatmap.mockup) {
         this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(flatmapImp , this.connectivityKnowledge[uuid]);
       }
       if (flatmap.mockup) {
@@ -691,6 +692,10 @@ export default {
             return payload;
           })
           .filter((item) => item["nerve-label"]);
+
+        if (!this.connectivityFilterOptions[uuid]) {
+          this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(flatmapImp , this.connectivityKnowledge[uuid]);
+        }
 
         validNerves = validNerves.map(nerve => nerve.nerve.toLowerCase());
         const deepCopyFilterOption = JSON.parse(JSON.stringify(this.connectivityFilterOptions[uuid]));
