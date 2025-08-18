@@ -183,36 +183,6 @@ const transformStringToObj = (str) => {
   return obj;
 };
 
-const resolveUberon = async (label) => {
-  if (!label) return null;
-  const key = label.trim().toLowerCase();
-  const cacheKey = 'map.uberon-cache';
-  try {
-    const cachedRaw = sessionStorage.getItem(cacheKey);
-    const cache = cachedRaw ? JSON.parse(cachedRaw) : {};
-    if (cache && typeof cache === 'object' && cache[key]) {
-      return cache[key];
-    }
-
-    const apiUrl = `https://www.ebi.ac.uk/ols4/api/v2/entities?search=${encodeURIComponent(label)}&size=10&page=0&facetFields=ontologyId+type&ontologyId=uberon&exactMatch=true`;
-    const res = await fetch(apiUrl, { headers: { 'Accept': 'application/json' } });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const elements = (data && Array.isArray(data.elements)) ? data.elements : [];
-    let uberon = null;
-    if (elements.length > 0 && elements[0].curie && typeof elements[0].curie === 'string' && elements[0].curie.startsWith('UBERON:')) {
-      uberon = elements[0].curie;
-    }
-    if (uberon) {
-      cache[key] = uberon;
-      sessionStorage.setItem(cacheKey, JSON.stringify(cache));
-    }
-    return uberon;
-  } catch (e) {
-    return null;
-  }
-};
-
 export {
   availableSpecies,
   capitalise,
@@ -224,5 +194,4 @@ export {
   intersectArrays,
   transformObjToString,
   transformStringToObj,
-  resolveUberon,
 }

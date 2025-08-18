@@ -57,7 +57,6 @@ import "@abi-software/scaffoldvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
 import { getReferenceConnectivitiesFromStorage, getReferenceConnectivitiesByAPI } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
-import { resolveUberon } from "../scripts/utilities";
 
 export default {
   name: "Scaffold",
@@ -172,8 +171,7 @@ export default {
                   term: connectionType,
                 };
               } else {
-                // search UBERON term from label before UBERON terms are available
-                const uberonTerm = await resolveUberon(label);
+                const uberonTerm = clickedNerve.anatomicalId || '';
 
                 if (uberonTerm) {
                   filterItem = {
