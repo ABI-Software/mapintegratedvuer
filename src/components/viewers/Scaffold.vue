@@ -128,27 +128,26 @@ export default {
           const label = this.clickedNerve.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
             const connectionType = this.settingsStore.globalSettings.connectionType;
-            let filterItem;
 
             // nerve click
             if (this.clickedNerve.isNerves) {
-              filterItem = {
+              this.filter.push({
                 facet: label,
                 term: 'Nerves',
                 facetPropPath: 'scaffold.connectivity.subnerve',
-              };
+              });
             } else {
               // get neuron connection mode
               const connectionTypeKey = connectionType.toLowerCase();
               let uberonTerm = this.clickedNerve.anatomicalId || '';
 
               if (uberonTerm) {
-                filterItem = {
+                this.filter.push({
                   facet: `["${uberonTerm}",[]]`,
                   facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
                   tagLabel: label.charAt(0).toUpperCase() + label.slice(1),
                   term: connectionType,
-                };
+                });
               } else {
                 // get filterOptions from store
                 const filterOptions = this.connectivitiesStore.filterOptions[this.entry.resource];
@@ -168,23 +167,19 @@ export default {
 
                 if (neuronFilter) {
                   uberonTerm = neuronFilter.key.replace(`flatmap.connectivity.source.${connectionTypeKey}.`, '');
-                  filterItem = {
+                  this.filter.push({
                     facet: uberonTerm,
                     facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
                     tagLabel: neuronFilter.tagLabel,
                     term: connectionType,
-                  };
+                  });
                 }
               }
             }
 
-            // Add the resource to filters if found, otherwise use it as the search term
-            const filters = filterItem ? [filterItem] : [];
-            const search = filterItem ? '' : label;
-
             EventBus.emit("neuron-connection-feature-click", {
-              filters: filters,
-              search: search
+              filters: this.filter,
+              search: this.filter.length ? '' : label
             })
           } else if (this.$refs.scaffold.viewingMode === "Exploration") {
             const nerveKnowledge = this.nervesKnowledge
@@ -199,10 +194,13 @@ export default {
         // if multiple resources selected is because of directly clicking on a nerve
         // enable picking again
         // otherwise, it is related to the explorer search
-        if (this.clickedNerve) {
-          this.$refs.scaffold.$module.setIgnorePicking(false);
+        if (this.$refs.scaffold.viewingMode === "Exploration") {
+          if (this.clickedNerve) {
+            this.$refs.scaffold.$module.setIgnorePicking(false);
+          }
         }
       } else {
+        this.filter = [];
         this.clickedNerve = undefined;
         EventBus.emit("connectivity-info-close");
       }
@@ -355,6 +353,8 @@ export default {
       scaffoldLoaded: false,
       nervesKnowledge: [],
       clickedNerve: undefined,
+      filter: [],
+      query: '',
     };
   },
   mounted: function () {
