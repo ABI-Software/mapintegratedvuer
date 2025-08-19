@@ -119,14 +119,23 @@ export default {
     },
     syncFilter: function (data) {
       if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
-        const label = (data.tagLabel || data.facet2 || data.facet)?.toLowerCase();
-        const exist = this.filter.find(f => f.facet === label);
-        if (!exist) {
-          this.filter.push({
-            facet: label,
-            term: 'Nerves',
-            facetPropPath: 'scaffold.connectivity.nerve',
-          });
+        const hasValidFilter = data.find(f => f.facet?.toLowerCase() !== 'show all')
+        if (hasValidFilter) {
+          data.forEach((filter)=>{
+            if (filter.facet?.toLowerCase() !== 'show all') {            
+              const label = (filter.tagLabel || filter.facet2 || filter.facet)?.toLowerCase();
+              const exist = this.filter.find(f => f.facet === label);
+              if (!exist) {
+                this.filter.push({
+                  facet: label,
+                  term: 'Nerves',
+                  facetPropPath: 'scaffold.connectivity.nerve',
+                });
+              }
+            }
+          })
+        } else {
+          this.filter = [];
         }
       }
     },
@@ -213,7 +222,6 @@ export default {
           }
         }
       } else {
-        this.filter = [];
         this.clickedObject = undefined;
         EventBus.emit("connectivity-info-close");
       }
