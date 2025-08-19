@@ -117,20 +117,33 @@ export default {
       }
       this.$refs.scaffold.zoomToNerves(names, processed);
     },
+    syncFilter: function (data) {
+      if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
+        const label = (data.tagLabel || data.facet2 || data.facet)?.toLowerCase();
+        const exist = this.filter.find(f => f.facet === label);
+        if (!exist) {
+          this.filter.push({
+            facet: label,
+            term: 'Nerves',
+            facetPropPath: 'scaffold.connectivity.nerve',
+          });
+        }
+      }
+    },
     scaffoldResourceSelected: async function (type, resource) {
       this.resourceSelected(type, resource, true)
       // When we directly click on a nerve, there will only be only one resource selected.
       // Both EventBus.emit and getKnowledgeTooltip will trigger sidebar content update
       // Then setVisibilityFilter will be called to zoom to the clicked nerve.
       if (resource.length === 1) {
-        this.clickedNerve = resource[0].data;
-        if (this.clickedNerve.isNerves || this.clickedNerve.anatomicalId) {
-          const label = this.clickedNerve.id.toLowerCase();
+        this.clickedObject = resource[0].data;
+        if (this.clickedObject.isNerves || this.clickedObject.anatomicalId) {
+          const label = this.clickedObject.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
             const connectionType = this.settingsStore.globalSettings.connectionType;
 
             // nerve click
-            if (this.clickedNerve.isNerves) {
+            if (this.clickedObject.isNerves) {
               this.filter.push({
                 facet: label,
                 term: 'Nerves',
@@ -139,7 +152,7 @@ export default {
             } else {
               // get neuron connection mode
               const connectionTypeKey = connectionType.toLowerCase();
-              let uberonTerm = this.clickedNerve.anatomicalId || '';
+              let uberonTerm = this.clickedObject.anatomicalId || '';
 
               if (uberonTerm) {
                 this.filter.push({
@@ -195,13 +208,13 @@ export default {
         // enable picking again
         // otherwise, it is related to the explorer search
         if (this.$refs.scaffold.viewingMode === "Exploration") {
-          if (this.clickedNerve) {
+          if (this.clickedObject) {
             this.$refs.scaffold.$module.setIgnorePicking(false);
           }
         }
       } else {
         this.filter = [];
-        this.clickedNerve = undefined;
+        this.clickedObject = undefined;
         EventBus.emit("connectivity-info-close");
       }
     },
@@ -352,7 +365,7 @@ export default {
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
       nervesKnowledge: [],
-      clickedNerve: undefined,
+      clickedObject: undefined,
       filter: [],
       query: '',
     };

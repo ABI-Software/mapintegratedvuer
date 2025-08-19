@@ -365,12 +365,15 @@ export default {
               }
 
               if (scaffold) {
-                if (!isNeuronConnection && item.facet?.toLowerCase() !== 'show all') {
-                  if (!(facetKey in filters)) {
-                    filters[facetKey] = [];
+                if (item.facet?.toLowerCase() !== 'show all') {
+                  viewer.syncFilter(item);
+                  if (!isNeuronConnection) {
+                    if (!(facetKey in filters)) {
+                      filters[facetKey] = [];
+                    }
+                    // within facet search category -> OR
+                    filters[facetKey].push(...this.getGeneralSearchedId(results, item.facet, 'facet'));
                   }
-                  // within facet search category -> OR
-                  filters[facetKey].push(...this.getGeneralSearchedId(results, item.facet, 'facet'));
                 }
               } else if (isFlatmap) {
                 if (!isNeuronConnection) {
