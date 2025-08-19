@@ -109,8 +109,10 @@ export default {
         const ids = payload['OR'][1]['AND'][1].models;
         for (const id of ids) {
           const nerveKnowledge = this.nervesKnowledge.find((knowledge) => knowledge.id === id);
-          const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
-          names.push(...nerves);
+          if (nerveKnowledge) {
+            const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
+            names.push(...nerves);
+          }
         }
       }
       this.$refs.scaffold.zoomToNerves(names, processed);
@@ -162,7 +164,7 @@ export default {
                   term: connectionType,
                 };
               } else {
-                const uberonTerm = clickedNerve.anatomicalId || '';
+                const uberonTerm = this.clickedNerve.anatomicalId || '';
 
                 if (uberonTerm) {
                   filterItem = {
