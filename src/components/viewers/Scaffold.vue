@@ -134,7 +134,7 @@ export default {
               this.filter.push({
                 facet: label,
                 term: 'Nerves',
-                facetPropPath: 'scaffold.connectivity.subnerve',
+                facetPropPath: 'scaffold.connectivity.nerve',
               });
             } else {
               // get neuron connection mode
