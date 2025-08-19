@@ -119,24 +119,7 @@ export default {
     },
     syncFilter: function (data) {
       if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
-        const hasValidFilter = data.find(f => f.facet?.toLowerCase() !== 'show all')
-        if (hasValidFilter) {
-          data.forEach((filter)=>{
-            if (filter.facet?.toLowerCase() !== 'show all') {            
-              const label = (filter.tagLabel || filter.facet2 || filter.facet)?.toLowerCase();
-              const exist = this.filter.find(f => f.facet === label);
-              if (!exist) {
-                this.filter.push({
-                  facet: label,
-                  term: 'Nerves',
-                  facetPropPath: 'scaffold.connectivity.nerve',
-                });
-              }
-            }
-          })
-        } else {
-          this.filter = [];
-        }
+        this.filter = data.filter(f => f.facet?.toLowerCase() !== 'show all');
       }
     },
     scaffoldResourceSelected: async function (type, resource) {
