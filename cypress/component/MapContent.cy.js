@@ -233,12 +233,9 @@ ${publicationLink}`;
                         const featureId = flatmapImp.modelFeatureIds(term);
                         if (featureId.length > 1) {
                           if (!duplicateTerms.some(item => item.term === term)) {
-                            let termLabel = '';
-                            flatmapImp.annotations.forEach(annotation => {
-                              if (annotation.models === term) {
-                                termLabel = annotation.label;
-                              }
-                            });
+                            const annotationsArray = Array.from(flatmapImp.annotations.values());
+                            const foundAnnotation = annotationsArray.find(annotation => annotation.models === term);
+                            const termLabel = foundAnnotation ? foundAnnotation.label : '';
                             const label = termLabel.charAt(0).toUpperCase() + termLabel.slice(1);
                             duplicateTerms.push({
                               label,
