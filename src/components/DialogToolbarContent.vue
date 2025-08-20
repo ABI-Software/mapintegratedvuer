@@ -577,7 +577,18 @@ export default {
       }
 
       // GA Tracking
-      const category = this.globalSettings[changedKey];
+      let category = this.globalSettings[changedKey];
+
+      // Format category for some items
+      if (changedKey === 'flightPathDisplay') {
+        category = this.globalSettings.flightPathDisplay ? '3D' : '2D';
+      }
+      if (changedKey === 'organsDisplay') {
+        category = this.globalSettings.organsDisplay ? 'Color': 'Grayscale';
+      }
+      if (changedKey === 'outlinesDisplay') {
+        category = this.globalSettings.outlinesDisplay ? 'Show' : 'Hide';
+      }
 
       // Prevent viewing mode clicks on active item
       if (updatedSettings.length) {
