@@ -577,6 +577,9 @@ export default {
       }
 
       // GA Tracking
+      this.updateTagging(changedKey, updatedSettings);
+    },
+    updateTagging: function (changedKey, updatedSettings) {
       let category = this.globalSettings[changedKey];
 
       // Format category for some items
