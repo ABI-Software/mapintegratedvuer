@@ -605,6 +605,14 @@ export default {
     },
     startHelp: function(){
       EventBus.emit("startHelp");
+
+      // GA Tracking
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': `portal_maps_settings_help`,
+        'category': 'help_mode_start',
+        'location': 'map_toolbar'
+      });
     },
     onFullscreen: function() {
       this.$emit("onFullscreen");
