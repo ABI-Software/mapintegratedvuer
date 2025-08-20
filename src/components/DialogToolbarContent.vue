@@ -609,7 +609,7 @@ export default {
       // GA Tracking
       tagging.sendEvent({
         'event': 'interaction_event',
-        'event_name': `portal_maps_settings_help`,
+        'event_name': `portal_maps_toolbar_help`,
         'category': 'help_mode_start',
         'location': 'map_toolbar'
       });
@@ -623,7 +623,7 @@ export default {
       if (this.isFullscreen) {
         tagging.sendEvent({
           'event': 'interaction_event',
-          'event_name': `portal_maps_settings_fullscreen`,
+          'event_name': `portal_maps_toolbar_fullscreen`,
           'category': this.isFullscreen ? 'enter' : 'exit',
           'location': 'map_toolbar'
         });
@@ -636,7 +636,7 @@ export default {
         // GA Tracking
         tagging.sendEvent({
           'event': 'interaction_event',
-          'event_name': `portal_maps_settings_fullscreen`,
+          'event_name': `portal_maps_toolbar_fullscreen`,
           'category': this.isFullscreen ? 'enter' : 'exit',
           'location': 'map_toolbar'
         });
@@ -695,7 +695,7 @@ export default {
         const viewCategory = this.viewIcons.find((item) => item.icon === view);
         tagging.sendEvent({
           'event': 'interaction_event',
-          'event_name': `portal_maps_settings_split_view`,
+          'event_name': `portal_maps_toolbar_split_view`,
           'category': viewCategory?.name || '',
           'location': 'map_toolbar'
         });
