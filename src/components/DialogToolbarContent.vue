@@ -683,10 +683,23 @@ export default {
       });
     },
     viewClicked: function(view) {
+      const prevActiveView = this.activeView;
+
       this.splitFlowStore.updateActiveView({
         view,
         entries: this.entriesStore.entries,
       });
+
+      // GA Tracking
+      if (view !== prevActiveView) {
+        const viewCategory = this.viewIcons.find((item) => item.icon === view);
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_settings_split_view`,
+          'category': viewCategory?.name || '',
+          'location': 'map_toolbar'
+        });
+      }
 
       if (this.$refs.viewPopover) {
         this.$refs.viewPopover.hide();
