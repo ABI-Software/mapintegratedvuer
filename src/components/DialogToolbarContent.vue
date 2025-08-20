@@ -577,12 +577,17 @@ export default {
       }
 
       // GA Tracking
-      tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': `portal_maps_settings_${changedKey}`,
-        'category': `${this.globalSettings[changedKey]}`,
-        'location': 'map_toolbar'
-      });
+      const category = this.globalSettings[changedKey];
+
+      // Prevent viewing mode clicks on active item
+      if (updatedSettings.length) {
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_settings_${changedKey}`,
+          'category': category,
+          'location': 'map_toolbar'
+        });
+      }
     },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
