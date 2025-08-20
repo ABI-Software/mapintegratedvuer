@@ -577,9 +577,6 @@ export default {
       }
 
       // GA Tracking
-      this.updateTagging(changedKey, updatedSettings);
-    },
-    updateTagging: function (changedKey, updatedSettings) {
       let category = this.globalSettings[changedKey];
 
       // Format category for some items
@@ -625,6 +622,14 @@ export default {
       if (document) {
         this.$refs.linkInput.$el.querySelector("input").select();
         document.execCommand('copy');
+
+        // GA Tracking
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_permalink',
+          'category': 'permalink_copy',
+          'location': 'map_toolbar'
+        });
       }
     },
     setFailedSearch: function(result) {
@@ -641,6 +646,14 @@ export default {
       this.displayShareOptions = false;
       this.loadingLink = true;
       EventBus.emit("updateShareLinkRequested", withAnnotation);
+
+      // GA Tracking
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_permalink',
+        'category': 'permalink_generate',
+        'location': 'map_toolbar'
+      });
     },
     viewClicked: function(view) {
       this.splitFlowStore.updateActiveView({
