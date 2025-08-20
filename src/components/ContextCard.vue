@@ -388,7 +388,7 @@ export default {
         discoverId,
         path
       });
-      const url = `${this.envVars.API_LOCATION}/file_info/get_original_source?${paramw.toString()}`
+      const url = `${this.envVars.API_LOCATION}/file_info/get_original_source?${params.toString()}`
       fetch(url)
         .then((response) =>{
           if (!response.ok){
@@ -399,13 +399,16 @@ export default {
         })
         .then((data) => {
           this.loadingOriginalSource = false
-          data.results.forEach(result => {
-            if (result.flatmapUUID) {
-              this.flatmapUUIDs.push(result.flatmapUUID)
-            } else {
-              this.originalSource.push(result)
-            }
-          })
+          if (data.result) {
+            data.result.forEach(result => {
+              if (result.flatmapUUID) {
+                this.flatmapUUIDs.push(result.flatmapUUID)
+              } else {
+                this.originalSource.push(result)
+              }
+            })
+          }
+          this.loadingOriginalSource = false
         })
         .catch((err) => {
           //set defaults if we hit an error
