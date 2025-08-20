@@ -609,10 +609,29 @@ export default {
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
+
+      // GA Tracking
+      // only for fullscreen enter event to prevent duplicate events
+      if (this.isFullscreen) {
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_settings_fullscreen`,
+          'category': this.isFullscreen ? 'enter' : 'exit',
+          'location': 'map_toolbar'
+        });
+      }
     },
     onFullscreenEsc: function () {
       if (!document.fullscreenElement) {
         this.isFullscreen = false;
+
+        // GA Tracking
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_settings_fullscreen`,
+          'category': this.isFullscreen ? 'enter' : 'exit',
+          'location': 'map_toolbar'
+        });
       }
     },
     close: function() {
