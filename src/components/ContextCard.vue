@@ -63,7 +63,7 @@
 
       <!-- Copy to clipboard button container -->
       <div class="float-button-container">
-        <CopyToClipboard :content="updatedCopyContent" theme="light" />
+        <CopyToClipboard :content="updatedCopyContent" @copied="onCopied" theme="light" />
       </div>
     </div>
   </div>
@@ -73,6 +73,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { CopyToClipboard } from "@abi-software/map-utilities";
+import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
 
 //provide the s3Bucket related methods and data.
@@ -348,6 +349,14 @@ export default {
       // note that we assume that the view file is in the same directory as the scaffold (viewUrls take relative paths)
       const viewUrl = this.getFileFromPath(view.path)
       this.$emit("scaffold-view-clicked", viewUrl);
+    },
+    onCopied: function () {
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': `portal_maps_context_card`,
+        'category': 'copy_content',
+        'location': 'map_toolbar'
+      });
     }
   }
 };
