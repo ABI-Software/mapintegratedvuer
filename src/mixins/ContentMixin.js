@@ -760,6 +760,9 @@ export default {
       })
       EventBus.emit('connectivity-info-open', this.tooltipEntry);
     },
+    trackEvent: function (data) {
+      Tagging.sendEvent(data);
+    },
   },
   data: function () {
     return {

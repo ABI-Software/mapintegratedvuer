@@ -50,6 +50,7 @@
           @connectivity-source-change="onConnectivitySourceChange"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
+          @trackEvent="trackEvent"
         />
         <SplitDialog
           :entries="entries"
@@ -802,6 +803,9 @@ export default {
       if (state?.globalSettings) {
         this.settingsStore.updateGlobalSettings(state.globalSettings);
       }
+    },
+    trackEvent: function (data) {
+      Tagging.sendEvent(data);
     },
   },
   created: function () {
