@@ -777,6 +777,15 @@ export default {
       }
 
       this.$refs.dialogToolbar.loadGlobalSettings();
+
+      // This handler may be triggered not only by direct tab clicks,
+      // but also by other interactions in the map that programmatically open a specific sidebar tab.
+      Tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_sidebar_open_tab',
+        'category': tab.type,
+        'location': 'map_sidebar_tabs'
+      });
     },
     onSidebarTabClosed: function (tab) {
       if (tab.id === 3 && tab.type === "annotation") {
