@@ -258,6 +258,15 @@ export default {
       });
       return ids;
     },
+    getLatestFlatmapUUID: async function (flatmapAPI, id) {
+      const flatmapResponse = await fetch(flatmapAPI);
+      const flatmapJson = await flatmapResponse.json();
+      const latestFlatmap = flatmapJson
+        .filter(f => f.id === id)
+        .sort((a, b) => b.created.localeCompare(a.created))[0];
+      const flatmapUUID = latestFlatmap.uuid;
+      return flatmapUUID;
+    },
     connectivityQueryFilter: async function (data) {
       this.query = "";
       this.filter = [];
@@ -294,6 +303,7 @@ export default {
             sourceId = currentMap.mapImp.uuid;
           } else {
             currentMap = scaffold || iframe || plot || simulation;
+            sourceId = await this.getLatestFlatmapUUID(flatmapAPI, 'human-flatmap_male');
           }
 
           const isFlatmap = flatmap || multiflatmap;
@@ -329,11 +339,36 @@ export default {
             };
 
             let filters = {};
+            if (scaffold) {
+              viewer.syncFilter(data.filter);
+            }
             // get facet search result ids
             data.filter.forEach((item) => {
-              const facetKey = item.facetPropPath.split('.').pop();;
+              const facetKey = item.facetPropPath.split('.').pop();
+              const isNeuronConnection = item.facetPropPath.includes('flatmap.connectivity.source');
+
+              // Neuron Connection is for both scaffold and flatmap
+              // origins/vias/destinations/all filter logic
+              // generate connectivityQueries to query related ids
+              if (isNeuronConnection && item.facet?.toLowerCase() !== 'show all') {
+                // string format with a space for CQ
+                const feature = item.facet.replace(",\[", ", \[");
+                const mode = item.facetPropPath.split('.').pop();
+
+                if (mode === 'origin') {
+                  connectivityQueries.origins.push(feature);
+                } else if (mode === 'destination') {
+                  connectivityQueries.destinations.push(feature);
+                } else if (mode === 'via') {
+                  connectivityQueries.vias.push(feature);
+                } else {
+                  const featuresArray = JSON.parse(feature).flat(Infinity);
+                  connectivityQueries.all.push(...featuresArray);
+                }
+              }
+
               if (scaffold) {
-                if (item.facet !== 'Show all') {
+                if (!isNeuronConnection && item.facet?.toLowerCase() !== 'show all') {
                   if (!(facetKey in filters)) {
                     filters[facetKey] = [];
                   }
@@ -341,27 +376,7 @@ export default {
                   filters[facetKey].push(...this.getGeneralSearchedId(results, item.facet, 'facet'));
                 }
               } else if (isFlatmap) {
-                const isNeuronConnection = item.facetPropPath.includes('flatmap.connectivity.source');
-                // origins/vias/destinations/all filter logic
-                // generate connectivityQueries to query related ids
-                if (isNeuronConnection) {
-                  if (item.facet?.toLowerCase() !== 'show all') {
-                    // string format with a space for CQ
-                    const feature = item.facet.replace(",\[", ", \[");
-                    const mode = item.facetPropPath.split('.').pop();
-
-                    if (mode === 'origin') {
-                      connectivityQueries.origins.push(feature);
-                    } else if (mode === 'destination') {
-                      connectivityQueries.destinations.push(feature);
-                    } else if (mode === 'via') {
-                      connectivityQueries.vias.push(feature);
-                    } else {
-                      const featuresArray = JSON.parse(feature).flat(Infinity);
-                      connectivityQueries.all.push(...featuresArray);
-                    }
-                  }
-                } else {
+                if (!isNeuronConnection) {
                   // all other flatmap filter logic
                   const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
                   if (matchedFilter) {
