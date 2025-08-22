@@ -514,7 +514,7 @@ export default {
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_search',
               'category': this.search,
-              'location': 'map_sidebar_search'
+              'location': 'map_sidebar_dataset_search'
             });
           }
           this.filterTriggered = false; // reset for next action
@@ -536,7 +536,7 @@ export default {
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_filter',
               'category': filterValues || 'filter_reset',
-              'location': 'map_sidebar_filter'
+              'location': 'map_sidebar_dataset_filter'
             });
           }
           this.filterTriggered = false; // reset for next action
@@ -556,6 +556,29 @@ export default {
             activeFlatmap.updateConnectivityFilters(data.filter);
           });
           EventBus.emit("connectivity-query-filter", data);
+
+          const filterValues = data.filter.filter(f => (f.facet && f.facet.toLowerCase() !== 'show all'))
+            .map((f) => f.tagLabel)
+            .join(', ');
+          const searchValue = data.query;
+
+          if (filterValues) {
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': filterValues,
+              'location': 'map_sidebar_connectivity_filter'
+            });
+          }
+
+          if (searchValue) {
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_search',
+              'category': searchValue,
+              'location': 'map_sidebar_connectivity_search'
+            });
+          }
         }
       }
     },
@@ -778,15 +801,6 @@ export default {
       }
 
       this.$refs.dialogToolbar.loadGlobalSettings();
-
-      // This handler may be triggered not only by direct tab clicks,
-      // but also by other interactions in the map that programmatically open a specific sidebar tab.
-      Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_sidebar_open_tab',
-        'category': tab.type,
-        'location': 'map_sidebar_tabs'
-      });
     },
     onSidebarTabClosed: function (tab) {
       if (tab.id === 3 && tab.type === "annotation") {
