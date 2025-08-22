@@ -280,7 +280,7 @@ export default {
             Tagging.sendEvent({
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_filter',
-              'category': facetString || 'filter',
+              'category': facetString || 'filter_reset',
               'location': 'map_location_pin'
             });
             this.filterTriggered = true;
@@ -310,7 +310,7 @@ export default {
           Tagging.sendEvent({
             'event': 'interaction_event',
             'event_name': 'portal_maps_action_filter',
-            'category': filterValues || 'filter',
+            'category': filterValues || 'filter_reset',
             'location': 'map_popup_button'
           });
           this.filterTriggered = true;
@@ -535,7 +535,7 @@ export default {
             Tagging.sendEvent({
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_filter',
-              'category': filterValues || 'filter',
+              'category': filterValues || 'filter_reset',
               'location': 'map_sidebar_filter'
             });
           }
