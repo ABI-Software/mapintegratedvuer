@@ -131,8 +131,8 @@ export default {
     onCopied: function () {
       tagging.sendEvent({
         'event': 'interaction_event',
-        'event_name': `portal_maps_context_card`,
-        'category': 'copy_content',
+        'event_name': `portal_maps_context_card_copy`,
+        'category': this.mapImpProv?.id || 'Flatmap Provenance',
         'location': 'map_toolbar'
       });
     },

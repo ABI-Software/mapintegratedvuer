@@ -351,11 +351,14 @@ export default {
       this.$emit("scaffold-view-clicked", viewUrl);
     },
     onCopied: function () {
+      const { label, type, discoverId } = this.entry;
+      const category = type ? `${label} ${type}` : label;
       tagging.sendEvent({
         'event': 'interaction_event',
-        'event_name': `portal_maps_context_card`,
-        'category': 'copy_content',
-        'location': 'map_toolbar'
+        'event_name': `portal_maps_context_card_copy`,
+        'category': category || '',
+        'location': 'map_toolbar',
+        'dataset_id': discoverId ? discoverId + '' : '',
       });
     }
   }
