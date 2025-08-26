@@ -126,7 +126,6 @@ export default {
       search: '',
       expanded: '',
       filterTriggered: false,
-      availableFacets: [],
       connectivityEntry: [],
       annotationEntry: [],
       annotationCallback: undefined,
@@ -286,6 +285,24 @@ export default {
           }
         } else if (action.type == "Facets") {
           const facets = [];
+          const facetsArray = action.facets ? action.facets : action.labels;
+          const availableFacetsRaw = localStorage.getItem('available-anatomy-facets');
+          const availableFacetsAll = availableFacetsRaw ? JSON.parse(availableFacetsRaw) : [];
+
+          // get label values
+          let availableFacets = availableFacetsAll.flatMap(facet => {
+            if (facet.children && facet.children.length) {
+              return [facet.label, ...facet.children.map(child => child.label)];
+            }
+            return facet.label;
+          }).map(label => label.toLowerCase());
+
+          // remove duplicate items
+          availableFacets = [...new Set(availableFacets)];
+
+          const filterValuesArray = intersectArrays(availableFacets, facetsArray);
+          const filterValues = filterValuesArray.join(', ');
+
           this.settingsStore.facets.species.forEach(e => {
             facets.push({
               facet: capitalise(e),
@@ -293,9 +310,9 @@ export default {
               facetPropPath: "organisms.primary.species.name",
             });
           });
-          const facetsArray = action.facets ? action.facets : action.labels;
+
           facets.push(
-            ...facetsArray.map(val => ({
+            ...filterValuesArray.map(val => ({
               facet: capitalise(val),
               term: "Anatomical structure",
               facetPropPath: "anatomy.organ.category.name",
@@ -303,8 +320,6 @@ export default {
             }))
           );
           this.openSearch(facets, "")
-          const filterValuesArray = intersectArrays(this.availableFacets, action.labels);
-          const filterValues = filterValuesArray.join(', ');
           // GA Tagging
           // Event tracking for map action search/filter data
           Tagging.sendEvent({
