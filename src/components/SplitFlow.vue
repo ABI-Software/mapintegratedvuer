@@ -450,7 +450,7 @@ export default {
       this.annotationEntry = payload.annotationEntry;
       // If drawing, `entry.models` may be undefined; use an empty array instead of [undefined]
       // to prevent errors on highlight
-      this.annotationHighlight = this.annotationEntry.map(entry => entry.models || []);
+      this.annotationHighlight = this.annotationEntry.map(entry => entry.models).filter(Boolean);
       if (payload.commitCallback) {
         this.annotationCallback = markRaw(payload.commitCallback);
       }
