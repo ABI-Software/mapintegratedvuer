@@ -6,11 +6,12 @@
         <el-popover
           placement="bottom"
           trigger="click"
-          width=500
+          width=1024
           class="popover"
           :teleported=false
           >
             <div class="options-container">
+              <!--
               <div class="row">
                 <el-button @click="saveSettings()" size="small">Save Settings</el-button>
                 <el-button @click="restoreSettings()" size="small">Restore Settings</el-button>
@@ -24,6 +25,8 @@
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
               </div>
+              -->
+              <OpenCOR omex="https://raw.githubusercontent.com/opencor/webapp/refs/heads/main/tests/models/ui/lorenz.omex" />
             </div>
             <template #reference>
 
@@ -65,6 +68,8 @@ import {
   ElMessage as Message,
 } from 'element-plus';
 import 'element-plus/es/components/message/style/css';
+import OpenCOR from '@opencor/opencor'
+import '@opencor/opencor/style.css'
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
@@ -144,6 +149,7 @@ export default {
     Popover,
     Row,
     MapContent,
+    OpenCOR,
   },
   data: function() {
     return {
