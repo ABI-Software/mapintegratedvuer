@@ -293,8 +293,9 @@ export default {
               facetPropPath: "organisms.primary.species.name",
             });
           });
+          const facetsArray = action.facets ? action.facets : action.labels;
           facets.push(
-            ...action.facets.map(val => ({
+            ...facetsArray.map(val => ({
               facet: capitalise(val),
               term: "Anatomical structure",
               facetPropPath: "anatomy.organ.category.name",
