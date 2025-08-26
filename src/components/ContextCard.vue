@@ -13,6 +13,25 @@
           </div>
         </div>
         <div class="card-bottom">
+          <div v-loading="loadingOriginalSource">
+            <strong>View Original Source:</strong>
+            <div v-if="originalSource && originalSource.length">
+              <template v-for="(source, i) in originalSource" :key="'source-'+i">
+                <a v-if="source && source.path" :href="generateFileLink(source)" target="_blank">{{source.name}}</a>
+              </template>
+            </div>
+            <div v-else>
+              Not Available
+            </div>
+          </div>
+          <div v-if="flatmapUUIDs && flatmapUUIDs.length">
+            <strong> Open Corresponding Flatmap</strong>
+            <template v-for="(uuid, i) in flatmapUUIDs" :key="'flatmap_' + 1">
+              <span @click="flatmapClick(uuid)" class="context-card-view">
+                <strong> {{ "Flatmap " + i}}</strong>
+              </span>
+            </template>
+          </div>
           <div>
             <!-- Show sampeles and views seperately if they do not match -->
             <template v-if="!samplesUnderViews">
@@ -74,7 +93,7 @@
 /* eslint-disable no-alert, no-console */
 import { CopyToClipboard } from "@abi-software/map-utilities";
 import '@abi-software/map-utilities/dist/style.css';
-
+import EventBus from './EventBus';
 //provide the s3Bucket related methods and data.
 import S3Bucket from "../mixins/S3Bucket.vue";
 
@@ -123,6 +142,9 @@ export default {
       showContextCard: true,
       sampleDetails: {},
       loading: false,
+      loadingOriginalSource: true,
+      originalSource: [],
+      flatmapUUIDs: []
     };
   },
   watch: {
@@ -251,6 +273,14 @@ export default {
     },
   },
   methods: {
+    flatmapClick: function(uuid) {
+      const newView = {
+        type: "Flatmap",
+        resource: uuid,
+        label: this.contextData.heading
+      };
+      EventBus.emit("CreateNewEntry", newView);
+    },
     samplesMatching: function(viewId){
       if (this.contextData && this.contextData.samples){
         return this.contextData.samples.filter(s=>s.view == viewId)[0]
@@ -279,7 +309,6 @@ export default {
         .catch((err) => {
           //set defaults if we hit an error
           console.error('caught error!', err)
-          this.discoverId = undefined
           this.loading = false
         });
     },
@@ -335,7 +364,7 @@ export default {
     },
     generateFileLink(sample){
       const path = this.processPathForUrl(sample.path);
-      let link = `${this.envVars.ROOT_URL}/file/${sample.discoverId}/${sample.version}` + '?path=';
+      let link = `${this.envVars.ROOT_URL}/datasets/file/${sample.discoverId}/${sample.version}` + '?path=';
       link = link + path;
       return link;
     },
@@ -348,7 +377,49 @@ export default {
       // note that we assume that the view file is in the same directory as the scaffold (viewUrls take relative paths)
       const viewUrl = this.getFileFromPath(view.path)
       this.$emit("scaffold-view-clicked", viewUrl);
+    },
+    getOriginalSource: function() {
+      const discoverId = this.entry.discoverId
+      const filesPos = 'files/'.length
+      const path =  this.entry.resource.substring(
+        this.entry.resource.indexOf("files/") + filesPos,
+        this.entry.resource.lastIndexOf("?"))
+      const params = new URLSearchParams({
+        discoverId,
+        path
+      });
+      const url = `${this.envVars.API_LOCATION}/file_info/get_original_source?${params.toString()}`
+      fetch(url)
+        .then((response) =>{
+          if (!response.ok){
+            throw Error(response.statusText)
+          } else {
+             return response.json()
+          }
+        })
+        .then((data) => {
+          this.loadingOriginalSource = false
+          if (data.result) {
+            data.result.forEach(result => {
+              if (result.flatmapUUID) {
+                this.flatmapUUIDs.push(result.flatmapUUID)
+              } else {
+                this.originalSource.push(result)
+              }
+            })
+          }
+          this.loadingOriginalSource = false
+        })
+        .catch((err) => {
+          //set defaults if we hit an error
+          console.error('caught error!', err)
+          this.loadingOriginalSource = false
+        });
     }
+  },
+  mounted: function() {
+    console.log(this.entry)
+    this.getOriginalSource()
   }
 };
 </script>

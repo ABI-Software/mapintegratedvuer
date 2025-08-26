@@ -800,6 +800,9 @@ export default {
     this._externalStateSet = false;
   },
   mounted: function () {
+    EventBus.on("CreateNewEntry", newView => {
+      this.createNewEntry(newView);
+    });
     EventBus.on("RemoveEntryRequest", id => {
       this.removeEntry(id);
     });
