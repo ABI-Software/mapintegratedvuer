@@ -448,7 +448,9 @@ export default {
     },
     openAnnotation: function (payload) {
       this.annotationEntry = payload.annotationEntry;
-      this.annotationHighlight = this.annotationEntry.map(entry => entry.models);
+      // If drawing, `entry.models` may be undefined; use an empty array instead of [undefined]
+      // to prevent errors on highlight
+      this.annotationHighlight = this.annotationEntry.map(entry => entry.models || []);
       if (payload.commitCallback) {
         this.annotationCallback = markRaw(payload.commitCallback);
       }
