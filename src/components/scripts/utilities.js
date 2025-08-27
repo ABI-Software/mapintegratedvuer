@@ -164,7 +164,12 @@ const getBodyScaffoldInfo = async (sparcApi, species) => {
 
 // Array intersection
 const intersectArrays = (arr1, arr2) => {
-  return arr1.filter((x) => arr2.includes(x));
+  const lowerArr2 = arr2.map(x => typeof x === 'string' ? x.toLowerCase() : x);
+  return arr1.filter(x =>
+    typeof x === 'string'
+      ? lowerArr2.includes(x.toLowerCase())
+      : lowerArr2.includes(x)
+  );
 };
 
 // Not using URLSearchParams to avoid encoding spaces
