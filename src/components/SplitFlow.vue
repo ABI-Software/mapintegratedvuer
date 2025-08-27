@@ -50,6 +50,7 @@
           @connectivity-source-change="onConnectivitySourceChange"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
+          @trackEvent="trackEvent"
         />
         <SplitDialog
           :entries="entries"
@@ -279,7 +280,7 @@ export default {
             Tagging.sendEvent({
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_filter',
-              'category': facetString || 'filter',
+              'category': facetString || 'filter_reset',
               'location': 'map_location_pin'
             });
             this.filterTriggered = true;
@@ -309,7 +310,7 @@ export default {
           Tagging.sendEvent({
             'event': 'interaction_event',
             'event_name': 'portal_maps_action_filter',
-            'category': filterValues || 'filter',
+            'category': filterValues || 'filter_reset',
             'location': 'map_popup_button'
           });
           this.filterTriggered = true;
@@ -515,7 +516,7 @@ export default {
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_search',
               'category': this.search,
-              'location': 'map_sidebar_search'
+              'location': 'map_sidebar_dataset_search'
             });
           }
           this.filterTriggered = false; // reset for next action
@@ -536,8 +537,8 @@ export default {
             Tagging.sendEvent({
               'event': 'interaction_event',
               'event_name': 'portal_maps_action_filter',
-              'category': filterValues || 'filter',
-              'location': 'map_sidebar_filter'
+              'category': filterValues || 'filter_reset',
+              'location': 'map_sidebar_dataset_filter'
             });
           }
           this.filterTriggered = false; // reset for next action
@@ -557,6 +558,29 @@ export default {
             activeFlatmap.updateConnectivityFilters(data.filter);
           });
           EventBus.emit("connectivity-query-filter", data);
+
+          const filterValues = data.filter.filter(f => (f.facet && f.facet.toLowerCase() !== 'show all'))
+            .map((f) => f.tagLabel)
+            .join(', ');
+          const searchValue = data.query;
+
+          if (filterValues) {
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_filter',
+              'category': filterValues,
+              'location': 'map_sidebar_connectivity_filter'
+            });
+          }
+
+          if (searchValue) {
+            Tagging.sendEvent({
+              'event': 'interaction_event',
+              'event_name': 'portal_maps_action_search',
+              'category': searchValue,
+              'location': 'map_sidebar_connectivity_search'
+            });
+          }
         }
       }
     },
@@ -795,6 +819,9 @@ export default {
       if (state?.globalSettings) {
         this.settingsStore.updateGlobalSettings(state.globalSettings);
       }
+    },
+    trackEvent: function (data) {
+      Tagging.sendEvent(data);
     },
   },
   created: function () {
