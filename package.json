@@ -52,14 +52,14 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "1.11.0",
-    "@abi-software/map-side-bar": "2.10.0",
+    "@abi-software/flatmapvuer": "1.11.1",
+    "@abi-software/map-side-bar": "2.10.2",
     "@abi-software/map-utilities": "1.7.0",
-    "@abi-software/plotvuer": "1.0.4",
-    "@abi-software/scaffoldvuer": "1.11.0",
-    "@abi-software/simulationvuer": "2.0.14",
+    "@abi-software/plotvuer": "1.0.5",
+    "@abi-software/scaffoldvuer": "1.11.2",
+    "@abi-software/simulationvuer": "2.0.17",
     "@abi-software/sparc-annotation": "0.3.2",
-    "@abi-software/svg-sprite": "^1.0.1",
+    "@abi-software/svg-sprite": "1.0.2",
     "@element-plus/icons-vue": "^2.3.1",
     "@vitejs/plugin-vue": "^4.6.2",
     "css-element-queries": "^1.2.3",
@@ -140,8 +140,5 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ],
-  "engines": {
-    "node": "18.17.1"
-  }
+  ]
 }
