@@ -82,7 +82,7 @@
 
       <!-- Copy to clipboard button container -->
       <div class="float-button-container">
-        <CopyToClipboard :content="updatedCopyContent" theme="light" />
+        <CopyToClipboard :content="updatedCopyContent" @copied="onCopied" theme="light" />
       </div>
     </div>
   </div>
@@ -92,6 +92,7 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { CopyToClipboard } from "@abi-software/map-utilities";
+import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
 import EventBus from './EventBus';
 //provide the s3Bucket related methods and data.
@@ -415,6 +416,17 @@ export default {
           console.error('caught error!', err)
           this.loadingOriginalSource = false
         });
+    },
+    onCopied: function () {
+      const { label, type, discoverId } = this.entry;
+      const category = type ? `${label} ${type}` : label;
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': `portal_maps_context_card_copy`,
+        'category': category || '',
+        'location': 'map_toolbar',
+        'dataset_id': discoverId ? discoverId + '' : '',
+      });
     }
   },
   mounted: function() {

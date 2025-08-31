@@ -13,7 +13,7 @@
 
     <!-- Copy to clipboard button container -->
     <div class="float-button-container">
-      <CopyToClipboard :content="updatedCopyContent" theme="light" />
+      <CopyToClipboard :content="updatedCopyContent" @copied="onCopied" theme="light" />
     </div>
   </div>
 </template>
@@ -25,6 +25,7 @@ import {
   ElLoading as Loading
 } from "element-plus";
 import { CopyToClipboard } from "@abi-software/map-utilities";
+import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
 
 export default {
@@ -126,6 +127,16 @@ export default {
       contentArray.push(publicationContent);
 
       return contentArray.join('\n\n<br>');
+    },
+  },
+  methods: {
+    onCopied: function () {
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': `portal_maps_context_card_copy`,
+        'category': this.mapImpProv?.id || 'Flatmap Provenance',
+        'location': 'map_toolbar'
+      });
     },
   },
 };
