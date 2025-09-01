@@ -13,6 +13,31 @@
           </div>
         </div>
         <div class="card-bottom">
+          <div v-loading="loadingOriginalSource">
+            <el-collapse v-if="originalSource && originalSource.length" v-model="activeName">
+              <el-collapse-item title="View/Hide source data links" name="sourceDataLinks">
+                <ul class="source-data-list">
+                  <template v-for="(source, i) in originalSource" :key="'source-'+ i">
+                    <li>
+                      <a v-if="source && source.path" :href="generateFileLink(source)" target="_blank">View {{source.name}}</a>
+                    </li>
+                  </template>
+                </ul>
+              </el-collapse-item>
+            </el-collapse>
+          </div>
+          <div v-if="flatmapSource && flatmapSource.length" class="flatmap-entry">
+            Associated flatmaps from source:
+            <ul class="source-data-list">
+              <template v-for="(source, i) in flatmapSource" :key="'flatmap-' + i">
+                <li>
+                  <span @click="flatmapClick(source)">
+                    For {{ source.name }}
+                  </span>
+                </li>
+              </template>
+            </ul>
+          </div>
           <div>
             <!-- Show sampeles and views seperately if they do not match -->
             <template v-if="!samplesUnderViews">
@@ -63,7 +88,7 @@
 
       <!-- Copy to clipboard button container -->
       <div class="float-button-container">
-        <CopyToClipboard :content="updatedCopyContent" @copied="onCopied" theme="light" />
+        <CopyToClipboard :content="copyContent" @copied="onCopied" theme="light" />
       </div>
     </div>
   </div>
@@ -73,11 +98,13 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { CopyToClipboard } from "@abi-software/map-utilities";
+import { mapStores } from 'pinia';
 import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
-
+import EventBus from './EventBus';
 //provide the s3Bucket related methods and data.
 import S3Bucket from "../mixins/S3Bucket.vue";
+import { useSettingsStore } from '../stores/settings';
 
 import { marked } from 'marked'
 import xss from 'xss'
@@ -124,6 +151,11 @@ export default {
       showContextCard: true,
       sampleDetails: {},
       loading: false,
+      loadingOriginalSource: true,
+      originalSource: [],
+      flatmapSource: [],
+      activeName: "",
+      copyContent: "",
     };
   },
   watch: {
@@ -151,6 +183,10 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useSettingsStore),
+    flatmapAPI: function() {
+      return this.settingsStore.flatmapAPI;
+    },
     samplesUnderViews: function(){
       if (this.contextData){
         if (this.contextData.samplesUnderViews){
@@ -180,7 +216,17 @@ export default {
       }
       return this.entry.banner
     },
-    updatedCopyContent: function () {
+  },
+  methods: {
+    flatmapClick: function(source) {
+      const newView = {
+        type: "Flatmap",
+        resource: source.flatmapUUID,
+        label: this.contextData.heading
+      };
+      EventBus.emit("CreateNewEntry", newView);
+    },
+    updateCopyContent: function () {
       const contentArray = [];
 
       // Use <div> instead of <h1>..<h6> or <p>
@@ -192,6 +238,40 @@ export default {
 
       if (this.contextData.description) {
         contentArray.push(`<div>${this.contextData.description}</div>`);
+      }
+
+      if (this.originalSource && this.originalSource.length) {
+        let sourceDataLinks = '<div><strong>Source data links</strong></div>';
+        const sourceLinks = [];
+
+        this.originalSource.forEach((source, i) => {
+          const path = this.generateFileLink(source);
+          let sourceContent = `<div>${source.name}</div>`;
+          sourceContent += `\n`;
+          sourceContent += `<div><a href="${path}">${path}</a></div>`;
+          sourceLinks.push(`<li>${sourceContent}</li>`);
+        });
+        sourceDataLinks += '\n\n';
+        sourceDataLinks += `<ul>${sourceLinks.join('\n')}</ul>`;
+        contentArray.push(sourceDataLinks);
+      }
+
+      if (this.flatmapSource && this.flatmapSource.length) {
+        let flatmapDataLinks = '<div><strong>Associated flatmaps from source</strong></div>';
+        const flatmapLinks = [];
+
+        this.flatmapSource.forEach((source, i) => {
+          const path = this.generateFileLink(source);
+          let flatmapContent = `<div>${source.name}</div>`;
+          let flatmapSource = this.flatmapAPI ? 
+            `${this.flatmapAPI}viewer?id=${source.flatmapUUID}` : source.flatmapUUID;
+          flatmapContent += `\n`;
+          flatmapContent += `<div><a href="${flatmapSource}">${flatmapSource}</a></div>`;
+          flatmapLinks.push(`<li>${flatmapContent}</li>`);
+        });
+        flatmapDataLinks += '\n\n';
+        flatmapDataLinks += `<ul>${flatmapLinks.join('\n')}</ul>`;
+        contentArray.push(flatmapDataLinks);
       }
 
       if (this.contextData.views?.length) {
@@ -250,8 +330,6 @@ export default {
 
       return contentArray.join('\n\n<br>');
     },
-  },
-  methods: {
     samplesMatching: function(viewId){
       if (this.contextData && this.contextData.samples){
         return this.contextData.samples.filter(s=>s.view == viewId)[0]
@@ -280,7 +358,6 @@ export default {
         .catch((err) => {
           //set defaults if we hit an error
           console.error('caught error!', err)
-          this.discoverId = undefined
           this.loading = false
         });
     },
@@ -336,7 +413,7 @@ export default {
     },
     generateFileLink(sample){
       const path = this.processPathForUrl(sample.path);
-      let link = `${this.envVars.ROOT_URL}/file/${sample.discoverId}/${sample.version}` + '?path=';
+      let link = `${this.envVars.ROOT_URL}/datasets/file/${sample.discoverId}/${sample.version}` + '?path=';
       link = link + path;
       return link;
     },
@@ -350,6 +427,47 @@ export default {
       const viewUrl = this.getFileFromPath(view.path)
       this.$emit("scaffold-view-clicked", viewUrl);
     },
+    getOriginalSource: function() {
+      const discoverId = this.entry.discoverId
+      const filesPos = 'files/'.length
+      const path =  this.entry.resource.substring(
+        this.entry.resource.indexOf("files/") + filesPos,
+        this.entry.resource.lastIndexOf("?"))
+      const params = new URLSearchParams({
+        discoverId,
+        path
+      });
+      const url = `${this.envVars.API_LOCATION}/file_info/get_original_source?${params.toString()}`
+      fetch(url)
+        .then((response) =>{
+          if (!response.ok){
+            throw Error(response.statusText)
+          } else {
+             return response.json()
+          }
+        })
+        .then((data) => {
+          this.loadingOriginalSource = false
+          if (data.result) {
+            data.result.forEach(result => {
+              if (result.flatmapUUID) {
+                this.flatmapSource.push(result)
+              } else {
+                this.originalSource.push(result)
+              }
+            })
+            if (this.flatmapSource.length || this.originalSource.length) {
+              this.copyContent = this.updateCopyContent()
+            }
+          }
+          this.loadingOriginalSource = false
+        })
+        .catch((err) => {
+          //set defaults if we hit an error
+          console.error('caught error!', err)
+          this.loadingOriginalSource = false
+        });
+    },
     onCopied: function () {
       const { label, type, discoverId } = this.entry;
       const category = type ? `${label} ${type}` : label;
@@ -361,6 +479,10 @@ export default {
         'dataset_id': discoverId ? discoverId + '' : '',
       });
     }
+  },
+  mounted: function() {
+    this.copyContent = this.updateCopyContent()
+    this.getOriginalSource()
   }
 };
 </script>
@@ -504,6 +626,21 @@ export default {
   .context-card-container:hover & {
     opacity: 1;
     visibility: visible;
+  }
+}
+ 
+.flatmap-entry {
+  margin-top: 16px;
+}
+
+.source-data-list {
+  a {
+    color: #8300BF;
+  }
+  span {
+    color: #8300BF;
+    text-decoration: underline;
+    cursor: pointer;
   }
 }
 </style>
