@@ -14,23 +14,29 @@
         </div>
         <div class="card-bottom">
           <div v-loading="loadingOriginalSource">
-            <strong>View Original Source:</strong>
-            <div v-if="originalSource && originalSource.length">
-              <template v-for="(source, i) in originalSource" :key="'source-'+i">
-                <a v-if="source && source.path" :href="generateFileLink(source)" target="_blank">{{source.name}}</a>
-              </template>
-            </div>
-            <div v-else>
-              Not Available
-            </div>
+            <el-collapse v-if="originalSource && originalSource.length" v-model="activeName">
+              <el-collapse-item title="View/Hide source data links" name="sourceDataLinks">
+                <ul class="source-data-list">
+                  <template v-for="(source, i) in originalSource" :key="'source-'+ i">
+                    <li>
+                      <a v-if="source && source.path" :href="generateFileLink(source)" target="_blank">View {{source.name}}</a>
+                    </li>
+                  </template>
+                </ul>
+              </el-collapse-item>
+            </el-collapse>
           </div>
-          <div v-if="flatmapUUIDs && flatmapUUIDs.length">
-            <strong> Open Corresponding Flatmap</strong>
-            <template v-for="(uuid, i) in flatmapUUIDs" :key="'flatmap_' + 1">
-              <span @click="flatmapClick(uuid)" class="context-card-view">
-                <strong> {{ "Flatmap " + i}}</strong>
-              </span>
-            </template>
+          <div v-if="flatmapSource && flatmapSource.length" class="flatmap-entry">
+            Associated flatmaps from source:
+            <ul class="source-data-list">
+              <template v-for="(source, i) in flatmapSource" :key="'flatmap-' + i">
+                <li>
+                  <span @click="flatmapClick(source)">
+                    For {{ source.name }}
+                  </span>
+                </li>
+              </template>
+            </ul>
           </div>
           <div>
             <!-- Show sampeles and views seperately if they do not match -->
@@ -82,7 +88,7 @@
 
       <!-- Copy to clipboard button container -->
       <div class="float-button-container">
-        <CopyToClipboard :content="updatedCopyContent" @copied="onCopied" theme="light" />
+        <CopyToClipboard :content="copyContent" @copied="onCopied" theme="light" />
       </div>
     </div>
   </div>
@@ -92,11 +98,13 @@
 <script>
 /* eslint-disable no-alert, no-console */
 import { CopyToClipboard } from "@abi-software/map-utilities";
+import { mapStores } from 'pinia';
 import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
 import EventBus from './EventBus';
 //provide the s3Bucket related methods and data.
 import S3Bucket from "../mixins/S3Bucket.vue";
+import { useSettingsStore } from '../stores/settings';
 
 import { marked } from 'marked'
 import xss from 'xss'
@@ -145,7 +153,9 @@ export default {
       loading: false,
       loadingOriginalSource: true,
       originalSource: [],
-      flatmapUUIDs: []
+      flatmapSource: [],
+      activeName: "",
+      copyContent: "",
     };
   },
   watch: {
@@ -173,6 +183,10 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useSettingsStore),
+    flatmapAPI: function() {
+      return this.settingsStore.flatmapAPI;
+    },
     samplesUnderViews: function(){
       if (this.contextData){
         if (this.contextData.samplesUnderViews){
@@ -202,7 +216,17 @@ export default {
       }
       return this.entry.banner
     },
-    updatedCopyContent: function () {
+  },
+  methods: {
+    flatmapClick: function(source) {
+      const newView = {
+        type: "Flatmap",
+        resource: source.flatmapUUID,
+        label: this.contextData.heading
+      };
+      EventBus.emit("CreateNewEntry", newView);
+    },
+    updateCopyContent: function () {
       const contentArray = [];
 
       // Use <div> instead of <h1>..<h6> or <p>
@@ -214,6 +238,40 @@ export default {
 
       if (this.contextData.description) {
         contentArray.push(`<div>${this.contextData.description}</div>`);
+      }
+
+      if (this.originalSource && this.originalSource.length) {
+        let sourceDataLinks = '<div><strong>Source data links</strong></div>';
+        const sourceLinks = [];
+
+        this.originalSource.forEach((source, i) => {
+          const path = this.generateFileLink(source);
+          let sourceContent = `<div>${source.name}</div>`;
+          sourceContent += `\n`;
+          sourceContent += `<div><a href="${path}">${path}</a></div>`;
+          sourceLinks.push(`<li>${sourceContent}</li>`);
+        });
+        sourceDataLinks += '\n\n';
+        sourceDataLinks += `<ul>${sourceLinks.join('\n')}</ul>`;
+        contentArray.push(sourceDataLinks);
+      }
+
+      if (this.flatmapSource && this.flatmapSource.length) {
+        let flatmapDataLinks = '<div><strong>Associated flatmaps from source</strong></div>';
+        const flatmapLinks = [];
+
+        this.flatmapSource.forEach((source, i) => {
+          const path = this.generateFileLink(source);
+          let flatmapContent = `<div>${source.name}</div>`;
+          let flatmapSource = this.flatmapAPI ? 
+            `${this.flatmapAPI}viewer?id=${source.flatmapUUID}` : source.flatmapUUID;
+          flatmapContent += `\n`;
+          flatmapContent += `<div><a href="${flatmapSource}">${flatmapSource}</a></div>`;
+          flatmapLinks.push(`<li>${flatmapContent}</li>`);
+        });
+        flatmapDataLinks += '\n\n';
+        flatmapDataLinks += `<ul>${flatmapLinks.join('\n')}</ul>`;
+        contentArray.push(flatmapDataLinks);
       }
 
       if (this.contextData.views?.length) {
@@ -271,16 +329,6 @@ export default {
       }
 
       return contentArray.join('\n\n<br>');
-    },
-  },
-  methods: {
-    flatmapClick: function(uuid) {
-      const newView = {
-        type: "Flatmap",
-        resource: uuid,
-        label: this.contextData.heading
-      };
-      EventBus.emit("CreateNewEntry", newView);
     },
     samplesMatching: function(viewId){
       if (this.contextData && this.contextData.samples){
@@ -403,11 +451,14 @@ export default {
           if (data.result) {
             data.result.forEach(result => {
               if (result.flatmapUUID) {
-                this.flatmapUUIDs.push(result.flatmapUUID)
+                this.flatmapSource.push(result)
               } else {
                 this.originalSource.push(result)
               }
             })
+            if (this.flatmapSource.length || this.originalSource.length) {
+              this.copyContent = this.updateCopyContent()
+            }
           }
           this.loadingOriginalSource = false
         })
@@ -430,7 +481,7 @@ export default {
     }
   },
   mounted: function() {
-    console.log(this.entry)
+    this.copyContent = this.updateCopyContent()
     this.getOriginalSource()
   }
 };
@@ -575,6 +626,21 @@ export default {
   .context-card-container:hover & {
     opacity: 1;
     visibility: visible;
+  }
+}
+ 
+.flatmap-entry {
+  margin-top: 16px;
+}
+
+.source-data-list {
+  a {
+    color: #8300BF;
+  }
+  span {
+    color: #8300BF;
+    text-decoration: underline;
+    cursor: pointer;
   }
 }
 </style>
