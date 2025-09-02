@@ -52,11 +52,11 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "1.11.1",
-    "@abi-software/map-side-bar": "2.10.2",
-    "@abi-software/map-utilities": "1.7.0",
+    "@abi-software/flatmapvuer": "1.11.2",
+    "@abi-software/map-side-bar": "2.10.3",
+    "@abi-software/map-utilities": "1.7.1",
     "@abi-software/plotvuer": "1.0.5",
-    "@abi-software/scaffoldvuer": "1.11.2",
+    "@abi-software/scaffoldvuer": "1.11.3",
     "@abi-software/simulationvuer": "2.0.17",
     "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "1.0.2",
