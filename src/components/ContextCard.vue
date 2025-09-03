@@ -633,10 +633,13 @@ export default {
   margin-top: 16px;
 }
 
-.source-data-list {
+.context-card-container {
   a {
     color: #8300BF;
   }
+}
+
+.source-data-list {
   span {
     color: #8300BF;
     text-decoration: underline;
