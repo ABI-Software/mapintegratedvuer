@@ -17,6 +17,7 @@
                 <el-button @click="getShareableURL()" size="small">Get Link</el-button>
               </div>
               <div class="row">
+                <el-button @click="setRatFlatmap()" size="small">Set Rat Flatmap</el-button>
                 <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
                 <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
                 <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
@@ -276,6 +277,14 @@ export default {
         }
       );
     },
+    setRatFlatmap: function() {
+      this.$refs.map.setCurrentEntry(
+        {
+          "type": "MultiFlatmap",
+          "taxo": "NCBITaxon:10114"
+        }
+      );
+    },
     setScaffold: function() {
       this.$refs.map.setCurrentEntry(
         {
@@ -308,6 +317,9 @@ export default {
     parseQuery: function () {
       this.$router.isReady().then(() => {
         this.uuid = this.$route.query.id;
+        const type = this.$route.query.type;
+        const taxo = this.$route.query.taxo;
+
         if (window) {
           this.prefix = window.location.origin + window.location.pathname;
         }
@@ -335,6 +347,19 @@ export default {
               }
           }
           xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
+        }
+
+        // load specific map from URL query
+        if (taxo && type === 'ac') {
+          this.startingMap = "AC";
+          this.$nextTick(() => {
+            this.$refs.map.setCurrentEntry(
+              {
+                type: "MultiFlatmap",
+                taxo: taxo,
+              }
+            );
+          })
         }
       })
     },
