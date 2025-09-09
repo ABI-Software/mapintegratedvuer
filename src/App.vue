@@ -152,6 +152,7 @@ export default {
       state: undefined,
       prefix: "/map",
       api: import.meta.env.VITE_API_LOCATION,
+      discover_api: import.meta.env.PENNSIEVE_DISCOVER_API || 'https://api.pennsieve.io/discover',
       mapSettings: [],
       startingMap: "AC",
       ElIconSetting: shallowRef(ElIconSetting),
@@ -314,11 +315,98 @@ export default {
     viewerIsReady: function() {
       console.log("viewer is ready")
     },
+    getDatasetInfo: async function (discoverApi, datasetId, datasetVersion) {
+      let url = `${discoverApi}/datasets/${datasetId}`;
+      if (datasetVersion) {
+        url = `${discoverApi}/datasets/${datasetId}/versions/${datasetVersion}`;
+      }
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Error fetching dataset info: ${response.statusText}`);
+      }
+      return await response.json();
+    },
+    extractS3BucketName: function(uri) {
+      if (uri) {
+        const substring = uri.split("//")[1]
+        if (substring) {
+          return substring.split("/")[0]
+        }
+      }
+      return undefined
+    },
+    checkFileExists: async function (path) {
+      const response = await fetch(
+        `${this.api}/exists/${path}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Error checking file existence: ${response.statusText}`);
+      }
+      return await response.json();
+    },
+    getScaffoldEntry: async function(type, dataset_id, file_path, dataset_version, viewUrl) {
+      if (dataset_id && file_path) {
+        const datasetInfo = await this.getDatasetInfo(
+          this.discover_api,
+          dataset_id,
+          dataset_version,
+        );
+        const s3Bucket = datasetInfo
+          ? this.extractS3BucketName(datasetInfo.uri)
+          : undefined
+
+        if (s3Bucket && type === 'scaffold') {
+          let path = `${dataset_id}/${file_path}`
+          if (s3Bucket) {
+            path = path + `?s3BucketName=${s3Bucket}`
+          }
+          const fileCheckResults = await this.checkFileExists(path);
+
+          if (fileCheckResults?.exists) {
+            return {
+              type: 'Scaffold',
+              label: `Dataset ${dataset_id}`,
+              url: `${this.api}/s3-resource/${path}`,
+              viewUrl: viewUrl,
+              dataset_id: dataset_id,
+              dataset_version: dataset_version,
+            };
+          }
+        }
+      }
+      return null;
+    },
     parseQuery: function () {
-      this.$router.isReady().then(() => {
+      this.$router.isReady().then(async () => {
         this.uuid = this.$route.query.id;
         const type = this.$route.query.type;
         const taxo = this.$route.query.taxo;
+        const dataset_id = this.$route.query.dataset_id;
+        const dataset_version = this.$route.query.dataset_version;
+        const file_path = this.$route.query.file_path;
+        const viewUrl = this.$route.query.viewUrl;
+
+        const scaffoldEntry = await this.getScaffoldEntry(
+          type,
+          dataset_id,
+          file_path,
+          dataset_version,
+          viewUrl,
+        );
+        if (scaffoldEntry) {
+          this.$refs.map.setCurrentEntry(scaffoldEntry);
+        }
 
         if (window) {
           this.prefix = window.location.origin + window.location.pathname;
