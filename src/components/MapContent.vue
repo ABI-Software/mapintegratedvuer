@@ -259,7 +259,9 @@ export default {
             region: state.region,
             resource: state.url,
             state: state.state,
-            viewUrl: state.viewUrl
+            viewUrl: state.viewUrl,
+            discoverId: state.dataset_id,
+            version: state.dataset_version,
           };
           if (state.isBodyScaffold) {
             const data = await getBodyScaffoldInfo(this.options.sparcApi, state.label);
@@ -280,7 +282,9 @@ export default {
               type: state.type,
               resource: state.resource,
               state: state.state,
-              label: state.label
+              label: state.label,
+              discoverId: state.dataset_id,
+              version: state.dataset_version,
             };
             this.$refs.flow.createNewEntry(newView);
           } else {
@@ -326,7 +330,9 @@ export default {
             type: state.type,
             resource: state.resource,
             state: state.state,
-            label: state.label
+            label: state.label,
+            discoverId: state.dataset_id,
+            version: state.dataset_version,
           };
           this.$refs.flow.createNewEntry(newView);
         }

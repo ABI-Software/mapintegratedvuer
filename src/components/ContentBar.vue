@@ -98,6 +98,7 @@ import {
   ElRow as Row,
   ElSelect as Select,
 } from "element-plus";
+import tagging from '../services/tagging';
 
 export default {
   name: "ContentBar",
@@ -251,6 +252,15 @@ export default {
           }, 1200);
         });
         //this.contextCardVisible = false; // Hide all context cards when switching viewers
+
+        // GA Tracking
+        const viewCategory = this.entries.find(entry => entry.id === value);
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_toolbar_viewer_changed`,
+          'category': viewCategory?.title || '',
+          'location': 'map_toolbar'
+        });
       }
     },
     // setPopper with is needed as the flatmap context card does not have an image and has smaller with

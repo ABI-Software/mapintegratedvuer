@@ -84,7 +84,7 @@ export default {
         if (!knowledge) continue;
 
         const nerves = knowledge['nerve-label'];
-        if (nerves) {          
+        if (nerves) {
           const subNerves = nerves.flatMap(n => n.subNerves);
           nerveLabels.push(...subNerves);
         }
@@ -105,34 +105,86 @@ export default {
     setVisibilityFilter: function (payload) {
       let names = [];
       const processed = payload ? true : false;
-      if (payload) {        
+      if (payload) {
         const ids = payload['OR'][1]['AND'][1].models;
         for (const id of ids) {
           const nerveKnowledge = this.nervesKnowledge.find((knowledge) => knowledge.id === id);
-          const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
-          names.push(...nerves);
+          if (nerveKnowledge) {
+            const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
+            names.push(...nerves);
+          }
         }
       }
       this.$refs.scaffold.zoomToNerves(names, processed);
     },
-    scaffoldResourceSelected: function (type, resource) {
+    syncFilter: function (data) {
+      if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
+        this.filter = data.filter(f => f.facet?.toLowerCase() !== 'show all');
+      }
+    },
+    scaffoldResourceSelected: async function (type, resource) {
       this.resourceSelected(type, resource, true)
       // When we directly click on a nerve, there will only be only one resource selected.
       // Both EventBus.emit and getKnowledgeTooltip will trigger sidebar content update
       // Then setVisibilityFilter will be called to zoom to the clicked nerve.
       if (resource.length === 1) {
-        this.clickedNerve = resource[0].data;
-        if (this.clickedNerve.isNerves && this.clickedNerve.anatomicalId) {
-          const label = this.clickedNerve.id.toLowerCase();
+        this.clickedObject = resource[0].data;
+        if (this.clickedObject.isNerves || this.clickedObject.anatomicalId) {
+          const label = this.clickedObject.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
-            // add nerve label to search input
-            EventBus.emit("neuron-connection-feature-click", {
-              filters: [{
+            const connectionType = this.settingsStore.globalSettings.connectionType;
+
+            // nerve click
+            if (this.clickedObject.isNerves) {
+              this.filter.push({
                 facet: label,
                 term: 'Nerves',
-                facetPropPath: 'scaffold.connectivity.subnerve',
-              }],
-              search: ''
+                facetPropPath: 'scaffold.connectivity.nerve',
+              });
+            } else {
+              // get neuron connection mode
+              const connectionTypeKey = connectionType.toLowerCase();
+              let uberonTerm = this.clickedObject.anatomicalId || '';
+
+              if (uberonTerm) {
+                this.filter.push({
+                  facet: `["${uberonTerm}",[]]`,
+                  facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
+                  tagLabel: label.charAt(0).toUpperCase() + label.slice(1),
+                  term: connectionType,
+                });
+              } else {
+                // get filterOptions from store
+                const filterOptions = this.connectivitiesStore.filterOptions[this.entry.resource];
+                const filterOption = filterOptions.find((option) => option.key === `flatmap.connectivity.source.${connectionTypeKey}`);
+                let neuronFilter;
+
+                filterOption?.children.forEach((child) => {
+                  if (child.label.toLowerCase() === label) {
+                    neuronFilter = child;
+                  }
+                  child.children?.forEach((grandChild) => {
+                    if (grandChild.label.toLowerCase() === label) {
+                      neuronFilter = grandChild;
+                    }
+                  });
+                });
+
+                if (neuronFilter) {
+                  uberonTerm = neuronFilter.key.replace(`flatmap.connectivity.source.${connectionTypeKey}.`, '');
+                  this.filter.push({
+                    facet: uberonTerm,
+                    facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
+                    tagLabel: neuronFilter.tagLabel,
+                    term: connectionType,
+                  });
+                }
+              }
+            }
+
+            EventBus.emit("neuron-connection-feature-click", {
+              filters: this.filter,
+              search: this.filter.length ? '' : label
             })
           } else if (this.$refs.scaffold.viewingMode === "Exploration") {
             const nerveKnowledge = this.nervesKnowledge
@@ -147,11 +199,13 @@ export default {
         // if multiple resources selected is because of directly clicking on a nerve
         // enable picking again
         // otherwise, it is related to the explorer search
-        if (this.clickedNerve) {
-          this.$refs.scaffold.$module.setIgnorePicking(false);
+        if (this.$refs.scaffold.viewingMode === "Exploration") {
+          if (this.clickedObject) {
+            this.$refs.scaffold.$module.setIgnorePicking(false);
+          }
         }
       } else {
-        this.clickedNerve = undefined;
+        this.clickedObject = undefined;
         EventBus.emit("connectivity-info-close");
       }
     },
@@ -302,7 +356,9 @@ export default {
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
       nervesKnowledge: [],
-      clickedNerve: undefined,
+      clickedObject: undefined,
+      filter: [],
+      query: '',
     };
   },
   mounted: function () {
