@@ -315,11 +315,7 @@ export default {
     viewerIsReady: function() {
       console.log("viewer is ready")
     },
-    getDatasetInfo: async function (discoverApi, datasetId, datasetVersion) {
-      let url = `${discoverApi}/datasets/${datasetId}`;
-      if (datasetVersion) {
-        url = `${discoverApi}/datasets/${datasetId}/versions/${datasetVersion}`;
-      }
+    fetchDataFromApi: async function (url) {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -327,9 +323,20 @@ export default {
         },
       });
       if (!response.ok) {
-        throw new Error(`Error fetching dataset info: ${response.statusText}`);
+        throw new Error(`Error fetching data from API: ${response.statusText}`);
       }
       return await response.json();
+    },
+    getDatasetInfo: async function (discoverApi, datasetId, datasetVersion) {
+      let url = `${discoverApi}/datasets/${datasetId}`;
+      if (datasetVersion) {
+        url = `${discoverApi}/datasets/${datasetId}/versions/${datasetVersion}`;
+      }
+      return await this.fetchDataFromApi(url);
+    },
+    checkFileExists: async function (path) {
+      const url = `${this.api}/exists/${path}`;
+      return await this.fetchDataFromApi(url);
     },
     extractS3BucketName: function(uri) {
       if (uri) {
@@ -338,22 +345,7 @@ export default {
           return substring.split("/")[0]
         }
       }
-      return undefined
-    },
-    checkFileExists: async function (path) {
-      const response = await fetch(
-        `${this.api}/exists/${path}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`Error checking file existence: ${response.statusText}`);
-      }
-      return await response.json();
+      return undefined;
     },
     getScaffoldEntry: async function(dataset_id, file_path, dataset_version, viewUrl) {
       const datasetInfo = await this.getDatasetInfo(
