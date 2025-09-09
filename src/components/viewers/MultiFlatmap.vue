@@ -40,6 +40,7 @@
       @open-pubmed-url="onOpenPubmedUrl"
       @mapmanager-loaded="onMapmanagerLoaded"
       :showPathwayFilter="false"
+      @trackEvent="trackEvent"
     />
 
     <HelpModeDialog

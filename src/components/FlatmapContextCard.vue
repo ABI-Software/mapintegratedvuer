@@ -13,7 +13,7 @@
 
     <!-- Copy to clipboard button container -->
     <div class="float-button-container">
-      <CopyToClipboard :content="updatedCopyContent" theme="light" />
+      <CopyToClipboard :content="updatedCopyContent" @copied="onCopied" theme="light" />
     </div>
   </div>
 </template>
@@ -25,6 +25,7 @@ import {
   ElLoading as Loading
 } from "element-plus";
 import { CopyToClipboard } from "@abi-software/map-utilities";
+import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
 
 export default {
@@ -64,15 +65,17 @@ export default {
     sckanReleaseDisplay: function() {
       let sckanRelease = "Unknown"
       if(this.mapImpProv){
-        sckanRelease = this.mapImpProv.connectivity?.npo.date
+        sckanRelease = this.mapImpProv.connectivity?.npo?.date
         if (!sckanRelease) {
           let sckanCreated = this.mapImpProv.sckan?.created ? this.mapImpProv.sckan.created : this.mapImpProv.sckan
-          let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
-          sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-          })
+          if (sckanCreated) {
+            let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
+            sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+            })
+          }
         }
         if (!sckanRelease) {
           sckanRelease = "Unknown";
@@ -83,7 +86,7 @@ export default {
     sckanReleaseLink: function() {
       let sckanLink = "Unknown"
       if(this.mapImpProv){
-        sckanLink = this.mapImpProv.connectivity?.npo.path
+        sckanLink = this.mapImpProv.connectivity?.npo?.path
         if (!sckanLink) {
           sckanLink = this.mapImpProv.sckan?.release
         }
@@ -124,6 +127,16 @@ export default {
       contentArray.push(publicationContent);
 
       return contentArray.join('\n\n<br>');
+    },
+  },
+  methods: {
+    onCopied: function () {
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': `portal_maps_context_card_copy`,
+        'category': this.mapImpProv?.id || 'Flatmap Provenance',
+        'location': 'map_toolbar'
+      });
     },
   },
 };
