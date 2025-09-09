@@ -291,8 +291,8 @@ export default {
         {
           type: "Scaffold",
           label: "Colon",
-          url: "https://mapcore-demo.org/current/sparc-api-v2/s3-resource/221/3/files/derivative/Scaffolds/mouse_colon_metadata.json",
-          viewUrl: "M16_view.json"
+          url: `${this.api}/s3-resource/76/files/derivative/colonMouse_metadata.json?s3BucketName=prd-sparc-discover50-use1`,
+          viewUrl: "colonMouse_Layout1_view.json"
         }
       );
     },
