@@ -355,34 +355,32 @@ export default {
       }
       return await response.json();
     },
-    getScaffoldEntry: async function(type, dataset_id, file_path, dataset_version, viewUrl) {
-      if (dataset_id && file_path) {
-        const datasetInfo = await this.getDatasetInfo(
-          this.discover_api,
-          dataset_id,
-          dataset_version,
-        );
-        const s3Bucket = datasetInfo
-          ? this.extractS3BucketName(datasetInfo.uri)
-          : undefined
+    getScaffoldEntry: async function(dataset_id, file_path, dataset_version, viewUrl) {
+      const datasetInfo = await this.getDatasetInfo(
+        this.discover_api,
+        dataset_id,
+        dataset_version,
+      );
+      const s3Bucket = datasetInfo
+        ? this.extractS3BucketName(datasetInfo.uri)
+        : undefined
 
-        if (s3Bucket && type === 'scaffold') {
-          let path = `${dataset_id}/${file_path}`
-          if (s3Bucket) {
-            path = path + `?s3BucketName=${s3Bucket}`
-          }
-          const fileCheckResults = await this.checkFileExists(path);
+      if (s3Bucket) {
+        let path = `${dataset_id}/${file_path}`
+        if (s3Bucket) {
+          path = path + `?s3BucketName=${s3Bucket}`
+        }
+        const fileCheckResults = await this.checkFileExists(path);
 
-          if (fileCheckResults?.exists) {
-            return {
-              type: 'Scaffold',
-              label: `Dataset ${dataset_id}`,
-              url: `${this.api}/s3-resource/${path}`,
-              viewUrl: viewUrl,
-              dataset_id: dataset_id,
-              dataset_version: dataset_version,
-            };
-          }
+        if (fileCheckResults?.exists) {
+          return {
+            type: 'Scaffold',
+            label: `Dataset ${dataset_id}`,
+            url: `${this.api}/s3-resource/${path}`,
+            viewUrl: viewUrl,
+            dataset_id: dataset_id,
+            dataset_version: dataset_version,
+          };
         }
       }
       return null;
@@ -396,17 +394,6 @@ export default {
         const dataset_version = this.$route.query.dataset_version;
         const file_path = this.$route.query.file_path;
         const viewUrl = this.$route.query.viewUrl;
-
-        const scaffoldEntry = await this.getScaffoldEntry(
-          type,
-          dataset_id,
-          file_path,
-          dataset_version,
-          viewUrl,
-        );
-        if (scaffoldEntry) {
-          this.$refs.map.setCurrentEntry(scaffoldEntry);
-        }
 
         if (window) {
           this.prefix = window.location.origin + window.location.pathname;
@@ -470,6 +457,16 @@ export default {
               }
             );
           })
+        } else if (type === 'scaffold' && dataset_id && file_path) {
+          const scaffoldEntry = await this.getScaffoldEntry(
+            dataset_id,
+            file_path,
+            dataset_version,
+            viewUrl,
+          );
+          if (scaffoldEntry) {
+            this.$refs.map.setCurrentEntry(scaffoldEntry);
+          }
         }
       })
     },
