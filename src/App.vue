@@ -371,6 +371,17 @@ export default {
               }
             );
           })
+        } else if (type === 'wholebody') {
+          this.startingMap = "WholeBody";
+          this.$nextTick(() => {
+            this.$refs.map.setCurrentEntry(
+              {
+                type: "Scaffold",
+                label: "Human",
+                isBodyScaffold: true
+              }
+            );
+          })
         }
       })
     },
