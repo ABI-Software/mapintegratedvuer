@@ -424,8 +424,8 @@ export default {
           xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
         }
 
-        // load specific map from URL query
         if (taxo && type === 'ac') {
+          // Load AC map with different species
           this.startingMap = "AC";
           this.$nextTick(() => {
             this.$refs.map.setCurrentEntry(
@@ -436,6 +436,7 @@ export default {
             );
           })
         } else if (type === 'fc') {
+          // Load FC map
           this.startingMap = "FC";
           this.$nextTick(() => {
             this.$refs.map.setCurrentEntry(
@@ -447,6 +448,7 @@ export default {
             );
           })
         } else if (type === 'wholebody') {
+          // Load Wholebody scaffold
           this.startingMap = "WholeBody";
           this.$nextTick(() => {
             this.$refs.map.setCurrentEntry(
@@ -458,6 +460,8 @@ export default {
             );
           })
         } else if (type === 'scaffold' && dataset_id && file_path) {
+          // Load scaffold from dataset
+          // e.g. type=scaffold&dataset_id=444&dataset_version=1&file_path=[file_path]_metadata.json
           const scaffoldEntry = await this.getScaffoldEntry(
             dataset_id,
             file_path,
