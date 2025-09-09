@@ -281,8 +281,8 @@ export default {
     setRatFlatmap: function() {
       this.$refs.map.setCurrentEntry(
         {
-          "type": "MultiFlatmap",
-          "taxo": "NCBITaxon:10114"
+          type: "MultiFlatmap",
+          taxo: "NCBITaxon:10114"
         }
       );
     },
@@ -389,7 +389,7 @@ export default {
       this.$router.isReady().then(async () => {
         this.uuid = this.$route.query.id;
         const type = this.$route.query.type;
-        const taxo = this.$route.query.taxo;
+        const taxo = this.$route.query.taxo || this.$route.query.taxon;
         const dataset_id = this.$route.query.dataset_id;
         const dataset_version = this.$route.query.dataset_version;
         const file_path = this.$route.query.file_path;
