@@ -39,6 +39,7 @@
       @pathway-selection-changed="onPathwaySelectionChanged"
       @mapmanager-loaded="onMapmanagerLoaded"
       :showPathwayFilter="false"
+      @trackEvent="trackEvent"
     />
 
     <HelpModeDialog

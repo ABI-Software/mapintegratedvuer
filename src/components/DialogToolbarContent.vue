@@ -87,7 +87,7 @@
                     <template #reference>
                       <el-checkbox
                         v-model="globalSettings.displayMarkers"
-                        @change="updateGlobalSettings"
+                        @change="updateGlobalSettings('displayMarkers')"
                         size="small"
                         :disabled="globalSettings.viewingMode !== 'Exploration'"
                       >
@@ -101,7 +101,7 @@
                 <div class="setting-popover-block" v-if="'connectionType' in globalSettings">
                   <el-radio-group
                     v-model="globalSettings.connectionType"
-                    @change="updateGlobalSettings"
+                    @change="updateGlobalSettings('connectionType')"
                   >
                     <el-radio-button value="Origin" size="small">Origin</el-radio-button>
                     <el-radio-button value="Via" size="small">Via</el-radio-button>
@@ -306,7 +306,7 @@
           <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
-              @change="updateGlobalSettings"
+              @change="updateGlobalSettings('displayMarkers')"
             >
               Display Map Markers
             </el-checkbox>
@@ -316,14 +316,14 @@
             <el-checkbox
               v-if="'highlightConnectedPaths' in globalSettings"
               v-model="globalSettings.highlightConnectedPaths"
-              @change="updateGlobalSettings"
+              @change="updateGlobalSettings('highlightConnectedPaths')"
             >
               Highlight Connected Paths
             </el-checkbox>
             <el-checkbox
               v-if="'highlightDOIPaths' in globalSettings"
               v-model="globalSettings.highlightDOIPaths"
-              @change="updateGlobalSettings"
+              @change="updateGlobalSettings('highlightDOIPaths')"
             >
               Highlight DOI Paths
             </el-checkbox>
@@ -332,7 +332,7 @@
             <h5>Interactive Mode</h5>
             <el-radio-group
               v-model="globalSettings.interactiveMode"
-              @change="updateGlobalSettings"
+              @change="updateGlobalSettings('interactiveMode')"
             >
               <el-radio value="dataset">Dataset Exploration</el-radio>
               <el-radio value="connectivity">Connectivity Exploration</el-radio>
@@ -344,7 +344,7 @@
             <h5>Flight path</h5>
             <el-radio-group
               v-model="globalSettings.flightPathDisplay"
-              @change="updateGlobalSettings"
+              @change="updateGlobalSettings('flightPathDisplay')"
             >
               <el-radio :value="false">2D</el-radio>
               <el-radio :value="true">3D</el-radio>
@@ -354,7 +354,7 @@
             <h5>Organs</h5>
             <el-radio-group
               v-model="globalSettings.organsDisplay"
-              @change="updateGlobalSettings"
+              @change="updateGlobalSettings('organsDisplay')"
             >
               <el-radio :value="true">Color</el-radio>
               <el-radio :value="false">Grayscale</el-radio>
@@ -364,7 +364,7 @@
             <h5>Apply outlines</h5>
             <el-radio-group
               v-model="globalSettings.outlinesDisplay"
-              @change="updateGlobalSettings"
+              @change="updateGlobalSettings('outlinesDisplay')"
             >
               <el-radio :value="true">Show</el-radio>
               <el-radio :value="false">Hide</el-radio>
@@ -375,7 +375,7 @@
             <el-radio-group
               class="bg-color-radio-group"
               v-model="globalSettings.backgroundDisplay"
-              @change="updateGlobalSettings"
+              @change="updateGlobalSettings('backgroundDisplay')"
             >
               <el-radio value="white" class="bg-color-radio">
                 <span style="--bg-color: white">white</span>
@@ -443,6 +443,7 @@ import {
   ElRadioGroup as RadioGroup,
   ElRow as Row,
 } from "element-plus";
+import tagging from '../services/tagging';
 
 /**
  * Cmponent for the header of differnt vuers.
@@ -551,10 +552,10 @@ export default {
           this.globalSettings.interactiveMode = 'connectivity';
         }
 
-        this.updateGlobalSettings();
+        this.updateGlobalSettings('viewingMode');
       }
     },
-    updateGlobalSettings: function() {
+    updateGlobalSettings: function(changedKey) {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
       this.settingsStore.updateGlobalSettings(this.globalSettings);
 
@@ -574,20 +575,71 @@ export default {
         updatedSettings.includes('backgroundDisplay')) {
         EventBus.emit('globalViewerSettingsUpdate');
       }
+
+      // GA Tracking
+      let category = this.globalSettings[changedKey];
+
+      // Format category for some items
+      if (changedKey === 'flightPathDisplay') {
+        category = this.globalSettings.flightPathDisplay ? '3D' : '2D';
+      }
+      if (changedKey === 'organsDisplay') {
+        category = this.globalSettings.organsDisplay ? 'Color': 'Grayscale';
+      }
+      if (changedKey === 'outlinesDisplay') {
+        category = this.globalSettings.outlinesDisplay ? 'Show' : 'Hide';
+      }
+
+      // Prevent viewing mode clicks on active item
+      if (updatedSettings.length) {
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_settings_${changedKey}`,
+          'category': category,
+          'location': 'map_toolbar'
+        });
+      }
     },
     titleClicked: function(id) {
       this.$emit("titleClicked", id);
     },
     startHelp: function(){
       EventBus.emit("startHelp");
+
+      // GA Tracking
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': `portal_maps_toolbar_help`,
+        'category': 'help_mode_start',
+        'location': 'map_toolbar'
+      });
     },
     onFullscreen: function() {
       this.$emit("onFullscreen");
       this.isFullscreen = !this.isFullscreen;
+
+      // GA Tracking
+      // only for fullscreen enter event to prevent duplicate events
+      if (this.isFullscreen) {
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_toolbar_fullscreen`,
+          'category': this.isFullscreen ? 'enter' : 'exit',
+          'location': 'map_toolbar'
+        });
+      }
     },
     onFullscreenEsc: function () {
       if (!document.fullscreenElement) {
         this.isFullscreen = false;
+
+        // GA Tracking
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_toolbar_fullscreen`,
+          'category': this.isFullscreen ? 'enter' : 'exit',
+          'location': 'map_toolbar'
+        });
       }
     },
     close: function() {
@@ -597,6 +649,14 @@ export default {
       if (document) {
         this.$refs.linkInput.$el.querySelector("input").select();
         document.execCommand('copy');
+
+        // GA Tracking
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': 'portal_maps_permalink',
+          'category': 'permalink_copy',
+          'location': 'map_toolbar'
+        });
       }
     },
     setFailedSearch: function(result) {
@@ -613,12 +673,33 @@ export default {
       this.displayShareOptions = false;
       this.loadingLink = true;
       EventBus.emit("updateShareLinkRequested", withAnnotation);
+
+      // GA Tracking
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': 'portal_maps_permalink',
+        'category': 'permalink_generate',
+        'location': 'map_toolbar'
+      });
     },
     viewClicked: function(view) {
+      const prevActiveView = this.activeView;
+
       this.splitFlowStore.updateActiveView({
         view,
         entries: this.entriesStore.entries,
       });
+
+      // GA Tracking
+      if (view !== prevActiveView) {
+        const viewCategory = this.viewIcons.find((item) => item.icon === view);
+        tagging.sendEvent({
+          'event': 'interaction_event',
+          'event_name': `portal_maps_toolbar_split_view`,
+          'category': viewCategory?.name || '',
+          'location': 'map_toolbar'
+        });
+      }
 
       if (this.$refs.viewPopover) {
         this.$refs.viewPopover.hide();

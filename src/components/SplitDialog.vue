@@ -320,7 +320,7 @@ export default {
               for (let index = 0; index < searchTerms.length; index++) {
                 isFlatmap ?
                   nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index])) :
-                  nestedIds.push(this.getGeneralSearchedId(results, searchTerms[index]), 'query');
+                  nestedIds.push(this.getGeneralSearchedId(results, searchTerms[index], 'query'));
               }
               // within query search (split terms by comma) -> OR
               const flatIds = [...new Set(nestedIds.flat())];
@@ -339,6 +339,9 @@ export default {
             };
 
             let filters = {};
+            if (scaffold) {
+              viewer.syncFilter(data.filter);
+            }
             // get facet search result ids
             data.filter.forEach((item) => {
               const facetKey = item.facetPropPath.split('.').pop();
