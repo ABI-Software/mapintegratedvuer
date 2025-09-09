@@ -17,6 +17,7 @@
                 <el-button @click="getShareableURL()" size="small">Get Link</el-button>
               </div>
               <div class="row">
+                <el-button @click="setRatFlatmap()" size="small">Set Rat Flatmap</el-button>
                 <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
                 <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
                 <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
@@ -151,6 +152,7 @@ export default {
       state: undefined,
       prefix: "/map",
       api: import.meta.env.VITE_API_LOCATION,
+      discover_api: import.meta.env.PENNSIEVE_DISCOVER_API || 'https://api.pennsieve.io/discover',
       mapSettings: [],
       startingMap: "AC",
       ElIconSetting: shallowRef(ElIconSetting),
@@ -276,13 +278,21 @@ export default {
         }
       );
     },
+    setRatFlatmap: function() {
+      this.$refs.map.setCurrentEntry(
+        {
+          type: "MultiFlatmap",
+          taxo: "NCBITaxon:10114"
+        }
+      );
+    },
     setScaffold: function() {
       this.$refs.map.setCurrentEntry(
         {
           type: "Scaffold",
           label: "Colon",
-          url: "https://mapcore-demo.org/current/sparc-api-v2/s3-resource/221/3/files/derivative/Scaffolds/mouse_colon_metadata.json",
-          viewUrl: "M16_view.json"
+          url: `${this.api}/s3-resource/76/files/derivative/colonMouse_metadata.json?s3BucketName=prd-sparc-discover50-use1`,
+          viewUrl: "colonMouse_Layout1_view.json"
         }
       );
     },
@@ -305,9 +315,86 @@ export default {
     viewerIsReady: function() {
       console.log("viewer is ready")
     },
+    getDatasetInfo: async function (discoverApi, datasetId, datasetVersion) {
+      let url = `${discoverApi}/datasets/${datasetId}`;
+      if (datasetVersion) {
+        url = `${discoverApi}/datasets/${datasetId}/versions/${datasetVersion}`;
+      }
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Error fetching dataset info: ${response.statusText}`);
+      }
+      return await response.json();
+    },
+    extractS3BucketName: function(uri) {
+      if (uri) {
+        const substring = uri.split("//")[1]
+        if (substring) {
+          return substring.split("/")[0]
+        }
+      }
+      return undefined
+    },
+    checkFileExists: async function (path) {
+      const response = await fetch(
+        `${this.api}/exists/${path}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Error checking file existence: ${response.statusText}`);
+      }
+      return await response.json();
+    },
+    getScaffoldEntry: async function(dataset_id, file_path, dataset_version, viewUrl) {
+      const datasetInfo = await this.getDatasetInfo(
+        this.discover_api,
+        dataset_id,
+        dataset_version,
+      );
+      const s3Bucket = datasetInfo
+        ? this.extractS3BucketName(datasetInfo.uri)
+        : undefined
+
+      if (s3Bucket) {
+        let path = `${dataset_id}/${file_path}`
+        if (s3Bucket) {
+          path = path + `?s3BucketName=${s3Bucket}`
+        }
+        const fileCheckResults = await this.checkFileExists(path);
+
+        if (fileCheckResults?.exists) {
+          return {
+            type: 'Scaffold',
+            label: `Dataset ${dataset_id}`,
+            url: `${this.api}/s3-resource/${path}`,
+            viewUrl: viewUrl,
+            dataset_id: dataset_id,
+            dataset_version: dataset_version,
+          };
+        }
+      }
+      return null;
+    },
     parseQuery: function () {
-      this.$router.isReady().then(() => {
+      this.$router.isReady().then(async () => {
         this.uuid = this.$route.query.id;
+        const type = this.$route.query.type;
+        const taxo = this.$route.query.taxo || this.$route.query.taxon;
+        const dataset_id = this.$route.query.dataset_id;
+        const dataset_version = this.$route.query.dataset_version;
+        const file_path = this.$route.query.file_path;
+        const viewUrl = this.$route.query.viewUrl;
+
         if (window) {
           this.prefix = window.location.origin + window.location.pathname;
         }
@@ -335,6 +422,55 @@ export default {
               }
           }
           xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
+        }
+
+        if (taxo && type === 'ac') {
+          // Load AC map with different species
+          this.startingMap = "AC";
+          this.$nextTick(() => {
+            this.$refs.map.setCurrentEntry(
+              {
+                type: "MultiFlatmap",
+                taxo: taxo,
+              }
+            );
+          })
+        } else if (type === 'fc') {
+          // Load FC map
+          this.startingMap = "FC";
+          this.$nextTick(() => {
+            this.$refs.map.setCurrentEntry(
+              {
+                type: "Flatmap",
+                resource: "FunctionalConnectivity",
+                label: "Functional"
+              }
+            );
+          })
+        } else if (type === 'wholebody') {
+          // Load Wholebody scaffold
+          this.startingMap = "WholeBody";
+          this.$nextTick(() => {
+            this.$refs.map.setCurrentEntry(
+              {
+                type: "Scaffold",
+                label: "Human",
+                isBodyScaffold: true
+              }
+            );
+          })
+        } else if (type === 'scaffold' && dataset_id && file_path) {
+          // Load scaffold from dataset
+          // e.g. type=scaffold&dataset_id=444&dataset_version=1&file_path=[file_path]_metadata.json
+          const scaffoldEntry = await this.getScaffoldEntry(
+            dataset_id,
+            file_path,
+            dataset_version,
+            viewUrl,
+          );
+          if (scaffoldEntry) {
+            this.$refs.map.setCurrentEntry(scaffoldEntry);
+          }
         }
       })
     },
