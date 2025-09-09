@@ -360,6 +360,17 @@ export default {
               }
             );
           })
+        } else if (type === 'fc') {
+          this.startingMap = "FC";
+          this.$nextTick(() => {
+            this.$refs.map.setCurrentEntry(
+              {
+                type: "Flatmap",
+                resource: "FunctionalConnectivity",
+                label: "Functional"
+              }
+            );
+          })
         }
       })
     },
