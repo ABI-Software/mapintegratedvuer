@@ -299,9 +299,6 @@ ${publicationLink}`;
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
 
-    // Testing duplicate marker feature IDs
-    cy.markerFeatureIdsTest();
-
     //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
     //the following attempt to workaround it.
     function is_high_resolution_screen() {
@@ -335,6 +332,9 @@ ${publicationLink}`;
     cy.get('@Mouse_publicationLink').then((mousePublicationLink) => {
       cy.checkFlatmapProvenanceCard('Rat', mousePublicationLink);
     });
+
+    // Testing duplicate marker feature IDs
+    cy.markerFeatureIdsTest();
 
     //Search for non existance feature, expect not-found text
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("NON_EXISTANCE");
