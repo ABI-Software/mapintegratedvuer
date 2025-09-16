@@ -99,7 +99,7 @@ export default {
       const eventType = firstResource.eventType;
       const feature = firstResource.feature;
 
-      if (eventType === 'click' && feature.type === 'feature' && feature.models.startsWith('ilxtr:')) {
+      if (eventType === 'click' && feature.type === 'feature' && feature.models?.startsWith('ilxtr:')) {
         // Use only models data for GA tagging
         // There is character limit (100 characters) for event parameter value in GA
         const categories = [];
