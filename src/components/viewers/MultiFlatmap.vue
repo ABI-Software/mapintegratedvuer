@@ -148,24 +148,27 @@ export default {
         });
       }
     },
-    flatmapResourceSelected: function (type, resource) {
-      const map = this.$refs.multiflatmap.getCurrentFlatmap();
-      this.resourceSelected(type, resource);
+    flatmapResourceSelected: function (type, resources) {
+      this.resourceSelected(type, resources);
 
-      if (resource.eventType === 'click' && resource.feature.type === 'feature') {
-        const eventData = {
-          label: resource.label || '',
-          id: resource.feature.id || '',
-          featureId: resource.feature.featureId || '',
-          taxonomy: resource.taxonomy || '',
-          resources: resource.resource.join(', ')
-        };
-        const paramString = transformObjToString(eventData);
-        // `transformStringToObj` function can be used to change it back to object
+      const map = this.$refs.multiflatmap.getCurrentFlatmap();
+      const firstResource = resources[0];
+      const eventType = firstResource.eventType;
+      const feature = firstResource.feature;
+
+      if (eventType === 'click' && feature.type === 'feature' && feature.models.startsWith('ilxtr:')) {
+        // Use only models data for GA tagging
+        // There is character limit (100 characters) for event parameter value in GA
+        const categories = [];
+        resources.forEach(resource => {
+          const { models } = resource.feature;
+          categories.push(models);
+        });
+
         Tagging.sendEvent({
           'event': 'interaction_event',
           'event_name': 'portal_maps_connectivity',
-          'category': paramString,
+          'category': categories.join(', '),
           "location": type + ' ' + map.viewingMode
         });
       }
