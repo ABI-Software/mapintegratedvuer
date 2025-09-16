@@ -155,6 +155,7 @@ export default {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
             let label = result.internalName;
+            // `resource.feature.id` is the marker identifier (not featureId or models)
             if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
               // It is a featured dataset search for DOI.
               returnedAction = {
