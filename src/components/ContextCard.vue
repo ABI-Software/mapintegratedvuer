@@ -499,10 +499,15 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
+  font-family: Asap, sans-serif;
   justify-content: center;
   align-items: center;
   // text-align: initial; // default is justify
   word-break: initial;
+
+  :deep(.el-collapse-item__header) {
+    font-family: Asap, sans-serif;
+  }
 }
 
 .context-card{
