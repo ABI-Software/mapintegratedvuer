@@ -727,8 +727,8 @@ export default {
         feature: []
       })
       tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp);
-      tooltip['mapId'] = this.flatmapService.mapImp.provenance.id;
-      tooltip['mapuuid'] = this.flatmapService.mapImp.provenance.uuid;
+      tooltip['mapId'] = this.flatmapService.mapImp.mapMetadata.id;
+      tooltip['mapuuid'] = this.flatmapService.mapImp.mapMetadata.uuid;
       tooltip['nerve-label'] = data['nerve-label'];
       tooltip['ready'] = true;
       return tooltip;

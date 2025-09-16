@@ -115,7 +115,7 @@ export default {
     },
     flatmapReadyCall: function (flatmap) {
       this.flatmapReady = true;
-      let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id
+      let provClone = {id: this.entry.id, prov: this.getFlatmapImp().mapMetadata}; //create clone of provenance and add id
       const flatmapImp = flatmap.mapImp;
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
