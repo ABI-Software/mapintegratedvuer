@@ -96,8 +96,7 @@ export default {
       this.resourceSelected(type, resources);
 
       const firstResource = resources[0];
-      const eventType = firstResource.eventType;
-      const feature = firstResource.feature;
+      const { eventType, feature } = firstResource;
 
       if (eventType === 'click' && feature.type === 'feature' && feature.models?.startsWith('ilxtr:')) {
         // Use only models data for GA tagging

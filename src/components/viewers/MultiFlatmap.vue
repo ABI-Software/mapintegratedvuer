@@ -153,8 +153,7 @@ export default {
 
       const map = this.$refs.multiflatmap.getCurrentFlatmap();
       const firstResource = resources[0];
-      const eventType = firstResource.eventType;
-      const feature = firstResource.feature;
+      const { eventType, feature } = firstResource;
 
       if (eventType === 'click' && feature.type === 'feature' && feature.models?.startsWith('ilxtr:')) {
         // Use only models data for GA tagging
