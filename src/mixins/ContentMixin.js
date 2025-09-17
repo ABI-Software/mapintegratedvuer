@@ -621,7 +621,7 @@ export default {
       this.flatmapQueries.initialise(this.flatmapAPI);
 
       const mapImp = {
-        'provenance': {
+        'mapMetadata': {
           'uuid': flatmapUuid,
           'connectivity': {
             ...latestFlatmap.sckan,
