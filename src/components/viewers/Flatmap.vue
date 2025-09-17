@@ -92,29 +92,6 @@ export default {
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
     },
-    flatmapResourceSelected: function (type, resources) {
-      this.resourceSelected(type, resources);
-
-      const firstResource = resources[0];
-      const { eventType, feature } = firstResource;
-
-      if (eventType === 'click' && feature.type === 'feature' && feature.models?.startsWith('ilxtr:')) {
-        // Use only models data for GA tagging
-        // There is character limit (100 characters) for event parameter value in GA
-        const categories = [];
-        resources.forEach(resource => {
-          const { models } = resource.feature;
-          categories.push(models);
-        });
-
-        Tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': 'portal_maps_connectivity',
-          'category': categories.join(', '),
-          "location": type + ' ' + this.$refs.flatmap.viewingMode
-        });
-      }
-    },
     flatmapReadyCall: function (flatmap) {
       this.flatmapReady = true;
       let provClone = {id: this.entry.id, prov: this.getFlatmapImp().provenance}; //create clone of provenance and add id

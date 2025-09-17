@@ -148,30 +148,6 @@ export default {
         });
       }
     },
-    flatmapResourceSelected: function (type, resources) {
-      this.resourceSelected(type, resources);
-
-      const map = this.$refs.multiflatmap.getCurrentFlatmap();
-      const firstResource = resources[0];
-      const { eventType, feature } = firstResource;
-
-      if (eventType === 'click' && feature.type === 'feature' && feature.models?.startsWith('ilxtr:')) {
-        // Use only models data for GA tagging
-        // There is character limit (100 characters) for event parameter value in GA
-        const categories = [];
-        resources.forEach(resource => {
-          const { models } = resource.feature;
-          categories.push(models);
-        });
-
-        Tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': 'portal_maps_connectivity',
-          'category': categories.join(', '),
-          "location": type + ' ' + map.viewingMode
-        });
-      }
-    },
     onPathwaySelectionChanged: function (data) {
       const { label, property, checked, selectionsTitle } = data;
       // GA Tagging
