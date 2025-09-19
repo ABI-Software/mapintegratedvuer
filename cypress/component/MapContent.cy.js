@@ -188,6 +188,48 @@ ${publicationLink}`;
       cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
     })
 
+    Cypress.Commands.add('testSetCurrentEntry', (entry, species) => {
+      cy.window().then((win) => {
+        if (win.Cypress && win.Cypress.vue) {
+          const cypressVue = win.Cypress.vue;
+          const mapContentRef = cypressVue.$refs.map;
+          if (mapContentRef && mapContentRef.setCurrentEntry) {
+            mapContentRef.setCurrentEntry(entry);
+          }
+        }
+      });
+
+      // Wait for the loading to complete
+      cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
+
+      // Verify that the selected species is in the species dropdown
+      cy.get('.contentvuer .component-container .el-select.select-box .el-select__selection .el-select__selected-item.el-select__placeholder')
+        .should('contain.text', species)
+
+      // Verify that the selected flatmap is loaded by checking the flatmap content
+      cy.window().then((win) => {
+        if (win.Cypress && win.Cypress.vue) {
+          const cypressVue = win.Cypress.vue;
+          const mapContentRef = cypressVue.$refs.map;
+          if (mapContentRef) {
+            const splitdialog = mapContentRef.$refs.flow.$refs.splitdialog;
+
+            if (splitdialog) {
+              const activeContents = splitdialog.getActiveContents();
+              const multiFlatmapContent = activeContents.find(content =>
+                content.viewerType === 'MultiFlatmap'
+              );
+
+              if (multiFlatmapContent && multiFlatmapContent.$refs['viewer']) {
+                const viewer = multiFlatmapContent.$refs['viewer'];
+                expect(viewer.activeSpecies).to.equal(species);
+              }
+            }
+          }
+        }
+      });
+    })
+
     //Wait for the curie response before continuing
    // cy.wait('@categoryResponse');
 
@@ -253,6 +295,12 @@ ${publicationLink}`;
     cy.get('@Mouse_publicationLink').then((mousePublicationLink) => {
       cy.checkFlatmapProvenanceCard('Rat', mousePublicationLink);
     });
+
+    // Test loading different species, Rat
+    cy.testSetCurrentEntry({
+      "type": "MultiFlatmap",
+      "taxo": "NCBITaxon:10114"
+    }, 'Rat');
 
     //Search for non existance feature, expect not-found text
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("NON_EXISTANCE");
