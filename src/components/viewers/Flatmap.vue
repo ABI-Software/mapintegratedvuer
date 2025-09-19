@@ -59,7 +59,6 @@ import Tagging from '../../services/tagging.js';
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
-import { transformObjToString } from '../scripts/utilities';
 
 import { FlatmapVuer } from "@abi-software/flatmapvuer";
 import "@abi-software/flatmapvuer/dist/style.css";
@@ -94,8 +93,12 @@ export default {
     },
     flatmapReadyCall: function (flatmap) {
       this.flatmapReady = true;
-      let provClone = {id: this.entry.id, prov: this.getFlatmapImp().mapMetadata}; //create clone of provenance and add id
-      const flatmapImp = flatmap.mapImp;
+      const mapImp = this.getFlatmapImp();
+      if (mapImp?.mapMetadata?.name) {
+        this.updateEntryLabel(mapImp?.mapMetadata?.name);
+        this.updateEntryTitle(mapImp?.mapMetadata?.name);
+      }
+      let provClone = {id: this.entry.id, prov: mapImp.mapMetadata}; //create clone of provenance and add id
       EventBus.emit("mapImpProv", provClone); // send clone to context card
       this.$emit("flatmap-provenance-ready", provClone);
       this.flatmapReadyForMarkerUpdates(flatmap);
