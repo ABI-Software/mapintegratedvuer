@@ -188,6 +188,86 @@ ${publicationLink}`;
       cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
     })
 
+    Cypress.Commands.add('markerFeatureIdsTest', () => {
+      const markerFeatureIds = [];
+      cy.get('#flatmap-select').click({force: true});
+      cy.get('.el-scrollbar__view.el-select-dropdown__list > li').then($lis => {
+        const liCount = Cypress.$($lis).filter(':visible').length;
+
+        function clickAndProcess(index) {
+          if (index >= liCount) return;
+          // if no visible list items, reopen the dropdown
+          if (!Cypress.$($lis).eq(index).is(':visible')) {
+            cy.get('#flatmap-select').click({force: true});
+          }
+
+          cy.get('.el-scrollbar__view.el-select-dropdown__list > li')
+            .eq(index)
+            .should('be.visible')
+            .click();
+
+          cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000})
+            .should('not.exist');
+
+          cy.window().then((win) => {
+            if (win.Cypress && win.Cypress.vue) {
+              const cypressVue = win.Cypress.vue;
+              const markers = cypressVue.settingsStore.globalSettings.displayMarkers ? cypressVue.settingsStore.markers : [];
+              const splitdialog = cypressVue.$refs.flow.$refs.splitdialog;
+
+              if (splitdialog) {
+                const activeContents = splitdialog.getActiveContents();
+
+                activeContents.forEach(content => {
+                  if (content?.$refs['viewer']) {
+                    const contentViewer = content.$refs['viewer'];
+                    const flatmapImp = contentViewer.getFlatmapImp();
+
+                    if (flatmapImp && markers.length) {
+                      const flatmapId = flatmapImp.id
+                      const fmMarkers = contentViewer.removeMarkersNotOnFlatmap(flatmapImp, markers);
+                      const flatTerms = fmMarkers.map(t => t.terms).flat(Infinity);
+                      const duplicateTerms = [];
+
+                      flatTerms.forEach(term => {
+                        const featureId = flatmapImp.modelFeatureIds(term);
+                        if (featureId.length > 1) {
+                          if (!duplicateTerms.some(item => item.term === term)) {
+                            const annotationsArray = Array.from(flatmapImp.annotations.values());
+                            const foundAnnotation = annotationsArray.find(annotation => annotation.models === term);
+                            const termLabel = foundAnnotation ? foundAnnotation.label : '';
+                            const label = termLabel.charAt(0).toUpperCase() + termLabel.slice(1);
+                            duplicateTerms.push({
+                              label,
+                              term,
+                              featureIdCount: featureId.length
+                            });
+                          }
+                        }
+                      });
+
+                      if (duplicateTerms.length > 0) {
+                        markerFeatureIds.push({
+                          flatmapId,
+                          duplicateTerms
+                        });
+                      }
+                    }
+                  }
+                });
+              }
+            }
+          }).then(() => {
+            if (markerFeatureIds.length > 0) {
+              cy.writeFile('cypress/output/duplicate_marker_feature_ids.json', markerFeatureIds);
+            }
+            clickAndProcess(index + 1);
+          });
+        }
+        clickAndProcess(0);
+      });
+    })
+
     //Wait for the curie response before continuing
    // cy.wait('@categoryResponse');
 
@@ -218,7 +298,6 @@ ${publicationLink}`;
     cy.wait('@anatomyResponse', {timeout: 20000});
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
-
 
     //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
     //the following attempt to workaround it.
@@ -253,6 +332,9 @@ ${publicationLink}`;
     cy.get('@Mouse_publicationLink').then((mousePublicationLink) => {
       cy.checkFlatmapProvenanceCard('Rat', mousePublicationLink);
     });
+
+    // Testing duplicate marker feature IDs
+    cy.markerFeatureIdsTest();
 
     //Search for non existance feature, expect not-found text
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("NON_EXISTANCE");

@@ -10,6 +10,8 @@ cypress/results/
 cypress/snapshots/
 cypress/videos/
 cypress/reports/
+cypress/output/
+cypress.env.json
 test/src/
 docs/.vitepress/dist
 docs/.vitepress/cache
