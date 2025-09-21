@@ -91,6 +91,18 @@ import {
   ElMain as Main,
 } from "element-plus";
 
+const getAllFacetLabels = (children) => {
+  const labels = [];
+  if (children) {
+    children.forEach((child) => {
+      if (child.label) {
+        labels.push(child.label.toLowerCase());
+      }
+      labels.push(...getAllFacetLabels(child.children));
+    });
+  }
+  return labels;
+}
 /**
  * Component of the floating dialogs.
  */
@@ -120,6 +132,7 @@ export default {
   },
   data: function () {
     return {
+      availableFacets: undefined,
       sideBarVisibility: true,
       startUp: true,
       sidebarStateRestored: false,
@@ -287,21 +300,15 @@ export default {
         } else if (action.type == "Facets") {
           const facets = [];
           const facetsArray = action.facets ? action.facets : action.labels;
-          const availableFacetsRaw = localStorage.getItem('available-anatomy-facets');
-          const availableFacetsAll = availableFacetsRaw ? JSON.parse(availableFacetsRaw) : [];
+          if (!this.availableFacets || (this.availableFacets.length === 0)) {
+            const availableFacetsRaw = localStorage.getItem('available-anatomy-facets');
+            const availableFacetsAll = availableFacetsRaw ? JSON.parse(availableFacetsRaw) : [];
 
-          // get label values
-          let availableFacets = availableFacetsAll.flatMap(facet => {
-            if (facet.children && facet.children.length) {
-              return [facet.label, ...facet.children.map(child => child.label)];
-            }
-            return facet.label;
-          }).map(label => label.toLowerCase());
+            // get label values
+            this.availableFacets = markRaw([...new Set(getAllFacetLabels(availableFacetsAll))]);
+          }
 
-          // remove duplicate items
-          availableFacets = [...new Set(availableFacets)];
-
-          const filterValuesArray = intersectArrays(availableFacets, facetsArray);
+          const filterValuesArray = intersectArrays(this.availableFacets, facetsArray);
           const filterValues = filterValuesArray.join(', ');
 
           this.settingsStore.facets.species.forEach(e => {
