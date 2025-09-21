@@ -681,7 +681,7 @@ export default {
         this.flatmapQueries.initialise(this.flatmapAPI);
         const knowledge = await loadAndStoreKnowledge(flatmapImp, this.flatmapQueries);
         this.connectivityKnowledge[sckanVersion] = knowledge
-          .filter(item => item.source === sckanVersion && item.connectivity?.length)
+          .filter(item => item.connectivity?.length)
           .sort((a, b) => a.label.localeCompare(b.label));
       }
       if (!this.connectivityKnowledge[uuid]) {
