@@ -431,13 +431,15 @@ export default {
           // Load FC map
           this.startingMap = "FC";
           this.$nextTick(() => {
-            this.$refs.map.setCurrentEntry(
-              {
-                type: "Flatmap",
-                resource: "FunctionalConnectivity",
-                label: "Functional"
-              }
-            );
+            const currentEntry = {
+              type: 'Flatmap',
+              resource: 'FunctionalConnectivity',
+              label: 'Functional',
+            }
+            if (this.$route.query.fid) {
+              currentEntry.resource = this.$route.query.fid;
+            }
+            this.$refs.map.setCurrentEntry(currentEntry);
           })
         } else if (type === 'wholebody') {
           // Load Wholebody scaffold
