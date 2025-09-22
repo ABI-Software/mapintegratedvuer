@@ -35,6 +35,7 @@
       </div>
     <div class="map-app">
       <MapContent
+        v-if="routerIsReady"
         ref="map"
         :startingMap="startingMap"
         :options="options"
@@ -156,6 +157,7 @@ export default {
       mapSettings: [],
       startingMap: "AC",
       ElIconSetting: shallowRef(ElIconSetting),
+      routerIsReady: false,
     }
   },
   computed: {
@@ -171,7 +173,7 @@ export default {
         algoliaKey: import.meta.env.VITE_ALGOLIA_KEY,
         algoliaId: import.meta.env.VITE_ALGOLIA_ID,
         pennsieveApi: import.meta.env.VITE_PENNSIEVE_API_LOCATION,
-        flatmapAPI: import.meta.env.VITE_FLATMAPAPI_LOCATION,
+        flatmapAPI: this.$route.query.flatmapserver ? this.$route.query.flatmapserver : import.meta.env.VITE_FLATMAPAPI_LOCATION,
         nlLinkPrefix: import.meta.env.VITE_NL_LINK_PREFIX,
         rootUrl: import.meta.env.VITE_ROOT_URL,
       }
@@ -379,6 +381,7 @@ export default {
     },
     parseQuery: function () {
       this.$router.isReady().then(async () => {
+        this.routerIsReady = true;
         this.uuid = this.$route.query.id;
         const type = this.$route.query.type;
         const taxo = this.$route.query.taxo || this.$route.query.taxon;
