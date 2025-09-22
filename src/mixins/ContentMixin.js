@@ -5,6 +5,7 @@ import {
 } from "../components/SimulatedData.js";
 import EventBus from "../components/EventBus";
 import { mapStores } from 'pinia';
+import { useEntriesStore } from '../stores/entries';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
@@ -41,7 +42,7 @@ export default {
   },
   inject: ['showGlobalSettings', 'showOpenMapButton'],
   computed: {
-    ...mapStores(useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
       return this.splitFlowStore.idNamePair;
     },
@@ -110,6 +111,16 @@ export default {
         'category': category,
         'location': 'open_new_map'
       });
+    },
+    updateEntryLabel: function(label) {
+      if (label) {
+        this.entriesStore.updateLabelForEntry(this.entry, label);
+      }
+    },
+    updateEntryTitle: function(title) {
+      if (title) {
+        this.entriesStore.updateTitleForEntry(this.entry, title);
+      }
     },
     updateWithViewUrl: function() {
       return;
@@ -681,7 +692,7 @@ export default {
         this.flatmapQueries.initialise(this.flatmapAPI);
         const knowledge = await loadAndStoreKnowledge(flatmapImp, this.flatmapQueries);
         this.connectivityKnowledge[sckanVersion] = knowledge
-          .filter(item => item.source === sckanVersion && item.connectivity?.length)
+          .filter(item => item.connectivity?.length)
           .sort((a, b) => a.label.localeCompare(b.label));
       }
       if (!this.connectivityKnowledge[uuid]) {
