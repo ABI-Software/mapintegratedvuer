@@ -43,5 +43,17 @@ export const useEntriesStore = defineStore('entries', {
         entry['sckanVersion'] = sckanVersion;
       }
     },
+    updateLabelForEntry(targetEntry, label) {
+      const entryToAssign = this.entries.find(entry => entry.id === targetEntry.id);
+      if (entryToAssign) {
+        entryToAssign['label'] = label;
+      }
+    },
+    updateTitleForEntry(targetEntry, title) {
+      const entryToAssign = this.entries.find(entry => entry.id === targetEntry.id);
+      if (entryToAssign) {
+        entryToAssign['title'] = title;
+      }
+    },
   }
 });
