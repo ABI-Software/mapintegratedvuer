@@ -427,7 +427,6 @@ export default {
             };
             if (anatomy) {
               currentEntry.organ = anatomy;
-              this.$refs.map.displaySearchFromQuery = anatomy;
             }
             this.$refs.map.setCurrentEntry(currentEntry);
           })
