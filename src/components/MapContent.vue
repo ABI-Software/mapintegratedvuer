@@ -423,6 +423,7 @@ export default {
       if (this.displaySearchFromQuery) {
         setTimeout(() => {
           this.$refs.flow.onDisplaySearch({term: this.displaySearchFromQuery});
+          this.displaySearchFromQuery = ''; // Clear after using it from first load
         });
       }
       /**
