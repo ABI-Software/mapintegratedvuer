@@ -203,8 +203,9 @@ export default {
         const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
         EventBus.emit("connectivity-filter-options", uniqueFilters);
       } else {
+        const connectivityData = this.connectivitiesStore.globalConnectivities[sckanVersion] || [];
         EventBus.emit("connectivity-knowledge", {
-            data: this.connectivitiesStore.globalConnectivities[sckanVersion],
+            data: connectivityData,
             highlight: [],
             processed: false,
         });
