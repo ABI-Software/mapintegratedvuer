@@ -134,6 +134,7 @@ export default {
     return {
       isReady: false,
       initialState: undefined,
+      displaySearchFromQuery: '',
     }
   },
   methods: {
@@ -311,6 +312,9 @@ export default {
                       //is current
                       if (state.uuid) entry.state.state.entry = state.taxo;
                     }
+                    if (state.organ) {
+                      this.displaySearchFromQuery = state.organ;
+                    }
                     this.$refs.flow.setState(currentState);
                     //Do not create a new entry, instead set the multiflatmap viewer
                     //to the primary slot
@@ -415,6 +419,13 @@ export default {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
     EventBus.on("mapLoaded", (map) => {
+      // Check if there is a search term to display
+      if (this.displaySearchFromQuery) {
+        setTimeout(() => {
+          this.$refs.flow.onDisplaySearch({term: this.displaySearchFromQuery});
+          this.displaySearchFromQuery = ''; // Clear after using it from first load
+        });
+      }
       /**
        * This event emit when the map is loaded.
        */
