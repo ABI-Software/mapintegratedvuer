@@ -134,6 +134,7 @@ export default {
     return {
       isReady: false,
       initialState: undefined,
+      displaySearchFromQuery: '',
     }
   },
   methods: {
@@ -415,6 +416,12 @@ export default {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
     }
     EventBus.on("mapLoaded", (map) => {
+      // Check if there is a search term to display
+      if (this.displaySearchFromQuery) {
+        setTimeout(() => {
+          this.$refs.flow.onDisplaySearch({term: this.displaySearchFromQuery});
+        });
+      }
       /**
        * This event emit when the map is loaded.
        */
