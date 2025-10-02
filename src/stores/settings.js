@@ -80,7 +80,7 @@ export const useSettingsStore = defineStore('settings', {
     hasAppliedFacets: state => facets => {
       for (const facet of facets) {
         for (const appliedFacet of state.appliedFacets) {
-          if (facet.toLowerCase() === appliedFacet.toLowerCase()) {
+          if (facet && appliedFacet && facet.toLowerCase() === appliedFacet.toLowerCase()) {
             return true;
           }
         }
