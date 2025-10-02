@@ -181,7 +181,8 @@ export default {
                 facets: [label],
               };
               let labels = new Set();
-              resource.feature['marker-terms'].forEach((term) => {
+              // 'marker-terms' changed to 'dataset-terms' in flatmap-viewer@4.3.5
+              resource.feature['dataset-terms'].forEach((term) => {
                 labels.add(term.label);
               });
               if (labels.size === 0) {
