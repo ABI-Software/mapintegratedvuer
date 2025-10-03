@@ -103,6 +103,20 @@ const getAllFacetLabels = (children) => {
   }
   return labels;
 }
+
+
+const getAnatomyTermsForFilters = (action, availableNameCurieMapping) => {
+  const facets = [];
+  for (const facet of action.facets) {
+    if (facet in availableNameCurieMapping) {
+      facets.push(availableNameCurieMapping[facet]);
+    } else {
+      facets.push(facet);
+    }
+  }
+  return facets;
+}
+
 /**
  * Component of the floating dialogs.
  */
@@ -133,6 +147,7 @@ export default {
   data: function () {
     return {
       availableFacets: undefined,
+      availableNameCurieMapping: undefined,
       sideBarVisibility: true,
       startUp: true,
       sidebarStateRestored: false,
@@ -256,6 +271,22 @@ export default {
      */
     actionClick: function (action) {
       if (action) {
+        if (!this.availableFacets || (this.availableFacets.length === 0)) {
+          const availableFacetsRaw = localStorage.getItem('available-anatomy-facets');
+          const availableFacetsAll = availableFacetsRaw ? JSON.parse(availableFacetsRaw) : [];
+
+          // get label values
+          this.availableFacets = markRaw([...new Set(getAllFacetLabels(availableFacetsAll))]);
+        }
+
+        if (!this.availableNameCurieMapping || (Object.keys(this.availableNameCurieMapping).length === 0)) {
+          const availableDataRaw = localStorage.getItem('available-name-curie-mapping');
+          const availableData = availableDataRaw ? JSON.parse(availableDataRaw) : {};
+
+          // get label values
+          this.availableNameCurieMapping = markRaw(availableData);
+        }
+
         if (action.type == "Search") {
           if (action.nervePath) {
             this.openSearch([action.filter], action.label);
@@ -284,8 +315,9 @@ export default {
               term: "Anatomical structure",
             };
             const filters = [];
+            const facets = getAnatomyTermsForFilters(action, this.availableNameCurieMapping);
             const facetString = action.facets.join(', ');
-            action.facets.forEach(facet => filters.push({...sendAction, facet}));
+            facets.forEach(facet => filters.push({...sendAction, facet}));
             this.$refs.sideBar.addFilter(filters);
             // GA Tagging
             // Event tracking for map action search/filter data
@@ -299,15 +331,7 @@ export default {
           }
         } else if (action.type == "Facets") {
           const facets = [];
-          const facetsArray = action.facets ? action.facets : action.labels;
-          if (!this.availableFacets || (this.availableFacets.length === 0)) {
-            const availableFacetsRaw = localStorage.getItem('available-anatomy-facets');
-            const availableFacetsAll = availableFacetsRaw ? JSON.parse(availableFacetsRaw) : [];
-
-            // get label values
-            this.availableFacets = markRaw([...new Set(getAllFacetLabels(availableFacetsAll))]);
-          }
-
+          const facetsArray = getAnatomyTermsForFilters(action, this.availableNameCurieMapping);
           const filterValuesArray = intersectArrays(this.availableFacets, facetsArray);
           const filterValues = filterValuesArray.join(', ');
 
@@ -318,7 +342,6 @@ export default {
               facetPropPath: "organisms.primary.species.name",
             });
           });
-
           facets.push(
             ...filterValuesArray.map(val => ({
               facet: capitalise(val),

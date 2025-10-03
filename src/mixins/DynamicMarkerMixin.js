@@ -27,7 +27,7 @@ export default {
         this.$emit("resource-selected", result);
       }
     },
-        /**
+    /**
      * Function used for updating the flatmap markers.
      * We set the markers based on what was searched and the flatmap clusters them.
      */
@@ -42,18 +42,9 @@ export default {
         // Set the dataset markers
         let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
         markers = removeDuplicates(markers);
-        let fmMarkers = this.removeMarkersNotOnFlatmap(flatmapImp, markers);
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
-        if (this.entry.resource === "FunctionalConnectivity") {
-          let FCMapMarkers = [];
-          for (let i = 0; i < fmMarkers.length; i++) {
-            FCMapMarkers = FCMapMarkers.concat(fmMarkers[i].terms);
-          }
-          flatmapImp.addMarkers(Array.from(new Set(FCMapMarkers)), { className: "standard-marker", cluster: false });
-        } else {
-          flatmapImp.addDatasetMarkers(fmMarkers);
-        }
+        flatmapImp.addDatasetMarkers(markers);
 
         // Set the featured markers
         if (this.entry.type === "MultiFlatmap") {
