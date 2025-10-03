@@ -103,8 +103,10 @@ export default {
       this.$emit("flatmap-provenance-ready", provClone);
       this.flatmapReadyForMarkerUpdates(flatmap);
       this.updateViewerSettings();
-      this.loadConnectivityExplorerConfig(flatmap);
-      EventBus.emit("mapLoaded", flatmap);
+      // Wait for flatmap's connectivity to load before emitting mapLoaded
+      this.loadConnectivityExplorerConfig(flatmap).then(() => {
+        EventBus.emit("mapLoaded", flatmap);
+      });
     },
     onPathwaySelectionChanged: function (data) {
       const { label, property, checked, selectionsTitle } = data;
