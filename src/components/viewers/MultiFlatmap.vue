@@ -107,7 +107,6 @@ export default {
       scaffoldResource: { },
       showStarInLegend: false,
       openMapOptions: getOpenMapOptions("Human Male"),
-      displayMinimap: true,
     }
   },
   methods: {
@@ -392,6 +391,9 @@ export default {
     },
     featuredMarkers() {
       return this.settingsStore.featuredMarkers;
+    },
+    displayMinimap() {
+      return this.settingsStore.displayMinimap;
     },
   },
   watch: {
