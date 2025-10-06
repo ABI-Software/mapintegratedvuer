@@ -869,6 +869,30 @@ export default {
     trackEvent: function (data) {
       Tagging.sendEvent(data);
     },
+    updateFlatmapMinimap: function () {
+      const activePaneIDs = this.splitFlowStore.getActivePaneIds();
+      const splitdialog = this.$refs.splitdialog;
+
+      // TODO: refactor duplicate code
+      // Disable minimap when there are more than four panel in map-viewer
+      if (activePaneIDs.length > 4) {
+        this.settingsStore.updateDisplayMinimap(false);
+        if (splitdialog) {
+          const activeContents = splitdialog.getActiveContents();
+          activeContents.forEach((content) => {
+            content.toggleMinimap(false);
+          });
+        }
+      } else {
+        this.settingsStore.updateDisplayMinimap(true);
+        if (splitdialog) {
+          const activeContents = splitdialog.getActiveContents();
+          activeContents.forEach((content) => {
+            content.toggleMinimap(true);
+          });
+        }
+      }
+    },
   },
   created: function () {
     this._facets = [];
@@ -940,6 +964,7 @@ export default {
       }
     });
     EventBus.on("OpenNewMap", type => {
+      this.updateFlatmapMinimap();
       this.openNewMap(type);
     });
     EventBus.on("startHelp", () => {
