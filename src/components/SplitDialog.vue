@@ -470,6 +470,26 @@ export default {
 
       EventBus.emit("connectivity-knowledge", connectivitiesPayload);
     },
+    updateFlatmapMinimap: function () {
+      const activePaneIDs = this.splitFlowStore.getActivePaneIds();
+      const contents = this.getActiveContents();
+
+      // TODO: refactor duplicate code
+      // Disable minimap when there are more than four panel in map-viewer
+      if (activePaneIDs.length > 4) {
+        this.settingsStore.updateDisplayMinimap(false);
+
+        contents.forEach((content) => {
+          content.toggleMinimap(false);
+        });
+      } else {
+        this.settingsStore.updateDisplayMinimap(true);
+
+        contents.forEach((content) => {
+          content.toggleMinimap(true);
+        });
+      }
+    },
   },
   computed: {
     ...mapStores(useSplitFlowStore, useConnectivitiesStore, useSettingsStore),
@@ -486,6 +506,7 @@ export default {
   mounted: function () {
     EventBus.on("PaneResize", payload => {
       this.setStyles(payload.refName, payload.rect);
+      this.updateFlatmapMinimap();
     });
     EventBus.on("PaneUnmounted", payload => {
       this.hidePane(payload.refName);
