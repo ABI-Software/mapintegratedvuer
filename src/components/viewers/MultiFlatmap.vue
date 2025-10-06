@@ -25,7 +25,7 @@
       @neuron-connection-feature-click="onNeuronConnectionFeatureClick"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
-      :displayMinimap="true"
+      :displayMinimap="displayMinimap"
       :showStarInLegend="showStarInLegend"
       :enableOpenMapUI="true"
       :openMapOptions="openMapOptions"
@@ -107,6 +107,7 @@ export default {
       scaffoldResource: { },
       showStarInLegend: false,
       openMapOptions: getOpenMapOptions("Human Male"),
+      displayMinimap: true,
     }
   },
   methods: {
