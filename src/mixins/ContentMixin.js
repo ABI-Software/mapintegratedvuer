@@ -79,15 +79,18 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
-    toggleMinimap: function (option) {
+    toggleMinimap: function (option, prevState) {
       if (this.multiflatmapRef) {
         const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
-        if (currentFlatmap) {
-          if (option === true) {
-            // TODO: regenerate minimap if not exist
-            currentFlatmap.showMinimap(true);
+        const mapImp = currentFlatmap?.mapImp;
+
+        if (mapImp) {
+          // Only create minimap when it is not created before or destroyed
+          if (option === true && prevState === false) {
+            const minimapOptions = mapImp.options?.minimap || {};
+            mapImp.createMinimap(minimapOptions);
           } else {
-            currentFlatmap.mapImp?.closeMinimap();
+            mapImp.closeMinimap();
           }
         }
       }

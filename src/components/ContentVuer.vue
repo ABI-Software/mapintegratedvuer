@@ -170,8 +170,8 @@ export default {
     onLoadConnectivityDetail: function(payload) {
       this.$refs.viewer?.getKnowledgeTooltip(payload);
     },
-    toggleMinimap: function(option) {
-      this.$refs.viewer?.toggleMinimap(option);
+    toggleMinimap: function(option, prevState) {
+      this.$refs.viewer?.toggleMinimap(option, prevState);
     },
   },
   data: function () {

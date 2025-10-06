@@ -475,10 +475,11 @@ export default {
       const contents = this.getActiveContents();
       // Disable minimap when there are more than four panel in map-viewer
       const minimapShow = activePaneIDs.length > 4 ? false : true;
+      const prevMinimapState = this.settingsStore.displayMinimap;
 
       this.settingsStore.updateDisplayMinimap(minimapShow);
       contents.forEach((content) => {
-        content.toggleMinimap(minimapShow);
+        content.toggleMinimap(minimapShow, prevMinimapState);
       });
     },
   },
