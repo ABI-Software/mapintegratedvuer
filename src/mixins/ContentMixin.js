@@ -79,6 +79,19 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
+    toggleMinimap: function (option) {
+      if (this.multiflatmapRef) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        if (currentFlatmap) {
+          if (option === true) {
+            // TODO: regenerate minimap if not exist
+            currentFlatmap.showMinimap(true);
+          } else {
+            currentFlatmap.mapImp.closeMinimap();
+          }
+        }
+      }
+    },
     onConnectivityItemClose() {
       if (this?.alive) {
         if (this.multiflatmapRef) {
