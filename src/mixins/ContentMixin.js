@@ -87,7 +87,7 @@ export default {
             // TODO: regenerate minimap if not exist
             currentFlatmap.showMinimap(true);
           } else {
-            currentFlatmap.mapImp.closeMinimap();
+            currentFlatmap.mapImp?.closeMinimap();
           }
         }
       }
