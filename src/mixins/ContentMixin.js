@@ -85,10 +85,12 @@ export default {
         const mapImp = currentFlatmap?.mapImp;
 
         if (mapImp) {
-          // Only create minimap when it is not created before or destroyed
-          if (option === true && prevState === false) {
-            const minimapOptions = mapImp.options?.minimap || {};
-            mapImp.createMinimap(minimapOptions);
+          if (option === true) {
+            // Only create minimap when it is not created before or destroyed
+            if (prevState === false) {
+              const minimapOptions = mapImp.options?.minimap || {};
+              mapImp.createMinimap(minimapOptions);
+            }
           } else {
             mapImp.closeMinimap();
           }
