@@ -509,6 +509,7 @@ export default {
     font-family: Asap, sans-serif;
     font-size: 14px;
     color: #606266;
+    font-weight: 400;
   }
 }
 
