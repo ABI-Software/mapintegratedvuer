@@ -88,7 +88,7 @@ export default {
           if (option === true) {
             // Only create minimap when it is not created before or destroyed
             if (prevState === false) {
-              const minimapOptions = mapImp.options?.minimap || {};
+              const minimapOptions = mapImp.options?.minimap || { position: 'top-right' };
               mapImp.createMinimap(minimapOptions);
               currentFlatmap.addResizeButtonToMinimap();
             }
