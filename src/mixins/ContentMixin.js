@@ -90,6 +90,7 @@ export default {
             if (prevState === false) {
               const minimapOptions = mapImp.options?.minimap || {};
               mapImp.createMinimap(minimapOptions);
+              currentFlatmap.addResizeButtonToMinimap();
             }
           } else {
             mapImp.closeMinimap();
