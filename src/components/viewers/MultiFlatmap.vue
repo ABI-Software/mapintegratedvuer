@@ -228,8 +228,10 @@ export default {
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
         this.updateViewerSettings();
-        this.loadConnectivityExplorerConfig(flatmap);
-        EventBus.emit("mapLoaded", flatmap);
+        // Wait for flatmap's connectivity to load before emitting mapLoaded
+        this.loadConnectivityExplorerConfig(flatmap).then(() => {
+          EventBus.emit("mapLoaded", flatmap);
+        });
       }
     },
     getFlatmapImp: function () {
