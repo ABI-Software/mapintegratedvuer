@@ -25,7 +25,7 @@
       @neuron-connection-feature-click="onNeuronConnectionFeatureClick"
       :connectivityInfoSidebar="connectivityInfoSidebar"
       ref="multiflatmap"
-      :displayMinimap="true"
+      :displayMinimap="displayMinimap"
       :showStarInLegend="showStarInLegend"
       :enableOpenMapUI="true"
       :openMapOptions="openMapOptions"
@@ -391,6 +391,9 @@ export default {
     },
     featuredMarkers() {
       return this.settingsStore.featuredMarkers;
+    },
+    displayMinimap() {
+      return this.settingsStore.displayMinimap;
     },
   },
   watch: {
