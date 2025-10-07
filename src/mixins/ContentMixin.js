@@ -79,6 +79,22 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
+    toggleMinimap: function (option, prevState) {
+      if (this.multiflatmapRef) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        const mapImp = currentFlatmap?.mapImp;
+
+        if (mapImp) {
+          // Only create minimap when it is not created before or destroyed
+          if (option === true && prevState === false) {
+            const minimapOptions = mapImp.options?.minimap || {};
+            mapImp.createMinimap(minimapOptions);
+          } else {
+            mapImp.closeMinimap();
+          }
+        }
+      }
+    },
     onConnectivityItemClose() {
       if (this?.alive) {
         if (this.multiflatmapRef) {

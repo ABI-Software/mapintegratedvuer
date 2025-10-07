@@ -869,6 +869,13 @@ export default {
     trackEvent: function (data) {
       Tagging.sendEvent(data);
     },
+    updateFlatmapMinimap: function () {
+      const splitdialog = this.$refs.splitdialog;
+
+      if (splitdialog) {
+        splitdialog.updateFlatmapMinimap();
+      }
+    },
   },
   created: function () {
     this._facets = [];
@@ -940,6 +947,7 @@ export default {
       }
     });
     EventBus.on("OpenNewMap", type => {
+      this.updateFlatmapMinimap();
       this.openNewMap(type);
     });
     EventBus.on("startHelp", () => {
