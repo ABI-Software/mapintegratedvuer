@@ -482,6 +482,11 @@ export default {
         }
       }
 
+      // Prioritize visible contents so minimap initializes with visible maps first
+      multiFlatmapContents.sort((a, b) => {
+        return b.isVisible() - a.isVisible();
+      });
+
       // Disable minimap when there are more than four panel in map-viewer
       const minimapShow = activePaneIDs.length > 4 ? false : true;
       const prevMinimapState = this.settingsStore.displayMinimap;
