@@ -202,6 +202,7 @@ export default {
       const filterExpression = {
         OR: [
           { NOT: { 'tile-layer': 'pathways' } },
+          { NOT: { 'HAS': 'nerves' } },
           {
             AND: [
               { 'tile-layer': 'pathways' },
