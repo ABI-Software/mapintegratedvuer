@@ -470,6 +470,32 @@ export default {
 
       EventBus.emit("connectivity-knowledge", connectivitiesPayload);
     },
+    updateFlatmapMinimap: function () {
+      const activePaneIDs = this.splitFlowStore.getActivePaneIds();
+      let contents = this.$refs['content'];
+      let multiFlatmapContents = [];
+
+      // Only multiFlatmap viewer has minimap
+      for (let i = 0; i < contents.length; i++) {
+        if (contents[i].viewerType === 'MultiFlatmap') {
+          multiFlatmapContents.push(contents[i]);
+        }
+      }
+
+      // Prioritize visible contents so minimap initializes with visible maps first
+      multiFlatmapContents.sort((a, b) => {
+        return b.isVisible() - a.isVisible();
+      });
+
+      // Disable minimap when there are more than four panel in map-viewer
+      const minimapShow = activePaneIDs.length > 4 ? false : true;
+      const prevMinimapState = this.settingsStore.displayMinimap;
+
+      this.settingsStore.updateDisplayMinimap(minimapShow);
+      multiFlatmapContents.forEach((content) => {
+        content.toggleMinimap(minimapShow, prevMinimapState);
+      });
+    },
   },
   computed: {
     ...mapStores(useSplitFlowStore, useConnectivitiesStore, useSettingsStore),
@@ -486,6 +512,7 @@ export default {
   mounted: function () {
     EventBus.on("PaneResize", payload => {
       this.setStyles(payload.refName, payload.rect);
+      this.updateFlatmapMinimap();
     });
     EventBus.on("PaneUnmounted", payload => {
       this.hidePane(payload.refName);

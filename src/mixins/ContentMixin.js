@@ -79,6 +79,26 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
+    toggleMinimap: function (option, prevState) {
+      if (this.multiflatmapRef) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        const mapImp = currentFlatmap?.mapImp;
+
+        if (mapImp) {
+          if (option === true) {
+            // Only create minimap when it is not created before or destroyed
+            if (prevState === false) {
+              const minimapOptions = mapImp.options?.minimap || { position: 'top-right' };
+              mapImp.createMinimap(minimapOptions);
+              currentFlatmap.addResizeButtonToMinimap();
+              currentFlatmap.minimapSmall = false;
+            }
+          } else {
+            mapImp.closeMinimap();
+          }
+        }
+      }
+    },
     onConnectivityItemClose() {
       if (this?.alive) {
         if (this.multiflatmapRef) {

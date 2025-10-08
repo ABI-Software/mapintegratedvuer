@@ -28,7 +28,7 @@
       :pathControls="true"
       ref="flatmap"
       @ready="flatmapReadyCall"
-      :displayMinimap="false"
+      :displayMinimap="displayMinimap"
       :displayWarning="true"
       :enableOpenMapUI="true"
       :flatmapAPI="flatmapAPI"
@@ -75,6 +75,7 @@ export default {
   data: function () {
     return {
       flatmapReady: false,
+      displayMinimap: false,
     }
   },
   methods: {
