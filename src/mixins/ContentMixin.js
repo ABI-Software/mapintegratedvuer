@@ -91,6 +91,7 @@ export default {
               const minimapOptions = mapImp.options?.minimap || { position: 'top-right' };
               mapImp.createMinimap(minimapOptions);
               currentFlatmap.addResizeButtonToMinimap();
+              currentFlatmap.minimapSmall = false;
             }
           } else {
             mapImp.closeMinimap();
