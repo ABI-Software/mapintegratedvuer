@@ -34,6 +34,7 @@ export const useSettingsStore = defineStore('settings', {
       annotationSidebar: true,
       allClosable: true,
       offlineAnnotationEnabled: false,
+      displayMinimap: true,
       globalSettings: {
         displayMarkers: true, // comment out to hide in settings
         // highlightConnectedPaths: false, // comment out to hide in settings
@@ -80,7 +81,7 @@ export const useSettingsStore = defineStore('settings', {
     hasAppliedFacets: state => facets => {
       for (const facet of facets) {
         for (const appliedFacet of state.appliedFacets) {
-          if (facet.toLowerCase() === appliedFacet.toLowerCase()) {
+          if (facet && appliedFacet && facet.toLowerCase() === appliedFacet.toLowerCase()) {
             return true;
           }
         }
@@ -218,6 +219,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateOfflineAnnotationEnabled(offlineAnnotationEnabled) {
       this.offlineAnnotationEnabled = offlineAnnotationEnabled;
+    },
+    updateDisplayMinimap(displayMinimap) {
+      this.displayMinimap = displayMinimap;
     },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {

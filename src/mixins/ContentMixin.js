@@ -79,6 +79,26 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources;
   },
   methods: {
+    toggleMinimap: function (option, prevState) {
+      if (this.multiflatmapRef) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        const mapImp = currentFlatmap?.mapImp;
+
+        if (mapImp) {
+          if (option === true) {
+            // Only create minimap when it is not created before or destroyed
+            if (prevState === false) {
+              const minimapOptions = mapImp.options?.minimap || { position: 'top-right' };
+              mapImp.createMinimap(minimapOptions);
+              currentFlatmap.addResizeButtonToMinimap();
+              currentFlatmap.minimapSmall = false;
+            }
+          } else {
+            mapImp.closeMinimap();
+          }
+        }
+      }
+    },
     onConnectivityItemClose() {
       if (this?.alive) {
         if (this.multiflatmapRef) {
@@ -181,8 +201,9 @@ export default {
                 facets: [label],
               };
               let labels = new Set();
-              resource.feature['marker-terms'].forEach((term) => {
-                labels.add(term.label);
+              // 'marker-terms' changed to 'dataset-terms' in flatmap-viewer@4.3.5
+              resource.feature['dataset-terms'].forEach((term) => {
+                labels.add(term.label ? term.label : term.term);
               });
               if (labels.size === 0) {
                 labels.add(label);
