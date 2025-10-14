@@ -316,6 +316,7 @@ export default {
     },
     viewerIsReady: function() {
       console.log("viewer is ready")
+      this.parseQuery();
     },
     fetchDataFromApi: async function (url) {
       const response = await fetch(url, {
@@ -379,9 +380,13 @@ export default {
       }
       return null;
     },
-    parseQuery: function () {
+    waitForRouter: function () {
       this.$router.isReady().then(async () => {
         this.routerIsReady = true;
+      });
+    },
+    parseQuery: function () {
+      this.$router.isReady().then(async () => {
         this.uuid = this.$route.query.id;
         const type = this.$route.query.type;
         const taxo = this.$route.query.taxo || this.$route.query.taxon;
@@ -476,7 +481,7 @@ export default {
     },
   },
   mounted: function() {
-    this.parseQuery();
+    this.waitForRouter();
   },
 }
 </script>
