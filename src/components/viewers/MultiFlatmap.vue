@@ -2,6 +2,7 @@
   <div class="viewer-container">
     <MultiFlatmapVuer
       :availableSpecies="availableSpecies"
+      @context-restored="contextRestored"
       @flatmapChanged="flatmapChanged"
       @ready="multiFlatmapReady"
       :state="entry.state"
@@ -30,6 +31,7 @@
       :enableOpenMapUI="true"
       :openMapOptions="openMapOptions"
       :flatmapAPI="flatmapAPI"
+      :render="visible"
       :sparcAPI="apiLocation"
       :showLocalSettings="showLocalSettings"
       :showOpenMapButton="showOpenMapButton"
@@ -60,10 +62,7 @@ import Tagging from '../../services/tagging.js';
 import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
-  capitalise,
   availableSpecies,
-  getBodyScaffoldInfo,
-  transformObjToString
 } from "../scripts/utilities";
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
@@ -101,12 +100,13 @@ export default {
   },
   data: function () {
     return {
-      zoomLevel: 6,
-      flatmapReady: false,
       availableSpecies: availableSpecies(),
+      flatmapReady: false,
       scaffoldResource: { },
       showStarInLegend: false,
+      speciesHasChanged: false,
       openMapOptions: getOpenMapOptions("Human Male"),
+      zoomLevel: 6,
     }
   },
   methods: {
@@ -177,7 +177,7 @@ export default {
     },
     zoomToFeatures: function (info, forceSelect) {
       let name = info.name;
-      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+      const flatmap = this.getFlatmapImp();
       if (name) {
         const results = flatmap.search(name);
         if (results.featureIds.length > 0) {
@@ -200,18 +200,36 @@ export default {
         this.$emit("flatmap-provenance-ready", provClone);
       }
     },
+    contextRestored: function(flatmap) {
+      if (flatmap) {
+        this.flatmapMarkerUpdate(flatmap.mapImp);
+        this.updateViewerSettings();
+        if (this.speciesHasChanged) {
+          this.speciesHasChanged = false;
+          this.$emit("species-changed", this.activeSpecies);
+        }
+      }
+    },
     flatmapChanged: async function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.openMapOptions = getOpenMapOptions(activeSpecies);
       const flatmapImp = this.getFlatmapImp();
+      this.updateProvCard();
       //If the viewer is loading a new map, flatmapImp is not defined here yet.
       //The following will be handled by multiFlatmapReady instead
       if (flatmapImp) {
-        this.updateProvCard();
-        this.flatmapMarkerUpdate(flatmapImp);
-        this.updateViewerSettings();
+        if (!flatmapImp.contextLost) {
+          this.flatmapMarkerUpdate(flatmapImp);
+          this.updateViewerSettings();
+          this.speciesHasChanged = false;
+          this.$emit("species-changed", activeSpecies);
+        } else {
+          this.speciesHasChanged = true;
+        }
       }
-      this.$emit("species-changed", activeSpecies);
+
+
+
       // GA Tagging
       // Event tracking for maps' species change
       Tagging.sendEvent({
