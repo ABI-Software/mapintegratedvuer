@@ -856,12 +856,6 @@ export default {
         EventBus.emit('sidebar-annotation-close');
       }
     },
-    updateGlobalSettingsFromStorage: function () {
-      const globalSettingsFromStorage = localStorage.getItem('mapviewer.globalSettings');
-      if (globalSettingsFromStorage) {
-        this.settingsStore.updateGlobalSettings(JSON.parse(globalSettingsFromStorage));
-      }
-    },
     updateGlobalSettingsFromState: function (state) {
       if (state?.globalSettings) {
         this.settingsStore.updateGlobalSettings(state.globalSettings);
@@ -972,7 +966,6 @@ export default {
         this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
       }
     })
-    this.updateGlobalSettingsFromStorage();
     EventBus.on("connectivity-filter-options", payload => {
       this.filterOptions = payload;
     })
