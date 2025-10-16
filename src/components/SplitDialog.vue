@@ -102,15 +102,19 @@ export default {
       const vuers = this.$refs['content'];
       if (vuers) {
         vuers.forEach(vuer => {
-          if (vuer.isVisible())
+          if (vuer.visible)
             activeContents.push(vuer);
         });
       }
       return activeContents;
     },
     isIdVisible: function(id) {
-      const refName = this.splitFlowStore.getPaneNameById(id);
-      return refName !== undefined;
+      const paneName = this.splitFlowStore.getPaneNameById(id);
+      let visible = false;
+      if (paneName !== undefined) {
+        visible = this.splitFlowStore.isPaneActive(paneName);
+      }
+      return visible;
     },
     getContentsWithId: function(id) {
       let contents = this.$refs["content"];
@@ -484,7 +488,7 @@ export default {
 
       // Prioritize visible contents so minimap initializes with visible maps first
       multiFlatmapContents.sort((a, b) => {
-        return b.isVisible() - a.isVisible();
+        return b.visible - a.visible;
       });
 
       // Disable minimap when there are more than four panel in map-viewer
