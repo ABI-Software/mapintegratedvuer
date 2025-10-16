@@ -119,17 +119,6 @@ export default {
       this.activeSpecies = species;
       this.$emit("species-changed", species);
     },
-    /**
-     * Check if this viewer is currently visible
-     */
-    isVisible: function() {
-      const paneName = this.splitFlowStore.getPaneNameById(this.entry.id);
-      let visible = false;
-      if (paneName !== undefined) {
-        visible = this.splitFlowStore.isPaneActive(paneName);
-      }
-      return visible;
-    },
     onResize: function () {
       this.$refs.viewer?.onResize();
     },

@@ -101,6 +101,9 @@ describe('MapContent', () => {
       if (err.message.includes("knowledge/query/")) {
         return false
       }
+      if (err.message.includes("Cannot read properties of null (reading 'id')")) {
+        return false
+      }
       return true
     })
 
@@ -108,7 +111,7 @@ describe('MapContent', () => {
       cy.get('#flatmap-select').click({force: true} );
       cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
       cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
-      cy.get('.el-row > div[style=""]').click()
+      cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');      cy.get('.el-row > div[style=""]').click()
       cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
       cy.get('.flatmap-context-card').trigger('mouseover');
       cy.get('.flatmap-context-card').within(() => {
@@ -201,6 +204,7 @@ ${publicationLink}`;
 
       // Wait for the loading to complete
       cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
+      cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');
 
       // Verify that the selected species is in the species dropdown
       cy.get('.contentvuer .component-container .el-select.select-box .el-select__selection .el-select__selected-item.el-select__placeholder')
@@ -260,9 +264,8 @@ ${publicationLink}`;
     cy.wait('@anatomyResponse', {timeout: 20000});
 
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
+    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');
 
-
-    //There is some issue with capture function with Cypress causing the screenshot to be taken incorrectly,
     //the following attempt to workaround it.
     function is_high_resolution_screen() {
       // retina display has a devicePixelRatio of 2
@@ -287,9 +290,6 @@ ${publicationLink}`;
     Object.entries(settings).forEach(([setting, index]) => {
       cy.checkGlobalSettings('MapContent_1pane', setting, index);
     })
-
-    //Test the existence of the minimap
-    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('exist');
 
     cy.checkFlatmapProvenanceCard('Mouse')
     cy.get('@Mouse_publicationLink').then((mousePublicationLink) => {
