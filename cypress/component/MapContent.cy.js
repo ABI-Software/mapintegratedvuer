@@ -350,14 +350,12 @@ ${publicationLink}`;
     cy.get('[style=""] > .el-card__header > .header > .is-link').click();
 
     // Test Neuron connection mode, competency not yet ready for production, disable for now.
-    /*
     for (const [key, value] of Object.entries(neuronConnectionSettings)) {
       cy.checkNeuronConnectionMode(key, value);
     }
 
     cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
     cy.get('@viewingModes').contains("Exploration").click();
-    */
 
     // dataset explorer
     cy.get('.tabs-container > :nth-child(1)').click();
