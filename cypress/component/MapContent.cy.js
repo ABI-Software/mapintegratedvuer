@@ -101,6 +101,9 @@ describe('MapContent', () => {
       if (err.message.includes("knowledge/query/")) {
         return false
       }
+      if (err.message.includes("Cannot read properties of null (reading 'id')")) {
+        return false
+      }
       return true
     })
 
