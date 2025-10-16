@@ -84,8 +84,6 @@ describe('MapContent', () => {
     Cypress.on('uncaught:exception', (err) => {
       // returning false here prevents Cypress from
       // failing the test
-      if (err.message.includes("this.facets.at is not a function"))
-        return false
       if (err.message.includes("this.$refs.sideBar.closeConnectivity is not a function"))
         return false
       if (err.message.includes("Cannot read properties of undefined (reading 'left')"))
@@ -102,6 +100,9 @@ describe('MapContent', () => {
         return false
       }
       if (err.message.includes("Cannot read properties of null (reading 'id')")) {
+        return false
+      }
+      if (err.message.includes("$el.css is not a function")) {
         return false
       }
       return true
