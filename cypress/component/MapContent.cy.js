@@ -188,7 +188,7 @@ ${publicationLink}`;
       const tagTerm = `${mode[0]}:${searchTerm}`
       cy.get('.sidebar-container .filters').should('exist').contains(tagTerm);
       cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
-      cy.get('.sidebar-container .header .is-link > span').contains('Reset').click({ multiple: true })
+      cy.get('.sidebar-container .el-card:visible .header .is-link > span').contains('Reset').click({ multiple: true })
       cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
     })
 
