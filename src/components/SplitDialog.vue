@@ -386,7 +386,7 @@ export default {
                   const matchedFilter = uniqueFilters.find(filter => filter.key.includes(facetKey));
                   if (matchedFilter) {
                     matchedFilter.children.forEach((child) => {
-                      if (child.label === item.facet && child.key) {
+                      if (child.label.toLowerCase() === item.facet.toLowerCase() && child.key) {
                         const childKey = child.key.split('.').pop();
                         if (!(facetKey in filters)) {
                           filters[facetKey] = [];
