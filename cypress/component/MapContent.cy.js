@@ -188,7 +188,7 @@ ${publicationLink}`;
       const tagTerm = `${mode[0]}:${searchTerm}`
       cy.get('.sidebar-container .filters').should('exist').contains(tagTerm);
       cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
-      cy.get('.sidebar-container .header .is-link > span').contains('Reset').click({ multiple: true })
+      cy.get('.sidebar-container .el-card:visible .header .is-link > span').contains('Reset').click({ multiple: true })
       cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
     })
 
@@ -350,14 +350,12 @@ ${publicationLink}`;
     cy.get('[style=""] > .el-card__header > .header > .is-link').click();
 
     // Test Neuron connection mode, competency not yet ready for production, disable for now.
-    /*
     for (const [key, value] of Object.entries(neuronConnectionSettings)) {
       cy.checkNeuronConnectionMode(key, value);
     }
 
     cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
     cy.get('@viewingModes').contains("Exploration").click();
-    */
 
     // dataset explorer
     cy.get('.tabs-container > :nth-child(1)').click();
