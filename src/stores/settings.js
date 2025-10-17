@@ -227,8 +227,6 @@ export const useSettingsStore = defineStore('settings', {
       for (const [key, value] of Object.entries(globalSettings)) {
         this.globalSettings[key] = value;
       }
-      // add global settins to storage
-      localStorage.setItem('mapviewer.globalSettings', JSON.stringify(this.globalSettings));
     },
   }
 });
