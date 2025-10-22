@@ -8,14 +8,6 @@ const settings = {
   'Change background': 5
 }
 
-const neuronConnectionSettings = {
-  'Destination': 'Heart',
-  'Origin': "Barrington's nucleus",
-  'Via': 'C4 segment of cervical spinal cord',
-  'All': 'Tongue'
-}
-
-
 describe('MapContent', () => {
 
   //Load in some responses/assets before beginning the test
@@ -123,19 +115,6 @@ ${publicationLink}`;
     cy.get('@globalSettings').click(); // close
     cy.get('@globalSettings').trigger('mouseleave');
     cy.wait(1000);
-  })
-
-  Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
-    cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
-    cy.get('@viewingModes').contains(mode).click();
-    cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type(searchTerm);
-    cy.get('.search-container > .map-icon > use').should('exist').click();
-    cy.wait(2000);
-    const tagTerm = `${mode[0]}:${searchTerm}`
-    cy.get('.sidebar-container .filters').should('exist').contains(tagTerm);
-    cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
-    cy.get('.sidebar-container .el-card:visible .header .is-link > span').contains('Reset').click({ multiple: true })
-    cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
   })
 
   Cypress.Commands.add('testSetCurrentEntry', (entry, species) => {
@@ -447,12 +426,4 @@ ${publicationLink}`;
     })
   })
 
-  it('Neuron connection mode testing', () => {
-
-    // Test Neuron connection mode, competency not yet ready for production, disable for now.
-    // for (const [key, value] of Object.entries(neuronConnectionSettings)) {
-    //   cy.checkNeuronConnectionMode(key, value);
-    // }
-
-  })
 })
