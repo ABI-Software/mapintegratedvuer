@@ -332,6 +332,7 @@ ${publicationLink}`;
 
     cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
     cy.get('@viewingModes').contains("Exploration").click();
+    cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseleave'); // close
 
     // dataset explorer
     cy.get('.tabs-container > :nth-child(1)').click();
