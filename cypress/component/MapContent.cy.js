@@ -349,10 +349,7 @@ ${publicationLink}`;
     cy.get(':nth-child(1) > .connectivity-info', {timeout: 45000}).should('contain', 'Neuron type aacar');
     cy.get('[style=""] > .el-card__header > .header > .is-link').click();
 
-    // Test Neuron connection mode, competency not yet ready for production, disable for now.
-    for (const [key, value] of Object.entries(neuronConnectionSettings)) {
-      cy.checkNeuronConnectionMode(key, value);
-    }
+
 
     cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
     cy.get('@viewingModes').contains("Exploration").click();
@@ -448,5 +445,14 @@ ${publicationLink}`;
         cy.checkGlobalSettings('MapContent_4panes', setting, index);
       }
     })
+  })
+
+  it('Neuron connection mode testing', () => {
+
+    // Test Neuron connection mode, competency not yet ready for production, disable for now.
+    // for (const [key, value] of Object.entries(neuronConnectionSettings)) {
+    //   cy.checkNeuronConnectionMode(key, value);
+    // }
+
   })
 })
