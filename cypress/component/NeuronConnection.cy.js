@@ -45,7 +45,7 @@ describe('MapContent', () => {
       },
       global: {
         stubs: {
-          transition: false,
+          transition: false, // Disable transition to avoid el-tag issue - PR #432 for more details
         }
       },
     });
