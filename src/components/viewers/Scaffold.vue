@@ -106,7 +106,14 @@ export default {
       let names = [];
       const processed = payload ? true : false;
       if (payload) {
-        const ids = payload['OR'][1]['AND'][1].models;
+        const ids = [];
+        payload['OR'].forEach(orData => {
+          if ('AND' in orData) {
+            if (orData['AND'].length >= 2 && 'models' in orData['AND'][1]) {
+              ids.push(...orData['AND'][1]['models']);
+            }
+          }
+        });
         for (const id of ids) {
           const nerveKnowledge = this.nervesKnowledge.find((knowledge) => knowledge.id === id);
           if (nerveKnowledge) {
