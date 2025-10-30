@@ -36,12 +36,10 @@ Cypress.Commands.add('mount', (component, options = {}) => {
     app.use(pinia);
   }
 
-  options = {
-    global: {
-      plugins:[installPinia]
-    },
-    ...options
-  };
+  // To support global overrides in mount options
+  options.global = options.global || {};
+  options.global.plugins = options.global.plugins || [];
+  options.global.plugins.push(installPinia);
 
   return mount(component, options);
 });
