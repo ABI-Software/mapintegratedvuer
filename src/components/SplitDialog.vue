@@ -272,6 +272,13 @@ export default {
       const flatmapUUID = latestFlatmap.uuid;
       return flatmapUUID;
     },
+    parseSearchTerms: function (query) {
+      return query
+        .replace(/["']/g, "")
+        .split(",")
+        .map(term => term.trim())
+        .filter(term => term);
+    },
     connectivityQueryFilter: async function (data) {
       this.query = "";
       this.filter = [];
@@ -316,11 +323,7 @@ export default {
             this.query = data.query;
             // get query search result ids and order
             if (data.query) {
-              const searchTerms = this.query
-                .replace(/["']/g, "")
-                .split(",")
-                .map(term => term.trim())
-                .filter(term => term);
+              const searchTerms = this.parseSearchTerms(this.query);
               const nestedIds = [];
               for (let index = 0; index < searchTerms.length; index++) {
                 isFlatmap ?
