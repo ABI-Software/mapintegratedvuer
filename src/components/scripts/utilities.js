@@ -116,8 +116,7 @@ const findSpeciesKey = condition => {
       }
     }
   }
-  // return default species if no match found
-  return defaultSpecies;
+  return "";
 }
 
 const extractS3BucketNameAndPrefix = uri => {
