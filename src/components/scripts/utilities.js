@@ -1,8 +1,10 @@
+const defaultSpecies = 'Human Male';
+
 const initialDefaultState = () => {
   return {
     entries: [
       {
-        resource: "Human Male",
+        resource: defaultSpecies,
         type: "MultiFlatmap",
         mode: "main",
         id: 1,
@@ -18,7 +20,7 @@ const getNewMapEntry = async (type, sparcApi) => {
   let entry = { };
   if (type === "AC") {
     entry = {
-      resource: "Human Male",
+      resource: defaultSpecies,
       type: "MultiFlatmap",
       mode: "main",
       state: undefined,
@@ -192,6 +194,7 @@ export {
   availableSpecies,
   capitalise,
   findSpeciesKey,
+  defaultSpecies,
   initialState,
   initialDefaultState,
   getBodyScaffoldInfo,

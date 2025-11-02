@@ -63,6 +63,7 @@ import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
   availableSpecies,
+  defaultSpecies,
 } from "../scripts/utilities";
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
@@ -105,7 +106,7 @@ export default {
       scaffoldResource: { },
       showStarInLegend: false,
       speciesHasChanged: false,
-      openMapOptions: getOpenMapOptions("Human Male"),
+      openMapOptions: getOpenMapOptions(defaultSpecies),
       zoomLevel: 6,
     }
   },
