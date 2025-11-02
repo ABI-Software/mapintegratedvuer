@@ -425,13 +425,13 @@ export default {
           xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
         }
 
-        if (taxo && type === 'ac') {
+        if (type === 'ac') {
           // Load AC map with different species
           this.startingMap = "AC";
           this.$nextTick(() => {
             const currentEntry = {
               type: "MultiFlatmap",
-              taxo: taxo,
+              taxo: taxo || '',
             };
             if (anatomy) {
               currentEntry.organ = anatomy;
