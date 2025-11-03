@@ -241,6 +241,16 @@ export default {
       });
       return ids;
     },
+    searchPathwaysByTerm: function (flatmap, term) {
+      const pathwayModels = flatmap.mapImp.pathways?.models;
+      const pathwayIds = pathwayModels ?
+        pathwayModels.filter((pathway) => {
+          const mapPathwayId = pathway.id?.toLowerCase() || '';
+          const partialTerm = term.toLowerCase();
+          return mapPathwayId.includes(partialTerm);
+        }).map(pathway => pathway.id) : [];
+      return pathwayIds;
+    },
     getFlatmapSearchedId: function (flatmap, term) {
       const ids = [];
       const searchResult = flatmap.mapImp.search(term);
@@ -349,6 +359,11 @@ export default {
                   this.getFlatmapSearchedId(currentMap, term) :
                   this.getGeneralSearchedId(results, term, 'query');
                 nestedIds.push(searchResult);
+                // search if the term is a part of a pathway
+                if (isFlatmap) {
+                  const pathwayIdsFromTerm = this.searchPathwaysByTerm(currentMap, term);
+                  nestedIds.push(...pathwayIdsFromTerm);
+                }
               }
               // within query search (split terms by comma) -> OR
               const flatIds = [...new Set(nestedIds.flat())];
