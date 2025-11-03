@@ -344,9 +344,11 @@ export default {
               const searchTerms = this.parseSearchTerms(this.query);
               const nestedIds = [];
               for (let index = 0; index < searchTerms.length; index++) {
-                isFlatmap ?
-                  nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index])) :
-                  nestedIds.push(this.getGeneralSearchedId(results, searchTerms[index], 'query'));
+                const term = searchTerms[index];
+                const searchResult = isFlatmap ?
+                  this.getFlatmapSearchedId(currentMap, term) :
+                  this.getGeneralSearchedId(results, term, 'query');
+                nestedIds.push(searchResult);
               }
               // within query search (split terms by comma) -> OR
               const flatIds = [...new Set(nestedIds.flat())];
