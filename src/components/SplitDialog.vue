@@ -241,15 +241,64 @@ export default {
       });
       return ids;
     },
+    /**
+     * Search pathways by term with keyword matching.
+     *
+     * @param {Object} flatmap - The flatmap object
+     * @param {String} term - The search term to match against pathway IDs
+     * @returns {Array<String>} Array of pathway IDs that match the search criteria
+     *
+     * Search behavior:
+     * 1. Multi-segment search (contains delimiters like '-', ':', '_', '/', etc.):
+     *    - Matches the entire pattern within pathway IDs
+     *    - Example: "bolew-unbranched", "ilxtr:neuron", "unbranched-4"
+     *
+     * 2. Short single term (< 3 characters):
+     *    - Only matches exact segments between delimiters
+     *    - Example: "on" will NOT match "neuron" but would match "ilxtr:on:something"
+     *
+     * 3. Long single term (≥ 3 characters):
+     *    - Matches exact segments OR partial matches within meaningful segments
+     *    - Example: "bolew", "unbranched", "neuron" match their respective segments
+     */
     searchPathwaysByTerm: function (flatmap, term) {
       const pathwayModels = flatmap.mapImp.pathways?.models;
-      const pathwayIds = pathwayModels ?
-        pathwayModels.filter((pathway) => {
-          const mapPathwayId = pathway.id?.toLowerCase() || '';
-          const partialTerm = term.toLowerCase();
-          return mapPathwayId.includes(partialTerm);
-        }).map(pathway => pathway.id) : [];
-      return pathwayIds;
+      if (!pathwayModels || !term) return [];
+
+      const searchTerm = term.toLowerCase();
+      const minTermLength = 3;
+      const hasDelimiters = /[-_:\s\/]+/.test(searchTerm);
+
+      if (hasDelimiters) {
+        return pathwayModels
+          .filter((pathway) => {
+            const pathwayId = pathway.id?.toLowerCase() || '';
+            return pathwayId.includes(searchTerm);
+          })
+          .map(pathway => pathway.id);
+      }
+
+      if (searchTerm.length < minTermLength) {
+        return pathwayModels
+          .filter((pathway) => {
+            const pathwayId = pathway.id?.toLowerCase() || '';
+            const segments = pathwayId.split(/[-_:\s\/]+/);
+            return segments.includes(searchTerm);
+          })
+          .map(pathway => pathway.id);
+      }
+
+      return pathwayModels
+        .filter((pathway) => {
+          const pathwayId = pathway.id?.toLowerCase() || '';
+          const segments = pathwayId.split(/[-_:\s\/]+/);
+
+          return segments.some(segment =>
+            segment === searchTerm ||
+            (segment.length >= minTermLength && segment.includes(searchTerm))
+          );
+        })
+        .map(pathway => pathway.id);
     },
     getFlatmapSearchedId: function (flatmap, term) {
       const ids = [];
