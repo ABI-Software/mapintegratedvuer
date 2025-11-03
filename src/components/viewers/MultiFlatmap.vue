@@ -359,10 +359,14 @@ export default {
         }
       }
     },
-    changeConnectivitySource: function (payload) {
+    changeConnectivitySource: function (payload, ongoingSource) {
       if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        flatmap.changeConnectivitySource(payload);
+        const flatmapUUID = flatmap.mapImp.mapMetadata.uuid;
+        if (!ongoingSource.includes(flatmapUUID)) {
+          ongoingSource.push(flatmapUUID);
+          flatmap.changeConnectivitySource(payload);
+        }
       }
     },
     updateViewerSettings: function () {
