@@ -659,8 +659,14 @@ export default {
     });
     EventBus.on('connectivity-source-change', (payload) => {
       const contents = this.getActiveContents();
+      //Use ongoingSource array to make sure, the knowledge
+      //from each source is only loaded once.
+      //TODO: This can be improved with using just one viewer to give us
+      //the new knowlegdge with the species/sources specified which
+      //will require some UI changes on the sidebar
+      const ongoingSources = []
       contents.forEach((content) => {
-        content.onConnectivitySourceChange(payload);
+        content.onConnectivitySourceChange(payload, ongoingSources);
       });
     });
     EventBus.on('show-connectivity', (payload) => {

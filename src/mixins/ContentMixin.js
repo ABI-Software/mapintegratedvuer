@@ -802,16 +802,20 @@ export default {
         EventBus.emit('connectivity-info-open', this.tooltipEntry);
       }
     },
-    changeConnectivitySource: async function (payload) {
+    changeConnectivitySource: async function (payload, ongoingSource) {
       const { entry, connectivitySource } = payload;
-      await this.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
-      this.tooltipEntry = this.tooltipEntry.map((tooltip) => {
-        if (tooltip.featureId[0] === entry.featureId[0]) {
-          return this.flatmapQueries.updateTooltipData(tooltip);
-        }
-        return tooltip;
-      })
-      EventBus.emit('connectivity-info-open', this.tooltipEntry);
+      const flatmapUUID = this?.flatmapService?.mapImp?.mapMetadata.uuid;
+      if (!ongoingSource.includes(flatmapUUID)) {
+        ongoingSource.push(flatmapUUID);
+        await this.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
+        this.tooltipEntry = this.tooltipEntry.map((tooltip) => {
+          if (tooltip.featureId[0] === entry.featureId[0]) {
+            return this.flatmapQueries.updateTooltipData(tooltip);
+          }
+          return tooltip;
+        })
+        EventBus.emit('connectivity-info-open', this.tooltipEntry);
+      }
     },
     trackEvent: function (data) {
       Tagging.sendEvent(data);
