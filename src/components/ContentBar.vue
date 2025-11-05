@@ -64,7 +64,7 @@
       <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :show-after="helpDelay"
         :teleported=false trigger="hover" popper-class="header-popper" >
         <template #reference>
-          <map-svg-icon icon="close" class="header-icon"
+          <map-svg-icon icon="close-no-bk" class="header-icon"
             v-show="(activeView !== 'singlepanel') && ((entry.mode !== 'main') || allClosable )"
             @click="closeAndRemove()"/>
           </template>
