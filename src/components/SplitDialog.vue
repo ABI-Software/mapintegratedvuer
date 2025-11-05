@@ -332,29 +332,10 @@ export default {
       return flatmapUUID;
     },
     parseSearchTerms: function (query) {
-      // split by comma
-      const commaSeparated = query.split(",")
-        .map(term => term.trim())
+      return query
+        .split(",")
+        .map(term => term.trim().replace(/["']/g, ""))
         .filter(term => term);
-
-      const result = [];
-      commaSeparated.forEach(term => {
-        const quoteMatch = term.match(/"([^"]*)"/);
-
-        if (quoteMatch) {
-          // exact search for quoted content
-          result.push(quoteMatch[1]);
-        } else if (term.includes('"')) {
-          // Trim incomplete quotes
-          result.push(term.replace(/["']/g, ""));
-        } else {
-          // split by spaces
-          const spaceSeparated = term.split(/\s+/).filter(word => word);
-          result.push(...spaceSeparated);
-        }
-      });
-
-      return result;
     },
     connectivityQueryFilter: async function (data) {
       this.query = "";
