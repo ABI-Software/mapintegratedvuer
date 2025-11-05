@@ -17,6 +17,7 @@ import {
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
 import { getKnowledgeSource, loadAndStoreKnowledge } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
 import { getTermNerveMaps, getFilterOptions as getScaffoldFilterOptions } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
+import { defaultSpecies } from "../components/scripts/utilities.js";
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
@@ -801,16 +802,20 @@ export default {
         EventBus.emit('connectivity-info-open', this.tooltipEntry);
       }
     },
-    changeConnectivitySource: async function (payload) {
+    changeConnectivitySource: async function (payload, ongoingSource) {
       const { entry, connectivitySource } = payload;
-      await this.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
-      this.tooltipEntry = this.tooltipEntry.map((tooltip) => {
-        if (tooltip.featureId[0] === entry.featureId[0]) {
-          return this.flatmapQueries.updateTooltipData(tooltip);
-        }
-        return tooltip;
-      })
-      EventBus.emit('connectivity-info-open', this.tooltipEntry);
+      const flatmapUUID = this?.flatmapService?.mapImp?.mapMetadata.uuid;
+      if (!ongoingSource.includes(flatmapUUID)) {
+        ongoingSource.push(flatmapUUID);
+        await this.flatmapQueries.queryForConnectivityNew(this.flatmapService.mapImp, entry.featureId[0], connectivitySource);
+        this.tooltipEntry = this.tooltipEntry.map((tooltip) => {
+          if (tooltip.featureId[0] === entry.featureId[0]) {
+            return this.flatmapQueries.updateTooltipData(tooltip);
+          }
+          return tooltip;
+        })
+        EventBus.emit('connectivity-info-open', this.tooltipEntry);
+      }
     },
     trackEvent: function (data) {
       Tagging.sendEvent(data);
@@ -819,7 +824,7 @@ export default {
   data: function () {
     return {
       apiLocation: undefined,
-      activeSpecies: "Human Male",
+      activeSpecies: defaultSpecies,
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? "calc(100% - 30px)" : "100%",

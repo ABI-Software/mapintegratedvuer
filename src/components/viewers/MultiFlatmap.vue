@@ -63,6 +63,7 @@ import ContentMixin from "../../mixins/ContentMixin";
 import EventBus from "../EventBus";
 import {
   availableSpecies,
+  defaultSpecies,
 } from "../scripts/utilities";
 import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 
@@ -105,7 +106,7 @@ export default {
       scaffoldResource: { },
       showStarInLegend: false,
       speciesHasChanged: false,
-      openMapOptions: getOpenMapOptions("Human Male"),
+      openMapOptions: getOpenMapOptions(defaultSpecies),
       zoomLevel: 6,
     }
   },
@@ -358,10 +359,14 @@ export default {
         }
       }
     },
-    changeConnectivitySource: function (payload) {
+    changeConnectivitySource: function (payload, ongoingSource) {
       if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        flatmap.changeConnectivitySource(payload);
+        const flatmapUUID = flatmap.mapImp.mapMetadata.uuid;
+        if (!ongoingSource.includes(flatmapUUID)) {
+          ongoingSource.push(flatmapUUID);
+          flatmap.changeConnectivitySource(payload);
+        }
       }
     },
     updateViewerSettings: function () {

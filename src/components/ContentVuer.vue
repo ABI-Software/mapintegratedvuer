@@ -126,8 +126,8 @@ export default {
     onConnectivityItemClose: function() {
       this.$refs.viewer?.onConnectivityItemClose();
     },
-    onConnectivitySourceChange: function(payload) {
-      this.$refs.viewer?.changeConnectivitySource(payload);
+    onConnectivitySourceChange: function(payload, ongoingSource) {
+      this.$refs.viewer?.changeConnectivitySource(payload, ongoingSource);
     },
     onFlatmapMarkerUpdate: function() {
       this.$refs.viewer?.flatmapMarkerUpdate();
