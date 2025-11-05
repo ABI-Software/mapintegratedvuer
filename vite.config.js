@@ -36,6 +36,9 @@ export default defineConfig(({ command, mode }) => {
     optimizeDeps: {
       exclude: ["vue-router"],
     },
+    preview: {
+      allowedHosts: ['mapintegratedvuer-mapcore-754fcb3bf891.herokuapp.com'],
+    }
   };
 
   if (command === "serve") {
