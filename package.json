@@ -59,7 +59,7 @@
     "@abi-software/scaffoldvuer": "1.13.0",
     "@abi-software/simulationvuer": "2.0.18",
     "@abi-software/sparc-annotation": "0.3.2",
-    "@abi-software/svg-sprite": "1.0.3",
+    "@abi-software/svg-sprite": "1.0.4",
     "@element-plus/icons-vue": "^2.3.1",
     "@vitejs/plugin-vue": "^4.6.2",
     "css-element-queries": "^1.2.3",
