@@ -7,6 +7,11 @@ const neuronConnectionSettings = {
   'Via': 'C4 segment of cervical spinal cord',
   'All': 'Tongue'
 };
+const searchTermPairs = [
+  ['ilxtr:sparc-nlp/kidney/132', 'kidney/132'],
+  ['tunica', 'to tunica'],
+  ['aacar-11', 'aacar 11'],
+];
 
 describe('MapContent', () => {
 
@@ -57,17 +62,24 @@ describe('MapContent', () => {
     // Sidebar should not be visbile
     cy.get('.el-drawer.rtl.my-drawer').should('not.be.visible');
 
-    cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');
+    cy.get('.maplibregl-canvas-container > .maplibregl-canvas').should('be.visible');
+    cy.get('#maplibre-minimap .maplibregl-canvas-container > .maplibregl-canvas', { timeout: 60000 }).should('be.visible');
 
     // Open the sidebar
     cy.get('.side-bar > .open-tab').should('exist').click();
 
     // connectivity explorer
     cy.get('.tabs-container > :nth-child(2)').click();
+    cy.connectivitySearch('heart');
+    cy.connectivitySearch('132');
+
+    // Compare connectivity search results for different search terms
+    searchTermPairs.forEach(([term1, term2]) => {
+      cy.compareConnectivitySearchResults(term1, term2);
+    });
+
+    // clear search
     cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
-    cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type("heart");
-    cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
-    cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
 
     // Test Neuron connection mode, competency not yet ready for production, disable for now.
     for (const [key, value] of Object.entries(neuronConnectionSettings)) {
