@@ -13,7 +13,6 @@ export default {
   component: {
     viewportWidth: 1440,
     viewportHeight: 900,
-    setupNodeEvents(on, config) {},
     specPattern: "cypress/component/*.cy.js",
     devServer: {
       framework: "vue",
@@ -28,7 +27,13 @@ export default {
     },
     screenshotsFolder: './cypress/snapshots',
     setupNodeEvents(on, config) {
-      configureVisualRegression(on)
+      on('task', {
+        log(message) {
+          console.log(message)
+          return null
+        },
+      });
+      configureVisualRegression(on);
     },
     trashAssetsBeforeRuns: false,
   },
