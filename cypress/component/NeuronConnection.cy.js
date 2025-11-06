@@ -8,9 +8,18 @@ const neuronConnectionSettings = {
   'All': 'Tongue'
 };
 const searchTermPairs = [
-  ['ilxtr:sparc-nlp/kidney/132', 'kidney/132'],
-  ['tunica', 'to tunica'],
-  ['aacar-11', 'aacar 11'],
+  {
+    isSame: true,
+    terms: ['ilxtr:sparc-nlp/kidney/132', 'kidney/132']
+  },
+  {
+    isSame: false,
+    terms: ['tunica', 'to tunica']
+  },
+  {
+    isSame: true,
+    terms: ['aacar-11', 'aacar 11']
+  },
 ];
 
 describe('MapContent', () => {
@@ -74,8 +83,8 @@ describe('MapContent', () => {
     cy.connectivitySearch('132');
 
     // Compare connectivity search results for different search terms
-    searchTermPairs.forEach(([term1, term2]) => {
-      cy.compareConnectivitySearchResults(term1, term2);
+    searchTermPairs.forEach(({terms, isSame}) => {
+      cy.compareConnectivitySearchResults(terms, isSame);
     });
 
     // clear search
