@@ -86,7 +86,9 @@ describe('MapContent', () => {
     //Loading mask should exist at the beginning
     cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 30000}).should('exist');
 
+    cy.task('log', 'Test 1')
     cy.get('.header').should('be.visible');
+    cy.task('log', 'Test 2')
 
     cy.get('.toolbar-title').should('exist');
 
