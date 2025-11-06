@@ -180,19 +180,19 @@ Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
   cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
 })
 
-Cypress.Commands.add('compareConnectivitySearchResults', (searchTerm1, searchTerm2) => {
+Cypress.Commands.add('connectivitySearch', (searchTerm) => {
   cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
-  cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm1);
+  cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm);
   cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
+});
+
+Cypress.Commands.add('compareConnectivitySearchResults', (searchTerm1, searchTerm2) => {
+  cy.connectivitySearch(searchTerm1);
   cy.wait(400);
   cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue1) => {
-    cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
-    cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm2);
-    cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
-    cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
-    cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
+    cy.connectivitySearch(searchTerm2);
     cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue2) => {
       expect(storedvalue1.trim()).to.equal(storedvalue2.trim());
     });

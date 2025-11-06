@@ -70,10 +70,7 @@ describe('MapContent', () => {
 
     // connectivity explorer
     cy.get('.tabs-container > :nth-child(2)').click();
-    cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
-    cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type("heart");
-    cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
-    cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
+    cy.connectivitySearch('heart');
 
     // Compare connectivity search results for different search terms
     searchTermPairs.forEach(([term1, term2]) => {
