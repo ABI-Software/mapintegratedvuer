@@ -71,6 +71,7 @@ describe('MapContent', () => {
     // connectivity explorer
     cy.get('.tabs-container > :nth-child(2)').click();
     cy.connectivitySearch('heart');
+    cy.connectivitySearch('132');
 
     // Compare connectivity search results for different search terms
     searchTermPairs.forEach(([term1, term2]) => {
