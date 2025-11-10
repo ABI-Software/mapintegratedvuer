@@ -148,7 +148,10 @@ export default {
     hidePane: function(refName) {
       if (this.$refs && ('tabContainer' in this.$refs)) {
         const style = {};
-        style["display"] = "none";
+        // style["display"] = "none";
+        style["visibility"] = "hidden";
+        style["pointer-events"] = "none";
+        style["opacity"] = "0";
         this.styles[refName] = style;
       }
     },
@@ -668,15 +671,24 @@ export default {
 
 .contentvuer {
   position: absolute;
-  transition: all 1s ease;
+  transition: opacity 0s, visibility 0s, left 1s ease, top 1s ease, width 1s ease, height 1s ease;
   background: rgba(255, 255, 255, 1);
+  visibility: visible;
+  opacity: 1;
 
   &.inactive {
-    display: none;
-    width: 0%;
-    height: 0%;
-    left: 0px;
-    top: 30px;
+    // display: none;
+    // width: 0%;
+    // height: 0%;
+    // left: 0px;
+    // top: 30px;
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+
+    canvas {
+      display: none;
+    }
   }
 }
 </style>
