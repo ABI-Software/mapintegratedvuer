@@ -179,8 +179,8 @@ describe('MapContent', () => {
 
     // connectivity explorer
     cy.get('.tabs-container > :nth-child(2)').click();
-    cy.get('.sidebar-container .el-card.content-card:visible .search-input-container .el-input .el-input__inner').clear();
-    cy.get('.sidebar-container .el-card.content-card:visible .search-input-container .el-input .el-input__inner').type("heart");
+    cy.get('.sidebar-container .el-card.content-card:visible .header .el-input .el-input__inner').clear();
+    cy.get('.sidebar-container .el-card.content-card:visible .header .el-input .el-input__inner').type("heart");
     cy.get('.sidebar-container .el-card.content-card:visible .header .el-button--primary').click();
     cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
     cy.get('.connectivity-card-container > .connectivity-card').first().click();
