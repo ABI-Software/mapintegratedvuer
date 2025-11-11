@@ -27,8 +27,8 @@ jobs:
           jenkins-server: ${{ secrets.JENKINS_URL }}
           jenkins-username: ${{ secrets.JENKINS_USER }}
           jenkins-pat: ${{ secrets.JENKINS_PAT }}
-          poll-time: 10
-          timeout-value: 1200
+          poll-time: 30
+          timeout-value: 3000
           verbose: true
 
   build:
