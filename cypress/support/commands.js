@@ -179,3 +179,27 @@ Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
   cy.get('.sidebar-container .el-card:visible .header .is-link > span').contains('Reset').click({ multiple: true })
   cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
 })
+
+Cypress.Commands.add('connectivitySearch', (searchTerm) => {
+  cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
+  cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm);
+  cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
+  cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
+  cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
+});
+
+Cypress.Commands.add('compareConnectivitySearchResults', ([searchTerm1, searchTerm2], isSame) => {
+  cy.connectivitySearch(searchTerm1);
+  cy.wait(1000);
+  cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue1) => {
+    cy.connectivitySearch(searchTerm2);
+    cy.wait(1000);
+    cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue2) => {
+      if (isSame) {
+        expect(storedvalue1.trim()).to.equal(storedvalue2.trim());
+      } else {
+        expect(storedvalue1.trim()).to.not.equal(storedvalue2.trim());
+      }
+    });
+  });
+})

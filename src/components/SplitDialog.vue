@@ -148,7 +148,10 @@ export default {
     hidePane: function(refName) {
       if (this.$refs && ('tabContainer' in this.$refs)) {
         const style = {};
-        style["display"] = "none";
+        // style["display"] = "none";
+        style["visibility"] = "hidden";
+        style["pointer-events"] = "none";
+        style["opacity"] = "0";
         this.styles[refName] = style;
       }
     },
@@ -241,6 +244,65 @@ export default {
       });
       return ids;
     },
+    /**
+     * Search pathways by term with keyword matching.
+     *
+     * @param {Object} flatmap - The flatmap object
+     * @param {String} term - The search term to match against pathway IDs
+     * @returns {Array<String>} Array of pathway IDs that match the search criteria
+     *
+     * Search behavior:
+     * 1. Multi-segment search (contains delimiters like '-', ':', '_', '/', etc.):
+     *    - Matches the entire pattern within pathway IDs
+     *    - Example: "bolew-unbranched", "ilxtr:neuron", "unbranched-4"
+     *
+     * 2. Short single term (< 3 characters):
+     *    - Only matches exact segments between delimiters
+     *    - Example: "on" will NOT match "neuron" but would match "ilxtr:on:something"
+     *
+     * 3. Long single term (≥ 3 characters):
+     *    - Matches exact segments OR partial matches within meaningful segments
+     *    - Example: "bolew", "unbranched", "neuron" match their respective segments
+     */
+    searchPathwaysByTerm: function (flatmap, term) {
+      const pathwayModels = flatmap.mapImp.pathways?.models;
+      if (!pathwayModels || !term) return [];
+
+      const searchTerm = term.toLowerCase();
+      const minTermLength = 3;
+      const hasDelimiters = /[-_:\s\/]+/.test(searchTerm);
+
+      if (hasDelimiters) {
+        return pathwayModels
+          .filter((pathway) => {
+            const pathwayId = pathway.id?.toLowerCase() || '';
+            return pathwayId.includes(searchTerm);
+          })
+          .map(pathway => pathway.id);
+      }
+
+      if (searchTerm.length < minTermLength) {
+        return pathwayModels
+          .filter((pathway) => {
+            const pathwayId = pathway.id?.toLowerCase() || '';
+            const segments = pathwayId.split(/[-_:\s\/]+/);
+            return segments.includes(searchTerm);
+          })
+          .map(pathway => pathway.id);
+      }
+
+      return pathwayModels
+        .filter((pathway) => {
+          const pathwayId = pathway.id?.toLowerCase() || '';
+          const segments = pathwayId.split(/[-_:\s\/]+/);
+
+          return segments.some(segment =>
+            segment === searchTerm ||
+            (segment.length >= minTermLength && segment.includes(searchTerm))
+          );
+        })
+        .map(pathway => pathway.id);
+    },
     getFlatmapSearchedId: function (flatmap, term) {
       const ids = [];
       const searchResult = flatmap.mapImp.search(term);
@@ -271,6 +333,12 @@ export default {
         .sort((a, b) => b.created.localeCompare(a.created))[0];
       const flatmapUUID = latestFlatmap.uuid;
       return flatmapUUID;
+    },
+    parseSearchTerms: function (query) {
+      return query
+        .split(",")
+        .map(term => term.trim().replace(/["']/g, ""))
+        .filter(term => term);
     },
     connectivityQueryFilter: async function (data) {
       this.query = "";
@@ -316,16 +384,19 @@ export default {
             this.query = data.query;
             // get query search result ids and order
             if (data.query) {
-              const searchTerms = this.query
-                .replace(/["']/g, "")
-                .split(",")
-                .map(term => term.trim())
-                .filter(term => term);
+              const searchTerms = this.parseSearchTerms(this.query);
               const nestedIds = [];
               for (let index = 0; index < searchTerms.length; index++) {
-                isFlatmap ?
-                  nestedIds.push(this.getFlatmapSearchedId(currentMap, searchTerms[index])) :
-                  nestedIds.push(this.getGeneralSearchedId(results, searchTerms[index], 'query'));
+                const term = searchTerms[index];
+                const searchResult = isFlatmap ?
+                  this.getFlatmapSearchedId(currentMap, term) :
+                  this.getGeneralSearchedId(results, term, 'query');
+                nestedIds.push(searchResult);
+                // search if the term is a part of a pathway
+                if (isFlatmap) {
+                  const pathwayIdsFromTerm = this.searchPathwaysByTerm(currentMap, term);
+                  nestedIds.push(...pathwayIdsFromTerm);
+                }
               }
               // within query search (split terms by comma) -> OR
               const flatIds = [...new Set(nestedIds.flat())];
@@ -668,15 +739,24 @@ export default {
 
 .contentvuer {
   position: absolute;
-  transition: all 1s ease;
+  transition: opacity 0s, visibility 0s, left 1s ease, top 1s ease, width 1s ease, height 1s ease;
   background: rgba(255, 255, 255, 1);
+  visibility: visible;
+  opacity: 1;
 
   &.inactive {
-    display: none;
-    width: 0%;
-    height: 0%;
-    left: 0px;
-    top: 30px;
+    // display: none;
+    // width: 0%;
+    // height: 0%;
+    // left: 0px;
+    // top: 30px;
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+
+    canvas {
+      display: none;
+    }
   }
 }
 </style>
