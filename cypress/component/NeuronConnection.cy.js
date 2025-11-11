@@ -83,7 +83,7 @@ describe('MapContent', () => {
     cy.connectivitySearch('132');
 
     // Compare connectivity search results for different search terms
-    searchTermPairs.forEach(({terms, isSame}) => {
+    cy.wrap(searchTermPairs).each(({terms, isSame}) => {
       cy.compareConnectivitySearchResults(terms, isSame);
     });
 
