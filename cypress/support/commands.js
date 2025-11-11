@@ -190,10 +190,10 @@ Cypress.Commands.add('connectivitySearch', (searchTerm) => {
 
 Cypress.Commands.add('compareConnectivitySearchResults', ([searchTerm1, searchTerm2], isSame) => {
   cy.connectivitySearch(searchTerm1);
-  cy.wait(400);
+  cy.wait(1000);
   cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue1) => {
     cy.connectivitySearch(searchTerm2);
-    cy.wait(400);
+    cy.wait(1000);
     cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue2) => {
       if (isSame) {
         expect(storedvalue1.trim()).to.equal(storedvalue2.trim());
