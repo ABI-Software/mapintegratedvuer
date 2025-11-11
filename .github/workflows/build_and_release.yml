@@ -21,14 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Start Jenkins job
-        uses: geokats7/jenkins_client@main
+        uses: mickeygoussetorg/trigger-jenkins-job@v1
         with:
-          jenkins_job_name: ${{ secrets.JENKINS_JOB_NAME }}
-          jenkins_job_parameters:  '{"Test": "test"}'
-          jenkins_base_url: ${{ secrets.JENKINS_URL }}
-          jenkins_user: ${{ secrets.JENKINS_USER }}
-          jenkins_password: ${{ secrets.JENKINS_PASSWORD }}
-          wait_for_result: 'True'
+          jenkins-job: ${{ secrets.JENKINS_JOB_NAME }}
+          jenkins-server: ${{ secrets.JENKINS_URL }}
+          jenkins-username: ${{ secrets.JENKINS_USER }}
+          jenkins-pat: ${{ secrets.JENKINS_PAT }}
+          poll-time: 10
+          timeout-value: 1200
+          verbose: true
 
   build:
     needs: test
