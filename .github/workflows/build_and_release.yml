@@ -20,16 +20,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Start Jenkins job
+        uses: mickeygoussetorg/trigger-jenkins-job@v1
         with:
-          node-version: 18.17.1
-      - run: npm install
-      - name: "Run Cypress"
-        run: npm run cypress-component
-        env:
-          CYPRESS_ALGOLIA_ID: ${{ secrets.ALGOLIA_ID }}
-          CYPRESS_ALGOLIA_KEY: ${{ secrets.ALGOLIA_KEY }}
+          jenkins-job: ${{ secrets.JENKINS_JOB_NAME }}
+          jenkins-server: ${{ secrets.JENKINS_URL }}
+          jenkins-username: ${{ secrets.JENKINS_USER }}
+          jenkins-pat: ${{ secrets.JENKINS_PAT }}
+          poll-time: 30
+          timeout-value: 3000
+          verbose: true
 
   build:
     needs: test

@@ -188,13 +188,18 @@ Cypress.Commands.add('connectivitySearch', (searchTerm) => {
   cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
 });
 
-Cypress.Commands.add('compareConnectivitySearchResults', (searchTerm1, searchTerm2) => {
+Cypress.Commands.add('compareConnectivitySearchResults', ([searchTerm1, searchTerm2], isSame) => {
   cy.connectivitySearch(searchTerm1);
-  cy.wait(400);
+  cy.wait(1000);
   cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue1) => {
     cy.connectivitySearch(searchTerm2);
+    cy.wait(1000);
     cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue2) => {
-      expect(storedvalue1.trim()).to.equal(storedvalue2.trim());
+      if (isSame) {
+        expect(storedvalue1.trim()).to.equal(storedvalue2.trim());
+      } else {
+        expect(storedvalue1.trim()).to.not.equal(storedvalue2.trim());
+      }
     });
   });
 })

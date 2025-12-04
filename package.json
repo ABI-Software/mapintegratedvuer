@@ -1,6 +1,6 @@
 {
   "name": "@abi-software/mapintegratedvuer",
-  "version": "1.14.1",
+  "version": "1.15.1",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vite --host --force",
@@ -52,9 +52,9 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "1.12.0",
-    "@abi-software/map-side-bar": "2.11.3",
-    "@abi-software/map-utilities": "^1.7.7-demo.0",
+    "@abi-software/flatmapvuer": "1.12.1",
+    "@abi-software/map-side-bar": "2.11.4",
+    "@abi-software/map-utilities": "1.7.7",
     "@abi-software/plotvuer": "1.0.7",
     "@abi-software/scaffoldvuer": "1.13.0",
     "@abi-software/simulationvuer": "2.0.20",
@@ -82,7 +82,7 @@
     "chai": "^4.1.2",
     "chokidar": "^3.6.0",
     "concurrently": "^8.2.2",
-    "cypress": "^13.13.0",
+    "cypress": "^13.17.0",
     "cypress-multi-reporters": "^1.6.4",
     "cypress-visual-regression": "^5.2.2",
     "cypress-wait-until": "^1.7.1",
