@@ -119,8 +119,7 @@
                       Neuron populations terminating at a location.
                     </small>
                     <small v-else>
-                      Neuron populations associated with a location (or)
-                      Neuron populations that share at least one edge with another neuron population.
+                      Neuron populations associated with a location.
                     </small>
                   </div>
                 </div>
