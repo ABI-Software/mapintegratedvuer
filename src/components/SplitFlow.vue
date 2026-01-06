@@ -74,6 +74,9 @@ import SplitDialog from "./SplitDialog.vue";
 import { SideBar } from "@abi-software/map-side-bar";
 import "@abi-software/map-side-bar/dist/style.css";
 import {
+  queryForwardBackwardConnections
+} from '@abi-software/map-utilities';
+import {
   capitalise,
   getNewMapEntry,
   initialDefaultState,
@@ -85,6 +88,7 @@ import { useEntriesStore } from '../stores/entries';
 import { useMainStore } from '../stores/index'
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useConnectivitiesStore } from '../stores/connectivities';
 import {
   ElContainer as Container,
   ElHeader as Header,
@@ -454,7 +458,7 @@ export default {
         });
       }
     },
-    openConnectivityInfo: function (payload) {
+    openConnectivityInfo: async function (payload) {
       // expand connectivity card and show connectivity info
       // if expanded exist, payload should be an array of one element
       // skip payload not match the expanded in multiple views
@@ -483,6 +487,31 @@ export default {
       } else {
         // click on the flatmap paths/features directly
         // or onDisplaySearch is performed
+        const connectivityEntries = this.connectivityEntry.map(entry => entry.id);
+        const flatmapAPI = this.settingsStore.flatmapAPI;
+        const knowledgeSource = this.connectivityEntry[0].mapuuid || '';
+
+        if (connectivityEntries.length && knowledgeSource) {
+          const connections = await queryForwardBackwardConnections(flatmapAPI, knowledgeSource, connectivityEntries);
+          const availableConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+          const mappedConnections = connections.map((connId) => {
+            const matched = availableConnectivities.find((ac) => ac.id === connId);
+            if (matched) {
+              return {
+                ...matched,
+                featureId: [matched.id],
+                title: matched.label,
+                id: matched.id,
+                label: matched.label,
+                'nerve-label': matched['nerve-label'],
+                ready: true,
+              };
+            }
+            return false;
+          });
+          this.connectivityEntry.push(...mappedConnections);
+        }
+
         this.connectivityKnowledge = this.connectivityEntry;
         if (this.connectivityKnowledge.every(ck => ck.ready)) {
           this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
@@ -981,7 +1010,7 @@ export default {
     });
   },
   computed: {
-    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     envVars: function () {
       return {
         API_LOCATION: this.settingsStore.sparcApi,
