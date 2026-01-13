@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { initialDefaultState } from "../components/scripts/utilities";
-import { getKnowledgeSourceFromProvenance } from '@abi-software/flatmapvuer/src/services/flatmapKnowledge.js';
+import { getKnowledgeSourceFromProvenance } from '@abi-software/flatmapvuer';
 
 /* eslint-disable no-alert, no-console */
 
@@ -20,6 +20,7 @@ export const useEntriesStore = defineStore('entries', {
   },
   actions: {
     addNewEntry(entry) {
+      console.log("Adding new entry:", entry);
       this.entries.push(entry);
     },
     destroyEntry(index) {

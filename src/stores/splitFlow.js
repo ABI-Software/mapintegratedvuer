@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import {
   getAvailableTermsForSpecies,
 } from "../components/SimulatedData.js";
-import EventBus from '../components/EventBus.js';
+import EventBus from '../components/EventBus';
 
 /* eslint-disable no-alert, no-console */
 const presetLayouts = (view) => {
@@ -256,6 +256,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       }
     },
     updateActiveView(payload) {
+      console.log("Updating active view to:", payload);
       this.activeView = payload.view;
       const customLayout = newLayoutWithOrigInfo(
         this.customLayout, this.activeView);

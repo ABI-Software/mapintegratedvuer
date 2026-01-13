@@ -884,6 +884,7 @@ export default {
       this.removeEntry(id);
     });
     EventBus.on("PopoverActionClick", payload => {
+      console.log("PopoverActionClick event received:", payload);
       this.actionClick(payload);
     });
     EventBus.on('annotation-open', payload => {
