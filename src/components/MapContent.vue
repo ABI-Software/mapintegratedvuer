@@ -452,7 +452,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
 :deep(.el-loading-spinner) {
   .path {
     stroke: $app-primary-color;
