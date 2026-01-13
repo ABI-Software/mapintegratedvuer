@@ -82,7 +82,7 @@ import '@abi-software/map-utilities/dist/style.css'
 
 import PlotComponent from '../PlotComponent.vue'
 import FloatingWindow from '../FloatingWindow.vue'
-import { useSimulationStore } from '../../stores/simulationStore'
+import { useMappingStore } from '../../stores/mapping'
 
 const BASE_Z_INDEX = 100
 
@@ -96,9 +96,10 @@ export default {
   setup() {
     // const flatmap = ref(null)
     const container = ref(null);
-    const store = useSimulationStore()
+    const mappingStore = useMappingStore()
+    mappingStore.initializeMapping()
     const { elementX, elementY } = useMouseInElement(container)
-    return { container, elementX, elementY, store }
+    return { container, elementX, elementY, mappingStore }
   },
   data: function () {
     return {

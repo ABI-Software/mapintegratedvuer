@@ -439,11 +439,13 @@ export default {
         feature.type === 'feature' &&
         type === 'Flatmap'
       ) {
+        const { component, variable } =
+          this.mappingStore.mapToCellMLIdentifiers(feature.mapUUID, feature.id)
         const requestPacket = {
           id: 'nz.ac.auckland.simulation-data-request',
           source: this.entry.id,
-          component: 'main',
-          variable: 'q_vc_Na',
+          component: component,
+          variable: variable,
           version: '0.1.0',
           identifier: feature.id,
           protocol: firstResource.protocol,

@@ -514,13 +514,12 @@ export default {
   },
   mounted: function () {
     this.waitForRouter()
-    console.log('Set entry now?')
+    console.log('Debug --- setup up FC Flatmap')
     const currentEntry = {
       type: 'Flatmap',
       resource: 'e81e3f3a-ed2f-5610-99ae-e019deae614a',
       label: 'Functional',
     }
-    console.log(this.$refs.map)
   },
 }
 </script>
