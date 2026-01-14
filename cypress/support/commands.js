@@ -181,8 +181,8 @@ Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
 })
 
 Cypress.Commands.add('connectivitySearch', (searchTerm) => {
-  cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
-  cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm);
+  cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').clear();
+  cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm);
   cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
