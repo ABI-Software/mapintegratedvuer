@@ -467,7 +467,10 @@ export default {
         this.connectivityExplorerClicked.pop();
         return;
       }
-      this.connectivityEntry = payload.map(entry => {
+
+      // Remove duplicate items from payload
+      const uniquePayload = [...new Map(payload.map((entry) => [entry.featureId[0], entry])).values()];
+      this.connectivityEntry = uniquePayload.map((entry) => {
         let result = {
           ...entry,
           label: entry.title,
@@ -479,6 +482,7 @@ export default {
         }
         return result;
       });
+
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
         if (this.connectivityEntry.every(entry => entry.ready)) {
@@ -489,34 +493,38 @@ export default {
         // or onDisplaySearch is performed
         const connectivityEntries = this.connectivityEntry.map(entry => entry.id);
         const flatmapAPI = this.settingsStore.flatmapAPI;
+        const { viewingMode } = this.settingsStore.globalSettings;
         const knowledgeSource = this.connectivityEntry[0].mapuuid || '';
+        let mappedConnections = [];
+        let forwardBackwardConnections = [];
 
-        if (connectivityEntries.length && knowledgeSource) {
-          const connections = await queryForwardBackwardConnections(flatmapAPI, knowledgeSource, connectivityEntries);
+        // fetch forward/backward connections on Neuron Connection mode
+        if (viewingMode === 'Neuron Connection' && connectivityEntries.length && knowledgeSource) {
+          forwardBackwardConnections = await queryForwardBackwardConnections(flatmapAPI, knowledgeSource, connectivityEntries);
+          const allConnections = [
+            ...connectivityEntries,
+            ...forwardBackwardConnections,
+          ];
           const availableConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-          const mappedConnections = connections.map((connId) => {
-            const matched = availableConnectivities.find((ac) => ac.id === connId);
-            if (matched) {
-              return {
-                ...matched,
-                featureId: [matched.id],
-                title: matched.label,
-                id: matched.id,
-                label: matched.label,
-                'nerve-label': matched['nerve-label'],
-                ready: true,
-              };
-            }
-            return false;
+          mappedConnections = allConnections.map((connId) => {
+            return availableConnectivities.find((ac) => ac.id === connId);
           });
-          this.connectivityEntry.push(...mappedConnections);
         }
 
-        this.connectivityKnowledge = this.connectivityEntry;
-        if (this.connectivityKnowledge.every(ck => ck.ready)) {
+        // if there are forward/backward connections, use them for connectivityKnowledge
+        if (forwardBackwardConnections.length) {
+          this.connectivityEntry = [];
+          this.connectivityKnowledge = mappedConnections;
           this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
           this.connectivityProcessed = true;
+        } else {
+          this.connectivityKnowledge = this.connectivityEntry;
+          if (this.connectivityKnowledge.every(ck => ck.ready)) {
+            this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
+            this.connectivityProcessed = true;
+          }
         }
+
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
           this.$refs.sideBar.setDrawerOpen(true);
