@@ -489,12 +489,13 @@ export default {
         // or onDisplaySearch is performed
         const connectivityEntries = this.connectivityEntry.map(entry => entry.id);
         const flatmapAPI = this.settingsStore.flatmapAPI;
+        const { viewingMode } = this.settingsStore.globalSettings;
         const knowledgeSource = this.connectivityEntry[0].mapuuid || '';
         let mappedConnections = [];
         let forwardBackwardConnections = [];
 
-        // fetch forward/backward connections
-        if (connectivityEntries.length && knowledgeSource) {
+        // fetch forward/backward connections on Neuron Connection mode
+        if (viewingMode === 'Neuron Connection' && connectivityEntries.length && knowledgeSource) {
           forwardBackwardConnections = await queryForwardBackwardConnections(flatmapAPI, knowledgeSource, connectivityEntries);
           const allConnections = [
             ...connectivityEntries,
