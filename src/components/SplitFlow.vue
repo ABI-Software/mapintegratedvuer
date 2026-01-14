@@ -490,33 +490,36 @@ export default {
         const connectivityEntries = this.connectivityEntry.map(entry => entry.id);
         const flatmapAPI = this.settingsStore.flatmapAPI;
         const knowledgeSource = this.connectivityEntry[0].mapuuid || '';
+        let mappedConnections = [];
+        let forwardBackwardConnections = [];
 
+        // fetch forward/backward connections
         if (connectivityEntries.length && knowledgeSource) {
-          const connections = await queryForwardBackwardConnections(flatmapAPI, knowledgeSource, connectivityEntries);
+          forwardBackwardConnections = await queryForwardBackwardConnections(flatmapAPI, knowledgeSource, connectivityEntries);
+          const allConnections = [
+            ...connectivityEntries,
+            ...forwardBackwardConnections,
+          ];
           const availableConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-          const mappedConnections = connections.map((connId) => {
-            const matched = availableConnectivities.find((ac) => ac.id === connId);
-            if (matched) {
-              return {
-                ...matched,
-                featureId: [matched.id],
-                title: matched.label,
-                id: matched.id,
-                label: matched.label,
-                'nerve-label': matched['nerve-label'],
-                ready: true,
-              };
-            }
-            return false;
+          mappedConnections = allConnections.map((connId) => {
+            return availableConnectivities.find((ac) => ac.id === connId);
           });
-          this.connectivityEntry.push(...mappedConnections);
         }
 
-        this.connectivityKnowledge = this.connectivityEntry;
-        if (this.connectivityKnowledge.every(ck => ck.ready)) {
+        // if there are forward/backward connections, use them for connectivityKnowledge
+        if (forwardBackwardConnections.length) {
+          this.connectivityEntry = [];
+          this.connectivityKnowledge = mappedConnections;
           this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
           this.connectivityProcessed = true;
+        } else {
+          this.connectivityKnowledge = this.connectivityEntry;
+          if (this.connectivityKnowledge.every(ck => ck.ready)) {
+            this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
+            this.connectivityProcessed = true;
+          }
         }
+
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
           this.$refs.sideBar.setDrawerOpen(true);
