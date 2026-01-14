@@ -467,7 +467,10 @@ export default {
         this.connectivityExplorerClicked.pop();
         return;
       }
-      this.connectivityEntry = payload.map(entry => {
+
+      // Remove duplicate items from payload
+      const uniquePayload = [...new Map(payload.map((entry) => [entry.featureId[0], entry])).values()];
+      this.connectivityEntry = uniquePayload.map((entry) => {
         let result = {
           ...entry,
           label: entry.title,
@@ -479,6 +482,7 @@ export default {
         }
         return result;
       });
+
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
         if (this.connectivityEntry.every(entry => entry.ready)) {
