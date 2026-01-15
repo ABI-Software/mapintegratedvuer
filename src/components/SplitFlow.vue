@@ -74,6 +74,9 @@ import SplitDialog from "./SplitDialog.vue";
 import { SideBar } from "@abi-software/map-side-bar";
 import "@abi-software/map-side-bar/dist/style.css";
 import {
+  queryForwardBackwardConnections
+} from '@abi-software/map-utilities';
+import {
   capitalise,
   getNewMapEntry,
   initialDefaultState,
@@ -85,6 +88,7 @@ import { useEntriesStore } from '../stores/entries';
 import { useMainStore } from '../stores/index'
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { useConnectivitiesStore } from '../stores/connectivities';
 import {
   ElContainer as Container,
   ElHeader as Header,
@@ -454,7 +458,7 @@ export default {
         });
       }
     },
-    openConnectivityInfo: function (payload) {
+    openConnectivityInfo: async function (payload) {
       // expand connectivity card and show connectivity info
       // if expanded exist, payload should be an array of one element
       // skip payload not match the expanded in multiple views
@@ -463,7 +467,10 @@ export default {
         this.connectivityExplorerClicked.pop();
         return;
       }
-      this.connectivityEntry = payload.map(entry => {
+
+      // Remove duplicate items from payload
+      const uniquePayload = [...new Map(payload.map((entry) => [entry.featureId[0], entry])).values()];
+      this.connectivityEntry = uniquePayload.map((entry) => {
         let result = {
           ...entry,
           label: entry.title,
@@ -475,6 +482,7 @@ export default {
         }
         return result;
       });
+
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
         if (this.connectivityEntry.every(entry => entry.ready)) {
@@ -483,11 +491,40 @@ export default {
       } else {
         // click on the flatmap paths/features directly
         // or onDisplaySearch is performed
-        this.connectivityKnowledge = this.connectivityEntry;
-        if (this.connectivityKnowledge.every(ck => ck.ready)) {
+        const connectivityEntries = this.connectivityEntry.map(entry => entry.id);
+        const flatmapAPI = this.settingsStore.flatmapAPI;
+        const { viewingMode } = this.settingsStore.globalSettings;
+        const knowledgeSource = this.connectivityEntry[0].mapuuid || '';
+        let mappedConnections = [];
+        let forwardBackwardConnections = [];
+
+        // fetch forward/backward connections on Neuron Connection mode
+        if (viewingMode === 'Neuron Connection' && connectivityEntries.length && knowledgeSource) {
+          forwardBackwardConnections = await queryForwardBackwardConnections(flatmapAPI, knowledgeSource, connectivityEntries);
+          const allConnections = [
+            ...connectivityEntries,
+            ...forwardBackwardConnections,
+          ];
+          const availableConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
+          mappedConnections = allConnections.map((connId) => {
+            return availableConnectivities.find((ac) => ac.id === connId);
+          });
+        }
+
+        // if there are forward/backward connections, use them for connectivityKnowledge
+        if (forwardBackwardConnections.length) {
+          this.connectivityEntry = [];
+          this.connectivityKnowledge = mappedConnections;
           this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
           this.connectivityProcessed = true;
+        } else {
+          this.connectivityKnowledge = this.connectivityEntry;
+          if (this.connectivityKnowledge.every(ck => ck.ready)) {
+            this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
+            this.connectivityProcessed = true;
+          }
         }
+
         if (this.$refs.sideBar) {
           this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
           this.$refs.sideBar.setDrawerOpen(true);
@@ -981,7 +1018,7 @@ export default {
     });
   },
   computed: {
-    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     envVars: function () {
       return {
         API_LOCATION: this.settingsStore.sparcApi,
