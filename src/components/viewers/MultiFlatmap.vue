@@ -70,7 +70,7 @@ import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
 import YellowStar from "../../icons/yellowstar";
 
 import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
-import "@abi-software/flatmapvuer/dist/style.css";
+// import "@abi-software/flatmapvuer/dist/style.css";
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
 
