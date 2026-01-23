@@ -1,8 +1,8 @@
 <script setup>
-import { ref, toRefs } from 'vue';
+import { ref, toRefs, watch } from 'vue';
 import { useDraggable } from '@vueuse/core';
 
-const props = defineProps(['windowData']);
+const props = defineProps(['windowData', 'offsetX', 'offsetY']);
 const emit = defineEmits(['closeWindow', 'mouseDown']);
 const { windowData } = toRefs(props);
 
@@ -11,6 +11,15 @@ const el = ref(null);
 
 // 2. Create a "handle" ref so the user can only drag by the header
 const handle = ref(null);
+
+const transform = ref('translate(0px, 0px)')
+
+watch([() => props.offsetX, () => props.offsetY],
+  ([newX, newY]) => {
+    transform.value = `translate(-${newX}px, -${newY}px)`;
+  },
+  { immediate: true }
+)
 
 // 3. Activate draggable logic
 // We set initialValue to the props so it opens where we want
@@ -22,10 +31,10 @@ const { x, y, style } = useDraggable(el, {
 </script>
 
 <template>
-  <div 
-    ref="el" 
-    class="floating-window" 
-    :style="[style, { zIndex: windowData.zIndex }]"
+  <div
+    ref="el"
+    class="floating-window"
+    :style="[style, { zIndex: windowData.zIndex, transform: transform}, ]"
     @mousedown="emit('mouseDown', windowData.id)"
   >
     <div ref="handle" class="window-header">
