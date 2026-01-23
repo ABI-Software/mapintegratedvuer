@@ -106,7 +106,6 @@
     "mochawesome-report-generator": "^6.2.0",
     "sass": "^1.69.5",
     "vite": "^5.0.10",
-    "vite-plugin-vue-devtools": "^8.0.5",
     "vitepress": "^1.0.0-rc.45",
     "vitest": "^1.2.2",
     "vue-docgen-api": "^4.79.2",
