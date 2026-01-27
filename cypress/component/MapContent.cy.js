@@ -195,8 +195,8 @@ describe('MapContent', () => {
 
     // dataset explorer
     cy.get('.tabs-container > :nth-child(1)').click();
-    //Type in 76 generic
-    cy.get('.sidebar-content-container > .el-card__header > .header > .el-input > .el-input__wrapper').should('exist').type('76 generic');
+    //Dataset 76
+    cy.get('.sidebar-content-container > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper').should('exist').type('10.26275/llxf-edeh');
 
     //Search
     cy.get('.sidebar-content-container > .el-card__header > .header > .el-button--primary').should('exist').click();

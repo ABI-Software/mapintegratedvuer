@@ -88,7 +88,7 @@ describe('MapContent', () => {
     });
 
     // clear search
-    cy.get('[style=""] > .el-card__header > .header > .el-input > .el-input__wrapper > .el-input__inner').clear();
+    cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').clear();
 
     // Test Neuron connection mode, competency not yet ready for production, disable for now.
     for (const [key, value] of Object.entries(neuronConnectionSettings)) {

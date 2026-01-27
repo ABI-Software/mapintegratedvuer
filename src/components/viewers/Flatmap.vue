@@ -1,5 +1,8 @@
 <template>
   <div class="viewer-container" ref="container">
+    <resize-sensor
+      @resize="calculateOffset()">
+    </resize-sensor>
     <FlatmapVuer
       :state="entry.state"
       :entry="entry.resource"
@@ -57,6 +60,8 @@
       v-for="win in plotWindows"
       :key="win.id"
       :windowData="win"
+      :offsetX="left"
+      :offsetY="top"
       @closeWindow="handleClosePlotWindow"
       @mouseDown="bringToFront"
     >
@@ -74,7 +79,7 @@ import Tagging from '../../services/tagging.js'
 import EventBus from '../EventBus'
 import ContentMixin from '../../mixins/ContentMixin'
 import DynamicMarkerMixin from '../../mixins/DynamicMarkerMixin'
-
+import ResizeSensor from "../ResizeSensor.vue";
 import { FlatmapVuer } from '@abi-software/flatmapvuer'
 import '@abi-software/flatmapvuer/dist/style.css'
 import { HelpModeDialog } from '@abi-software/map-utilities'
@@ -92,6 +97,7 @@ export default {
   components: {
     FlatmapVuer,
     HelpModeDialog,
+    ResizeSensor,
   },
   setup() {
     // const flatmap = ref(null)
@@ -107,6 +113,8 @@ export default {
       displayMinimap: false,
       plotWindows: [],
       zStack: [],
+      left: 0,
+      top: 0,
     }
   },
   methods: {
@@ -281,6 +289,7 @@ export default {
       if (payload.target !== this.entry.id) return
 
       const currentFlatmap = this.$refs.flatmap
+      this.calculateOffset();
       if (currentFlatmap) {
         const newId = 'plot-' + Date.now()
         const windowData = {
@@ -288,8 +297,8 @@ export default {
           title: payload.title,
           data: payload.data,
           zIndex: BASE_Z_INDEX,
-          x: payload.position.x,
-          y: payload.position.y,
+          x: payload.position.x + this.left,
+          y: payload.position.y + this.top,
         }
         this.plotWindows.push(windowData)
         this.zStack.push(newId)
@@ -321,6 +330,15 @@ export default {
       this.zStack.push(windowId)
 
       this.refreshZIndices()
+    },
+    calculateOffset: function() {
+      const element = this.$refs.container;
+      const rect = this.$refs.container.getBoundingClientRect();
+      this.top = rect.top;
+      this.left = rect.left;
+    },
+    onResize: function () {
+      this.calculateOffset();
     },
   },
   computed: {
