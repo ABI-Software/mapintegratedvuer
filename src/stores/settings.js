@@ -12,7 +12,6 @@ export const useSettingsStore = defineStore('settings', {
       algoliaId: undefined,
       pennsieveApi: undefined,
       flatmapAPI: undefined,
-      nlLinkPrefix: undefined,
       mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
@@ -113,9 +112,6 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateMapManager(mapManager) {
       this.mapManager = mapManager;
-    },
-    updateNLLinkPrefix(nlLinkPrefix) {
-      this.nlLinkPrefix = nlLinkPrefix;
     },
     updateRootUrl(rootUrl) {
       this.rootUrl = rootUrl;

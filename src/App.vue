@@ -174,7 +174,6 @@ export default {
         algoliaId: import.meta.env.VITE_ALGOLIA_ID,
         pennsieveApi: import.meta.env.VITE_PENNSIEVE_API_LOCATION,
         flatmapAPI: this.$route.query.flatmapserver ? this.$route.query.flatmapserver : import.meta.env.VITE_FLATMAPAPI_LOCATION,
-        nlLinkPrefix: import.meta.env.VITE_NL_LINK_PREFIX,
         rootUrl: import.meta.env.VITE_ROOT_URL,
       }
     }
