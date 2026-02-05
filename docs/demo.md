@@ -52,7 +52,6 @@
             algoliaId: 'VITE_ALGOLIA_ID',
             pennsieveApi: 'VITE_PENNSIEVE_API_LOCATION',
             flatmapAPI: 'VITE_FLATMAPAPI_LOCATION',
-            nlLinkPrefix: 'VITE_NL_LINK_PREFIX',
             rootUrl: 'meta.env.VITE_ROOT_URL',
           }
         }
