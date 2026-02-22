@@ -173,9 +173,7 @@ export default {
     ...mapStores(useEntriesStore, useSplitFlowStore),
     viewerType() {
       switch (this.entry.type) {
-        case "Biolucida":
         case "Iframe":
-        case "Segmentation":
           return 'Iframe';
         default:
           return this.entry.type;

@@ -117,27 +117,6 @@
           }
         ],
         "additionalLinks": false,
-        "biolucida-3d": [
-          {
-            "additional_mimetype": {
-              "name": ""
-            },
-            "datacite": {},
-            "dataset": {
-              "identifier": "dataset:a523453f2-93218b5c7b31",
-              "path": "primary/sub-54-8/sam-TJU-3Scan-ratheart-54-8/TJU_3Scan_ratheart_54-8.jpx"
-            },
-            "description": "Image file associated with the accompanying subject 54-8 xml file, viewable in Tissue Mapper",
-            "file_type": {
-              "name": ".jpx"
-            },
-            "identifier": "package:170d03342134e214e5cd3cf61a",
-            "mimetype": {
-              "name": "image/jpx"
-            },
-            "name": "TJU_3Scan_ratheart_54-8.jpx"
-          }
-        ],
         "contributors": [
           {
             "affiliations": [
@@ -162,27 +141,6 @@
         "description": "Test this",
         "doi": "https://doi.org/10.26275/llxf-edeh",
         "identifier": "N:dataset:a59a7c4c-0234534e24b31",
-        "mbf-segmentation": [
-          {
-            "additional_mimetype": {
-              "name": "application/vnd.mbfbioscience.metadata+xml"
-            },
-            "datacite": {},
-            "dataset": {
-              "identifier": "dataset:a59a7c4c-0978-45er2414b5c7b31",
-              "path": "derivative/sub-54-8/sam-TJU-3Scan-ratheart-54-8/M54-8_03_20_20_Final.xml"
-            },
-            "description": "XML file associated with the accompanying subject 54-8 jpx file, which illustrates the spatial distribution and location of marked neurons in context of segmented cardiac features denoted by different colored contours, created in and viewable in Tissue Mapper (SCR_017321)",
-            "file_type": {
-              "name": ".xml"
-            },
-            "identifier": "package:25fab6d9-cf21-234d245124e74a359",
-            "mimetype": {
-              "name": "application/xml"
-            },
-            "name": "M54-8_03_20_20_Final.xml"
-          }
-        ],
         "name": "Generic mouse colon scaffold",
         "organisms": [
           {

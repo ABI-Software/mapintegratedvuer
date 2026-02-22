@@ -208,7 +208,7 @@ describe('MapContent', () => {
     cy.wait('@mouseDataset', {timeout: 20000});
 
     //Check how many tags in the dataset
-    cy.get('.box-card .container button').should('have.length', 6);
+    cy.get('.box-card .container button').should('have.length', 5);
 
     //Intercept the request and stub it with preloaded fixture
     cy.get('@metadata').then((metadata) => {
@@ -232,8 +232,6 @@ describe('MapContent', () => {
 
     //Check for plot and open it, should have four items in select now
     cy.get('.open-tab > .el-icon').click();
-    cy.get('.box-card .container button').filter(':visible').contains('Segmentations (1)').click();
-    cy.get('.gallery-strip').contains('M54-8_03_20_20_Final.xml').should("exist");
     cy.get('.box-card .container button').filter(':visible').contains('Plots (1)').click();
     cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should("exist");
