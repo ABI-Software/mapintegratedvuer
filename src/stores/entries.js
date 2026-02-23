@@ -20,7 +20,6 @@ export const useEntriesStore = defineStore('entries', {
   },
   actions: {
     addNewEntry(entry) {
-      console.log("Adding new entry:", entry);
       this.entries.push(entry);
     },
     destroyEntry(index) {

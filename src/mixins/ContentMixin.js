@@ -10,10 +10,7 @@ import Tagging from '../services/tagging.js'
 
 import { getFlatmapFilterOptions } from '@abi-software/map-utilities'
 import { FlatmapQueries } from '@abi-software/flatmapvuer'
-import {
-  getKnowledgeSource,
-  loadAndStoreKnowledge,
-} from '@abi-software/flatmapvuer'
+import { getKnowledgeSource, loadAndStoreKnowledge } from '@abi-software/flatmapvuer'
 import {
   getTermNerveMaps,
   getFilterOptions as getScaffoldFilterOptions,
@@ -44,12 +41,7 @@ export default {
   },
   inject: ['showGlobalSettings', 'showOpenMapButton'],
   computed: {
-    ...mapStores(
-      useEntriesStore,
-      useSettingsStore,
-      useSplitFlowStore,
-      useConnectivitiesStore
-    ),
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
       return this.splitFlowStore.idNamePair
     },
@@ -78,12 +70,7 @@ export default {
     this.plotRef = this.$refs.plot
     this.simulationRef = this.$refs.simulation
     // load connectivity with mock human male flatmap
-    if (
-      this.scaffoldRef ||
-      this.iframeRef ||
-      this.plotRef ||
-      this.simulationRef
-    ) {
+    if (this.scaffoldRef || this.iframeRef || this.plotRef || this.simulationRef) {
       this.loadExplorerConfig()
     }
     this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities
@@ -200,9 +187,7 @@ export default {
           if (resource.feature.type == 'marker') {
             let label = result.internalName
             // `resource.feature.id` is the marker identifier (not featureId or models)
-            if (
-              this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)
-            ) {
+            if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
               // It is a featured dataset search for DOI.
               returnedAction = {
                 type: 'Search',
@@ -234,12 +219,7 @@ export default {
               /* Add to the filter list as and if there is selected facets */
               if (this.settingsStore.appliedFacets.length) {
                 if (!this.settingsStore.hasAppliedFacets(labels)) {
-                  const newFacets = [
-                    ...new Set([
-                      ...this.settingsStore.appliedFacets,
-                      ...labels,
-                    ]),
-                  ]
+                  const newFacets = [...new Set([...this.settingsStore.appliedFacets, ...labels])]
                   this.settingsStore.updateAppliedFacets(newFacets)
                 }
               } else {
@@ -323,9 +303,7 @@ export default {
               .then((response) => response.json())
               .then((data) => {
                 if (data.uberon?.array.length > 0) {
-                  name =
-                    data.uberon.array[0].name.charAt(0).toUpperCase() +
-                    data.uberon.array[0].name.slice(1)
+                  name = data.uberon.array[0].name.charAt(0).toUpperCase() + data.uberon.array[0].name.slice(1)
                   id = data.uberon.array[0].id.toUpperCase()
                   return { id, name }
                 }
@@ -387,9 +365,7 @@ export default {
     },
     // Check if the old featured dataset api has any info
     oldFeaturedDatasetApiHasInfo: async function () {
-      let response = await fetch(
-        `${this.apiLocation}get_featured_datasets_identifiers`
-      )
+      let response = await fetch(`${this.apiLocation}get_featured_datasets_identifiers`)
       let data = await response.json()
       if (!data.identifiers || data.identifiers.length == 0) {
         return false
@@ -414,11 +390,7 @@ export default {
       const { eventType, feature } = firstResource
       const { viewingMode } = this.settingsStore.globalSettings
 
-      if (
-        eventType === 'click' &&
-        feature.type === 'feature' &&
-        feature.models?.startsWith('ilxtr:')
-      ) {
+      if (eventType === 'click' && feature.type === 'feature' && feature.models?.startsWith('ilxtr:')) {
         // Use only models data for GA tagging
         // There is character limit (100 characters) for event parameter value in GA
         const categories = []
@@ -434,27 +406,24 @@ export default {
           location: type + ' ' + viewingMode,
         })
       }
-      if (
-        eventType === 'click' &&
-        feature.type === 'feature' &&
-        type === 'Flatmap'
-      ) {
-        const { component, variable } =
-          this.mappingStore.mapToCellMLIdentifiers(feature.mapUUID, feature.id)
-        const requestPacket = {
-          id: 'nz.ac.auckland.simulation-data-request',
-          source: this.entry.id,
-          component: component,
-          variable: variable,
-          version: '0.1.0',
-          identifier: feature.id,
-          protocol: firstResource.protocol,
-          map: feature.mapUUID,
-          position: { x: this.elementX + 15, y: this.elementY + 15 },
+      if (eventType === 'click' && feature.type === 'feature' && type === 'Flatmap') {
+        const { component, variable } = this.mappingStore.mapToCellMLIdentifiers(feature.mapUUID, feature.id)
+        if (!component || !variable) {
+          return  // No mapping found, do not proceed with the simulation request
         }
 
-        // 'simulation-request' is now autocompleted and type-checked
-        EventBus.emit('simulation-request', requestPacket)
+        const simulationDataRequest = {
+          component,
+          featureId: feature.id,
+          mapId: feature.mapUUID,
+          offset: { left: 15, top: 15 },
+          ownerId: this.entry.id,
+          position: { x: this.elementX + this.left, y: this.elementY + this.top },
+          protocol: firstResource.protocol,
+          variable,
+          windowId: `simulation-window-${this.entry.id}-${component}-${variable}`,
+        }
+        this.simulationPlotStore.requestSimulation(simulationDataRequest)
       }
     },
     /**
@@ -550,22 +519,13 @@ export default {
         this.endHelp()
       }
     },
-    flatmapHighlight: async function (
-      flatmap,
-      hoverAnatomies,
-      hoverDOI,
-      hoverConnectivity
-    ) {
+    flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
       let toHighlight = [...hoverAnatomies, ...hoverConnectivity]
       const globalSettings = this.settingsStore.globalSettings
 
       // to highlight connected paths
       if (globalSettings.highlightConnectedPaths) {
-        const hoverEntry = hoverAnatomies.length
-          ? hoverAnatomies
-          : hoverConnectivity.length
-          ? hoverConnectivity
-          : []
+        const hoverEntry = hoverAnatomies.length ? hoverAnatomies : hoverConnectivity.length ? hoverConnectivity : []
         const connectedPaths = await flatmap.retrieveConnectedPaths(hoverEntry)
         if (connectedPaths) {
           toHighlight.push(...connectedPaths)
@@ -574,8 +534,7 @@ export default {
 
       // to highlight related paths from reference DOI
       if (globalSettings.highlightDOIPaths) {
-        const connectionsFromDOI =
-          await flatmap.searchConnectivitiesByReference(hoverDOI)
+        const connectionsFromDOI = await flatmap.searchConnectivitiesByReference(hoverDOI)
         if (connectionsFromDOI) {
           toHighlight.push(...connectionsFromDOI)
         }
@@ -586,8 +545,7 @@ export default {
     sidebarHoverHighlight: function (payload) {
       if (
         this.visible &&
-        (((this.flatmapRef || this.multiflatmapRef) && this.flatmapReady) ||
-          (this.scaffoldRef && this.scaffoldLoaded))
+        (((this.flatmapRef || this.multiflatmapRef) && this.flatmapReady) || (this.scaffoldRef && this.scaffoldLoaded))
       ) {
         const hoverAnatomies = this.settingsStore.hoverAnatomies
         const hoverOrgans = this.settingsStore.hoverOrgans
@@ -597,18 +555,12 @@ export default {
         let flatmap = null
         let scaffold = null
         if (this.flatmapRef) flatmap = this.flatmapRef
-        if (this.multiflatmapRef)
-          flatmap = this.multiflatmapRef.getCurrentFlatmap()
+        if (this.multiflatmapRef) flatmap = this.multiflatmapRef.getCurrentFlatmap()
         if (this.scaffoldRef) scaffold = this.scaffoldRef
 
         // reset
         clearTimeout(this.highlightDelay)
-        if (
-          !hoverAnatomies.length &&
-          !hoverOrgans.length &&
-          !hoverDOI &&
-          !hoverConnectivity.length
-        ) {
+        if (!hoverAnatomies.length && !hoverOrgans.length && !hoverDOI && !hoverConnectivity.length) {
           if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
             if (flatmap.mapImp && !flatmap.mapImp.contextLost) {
               flatmap.mapImp?.clearSearchResults()
@@ -623,33 +575,20 @@ export default {
         }
 
         this.highlightDelay = setTimeout(() => {
-          if (
-            hoverAnatomies.length ||
-            hoverOrgans.length ||
-            hoverDOI ||
-            hoverConnectivity.length
-          ) {
+          if (hoverAnatomies.length || hoverOrgans.length || hoverDOI || hoverConnectivity.length) {
             if ((this.multiflatmapRef || this.flatmapRef) && flatmap) {
-              this.flatmapHighlight(
-                flatmap,
-                hoverAnatomies,
-                hoverDOI,
-                hoverConnectivity
-              ).then((paths) => {
+              this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then((paths) => {
                 try {
                   flatmap.showConnectivityTooltips({
                     connectivityInfo: { featureId: paths },
                     data: [],
                   })
                 } catch (error) {
-                  console.log(error)
                   // only for connectivity hover highlight
                   if (hoverConnectivity.length && flatmap.mapImp) {
                     const uuid = flatmap.mapImp.uuid
                     const found = paths.every((path) =>
-                      this.connectivityKnowledge[uuid].some(
-                        (connectivity) => connectivity.id === path
-                      )
+                      this.connectivityKnowledge[uuid].some((connectivity) => connectivity.id === path)
                     )
                     if (!found) {
                       if (flatmap.mapImp && !flatmap.mapImp.contextLost) {
@@ -711,9 +650,7 @@ export default {
         .sort((a, b) => b.created.localeCompare(a.created))[0]
       const flatmapUuid = latestFlatmap.uuid
       const flatmapSource = latestFlatmap.sckan['knowledge-source']
-      const pathwaysResponse = await fetch(
-        `${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`
-      )
+      const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`)
       const pathwaysJson = await pathwaysResponse.json()
 
       this.flatmapQueries = markRaw(new FlatmapQueries())
@@ -786,19 +723,16 @@ export default {
       if (!this.connectivityKnowledge[sckanVersion]) {
         this.flatmapQueries = markRaw(new FlatmapQueries())
         this.flatmapQueries.initialise(this.flatmapAPI)
-        const knowledge = await loadAndStoreKnowledge(
-          flatmapImp,
-          this.flatmapQueries
-        )
+        const knowledge = await loadAndStoreKnowledge(flatmapImp, this.flatmapQueries)
         this.connectivityKnowledge[sckanVersion] = knowledge
           .filter((item) => item.connectivity?.length)
           .sort((a, b) => a.label.localeCompare(b.label))
       }
       if (!this.connectivityKnowledge[uuid]) {
         const pathways = flatmapImp.pathways?.paths || {}
-        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[
-          sckanVersion
-        ].filter((item) => item.id in pathways)
+        this.connectivityKnowledge[uuid] = this.connectivityKnowledge[sckanVersion].filter(
+          (item) => item.id in pathways
+        )
       }
       if (!this.connectivityFilterOptions[uuid] && !flatmap.mockup) {
         this.connectivityFilterOptions[uuid] = await flatmap.getFilterOptions(
@@ -810,9 +744,7 @@ export default {
         const nerveMaps = flatmap.getTermNerveMaps() || {}
         // deep copy the connectivity knowledge
         // to avoid modifying the original data
-        const deepCopyConnectivityKnowledge = JSON.parse(
-          JSON.stringify(this.connectivityKnowledge[uuid])
-        )
+        const deepCopyConnectivityKnowledge = JSON.parse(JSON.stringify(this.connectivityKnowledge[uuid]))
         this.connectivityKnowledge[uuid] = deepCopyConnectivityKnowledge
           .map((item) => {
             let payload = item
@@ -826,9 +758,7 @@ export default {
               }, [])
               if (nerveLabels?.length) {
                 validNerves.push(...nerveLabels)
-                payload['nerve-label'] = nerveLabels.sort((a, b) =>
-                  a.nerve.localeCompare(b.nerve)
-                )
+                payload['nerve-label'] = nerveLabels.sort((a, b) => a.nerve.localeCompare(b.nerve))
               }
             }
             return payload
@@ -843,54 +773,34 @@ export default {
         }
 
         validNerves = validNerves.map((nerve) => nerve.nerve.toLowerCase())
-        const deepCopyFilterOption = JSON.parse(
-          JSON.stringify(this.connectivityFilterOptions[uuid])
-        )
-        this.connectivityFilterOptions[uuid] = deepCopyFilterOption.map(
-          (option) => {
-            if (option.key === 'scaffold.connectivity.nerve') {
-              const newChildren = option.children.filter((child) =>
-                validNerves.includes(child.label.toLowerCase())
-              )
-              return { ...option, children: newChildren }
-            } else {
-              return option
-            }
+        const deepCopyFilterOption = JSON.parse(JSON.stringify(this.connectivityFilterOptions[uuid]))
+        this.connectivityFilterOptions[uuid] = deepCopyFilterOption.map((option) => {
+          if (option.key === 'scaffold.connectivity.nerve') {
+            const newChildren = option.children.filter((child) => validNerves.includes(child.label.toLowerCase()))
+            return { ...option, children: newChildren }
+          } else {
+            return option
           }
-        )
+        })
       } else {
         if (!this.connectivityFilterSources[uuid]) {
           this.connectivityFilterSources[uuid] = flatmap.getFilterSources()
         }
-        this.connectivitiesStore.updateFilterSources(
-          this.connectivityFilterSources
-        )
+        this.connectivitiesStore.updateFilterSources(this.connectivityFilterSources)
       }
-      this.connectivitiesStore.updateFilterOptions(
-        this.connectivityFilterOptions
-      )
-      this.connectivitiesStore.updateGlobalConnectivities(
-        this.connectivityKnowledge
-      )
+      this.connectivitiesStore.updateFilterOptions(this.connectivityFilterOptions)
+      this.connectivitiesStore.updateGlobalConnectivities(this.connectivityKnowledge)
       EventBus.emit('species-layout-connectivity-update')
     },
     knowledgeTooltipQuery: async function (data) {
-      await this.flatmapQueries.retrieveFlatmapKnowledgeForEvent(
-        this.flatmapService.mapImp,
-        { resource: [data.id] }
-      )
-      let tooltip = await this.flatmapQueries.createTooltipData(
-        this.flatmapService.mapImp,
-        {
-          resource: [data.id],
-          label: data.label,
-          provenanceTaxonomy: data.taxons,
-          feature: [],
-        }
-      )
-      tooltip['knowledgeSource'] = getKnowledgeSource(
-        this.flatmapService.mapImp
-      )
+      await this.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, { resource: [data.id] })
+      let tooltip = await this.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
+        resource: [data.id],
+        label: data.label,
+        provenanceTaxonomy: data.taxons,
+        feature: [],
+      })
+      tooltip['knowledgeSource'] = getKnowledgeSource(this.flatmapService.mapImp)
       tooltip['mapId'] = this.flatmapService.mapImp.mapMetadata.id
       tooltip['mapuuid'] = this.flatmapService.mapImp.mapMetadata.uuid
       tooltip['nerve-label'] = data['nerve-label']
@@ -914,9 +824,7 @@ export default {
         prom1.push(await this.knowledgeTooltipQuery(payload.data[index]))
       }
       this.tooltipEntry = await Promise.all(prom1)
-      const featureIds = this.tooltipEntry.map(
-        (tooltip) => tooltip.featureId[0]
-      )
+      const featureIds = this.tooltipEntry.map((tooltip) => tooltip.featureId[0])
       if (featureIds.length > 0) {
         EventBus.emit('connectivity-info-open', this.tooltipEntry)
       }
@@ -976,10 +884,8 @@ export default {
   created: function () {
     this.flatmapAPI = undefined
     this.apiLocation = undefined
-    if (this.settingsStore.flatmapAPI)
-      this.flatmapAPI = this.settingsStore.flatmapAPI
-    if (this.settingsStore.sparcApi)
-      this.apiLocation = this.settingsStore.sparcApi
+    if (this.settingsStore.flatmapAPI) this.flatmapAPI = this.settingsStore.flatmapAPI
+    if (this.settingsStore.sparcApi) this.apiLocation = this.settingsStore.sparcApi
     if (this.settingsStore.mapManager) {
       this.mapManager = this.settingsStore.mapManager
     }

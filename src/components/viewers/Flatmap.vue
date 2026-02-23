@@ -1,8 +1,6 @@
 <template>
   <div class="viewer-container" ref="container">
-    <resize-sensor
-      @resize="calculateOffset()">
-    </resize-sensor>
+    <resize-sensor @resize="calculateOffset()"> </resize-sensor>
     <FlatmapVuer
       :state="entry.state"
       :entry="entry.resource"
@@ -56,6 +54,7 @@
       @show-next="onHelpModeShowNext"
       @finish-help-mode="onFinishHelpMode"
     />
+
     <FloatingWindow
       v-for="win in plotWindows"
       :key="win.id"
@@ -79,11 +78,12 @@ import Tagging from '../../services/tagging.js'
 import EventBus from '../EventBus'
 import ContentMixin from '../../mixins/ContentMixin'
 import DynamicMarkerMixin from '../../mixins/DynamicMarkerMixin'
-import ResizeSensor from "../ResizeSensor.vue";
+import ResizeSensor from '../ResizeSensor.vue'
 import { FlatmapVuer } from '@abi-software/flatmapvuer'
 import '@abi-software/flatmapvuer/dist/style.css'
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
+import { useSimulationPlotStore } from '../../stores/simulationPlotStore'
 
 import PlotComponent from '../PlotComponent.vue'
 import FloatingWindow from '../FloatingWindow.vue'
@@ -101,17 +101,17 @@ export default {
   },
   setup() {
     // const flatmap = ref(null)
-    const container = ref(null);
+    const container = ref(null)
+    const simulationPlotStore = useSimulationPlotStore()
     const mappingStore = useMappingStore()
     mappingStore.initializeMapping()
     const { elementX, elementY } = useMouseInElement(container)
-    return { container, elementX, elementY, mappingStore }
+    return { container, elementX, elementY, mappingStore, simulationPlotStore }
   },
   data: function () {
     return {
       flatmapReady: false,
       displayMinimap: false,
-      plotWindows: [],
       zStack: [],
       left: 0,
       top: 0,
@@ -242,14 +242,8 @@ export default {
       this.$refs.flatmap.changeViewingMode(modeName)
     },
     updateViewerSettings: function () {
-      const {
-        backgroundDisplay,
-        viewingMode,
-        flightPathDisplay,
-        organsDisplay,
-        outlinesDisplay,
-        connectionType,
-      } = this.settingsStore.globalSettings
+      const { backgroundDisplay, viewingMode, flightPathDisplay, organsDisplay, outlinesDisplay, connectionType } =
+        this.settingsStore.globalSettings
 
       const currentFlatmap = this.$refs.flatmap
 
@@ -280,74 +274,32 @@ export default {
       }
     },
     onSimulationOpen: function (simulation) {
-      EventBus.emit('PopoverActionClick', simulation)
-    },
-    handleSimulationResponse: function (payload) {
-      console.log('Handling simulation response')
-      console.log(payload)
-      if (payload.id !== 'nz.ac.auckland.simulation-data-response') return
-      if (payload.target !== this.entry.id) return
-
-      const currentFlatmap = this.$refs.flatmap
-      this.calculateOffset();
-      if (currentFlatmap) {
-        const newId = 'plot-' + Date.now()
-        const windowData = {
-          id: newId,
-          title: payload.title,
-          data: payload.data,
-          zIndex: BASE_Z_INDEX,
-          x: payload.position.x + this.left,
-          y: payload.position.y + this.top,
-        }
-        this.plotWindows.push(windowData)
-        this.zStack.push(newId)
-
-        this.refreshZIndices()
-      }
+      EventBus.emit('simulation-open-clicked', {...simulation, requesterEntryId: this.entry.id})
     },
     handleClosePlotWindow: function (windowId) {
-      this.plotWindows = this.plotWindows.filter((win) => win.id !== windowId)
-      this.zStack = this.zStack.filter((stackId) => stackId !== windowId)
-    },
-    refreshZIndices: function () {
-      this.plotWindows.forEach((win) => {
-        // Find where this window sits in the stack
-        const stackIndex = this.zStack.indexOf(win.id)
-
-        // If found, assign zIndex. If not (error case), keep it low.
-        if (stackIndex !== -1) {
-          win.zIndex = BASE_Z_INDEX + stackIndex
-        }
-      })
+      this.simulationPlotStore.removeWindow(windowId)
     },
     bringToFront: function (windowId) {
-      const stackIndex = this.zStack.indexOf(windowId)
-      if (stackIndex === -1) return // Should not happen
-
-      this.zStack.splice(stackIndex, 1)
-
-      this.zStack.push(windowId)
-
-      this.refreshZIndices()
+      this.simulationPlotStore.bringToFront(windowId, this.calculateOffset())
     },
-    calculateOffset: function() {
-      const element = this.$refs.container;
-      const rect = this.$refs.container.getBoundingClientRect();
-      this.top = rect.top;
-      this.left = rect.left;
+    calculateOffset: function () {
+      const element = this.$refs.container
+      if (!element) return
+      const rect = element.getBoundingClientRect()
+      this.top = rect.top
+      this.left = rect.left
     },
     onResize: function () {
-      this.calculateOffset();
+      this.calculateOffset()
     },
   },
   computed: {
     facetSpecies() {
       return this.settingsStore.facets.species
     },
-  },
-  mounted() {
-    EventBus.on('simulation-response', this.handleSimulationResponse)
+    plotWindows() {
+      return this.simulationPlotStore.windows.filter((win) => win.ownerId === this.entry.id)
+    },
   },
 }
 </script>

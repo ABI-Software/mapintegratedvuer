@@ -6,12 +6,12 @@ import { useResizeObserver, useDebounceFn } from '@vueuse/core';
 const props = defineProps(['data']);
 const plotContainer = ref(null);
 
-// 1. Render Logic
 const drawPlot = () => {
   if (!plotContainer.value) return;
   
   const plotData = [{
-    y: props.data.y, // Assuming data comes in as { y: [...] }
+    x: props.data?.x || [],
+    y: props.data?.y || [],
     type: 'scatter'
   }];
 
@@ -25,16 +25,14 @@ const drawPlot = () => {
   Plotly.newPlot(plotContainer.value, plotData, layout, config);
 };
 
-// 2. The Resize Handler
-// We debounce this so we don't spam Plotly while the user is actively dragging
+// Debounce this so we don't spam Plotly while the user is actively dragging
 const handleResize = useDebounceFn(() => {
   if (plotContainer.value) {
     Plotly.Plots.resize(plotContainer.value);
   }
 }, 50); // 50ms delay
 
-// 3. Setup Observer
-// useResizeObserver automatically cleans up when component unmounts
+// Observe resizes, useResizeObserver automatically cleans up when component unmounts
 useResizeObserver(plotContainer, () => {
   handleResize();
 });
@@ -43,7 +41,6 @@ onMounted(() => {
   drawPlot();
 });
 
-// Optional: If data changes while window is open, redraw
 watch(() => props.data, drawPlot, { deep: true });
 </script>
 

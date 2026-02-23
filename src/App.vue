@@ -87,6 +87,7 @@ import {
   ElMessage as Message,
 } from 'element-plus'
 import 'element-plus/es/components/message/style/css'
+import { useSimulationPlotStore } from './stores/simulationPlotStore'
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
@@ -173,6 +174,7 @@ export default {
     MapContent,
   },
   data: function () {
+    const simulationPlotStore = useSimulationPlotStore()
     return {
       uuid: undefined,
       state: undefined,
@@ -185,6 +187,7 @@ export default {
       startingMap: 'AC',
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
+      simulationPlotStore,
     }
   },
   computed: {
@@ -295,7 +298,6 @@ export default {
       })
     },
     setMultiFlatmap: function () {
-      console.log('setMultiFlatmap called')
       this.$refs.map.setCurrentEntry({
         type: 'MultiFlatmap',
         taxo: 'NCBITaxon:9606',
@@ -329,11 +331,9 @@ export default {
       this.$refs.map.openSearch([], '10.26275/1uno-tynt')
     },
     mapIsLoaded: function (map) {
-      console.log('map is loaded', map)
       // map.changeViewingMode('Annotation')
     },
     viewerIsReady: function () {
-      console.log('viewer is ready')
       this.parseQuery()
     },
     fetchDataFromApi: async function (url) {
@@ -432,7 +432,6 @@ export default {
             //Call a function when the state changes.
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
               let state = JSON.parse(xmlhttp.responseText)
-              console.log(state)
               if (state?.state?.annotationId) {
                 getAnnotationState(this.api, state.state.annotationId).then(
                   (data) => {
@@ -453,9 +452,7 @@ export default {
           xmlhttp.send(JSON.stringify({ uuid: this.uuid }))
         }
 
-        console.log('type:', type)
         type = 'fc'
-        console.log(this.$refs.map)
         if (type === 'ac') {
           // Load AC map with different species
           this.startingMap = 'AC'
@@ -481,6 +478,7 @@ export default {
             if (this.$route.query.fid) {
               currentEntry.resource = this.$route.query.fid
             }
+            console.log('// --- Debug: Current Entry is hardcoded --- //')
             console.log('currentEntry', currentEntry)
             console.log('e81e3f3a-ed2f-5610-99ae-e019deae614a')
             currentEntry.resource = 'e81e3f3a-ed2f-5610-99ae-e019deae614a' // temp hardcode to test
@@ -514,12 +512,10 @@ export default {
   },
   mounted: function () {
     this.waitForRouter()
-    console.log('Debug --- setup up FC Flatmap')
-    const currentEntry = {
-      type: 'Flatmap',
-      resource: 'e81e3f3a-ed2f-5610-99ae-e019deae614a',
-      label: 'Functional',
-    }
+    this.simulationPlotStore.initListeners()
+  },
+  beforeUnmount: function () {
+    this.simulationPlotStore.cleanupListeners()
   },
 }
 </script>

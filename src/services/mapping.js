@@ -28,7 +28,6 @@ export class MappingService {
     for (const entry in index) {
       try {
         const filename = index[entry]
-        console.log(entry, filename)
 
         const response = await fetch(`${BASE_URL}${filename}`)
         if (!response.ok) throw new Error(`Failed to fetch ${filename}`)

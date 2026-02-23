@@ -16,8 +16,6 @@ export const useMappingStore = defineStore('mapping', {
       if (index) {
         // Parse and store
         this.elementMap = await MappingService.loadMapping(index)
-        console.log('this element map:')
-        console.log(this.elementMap)
       } else {
         console.warn('No index found.')
       }
@@ -25,7 +23,7 @@ export const useMappingStore = defineStore('mapping', {
 
     // Helper to get data for a specific element ID
     mapToCellMLIdentifiers(flatmapUuid, flatmapElementId) {
-      return this.elementMap.get(flatmapUuid).get(flatmapElementId)
+      return this.elementMap.get(flatmapUuid)?.get(flatmapElementId) || { component: undefined, variable: undefined }
     },
   },
 })

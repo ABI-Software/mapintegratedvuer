@@ -1,5 +1,5 @@
 <template>
-  <SimulationVuer :apiLocation="apiLocation" :id="id" ref="simulation" />
+  <SimulationVuer :apiLocation="apiLocation" :id="id" ref="simulation" @data-notification="handleDataNotification" />
 </template>
 
 <script>
@@ -19,16 +19,19 @@ export default {
     id: function () {
       //resource field is only available for simulation omex file and it will run locally.
       //discoverId field is used for simulations running on O2SPARC.
-      console.log('Simulation entry: ', this.entry)
-      console.log(this.apiLocation)
-      console.log(
-        'Simulation id: ',
-        this.entry.resource ? this.entry.resource : this.entry.discoverId
-      )
       return this.entry.resource ? this.entry.resource : this.entry.discoverId
     },
   },
   methods: {
+    handleDataNotification: function (update) {
+      EventBus.emit('simulation-response', update)
+    },
+    handleDataRequest(payload) {
+      this.processRequest(payload);
+    },
+    handleWindowClosed(payload) {
+      this.$refs.simulation?.removeDataSubscription(payload.id);
+    },
     processRequest: function (req) {
       // strict check against the literal type
       if (req.id !== 'nz.ac.auckland.simulation-data-request') return
@@ -39,40 +42,38 @@ export default {
         return
       }
 
-      if (req.protocol?.resource !== this.id) {
+      if (req.payload.protocol?.resource !== this.id) {
         return
       }
 
-      console.log('Processing simulation request:', req)
-      // TypeScript knows 'req' has the correct shape for the service
-      const result = this.$refs.simulation.getData([
-        req,
-        {
-          ...req,
-          variable: 'VOI',
+      this.$refs.simulation?.addDataSubscription({
+        id: req.id,
+        version: req.version,
+        payload: {
+          windowId: req.payload.windowId,
+          ownerId: req.payload.ownerId,
+          component: req.payload.component,
+          variable: req.payload.variable,
+          withVOI: true,
         },
-      ])
-      
-      const RESPONSE_ID = 'nz.ac.auckland.simulation-data-response'
-      const RESPONSE_VERSION = '0.1.0'
-
-      const simulationResponse = {
-        id: RESPONSE_ID,
-        version: RESPONSE_VERSION,
-        title: `${req.component}/${req.variable}`,
-        data: result['data'],
-        target: req.source,
-        position: req.position,
-      }
-
-      console.log('Simulation data response:', simulationResponse)
-      EventBus.emit('simulation-response', simulationResponse)
+      })
     },
   },
   mounted: function () {
-    EventBus.on('simulation-request', (payload) => {
-      this.processRequest(payload)
+    EventBus.on('simulation-data-request', this.handleDataRequest)
+    EventBus.on('plot-window-closed', this.handleWindowClosed)
+    EventBus.emit('simulation-ready', {
+      resourceId: this.id,
+      ready: true,
     })
+  },
+  beforeUnmount: function () {
+    EventBus.emit('simulation-ready', {
+      resourceId: this.id,
+      ready: false,
+    })
+    EventBus.off('simulation-data-request', this.handleDataRequest)
+    EventBus.off('plot-window-closed', this.handleWindowClosed)
   },
 }
 </script>
