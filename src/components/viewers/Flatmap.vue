@@ -1,5 +1,6 @@
 <template>
-  <div class="viewer-container">
+  <div class="viewer-container" ref="container">
+    <resize-sensor @resize="calculateOffset()"> </resize-sensor>
     <FlatmapVuer
       :state="entry.state"
       :entry="entry.resource"
@@ -42,6 +43,7 @@
       @mapmanager-loaded="onMapmanagerLoaded"
       :showPathwayFilter="false"
       @trackEvent="trackEvent"
+      @open-simulation="onSimulationOpen"
     />
 
     <HelpModeDialog
@@ -52,83 +54,118 @@
       @show-next="onHelpModeShowNext"
       @finish-help-mode="onFinishHelpMode"
     />
+
+    <FloatingWindow
+      v-for="win in plotWindows"
+      :key="win.id"
+      :windowData="win"
+      :offsetX="left"
+      :offsetY="top"
+      @closeWindow="handleClosePlotWindow"
+      @mouseDown="bringToFront"
+    >
+      <PlotComponent :data="win.data" />
+    </FloatingWindow>
   </div>
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
-import Tagging from '../../services/tagging.js';
-import EventBus from "../EventBus";
-import ContentMixin from "../../mixins/ContentMixin";
-import DynamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
+import { ref } from 'vue'
+import { useMouseInElement } from '@vueuse/core'
 
-import { FlatmapVuer } from "@abi-software/flatmapvuer";
-import "@abi-software/flatmapvuer/dist/style.css";
+/* eslint-disable no-alert, no-console */
+import Tagging from '../../services/tagging.js'
+import EventBus from '../EventBus'
+import ContentMixin from '../../mixins/ContentMixin'
+import DynamicMarkerMixin from '../../mixins/DynamicMarkerMixin'
+import ResizeSensor from '../ResizeSensor.vue'
+import { FlatmapVuer } from '@abi-software/flatmapvuer'
+import '@abi-software/flatmapvuer/dist/style.css'
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
+import { useSimulationPlotStore } from '../../stores/simulationPlotStore'
+
+import PlotComponent from '../PlotComponent.vue'
+import FloatingWindow from '../FloatingWindow.vue'
+import { useMappingStore } from '../../stores/mapping'
+
+const BASE_Z_INDEX = 100
 
 export default {
-  name: "Flatmap",
-  mixins: [ ContentMixin, DynamicMarkerMixin ],
+  name: 'Flatmap',
+  mixins: [ContentMixin, DynamicMarkerMixin],
   components: {
     FlatmapVuer,
     HelpModeDialog,
+    ResizeSensor,
+  },
+  setup() {
+    // const flatmap = ref(null)
+    const container = ref(null)
+    const simulationPlotStore = useSimulationPlotStore()
+    const mappingStore = useMappingStore()
+    mappingStore.initializeMapping()
+    const { elementX, elementY } = useMouseInElement(container)
+    return { container, elementX, elementY, mappingStore, simulationPlotStore }
   },
   data: function () {
     return {
       flatmapReady: false,
       displayMinimap: false,
+      zStack: [],
+      left: 0,
+      top: 0,
     }
   },
   methods: {
     getState: function () {
-      return this.$refs.flatmap.getState();
+      return this.$refs.flatmap.getState()
     },
     /**
      * Perform a local search on this contentvuer
      * This is similar to directly clicking onthe map
      */
     search: function (term) {
-      return this.$refs.flatmap.searchAndShowResult(term, true, true);
+      return this.$refs.flatmap.searchAndShowResult(term, true, true)
     },
     getFlatmapImp() {
-      return this.$refs.flatmap?.mapImp;
+      return this.$refs.flatmap?.mapImp
     },
     contextRestored(flatmap) {
-      this.flatmapReadyForMarkerUpdates(flatmap);
-      this.updateViewerSettings();
+      this.flatmapReadyForMarkerUpdates(flatmap)
+      this.updateViewerSettings()
     },
     flatmapReadyCall: function (flatmap) {
-      this.flatmapReady = true;
-      const mapImp = this.getFlatmapImp();
+      this.flatmapReady = true
+      const mapImp = this.getFlatmapImp()
       if (mapImp?.mapMetadata?.name) {
-        this.updateEntryLabel(mapImp?.mapMetadata?.name);
-        this.updateEntryTitle(mapImp?.mapMetadata?.name);
+        this.updateEntryLabel(mapImp?.mapMetadata?.name)
+        this.updateEntryTitle(mapImp?.mapMetadata?.name)
       }
-      let provClone = {id: this.entry.id, prov: mapImp.mapMetadata}; //create clone of provenance and add id
-      EventBus.emit("mapImpProv", provClone); // send clone to context card
-      this.$emit("flatmap-provenance-ready", provClone);
-      this.flatmapReadyForMarkerUpdates(flatmap);
-      this.updateViewerSettings();
+      let provClone = { id: this.entry.id, prov: mapImp.mapMetadata } //create clone of provenance and add id
+      EventBus.emit('mapImpProv', provClone) // send clone to context card
+      this.$emit('flatmap-provenance-ready', provClone)
+      this.flatmapReadyForMarkerUpdates(flatmap)
+      this.updateViewerSettings()
       // Wait for flatmap's connectivity to load before emitting mapLoaded
       this.loadConnectivityExplorerConfig(flatmap).then(() => {
-        EventBus.emit("mapLoaded", flatmap);
-      });
+        EventBus.emit('mapLoaded', flatmap)
+      })
     },
     onPathwaySelectionChanged: function (data) {
-      const { label, property, checked, selectionsTitle } = data;
+      const { label, property, checked, selectionsTitle } = data
       // GA Tagging
       // Event tracking for maps' pathway selection change
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_pathway_change',
-        'category': label + ' [' + property + '] ' + checked,
-        'location': selectionsTitle
-      });
+        event: 'interaction_event',
+        event_name: 'portal_maps_pathway_change',
+        category: label + ' [' + property + '] ' + checked,
+        location: selectionsTitle,
+      })
     },
-    onSidebarAnnotationClose: function() {
+    onSidebarAnnotationClose: function () {
       if (this.flatmapReady) {
-        const currentFlatmap = this.$refs.flatmap;
+        const currentFlatmap = this.$refs.flatmap
         if (currentFlatmap) {
           this.$refs.flatmap.annotationEventCallback({}, { type: 'aborted' })
         }
@@ -139,117 +176,132 @@ export default {
      */
     searchSuggestions: function (term, suggestions) {
       if (term && this.$refs.flatmap.mapImp) {
-        const results = this.$refs.flatmap.mapImp.search(term);
-        const featureIds = results.__featureIds || results.featureIds;
-        featureIds.forEach(id => {
-          const annotation = this.$refs.flatmap.mapImp.annotation(id);
-          if (annotation && annotation.label)
-            suggestions.push(annotation.label);
-        });
+        const results = this.$refs.flatmap.mapImp.search(term)
+        const featureIds = results.__featureIds || results.featureIds
+        featureIds.forEach((id) => {
+          const annotation = this.$refs.flatmap.mapImp.annotation(id)
+          if (annotation && annotation.label) suggestions.push(annotation.label)
+        })
       }
     },
     showConnectivity: function (payload) {
       if (this?.alive) {
-        const { featureIds, offset } = payload;
-        const currentFlatmap = this.$refs.flatmap;
+        const { featureIds, offset } = payload
+        const currentFlatmap = this.$refs.flatmap
         if (currentFlatmap) {
           currentFlatmap.moveMap(featureIds, {
             offsetX: offset ? -150 : 0,
             zoom: 4,
-          });
+          })
         }
       }
     },
     showConnectivityTooltips: function (payload) {
       if (this?.alive && this.flatmapReady) {
-        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        flatmap.showConnectivityTooltips(payload);
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap()
+        flatmap.showConnectivityTooltips(payload)
       }
     },
     showConnectivitiesByReference: function (payload) {
       if (this?.alive) {
-        const currentFlatmap = this.$refs.flatmap;
+        const currentFlatmap = this.$refs.flatmap
         if (currentFlatmap) {
-          currentFlatmap.showConnectivitiesByReference(payload);
+          currentFlatmap.showConnectivitiesByReference(payload)
         }
       }
     },
     changeConnectivitySource: function (payload, ongoingSource) {
       if (this?.alive && this.flatmapReady) {
-        const flatmap = this.$refs.flatmap;
-        const flatmapUUID = flatmap.mapImp.mapMetadata.uuid;
+        const flatmap = this.$refs.flatmap
+        const flatmapUUID = flatmap.mapImp.mapMetadata.uuid
         if (!ongoingSource.includes(flatmapUUID)) {
-          ongoingSource.push(flatmapUUID);
-          flatmap.changeConnectivitySource(payload);
+          ongoingSource.push(flatmapUUID)
+          flatmap.changeConnectivitySource(payload)
         }
       }
     },
-    zoomToFeatures: function(info, forceSelect) {
-      let name = info.name;
-      const flatmap = this.$refs.flatmap.mapImp;
+    zoomToFeatures: function (info, forceSelect) {
+      let name = info.name
+      const flatmap = this.$refs.flatmap.mapImp
       if (name) {
-        const results = flatmap.search(name);
+        const results = flatmap.search(name)
         if (results.featureIds.length) {
-          let externalId = flatmap.modelForFeature(results.featureIds[0]);
+          let externalId = flatmap.modelForFeature(results.featureIds[0])
           if (externalId) {
             if (forceSelect) {
-              flatmap.selectFeatures(externalId);
+              flatmap.selectFeatures(externalId)
             }
-            flatmap.zoomToFeatures(externalId);
-          } else flatmap.clearSearchResults();
+            flatmap.zoomToFeatures(externalId)
+          } else flatmap.clearSearchResults()
         }
       } else {
-        flatmap.clearSearchResults();
+        flatmap.clearSearchResults()
       }
     },
     changeViewingMode: function (modeName) {
-      this.$refs.flatmap.changeViewingMode(modeName);
+      this.$refs.flatmap.changeViewingMode(modeName)
     },
     updateViewerSettings: function () {
-      const {
-        backgroundDisplay,
-        viewingMode,
-        flightPathDisplay,
-        organsDisplay,
-        outlinesDisplay,
-        connectionType,
-      } = this.settingsStore.globalSettings;
+      const { backgroundDisplay, viewingMode, flightPathDisplay, organsDisplay, outlinesDisplay, connectionType } =
+        this.settingsStore.globalSettings
 
-      const currentFlatmap = this.$refs.flatmap;
+      const currentFlatmap = this.$refs.flatmap
 
-      currentFlatmap.changeViewingMode(viewingMode);
-      currentFlatmap.setFlightPath3D(flightPathDisplay);
-      currentFlatmap.setColour(organsDisplay);
-      currentFlatmap.setOutlines(outlinesDisplay);
-      currentFlatmap.backgroundChangeCallback(backgroundDisplay);
-      currentFlatmap.setConnectionType(connectionType);
+      currentFlatmap.changeViewingMode(viewingMode)
+      currentFlatmap.setFlightPath3D(flightPathDisplay)
+      currentFlatmap.setColour(organsDisplay)
+      currentFlatmap.setOutlines(outlinesDisplay)
+      currentFlatmap.backgroundChangeCallback(backgroundDisplay)
+      currentFlatmap.setConnectionType(connectionType)
     },
     setVisibilityFilter: function (payload) {
       if (this?.alive) {
-        const currentFlatmap = this.$refs.flatmap;
+        const currentFlatmap = this.$refs.flatmap
         if (currentFlatmap) {
-          currentFlatmap.setVisibilityFilter(payload);
+          currentFlatmap.setVisibilityFilter(payload)
         }
       }
     },
     getKnowledgeTooltip: async function (payload) {
       if (this?.alive) {
-        const currentFlatmap = this.$refs.flatmap;
+        const currentFlatmap = this.$refs.flatmap
         if (currentFlatmap) {
           // This is for expanding connectivity card
           // The length of payload.data should always be 1
-          const data = payload.data[0];
-          currentFlatmap.searchAndShowResult(data.id, true, false);
+          const data = payload.data[0]
+          currentFlatmap.searchAndShowResult(data.id, true, false)
         }
       }
+    },
+    onSimulationOpen: function (simulation) {
+      EventBus.emit('simulation-open-clicked', {...simulation, requesterEntryId: this.entry.id})
+    },
+    handleClosePlotWindow: function (windowId) {
+      this.simulationPlotStore.removeWindow(windowId)
+    },
+    bringToFront: function (windowId) {
+      this.simulationPlotStore.bringToFront(windowId, this.calculateOffset())
+    },
+    calculateOffset: function () {
+      const element = this.$refs.container
+      if (!element) return
+      const rect = element.getBoundingClientRect()
+      this.top = rect.top
+      this.left = rect.left
+    },
+    onResize: function () {
+      this.calculateOffset()
     },
   },
   computed: {
     facetSpecies() {
-      return this.settingsStore.facets.species;
+      return this.settingsStore.facets.species
+    },
+    plotWindows() {
+      return this.simulationPlotStore.windows.filter((win) => win.ownerId === this.entry.id)
     },
   },
-};
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

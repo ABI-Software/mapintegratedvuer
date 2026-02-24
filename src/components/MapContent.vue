@@ -329,7 +329,7 @@ export default {
                     this.$refs.flow.setState(currentState);
                     //Do not create a new entry, instead set the multiflatmap viewer
                     //to the primary slot
-                    this.$refs.flow.setIdToPrimaryPane(entry.id);
+                    this.$refs.flow.setIdToPane(entry.id);
                     break;
                   }
                 }
@@ -451,7 +451,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
 :deep(.el-loading-spinner) {
   .path {
     stroke: $app-primary-color;
