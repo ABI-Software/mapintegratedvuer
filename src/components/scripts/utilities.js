@@ -1,4 +1,4 @@
-const defaultSpecies = 'Human Male';
+const defaultSpecies = 'Human Female';
 
 const initialDefaultState = () => {
   return {
