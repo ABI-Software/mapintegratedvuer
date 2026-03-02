@@ -1026,7 +1026,6 @@ export default {
         ALGOLIA_KEY: this.settingsStore.algoliaKey,
         ALGOLIA_ID: this.settingsStore.algoliaId,
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
-        NL_LINK_PREFIX: this.settingsStore.nlLinkPrefix,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
       };
