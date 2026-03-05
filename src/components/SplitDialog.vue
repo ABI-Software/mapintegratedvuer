@@ -706,7 +706,8 @@ export default {
 }
 
 :deep(.splitpanes--horizontal > .splitpanes__splitter) {
-  height: 1px;
+  height: 4px;
+
   &::before {
     top: -2px;
     height: 10px;
@@ -715,10 +716,11 @@ export default {
 }
 
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
-  width: 1px;
+  width: 4px;
+
   &::before {
-    left: -3px;
-    width: 11px;
+    left: -2px;
+    width: 10px;
     height: 100%;
   }
 }
