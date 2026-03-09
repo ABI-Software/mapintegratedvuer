@@ -61,7 +61,6 @@
     "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "1.0.4",
     "@element-plus/icons-vue": "^2.3.1",
-    "@opencor/opencor": "^0.20251207.0",
     "@vitejs/plugin-vue": "^4.6.2",
     "@vueuse/core": "^14.1.0",
     "css-element-queries": "^1.2.3",
