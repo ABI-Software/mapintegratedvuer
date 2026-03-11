@@ -62,6 +62,7 @@ export default {
   mounted: function () {
     EventBus.on('simulation-data-request', this.handleDataRequest)
     EventBus.on('plot-window-closed', this.handleWindowClosed)
+
     EventBus.emit('simulation-ready', {
       resourceId: this.id,
       ready: true,

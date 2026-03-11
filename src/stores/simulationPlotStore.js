@@ -4,7 +4,7 @@ import EventBus from '../components/EventBus'
 
 const BASE_Z_INDEX = 100
 
-export const useSimulationPlotStore = defineStore('simulationPlots', () => {
+export const useSimulationPlotStore = defineStore('simulationPlot', () => {
   const windows = ref([])
   const zStack = ref([])
   const simulationEntries = ref({})
