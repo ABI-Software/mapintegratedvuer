@@ -30,6 +30,7 @@
           :connectivityKnowledge="connectivityKnowledge"
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
+          :showLongLabel="showLongLabel"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -146,7 +147,11 @@ export default {
     state: {
       type: Object,
       default: undefined,
-    }
+    },
+    showLongLabel: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
