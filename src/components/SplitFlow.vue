@@ -48,6 +48,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @show-connectivity-graph="onShowConnectivityGraph"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
           @trackEvent="trackEvent"
@@ -570,6 +571,16 @@ export default {
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);
       EventBus.emit('connectivity-source-change', data);
+    },
+    onShowConnectivityGraph: function (data) {
+      this.createNewEntry({
+        resource: data.entry,
+        type: 'ConnectivityGraph',
+        label: data.title || data.label || 'Connectivity Graph',
+        graphPayload: { ...data },
+        mapServer: this.settingsStore.flatmapAPI,
+        sckanVersion: data.sckanVersion,
+      });
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];

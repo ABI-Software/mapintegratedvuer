@@ -32,7 +32,7 @@ export default {
       return {};
     },
     connectivityFromMap() {
-      return this.entry.graphPayload || null;
+      return this.entry.graphPayload?.connectivityFromMap || null;
     },
     mapServer() {
       return this.entry.mapServer || null;
