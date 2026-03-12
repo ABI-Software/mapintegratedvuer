@@ -88,6 +88,10 @@ const getOpenMapOptions = (species) => {
       display: "Open 3D Human Map",
       key: "3D"
     },
+    {
+      display: "Open Connectivity Graph",
+      key: "CG"
+    },
   ]
   return options;
 }

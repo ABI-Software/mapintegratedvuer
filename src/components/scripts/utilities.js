@@ -50,6 +50,15 @@ const getNewMapEntry = async (type, sparcApi) => {
       version: data.datasetInfo.version,
       isBodyScaffold: true,
     };
+  } else if (type === "CG") {
+    entry = {
+      resource: "ConnectivityGraph",
+      type: "ConnectivityGraph",
+      mode: "main",
+      state: undefined,
+      label: "Connectivity Graph",
+      discoverId: undefined
+    }
   }
 
   return entry;
