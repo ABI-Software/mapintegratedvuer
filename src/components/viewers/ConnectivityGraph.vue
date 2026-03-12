@@ -2,8 +2,10 @@
   <div class="viewer-container">
     <MapUtilitiesConnectivityGraph
       :entry="graphEntry"
-      :knowledgeData="sampleKnowledge"
-      :connectivityError="{}"
+      :mapServer="mapServer"
+      :sckanVersion="sckanVersion"
+      :connectivityFromMap="connectivityFromMap"
+      :connectivityError="connectivityError"
       @tap-node="onTapNode"
     />
   </div>
@@ -16,28 +18,6 @@ import {
 } from '@abi-software/map-utilities';
 import ContentMixin from "../../mixins/ContentMixin";
 
-const SAMPLE_KNOWLEDGE = {
-  dendrites: [
-    ['UBERON:0002107', ['ILX:sample-origin']],
-  ],
-  somas: [
-    ['UBERON:0000955', ['ILX:sample-component']],
-  ],
-  axons: [
-    ['UBERON:0004535', ['ILX:sample-destination']],
-  ],
-  connectivity: [
-    [
-      ['UBERON:0002107', ['ILX:sample-origin']],
-      ['UBERON:0000955', ['ILX:sample-component']],
-    ],
-    [
-      ['UBERON:0000955', ['ILX:sample-component']],
-      ['UBERON:0004535', ['ILX:sample-destination']],
-    ],
-  ],
-};
-
 export default {
   name: "ConnectivityGraph",
   mixins: [ ContentMixin ],
@@ -45,11 +25,20 @@ export default {
     MapUtilitiesConnectivityGraph,
   },
   computed: {
-    graphEntry: function () {
-      return this.entry?.resource || 'sample:connectivity-graph';
+    graphEntry() {
+      return this.entry.resource;
     },
-    sampleKnowledge: function () {
-      return SAMPLE_KNOWLEDGE;
+    connectivityError() {
+      return {};
+    },
+    connectivityFromMap() {
+      return this.entry.graphPayload || null;
+    },
+    mapServer() {
+      return this.entry.mapServer || null;
+    },
+    sckanVersion() {
+      return this.entry.sckanVersion || null;
     },
   },
   methods: {
