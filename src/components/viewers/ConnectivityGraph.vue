@@ -53,7 +53,19 @@ export default {
 .viewer-container {
   width: 100%;
   height: 100%;
-  padding: 1rem;
   box-sizing: border-box;
+
+  .connectivity-graph {
+    width: 100%;
+    height: 100%;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+
+    :deep(.graph-canvas) {
+      width: 100%;
+      height: 100%;
+    }
+  }
 }
 </style>
