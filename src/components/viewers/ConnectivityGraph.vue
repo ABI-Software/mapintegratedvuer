@@ -17,6 +17,7 @@ import {
   ConnectivityGraph as MapUtilitiesConnectivityGraph,
 } from '@abi-software/map-utilities';
 import ContentMixin from "../../mixins/ContentMixin";
+import EventBus from '../EventBus';
 
 export default {
   name: "ConnectivityGraph",
@@ -42,8 +43,34 @@ export default {
     },
   },
   methods: {
-    onTapNode: function () {
-      return;
+    onTapNode: function (data) {
+      const name = data.map(t => t.label).join(', ');
+      this.onConnectivityHovered(name);
+    },
+    onConnectivityHovered: function (label) {
+      const payload = {
+        connectivityInfo: this.graphEntry,
+        label: label,
+        data: label ? this.getConnectivityDatasets(label) : [],
+      };
+      EventBus.emit('connectivity-hovered', payload);
+    },
+    getConnectivityDatasets: function (label) {
+      const allWithDatasets = this.entry.graphPayload?.allWithDatasets || [];
+      const names = label.split(',');
+      let data = [];
+      names.forEach((n) => {
+        const foundData = allWithDatasets.find((a) =>
+          a.name.toLowerCase().trim() === n.toLowerCase().trim()
+        );
+        if (foundData) {
+          data.push({
+            id: foundData.id,
+            label: foundData.name
+          });
+        }
+      });
+      return data
     },
   },
 };
