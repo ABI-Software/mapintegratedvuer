@@ -151,7 +151,7 @@ export default {
     },
     showLongLabel: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   data: function () {
@@ -485,6 +485,9 @@ export default {
         const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
         if (entry.ready) {
           result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
+        }
+        if (ck['long-label']) {
+          result['long-label'] = ck['long-label'];
         }
         return result;
       });

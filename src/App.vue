@@ -160,7 +160,7 @@ export default {
       startingMap: "AC",
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
-      showLongLabel: false,
+      showLongLabel: true,
     }
   },
   computed: {
