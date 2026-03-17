@@ -485,11 +485,24 @@ export default {
         if (entry.ready) {
           result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
         }
-        if (ck['long-label']) {
+        if (ck && ck['long-label']) {
           result['long-label'] = ck['long-label'];
         }
         return result;
       });
+
+      // Fetch long-label from global connectivities if not exist in the payload,
+      // this is for the case when user click on the flatmap paths/features directly without going through sidebar list,
+      // which will only have id and label in the payload
+      if (!this.connectivityEntry[0]['long-label'] && this.connectivityEntry[0].mapuuid) {
+        const connectivityData = this.connectivitiesStore.globalConnectivities[this.connectivityEntry[0].mapuuid] || [];
+        if (connectivityData.length) {
+          const ck = connectivityData.find(ck => ck.id === this.connectivityEntry[0].id);
+          if (ck && ck['long-label']) {
+            this.connectivityEntry[0]['long-label'] = ck['long-label'];
+          }
+        }
+      }
 
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
