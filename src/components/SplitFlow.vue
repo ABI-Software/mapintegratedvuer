@@ -150,7 +150,7 @@ export default {
     },
     showLongLabel: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   data: function () {

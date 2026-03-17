@@ -62,7 +62,7 @@ export default {
     },
     showLongLabel: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     /**
      * The options include APIs and Keys.
