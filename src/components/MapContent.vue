@@ -24,6 +24,7 @@ import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
+import { useSimulationPlotStore } from '../stores/simulationPlotStore'
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { defaultSpecies, findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
@@ -384,7 +385,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore, useSplitFlowStore),
+    ...mapStores(useSettingsStore, useSimulationPlotStore, useSplitFlowStore),
     stateToSet() {
       return this.state ? this.state : this.initialState;
     },
@@ -445,7 +446,11 @@ export default {
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
     this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
-  }
+    this.simulationPlotStore.initListeners();
+  },
+  beforeUnmount: function () {
+    this.simulationPlotStore.cleanupListeners();
+  },
 }
 
 </script>

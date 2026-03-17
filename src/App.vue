@@ -87,7 +87,6 @@ import {
   ElMessage as Message,
 } from 'element-plus'
 import 'element-plus/es/components/message/style/css'
-import { useSimulationPlotStore } from './stores/simulationPlotStore'
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
@@ -174,7 +173,6 @@ export default {
     MapContent,
   },
   data: function () {
-    const simulationPlotStore = useSimulationPlotStore()
     return {
       uuid: undefined,
       state: undefined,
@@ -187,7 +185,6 @@ export default {
       startingMap: 'AC',
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
-      simulationPlotStore,
     }
   },
   computed: {
@@ -509,10 +506,6 @@ export default {
   },
   mounted: function () {
     this.waitForRouter()
-    this.simulationPlotStore.initListeners()
-  },
-  beforeUnmount: function () {
-    this.simulationPlotStore.cleanupListeners()
   },
 }
 </script>
