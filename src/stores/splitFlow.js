@@ -89,7 +89,7 @@ const autoAssignEntryIdsToPane = (entries, layout) => {
     if (value.content) {
       if ((1 > value.id) || assignedIds.includes(value.id)) {
         //id has got an assigned pane or pane contains an invalid id,
-        //cache it and find one later 
+        //cache it and find one later
         invalidIdKeys.push(key);
       } else {
         assignedIds.push(value.id);
