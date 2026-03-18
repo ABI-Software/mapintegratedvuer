@@ -159,7 +159,9 @@ export default {
       this.$refs.viewer?.setVisibilityFilter(payload);
     },
     onLoadConnectivityDetail: function(payload) {
-      this.$refs.viewer?.getKnowledgeTooltip(payload);
+      if (this.$refs.viewer?.entry.type !== 'ConnectivityGraph') {
+        this.$refs.viewer?.getKnowledgeTooltip(payload);
+      }
     },
     toggleMinimap: function(option, prevState) {
       this.$refs.viewer?.toggleMinimap(option, prevState);
