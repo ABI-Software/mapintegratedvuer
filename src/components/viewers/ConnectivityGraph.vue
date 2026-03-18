@@ -6,6 +6,9 @@
       :sckanVersion="sckanVersion"
       :connectivityFromMap="connectivityFromMap"
       :connectivityError="connectivityError"
+      :originsCombinations="originsCombinations"
+      :componentsCombinations="componentsCombinations"
+      :destinationsCombinations="destinationsCombinations"
       @tap-node="onTapNode"
     />
   </div>
@@ -34,6 +37,15 @@ export default {
     },
     connectivityFromMap() {
       return this.entry.graphPayload?.connectivityFromMap || null;
+    },
+    originsCombinations() {
+      return this.entry.graphPayload?.originsCombinations || [];
+    },
+    componentsCombinations() {
+      return this.entry.graphPayload?.componentsCombinations || [];
+    },
+    destinationsCombinations() {
+      return this.entry.graphPayload?.destinationsCombinations || [];
     },
     mapServer() {
       return this.entry.mapServer || null;
