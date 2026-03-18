@@ -203,12 +203,11 @@ export default {
 
       // mix connectivites of available maps
       if (uuids.length) {
-        this.connectivitiesStore.updateActiveConnectivityKeys(uuids);
-
-        // emit connectivity-knowledge event will be at connectivityQueryFilter
-
-        const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
-        EventBus.emit("connectivity-filter-options", uniqueFilters);
+        // emit connectivity-knowledge event only if active connectivity keys are updated
+        if (this.connectivitiesStore.updateActiveConnectivityKeys(uuids)) {
+          const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
+          EventBus.emit("connectivity-filter-options", uniqueFilters);
+        }
       } else {
         const connectivityData = this.connectivitiesStore.globalConnectivities[sckanVersion] || [];
         EventBus.emit("connectivity-knowledge", {
