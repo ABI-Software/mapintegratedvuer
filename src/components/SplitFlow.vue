@@ -594,7 +594,8 @@ export default {
       EventBus.emit('connectivity-source-change', data);
     },
     onShowConnectivityGraph: function (data) {
-      this.createNewEntry({
+      const previousPrimaryId = this.splitFlowStore.customLayout?.['pane-1']?.id;
+      const connectivityGraphId = this.createNewEntry({
         resource: data.entry,
         type: 'ConnectivityGraph',
         label: data.title || data.label || 'Connectivity Graph',
@@ -602,6 +603,26 @@ export default {
         mapServer: this.settingsStore.flatmapAPI,
         sckanVersion: data.sckanVersion,
       });
+
+      this.splitFlowStore.updateActiveView({
+        view: '2vertpanel',
+        entries: this.entries,
+      });
+
+      if (previousPrimaryId && previousPrimaryId !== connectivityGraphId) {
+        this.splitFlowStore.assignOrSwapPaneWithIds({
+          source: connectivityGraphId,
+          target: previousPrimaryId,
+        });
+      }
+
+      const secondPaneId = this.splitFlowStore.customLayout?.['pane-2']?.id;
+      if (secondPaneId && secondPaneId !== connectivityGraphId) {
+        this.splitFlowStore.assignOrSwapPaneWithIds({
+          source: connectivityGraphId,
+          target: secondPaneId,
+        });
+      }
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
