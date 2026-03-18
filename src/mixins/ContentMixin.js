@@ -81,7 +81,7 @@ export default {
   },
   methods: {
     toggleMinimap: function (option, prevState) {
-      if (this.multiflatmapRef) {
+      if (this.multiflatmapRef && this.flatmapIsReady()) {
         const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
         const mapImp = currentFlatmap?.mapImp;
         if (mapImp) {
