@@ -6,6 +6,13 @@
       :sckanVersion="sckanVersion"
       :connectivityFromMap="connectivityFromMap"
       :connectivityError="connectivityError"
+      :origins="origins"
+      :components="components"
+      :destinations="destinations"
+      :originsWithDatasets="originsWithDatasets"
+      :componentsWithDatasets="componentsWithDatasets"
+      :destinationsWithDatasets="destinationsWithDatasets"
+      :hasSingleConnectivityList="hasSingleConnectivityList"
       :originsCombinations="originsCombinations"
       :componentsCombinations="componentsCombinations"
       :destinationsCombinations="destinationsCombinations"
@@ -37,6 +44,27 @@ export default {
     },
     connectivityFromMap() {
       return this.entry.graphPayload?.connectivityFromMap || null;
+    },
+    origins() {
+      return this.entry.graphPayload?.origins || [];
+    },
+    components() {
+      return this.entry.graphPayload?.components || [];
+    },
+    destinations() {
+      return this.entry.graphPayload?.destinations || [];
+    },
+    originsWithDatasets() {
+      return this.entry.graphPayload?.originsWithDatasets || [];
+    },
+    componentsWithDatasets() {
+      return this.entry.graphPayload?.componentsWithDatasets || [];
+    },
+    destinationsWithDatasets() {
+      return this.entry.graphPayload?.destinationsWithDatasets || [];
+    },
+    hasSingleConnectivityList() {
+      return this.entry.graphPayload?.hasSingleConnectivityList || false;
     },
     originsCombinations() {
       return this.entry.graphPayload?.originsCombinations || [];
