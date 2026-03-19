@@ -52,12 +52,12 @@
     "*.js"
   ],
   "dependencies": {
-    "@abi-software/flatmapvuer": "1.12.3-demo.1",
-    "@abi-software/map-side-bar": "2.13.1-demo.5",
-    "@abi-software/map-utilities": "1.7.8-demo.5",
+    "@abi-software/flatmapvuer": "1.13.0",
+    "@abi-software/map-side-bar": "2.14.0",
+    "@abi-software/map-utilities": "1.8.0",
     "@abi-software/plotvuer": "1.0.7",
-    "@abi-software/scaffoldvuer": "1.13.1-beta.14",
-    "@abi-software/simulationvuer": "3.0.12",
+    "@abi-software/scaffoldvuer": "1.14.0",
+    "@abi-software/simulationvuer": "3.0.15",
     "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "1.0.4",
     "@element-plus/icons-vue": "^2.3.1",
