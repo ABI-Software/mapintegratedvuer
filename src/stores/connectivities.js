@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { listsAreEqual } from "../components/scripts/utilities";
 
 export const useConnectivitiesStore = defineStore('connectivities', {
   state: () => {
@@ -70,7 +71,11 @@ export const useConnectivitiesStore = defineStore('connectivities', {
   },
   actions: {
     updateActiveConnectivityKeys(activeConnectivityKeys) {
-      this.activeConnectivityKeys = activeConnectivityKeys;
+      if (!listsAreEqual(this.activeConnectivityKeys, activeConnectivityKeys)) {
+        this.activeConnectivityKeys = activeConnectivityKeys;
+        return true;
+      }
+      return false;
     },
     updateGlobalConnectivities(globalConnectivities) {
       this.globalConnectivities = globalConnectivities;

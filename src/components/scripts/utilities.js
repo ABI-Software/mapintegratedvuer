@@ -199,7 +199,13 @@ const transformStringToObj = (str) => {
   return obj;
 };
 
+const listsAreEqual = (a, b) => {
+  if (a.length !== b.length) return false;
+  return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+};
+
 export {
+  listsAreEqual,
   availableSpecies,
   capitalise,
   findSpeciesKey,

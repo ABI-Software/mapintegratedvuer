@@ -598,7 +598,7 @@ export default {
       const connectivityGraphId = this.createNewEntry({
         resource: data.entry,
         type: 'ConnectivityGraph',
-        label: data.title || data.label || 'Connectivity Graph',
+        label: data.title || data.label || data.entry ||'Connectivity Graph',
         graphPayload: { ...data },
         mapServer: this.settingsStore.flatmapAPI,
         sckanVersion: data.sckanVersion,
