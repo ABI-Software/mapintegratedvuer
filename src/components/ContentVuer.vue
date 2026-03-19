@@ -49,6 +49,7 @@ import { useSplitFlowStore } from '../stores/splitFlow';
 const Flatmap = defineAsyncComponent(() => import("./viewers/Flatmap.vue"));
 const Iframe = defineAsyncComponent(() => import("./viewers/Iframe.vue"));
 const MultiFlatmap = defineAsyncComponent(() => import("./viewers/MultiFlatmap.vue"));
+const ConnectivityGraph = defineAsyncComponent(() => import("./viewers/ConnectivityGraph.vue"));
 const Plot = defineAsyncComponent(() => import("./viewers/Plot.vue"));
 const Scaffold = defineAsyncComponent(() => import("./viewers/Scaffold.vue"));
 const Simulation = defineAsyncComponent(() => import("./viewers/Simulation.vue"));
@@ -70,6 +71,7 @@ export default {
     //DatasetHeader,
     Button,
     ContentBar,
+    ConnectivityGraph,
     Flatmap,
     Iframe,
     MultiFlatmap,
@@ -157,7 +159,9 @@ export default {
       this.$refs.viewer?.setVisibilityFilter(payload);
     },
     onLoadConnectivityDetail: function(payload) {
-      this.$refs.viewer?.getKnowledgeTooltip(payload);
+      if (this.$refs.viewer?.entry.type !== 'ConnectivityGraph') {
+        this.$refs.viewer?.getKnowledgeTooltip(payload);
+      }
     },
     toggleMinimap: function(option, prevState) {
       this.$refs.viewer?.toggleMinimap(option, prevState);

@@ -89,7 +89,7 @@ const autoAssignEntryIdsToPane = (entries, layout) => {
     if (value.content) {
       if ((1 > value.id) || assignedIds.includes(value.id)) {
         //id has got an assigned pane or pane contains an invalid id,
-        //cache it and find one later 
+        //cache it and find one later
         invalidIdKeys.push(key);
       } else {
         assignedIds.push(value.id);
@@ -221,7 +221,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
     },
   },
   actions: {
-    assignOrSwapPaneWithIds(payload) {
+    assignOrSwapPaneWithIds(payload, emitSpeciesChanged = true) {
       let sourceKey = findKeyWithId(this.customLayout, payload.source);
       let targetKey = findKeyWithId(this.customLayout, payload.target);
       if (targetKey) {
@@ -230,7 +230,9 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       if (sourceKey) {
         this.customLayout[sourceKey].id = payload.target;
       }
-      this.updateSplitPanels();
+      if (emitSpeciesChanged) {
+        this.updateSplitPanels();
+      }
     },
     getAvailableTerms(apiLocation) {
       let terms = getAvailableTermsForSpecies();
@@ -255,7 +257,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           });
       }
     },
-    updateActiveView(payload) {
+    updateActiveView(payload, emitSpeciesChanged = true) {
       this.activeView = payload.view;
       const customLayout = newLayoutWithOrigInfo(
         this.customLayout, this.activeView);
@@ -263,7 +265,9 @@ export const useSplitFlowStore = defineStore('splitFlow', {
       for (const [key, value] of Object.entries(customLayout)) {
         this.customLayout[key] = value;
       }
-      this.updateSplitPanels();
+      if (emitSpeciesChanged) {
+        this.updateSplitPanels();
+      }
     },
     setSplitter(payload) {
       if (this.splitters[payload.name])

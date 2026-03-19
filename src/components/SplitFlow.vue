@@ -49,6 +49,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @show-connectivity-graph="onShowConnectivityGraph"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
           @trackEvent="trackEvent"
@@ -591,6 +592,38 @@ export default {
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);
       EventBus.emit('connectivity-source-change', data);
+    },
+    onShowConnectivityGraph: function (data) {
+      const previousPrimaryId = this.splitFlowStore.customLayout?.['pane-1']?.id;
+      const connectivityGraphId = this.createNewEntry({
+        resource: data.entry,
+        type: 'ConnectivityGraph',
+        label: data.title || data.label || data.entry ||'Connectivity Graph',
+        graphPayload: { ...data },
+        mapServer: this.settingsStore.flatmapAPI,
+        sckanVersion: data.sckanVersion,
+      });
+
+      this.splitFlowStore.updateActiveView({
+        view: '2vertpanel',
+        entries: this.entries,
+      }, false);
+
+      if (previousPrimaryId && previousPrimaryId !== connectivityGraphId) {
+        this.splitFlowStore.assignOrSwapPaneWithIds({
+          source: connectivityGraphId,
+          target: previousPrimaryId,
+        }, false);
+      }
+
+      const secondPaneId = this.splitFlowStore.customLayout?.['pane-2']?.id;
+      if (secondPaneId && secondPaneId !== connectivityGraphId) {
+        this.splitFlowStore.assignOrSwapPaneWithIds({
+          source: connectivityGraphId,
+          target: secondPaneId,
+        }, false);
+      }
+      this.splitFlowStore.updateSplitPanels();
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
