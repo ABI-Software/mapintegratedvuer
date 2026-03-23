@@ -607,13 +607,13 @@ export default {
       this.splitFlowStore.updateActiveView({
         view: '2vertpanel',
         entries: this.entries,
-      });
+      }, false);
 
       if (previousPrimaryId && previousPrimaryId !== connectivityGraphId) {
         this.splitFlowStore.assignOrSwapPaneWithIds({
           source: connectivityGraphId,
           target: previousPrimaryId,
-        });
+        }, false);
       }
 
       const secondPaneId = this.splitFlowStore.customLayout?.['pane-2']?.id;
@@ -621,8 +621,9 @@ export default {
         this.splitFlowStore.assignOrSwapPaneWithIds({
           source: connectivityGraphId,
           target: secondPaneId,
-        });
+        }, false);
       }
+      this.splitFlowStore.updateSplitPanels();
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
