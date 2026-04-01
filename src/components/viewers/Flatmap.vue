@@ -274,7 +274,8 @@ export default {
       }
     },
     onSimulationOpen: function (simulation) {
-      EventBus.emit('simulation-open-clicked', {...simulation, requesterEntryId: this.entry.id})
+      EventBus.emit('simulation-open-clicked', {...simulation, requesterEntryId: this.entry.id,
+        flatmapUUID: this.$refs.flatmap?.mapImp?.mapMetadata?.uuid})
     },
     handleClosePlotWindow: function (windowId) {
       this.simulationPlotStore.removeWindow(windowId)

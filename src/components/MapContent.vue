@@ -408,6 +408,7 @@ export default {
       this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null;
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
+      this.options.testDataLocation ? this.settingsStore.updateTestDataLocation(this.options.testDataLocation) : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);
     this.splitFlowStore?.reset();

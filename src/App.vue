@@ -201,6 +201,7 @@ export default {
         pennsieveApi: import.meta.env.VITE_PENNSIEVE_API_LOCATION,
         flatmapAPI: this.$route.query.flatmapserver ? this.$route.query.flatmapserver : import.meta.env.VITE_FLATMAPAPI_LOCATION,
         rootUrl: import.meta.env.VITE_ROOT_URL,
+        testDataLocation: import.meta.env.VITE_TEST_DATA_LOCATION,
       }
     },
   },
@@ -446,7 +447,7 @@ export default {
           xmlhttp.send(JSON.stringify({ uuid: this.uuid }))
         }
 
-        type = 'fc'
+        //type = 'fc'
         if (type === 'ac') {
           // Load AC map with different species
           this.startingMap = 'AC'

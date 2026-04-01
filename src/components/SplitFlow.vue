@@ -354,7 +354,7 @@ export default {
             location: 'map_popup_button',
           })
           this.filterTriggered = true
-        } else if (action.type == 'Simulation') {
+        } else if (action.type == 'Simulation' && action.flatmapUUID) {
           Tagging.sendEvent({
             event: 'interaction_event',
             event_name: 'flatmaps_simulation_popup_click',
@@ -368,6 +368,7 @@ export default {
               view: '2vertpanel',
               'pane-1': { id: action.requesterEntryId },
               'pane-2': { id: newEntryId },
+              entries: this.entries,
             }
             this.splitFlowStore.updateActiveView(newView)
             this.splitFlowStore.setIdToPane(action.requesterEntryId)
@@ -1061,6 +1062,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
+        TEST_DATA_LOCATION: this.settingsStore.testDataLocation,
       }
     },
     entries: function () {
