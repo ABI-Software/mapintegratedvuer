@@ -1082,6 +1082,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
+        CELL_CARDS_API: this.settingsStore.cellCardsApi,
       };
     },
     entries: function() {
