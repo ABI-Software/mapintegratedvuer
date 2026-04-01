@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    ConnectivityGraph: typeof import('./components/viewers/ConnectivityGraph.vue')['default']
     ContentBar: typeof import('./components/ContentBar.vue')['default']
     ContentVuer: typeof import('./components/ContentVuer.vue')['default']
     ContextCard: typeof import('./components/ContextCard.vue')['default']

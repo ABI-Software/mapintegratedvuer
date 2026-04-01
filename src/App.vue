@@ -60,6 +60,7 @@
         :startingMap="startingMap"
         :options="options"
         :state="state"
+        :showLongLabel="showLongLabel"
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
@@ -185,6 +186,7 @@ export default {
       startingMap: 'AC',
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
+      showLongLabel: true,
     }
   },
   computed: {
@@ -325,7 +327,11 @@ export default {
     setSearch: function () {
       this.$refs.map.openSearch([], '10.26275/1uno-tynt')
     },
-    mapIsLoaded: function (map) {
+    toggleLongLabel: function() {
+      this.showLongLabel = !this.showLongLabel;
+    },
+    mapIsLoaded: function(map) {
+      console.log("map is loaded", map)
       // map.changeViewingMode('Annotation')
     },
     viewerIsReady: function () {

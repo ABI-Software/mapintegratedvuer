@@ -11,6 +11,7 @@
         v-if="isReady"
         @onFullscreen="onFullscreen"
         :state="stateToSet"
+        :showLongLabel="showLongLabel"
         ref="flow"
         @vue:mounted="flowMounted"
       />
@@ -59,6 +60,10 @@ export default {
     state: {
       type: Object,
       default: undefined
+    },
+    showLongLabel: {
+      type: Boolean,
+      default: true,
     },
     /**
      * The options include APIs and Keys.

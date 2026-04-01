@@ -79,9 +79,9 @@ export default {
   },
   methods: {
     toggleMinimap: function (option, prevState) {
-      if (this.multiflatmapRef) {
-        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap()
-        const mapImp = currentFlatmap?.mapImp
+      if (this.multiflatmapRef && this.flatmapIsReady()) {
+        const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
+        const mapImp = currentFlatmap?.mapImp;
         if (mapImp) {
           if (option === true) {
             // Only create minimap when it is not created before or destroyed

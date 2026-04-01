@@ -23,6 +23,7 @@
           :connectivityKnowledge="connectivityKnowledge"
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
+          :showLongLabel="showLongLabel"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -41,6 +42,7 @@
           @connectivity-hovered="onConnectivityHovered"
           @connectivity-collapse-change="onConnectivityCollapseChange"
           @connectivity-source-change="onConnectivitySourceChange"
+          @show-connectivity-graph="onShowConnectivityGraph"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
           @trackEvent="trackEvent"
@@ -138,6 +140,10 @@ export default {
     state: {
       type: Object,
       default: undefined,
+    },
+    showLongLabel: {
+      type: Boolean,
+      default: true,
     },
   },
   data: function () {
@@ -508,8 +514,24 @@ export default {
         if (entry.ready) {
           result['nerve-label'] = entry['nerve-label'] || ck['nerve-label']
         }
+        if (ck && ck['long-label']) {
+          result['long-label'] = ck['long-label'];
+        }
         return result;
       });
+
+      // Fetch long-label from global connectivities if not exist in the payload,
+      // this is for the case when user click on the flatmap paths/features directly without going through sidebar list,
+      // which will only have id and label in the payload
+      if (!this.connectivityEntry[0]['long-label'] && this.connectivityEntry[0].mapuuid) {
+        const connectivityData = this.connectivitiesStore.globalConnectivities[this.connectivityEntry[0].mapuuid] || [];
+        if (connectivityData.length) {
+          const ck = connectivityData.find(ck => ck.id === this.connectivityEntry[0].id);
+          if (ck && ck['long-label']) {
+            this.connectivityEntry[0]['long-label'] = ck['long-label'];
+          }
+        }
+      }
 
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
@@ -598,6 +620,38 @@ export default {
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true)
       EventBus.emit('connectivity-source-change', data)
+    },
+    onShowConnectivityGraph: function (data) {
+      const previousPrimaryId = this.splitFlowStore.customLayout?.['pane-1']?.id;
+      const connectivityGraphId = this.createNewEntry({
+        resource: data.entry,
+        type: 'ConnectivityGraph',
+        label: data.title || data.label || data.entry ||'Connectivity Graph',
+        graphPayload: { ...data },
+        mapServer: this.settingsStore.flatmapAPI,
+        sckanVersion: data.sckanVersion,
+      });
+
+      this.splitFlowStore.updateActiveView({
+        view: '2vertpanel',
+        entries: this.entries,
+      }, true, false);
+
+      if (previousPrimaryId && previousPrimaryId !== connectivityGraphId) {
+        this.splitFlowStore.assignOrSwapPaneWithIds({
+          source: connectivityGraphId,
+          target: previousPrimaryId,
+        }, false);
+      }
+
+      const secondPaneId = this.splitFlowStore.customLayout?.['pane-2']?.id;
+      if (secondPaneId && secondPaneId !== connectivityGraphId) {
+        this.splitFlowStore.assignOrSwapPaneWithIds({
+          source: connectivityGraphId,
+          target: secondPaneId,
+        }, false);
+      }
+      this.splitFlowStore.updateSplitPanels();
     },
     hoverChanged: function (data) {
       let hoverAnatomies = [],

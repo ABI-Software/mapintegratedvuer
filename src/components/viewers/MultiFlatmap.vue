@@ -88,6 +88,10 @@ const getOpenMapOptions = (species) => {
       display: "Open 3D Human Map",
       key: "3D"
     },
+    {
+      display: "Open Connectivity Graph",
+      key: "CG"
+    },
   ]
   return options;
 }
@@ -228,9 +232,6 @@ export default {
           this.speciesHasChanged = true;
         }
       }
-
-
-
       // GA Tagging
       // Event tracking for maps' species change
       Tagging.sendEvent({
@@ -269,6 +270,9 @@ export default {
         val: shownMarkers.map(marker => this.idNamePair[marker]),
       };
       EventBus.emit("PopoverActionClick", returnedAction);
+    },
+    flatmapIsReady() {
+      return this.flatmapReady;
     },
     restoreFeaturedMarkers: function (flatmap) {
 

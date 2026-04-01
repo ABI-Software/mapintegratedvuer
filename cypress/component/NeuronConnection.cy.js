@@ -14,7 +14,7 @@ const searchTermPairs = [
   },
   {
     isSame: false,
-    terms: ['tunica', 'to tunica']
+    terms: ['tunica', 'aorta tunica']
   },
   {
     isSame: true,
