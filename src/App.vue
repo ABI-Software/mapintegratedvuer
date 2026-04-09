@@ -187,6 +187,7 @@ export default {
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
       showLongLabel: true,
+      testDataUrl: undefined,
     }
   },
   computed: {
@@ -203,7 +204,7 @@ export default {
         pennsieveApi: import.meta.env.VITE_PENNSIEVE_API_LOCATION,
         flatmapAPI: this.$route.query.flatmapserver ? this.$route.query.flatmapserver : import.meta.env.VITE_FLATMAPAPI_LOCATION,
         rootUrl: import.meta.env.VITE_ROOT_URL,
-        testDataLocation: import.meta.env.VITE_TEST_DATA_LOCATION,
+        testDataLocation: this.testDataUrl ? this.testDataUrl : import.meta.env.VITE_TEST_DATA_LOCATION,
       }
     },
   },
@@ -406,6 +407,7 @@ export default {
     },
     waitForRouter: function () {
       this.$router.isReady().then(async () => {
+        this.testDataUrl = this.$route.query.testDataUrl
         this.routerIsReady = true
       })
     },
