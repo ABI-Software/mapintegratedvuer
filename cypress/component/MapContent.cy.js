@@ -114,6 +114,8 @@ describe('MapContent', () => {
     if (is_high_resolution_screen()) {
       snapshot = 'minimap_hr'
     }
+
+
     cy.get('html').invoke('css', 'width', '1200px');
     cy.wait(5000);
     cy.get('[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > [style="height: 100%; width: 100%;"] > :nth-child(2) > :nth-child(2) > #maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas').compareSnapshot(snapshot).then(comparisonResults => {
@@ -140,6 +142,7 @@ describe('MapContent', () => {
       "type": "MultiFlatmap",
       "taxo": "NCBITaxon:10114"
     }, 'Rat');
+
 
     //Search for non existance feature, expect not-found text
     cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type("NON_EXISTANCE");
@@ -184,10 +187,8 @@ describe('MapContent', () => {
     cy.get('.sidebar-container .el-card.content-card:visible .header .el-button--primary').click();
     cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
     cy.get('.connectivity-card-container > .connectivity-card').first().click();
-    cy.get(':nth-child(1) > .connectivity-info', {timeout: 45000}).should('contain', 'Neuron type aacar');
+    cy.get(':nth-child(1) > .connectivity-info', {timeout: 45000}).should('contain', 'neuron-type-aacar');
     cy.get('.sidebar-container .el-card.content-card:visible .header .is-link').click();
-
-
 
     cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
     cy.get('@viewingModes').contains("Exploration").click();
