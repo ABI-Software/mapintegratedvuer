@@ -195,44 +195,52 @@ export default {
                 featuredDataset: true,
               }
             } else {
-              // Facet search on anatomy if it is not a keyword search
-              returnedAction = {
-                type: 'Facet',
-                facets: [label],
-              }
-              let labels = new Set()
-              // 'marker-terms' changed to 'dataset-terms' in flatmap-viewer@4.3.5
-              resource.feature['dataset-terms'].forEach((term) => {
-                labels.add(term.label ? term.label : term.term)
-              })
-              if (labels.size === 0) {
-                labels.add(label)
-              }
-              returnedAction.facets = [...labels]
-              // The number of current level labels will reduce as zoom in flatmap
-              if (
-                this.settingsStore.hasAppliedFacets(labels) &&
-                this.settingsStore.appliedFacets.length <= labels.size
-              ) {
-                return
-              }
-              /* Add to the filter list as and if there is selected facets */
-              if (this.settingsStore.appliedFacets.length) {
-                if (!this.settingsStore.hasAppliedFacets(labels)) {
-                  const newFacets = [...new Set([...this.settingsStore.appliedFacets, ...labels])]
-                  this.settingsStore.updateAppliedFacets(newFacets)
+              if (resource.protocol) {
+                returnedAction = {
+                  type: 'ProtocolSearch',
+                  protocol: resource.protocol,
+                  feature: resource.feature,
                 }
               } else {
-                if (labels.size > 1) {
-                  returnedAction.type = 'Facets'
+                // Facet search on anatomy if it is not a keyword search
+                returnedAction = {
+                  type: 'Facet',
+                  facets: [label],
                 }
-                this.settingsStore.updateAppliedFacets(returnedAction.facets)
+                let labels = new Set()
+                // 'marker-terms' changed to 'dataset-terms' in flatmap-viewer@4.3.5
+                resource.feature['dataset-terms'].forEach((term) => {
+                  labels.add(term.label ? term.label : term.term)
+                })
+                if (labels.size === 0) {
+                  labels.add(label)
+                }
+                returnedAction.facets = [...labels]
+                // The number of current level labels will reduce as zoom in flatmap
+                if (
+                  this.settingsStore.hasAppliedFacets(labels) &&
+                  this.settingsStore.appliedFacets.length <= labels.size
+                ) {
+                  return
+                }
+                /* Add to the filter list as and if there is selected facets */
+                if (this.settingsStore.appliedFacets.length) {
+                  if (!this.settingsStore.hasAppliedFacets(labels)) {
+                    const newFacets = [...new Set([...this.settingsStore.appliedFacets, ...labels])]
+                    this.settingsStore.updateAppliedFacets(newFacets)
+                  }
+                } else {
+                  if (labels.size > 1) {
+                    returnedAction.type = 'Facets'
+                  }
+                  this.settingsStore.updateAppliedFacets(returnedAction.facets)
+                }
               }
-            }
-            fireResourceSelected = true
-            if (type == 'MultiFlatmap') {
-              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp
-              flatmap.clearSearchResults()
+              fireResourceSelected = true
+              if (type == 'MultiFlatmap') {
+                const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp
+                flatmap.clearSearchResults()
+              }
             }
           }
         } else if (resource.eventType == 'mouseenter') {
@@ -384,6 +392,7 @@ export default {
       }
     },
     flatmapResourceSelected: function (type, resources) {
+      console.log(type, resources)
       this.resourceSelected(type, resources)
 
       const firstResource = resources[0]
@@ -407,7 +416,26 @@ export default {
         })
       }
       if (eventType === 'click' && feature.type === 'feature' && type === 'Flatmap') {
-        const { component, variable } = this.mappingStore.mapToCellMLIdentifiers(feature.mapUUID, feature.id)
+
+        let component = undefined;
+        let variable = undefined;
+        if (feature && feature.variable) {
+          const components = feature.variable.split("/");
+          if (components.length === 1) {
+            variable = components[0]
+          }
+          if (components.length === 2) {
+            component = components[0]
+            variable = components[1]
+          }
+
+        }
+        //Use the hard code list if variable is not available
+        if (!variable) {
+          const data = this.mappingStore.mapToCellMLIdentifiers(feature.mapUUID, feature.id)
+          component = data?.component
+          variable = data?.variable
+        }
         if (!component || !variable) {
           return  // No mapping found, do not proceed with the simulation request
         }
@@ -415,6 +443,7 @@ export default {
         const simulationDataRequest = {
           component,
           featureId: feature.id,
+          label: feature.label,
           mapId: feature.mapUUID,
           offset: { left: 15, top: 15 },
           ownerId: this.entry.id,

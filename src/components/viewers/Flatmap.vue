@@ -36,6 +36,7 @@
       :flatmapAPI="flatmapAPI"
       :render="visible"
       :sparcAPI="apiLocation"
+      :testDataLocation="testDataLocation"
       :showLocalSettings="showLocalSettings"
       :showOpenMapButton="showOpenMapButton"
       @open-map="openMap"
@@ -70,7 +71,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, markRaw } from 'vue'
 import { useMouseInElement } from '@vueuse/core'
 
 /* eslint-disable no-alert, no-console */
@@ -84,6 +85,7 @@ import '@abi-software/flatmapvuer/dist/style.css'
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
 import { useSimulationPlotStore } from '../../stores/simulationPlotStore'
+import { retrieveProtocolData } from '../../services/testData.js';
 
 import PlotComponent from '../PlotComponent.vue'
 import FloatingWindow from '../FloatingWindow.vue'
@@ -112,6 +114,7 @@ export default {
     return {
       flatmapReady: false,
       displayMinimap: false,
+      protocolData: undefined,
       zStack: [],
       left: 0,
       top: 0,
@@ -273,9 +276,31 @@ export default {
         }
       }
     },
-    onSimulationOpen: function (simulation) {
+    populateProtocolMarkers: function(simulation) {
+      if (simulation?.path && this.protocolData) {
+        const ids = this.protocolData.reduce((results, item) => {
+          if (item.protocol.includes(simulation.path)) {
+            if (item.columns) {
+              item.columns.forEach((column) =>{
+                if (column.anatomic_location) {
+                  results.push(column.anatomic_location);
+                }
+              });
+            }
+          }
+          return results;
+        }, []);
+        this.updateProtocolMarkers(this.getFlatmapImp(), ids);
+      }
+    },
+    onSimulationOpen: async function (simulation) {
+      const uuid = this.$refs.flatmap?.mapImp?.mapMetadata?.uuid;
       EventBus.emit('simulation-open-clicked', {...simulation, requesterEntryId: this.entry.id,
-        flatmapUUID: this.$refs.flatmap?.mapImp?.mapMetadata?.uuid})
+        flatmapUUID: uuid})
+      if (!this.protocolData) {
+        this.protocolData = markRaw(await retrieveProtocolData(this.settingsStore.testDataLocation, uuid));
+      }
+      this.populateProtocolMarkers(simulation);
     },
     handleClosePlotWindow: function (windowId) {
       this.simulationPlotStore.removeWindow(windowId)
@@ -296,11 +321,16 @@ export default {
   },
   computed: {
     facetSpecies() {
-      return this.settingsStore.facets.species
+      return this.settingsStore.facets.species;
     },
     plotWindows() {
-      return this.simulationPlotStore.windows.filter((win) => win.ownerId === this.entry.id)
+      const entries = this.simulationPlotStore.windows.filter((win) => win.ownerId === this.entry.id);
+      console.log(entries)
+      return entries
     },
+    testDataLocation() {
+      return this.settingsStore.testDataLocation;
+    }
   },
 }
 </script>

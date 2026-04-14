@@ -399,6 +399,9 @@ export default {
             // splitFlowState.customLayout
             // this.splitFlowStore.updateActiveView(newView)
           }
+        } else if (action.type == 'ProtocolSearch') {
+          console.log(action)
+
         } else {
           this.trackGalleryClick(action)
           this.createNewEntry(action)

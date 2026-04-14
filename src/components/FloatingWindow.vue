@@ -18,6 +18,18 @@ const toggleMinimize = () => {
   isMinimized.value = !isMinimized.value
 }
 
+const getTitle = () => {
+  if (windowData.value.label) {
+    let title = windowData.value.label;
+    if (windowData.value.data?.title) {
+      title += ` (${windowData.value.data?.title})`;
+    }
+    return title;
+  } else {
+    return windowData.value.data?.title;
+  }
+}
+
 watch(
   [() => props.offsetX, () => props.offsetY],
   ([newX, newY]) => {
@@ -44,7 +56,7 @@ const { x, y, style } = useDraggable(el, {
     @mousedown="emit('mouseDown', windowData.id)"
   >
     <div ref="handle" class="window-header">
-      <span>{{ windowData.data?.title }}</span>
+      <span class="title">{{ getTitle() }}</span>
       <div class="window-controls">
         <button @click.stop="toggleMinimize" class="control-btn">
           {{ isMinimized ? '□' : '_' }}
@@ -74,6 +86,11 @@ const { x, y, style } = useDraggable(el, {
   resize: both; /* Allow resizing */
   overflow: hidden; /* Prevent content overflow */
   transition: height 0.2s ease, width 0.2s ease;
+
+  .title {
+    align-content: center;
+    font-size: 12px;
+  }
 }
 
 .window-header {

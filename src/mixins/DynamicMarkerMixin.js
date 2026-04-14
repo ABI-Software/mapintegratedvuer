@@ -1,6 +1,8 @@
 
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
+import { retrieveProtocolData } from '../services/testData.js';
+import { markRaw } from 'vue'
 
 // remove duplicates by stringifying the objects
 const removeDuplicates = function (arrayOfAnything) {
@@ -9,11 +11,16 @@ const removeDuplicates = function (arrayOfAnything) {
     JSON.parse(e)
   )
 }
-  
+
 /* eslint-disable no-alert, no-console */
 export default {
   computed: {
     ...mapStores(useSettingsStore),
+  },
+  data: function () {
+    return {
+      protocolData: undefined,
+    }
   },
   methods: {
     flatmapPanZoomCallback: function (payload) {
@@ -72,12 +79,45 @@ export default {
       }
       return markersOnFlatmap;
     },
-    flatmapReadyForMarkerUpdates: function (flatmap) {
+    updateProtocolMarkers: function (flatmapImp, ids) {
+      flatmapImp.clearMarkers();
+      if (ids.length > 0) {
+        const uberons = ids.join(', ')
+        flatmapImp.sparqlQuery(`
+            prefix bgf: <https://bg-rdf.org/ontologies/bondgraph-framework#>
+            prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_>
+            select ?featureUri where {
+                ?featureUri bgf:hasLocation ?region
+                filter (?region in (${uberons}))
+        }`).forEach(result => {
+            const featureUri = result.get('featureUri').value
+            const marker = flatmapImp.addMarkerByFeatureUri(featureUri)
+
+        })
+        /*
+
+        ids.forEach((id) => {
+          console.log(id)
+          flatmapImp.addMarker(id, {
+            className: "highlight-marker",
+            cluster: false
+          });
+        });
+        */
+      }
+    },
+    flatmapReadyForMarkerUpdates: async function (flatmap) {
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
-        this.flatmapMarkerUpdate(flatmapImp);
+        if (flatmapImp) {
+          const flatmapUUID = flatmapImp.mapMetadata.uuid;
+          this.protocolData = markRaw(await retrieveProtocolData(this.settingsStore.testDataLocation, flatmapUUID));
+          if (!this.protocolData) {
+            this.flatmapMarkerUpdate(flatmapImp);
+          }
+        }
       }
     },
   }

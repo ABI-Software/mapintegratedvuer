@@ -60,6 +60,7 @@ export const useSimulationPlotStore = defineStore('simulationPlot', () => {
     let targetWindow = windows.value.find(win => win.id === data.windowId)
     if (!targetWindow) {
       targetWindow = {
+        label: data.label,
         id: data.windowId,
         ownerId: data.ownerId,
         data: null,
