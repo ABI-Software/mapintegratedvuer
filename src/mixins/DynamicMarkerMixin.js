@@ -40,22 +40,23 @@ export default {
      */
     flatmapMarkerUpdate(flatmap) {
       if (!this.flatmapReady) return;
+      if (!this.protocolData) {
+        let flatmapImp = flatmap;
+        if (!flatmapImp)
+          flatmapImp = this.getFlatmapImp();
 
-      let flatmapImp = flatmap;
-      if (!flatmapImp)
-        flatmapImp = this.getFlatmapImp();
+        if (flatmapImp) {
+          // Set the dataset markers
+          let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
+          markers = removeDuplicates(markers);
+          flatmapImp.clearMarkers();
+          flatmapImp.clearDatasetMarkers();
+          flatmapImp.addDatasetMarkers(markers);
 
-      if (flatmapImp) {
-        // Set the dataset markers
-        let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
-        markers = removeDuplicates(markers);
-        flatmapImp.clearMarkers();
-        flatmapImp.clearDatasetMarkers();
-        flatmapImp.addDatasetMarkers(markers);
-
-        // Set the featured markers
-        if (this.entry.type === "MultiFlatmap") {
-          this.restoreFeaturedMarkers(flatmapImp);
+          // Set the featured markers
+          if (this.entry.type === "MultiFlatmap") {
+            this.restoreFeaturedMarkers(flatmapImp);
+          }
         }
       }
     },
@@ -91,19 +92,8 @@ export default {
                 filter (?region in (${uberons}))
         }`).forEach(result => {
             const featureUri = result.get('featureUri').value
-            const marker = flatmapImp.addMarkerByFeatureUri(featureUri)
-
+            flatmapImp.addMarkerByFeatureUri(featureUri)
         })
-        /*
-
-        ids.forEach((id) => {
-          console.log(id)
-          flatmapImp.addMarker(id, {
-            className: "highlight-marker",
-            cluster: false
-          });
-        });
-        */
       }
     },
     flatmapReadyForMarkerUpdates: async function (flatmap) {

@@ -51,8 +51,18 @@ export const useSimulationPlotStore = defineStore('simulationPlot', () => {
   }
 
   function handleSimulationReady(data) {
-    simulationEntries.value[data.resourceId] = { ready: data.ready }
+    simulationEntries.value[data.resourceId] = { ready: data.ready, entryId: data.entryId }
   }
+
+  function runExperimentalData(data) {
+    if (!data.resource || !simulationEntries.value[data.resource]?.ready) return false
+    EventBus.emit('simulation-experimental-data', {
+      targetEntryId: simulationEntries.value[data.resource].entryId,
+      action: data,
+    })
+    return true
+  }
+
 
   function requestSimulation(data) {
     if (data.protocol === null || !simulationEntries.value[data.protocol?.resource]?.ready) return
@@ -99,6 +109,7 @@ export const useSimulationPlotStore = defineStore('simulationPlot', () => {
     cleanupListeners,
     handleSimulationResponse,
     requestSimulation,
+    runExperimentalData,
     initListeners,
     removeWindow,
   }

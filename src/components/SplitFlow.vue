@@ -82,6 +82,7 @@ import { mapStores } from 'pinia'
 import { useEntriesStore } from '../stores/entries'
 import { useMainStore } from '../stores/index'
 import { useSettingsStore } from '../stores/settings';
+import { useSimulationPlotStore } from '../stores/simulationPlotStore'
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import {
@@ -400,8 +401,22 @@ export default {
             // this.splitFlowStore.updateActiveView(newView)
           }
         } else if (action.type == 'ProtocolSearch') {
-          console.log(action)
-
+          if (action.protocol) {
+            const term = action.feature.models ? action.feature.models : action.feature.variable;
+            this.$refs.sideBar.displayFileInfo(1024, term, "reveal");
+          }
+        } else if (action.type == 'Protocol') {
+          this.trackGalleryClick(action)
+          if (!this.simulationPlotStore.runExperimentalData(action)) {
+            const entryId = this.createNewEntry(action);
+            console.log(action)
+            this.$nextTick(() =>
+              EventBus.emit('simulation-experimental-data', {
+                targetEntryId: entryId,
+                action: action,
+              })
+            )
+          }
         } else {
           this.trackGalleryClick(action)
           this.createNewEntry(action)
@@ -781,6 +796,9 @@ export default {
       newEntry.viewUrl = undefined
       newEntry.state = undefined
       Object.assign(newEntry, data)
+      if (newEntry.type === "Protocol") {
+        newEntry.type = "Simulation"
+      }
       newEntry.mode = 'normal'
       newEntry.id = this.getNewEntryId()
       newEntry.discoverId = data.discoverId
@@ -790,7 +808,6 @@ export default {
       if (this.$refs.sideBar) {
         this.$refs.sideBar.setDrawerOpen(false)
       }
-
       return newEntry.id
     },
     openNewMap: async function (type) {
@@ -1109,7 +1126,7 @@ export default {
     })
   },
   computed: {
-    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
+    ...mapStores(useEntriesStore, useSettingsStore, useSimulationPlotStore, useSplitFlowStore, useConnectivitiesStore),
     envVars: function () {
       return {
         API_LOCATION: this.settingsStore.sparcApi,

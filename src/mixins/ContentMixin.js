@@ -392,7 +392,6 @@ export default {
       }
     },
     flatmapResourceSelected: function (type, resources) {
-      console.log(type, resources)
       this.resourceSelected(type, resources)
 
       const firstResource = resources[0]

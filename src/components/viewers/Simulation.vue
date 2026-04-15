@@ -58,19 +58,26 @@ export default {
         },
       })
     },
+    runExperimentalData: function(payload) {
+      console.log("runExperimentalData", this.entry.id, payload)
+    }
   },
   mounted: function () {
+    EventBus.on('simulation-experimental-data', this.runExperimentalData)
     EventBus.on('simulation-data-request', this.handleDataRequest)
     EventBus.on('plot-window-closed', this.handleWindowClosed)
 
     EventBus.emit('simulation-ready', {
       resourceId: this.id,
+      entryId: this.entry.id,
       ready: true,
     })
+    console.log(this.entry)
   },
   beforeUnmount: function () {
     EventBus.emit('simulation-ready', {
       resourceId: this.id,
+      entryId: this.entry.id,
       ready: false,
     })
     EventBus.off('simulation-data-request', this.handleDataRequest)
