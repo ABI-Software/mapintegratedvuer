@@ -409,7 +409,6 @@ export default {
           this.trackGalleryClick(action)
           if (!this.simulationPlotStore.runExperimentalData(action)) {
             const entryId = this.createNewEntry(action);
-            console.log(action)
             this.$nextTick(() =>
               EventBus.emit('simulation-experimental-data', {
                 targetEntryId: entryId,
