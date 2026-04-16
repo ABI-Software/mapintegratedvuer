@@ -225,6 +225,14 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         customLayout: state.customLayout,
       }
     },
+    isIdVisible: (getters) => (id) => {
+      const paneName = getters.getPaneNameById(id);
+      let visible = false;
+      if (paneName !== undefined) {
+        visible = getters.isPaneActive(paneName);
+      }
+      return visible;
+    },
     isPaneActive: (state) => (panelName) => {
       const layout = presetLayouts(state.activeView)
       return Object.keys(layout).includes(panelName)

@@ -91,7 +91,6 @@ export default {
       })
     },
     addExternalData: function(payload) {
-      console.log("addExternalData", payload)
       if (this.entry.id === payload.targetEntryId) {
         const data = payload.action
         if (data.csv_file) {
@@ -100,7 +99,6 @@ export default {
         }
         if (this.csv_file && this.fileOpened) {
           const parameters = []
-          const voiExpression = undefined
           if (this.columns) {
             this.columns.forEach((col) => {
               if (col.cellml_variable && col.cellml_variable !== "main/t") {
@@ -108,7 +106,6 @@ export default {
               }
             })
           }
-          console.log("Sent", this.csv_file, undefined, parameters)
           this.$refs.simulation.addExternalData(this.csv_file, undefined, parameters)
         }
       }

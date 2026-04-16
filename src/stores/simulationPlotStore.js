@@ -55,12 +55,13 @@ export const useSimulationPlotStore = defineStore('simulationPlot', () => {
   }
 
   function runExperimentalData(data) {
-    if (!data.resource || !simulationEntries.value[data.resource]?.ready) return false
+    if (!data.resource || !simulationEntries.value[data.resource]?.ready) return 0
+    console.log("Fire", simulationEntries.value[data.resource].entryId, data)
     EventBus.emit('simulation-external-data', {
       targetEntryId: simulationEntries.value[data.resource].entryId,
       action: data,
     })
-    return true
+    return simulationEntries.value[data.resource].entryId
   }
 
 

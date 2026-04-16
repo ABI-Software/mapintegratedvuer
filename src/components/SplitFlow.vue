@@ -379,7 +379,6 @@ export default {
             }
             this.splitFlowStore.updateActiveView(newView)
             this.splitFlowStore.setIdToPane(action.requesterEntryId)
-            // this.splitFlowStore.setIdToPrimaryPane(newEntry)
             // nextTick(() => {
             //   const newView = {
             //     view: '2vertpanel',
@@ -396,7 +395,6 @@ export default {
             //   'pane-2': { id: newEntryId },
             // }
             // this.splitFlowStore.updateActiveView(newView, false)
-            // this.splitFlowStore.setIdToPrimaryPane(action.requesterEntryId)
             // splitFlowState.customLayout
             // this.splitFlowStore.updateActiveView(newView)
           }
@@ -406,8 +404,13 @@ export default {
             this.$refs.sideBar.displayFileInfo(1024, term, "reveal");
           }
         } else if (action.type == 'Protocol') {
-          this.trackGalleryClick(action)
-          if (!this.simulationPlotStore.runExperimentalData(action)) {
+          this.trackGalleryClick(action);
+          let entryId = this.simulationPlotStore.runExperimentalData(action);
+          if (entryId) {
+            if (!this.splitFlowStore.isIdVisible(entryId)) {
+              this.splitFlowStore.setIdToPane(entryId, 'pane-1')
+            }
+          } else {
             const entryId = this.createNewEntry(action);
             this.$nextTick(() =>
               EventBus.emit('simulation-experimental-data', {
@@ -835,9 +838,6 @@ export default {
     },
     resetApp: function () {
       this.setState(initialDefaultState())
-    },
-    setIdToPrimaryPane: function (id) {
-      this.splitFlowStore.setIdToPane(id, 'pane-1')
     },
     restoreConnectivityEntries: function (connectivityEntries) {
       const activeFlatmaps = this.getActiveFlatmaps()
