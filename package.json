@@ -53,11 +53,11 @@
   ],
   "dependencies": {
     "@abi-software/flatmapvuer": "1.13.1-simulation.3",
-    "@abi-software/map-side-bar": "2.14.1-simulation.5",
+    "@abi-software/map-side-bar": "2.14.1-simulation.6",
     "@abi-software/map-utilities": "1.8.1",
     "@abi-software/plotvuer": "1.0.7",
     "@abi-software/scaffoldvuer": "1.15.1",
-    "@abi-software/simulationvuer": "3.0.20",
+    "@abi-software/simulationvuer": "3.1.0",
     "@abi-software/sparc-annotation": "0.3.2",
     "@abi-software/svg-sprite": "1.0.4",
     "@element-plus/icons-vue": "^2.3.1",

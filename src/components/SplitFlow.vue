@@ -379,6 +379,7 @@ export default {
             }
             this.splitFlowStore.updateActiveView(newView)
             this.splitFlowStore.setIdToPane(action.requesterEntryId)
+            this.splitFlowStore.setIdToPane(newEntryId, 'pane-2')
             // nextTick(() => {
             //   const newView = {
             //     view: '2vertpanel',

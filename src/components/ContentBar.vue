@@ -211,6 +211,7 @@ export default {
       return "Viewer";
     },
     getTitle: function(_entry) {
+      console.log(_entry)
       const {id, title} = _entry;
       const foundTitles = this.titles.filter((t) => t.title === title);
 
