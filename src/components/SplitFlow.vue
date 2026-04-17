@@ -14,7 +14,6 @@
         <SideBar
           ref="sideBar"
           :envVars="envVars"
-          :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
           :open-at-start="startUp"
           :annotationEntry="annotationEntry"
@@ -151,7 +150,6 @@ export default {
     return {
       availableFacets: undefined,
       availableNameCurieMapping: undefined,
-      sideBarVisibility: true,
       startUp: true,
       sidebarStateRestored: false,
       sidebarAnnotationState: false,
@@ -418,6 +416,7 @@ export default {
             if (!this.splitFlowStore.isIdVisible(entryId)) {
               this.splitFlowStore.setIdToPane(entryId, 'pane-1')
             }
+            this.$refs.sideBar.close()
           } else {
             const entryId = this.createNewEntry(action);
             this.$nextTick(() =>
