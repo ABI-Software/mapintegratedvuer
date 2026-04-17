@@ -54,16 +54,22 @@ export const useSimulationPlotStore = defineStore('simulationPlot', () => {
     simulationEntries.value[data.resourceId] = { ready: data.ready, entryId: data.entryId }
   }
 
-  function runExperimentalData(data) {
+  function getEntryIdWithResource(data) {
     if (!data.resource || !simulationEntries.value[data.resource]?.ready) return 0
-    console.log("Fire", simulationEntries.value[data.resource].entryId, data)
-    EventBus.emit('simulation-external-data', {
-      targetEntryId: simulationEntries.value[data.resource].entryId,
-      action: data,
-    })
     return simulationEntries.value[data.resource].entryId
   }
 
+  function runExperimentalData(data) {
+    const entryId = getEntryIdWithResource(data)
+    if (entryId) {
+      console.log("Fire", simulationEntries.value[data.resource].entryId, data)
+      EventBus.emit('simulation-external-data', {
+        targetEntryId: simulationEntries.value[data.resource].entryId,
+        action: data,
+      })
+    }
+    return entryId
+  }
 
   function requestSimulation(data) {
     if (data.protocol === null || !simulationEntries.value[data.protocol?.resource]?.ready) return
@@ -108,6 +114,7 @@ export const useSimulationPlotStore = defineStore('simulationPlot', () => {
     windows,
     bringToFront,
     cleanupListeners,
+    getEntryIdWithResource,
     handleSimulationResponse,
     requestSimulation,
     runExperimentalData,

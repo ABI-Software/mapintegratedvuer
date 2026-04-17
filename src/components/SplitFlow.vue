@@ -369,17 +369,20 @@ export default {
             location: 'flatmap_feature',
           })
           const splitFlowState = this.splitFlowStore.getState()
+          let entryId = this.simulationPlotStore.getEntryIdWithResource(action)
           if (splitFlowState.activeView === 'singlepanel') {
-          const newEntryId = this.createNewEntry(action)
-            const newView = {
-              view: '2vertpanel',
-              'pane-1': { id: action.requesterEntryId },
-              'pane-2': { id: newEntryId },
-              entries: this.entries,
+            if (!entryId) {
+              entryId= this.createNewEntry(action)
+              this.splitFlowStore.setIdToPane(action.requesterEntryId)
             }
+            const newView = {
+                  view: '2vertpanel',
+                  'pane-1': { id: action.requesterEntryId },
+                  'pane-2': { id: entryId },
+                  entries: this.entries,
+                }
             this.splitFlowStore.updateActiveView(newView)
-            this.splitFlowStore.setIdToPane(action.requesterEntryId)
-            this.splitFlowStore.setIdToPane(newEntryId, 'pane-2')
+            this.splitFlowStore.setIdToPane(entryId, 'pane-2')
             // nextTick(() => {
             //   const newView = {
             //     view: '2vertpanel',
@@ -389,7 +392,11 @@ export default {
             //   this.splitFlowStore.updateActiveView(newView)
             // })
           } else if (splitFlowState.activeView === '2vertpanel') {
-            this.createNewEntry(action, 'pane-2')
+            if (entryId) {
+              this.splitFlowStore.setIdToPane(entryId, 'pane-2')
+            } else {
+              this.createNewEntry(action, 'pane-2')
+            }
             // const newView = {
             //   view: splitFlowState.activeView,
             //   'pane-1': { id: action.requesterEntryId },
