@@ -20,6 +20,7 @@ export default {
   data: function () {
     return {
       protocolData: undefined,
+      markerToUberonID: {},
     }
   },
   methods: {
@@ -81,18 +82,20 @@ export default {
       return markersOnFlatmap;
     },
     updateProtocolMarkers: function (flatmapImp, ids) {
-      flatmapImp.clearMarkers();
+      flatmapImp.clearMarkers()
       if (ids.length > 0) {
-        const uberons = ids.join(', ')
-        flatmapImp.sparqlQuery(`
+        ids.forEach((id) => {
+          const terms = flatmapImp.sparqlQuery(`
             prefix bgf: <https://bg-rdf.org/ontologies/bondgraph-framework#>
             prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_>
             select ?featureUri where {
                 ?featureUri bgf:hasLocation ?region
-                filter (?region in (${uberons}))
-        }`).forEach(result => {
+                filter (?region in (${id}))
+            }`)
+            const result = terms[0]
             const featureUri = result.get('featureUri').value
-            flatmapImp.addMarkerByFeatureUri(featureUri)
+            const fID = flatmapImp.addMarkerByFeatureUri(featureUri)
+            this.markerToUberonID[fID] = id
         })
       }
     },

@@ -196,10 +196,14 @@ export default {
               }
             } else {
               if (resource.protocol) {
+                let term = resource.feature.models ? resource.feature.models : resource.feature.variable;
+                if (!term && this.markerToUberonID) {
+                  term = this.markerToUberonID[resource.feature.id]
+                }
                 returnedAction = {
                   type: 'ProtocolSearch',
                   protocol: resource.protocol,
-                  feature: resource.feature,
+                  term: term,
                 }
               } else {
                 // Facet search on anatomy if it is not a keyword search

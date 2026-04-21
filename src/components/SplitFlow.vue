@@ -406,8 +406,8 @@ export default {
           }
         } else if (action.type == 'ProtocolSearch') {
           if (action.protocol) {
-            const term = action.feature.models ? action.feature.models : action.feature.variable;
-            this.$refs.sideBar.displayFileInfo(1024, term, "reveal");
+            this.$refs.sideBar.displayFileInfo(
+              Number(action.protocol.dataset_id), action.term, "reveal");
           }
         } else if (action.type == 'Protocol') {
           this.trackGalleryClick(action);
