@@ -14,6 +14,7 @@ export const useSettingsStore = defineStore('settings', {
       flatmapAPI: undefined,
       mapManager: undefined,
       rootUrl: undefined,
+      testDataLocation: undefined,
       facets: { species: [], gender: [], organ: [] },
       appliedFacets: [],
       numberOfDatasetsForFacets: [],
@@ -115,6 +116,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateRootUrl(rootUrl) {
       this.rootUrl = rootUrl;
+    },
+    updateTestDataLocation(testDataLocation) {
+      this.testDataLocation = testDataLocation;
     },
     updateMarkers(markers) {
       this.markers = markers;

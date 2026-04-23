@@ -109,12 +109,7 @@ export default {
       return activeContents;
     },
     isIdVisible: function(id) {
-      const paneName = this.splitFlowStore.getPaneNameById(id);
-      let visible = false;
-      if (paneName !== undefined) {
-        visible = this.splitFlowStore.isPaneActive(paneName);
-      }
-      return visible;
+      return this.splitFlowStore.isIdVisible(id);
     },
     getContentsWithId: function(id) {
       let contents = this.$refs["content"];

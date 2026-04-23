@@ -6,7 +6,7 @@ const initialDefaultState = () => {
       {
         resource: defaultSpecies,
         type: "MultiFlatmap",
-        mode: "main",
+        // mode: "main",
         id: 1,
         state: undefined,
         label: "",

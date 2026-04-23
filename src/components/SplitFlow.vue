@@ -1,11 +1,6 @@
 <template>
   <el-container style="height: 100%; background: white">
-    <el-header
-      ref="header"
-      style="text-align: left; font-size: 14px; padding: 0"
-      height="32px"
-      class="dialog-header"
-    >
+    <el-header ref="header" style="text-align: left; font-size: 14px; padding: 0" height="32px" class="dialog-header">
       <DialogToolbarContent
         :numberOfEntries="entries.length"
         @onFullscreen="onFullscreen"
@@ -15,13 +10,10 @@
       />
     </el-header>
     <el-main class="dialog-main">
-      <div
-        style="width: 100%; height: 100%; position: relative; overflow: hidden"
-      >
+      <div style="width: 100%; height: 100%; position: relative; overflow: hidden">
         <SideBar
           ref="sideBar"
           :envVars="envVars"
-          :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
           :open-at-start="startUp"
           :annotationEntry="annotationEntry"
@@ -67,11 +59,11 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { provide, markRaw } from 'vue'
-import Tagging from '../services/tagging.js';
-import DialogToolbarContent from "./DialogToolbarContent.vue";
-import EventBus from "./EventBus";
-import SplitDialog from "./SplitDialog.vue";
+import { provide, markRaw, nextTick } from 'vue'
+import Tagging from '../services/tagging.js'
+import DialogToolbarContent from './DialogToolbarContent.vue'
+import EventBus from './EventBus'
+import SplitDialog from './SplitDialog.vue'
 // import contextCards from './context-cards'
 import { SideBar } from "@abi-software/map-side-bar";
 import "@abi-software/map-side-bar/dist/style.css";
@@ -85,10 +77,11 @@ import {
   intersectArrays,
 } from "./scripts/utilities.js";
 import { AnnotationService } from '@abi-software/sparc-annotation'
-import { mapStores } from 'pinia';
-import { useEntriesStore } from '../stores/entries';
+import { mapStores } from 'pinia'
+import { useEntriesStore } from '../stores/entries'
 import { useMainStore } from '../stores/index'
 import { useSettingsStore } from '../stores/settings';
+import { useSimulationPlotStore } from '../stores/simulationPlotStore'
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import {
@@ -98,36 +91,35 @@ import {
 } from "element-plus";
 
 const getAllFacetLabels = (children) => {
-  const labels = [];
+  const labels = []
   if (children) {
     children.forEach((child) => {
       if (child.label) {
-        labels.push(child.label.toLowerCase());
+        labels.push(child.label.toLowerCase())
       }
-      labels.push(...getAllFacetLabels(child.children));
-    });
+      labels.push(...getAllFacetLabels(child.children))
+    })
   }
-  return labels;
+  return labels
 }
 
-
 const getAnatomyTermsForFilters = (action, availableNameCurieMapping) => {
-  const facets = [];
+  const facets = []
   for (const facet of action.facets) {
     if (facet in availableNameCurieMapping) {
-      facets.push(availableNameCurieMapping[facet]);
+      facets.push(availableNameCurieMapping[facet])
     } else {
-      facets.push(facet);
+      facets.push(facet)
     }
   }
-  return facets;
+  return facets
 }
 
 /**
  * Component of the floating dialogs.
  */
 export default {
-  name: "SplitFlow",
+  name: 'SplitFlow',
   components: {
     Container,
     Header,
@@ -137,10 +129,10 @@ export default {
     SideBar,
   },
   setup() {
-    const mainStore = useMainStore();
-    provide('userApiKey', mainStore.userToken);
-    const settings = useSettingsStore();
-    let annotator = markRaw(new AnnotationService(`${settings.flatmapAPI}annotator`));
+    const mainStore = useMainStore()
+    provide('userApiKey', mainStore.userToken)
+    const settings = useSettingsStore()
+    let annotator = markRaw(new AnnotationService(`${settings.flatmapAPI}annotator`))
     provide('$annotator', annotator)
     return { annotator }
   },
@@ -158,7 +150,6 @@ export default {
     return {
       availableFacets: undefined,
       availableNameCurieMapping: undefined,
-      sideBarVisibility: true,
       startUp: true,
       sidebarStateRestored: false,
       sidebarAnnotationState: false,
@@ -187,266 +178,330 @@ export default {
     state: {
       handler: function (value) {
         if (value) {
-          if (!this._externalStateSet) this.setState(value);
-          this._externalStateSet = true;
-          this.updateGlobalSettingsFromState(value);
+          if (!this._externalStateSet) this.setState(value)
+          this._externalStateSet = true
+          this.updateGlobalSettingsFromState(value)
         }
       },
       immediate: true,
     },
     connectivityHighlight: {
       handler: function () {
-        this.hoverChanged({ tabType: 'connectivity' });
-        this.onFilterVisibility(this.filterVisibility);
+        this.hoverChanged({ tabType: 'connectivity' })
+        this.onFilterVisibility(this.filterVisibility)
       },
     },
     annotationHighlight: {
       handler: function () {
-        this.hoverChanged({ tabType: 'annotation' });
+        this.hoverChanged({ tabType: 'annotation' })
       },
     },
   },
   methods: {
     onFilterVisibility: function (state) {
-      this.filterVisibility = state;
+      this.filterVisibility = state
       const filterExpression = {
         OR: [
           { NOT: { 'tile-layer': 'pathways' } },
-          { NOT: { 'HAS': 'nerves' } },
+          { NOT: { HAS: 'nerves' } },
           {
-            AND: [
-              { 'tile-layer': 'pathways' },
-              { 'models': this.connectivityHighlight }
-            ]
-          }
-        ]
-      };
-      const validFilter = this.filterVisibility && this.connectivityProcessed;
-      const payload = validFilter ? filterExpression : undefined;
-      EventBus.emit('filter-visibility', payload);
+            AND: [{ 'tile-layer': 'pathways' }, { models: this.connectivityHighlight }],
+          },
+        ],
+      }
+      const validFilter = this.filterVisibility && this.connectivityProcessed
+      const payload = validFilter ? filterExpression : undefined
+      EventBus.emit('filter-visibility', payload)
     },
     onConnectivityCollapseChange: function (payload) {
       this.expanded = payload.id
-      const splitdialog = this.$refs.splitdialog;
+      const splitdialog = this.$refs.splitdialog
       if (splitdialog) {
-        const activeContents = splitdialog.getActiveContents();
-        const hasFlatmap = activeContents.find(c => c.viewerType.includes('Flatmap'));
-        const hasHumanMaleFlatmap = activeContents.find(c => c.activeSpecies === "Human Male");
+        const activeContents = splitdialog.getActiveContents()
+        const hasFlatmap = activeContents.find((c) => c.viewerType.includes('Flatmap'))
+        const hasHumanMaleFlatmap = activeContents.find((c) => c.activeSpecies === 'Human Male')
         let nonFlatmapLoad = false
-        activeContents.forEach(content => {
-          const isFlatmap = content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap';
+        activeContents.forEach((content) => {
+          const isFlatmap = content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap'
           // minimise connectivity detail fetch
           const shouldLoad =
             (hasFlatmap && isFlatmap) ||
             (hasFlatmap && !hasHumanMaleFlatmap && !isFlatmap && !nonFlatmapLoad) ||
-            (!hasFlatmap && !nonFlatmapLoad);
+            (!hasFlatmap && !nonFlatmapLoad)
 
           if (shouldLoad) {
-            this.connectivityExplorerClicked.push(true);
-            content.onLoadConnectivityDetail({ data: [payload] });
-            if (!isFlatmap) nonFlatmapLoad = true;
+            this.connectivityExplorerClicked.push(true)
+            content.onLoadConnectivityDetail({ data: [payload] })
+            if (!isFlatmap) nonFlatmapLoad = true
           }
-        });
+        })
       }
     },
     onConnectivityItemClose: function () {
-      EventBus.emit('connectivity-item-close');
+      EventBus.emit('connectivity-item-close')
     },
     getActiveFlatmaps: function () {
-      const activeFlatmaps = [];
-      let splitdialog = this.$refs.splitdialog;
+      const activeFlatmaps = []
+      let splitdialog = this.$refs.splitdialog
 
       if (splitdialog) {
-        const activeContents = splitdialog.getActiveContents();
+        const activeContents = splitdialog.getActiveContents()
 
-        activeContents.forEach(content => {
+        activeContents.forEach((content) => {
           if (content?.$refs['viewer']) {
-            const contentViewer = content.$refs['viewer'];
-            const flatmapRef = contentViewer.flatmapRef;
-            const multiflatmapRef = contentViewer.multiflatmapRef;
-            let flatmap = null;
+            const contentViewer = content.$refs['viewer']
+            const flatmapRef = contentViewer.flatmapRef
+            const multiflatmapRef = contentViewer.multiflatmapRef
+            let flatmap = null
 
-            if (flatmapRef) flatmap = flatmapRef;
-            if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
+            if (flatmapRef) flatmap = flatmapRef
+            if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap()
 
             if (flatmap) {
-              activeFlatmaps.push(flatmap);
+              activeFlatmaps.push(flatmap)
             }
           }
-        });
+        })
       }
-      return activeFlatmaps;
+      return activeFlatmaps
     },
     /**
      * Callback when an action is performed (open new dialogs).
      */
     actionClick: function (action) {
       if (action) {
-        if (!this.availableFacets || (this.availableFacets.length === 0)) {
-          const availableFacetsRaw = localStorage.getItem('available-anatomy-facets');
-          const availableFacetsAll = availableFacetsRaw ? JSON.parse(availableFacetsRaw) : [];
+        if (!this.availableFacets || this.availableFacets.length === 0) {
+          const availableFacetsRaw = localStorage.getItem('available-anatomy-facets')
+          const availableFacetsAll = availableFacetsRaw ? JSON.parse(availableFacetsRaw) : []
 
           // get label values
-          this.availableFacets = markRaw([...new Set(getAllFacetLabels(availableFacetsAll))]);
+          this.availableFacets = markRaw([...new Set(getAllFacetLabels(availableFacetsAll))])
         }
 
-        if (!this.availableNameCurieMapping || (Object.keys(this.availableNameCurieMapping).length === 0)) {
-          const availableDataRaw = localStorage.getItem('available-name-curie-mapping');
-          const availableData = availableDataRaw ? JSON.parse(availableDataRaw) : {};
+        if (!this.availableNameCurieMapping || Object.keys(this.availableNameCurieMapping).length === 0) {
+          const availableDataRaw = localStorage.getItem('available-name-curie-mapping')
+          const availableData = availableDataRaw ? JSON.parse(availableDataRaw) : {}
 
           // get label values
-          this.availableNameCurieMapping = markRaw(availableData);
+          this.availableNameCurieMapping = markRaw(availableData)
         }
 
-        if (action.type == "Search") {
+        if (action.type == 'Search') {
           if (action.nervePath) {
-            this.openSearch([action.filter], action.label);
+            this.openSearch([action.filter], action.label)
           } else {
-            this.openSearch([], action.term);
+            this.openSearch([], action.term)
             // GA Tagging
             // Event tracking for map action search/filter data
             const eventName = action.featuredDataset
               ? 'portal_maps_featured_dataset_search'
-              : 'portal_maps_action_search';
+              : 'portal_maps_action_search'
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': eventName,
-              'category': action.term || 'filter',
-              'location': 'map_location_pin'
-            });
-            this.filterTriggered = true;
+              event: 'interaction_event',
+              event_name: eventName,
+              category: action.term || 'filter',
+              location: 'map_location_pin',
+            })
+            this.filterTriggered = true
           }
-        } else if (action.type == "URL") {
-          window.open(action.resource, "_blank");
-        } else if (action.type == "Facet") {
+        } else if (action.type == 'URL') {
+          window.open(action.resource, '_blank')
+        } else if (action.type == 'Facet') {
           if (this.$refs.sideBar) {
             const sendAction = {
-              facetPropPath: "anatomy.organ.category.name",
-              facetSubPropPath: "anatomy.organ.name",
-              term: "Anatomical structure",
-            };
-            const filters = [];
-            const facets = getAnatomyTermsForFilters(action, this.availableNameCurieMapping);
-            const facetString = action.facets.join(', ');
-            facets.forEach(facet => filters.push({...sendAction, facet}));
-            this.$refs.sideBar.addFilter(filters);
+              facetPropPath: 'anatomy.organ.category.name',
+              facetSubPropPath: 'anatomy.organ.name',
+              term: 'Anatomical structure',
+            }
+            const filters = []
+            const facets = getAnatomyTermsForFilters(action, this.availableNameCurieMapping)
+            const facetString = action.facets.join(', ')
+            facets.forEach((facet) => filters.push({ ...sendAction, facet }))
+            this.$refs.sideBar.addFilter(filters)
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_filter',
-              'category': facetString || 'filter_reset',
-              'location': 'map_location_pin'
-            });
-            this.filterTriggered = true;
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_filter',
+              category: facetString || 'filter_reset',
+              location: 'map_location_pin',
+            })
+            this.filterTriggered = true
           }
-        } else if (action.type == "Facets") {
-          const facets = [];
-          const facetsArray = getAnatomyTermsForFilters(action, this.availableNameCurieMapping);
-          const filterValuesArray = intersectArrays(this.availableFacets, facetsArray);
-          const filterValues = filterValuesArray.join(', ');
+        } else if (action.type == 'Facets') {
+          const facets = []
+          const facetsArray = getAnatomyTermsForFilters(action, this.availableNameCurieMapping)
+          const filterValuesArray = intersectArrays(this.availableFacets, facetsArray)
+          const filterValues = filterValuesArray.join(', ')
 
-          this.settingsStore.facets.species.forEach(e => {
+          this.settingsStore.facets.species.forEach((e) => {
             facets.push({
               facet: capitalise(e),
-              term: "Species",
-              facetPropPath: "organisms.primary.species.name",
-            });
-          });
+              term: 'Species',
+              facetPropPath: 'organisms.primary.species.name',
+            })
+          })
           facets.push(
-            ...filterValuesArray.map(val => ({
+            ...filterValuesArray.map((val) => ({
               facet: capitalise(val),
-              term: "Anatomical structure",
-              facetPropPath: "anatomy.organ.category.name",
-              facetSubPropPath: "anatomy.organ.name",
+              term: 'Anatomical structure',
+              facetPropPath: 'anatomy.organ.category.name',
+              facetSubPropPath: 'anatomy.organ.name',
             }))
-          );
-          this.openSearch(facets, "")
+          )
+          this.openSearch(facets, '')
           // GA Tagging
           // Event tracking for map action search/filter data
           Tagging.sendEvent({
-            'event': 'interaction_event',
-            'event_name': 'portal_maps_action_filter',
-            'category': filterValues || 'filter_reset',
-            'location': 'map_popup_button'
-          });
-          this.filterTriggered = true;
-        } else {
+            event: 'interaction_event',
+            event_name: 'portal_maps_action_filter',
+            category: filterValues || 'filter_reset',
+            location: 'map_popup_button',
+          })
+          this.filterTriggered = true
+        } else if (action.type == 'Simulation' && action.flatmapUUID) {
+          Tagging.sendEvent({
+            event: 'interaction_event',
+            event_name: 'flatmaps_simulation_popup_click',
+            category: 'simulation',
+            location: 'flatmap_feature',
+          })
+          const splitFlowState = this.splitFlowStore.getState()
+          let entryId = this.simulationPlotStore.getEntryIdWithResource(action)
+          if (splitFlowState.activeView === 'singlepanel') {
+            if (!entryId) {
+              entryId= this.createNewEntry(action)
+              this.splitFlowStore.setIdToPane(action.requesterEntryId)
+            }
+            const newView = {
+                  view: '2vertpanel',
+                  'pane-1': { id: action.requesterEntryId },
+                  'pane-2': { id: entryId },
+                  entries: this.entries,
+                }
+            this.splitFlowStore.updateActiveView(newView)
+            this.splitFlowStore.setIdToPane(entryId, 'pane-2')
+            // nextTick(() => {
+            //   const newView = {
+            //     view: '2vertpanel',
+            //     'pane-1': { id: action.requesterEntryId },
+            //     'pane-2': { id: newEntry },
+            //   }
+            //   this.splitFlowStore.updateActiveView(newView)
+            // })
+          } else if (splitFlowState.activeView === '2vertpanel') {
+            if (entryId) {
+              this.splitFlowStore.setIdToPane(entryId, 'pane-2')
+            } else {
+              this.createNewEntry(action, 'pane-2')
+            }
+            // const newView = {
+            //   view: splitFlowState.activeView,
+            //   'pane-1': { id: action.requesterEntryId },
+            //   'pane-2': { id: newEntryId },
+            // }
+            // this.splitFlowStore.updateActiveView(newView, false)
+            // splitFlowState.customLayout
+            // this.splitFlowStore.updateActiveView(newView)
+          }
+        } else if (action.type == 'ProtocolSearch') {
+          if (action.protocol) {
+            this.$refs.sideBar.displayFileInfo(
+              Number(action.protocol.dataset_id), action.term, "reveal");
+          }
+        } else if (action.type == 'Protocol') {
           this.trackGalleryClick(action);
-          this.createNewEntry(action);
+          let entryId = this.simulationPlotStore.runExperimentalData(action);
+          if (entryId) {
+            if (!this.splitFlowStore.isIdVisible(entryId)) {
+              this.splitFlowStore.setIdToPane(entryId, 'pane-1')
+            }
+            this.$refs.sideBar.close()
+          } else {
+            const entryId = this.createNewEntry(action);
+            this.$nextTick(() =>
+              EventBus.emit('simulation-experimental-data', {
+                targetEntryId: entryId,
+                action: action,
+              })
+            )
+          }
+        } else {
+          this.trackGalleryClick(action)
+          this.createNewEntry(action)
         }
       }
     },
     trackGalleryClick: function (action) {
-      const categoryValues = [];
-      const { label, type, datasetId, discoverId, resource } = action;
-      let filePath = '';
-      let id = datasetId ? datasetId : discoverId;
-      if (label) categoryValues.push(label);
-      if (type) categoryValues.push(type);
-      if (datasetId) categoryValues.push('(' + id + ')');
+      const categoryValues = []
+      const { label, type, datasetId, discoverId, resource } = action
+      let filePath = ''
+      let id = datasetId ? datasetId : discoverId
+      if (label) categoryValues.push(label)
+      if (type) categoryValues.push(type)
+      if (datasetId) categoryValues.push('(' + id + ')')
       if (resource) {
-        if (type === "Plot") {
-          filePath = resource.dataSource.url;
+        if (type === 'Plot') {
+          filePath = resource.dataSource.url
         } else {
-          filePath = typeof resource === 'string' ? resource : resource.share_link;
+          filePath = typeof resource === 'string' ? resource : resource.share_link
         }
       }
 
       // GA Tagging
       // Event tracking for map sidebar gallery click
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_gallery_click',
-        'category': categoryValues.join(' '),
-        'location': 'map_sidebar_gallery',
-        'dataset_id': id ? id + '' : '', // change to string format
-        'file_path': filePath,
-      });
+        event: 'interaction_event',
+        event_name: 'portal_maps_gallery_click',
+        category: categoryValues.join(' '),
+        location: 'map_sidebar_gallery',
+        dataset_id: id ? id + '' : '', // change to string format
+        file_path: filePath,
+      })
     },
     onDisplaySearch: function (payload, tracking = true) {
-      let searchFound = false;
+      let searchFound = false
       //Search all active viewers when global callback is on
-      let splitdialog = this.$refs.splitdialog;
+      let splitdialog = this.$refs.splitdialog
       if (splitdialog) {
-        const activeContents = splitdialog.getActiveContents();
-        activeContents.forEach(content => {
+        const activeContents = splitdialog.getActiveContents()
+        activeContents.forEach((content) => {
           if (content.search(payload.term)) {
-            searchFound = true;
+            searchFound = true
           }
-        });
+        })
       }
-      this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term);
+      this.$refs.dialogToolbar.setFailedSearch(searchFound ? undefined : payload.term)
 
       if (tracking) {
         // GA Tagging
         // Event tracking for map on display search
         Tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': 'portal_maps_display_search',
-          'category': payload.term,
-          'location': 'map_toolbar'
-        });
+          event: 'interaction_event',
+          event_name: 'portal_maps_display_search',
+          category: payload.term,
+          location: 'map_toolbar',
+        })
       }
     },
-    fetchSuggestions: function(payload) {
-      const suggestions = [];
+    fetchSuggestions: function (payload) {
+      const suggestions = []
       //Search all active viewers when global callback is on
-      let splitdialog = this.$refs.splitdialog;
-      const activeContents = splitdialog.getActiveContents();
+      let splitdialog = this.$refs.splitdialog
+      const activeContents = splitdialog.getActiveContents()
       //Push new suggestions into the pre-existing suggestions array
-      activeContents.forEach(content => content.searchSuggestions(payload.data.term, suggestions));
-      const parsed = [];
+      activeContents.forEach((content) => content.searchSuggestions(payload.data.term, suggestions))
+      const parsed = []
       //Remove double quote as it is used as a speical character
-      suggestions.forEach(suggestion => {
-        parsed.push(suggestion.replaceAll("\"", ""));
-      });
-      const unique = new Set(parsed);
-      suggestions.length = 0;
+      suggestions.forEach((suggestion) => {
+        parsed.push(suggestion.replaceAll('"', ''))
+      })
+      const unique = new Set(parsed)
+      suggestions.length = 0
       for (const item of unique) {
-        suggestions.push({"value": "\"" + item +"\""});
+        suggestions.push({ value: '"' + item + '"' })
       }
-      payload.data.cb(suggestions);
+      payload.data.cb(suggestions)
     },
     /**
      * This event is emitted when the show connectivity button in sidebar is clicked.
@@ -455,23 +510,23 @@ export default {
      */
     onShowConnectivity: function (featureIds) {
       if (featureIds.length) {
-        const splitFlowState = this.splitFlowStore.getState();
-        const activeView = splitFlowState?.activeView || '';
+        const splitFlowState = this.splitFlowStore.getState()
+        const activeView = splitFlowState?.activeView || ''
         // offset sidebar only on singlepanel and 2horpanel views
         EventBus.emit('show-connectivity', {
           featureIds: featureIds,
-          offset: activeView === 'singlepanel' || activeView === '2horpanel'
-        });
+          offset: activeView === 'singlepanel' || activeView === '2horpanel',
+        })
       }
     },
     openConnectivityInfo: async function (payload) {
       // expand connectivity card and show connectivity info
       // if expanded exist, payload should be an array of one element
       // skip payload not match the expanded in multiple views
-      const isMatched = payload.some(entry => entry.featureId[0] === this.expanded);
+      const isMatched = payload.some((entry) => entry.featureId[0] === this.expanded)
       if (this.expanded && this.connectivityExplorerClicked.length && !isMatched) {
-        this.connectivityExplorerClicked.pop();
-        return;
+        this.connectivityExplorerClicked.pop()
+        return
       }
 
       // Remove duplicate items from payload
@@ -482,9 +537,9 @@ export default {
           label: entry.title,
           id: entry.featureId[0],
         }
-        const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
+        const ck = this.connectivityKnowledge.find((ck) => ck.id === result.id)
         if (entry.ready) {
-          result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
+          result['nerve-label'] = entry['nerve-label'] || ck['nerve-label']
         }
         if (ck && ck['long-label']) {
           result['long-label'] = ck['long-label'];
@@ -507,8 +562,8 @@ export default {
 
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
-        if (this.connectivityEntry.every(entry => entry.ready)) {
-          this.connectivityExplorerClicked.pop();
+        if (this.connectivityEntry.every((entry) => entry.ready)) {
+          this.connectivityExplorerClicked.pop()
         }
       } else {
         // click on the flatmap paths/features directly
@@ -548,50 +603,50 @@ export default {
         }
 
         if (this.$refs.sideBar) {
-          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
-          this.$refs.sideBar.setDrawerOpen(true);
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' })
+          this.$refs.sideBar.setDrawerOpen(true)
         }
       }
     },
     openAnnotation: function (payload) {
-      this.annotationEntry = payload.annotationEntry;
+      this.annotationEntry = payload.annotationEntry
       // If drawing, `entry.models` may be undefined; use an empty array instead of [undefined]
       // to prevent errors on highlight
-      this.annotationHighlight = this.annotationEntry.map(entry => entry.models).filter(Boolean);
+      this.annotationHighlight = this.annotationEntry.map((entry) => entry.models).filter(Boolean)
       if (payload.commitCallback) {
-        this.annotationCallback = markRaw(payload.commitCallback);
+        this.annotationCallback = markRaw(payload.commitCallback)
       }
       if (!payload.createData) {
-        this.createData = markRaw({});
+        this.createData = markRaw({})
       } else {
-        this.createData = markRaw(payload.createData);
+        this.createData = markRaw(payload.createData)
       }
       if (payload.confirmCreate) {
-        this.confirmCreateCallback = markRaw(payload.confirmCreate);
+        this.confirmCreateCallback = markRaw(payload.confirmCreate)
       }
       if (payload.cancelCreate) {
-        this.cancelCreateCallback = markRaw(payload.cancelCreate);
+        this.cancelCreateCallback = markRaw(payload.cancelCreate)
       }
       if (payload.confirmDelete) {
-        this.confirmDeleteCallback = markRaw(payload.confirmDelete);
+        this.confirmDeleteCallback = markRaw(payload.confirmDelete)
       }
       if (payload.confirmComment) {
-        this.confirmCommentCallback = markRaw(payload.confirmComment);
+        this.confirmCommentCallback = markRaw(payload.confirmComment)
       }
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
-        this.$refs.sideBar.setDrawerOpen(true);
+        this.$refs.sideBar.tabClicked({ id: 3, type: 'annotation' })
+        this.$refs.sideBar.setDrawerOpen(true)
       }
     },
     onShowReferenceConnectivities: function (refSource) {
-      EventBus.emit('show-reference-connectivities', refSource);
+      EventBus.emit('show-reference-connectivities', refSource)
     },
     onConnectivityHovered: function (data) {
-      EventBus.emit('connectivity-hovered', data);
+      EventBus.emit('connectivity-hovered', data)
     },
     onConnectivitySourceChange: function (data) {
-      this.connectivityExplorerClicked.push(true);
-      EventBus.emit('connectivity-source-change', data);
+      this.connectivityExplorerClicked.push(true)
+      EventBus.emit('connectivity-source-change', data)
     },
     onShowConnectivityGraph: function (data) {
       const previousPrimaryId = this.splitFlowStore.customLayout?.['pane-1']?.id;
@@ -607,7 +662,7 @@ export default {
       this.splitFlowStore.updateActiveView({
         view: '2vertpanel',
         entries: this.entries,
-      }, false);
+      }, true, false);
 
       if (previousPrimaryId && previousPrimaryId !== connectivityGraphId) {
         this.splitFlowStore.assignOrSwapPaneWithIds({
@@ -626,141 +681,149 @@ export default {
       this.splitFlowStore.updateSplitPanels();
     },
     hoverChanged: function (data) {
-      let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
+      let hoverAnatomies = [],
+        hoverOrgans = [],
+        hoverDOI = '',
+        hoverConnectivity = []
       if (data.tabType === 'dataset') {
-        hoverAnatomies = data.anatomy ? data.anatomy : [];
-        hoverOrgans = data.organs ? data.organs : [];
-        hoverDOI = data.doi ? data.doi : '';
+        hoverAnatomies = data.anatomy ? data.anatomy : []
+        hoverOrgans = data.organs ? data.organs : []
+        hoverDOI = data.doi ? data.doi : ''
       } else if (data.tabType === 'connectivity') {
-        hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
-        hoverOrgans = data['nerve-label'] ? data['nerve-label'].flatMap(nerve => nerve.subNerves) : [];
+        hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight
+        hoverOrgans = data['nerve-label'] ? data['nerve-label'].flatMap((nerve) => nerve.subNerves) : []
       } else if (data.tabType === 'annotation') {
-        hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
+        hoverConnectivity = data.models ? [data.models] : this.annotationHighlight
       }
-      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate", { connectivityProcessed: this.connectivityProcessed });
+      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity)
+      EventBus.emit('hoverUpdate', { connectivityProcessed: this.connectivityProcessed })
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
-        if (data && data.type == "reset-update") {
-          this.settingsStore.updateAppliedFacets([]);
+        if (data && data.type == 'reset-update') {
+          this.settingsStore.updateAppliedFacets([])
         }
-        if (data && data.type == "query-update") {
-          this.search = data.value;
+        if (data && data.type == 'query-update') {
+          this.search = data.value
           if (this.search && !this.filterTriggered) {
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_search',
-              'category': this.search,
-              'location': 'map_sidebar_dataset_search'
-            });
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_search',
+              category: this.search,
+              location: 'map_sidebar_dataset_search',
+            })
           }
-          this.filterTriggered = false; // reset for next action
+          this.filterTriggered = false // reset for next action
         }
-        if (data && data.type == "filter-update") {
-          this.settingsStore.updateFacets(data.value);
+        if (data && data.type == 'filter-update') {
+          this.settingsStore.updateFacets(data.value)
           // Remove filter event from maps' popup
           if (!this.filterTriggered) {
-            const filterValuesArray = data.value.filter((val) => {
-              return val.facet && val.facet.toLowerCase() !== 'show all';
-            }).map((val) => val.facet);
-            const labels = filterValuesArray.map((val) => val.toLowerCase());
-            const newFacets = [...new Set([...labels])];
-            this.settingsStore.updateAppliedFacets(newFacets);
-            const filterValues = filterValuesArray.join(', ');
+            const filterValuesArray = data.value
+              .filter((val) => {
+                return val.facet && val.facet.toLowerCase() !== 'show all'
+              })
+              .map((val) => val.facet)
+            const labels = filterValuesArray.map((val) => val.toLowerCase())
+            const newFacets = [...new Set([...labels])]
+            this.settingsStore.updateAppliedFacets(newFacets)
+            const filterValues = filterValuesArray.join(', ')
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_filter',
-              'category': filterValues || 'filter_reset',
-              'location': 'map_sidebar_dataset_filter'
-            });
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_filter',
+              category: filterValues || 'filter_reset',
+              location: 'map_sidebar_dataset_filter',
+            })
           }
-          this.filterTriggered = false; // reset for next action
+          this.filterTriggered = false // reset for next action
         }
       } else if (data.tabType === 'connectivity') {
-        if (data && data.type == "reset-update") {
-          const activeFlatmaps = this.getActiveFlatmaps();
+        if (data && data.type == 'reset-update') {
+          const activeFlatmaps = this.getActiveFlatmaps()
           activeFlatmaps.forEach((activeFlatmap) => {
-            activeFlatmap.resetConnectivityfilters(data.value);
-          });
+            activeFlatmap.resetConnectivityfilters(data.value)
+          })
         } else {
-          this.expanded = '';
-          this.connectivityEntry = [];
+          this.expanded = ''
+          this.connectivityEntry = []
           // update connectivity filters in flatmap
-          const activeFlatmaps = this.getActiveFlatmaps();
+          const activeFlatmaps = this.getActiveFlatmaps()
           activeFlatmaps.forEach((activeFlatmap) => {
-            activeFlatmap.updateConnectivityFilters(data.filter);
-          });
-          EventBus.emit("connectivity-query-filter", data);
+            activeFlatmap.updateConnectivityFilters(data.filter)
+          })
+          EventBus.emit('connectivity-query-filter', data)
 
-          const filterValues = data.filter.filter(f => (f.facet && f.facet.toLowerCase() !== 'show all'))
+          const filterValues = data.filter
+            .filter((f) => f.facet && f.facet.toLowerCase() !== 'show all')
             .map((f) => f.tagLabel)
-            .join(', ');
-          const searchValue = data.query;
+            .join(', ')
+          const searchValue = data.query
 
           if (filterValues) {
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_filter',
-              'category': filterValues,
-              'location': 'map_sidebar_connectivity_filter'
-            });
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_filter',
+              category: filterValues,
+              location: 'map_sidebar_connectivity_filter',
+            })
           }
 
           if (searchValue) {
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_search',
-              'category': searchValue,
-              'location': 'map_sidebar_connectivity_search'
-            });
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_search',
+              category: searchValue,
+              location: 'map_sidebar_connectivity_search',
+            })
           }
         }
       }
     },
     updateMarkers: function (data) {
-      this.settingsStore.updateMarkers(data);
-      EventBus.emit("markerUpdate");
+      this.settingsStore.updateMarkers(data)
+      EventBus.emit('markerUpdate')
     },
     updateScaffoldMarkers: function (data) {
-      this.settingsStore.updateNumberOfDatasetsForFacets(data);
+      this.settingsStore.updateNumberOfDatasetsForFacets(data)
     },
-    getNewEntryId: function() {
+    getNewEntryId: function () {
       if (this.entries.length) {
-        return (this.entries[this.entries.length - 1]).id + 1;
+        return this.entries[this.entries.length - 1].id + 1
       }
-      return 1;
+      return 1
     },
     /**
      * Add new entry which will sequentially create a
      * new dialog.
      */
-    createNewEntry: function (data) {
-      let newEntry = {};
-      newEntry.viewUrl = undefined;
-      newEntry.state = undefined;
-      Object.assign(newEntry, data);
-      newEntry.mode = "normal";
-      newEntry.id = this.getNewEntryId();
-      newEntry.discoverId = data.discoverId;
-      this.entriesStore.addNewEntry(newEntry);
-      this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
+    createNewEntry: function (data, pane = 'pane-1') {
+      let newEntry = {}
+      newEntry.viewUrl = undefined
+      newEntry.state = undefined
+      Object.assign(newEntry, data)
+      if (newEntry.type === "Protocol") {
+        newEntry.type = "Simulation"
+      }
+      newEntry.mode = 'normal'
+      newEntry.id = this.getNewEntryId()
+      newEntry.discoverId = data.discoverId
+      this.entriesStore.addNewEntry(newEntry)
+      this.splitFlowStore.setIdToPane(newEntry.id, pane)
       //close sidebar on entry creation to see the context card
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.setDrawerOpen(false);
+        this.$refs.sideBar.setDrawerOpen(false)
       }
-
-      return newEntry.id;
+      return newEntry.id
     },
     openNewMap: async function (type) {
-      const entry = await getNewMapEntry(type, this.settingsStore.sparcApi);
-      this.createNewEntry(entry);
+      const entry = await getNewMapEntry(type, this.settingsStore.sparcApi)
+      this.createNewEntry(entry)
       if (entry.contextCard) {
-        EventBus.emit("contextUpdate", entry.contextCard);
+        EventBus.emit('contextUpdate', entry.contextCard)
       }
     },
     openSearch: function (facets, query) {
@@ -769,40 +832,37 @@ export default {
       // this.settingsStore.facets.species.forEach(e => {
       //   facets.push({facet: e, facetPropPath: 'organisms.primary.species.name', term:'species'});
       // });
-      this.search = query;
-      this._facets = facets;
+      this.search = query
+      this._facets = facets
       if (this.$refs && this.$refs.sideBar) {
-        this.$refs.sideBar.openSearch(facets, query);
-        this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+        this.$refs.sideBar.openSearch(facets, query)
+        this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' })
       }
-      this.startUp = false;
+      this.startUp = false
     },
     onFullscreen: function (val) {
-      this.$emit("onFullscreen", val);
+      this.$emit('onFullscreen', val)
     },
     resetApp: function () {
-      this.setState(initialDefaultState());
-    },
-    setIdToPrimaryPane: function (id) {
-      this.splitFlowStore.setIdToPrimaryPane(id);
+      this.setState(initialDefaultState())
     },
     restoreConnectivityEntries: function (connectivityEntries) {
-      const activeFlatmaps = this.getActiveFlatmaps();
+      const activeFlatmaps = this.getActiveFlatmaps()
       activeFlatmaps.forEach((activeFlatmap) => {
         const featureIds = connectivityEntries.map((entry) => {
-          const featureId = activeFlatmap.mapImp.modelFeatureIds(entry)[0];
-          const feature = activeFlatmap.mapImp.featureProperties(featureId);
+          const featureId = activeFlatmap.mapImp.modelFeatureIds(entry)[0]
+          const feature = activeFlatmap.mapImp.featureProperties(featureId)
           const data = {
             resource: [feature.models],
             feature: feature,
             label: feature.label,
             provenanceTaxonomy: feature.taxons,
             alert: feature.alert,
-          };
-          return data;
-        });
+          }
+          return data
+        })
         activeFlatmap.checkAndCreatePopups(featureIds, true)
-      });
+      })
     },
     restoreSidebarState: function (state) {
       // Restore sidebar state only if
@@ -810,269 +870,269 @@ export default {
       // - sidebar component is loaded
       // - connectivity knowledge is loaded
       // - if sidebar state is not restored yet
-      const sidebarState = state?.sidebar;
+      const sidebarState = state?.sidebar
       if (!this.sidebarStateRestored && sidebarState && this.$refs.sideBar && this.connectivityKnowledge?.length) {
         if (sidebarState.connectivityEntries?.length) {
-          this.restoreConnectivityEntries(sidebarState.connectivityEntries);
+          this.restoreConnectivityEntries(sidebarState.connectivityEntries)
         } else if (sidebarState.annotationEntries?.length && state.annotationId) {
           // Restore annotation state only if the state has annotationId
-          this.restoreConnectivityEntries(sidebarState.annotationEntries);
-          this.sidebarAnnotationState = true;
+          this.restoreConnectivityEntries(sidebarState.annotationEntries)
+          this.sidebarAnnotationState = true
         } else {
-          this.$refs.sideBar.setState(sidebarState);
+          this.$refs.sideBar.setState(sidebarState)
         }
-        this.sidebarStateRestored = true;
+        this.sidebarStateRestored = true
       }
     },
     setState: function (state) {
-      this.entriesStore.setAll(state.entries);
+      this.entriesStore.setAll(state.entries)
       //Support both old and new permalink.
       if (state.splitFlow) {
-        this.splitFlowStore.setState(state.splitFlow);
-      }
-      else {
-        this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+        this.splitFlowStore.setState(state.splitFlow)
+      } else {
+        this.entries.forEach((entry) => this.splitFlowStore.setIdToPane(entry.id))
       }
 
-      this.restoreSidebarState(state);
-      this.updateGlobalSettingsFromState(state);
+      this.restoreSidebarState(state)
+      this.updateGlobalSettingsFromState(state)
     },
     getState: function (anonymousAnnotations = false) {
-      let state = JSON.parse(JSON.stringify(this.entriesStore.$state));
-      let splitdialog = this.$refs.splitdialog;
-      let dialogStates = splitdialog.getContentsState();
+      let state = JSON.parse(JSON.stringify(this.entriesStore.$state))
+      let splitdialog = this.$refs.splitdialog
+      let dialogStates = splitdialog.getContentsState()
       if (state.entries.length === dialogStates.length) {
         for (let i = 0; i < dialogStates.length; i++) {
-          const entry = state.entries[i];
-          entry.state = dialogStates[i];
+          const entry = state.entries[i]
+          entry.state = dialogStates[i]
           //We do not want to serialise the following properties
-          if (entry.type === "Scaffold" && "viewUrl" in entry)
-            delete entry.viewUrl;
-          if (entry.type === "MultiFlatmap" && "uberonId" in entry)
-            delete entry.uberonId;
+          if (entry.type === 'Scaffold' && 'viewUrl' in entry) delete entry.viewUrl
+          if (entry.type === 'MultiFlatmap' && 'uberonId' in entry) delete entry.uberonId
           if (anonymousAnnotations === false) {
-            if (entry.type === "Scaffold" && entry?.state?.offlineAnnotations) {
-              delete entry.state.offlineAnnotations;
+            if (entry.type === 'Scaffold' && entry?.state?.offlineAnnotations) {
+              delete entry.state.offlineAnnotations
             } else if (entry?.state?.state?.offlineAnnotations) {
-              delete entry.state.state.offlineAnnotations;
+              delete entry.state.state.offlineAnnotations
             }
           }
         }
       }
-      state.splitFlow = this.splitFlowStore.getState();
-      state.globalSettings = this.settingsStore.getGlobalSettings();
+      state.splitFlow = this.splitFlowStore.getState()
+      state.globalSettings = this.settingsStore.getGlobalSettings()
       if (this.$refs.sideBar) {
-        state.sidebar = this.$refs.sideBar.getState();
+        state.sidebar = this.$refs.sideBar.getState()
       }
-      return state;
+      return state
     },
     removeEntry: function (id) {
-      let index = this.entriesStore.findIndexOfId(id);
-      this.entriesStore.destroyEntry(index);
+      let index = this.entriesStore.findIndexOfId(id)
+      this.entriesStore.destroyEntry(index)
     },
     resourceSelected: function (result) {
-      this.$emit("resource-selected", result);
+      this.$emit('resource-selected', result)
     },
     speciesChanged: function (species) {
       if (this.$refs.sideBar) {
         // Use to update the connectivity when switch species
         // Wait for provenance info with uuid update
         this.$nextTick(() => {
-          EventBus.emit('species-layout-connectivity-update');
-          this.$refs.sideBar.close();
+          EventBus.emit('species-layout-connectivity-update')
+          this.$refs.sideBar.close()
         })
       }
     },
     contextUpdate: function (payload) {
-      EventBus.emit("contextUpdate", payload);
+      EventBus.emit('contextUpdate', payload)
     },
     datalinkClicked: function (payload) {
       // payload is dataset URL
-      const datasetURL = payload || '';
-      const substringA = 'datasets/';
-      const substringB = '?type=dataset';
+      const datasetURL = payload || ''
+      const substringA = 'datasets/'
+      const substringB = '?type=dataset'
       const datasetId = datasetURL.substring(
         datasetURL.indexOf(substringA) + substringA.length,
         datasetURL.indexOf(substringB)
-      );
+      )
 
       // GA Tagging
       // Event tracking for map sidebar gallery dataset click
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_gallery_click',
-        'category': datasetURL,
-        'location': 'map_sidebar_gallery',
-        'dataset_id': datasetId || ''
-      });
+        event: 'interaction_event',
+        event_name: 'portal_maps_gallery_click',
+        category: datasetURL,
+        location: 'map_sidebar_gallery',
+        dataset_id: datasetId || '',
+      })
     },
-    onAnnotationSubmitted: function(annotation) {
+    onAnnotationSubmitted: function (annotation) {
       if (this.annotationCallback) {
-        this.annotationCallback(annotation);
+        this.annotationCallback(annotation)
       } else if (this.confirmCommentCallback) {
         this.confirmCommentCallback(annotation)
       }
     },
-    onConfirmCreate: function(payload) {
+    onConfirmCreate: function (payload) {
       if (this.confirmCreateCallback) {
-        this.confirmCreateCallback(payload);
+        this.confirmCreateCallback(payload)
       }
     },
-    onCancelCreate: function() {
+    onCancelCreate: function () {
       if (this.cancelCreateCallback) {
-        this.cancelCreateCallback();
+        this.cancelCreateCallback()
       }
     },
-    onConfirmDelete: function(payload) {
+    onConfirmDelete: function (payload) {
       if (this.confirmDeleteCallback) {
-        this.confirmDeleteCallback(payload);
+        this.confirmDeleteCallback(payload)
       }
     },
     onSidebarTabClicked: function (tab) {
-      let globalSettings = { ...this.settingsStore.globalSettings };
+      let globalSettings = { ...this.settingsStore.globalSettings }
 
       if ('interactiveMode' in globalSettings) {
         if (tab.id === 1 && tab.type === 'datasetExplorer') {
-          globalSettings.interactiveMode = 'dataset';
+          globalSettings.interactiveMode = 'dataset'
         } else if (tab.id === 2 && tab.type === 'connectivityExplorer') {
-          globalSettings.interactiveMode = 'connectivity';
+          globalSettings.interactiveMode = 'connectivity'
         }
-        this.settingsStore.updateGlobalSettings(globalSettings);
+        this.settingsStore.updateGlobalSettings(globalSettings)
       }
 
-      this.$refs.dialogToolbar.loadGlobalSettings();
+      this.$refs.dialogToolbar.loadGlobalSettings()
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 3 && tab.type === "annotation") {
-        EventBus.emit('sidebar-annotation-close');
+      if (tab.id === 3 && tab.type === 'annotation') {
+        EventBus.emit('sidebar-annotation-close')
       }
     },
     updateGlobalSettingsFromState: function (state) {
       if (state?.globalSettings) {
-        this.settingsStore.updateGlobalSettings(state.globalSettings);
+        this.settingsStore.updateGlobalSettings(state.globalSettings)
       }
     },
     trackEvent: function (data) {
-      Tagging.sendEvent(data);
+      Tagging.sendEvent(data)
     },
     updateFlatmapMinimap: function () {
-      const splitdialog = this.$refs.splitdialog;
+      const splitdialog = this.$refs.splitdialog
 
       if (splitdialog) {
-        splitdialog.updateFlatmapMinimap();
+        splitdialog.updateFlatmapMinimap()
       }
     },
   },
   created: function () {
-    this._facets = [];
-    this._externalStateSet = false;
+    this._facets = []
+    this._externalStateSet = false
   },
   mounted: function () {
-    EventBus.on("CreateNewEntry", newView => {
-      this.createNewEntry(newView);
-    });
-    EventBus.on("RemoveEntryRequest", id => {
-      this.removeEntry(id);
-    });
-    EventBus.on("PopoverActionClick", payload => {
-      this.actionClick(payload);
-    });
-    EventBus.on('annotation-open', payload => {
-      this.openAnnotation(payload);
-    });
+    EventBus.on('CreateNewEntry', (newView) => {
+      this.createNewEntry(newView)
+    })
+    EventBus.on('RemoveEntryRequest', (id) => {
+      this.removeEntry(id)
+    })
+    EventBus.on('PopoverActionClick', (payload) => {
+      this.actionClick(payload)
+    })
+    EventBus.on('simulation-open-clicked', (payload) => {
+      this.actionClick(payload)
+    })
+    EventBus.on('annotation-open', (payload) => {
+      this.openAnnotation(payload)
+    })
     EventBus.on('sidebar-annotation-close', () => {
-      const globalSettings = { ...this.settingsStore.globalSettings };
-      const { interactiveMode, viewingMode } = globalSettings;
+      const globalSettings = { ...this.settingsStore.globalSettings }
+      const { interactiveMode, viewingMode } = globalSettings
 
       // Sidebar annotation close event emits whenever viewing mode is changed.
       // if annotation state is being restored on first load for annotation viewing mode,
       // open the anootation tab and return.
       if (this.sidebarAnnotationState && viewingMode === 'Annotation') {
-        this.sidebarAnnotationState = false;
-        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
-        return;
+        this.sidebarAnnotationState = false
+        this.$refs.sideBar.tabClicked({ id: 3, type: 'annotation' })
+        return
       }
 
-      this.annotationEntry = [];
-      this.createData = {};
+      this.annotationEntry = []
+      this.createData = {}
 
       if (this.$refs.sideBar) {
-        if (interactiveMode === "dataset") {
-          this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
-        } else if (interactiveMode === "connectivity") {
-          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+        if (interactiveMode === 'dataset') {
+          this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' })
+        } else if (interactiveMode === 'connectivity') {
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' })
         }
 
-        this.$refs.sideBar.closeConnectivity();
-        EventBus.emit('connectivity-item-close');
+        this.$refs.sideBar.closeConnectivity()
+        EventBus.emit('connectivity-item-close')
       }
-    });
+    })
     EventBus.on('update-offline-annotation-enabled', (payload) => {
-      this.settingsStore.updateOfflineAnnotationEnabled(payload);
-    });
-    EventBus.on('connectivity-info-open', payload => {
-      this.openConnectivityInfo(payload);
-    });
-    EventBus.on('connectivity-info-close', payload => {
+      this.settingsStore.updateOfflineAnnotationEnabled(payload)
+    })
+    EventBus.on('connectivity-info-open', (payload) => {
+      this.openConnectivityInfo(payload)
+    })
+    EventBus.on('connectivity-info-close', (payload) => {
       if (this.$refs.sideBar) {
-        this.connectivityProcessed = false;
-        this.$refs.sideBar.resetConnectivitySearch();
+        this.connectivityProcessed = false
+        this.$refs.sideBar.resetConnectivitySearch()
       }
-    });
-    EventBus.on('connectivity-error', payload => {
+    })
+    EventBus.on('connectivity-error', (payload) => {
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.updateConnectivityError(payload.data);
+        this.$refs.sideBar.updateConnectivityError(payload.data)
       }
-    });
-    EventBus.on('neuron-connection-feature-click', payload => {
+    })
+    EventBus.on('neuron-connection-feature-click', (payload) => {
       if (this.$refs.sideBar) {
-        const { filters, search } = payload;
-        this.$refs.sideBar.openConnectivitySearch(filters, search);
-        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
-        this.$refs.sideBar.setDrawerOpen(true);
+        const { filters, search } = payload
+        this.$refs.sideBar.openConnectivitySearch(filters, search)
+        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' })
+        this.$refs.sideBar.setDrawerOpen(true)
       }
-    });
-    EventBus.on("OpenNewMap", type => {
-      this.updateFlatmapMinimap();
-      this.openNewMap(type);
-    });
-    EventBus.on("startHelp", () => {
+    })
+    EventBus.on('OpenNewMap', (type) => {
+      this.updateFlatmapMinimap()
+      this.openNewMap(type)
+    })
+    EventBus.on('startHelp', () => {
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.close();
+        this.$refs.sideBar.close()
       }
-    });
-    EventBus.on("connectivity-knowledge", payload => {
-      this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = payload.highlight;
-      this.connectivityProcessed = payload.processed;
+    })
+    EventBus.on('connectivity-knowledge', (payload) => {
+      this.connectivityKnowledge = payload.data
+      this.connectivityHighlight = payload.highlight
+      this.connectivityProcessed = payload.processed
 
       // Restore sidebar state if it exists and not restored yet
       // after loading connectivity knowledge
-      this.restoreSidebarState(this.state);
+      this.restoreSidebarState(this.state)
     })
-    EventBus.on("modeUpdate", payload => {
-      if (payload === "dataset") {
-        this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
-      } else if (payload === "connectivity") {
-        this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+    EventBus.on('modeUpdate', (payload) => {
+      if (payload === 'dataset') {
+        this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' })
+      } else if (payload === 'connectivity') {
+        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' })
       }
     })
-    EventBus.on("connectivity-filter-options", payload => {
-      this.filterOptions = payload;
+    EventBus.on('connectivity-filter-options', (payload) => {
+      this.filterOptions = payload
     })
     this.$nextTick(() => {
-      if (this.search === "" && this._facets.length === 0) {
+      if (this.search === '' && this._facets.length === 0) {
         if (this.$refs.sideBar) {
-          this.$refs.sideBar.close();
+          this.$refs.sideBar.close()
         }
         setTimeout(() => {
-          this.startUp = false;
-        }, 2000);
-      } else this.openSearch(this._facets, this.search);
-    });
+          this.startUp = false
+        }, 2000)
+      } else this.openSearch(this._facets, this.search)
+    })
   },
   computed: {
-    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
+    ...mapStores(useEntriesStore, useSettingsStore, useSimulationPlotStore, useSplitFlowStore, useConnectivitiesStore),
     envVars: function () {
       return {
         API_LOCATION: this.settingsStore.sparcApi,
@@ -1082,13 +1142,14 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
-      };
+        TEST_DATA_LOCATION: this.settingsStore.testDataLocation,
+      }
     },
-    entries: function() {
-      return this.entriesStore.entries;
+    entries: function () {
+      return this.entriesStore.entries
     },
   },
-};
+}
 </script>
 
 <style scoped lang="scss">
@@ -1128,5 +1189,4 @@ export default {
     }
   }
 }
-
 </style>
