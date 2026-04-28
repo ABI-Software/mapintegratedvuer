@@ -289,8 +289,10 @@ export default {
         this.scaffoldRef = markRaw(this.$refs.scaffold);
         if (this.scaffoldRef) {
           this.loadExplorerConfig();
+          this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
+          this.connectivityFilterOptions = this.connectivitiesStore.filterOptions;
+          this.connectivityFilterSources = this.connectivitiesStore.filterSources;
         }
-      } else {
       }
       this.updateViewerSettings();
       EventBus.emit("mapLoaded", this.$refs.scaffold);
@@ -382,6 +384,9 @@ export default {
               this.scaffoldRef = markRaw(this.$refs.scaffold);
               if (this.scaffoldRef) {
                 this.loadExplorerConfig();
+                this.connectivityKnowledge = this.connectivitiesStore.globalConnectivities;
+                this.connectivityFilterOptions = this.connectivitiesStore.filterOptions;
+                this.connectivityFilterSources = this.connectivitiesStore.filterSources;
               }
             }
           });
