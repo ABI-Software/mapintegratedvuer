@@ -1,6 +1,7 @@
 <template>
   <div class="viewer-container">
     <ScaffoldVuer
+      v-if="activated"
       :state="entry.state"
       :url="entry.resource"
       :region="entry.region"
@@ -53,6 +54,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { markRaw } from "vue";
 import EventBus from "../EventBus";
 import ContentMixin from "../../mixins/ContentMixin";
 
@@ -71,61 +73,67 @@ export default {
   },
   methods: {
     showConnectivitiesByReference: async function (resource) {
-      const flatmapKnowledge = sessionStorage.getItem('flatmap-knowledge');
-      let featureIds = [];
-      if (flatmapKnowledge) {
-        featureIds = await getReferenceConnectivitiesFromStorage(resource);
-      } else {
-        featureIds = await getReferenceConnectivitiesByAPI(this.flatmapService.mapImp, resource, this.flatmapService.flatmapQueries);
-      }
-      const nerveLabels = [];
-      for (const id of featureIds) {
-        const knowledge = this.nervesKnowledge.find(k => k.id === id);
-        if (!knowledge) continue;
-
-        const nerves = knowledge['nerve-label'];
-        if (nerves) {
-          const subNerves = nerves.flatMap(n => n.subNerves);
-          nerveLabels.push(...subNerves);
+      if (this.$refs.scaffold) {
+        const flatmapKnowledge = sessionStorage.getItem('flatmap-knowledge');
+        let featureIds = [];
+        if (flatmapKnowledge) {
+          featureIds = await getReferenceConnectivitiesFromStorage(resource);
+        } else {
+          featureIds = await getReferenceConnectivitiesByAPI(this.flatmapService.mapImp, resource, this.flatmapService.flatmapQueries);
         }
+        const nerveLabels = [];
+        for (const id of featureIds) {
+          const knowledge = this.nervesKnowledge.find(k => k.id === id);
+          if (!knowledge) continue;
+
+          const nerves = knowledge['nerve-label'];
+          if (nerves) {
+            const subNerves = nerves.flatMap(n => n.subNerves);
+            nerveLabels.push(...subNerves);
+          }
+        }
+        this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
       }
-      this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
     },
     setNerveGreyScale: function () {
-      if (this.nervesKnowledge.length) {
-        const nerves = this.nervesKnowledge.reduce((acc, val) => {
-          return acc.concat(val['nerve-label'] || []);
-        }, []);
-        const excludedLabels = nerves.reduce((acc, nerve) => {
-          return acc.concat(nerve.subNerves || []);
-        }, []);
-        this.$refs.scaffold.setGreyScale(true, excludedLabels);
+      if (this.$refs.scaffold) {
+        if (this.nervesKnowledge.length) {
+          const nerves = this.nervesKnowledge.reduce((acc, val) => {
+            return acc.concat(val['nerve-label'] || []);
+          }, []);
+          const excludedLabels = nerves.reduce((acc, nerve) => {
+            return acc.concat(nerve.subNerves || []);
+          }, []);
+          this.$refs.scaffold.setGreyScale(true, excludedLabels);
+        }
       }
     },
     setVisibilityFilter: function (payload) {
-      let names = [];
-      const processed = payload ? true : false;
-      if (payload) {
-        const ids = [];
-        payload['OR'].forEach(orData => {
-          if ('AND' in orData) {
-            if (orData['AND'].length >= 2 && 'models' in orData['AND'][1]) {
-              ids.push(...orData['AND'][1]['models']);
+      if (this.$refs.scaffold) {
+        let names = [];
+        const processed = payload ? true : false;
+        if (payload) {
+          const ids = [];
+          payload['OR'].forEach(orData => {
+            if ('AND' in orData) {
+              if (orData['AND'].length >= 2 && 'models' in orData['AND'][1]) {
+                ids.push(...orData['AND'][1]['models']);
+              }
+            }
+          });
+          for (const id of ids) {
+            const nerveKnowledge = this.nervesKnowledge.find((knowledge) => knowledge.id === id);
+            if (nerveKnowledge) {
+              const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
+              names.push(...nerves);
             }
           }
-        });
-        for (const id of ids) {
-          const nerveKnowledge = this.nervesKnowledge.find((knowledge) => knowledge.id === id);
-          if (nerveKnowledge) {
-            const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
-            names.push(...nerves);
-          }
         }
+        this.$refs.scaffold.zoomToNerves(names, processed);
       }
-      this.$refs.scaffold.zoomToNerves(names, processed);
     },
     syncFilter: function (data) {
-      if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
+      if (this.$refs.scaffold?.viewingMode === "Neuron Connection") {
         this.filter = data.filter(f => f.facet?.toLowerCase() !== 'show all');
       }
     },
@@ -217,16 +225,27 @@ export default {
       }
     },
     onResize: function () {
-      this.scaffoldCamera.onResize();
+      if (!this.scaffoldCamera) {
+        this.scaffoldCamera = markRaw(this.$refs.scaffold?.$module?.scene?.getZincCameraControls());
+      }
+      if (this.scaffoldCamera) {
+        this.scaffoldCamera.onResize();
+      }
     },
     getState: function () {
-      return this.$refs.scaffold.getState();
+      if (this.$refs.scaffold) {
+        return this.$refs.scaffold.getState();
+      } else {
+        return this.entry.state;
+      }
     },
     /**
      * Perform a local search on this contentvuer
      */
     search: function (term) {
-      return this.$refs.scaffold.search(term, true);
+      if (this.$refs.scaffold) {
+        return this.$refs.scaffold.search(term, true);
+      }
     },
     searchSuggestions: function(term, suggestions){
       if (term === "" || !this.$refs.scaffold) {
@@ -238,33 +257,40 @@ export default {
       });
     },
     showConnectivityTooltips: function (payload) {
-      if (payload.label) {
-        this.$refs.scaffold.changeHighlightedByName([payload.label], "", false);
-        this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
-      } else {
-        const nerves = payload.connectivityInfo['nerve-label'];
-        if (nerves) {
-          const nerveLabels = nerves.flatMap(n => n.subNerves);
-          this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
+      if (this.$refs.scaffold) {
+        if (payload.label) {
+          this.$refs.scaffold.changeHighlightedByName([payload.label], "", false);
+          this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
+        } else {
+          const nerves = payload.connectivityInfo['nerve-label'];
+          if (nerves) {
+            const nerveLabels = nerves.flatMap(n => n.subNerves);
+            this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
+          }
+          this.$refs.scaffold.hideRegionTooltip();
         }
-        this.$refs.scaffold.hideRegionTooltip();
       }
     },
     zoomToFeatures: function(info, forceSelect) {
-      let names = undefined;
-      if (Array.isArray(info)) names = info;
-      else names = [ info.name ];
-      if (forceSelect) {
-        this.$refs.scaffold.changeActiveByName(names, "", false);
+      if (this.$refs.scaffold) {
+        let names = undefined;
+        if (Array.isArray(info)) names = info;
+        else names = [ info.name ];
+        if (forceSelect) {
+          this.$refs.scaffold.changeActiveByName(names, "", false);
+        }
+        this.$refs.scaffold.viewRegion(names);
       }
-      this.$refs.scaffold.viewRegion(names);
     },
     scaffoldIsReady: function () {
       this.scaffoldLoaded = true;
       this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
-      if (this.visible) {
-        let rotation = "free";
-        if (this.entry.rotation) rotation = this.entry.rotation;
+      if (!this.scaffoldRef) {
+        this.scaffoldRef = markRaw(this.$refs.scaffold);
+        if (this.scaffoldRef) {
+          this.loadExplorerConfig();
+        }
+      } else {
       }
       this.updateViewerSettings();
       EventBus.emit("mapLoaded", this.$refs.scaffold);
@@ -306,25 +332,31 @@ export default {
       }
     },
     updateWithViewUrl: function(viewUrl) {
-      this.$refs.scaffold.updateViewURL(viewUrl);
+      if (this.$refs.scaffold) {
+        this.$refs.scaffold.updateViewURL(viewUrl);
+      }
     },
     /**
      * Change the view mode of the current scaffold
      */
     changeViewingMode: function (modeName) {
-      this.$refs.scaffold.changeViewingMode(modeName);
+      if (this.$refs.scaffold) {
+        this.$refs.scaffold.changeViewingMode(modeName);
+      }
     },
     updateViewerSettings: function () {
-      const {
-        backgroundDisplay,
-        organsDisplay,
-        outlinesDisplay,
-        viewingMode,
-      } = this.settingsStore.globalSettings;
-      this.$refs.scaffold.backgroundChangeCallback(backgroundDisplay);
-      this.$refs.scaffold.changeViewingMode(viewingMode);
-      this.$refs.scaffold.setColour(organsDisplay);
-      this.$refs.scaffold.setOutlines(outlinesDisplay);
+      if (this.$refs.scaffold) {
+        const {
+          backgroundDisplay,
+          organsDisplay,
+          outlinesDisplay,
+          viewingMode,
+        } = this.settingsStore.globalSettings;
+        this.$refs.scaffold.backgroundChangeCallback(backgroundDisplay);
+        this.$refs.scaffold.changeViewingMode(viewingMode);
+        this.$refs.scaffold.setColour(organsDisplay);
+        this.$refs.scaffold.setOutlines(outlinesDisplay);
+      }
     },
   },
   computed: {
@@ -340,6 +372,24 @@ export default {
     },
   },
   watch: {
+    visible: {
+      handler(visible) {
+        // Only activate scaffoldvuer when the pane becomes active
+        if (visible && (!this.activated)) {
+          this.activated = true;
+          this.$nextTick(() => {
+            if (this.$refs.scaffold) {
+              this.scaffoldRef = markRaw(this.$refs.scaffold);
+              if (this.scaffoldRef) {
+                this.loadExplorerConfig();
+              }
+            }
+          });
+        }
+      },
+      deep: true,
+      immediate: true,
+    },
     connectivityKnowledge: {
       handler(newVal, oldVal) {
         // Store scaffold knowledge locally
@@ -359,6 +409,7 @@ export default {
   },
   data: function () {
     return {
+      activated: false,
       apiLocation: process.env.VUE_APP_API_LOCATION,
       scaffoldCamera: undefined,
       scaffoldLoaded: false,
@@ -367,10 +418,6 @@ export default {
       filter: [],
       query: '',
     };
-  },
-  mounted: function () {
-    this.scaffoldCamera =
-      this.$refs.scaffold.$module.scene.getZincCameraControls();
   },
 };
 </script>
