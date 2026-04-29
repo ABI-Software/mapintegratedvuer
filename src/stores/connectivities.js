@@ -8,6 +8,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
       globalConnectivities: {},
       filterOptions: {},
       filterSources: {},
+      connectivitiesUpdated: true,
     };
   },
   getters: {
@@ -74,11 +75,19 @@ export const useConnectivitiesStore = defineStore('connectivities', {
       if (!listsAreEqual(this.activeConnectivityKeys, activeConnectivityKeys)) {
         this.activeConnectivityKeys = activeConnectivityKeys;
         return true;
+      } else if (this.connectivitiesUpdated) {
+        this.connectivitiesUpdated = !activeConnectivityKeys.every(ele => ele in this.globalConnectivities);
+        return true;
       }
       return false;
     },
     updateGlobalConnectivities(globalConnectivities) {
-      this.globalConnectivities = globalConnectivities;
+      if (globalConnectivities) {
+        if (JSON.stringify(globalConnectivities) !== JSON.stringify(this.globalConnectivities)) {
+          this.globalConnectivities = globalConnectivities;
+          this.connectivitiesUpdated = true;
+        }
+      }
     },
     updateFilterOptions(filterOptions) {
       this.filterOptions = filterOptions;
