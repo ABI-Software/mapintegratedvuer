@@ -353,7 +353,6 @@ export default {
       const uniqueFilters = this.connectivitiesStore.getUniqueFilterOptionsByKeys;
       const uniqueFilterSources = this.connectivitiesStore.getUniqueFilterSourcesByKeys;
       let results = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
-
       for (const activeContent of activeContents) {
         const viewer = activeContent.$refs.viewer;
         if (viewer) {
