@@ -1,5 +1,5 @@
 <template>
-  <div class="viewer-container">
+  <div class="viewer-container" @mouseenter="onViewerMouseEnter">
     <MapUtilitiesConnectivityGraph
       :entry="graphEntry"
       :mapServer="mapServer"
@@ -83,17 +83,22 @@ export default {
     },
   },
   methods: {
+    highlightConnectivity: function () {
+      let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
+      hoverConnectivity = [this.graphEntry];
+      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
+      EventBus.emit("hoverUpdate", { connectivityProcessed: false });
+    },
+    onViewerMouseEnter: function () {
+      this.highlightConnectivity();
+    },
     onTapNode: function (data) {
       const name = data.map(t => t.label).join(', ');
-      this.onConnectivityHovered(name);
-
-      // Hover outside of node area
-      if (!name) {
-        EventBus.emit('show-connectivity', {
-          featureIds: [this.entry.resource]
-        });
+      if (name) {
+        this.onConnectivityHovered(name);
+      } else {
+        this.highlightConnectivity();
       }
-
     },
     onConnectivityHovered: function (label) {
       const payload = {
