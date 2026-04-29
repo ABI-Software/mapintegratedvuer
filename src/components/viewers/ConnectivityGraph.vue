@@ -102,7 +102,7 @@ export default {
     },
     onConnectivityHovered: function (label) {
       const payload = {
-        connectivityInfo: this.graphEntry,
+        connectivityInfo: this.entry.connectivityInfo,
         label: label,
         data: label ? this.getConnectivityDatasets(label) : [],
       };

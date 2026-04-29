@@ -596,6 +596,7 @@ export default {
     onShowConnectivityGraph: function (data) {
       const previousPrimaryId = this.splitFlowStore.customLayout?.['pane-1']?.id;
       const connectivityGraphId = this.createNewEntry({
+        connectivityInfo: data.connectivityInfo,
         resource: data.entry,
         type: 'ConnectivityGraph',
         label: data.title || data.label || data.entry ||'Connectivity Graph',
