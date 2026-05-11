@@ -110,10 +110,15 @@ const getAllFacetLabels = (children) => {
   return labels;
 }
 
+const getFacetsFromAction = (action) => {
+  const actionFacets = action.facets ? action.facets : action.labels ? action.labels : [];
+  return actionFacets;
+}
 
 const getAnatomyTermsForFilters = (action, availableNameCurieMapping) => {
   const facets = [];
-  for (const facet of action.facets) {
+  const actionFacets = getFacetsFromAction(action);
+  for (const facet of actionFacets) {
     if (facet in availableNameCurieMapping) {
       facets.push(availableNameCurieMapping[facet]);
     } else {
@@ -327,7 +332,8 @@ export default {
             };
             const filters = [];
             const facets = getAnatomyTermsForFilters(action, this.availableNameCurieMapping);
-            const facetString = action.facets.join(', ');
+            const actionFacets = getFacetsFromAction(action);
+            const facetString = actionFacets.join(', ');
             facets.forEach(facet => filters.push({...sendAction, facet}));
             this.$refs.sideBar.addFilter(filters);
             // GA Tagging
