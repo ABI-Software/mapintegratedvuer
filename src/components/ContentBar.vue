@@ -17,64 +17,70 @@
           :value="entry.id"
         />
       </el-select>
-      <div v-else class="toolbar-title">
+      <div v-else class="toolbar-title shrink">
         {{ getEntryTitle(entry) }}
       </div>
-    </div>
-    <el-row class="icon-group">
-      <el-popover
-        placement="bottom"
-        :teleported="false"
-        trigger="manual"
-        :width="setPopperWidth(slot.id)"
-        :offset="0"
-        popper-class="context-card-popover"
-        :popper-options="popperOptions"
-        :visible="contextCardVisible"
+      <el-button
+        v-if="hasSourceInfo"
+        round
+        size="small"
+        class="source-chip shrink"
+        @click="openSourceInfo"
       >
-        <template #default v-if="contextCardEntry">
-          <flatmap-context-card
-            class="flatmap-context-card"
-            v-if="(contextCardEntry.type == 'Flatmap' ||
-                  contextCardEntry.type == 'MultiFlatmap')"
-            :mapImpProv="contextCardEntry.mapImpProv"
-          />
-          <context-card
-            v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
-            :entry="contextCardEntry"
-            :envVars="envVars"
-            class="context-card"
-            @context-ready="contextCardVisible = true"
-            @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
-          />
-        </template>
-        <template #reference>
-          <div v-show="contextCardEntry">
-            <div v-show="contextCardVisible" class="hide" @click="contextCardVisible = false">
-              Hide information
-              <el-icon><el-icon-arrow-up /></el-icon>
+        {{ getSourceTitle }}
+      </el-button>
+      <div class="information-group shrink">
+        <el-popover
+          placement="bottom"
+          :teleported="false"
+          trigger="manual"
+          :width="setPopperWidth(slot.id)"
+          :offset="0"
+          popper-class="context-card-popover"
+          :popper-options="popperOptions"
+          :visible="contextCardVisible"
+        >
+          <template #default v-if="contextCardEntry">
+            <flatmap-context-card
+              class="flatmap-context-card"
+              v-if="(contextCardEntry.type == 'Flatmap' ||
+                contextCardEntry.type == 'MultiFlatmap')"
+              :mapImpProv="contextCardEntry.mapImpProv"
+            />
+            <context-card
+              v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
+              :entry="contextCardEntry"
+              :envVars="envVars"
+              class="context-card"
+              @context-ready="contextCardVisible = true"
+              @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
+            />
+          </template>
+          <template #reference>
+            <div v-show="contextCardEntry">
+              <div v-show="contextCardVisible" class="hide" @click="contextCardVisible = false">
+                Hide information
+                <el-icon><el-icon-arrow-up /></el-icon>
+              </div>
+              <div v-show="!contextCardVisible" class="hide" @click="contextCardVisible = true">
+                Show information
+                <el-icon><el-icon-arrow-down /></el-icon>
+              </div>
             </div>
-            <div v-show="!contextCardVisible" class="hide" @click="contextCardVisible = true">
-              Show information
-              <el-icon><el-icon-arrow-down /></el-icon>
-            </div>
-          </div>
-        </template>
-      </el-popover>
+          </template>
+        </el-popover>
+      </div>
       <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :show-after="helpDelay"
         :teleported=false trigger="hover" popper-class="header-popper" >
         <template #reference>
-          <map-svg-icon icon="close-no-bk" class="header-icon"
+          <map-svg-icon icon="close-no-bk" class="header-icon rightmost"
             v-show="(activeView !== 'singlepanel') && ((entry.mode !== 'main') || allClosable )"
             @click="closeAndRemove()"/>
           </template>
       </el-popover>
-
-    </el-row>
-
+    </div>
   </div>
 </template>
-
 
 <script>
 /* eslint-disable no-alert, no-console */
@@ -89,7 +95,6 @@ import FlatmapContextCard from './FlatmapContextCard.vue';
 import {
   ArrowDown as ElIconArrowDown,
   ArrowUp as ElIconArrowUp,
-  InfoFilled as ElIconInfoFilled,
 } from '@element-plus/icons-vue'
 import {
   ElInput as Input,
@@ -105,7 +110,6 @@ export default {
   components: {
     ElIconArrowDown,
     ElIconArrowUp,
-    ElIconInfoFilled,
     Input,
     Option,
     Popover,
@@ -134,6 +138,18 @@ export default {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     allClosable() {
       return this.settingsStore.allClosable;
+    },
+    getSourceTitle: function() {
+      if (this.entry) {
+        if (this.entry.doi) {
+          return this.entry.doi.replace("https://doi.org/", "");
+        } else if (this.entry.connectivityInfo) {
+          return "SCKAN";
+        }
+      }
+    },
+    hasSourceInfo() {
+      return this.entry.doi || this.entry.connectivityInfo;
     },
     helpDelay() {
       return this.settingsStore.helpDelay;
@@ -239,6 +255,17 @@ export default {
       const character = ' (' + String.fromCharCode(65 + id) + ')';
       return character;
     },
+    openSourceInfo: function() {
+      if (this.entry.doi) {
+        const returnedAction = {
+          type: "Search",
+          term: this.entry.doi.replace("https://doi.org/", ""),
+        };
+        EventBus.emit("PopoverActionClick", returnedAction);
+      } else if (this.entry.connectivityInfo) {
+        EventBus.emit('connectivity-info-open', [this.entry.connectivityInfo]);
+      }
+    },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
         this.splitFlowStore.assignOrSwapPaneWithIds({
@@ -302,23 +329,39 @@ export default {
 @use "../assets/header-icon.scss";
 
 
-.toolbar-title {
-  width: 160px;
-  height: 20px;
-  color: $app-primary-color;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 20px;
-  margin-left: 1rem;
-  margin-top: 4px;
-}
-
 .toolbar-flex-container {
   display:flex;
   flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
+
+  .shrink {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow:hidden;
+  }
+
+  .information-group {
+    margin-left: auto;
+  }
+
+  .toolbar-title {
+    max-width: 160px;
+    height: 20px;
+    color: $app-primary-color;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 20px;
+    margin-left: 1rem;
+    margin-top: 6px;
+  }
+
   .select-box {
-    max-width: 300px;
+    max-width: 200px;
     z-index: 5;
+    flex-shrink: 1;
+    min-width: 0;
     :deep(.el-select__wrapper) {
       color: $app-primary-color;
       height: 29px;
@@ -328,7 +371,7 @@ export default {
       margin-top: 1px;
       margin-left: 8px;
       padding-left: 8px;
-      padding-right: 8px;
+      padding-right: 2px;
       box-shadow: none !important;
       background: transparent;
       span {
@@ -373,6 +416,55 @@ export default {
     width: 140px;
     color: $app-primary-color;
   }
+
+  :deep(.info-icon) {
+    margin-top: 6px;
+    font-size: 20px;
+    color: $app-primary-color;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .source-chip {
+    padding: 4px;
+    margin-left: 2px;
+    margin-right:2px;
+    background-color: $app-primary-color;
+    border-color: $app-primary-color;
+    color: #fff;
+    font-size: 11px;
+    &:hover {
+      color: #fff !important;
+      background-color: #ac76c5 !important;
+      border: 1px solid #ac76c5 !important;
+    }
+    span {
+      text-overflow: ellipsis;
+    }
+  }
+
+  :deep(.el-tooltip__trigger) {
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .rightmost {
+    flex-shrink: 0;
+  }
+
+  .hide {
+    font-size: 12px;
+    margin-top: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    color: $app-primary-color;
+    cursor: pointer;
+  }
+
 }
 
 .viewer_dropdown {
@@ -384,46 +476,6 @@ export default {
       color: $app-primary-color;
       font-weight: normal;
     }
-  }
-}
-
-.hide{
-  color: $app-primary-color;
-  cursor: pointer;
-  margin-right: 6px;
-  margin-top: 8px;
-}
-
-.icon-group {
-  position: relative;
-  top: auto;
-  font-size: 12px;
-  align-items: center;
-
-  :deep(.el-tooltip__trigger) {
-    height: 100%;
-    display: flex;
-    align-items: center;
-  }
-
-  .hide {
-    margin-top: 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 4px;
-  }
-}
-
-.info-icon {
-  margin-top: 2px;
-  margin-right: 8px;
-  font-size: 28px;
-  color: $app-primary-color;
-  cursor: pointer;
-  &::before { // since the icon is a font, we need to adjust the vertical alignment
-    position: relative;
-    top: -2px;
   }
 }
 
@@ -457,4 +509,5 @@ export default {
   width: unset!important;
   background: #fff!important;
 }
+
 </style>
