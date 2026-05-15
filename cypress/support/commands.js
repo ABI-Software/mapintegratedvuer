@@ -57,9 +57,10 @@ Cypress.Commands.add('checkFlatmapProvenanceCard', (species, prevPublicationLink
   cy.get('#flatmap-select').click({force: true} );
   cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
   cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
-  cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');      cy.get('.el-row > div[style=""]').click()
+  cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');
+  cy.get('.information-group > div.el-tooltip__trigger > :nth-child(2)').click()
   cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
-  cy.get('.flatmap-context-card').trigger('mouseover');
+  cy.get('.flatmap-context-card').trigger('mouseover', {force: true});
   cy.get('.flatmap-context-card').within(() => {
     cy.get('.publication-link').invoke('attr', 'href').as(`${species}_publicationLink`);
 
@@ -175,6 +176,7 @@ Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
   cy.wait(2000);
   const tagTerm = `${mode[0]}:${searchTerm}`
   cy.get('.sidebar-container .filters').should('exist').contains(tagTerm);
+  cy.wait(10000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.sidebar-container .el-card:visible .header .is-link > span').contains('Reset').click({ multiple: true })
   cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
@@ -184,6 +186,7 @@ Cypress.Commands.add('connectivitySearch', (searchTerm) => {
   cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').clear();
   cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm);
   cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
+  cy.wait(10000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
 });
