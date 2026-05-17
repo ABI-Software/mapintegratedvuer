@@ -681,16 +681,17 @@ export default {
 
 :deep(.splitpanes__splitter) {
   margin: 0px 0px 0px 0px !important;
-  z-index: 6 !important;
+  z-index: 10 !important;
+
   &::before {
     content: "";
     position: absolute;
     left: 0;
     top: 0;
     transition: opacity 0.4s;
-    background-color: rgba(131, 0, 191, 0.3) !important;
-    opacity: 0;
+    background-color: #ccc !important;
     z-index: 7 !important;
+
     &:hover {
       opacity: 1;
     }
@@ -699,25 +700,58 @@ export default {
 
 :deep(.splitpanes--horizontal > .splitpanes__splitter),
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
-  background-color: #ccc !important;
+  background-color: #f5f7fa !important;
   border-left: unset;
+
+  &::before {
+    opacity: 1;
+  }
+
+  &::after {
+    background-color: #ccc;
+    opacity: 0;
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
 }
 
 :deep(.splitpanes--horizontal > .splitpanes__splitter) {
-  height: 1px;
+  height: 4px;
+
   &::before {
-    top: -2px;
-    height: 10px;
+    top: 3px;
+    height: 1px;
     width: 100%;
+  }
+
+  &::after {
+    height: 6px;
+    margin-top: -3px;
+  }
+
+  &:hover::before {
+    height: 2px;
   }
 }
 
 :deep(.splitpanes--vertical > .splitpanes__splitter) {
-  width: 1px;
+  width: 4px;
+
   &::before {
-    left: -3px;
-    width: 11px;
+    left: 3px;
+    width: 1px;
     height: 100%;
+  }
+
+  &::after {
+    width: 6px;
+    margin-left: -3px;
+  }
+
+  &:hover::before {
+    width: 2px;
   }
 }
 
