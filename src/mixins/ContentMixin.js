@@ -574,6 +574,9 @@ export default {
     showConnectivityTooltips: function () {
       return;
     },
+    showFeatureInFlatmap: function () {
+      return;
+    },
     setVisibilityFilter: function() {
       return;
     },

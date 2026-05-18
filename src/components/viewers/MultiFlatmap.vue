@@ -200,7 +200,7 @@ export default {
     updateProvCard: function() {
       const imp = this.getFlatmapImp();
       if (imp) {
-        let provClone = {id: this.entry.id, prov: imp.mapMetadata};
+        let provClone = {id: this.entry.id, prov: imp.mapMetadata, species: this.activeSpecies};
         EventBus.emit("mapImpProv", provClone);
         this.$emit("flatmap-provenance-ready", provClone);
       }
@@ -353,6 +353,28 @@ export default {
       if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.showConnectivityTooltips(payload);
+      }
+    },
+    showFeatureInFlatmap: function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+
+        if (payload) {
+          const searchResults = flatmap.searchSuggestions(payload);
+          let geoJSONID = undefined;
+
+          if (searchResults?.results.length) {
+            const featureId = searchResults?.results[0].featureId;
+            geoJSONID = featureId;
+          }
+
+          if (geoJSONID) {
+            flatmap.showPopup(geoJSONID, payload);
+          }
+        } else {
+          flatmap.closeTooltip();
+          this.showConnectivityTooltips({connectivityInfo: null, data: []});
+        }
       }
     },
     showConnectivitiesByReference: function (payload) {

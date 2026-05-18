@@ -31,6 +31,7 @@
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
           :showLongLabel="showLongLabel"
+          :showCellCards="showCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -52,6 +53,7 @@
           @show-connectivity-graph="onShowConnectivityGraph"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
+          @soma-location-hovered="showSomaLocation"
           @trackEvent="trackEvent"
         />
         <SplitDialog
@@ -59,6 +61,7 @@
           ref="splitdialog"
           @resource-selected="resourceSelected"
           @species-changed="speciesChanged"
+          @update-active-species="updateActiveSpeciesForEntries"
         />
       </div>
     </el-main>
@@ -157,6 +160,10 @@ export default {
     showLongLabel: {
       type: Boolean,
       default: true,
+    },
+    showCellCards: {
+      type: Boolean,
+      default: false,
     },
   },
   data: function () {
@@ -595,6 +602,9 @@ export default {
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', data);
     },
+    showSomaLocation: function (name) {
+      EventBus.emit('soma-location-hovered', name);
+    },
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);
       EventBus.emit('connectivity-source-change', data);
@@ -890,6 +900,11 @@ export default {
         })
       }
     },
+    updateActiveSpeciesForEntries: function (activeSpecies) {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.updateActiveSpeciesForEntries(activeSpecies);
+      }
+    },
     contextUpdate: function (payload) {
       EventBus.emit("contextUpdate", payload);
     },
@@ -1089,6 +1104,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
+        CELL_CARDS_API: this.settingsStore.cellCardsApi,
       };
     },
     entries: function() {

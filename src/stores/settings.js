@@ -12,6 +12,7 @@ export const useSettingsStore = defineStore('settings', {
       algoliaId: undefined,
       pennsieveApi: undefined,
       flatmapAPI: undefined,
+      cellCardsApi: undefined,
       mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
@@ -109,6 +110,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateFlatmapAPI(flatmapAPI) {
       this.flatmapAPI = flatmapAPI;
+    },
+    updateCellCardsApi(cellCardsApi) {
+      this.cellCardsApi = cellCardsApi;
     },
     updateMapManager(mapManager) {
       this.mapManager = mapManager;
