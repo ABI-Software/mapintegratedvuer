@@ -25,7 +25,7 @@
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
                 <el-button @click="toggleLongLabel()" size="small">Toggle Long Label</el-button>
-                <el-button @click="toggleCellCards()" size="small">Toggle Cell Cards</el-button>
+                <el-button @click="showCellCardExplorer()" size="small">Show Cell Card Explorer</el-button>
               </div>
             </div>
             <template #reference>
@@ -319,8 +319,8 @@ export default {
     toggleLongLabel: function() {
       this.showLongLabel = !this.showLongLabel;
     },
-    toggleCellCards: function() {
-      this.showCellCards = !this.showCellCards;
+    showCellCardExplorer: function() {
+      this.showCellCards = true;
     },
     mapIsLoaded: function(map) {
       console.log("map is loaded", map)
