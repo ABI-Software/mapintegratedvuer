@@ -53,6 +53,7 @@
           @show-connectivity-graph="onShowConnectivityGraph"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
+          @soma-location-hovered="showSomaLocation"
           @trackEvent="trackEvent"
         />
         <SplitDialog
@@ -600,6 +601,9 @@ export default {
     },
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', data);
+    },
+    showSomaLocation: function (name) {
+      EventBus.emit('soma-location-hovered', name);
     },
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);

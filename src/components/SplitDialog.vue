@@ -643,6 +643,12 @@ export default {
         content.onShowConnectivityTooltips(payload);
       });
     });
+    EventBus.on('soma-location-hovered', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowFeatureInFlatmap(payload);
+      });
+    });
     EventBus.on('connectivity-source-change', (payload) => {
       const contents = this.getActiveContents();
       //Use ongoingSource array to make sure, the knowledge

@@ -355,6 +355,28 @@ export default {
         flatmap.showConnectivityTooltips(payload);
       }
     },
+    showFeatureInFlatmap: function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+
+        if (payload) {
+          const searchResults = flatmap.searchSuggestions(payload);
+          let geoJSONID = undefined;
+
+          if (searchResults?.results.length) {
+            const featureId = searchResults?.results[0].featureId;
+            geoJSONID = featureId;
+          }
+
+          if (geoJSONID) {
+            flatmap.showPopup(geoJSONID, payload);
+          }
+        } else {
+          flatmap.closeTooltip();
+          this.showConnectivityTooltips({connectivityInfo: null, data: []});
+        }
+      }
+    },
     showConnectivitiesByReference: function (payload) {
       if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
