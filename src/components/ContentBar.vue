@@ -344,6 +344,8 @@ export default {
 
   .information-group {
     margin-left: auto;
+    margin-right: 12px;
+    height: 100%;
   }
 
   .toolbar-title {
@@ -354,14 +356,15 @@ export default {
     font-weight: normal;
     line-height: 20px;
     margin-left: 1rem;
-    margin-top: 6px;
   }
 
   .select-box {
+    width: fit-content;
     max-width: 200px;
+    min-width: 0;
     z-index: 5;
     flex-shrink: 1;
-    min-width: 0;
+
     :deep(.el-select__wrapper) {
       color: $app-primary-color;
       height: 29px;
