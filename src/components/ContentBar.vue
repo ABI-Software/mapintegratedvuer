@@ -159,10 +159,6 @@ export default {
     },
     envVars: function () {
       return {
-        API_LOCATION: this.settingsStore.sparcApi,
-        ALGOLIA_INDEX: this.settingsStore.algoliaIndex,
-        ALGOLIA_KEY: this.settingsStore.algoliaKey,
-        ALGOLIA_ID: this.settingsStore.algoliaId,
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
       };

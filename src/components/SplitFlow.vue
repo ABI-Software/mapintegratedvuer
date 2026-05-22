@@ -20,6 +20,7 @@
       >
         <SideBar
           ref="sideBar"
+          :tabs="tabs"
           :envVars="envVars"
           :visible="sideBarVisibility"
           :class="['side-bar', { 'start-up': startUp }]"
@@ -186,6 +187,9 @@ export default {
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
+      tabs: [
+        { title: 'Connectivity Explorer', id: 1, type: 'connectivityExplorer', closable: false }
+      ]
     }
   },
   watch: {
@@ -764,11 +768,13 @@ export default {
       return newEntry.id;
     },
     openNewMap: async function (type) {
+      /*
       const entry = await getNewMapEntry(type, this.settingsStore.sparcApi);
       this.createNewEntry(entry);
       if (entry.contextCard) {
         EventBus.emit("contextUpdate", entry.contextCard);
       }
+      */
     },
     openSearch: function (facets, query) {
       // Keep the species facets currently unused
@@ -1082,11 +1088,6 @@ export default {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     envVars: function () {
       return {
-        API_LOCATION: this.settingsStore.sparcApi,
-        ALGOLIA_INDEX: this.settingsStore.algoliaIndex,
-        ALGOLIA_KEY: this.settingsStore.algoliaKey,
-        ALGOLIA_ID: this.settingsStore.algoliaId,
-        PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
       };

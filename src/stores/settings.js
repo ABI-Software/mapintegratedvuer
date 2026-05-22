@@ -6,11 +6,6 @@ export const useSettingsStore = defineStore('settings', {
   state: () => {
     return {
       shareLink: undefined,
-      sparcApi: undefined,
-      algoliaIndex: "k-core_dev_published_time_desc",
-      algoliaKey: undefined,
-      algoliaId: undefined,
-      pennsieveApi: undefined,
       flatmapAPI: undefined,
       mapManager: undefined,
       rootUrl: undefined,
@@ -91,21 +86,6 @@ export const useSettingsStore = defineStore('settings', {
   actions: {
     updateShareLink(newLink) {
       this.shareLink = newLink;
-    },
-    updateSparcAPI(api) {
-      this.sparcApi = api;
-    },
-    updateAlgoliaIndex(algoliaIndex) {
-      this.algoliaIndex = algoliaIndex;
-    },
-    updateAlgoliaKey(algoliaKey) {
-      this.algoliaKey = algoliaKey;
-    },
-    updateAlgoliaId(algoliaId) {
-      this.algoliaId = algoliaId;
-    },
-    updatePennsieveApi(pennsieveApi) {
-      this.pennsieveApi = pennsieveApi;
     },
     updateFlatmapAPI(flatmapAPI) {
       this.flatmapAPI = flatmapAPI;

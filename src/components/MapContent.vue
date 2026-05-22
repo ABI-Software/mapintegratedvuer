@@ -28,7 +28,6 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { defaultSpecies, findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
-import { initialState, getBodyScaffoldInfo } from "./scripts/utilities.js";
 import RetrieveContextCardMixin from "../mixins/RetrieveContextCardMixin.js"
 import {
   ElLoading as Loading
@@ -269,14 +268,6 @@ export default {
             discoverId: state.dataset_id,
             version: state.dataset_version,
           };
-          if (state.isBodyScaffold) {
-            const data = await getBodyScaffoldInfo(this.options.sparcApi, state.label);
-            newView = { ...newView, ...data.datasetInfo, resource: data.url };
-          } else {
-            // Add content from scicrunch for the context card
-            const contextCardInfo = await this.retrieveContextCardFromUrl(state.url);
-            newView = { ...newView, ...contextCardInfo };
-          }
           this.$refs.flow.createNewEntry(newView);
         } else if (state.type === "MultiFlatmap") {
           if (state.resource) {
@@ -405,17 +396,13 @@ export default {
   beforeMount: function() {
     if (this.options) {
       // Split options prop up to commit to the store
-      this.options.sparcApi ? this.settingsStore.updateSparcAPI(this.options.sparcApi) : null;
-      this.options.algoliaIndex ? this.settingsStore.updateAlgoliaIndex(this.options.algoliaIndex) : null;
-      this.options.algoliaKey ? this.settingsStore.updateAlgoliaKey(this.options.algoliaKey) : null;
-      this.options.algoliaId ? this.settingsStore.updateAlgoliaId(this.options.algoliaId) : null;
       this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null;
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);
     this.splitFlowStore?.reset();
-    this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
+    this.splitFlowStore?.getAvailableTerms(undefined);
   },
   mounted: async function() {
     EventBus.on("updateShareLinkRequested", (data) => {
@@ -430,9 +417,11 @@ export default {
        */
       this.$emit('trackEvent', taggingData);
     });
+    /*
     if (!this.state) {
-      this.initialState = await initialState(this.startingMap, this.options.sparcApi);
+      this.initialState = await initialState(this.startingMap, this);
     }
+    */
     EventBus.on("mapLoaded", (map) => {
       // Check if there is a search term to display
       if (this.displaySearchFromQuery) {

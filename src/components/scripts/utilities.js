@@ -16,7 +16,7 @@ const initialDefaultState = () => {
   };
 }
 
-const getNewMapEntry = async (type, sparcApi) => {
+const getNewMapEntry = async (type) => {
   let entry = { };
   if (type === "AC") {
     entry = {
@@ -37,6 +37,7 @@ const getNewMapEntry = async (type, sparcApi) => {
       discoverId: undefined
     }
   } else if (type === "3D") {
+    /*
     const data = await getBodyScaffoldInfo(sparcApi, "human");
     entry = {
       resource: data.url,
@@ -50,6 +51,7 @@ const getNewMapEntry = async (type, sparcApi) => {
       version: data.datasetInfo.version,
       isBodyScaffold: true,
     };
+    */
   } else if (type === "CG") {
     entry = {
       resource: "ConnectivityGraph",
@@ -69,6 +71,7 @@ const getNewMapEntry = async (type, sparcApi) => {
  */
 const initialState = async (type, sparcApi) => {
   const state = initialDefaultState();
+  /*
   if (type === "FC") {
     state.entries[0].resource = "FunctionalConnectivity";
     state.entries[0].type = "Flatmap";
@@ -84,6 +87,7 @@ const initialState = async (type, sparcApi) => {
     state.entries[0].label = "Human";
     state.entries[0].isBodyScaffold = true;
   }
+  */
 
   return state;
 }
@@ -144,35 +148,6 @@ const extractS3BucketNameAndPrefix = uri => {
   return undefined
 }
 
-const getBodyScaffoldInfo = async (sparcApi, species) => {
-  //Get body scaffold information
-  let url = "";
-  let datasetInfo = undefined;
-  const response = await fetch(`${sparcApi}get_body_scaffold_info/${species}`);
-  if (response.ok) {
-    const data = await response.json();
-    //Construct the url endpoint for downloading the scaffold
-    const bucketInfo = extractS3BucketNameAndPrefix(data.s3uri);
-    url = `${sparcApi}s3-resource/${bucketInfo.s3Prefix}files/${data.path}?s3BucketName=${bucketInfo.s3Bucket}`;
-    const contextCardUrl = `${sparcApi}s3-resource/${bucketInfo.s3Prefix}files/${data.contextinfo}?s3BucketName=${bucketInfo.s3Bucket}`;
-    datasetInfo = {
-      s3uri: data.s3uri,
-      contextCardUrl,
-      discoverId: data.id,
-      version: data.version,
-    };
-  } else {
-    //Use default url if data is not found for any reason
-    if (species === "rat") {
-      url = "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/31-May-2021/ratBody/ratBody_syncmap_metadata.json";
-    } else if (species === "human") {
-      url = "https://mapcore-bucket1.s3.us-west-2.amazonaws.com/WholeBody/27-4-23-human/human_body_metadata.json";
-    }
-  }
-
-  return {url, datasetInfo};
-}
-
 // Array intersection
 const intersectArrays = (arr1, arr2) => {
   const lowerArr2 = arr2.map(x => typeof x === 'string' ? x.toLowerCase() : x);
@@ -212,7 +187,6 @@ export {
   defaultSpecies,
   initialState,
   initialDefaultState,
-  getBodyScaffoldInfo,
   getNewMapEntry,
   intersectArrays,
   transformObjToString,

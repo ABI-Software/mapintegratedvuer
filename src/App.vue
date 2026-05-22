@@ -171,11 +171,6 @@ export default {
     },
     options: function() {
       return {
-        sparcApi: import.meta.env.VITE_API_LOCATION,
-        algoliaIndex: import.meta.env.VITE_ALGOLIA_INDEX,
-        algoliaKey: import.meta.env.VITE_ALGOLIA_KEY,
-        algoliaId: import.meta.env.VITE_ALGOLIA_ID,
-        pennsieveApi: import.meta.env.VITE_PENNSIEVE_API_LOCATION,
         flatmapAPI: this.$route.query.flatmapserver ? this.$route.query.flatmapserver : import.meta.env.VITE_FLATMAPAPI_LOCATION,
         rootUrl: import.meta.env.VITE_ROOT_URL,
       }
