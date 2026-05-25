@@ -4,13 +4,10 @@ const initialDefaultState = () => {
   return {
     entries: [
       {
-        resource: defaultSpecies,
-        type: "MultiFlatmap",
-        mode: "main",
+        label: "Lungs",
+        resource: "https://mapcore-bucket1.s3-us-west-2.amazonaws.com/Generic Scaffold/Lungs/21-May-2021/human/humanLungs_metadata.json",
+        type: "Scaffold",
         id: 1,
-        state: undefined,
-        label: "",
-        discoverId: undefined
       }
     ],
   };
