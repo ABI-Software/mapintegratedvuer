@@ -30,7 +30,7 @@
       @context-restored="contextRestored"
       @ready="flatmapReadyCall"
       :displayMinimap="displayMinimap"
-      :displayWarning="true"
+      :displayWarning="false"
       :enableOpenMapUI="true"
       :flatmapAPI="flatmapAPI"
       :render="visible"
