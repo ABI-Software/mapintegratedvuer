@@ -28,6 +28,7 @@
       :warning-message="warningMessage"
       :display-minimap="false"
       :display-markers="false"
+      :display-warning="false"
       :enableOpenMapUI="true"
       :view-u-r-l="entry.viewUrl"
       :markerCluster="true"
