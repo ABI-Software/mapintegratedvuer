@@ -16,7 +16,7 @@
           class="toolbar-dropdown"
           popper-class="toolbar-dropdown-popper"
           :hide-on-click="false"
-          :disabled="!mapLoaded"
+          :disabled="true || !mapLoaded"
           placement="bottom-end"
         >
         <span class="el-dropdown-link">
