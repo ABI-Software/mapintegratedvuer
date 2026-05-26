@@ -278,6 +278,7 @@
             class="header-icon"
             @click="requestShareLink"
             v-show="shareLink"
+            v-if="false"
           />
         </template>
       </el-popover>
