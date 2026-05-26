@@ -58,11 +58,11 @@
           </template>
           <template #reference>
             <div v-show="contextCardEntry">
-              <div v-show="contextCardVisible" class="hide" @click="contextCardVisible = false">
+              <div v-show="contextCardVisible" class="information" @click="contextCardVisible = false">
                 Hide information
                 <el-icon><el-icon-arrow-up /></el-icon>
               </div>
-              <div v-show="!contextCardVisible" class="hide" @click="contextCardVisible = true">
+              <div v-show="!contextCardVisible" class="information" @click="contextCardVisible = true">
                 Show information
                 <el-icon><el-icon-arrow-down /></el-icon>
               </div>
@@ -340,6 +340,8 @@ export default {
 
   .information-group {
     margin-left: auto;
+    margin-right: 12px;
+    height: 100%;
   }
 
   .toolbar-title {
@@ -350,14 +352,15 @@ export default {
     font-weight: normal;
     line-height: 20px;
     margin-left: 1rem;
-    margin-top: 6px;
   }
 
   .select-box {
+    width: fit-content;
     max-width: 200px;
+    min-width: 0;
     z-index: 5;
     flex-shrink: 1;
-    min-width: 0;
+
     :deep(.el-select__wrapper) {
       color: $app-primary-color;
       height: 29px;
@@ -423,13 +426,13 @@ export default {
   }
 
   .source-chip {
-    padding: 4px;
+    padding: 4px!important;
     margin-left: 2px;
     margin-right:2px;
     background-color: $app-primary-color;
     border-color: $app-primary-color;
     color: #fff;
-    font-size: 11px;
+    font-size: 11px !important;
     &:hover {
       color: #fff !important;
       background-color: #ac76c5 !important;
@@ -450,7 +453,7 @@ export default {
     flex-shrink: 0;
   }
 
-  .hide {
+  .information {
     font-size: 12px;
     margin-top: 0;
     display: flex;
@@ -459,6 +462,7 @@ export default {
     gap: 4px;
     color: $app-primary-color;
     cursor: pointer;
+    line-height: normal;
   }
 
 }
