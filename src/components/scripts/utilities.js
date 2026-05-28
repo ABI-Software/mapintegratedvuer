@@ -94,6 +94,28 @@ const capitalise = term => {
   return term;
 };
 
+// Supported higher-level taxonomy mappings to species represented in availableSpecies.
+const speciesTaxonHierarchy = {
+  // Mammalian clades that can appear in knowledge provenance.
+  "NCBITaxon:40674": ["NCBITaxon:9606", "NCBITaxon:10114", "NCBITaxon:10090", "NCBITaxon:9823", "NCBITaxon:9685"],
+  "NCBITaxon:32525": ["NCBITaxon:9606", "NCBITaxon:10114", "NCBITaxon:10090", "NCBITaxon:9823", "NCBITaxon:9685"],
+  "NCBITaxon:9347": ["NCBITaxon:9606", "NCBITaxon:10114", "NCBITaxon:10090", "NCBITaxon:9823", "NCBITaxon:9685"],
+  "NCBITaxon:1437010": ["NCBITaxon:9606", "NCBITaxon:10114", "NCBITaxon:10090", "NCBITaxon:9823", "NCBITaxon:9685"],
+  "NCBITaxon:314146": ["NCBITaxon:9606", "NCBITaxon:10114", "NCBITaxon:10090"],
+  "NCBITaxon:9443": ["NCBITaxon:9606"],
+  "NCBITaxon:9604": ["NCBITaxon:9606"],
+  "NCBITaxon:9989": ["NCBITaxon:10114", "NCBITaxon:10090"],
+  "NCBITaxon:10066": ["NCBITaxon:10114", "NCBITaxon:10090"],
+  "NCBITaxon:33554": ["NCBITaxon:9685"],
+  "NCBITaxon:9681": ["NCBITaxon:9685"],
+  "NCBITaxon:91561": ["NCBITaxon:9823"],
+  "NCBITaxon:9821": ["NCBITaxon:9823"],
+
+  // Common species aliases and closely related terms in external datasets.
+  "NCBITaxon:10116": ["NCBITaxon:10114"],
+  "NCBITaxon:9825": ["NCBITaxon:9823"],
+};
+
 /*
  * Provide a list of available species for the flatmap
  */
@@ -106,6 +128,37 @@ const availableSpecies = () => {
     "Pig": { taxo: "NCBITaxon:9823", iconClass: "mapicon-icon_pig", displayLatestChanges: true, displayWarning: false },
     "Cat": { taxo: "NCBITaxon:9685", iconClass: "mapicon-icon_cat", displayLatestChanges: true, displayWarning: true },
   }
+}
+
+const getSpeciesForTaxons = (taxons = []) => {
+  if (!Array.isArray(taxons) || !taxons.length) {
+    return [];
+  }
+
+  const expandedTaxons = new Set();
+  taxons.forEach((taxon) => {
+    expandedTaxons.add(taxon);
+    const descendants = speciesTaxonHierarchy[taxon];
+    if (Array.isArray(descendants)) {
+      descendants.forEach((descendant) => expandedTaxons.add(descendant));
+    }
+  });
+
+  const speciesList = availableSpecies();
+  const matchedSpecies = [];
+  Object.keys(speciesList).forEach((name) => {
+    const speciesTaxon = speciesList[name]?.taxo;
+    const iconClass = speciesList[name]?.iconClass;
+    if (speciesTaxon && expandedTaxons.has(speciesTaxon)) {
+      matchedSpecies.push({
+        name,
+        iconClass,
+        taxo: speciesTaxon,
+      });
+    }
+  });
+
+  return matchedSpecies;
 }
 
 /*
@@ -207,6 +260,7 @@ const listsAreEqual = (a, b) => {
 export {
   listsAreEqual,
   availableSpecies,
+  getSpeciesForTaxons,
   capitalise,
   findSpeciesKey,
   defaultSpecies,
