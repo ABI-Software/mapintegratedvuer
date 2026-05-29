@@ -55,6 +55,7 @@
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
           @soma-location-hovered="showSomaLocation"
+          @soma-locations-ready="onSomaLocationsReady"
           @trackEvent="trackEvent"
         />
         <SplitDialog
@@ -195,6 +196,7 @@ export default {
       filterOptions: [],
       annotationHighlight: [],
       cellCardExplorerRequested: false,
+      cellCardSomaLocations: [],
     }
   },
   watch: {
@@ -614,6 +616,9 @@ export default {
     },
     showSomaLocation: function (name) {
       EventBus.emit('soma-location-hovered', name);
+    },
+    onSomaLocationsReady: function (somaLocations) {
+      this.cellCardSomaLocations = [...new Set((somaLocations || []).filter(Boolean))];
     },
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);
