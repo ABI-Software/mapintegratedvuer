@@ -29,6 +29,9 @@
           <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Annotation'">
             <el-icon-edit-pen />
           </el-icon>
+          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Cell Type'">
+            <el-icon-cpu />
+          </el-icon>
           {{ globalSettings.viewingMode }}
           <template v-if="globalSettings.viewingMode === 'Neuron Connection'">
             &nbsp;
@@ -55,6 +58,9 @@
                 </el-icon>
                 <el-icon class="el-icon--left" v-if="key === 'Annotation'">
                   <el-icon-edit-pen />
+                </el-icon>
+                <el-icon class="el-icon--left" v-if="key === 'Cell Type'">
+                  <el-icon-cpu />
                 </el-icon>
                 {{ key }}
               </h5>
@@ -435,6 +441,7 @@ import {
   ElButton as Button,
   ElCheckbox as Checkbox,
   ElCol as Col,
+  ElIcon,
   ElIcon as Icon,
   ElInput as Input,
   ElPopover as Popover,
@@ -520,7 +527,8 @@ export default {
       viewingModes: {
         'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
         'Neuron Connection': 'Discover neuron connections by selecting a feature and viewing its associated network connections',
-        'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
+        'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations'],
+        'Cell Type': 'Explore cell cards for different cell types and their associated data',
       },
       authorisedUser: false,
       mapLoaded: false,
