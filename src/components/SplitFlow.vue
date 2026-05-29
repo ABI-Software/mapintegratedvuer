@@ -11,6 +11,7 @@
         @onFullscreen="onFullscreen"
         @local-search="onDisplaySearch"
         @fetch-suggestions="fetchSuggestions"
+        @open-cell-card-explorer="openCellCardExplorerFromToolbar"
         ref="dialogToolbar"
       />
     </el-header>
@@ -31,7 +32,7 @@
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
           :showLongLabel="showLongLabel"
-          :showCellCards="showCellCards"
+          :showCellCards="resolvedShowCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -193,6 +194,7 @@ export default {
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
+      cellCardExplorerRequested: false,
     }
   },
   watch: {
@@ -219,6 +221,14 @@ export default {
     },
   },
   methods: {
+    openCellCardExplorerFromToolbar: function () {
+      this.cellCardExplorerRequested = true;
+
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.tabClicked({ id: 4, type: 'cellCardExplorer' });
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    },
     onFilterVisibility: function (state) {
       this.filterVisibility = state;
       const filterExpression = {
@@ -1095,6 +1105,9 @@ export default {
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
+    resolvedShowCellCards: function () {
+      return this.showCellCards || this.cellCardExplorerRequested;
+    },
     envVars: function () {
       return {
         API_LOCATION: this.settingsStore.sparcApi,

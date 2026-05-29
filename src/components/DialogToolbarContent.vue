@@ -560,6 +560,10 @@ export default {
         }
 
         this.updateGlobalSettings('viewingMode');
+
+        if (value === 'Cell Type') {
+          this.$emit('open-cell-card-explorer');
+        }
       }
     },
     updateGlobalSettings: function(changedKey) {
