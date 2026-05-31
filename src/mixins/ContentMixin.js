@@ -184,6 +184,20 @@ export default {
         if (resource.eventType == "click") {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
+            // Cell card explorer - cell type markers
+            if (resource.feature.kind === 'proxy' && !resource.feature['dataset-terms']) {
+              returnedAction = {
+                type: "OpenCellCardExplorer",
+                label: resource.feature.label,
+                models: resource.feature.models,
+                query: resource.feature.label,
+                filters: [{
+                  facet: resource.feature.label,
+                  term: 'Soma Location',
+                }],
+              };
+              fireResourceSelected = true;
+            } else {
             let label = result.internalName;
             // `resource.feature.id` is the marker identifier (not featureId or models)
             if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
@@ -235,6 +249,7 @@ export default {
             if (type == "MultiFlatmap") {
               const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
               flatmap.clearSearchResults();
+            }
             }
           }
         } else if (resource.eventType == "mouseenter") {

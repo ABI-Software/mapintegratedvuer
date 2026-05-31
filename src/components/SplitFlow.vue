@@ -224,11 +224,17 @@ export default {
   },
   methods: {
     openCellCardExplorerFromToolbar: function () {
+      this.openCellCardExplorer();
+    },
+    openCellCardExplorer: function (payload = {}) {
       this.cellCardExplorerRequested = true;
 
       if (this.$refs.sideBar) {
         this.$refs.sideBar.tabClicked({ id: 4, type: 'cellCardExplorer' });
         this.$refs.sideBar.setDrawerOpen(true);
+        if (payload && (payload.filters?.length || payload.query)) {
+          this.$refs.sideBar.openCellCardExplorerSearch(payload.filters || [], payload.query || '');
+        }
       }
     },
     onFilterVisibility: function (state) {
@@ -340,6 +346,8 @@ export default {
             });
             this.filterTriggered = true;
           }
+        } else if (action.type === "OpenCellCardExplorer") {
+          this.openCellCardExplorer(action);
         } else if (action.type == "URL") {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
