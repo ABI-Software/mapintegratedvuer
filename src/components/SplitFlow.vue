@@ -630,7 +630,8 @@ export default {
       this.cellCardSomaLocations = [...new Map(
         normalizedSomaLocations.map((item) => [item.label.toLowerCase(), item])
       ).values()];
-      // TODO: use cellCardSomaLocations to place markers on flatmap for cell card explorer.
+      this.settingsStore.updateCellCardSomaLocations(this.cellCardSomaLocations);
+      EventBus.emit("markerUpdate");
     },
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);

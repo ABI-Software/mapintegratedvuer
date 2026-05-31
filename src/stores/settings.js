@@ -19,6 +19,7 @@ export const useSettingsStore = defineStore('settings', {
       appliedFacets: [],
       numberOfDatasetsForFacets: [],
       markers: [],
+      cellCardSomaLocations: [],
       hoverAnatomies: [],
       hoverOrgans: [],
       hoverDOI: '',
@@ -122,6 +123,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateMarkers(markers) {
       this.markers = markers;
+    },
+    updateCellCardSomaLocations(somaLocations) {
+      this.cellCardSomaLocations = somaLocations;
     },
     updateHoverFeatures(anatomies, organs, doi, connectivity) {
       this.hoverAnatomies = anatomies;

@@ -9,7 +9,29 @@ const removeDuplicates = function (arrayOfAnything) {
     JSON.parse(e)
   )
 }
-  
+
+const getCellTypeMarkers = function (markers, somaLocations) {
+  const somaCuries = new Set(
+    (Array.isArray(somaLocations) ? somaLocations : [])
+      .map((location) => String(location?.curie || '').trim())
+      .filter(Boolean)
+  );
+
+  if (!somaCuries.size) return [];
+
+  return markers
+    .map((marker) => {
+      const matchedTerms = (Array.isArray(marker?.terms) ? marker.terms : [])
+        .filter((term) => somaCuries.has(term));
+
+      return {
+        ...marker,
+        terms: matchedTerms,
+      };
+    })
+    .filter((marker) => marker.terms.length > 0);
+}
+
 /* eslint-disable no-alert, no-console */
 export default {
   computed: {
@@ -41,6 +63,9 @@ export default {
       if (flatmapImp) {
         // Set the dataset markers
         let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
+        if (this.settingsStore.globalSettings.viewingMode === "Cell Type") {
+          markers = getCellTypeMarkers(markers, this.settingsStore.cellCardSomaLocations);
+        }
         markers = removeDuplicates(markers);
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();

@@ -554,6 +554,9 @@ export default {
         } else if (value === 'Annotation') {
           this.globalSettings.displayMarkers = false;
           this.globalSettings.interactiveMode = 'dataset';
+        } else if (value === 'Cell Type') {
+          this.globalSettings.displayMarkers = true;
+          this.globalSettings.interactiveMode = 'connectivity';
         } else {
           this.globalSettings.displayMarkers = false;
           this.globalSettings.interactiveMode = 'connectivity';
