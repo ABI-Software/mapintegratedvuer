@@ -623,6 +623,7 @@ export default {
           return {
             label: String(item?.label || '').trim(),
             curie: String(item?.curie || '').trim(),
+            count: Number(item?.count || 0),
           };
         })
         .filter((item) => item.label);
