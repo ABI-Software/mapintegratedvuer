@@ -10,26 +10,14 @@ const removeDuplicates = function (arrayOfAnything) {
   )
 }
 
-const getCellTypeMarkers = function (markers, somaLocations) {
-  const somaCuries = new Set(
-    (Array.isArray(somaLocations) ? somaLocations : [])
-      .map((location) => String(location?.curie || '').trim())
-      .filter(Boolean)
-  );
-
-  if (!somaCuries.size) return [];
-
-  return markers
-    .map((marker) => {
-      const matchedTerms = (Array.isArray(marker?.terms) ? marker.terms : [])
-        .filter((term) => somaCuries.has(term));
-
-      return {
-        ...marker,
-        terms: matchedTerms,
-      };
-    })
-    .filter((marker) => marker.terms.length > 0);
+const getCellTypeSomaLocations = function (somaLocations) {
+  return (Array.isArray(somaLocations) ? somaLocations : [])
+    .map((location) => ({
+      label: String(location?.label || '').trim(),
+      curie: String(location?.curie || '').trim(),
+      count: Number(location?.count || 0),
+    }))
+    .filter((location) => location.curie && location.count > 0)
 }
 
 /* eslint-disable no-alert, no-console */
@@ -59,15 +47,26 @@ export default {
       const flatmapImp = flatmap ?? this.getFlatmapImp();
 
       if (flatmapImp) {
-        // Set the dataset markers
-        let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
-        if (this.settingsStore.globalSettings.viewingMode === "Cell Type") {
-          markers = getCellTypeMarkers(markers, this.settingsStore.cellCardSomaLocations);
-        }
-        markers = removeDuplicates(markers);
+        const displayMarkers = this.settingsStore.globalSettings.displayMarkers;
+        const isCellTypeViewingMode = this.settingsStore.globalSettings.viewingMode === "Cell Type";
+        const markers = !displayMarkers || isCellTypeViewingMode
+          ? []
+          : removeDuplicates(this.settingsStore.markers);
+        const somaLocations = !displayMarkers || !isCellTypeViewingMode
+          ? []
+          : getCellTypeSomaLocations(this.settingsStore.cellCardSomaLocations);
+
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
-        flatmapImp.addDatasetMarkers(markers);
+        if (typeof flatmapImp.clearSomaLocationMarkers === "function") {
+          flatmapImp.clearSomaLocationMarkers();
+        }
+
+        if (isCellTypeViewingMode && typeof flatmapImp.addSomaLocationMarkers === "function") {
+          flatmapImp.addSomaLocationMarkers(somaLocations);
+        } else {
+          flatmapImp.addDatasetMarkers(markers);
+        }
 
         // Set the featured markers
         if (this.entry.type === "MultiFlatmap") {
