@@ -56,9 +56,7 @@ export default {
     flatmapMarkerUpdate(flatmap) {
       if (!this.flatmapReady) return;
 
-      let flatmapImp = flatmap;
-      if (!flatmapImp)
-        flatmapImp = this.getFlatmapImp();
+      const flatmapImp = flatmap ?? this.getFlatmapImp();
 
       if (flatmapImp) {
         // Set the dataset markers
