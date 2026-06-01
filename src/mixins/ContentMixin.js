@@ -190,7 +190,7 @@ export default {
                 type: "OpenCellCardExplorer",
                 label: resource.feature.label,
                 models: resource.feature.models,
-                query: resource.feature.label,
+                query: '',
                 filters: [{
                   facet: resource.feature.label,
                   term: 'Soma Location',
