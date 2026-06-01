@@ -185,7 +185,7 @@ export default {
           result.eventType = "selected";
           if (resource.feature.type == "marker") {
             // Cell card explorer - cell type markers
-            if (resource.feature.kind === 'proxy' && !resource.feature['dataset-terms']) {
+            if (!resource.feature['dataset-terms']) {
               returnedAction = {
                 type: "OpenCellCardExplorer",
                 label: resource.feature.label,
