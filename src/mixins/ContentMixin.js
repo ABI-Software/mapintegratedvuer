@@ -193,7 +193,7 @@ export default {
                 query: '',
                 filters: [{
                   facet: resource.feature.label,
-                  term: 'Soma Location',
+                  term: 'Soma location',
                 }],
               };
               fireResourceSelected = true;
