@@ -101,7 +101,7 @@
     "sass": "^1.69.5",
     "vite": "^5.0.10",
     "vitepress": "^1.0.0-rc.45",
-    "vitest": "^1.2.2",
+    "vitest": "^4.1.0",
     "vue-docgen-api": "^4.79.2",
     "vue-router": "^4.2.5"
   },
