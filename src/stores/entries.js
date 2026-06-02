@@ -41,6 +41,9 @@ export const useEntriesStore = defineStore('entries', {
         const sckanVersion = getKnowledgeSourceFromProvenance(prov.prov);
         entry['uuid'] = prov.prov.uuid;
         entry['sckanVersion'] = sckanVersion;
+        if (entry.type === 'MultiFlatmap' && prov.species) {
+          entry['resource'] = prov.species;
+        }
       }
     },
     updateLabelForEntry(targetEntry, label) {
