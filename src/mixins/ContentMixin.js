@@ -17,7 +17,7 @@ import {
 import { FlatmapQueries } from "@abi-software/flatmapvuer/src/services/flatmapQueries.js";
 import { getKnowledgeSource, loadAndStoreKnowledge } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
 import { getTermNerveMaps, getFilterOptions as getScaffoldFilterOptions } from "@abi-software/scaffoldvuer/src/scripts/MappedNerves.js";
-import { defaultSpecies } from "../components/scripts/utilities.js";
+import { defaultSpecies, getSpeciesForTaxons } from "../components/scripts/utilities.js";
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1)
@@ -657,7 +657,17 @@ export default {
         const knowledge = await loadAndStoreKnowledge(flatmapImp, this.flatmapQueries);
         this.connectivityKnowledge[sckanVersion] = knowledge
           .filter(item => item.connectivity?.length)
+          .map((item) => ({
+            ...item,
+            species: getSpeciesForTaxons(item.taxons),
+          }))
           .sort((a, b) => a.label.localeCompare(b.label));
+      } else {
+        this.connectivityKnowledge[sckanVersion] = this.connectivityKnowledge[sckanVersion]
+          .map((item) => ({
+            ...item,
+            species: getSpeciesForTaxons(item.taxons),
+          }));
       }
       if (!this.connectivityKnowledge[uuid]) {
         const pathways = flatmapImp.pathways?.paths || {};
