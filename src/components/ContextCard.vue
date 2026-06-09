@@ -417,7 +417,8 @@ export default {
       let link = '';
 
       if (sample.datasetURL) {
-        link = `${sample.datasetURL}?path=${path}`;
+        const datasetFileURL = sample.datasetURL.replace(/datasets\/(\d+)\/version\/(\d+)/, "datasets/file/$1/$2");
+        link = `${datasetFileURL}?path=${path}`;
       } else if (sample.discoverId) {
         link = `${this.envVars.ROOT_URL}/datasets/file/${sample.discoverId}/${version}?path=${path}`;
       }
@@ -482,6 +483,7 @@ export default {
               if (result.doi) {
                 const datasetURL = await this.fetchDOIURL(result.doi);
                 result.datasetURL = datasetURL
+                // TODO: to add file name
               }
               if (result.flatmapUUID) {
                 this.flatmapSource.push(result)
