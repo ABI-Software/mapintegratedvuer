@@ -483,7 +483,7 @@ export default {
               if (result.doi) {
                 const datasetURL = await this.fetchDOIURL(result.doi);
                 result.datasetURL = datasetURL
-                // TODO: to add file name
+                result.name = result.name || result.path.split('/').pop()
               }
               if (result.flatmapUUID) {
                 this.flatmapSource.push(result)
