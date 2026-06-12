@@ -11,6 +11,7 @@
         @onFullscreen="onFullscreen"
         @local-search="onDisplaySearch"
         @fetch-suggestions="fetchSuggestions"
+        @open-cell-card-explorer="openCellCardExplorerFromToolbar"
         ref="dialogToolbar"
       />
     </el-header>
@@ -31,6 +32,7 @@
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
           :showLongLabel="showLongLabel"
+          :showCellCards="resolvedShowCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -52,6 +54,8 @@
           @show-connectivity-graph="onShowConnectivityGraph"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
+          @soma-location-hovered="showSomaLocation"
+          @soma-locations-ready="onSomaLocationsReady"
           @trackEvent="trackEvent"
         />
         <SplitDialog
@@ -59,6 +63,7 @@
           ref="splitdialog"
           @resource-selected="resourceSelected"
           @species-changed="speciesChanged"
+          @update-active-species="updateActiveSpeciesForEntries"
         />
       </div>
     </el-main>
@@ -158,6 +163,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    showCellCards: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -186,6 +195,8 @@ export default {
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
+      cellCardExplorerRequested: false,
+      cellCardSomaLocations: [],
     }
   },
   watch: {
@@ -212,6 +223,20 @@ export default {
     },
   },
   methods: {
+    openCellCardExplorerFromToolbar: function () {
+      this.openCellCardExplorer();
+    },
+    openCellCardExplorer: function (payload = {}) {
+      this.cellCardExplorerRequested = true;
+
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.tabClicked({ id: 4, type: 'cellCardExplorer' });
+        this.$refs.sideBar.setDrawerOpen(true);
+        if (payload && (payload.filters?.length || payload.query)) {
+          this.$refs.sideBar.openCellCardExplorerSearch(payload.filters || [], payload.query || '');
+        }
+      }
+    },
     onFilterVisibility: function (state) {
       this.filterVisibility = state;
       const filterExpression = {
@@ -321,6 +346,8 @@ export default {
             });
             this.filterTriggered = true;
           }
+        } else if (action.type === "OpenCellCardExplorer") {
+          this.openCellCardExplorer(action);
         } else if (action.type == "URL") {
           window.open(action.resource, "_blank");
         } else if (action.type == "Facet") {
@@ -595,6 +622,25 @@ export default {
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', data);
     },
+    showSomaLocation: function (name) {
+      EventBus.emit('soma-location-hovered', name);
+    },
+    onSomaLocationsReady: function (somaLocations) {
+      const normalizedSomaLocations = (Array.isArray(somaLocations) ? somaLocations : [])
+        .map((item) => {
+          return {
+            label: String(item?.label || '').trim(),
+            curie: String(item?.curie || '').trim(),
+            count: Number(item?.count || 0),
+          };
+        })
+        .filter((item) => item.label);
+
+      this.cellCardSomaLocations = [...new Map(
+        normalizedSomaLocations.map((item) => [item.label.toLowerCase(), item])
+      ).values()];
+      this.updateSomaLocationMarkers(this.cellCardSomaLocations);
+    },
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);
       EventBus.emit('connectivity-source-change', data);
@@ -728,6 +774,10 @@ export default {
           }
         }
       }
+    },
+    updateSomaLocationMarkers: function (data) {
+      this.settingsStore.updateCellCardSomaLocations(data);
+      EventBus.emit("markerUpdate");
     },
     updateMarkers: function (data) {
       this.settingsStore.updateMarkers(data);
@@ -888,6 +938,11 @@ export default {
           EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
         })
+      }
+    },
+    updateActiveSpeciesForEntries: function (activeSpecies) {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.updateActiveSpeciesForEntries(activeSpecies);
       }
     },
     contextUpdate: function (payload) {
@@ -1080,6 +1135,9 @@ export default {
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
+    resolvedShowCellCards: function () {
+      return this.showCellCards || this.cellCardExplorerRequested;
+    },
     envVars: function () {
       return {
         API_LOCATION: this.settingsStore.sparcApi,
@@ -1089,6 +1147,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
+        CELL_CARDS_API: this.settingsStore.cellCardsApi,
       };
     },
     entries: function() {
