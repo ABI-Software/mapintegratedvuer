@@ -639,8 +639,7 @@ export default {
       this.cellCardSomaLocations = [...new Map(
         normalizedSomaLocations.map((item) => [item.label.toLowerCase(), item])
       ).values()];
-      this.settingsStore.updateCellCardSomaLocations(this.cellCardSomaLocations);
-      EventBus.emit("markerUpdate");
+      this.updateSomaLocationMarkers(this.cellCardSomaLocations);
     },
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);
@@ -775,6 +774,10 @@ export default {
           }
         }
       }
+    },
+    updateSomaLocationMarkers: function (data) {
+      this.settingsStore.updateCellCardSomaLocations(data);
+      EventBus.emit("markerUpdate");
     },
     updateMarkers: function (data) {
       this.settingsStore.updateMarkers(data);

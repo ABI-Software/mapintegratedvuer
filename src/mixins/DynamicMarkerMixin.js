@@ -58,6 +58,7 @@ export default {
 
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
+
         if (typeof flatmapImp.clearSomaLocationMarkers === "function") {
           flatmapImp.clearSomaLocationMarkers();
         }
