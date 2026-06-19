@@ -868,6 +868,10 @@ export default {
       // - connectivity knowledge is loaded
       // - if sidebar state is not restored yet
       const sidebarState = state?.sidebar;
+      // Restore Cell Card Explorer
+      if (sidebarState?.activeTabId === 4) {
+        this.cellCardExplorerRequested = true;
+      }
       if (!this.sidebarStateRestored && sidebarState && this.$refs.sideBar && this.connectivityKnowledge?.length) {
         if (sidebarState.connectivityEntries?.length) {
           this.restoreConnectivityEntries(sidebarState.connectivityEntries);
