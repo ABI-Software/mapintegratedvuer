@@ -769,6 +769,29 @@ export default {
             });
           }
         }
+      } else if (data.tabType === 'cellType') {
+        const filterValues = data.filter.filter(f => (f.facet && f.facet.toLowerCase() !== 'show all'))
+          .map((f) => f.tagLabel)
+          .join(', ');
+        const searchValue = data.query;
+
+        if (filterValues) {
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_filter',
+            'category': filterValues,
+            'location': 'map_sidebar_cell_card_filter'
+          });
+        }
+
+        if (searchValue) {
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_search',
+            'category': searchValue,
+            'location': 'map_sidebar_cell_card_search'
+          });
+        }
       }
     },
     updateSomaLocationMarkers: function (data) {
