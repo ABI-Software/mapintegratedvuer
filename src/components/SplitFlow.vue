@@ -32,7 +32,7 @@
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
           :showLongLabel="showLongLabel"
-          :showCellCards="resolvedShowCellCards"
+          :showCellCards="showCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -163,10 +163,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    showCellCards: {
-      type: Boolean,
-      default: false,
-    },
   },
   data: function () {
     return {
@@ -195,7 +191,7 @@ export default {
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
-      cellCardExplorerRequested: false,
+      showCellCards: false,
       cellCardSomaLocations: [],
     }
   },
@@ -227,7 +223,7 @@ export default {
       this.openCellCardExplorer();
     },
     openCellCardExplorer: function (payload = {}) {
-      this.cellCardExplorerRequested = true;
+      this.showCellCards = true;
 
       if (this.$refs.sideBar) {
         this.$refs.sideBar.tabClicked({ id: 4, type: 'cellCardExplorer' });
@@ -870,7 +866,7 @@ export default {
       const sidebarState = state?.sidebar;
       // Restore Cell Card Explorer
       if (sidebarState?.activeTabId === 4) {
-        this.cellCardExplorerRequested = true;
+        this.showCellCards = true;
       }
       if (!this.sidebarStateRestored && sidebarState && this.$refs.sideBar && this.connectivityKnowledge?.length) {
         if (sidebarState.connectivityEntries?.length) {
@@ -1139,9 +1135,6 @@ export default {
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
-    resolvedShowCellCards: function () {
-      return this.showCellCards || this.cellCardExplorerRequested;
-    },
     envVars: function () {
       return {
         API_LOCATION: this.settingsStore.sparcApi,
