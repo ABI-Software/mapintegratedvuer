@@ -258,7 +258,6 @@ export default {
         }
         getShareLink(1)
       });
-
     },
     setFlatmap: function() {
       this.$refs.map.setCurrentEntry(
