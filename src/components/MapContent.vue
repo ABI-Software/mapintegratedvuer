@@ -411,6 +411,7 @@ export default {
       this.options.algoliaId ? this.settingsStore.updateAlgoliaId(this.options.algoliaId) : null;
       this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null;
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null;
+      this.options.cellCardsApi ? this.settingsStore.updateCellCardsApi(this.options.cellCardsApi) : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);
