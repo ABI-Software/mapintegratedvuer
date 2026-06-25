@@ -32,7 +32,7 @@
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
           :showLongLabel="showLongLabel"
-          :showCellCards="resolvedShowCellCards"
+          :showCellCards="showCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -163,10 +163,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    showCellCards: {
-      type: Boolean,
-      default: false,
-    },
   },
   data: function () {
     return {
@@ -195,7 +191,7 @@ export default {
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
-      cellCardExplorerRequested: false,
+      showCellCards: false,
       cellCardSomaLocations: [],
     }
   },
@@ -227,7 +223,7 @@ export default {
       this.openCellCardExplorer();
     },
     openCellCardExplorer: function (payload = {}) {
-      this.cellCardExplorerRequested = true;
+      this.showCellCards = true;
 
       if (this.$refs.sideBar) {
         this.$refs.sideBar.tabClicked({ id: 4, type: 'cellCardExplorer' });
@@ -773,6 +769,29 @@ export default {
             });
           }
         }
+      } else if (data.tabType === 'cellType') {
+        const filterValues = data.filter.filter(f => (f.facet && f.facet.toLowerCase() !== 'show all'))
+          .map((f) => f.tagLabel)
+          .join(', ');
+        const searchValue = data.query;
+
+        if (filterValues) {
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_filter',
+            'category': filterValues,
+            'location': 'map_sidebar_cell_card_filter'
+          });
+        }
+
+        if (searchValue) {
+          Tagging.sendEvent({
+            'event': 'interaction_event',
+            'event_name': 'portal_maps_action_search',
+            'category': searchValue,
+            'location': 'map_sidebar_cell_card_search'
+          });
+        }
       }
     },
     updateSomaLocationMarkers: function (data) {
@@ -868,6 +887,10 @@ export default {
       // - connectivity knowledge is loaded
       // - if sidebar state is not restored yet
       const sidebarState = state?.sidebar;
+      // Restore Cell Card Explorer
+      if (sidebarState?.activeTabId === 4) {
+        this.showCellCards = true;
+      }
       if (!this.sidebarStateRestored && sidebarState && this.$refs.sideBar && this.connectivityKnowledge?.length) {
         if (sidebarState.connectivityEntries?.length) {
           this.restoreConnectivityEntries(sidebarState.connectivityEntries);
@@ -1135,9 +1158,6 @@ export default {
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
-    resolvedShowCellCards: function () {
-      return this.showCellCards || this.cellCardExplorerRequested;
-    },
     envVars: function () {
       return {
         API_LOCATION: this.settingsStore.sparcApi,

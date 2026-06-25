@@ -274,7 +274,7 @@
           </el-row>
         </template>
       </el-popover>
-      <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
+      <el-popover class="tooltip" content="Get permalink" placement="bottom-end"
         :show-after="helpDelay" :teleported=false trigger="hover"
         popper-class="header-popper"
         >

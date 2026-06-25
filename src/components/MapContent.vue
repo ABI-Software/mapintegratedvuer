@@ -12,7 +12,6 @@
         @onFullscreen="onFullscreen"
         :state="stateToSet"
         :showLongLabel="showLongLabel"
-        :showCellCards="showCellCards"
         ref="flow"
         @vue:mounted="flowMounted"
       />
@@ -64,13 +63,6 @@ export default {
     showLongLabel: {
       type: Boolean,
       default: true,
-    },
-    /**
-     * The option to show cell cards explorer in the sidebar.
-     */
-    showCellCards: {
-      type: Boolean,
-      default: false,
     },
     /**
      * The options include APIs and Keys.
