@@ -25,9 +25,6 @@
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
                 <el-button @click="toggleLongLabel()" size="small">Toggle Long Label</el-button>
-                <el-button @click="showCellCardExplorer()" size="small" :disabled="!isMapLoaded">
-                  Show Cell Card Explorer
-                </el-button>
               </div>
             </div>
             <template #reference>
@@ -45,7 +42,6 @@
         :options="options"
         :state="state"
         :showLongLabel="showLongLabel"
-        :showCellCards="showCellCards"
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
@@ -165,7 +161,6 @@ export default {
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
       showLongLabel: true,
-      showCellCards: false,
       isMapLoaded: false,
     }
   },
@@ -258,7 +253,6 @@ export default {
         }
         getShareLink(1)
       });
-
     },
     setFlatmap: function() {
       this.$refs.map.setCurrentEntry(
@@ -321,17 +315,6 @@ export default {
     },
     toggleLongLabel: function() {
       this.showLongLabel = !this.showLongLabel;
-    },
-    showCellCardExplorer: function() {
-      this.showCellCards = true;
-      // Open the cell card explorer tab only after the map is loaded.
-      // It can be opened before the map is loaded,
-      // but the tab will switch back to dataset explorer after the map is loaded.
-      const splitFlow = this.$refs.map.$refs.flow;
-      if (splitFlow.$refs.sideBar && this.isMapLoaded) {
-        splitFlow.$refs.sideBar.tabClicked({ id: 4, type: 'cellCardExplorer' });
-        splitFlow.$refs.sideBar.setDrawerOpen(true);
-      }
     },
     mapIsLoaded: function(map) {
       console.log("map is loaded", map)
