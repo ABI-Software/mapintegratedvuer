@@ -518,6 +518,9 @@ export default {
         if (ck && ck['long-label']) {
           result['long-label'] = ck['long-label'];
         }
+        if (ck && ck['expert-consultants']) {
+          result['expert-consultants'] = ck['expert-consultants'];
+        }
         return result;
       });
 
