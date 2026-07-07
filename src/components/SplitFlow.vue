@@ -1089,6 +1089,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
+        CORS_PROXY_API: import.meta.env.VITE_CORS_PROXY_API,
       };
     },
     entries: function() {
