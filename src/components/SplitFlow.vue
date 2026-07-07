@@ -1168,6 +1168,7 @@ export default {
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
         CELL_CARDS_API: this.settingsStore.cellCardsApi,
+        CORS_PROXY_API: import.meta.env.VITE_CORS_PROXY_API,
       };
     },
     entries: function() {
