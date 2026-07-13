@@ -1139,4 +1139,7 @@ export default {
   }
 }
 
+.side-bar {
+  z-index: 11; // on top of the splitter from split-dialog
+}
 </style>
