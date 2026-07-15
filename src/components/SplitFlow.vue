@@ -103,9 +103,15 @@ const getAllFacetLabels = (children) => {
   return labels
 }
 
+const getFacetsFromAction = (action) => {
+  const actionFacets = action.facets ? action.facets : action.labels ? action.labels : [];
+  return actionFacets;
+}
+
 const getAnatomyTermsForFilters = (action, availableNameCurieMapping) => {
-  const facets = []
-  for (const facet of action.facets) {
+  const facets = [];
+  const actionFacets = getFacetsFromAction(action);
+  for (const facet of actionFacets) {
     if (facet in availableNameCurieMapping) {
       facets.push(availableNameCurieMapping[facet])
     } else {
@@ -309,15 +315,16 @@ export default {
         } else if (action.type == 'Facet') {
           if (this.$refs.sideBar) {
             const sendAction = {
-              facetPropPath: 'anatomy.organ.category.name',
-              facetSubPropPath: 'anatomy.organ.name',
-              term: 'Anatomical structure',
-            }
-            const filters = []
-            const facets = getAnatomyTermsForFilters(action, this.availableNameCurieMapping)
-            const facetString = action.facets.join(', ')
-            facets.forEach((facet) => filters.push({ ...sendAction, facet }))
-            this.$refs.sideBar.addFilter(filters)
+              facetPropPath: "anatomy.organ.category.name",
+              facetSubPropPath: "anatomy.organ.name",
+              term: "Anatomical structure",
+            };
+            const filters = [];
+            const facets = getAnatomyTermsForFilters(action, this.availableNameCurieMapping);
+            const actionFacets = getFacetsFromAction(action);
+            const facetString = actionFacets.join(', ');
+            facets.forEach(facet => filters.push({...sendAction, facet}));
+            this.$refs.sideBar.addFilter(filters);
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
@@ -544,6 +551,9 @@ export default {
         if (ck && ck['long-label']) {
           result['long-label'] = ck['long-label'];
         }
+        if (ck && ck['expert-consultants']) {
+          result['expert-consultants'] = ck['expert-consultants'];
+        }
         return result;
       });
 
@@ -651,6 +661,7 @@ export default {
     onShowConnectivityGraph: function (data) {
       const previousPrimaryId = this.splitFlowStore.customLayout?.['pane-1']?.id;
       const connectivityGraphId = this.createNewEntry({
+        connectivityInfo: data.connectivityInfo,
         resource: data.entry,
         type: 'ConnectivityGraph',
         label: data.title || data.label || data.entry ||'Connectivity Graph',

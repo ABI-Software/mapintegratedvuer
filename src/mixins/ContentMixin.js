@@ -281,57 +281,6 @@ export default {
           resource.type == 'Facets')
       )
     },
-    /**
-     * Get the term to zoom/highlight in a synchronisation event,
-     * if it cannot be found in the map, it will perform several
-     * calls to try to ge a valid name/id.
-     */
-    getNameAndIdFromSyncData: async function (data) {
-      let name = data.internalName
-      if (name === undefined && data.resource) {
-        name = data.resource.label
-      }
-      let id = undefined
-      if (data.resource && data.resource.resource) {
-        id = data.resource.resource[0]
-      }
-      if (this.entry.type === 'Scaffold') {
-        const objects = this.$refs.scaffold.findObjectsWithGroupName(name)
-        // If a region is not found use a hardcoded list to determine
-        // its parents region first
-        if (objects.length === 0) {
-          //Use nerve mapping
-          if (data.resource && data.resource.feature) {
-            const matched = getNerveNames(data.resource.feature.models)
-            if (matched.length > 0) return matched
-          }
-          let matched = getParentsRegion(name)
-          if (matched) {
-            return matched
-          }
-          // Hardcoded list failed - use an endpoint to find its parents
-          if (id && data.eventType === 'selected') {
-            return fetch(`${this.apiLocation}get-related-terms/${id}`)
-              .then((response) => response.json())
-              .then((data) => {
-                if (data.uberon?.array.length > 0) {
-                  name = data.uberon.array[0].name.charAt(0).toUpperCase() + data.uberon.array[0].name.slice(1)
-                  id = data.uberon.array[0].id.toUpperCase()
-                  return { id, name }
-                }
-              })
-          }
-        }
-      } else if (this.entry.type === 'MultiFlatmap') {
-        if (name === 'Bladder') {
-          name = 'Urinary Bladder'
-        } else {
-          const matched = getNerveNames(name)
-          if (matched.length > 0) name = matched[0]
-        }
-      }
-      return { id, name }
-    },
     // Get the species and andaotmy info for the featured datasets
     getDatasetAnatomyInfo: function (identifier) {
       fetch(`${this.apiLocation}dataset_info/anatomy?identifier=${identifier}`)
@@ -900,6 +849,9 @@ export default {
       multiflatmapRef: null,
       flatmapRef: null,
       scaffoldRef: null,
+      iframeRef: null,
+      plotRef: null,
+      simulationRef: null,
       scaffoldLoaded: false,
       isInHelp: false,
       mapManager: undefined,

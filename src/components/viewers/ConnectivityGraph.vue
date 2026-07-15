@@ -86,18 +86,10 @@ export default {
     onTapNode: function (data) {
       const name = data.map(t => t.label).join(', ');
       this.onConnectivityHovered(name);
-
-      // Hover outside of node area
-      if (!name) {
-        EventBus.emit('show-connectivity', {
-          featureIds: [this.entry.resource]
-        });
-      }
-
     },
     onConnectivityHovered: function (label) {
       const payload = {
-        connectivityInfo: this.graphEntry,
+        connectivityInfo: this.entry.connectivityInfo,
         label: label,
         data: label ? this.getConnectivityDatasets(label) : [],
       };
