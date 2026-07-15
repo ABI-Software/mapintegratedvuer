@@ -114,7 +114,7 @@ export default {
         const connectivities = this.connectivitiesStore.globalConnectivities[uuid];
         const match = connectivities.find(c => c.id === featureId);
         if (match && match['long-label']) {
-          return `<div class='flatmap-feature-label'>${match['long-label']}<hr/>${featureData.label || ''}</div>`;
+          return `<div class='flatmap-feature-label'>${match['long-label']}</div>`;
         }
       }
 
