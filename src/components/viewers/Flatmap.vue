@@ -41,6 +41,7 @@
       @pathway-selection-changed="onPathwaySelectionChanged"
       @mapmanager-loaded="onMapmanagerLoaded"
       :showPathwayFilter="false"
+      :tooltipContentProvider="tooltipPathLabelProvider"
       @trackEvent="trackEvent"
     />
 
@@ -93,6 +94,31 @@ export default {
     },
     getFlatmapImp() {
       return this.$refs.flatmap?.mapImp;
+    },
+    /**
+     * Tooltip content provider for FlatmapVuer.
+     * Looks up the 'long-label' from connectivity knowledge for path features.
+     * Only activates for path IDs (starting with 'ilxtr:' or 'ilx:').
+     * Returns null (default tooltip) for non-path features or when no long-label is found.
+     */
+    tooltipPathLabelProvider: function (featureData) {
+      const featureId = featureData?.id;
+      // Only applies to path features
+      if (!featureId || !(featureId.startsWith('ilxtr:') || featureId.startsWith('ilx:'))) {
+        return null;
+      }
+
+      // Look up long-label from the connectivity store
+      const uuid = featureData.mapUUID;
+      if (uuid && this.connectivitiesStore?.globalConnectivities?.[uuid]) {
+        const connectivities = this.connectivitiesStore.globalConnectivities[uuid];
+        const match = connectivities.find(c => c.id === featureId);
+        if (match && match['long-label']) {
+          return `<div class='flatmap-feature-label'>${match['long-label']}<hr/>${featureData.label || ''}</div>`;
+        }
+      }
+
+      return null; // Use default tooltip
     },
     contextRestored(flatmap) {
       this.flatmapReadyForMarkerUpdates(flatmap);
