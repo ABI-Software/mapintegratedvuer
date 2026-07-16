@@ -806,7 +806,7 @@ export default {
         if (connectivities) {
           const match = connectivities.find(c => c.id === featureId);
           if (match && match['long-label']) {
-            longLabels.push(match['long-label']);
+            longLabels.push(capitalise(match['long-label']));
           }
         }
       }
