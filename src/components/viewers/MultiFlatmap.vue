@@ -161,20 +161,30 @@ export default {
      * Returns null (default tooltip) for non-path features or when no long-label is found.
      */
     tooltipPathLabelProvider: function (featureData) {
-      const featureId = featureData?.id;
-      // Only applies to path features
-      if (!featureId || !(featureId.startsWith('ilxtr:') || featureId.startsWith('ilx:'))) {
-        return null;
+      // Handle both single feature data object and array of feature data (multi-feature case)
+      const features = Array.isArray(featureData) ? featureData : [featureData];
+
+      const longLabels = [];
+      const uuid = features[0]?.mapUUID;
+      const connectivities = uuid ? this.connectivitiesStore?.globalConnectivities?.[uuid] : null;
+
+      for (const feature of features) {
+        const featureId = feature?.id;
+        // Only applies to path features
+        if (!featureId || !(featureId.startsWith('ilxtr:') || featureId.startsWith('ilx:'))) {
+          continue;
+        }
+        // Look up long-label from the connectivity store
+        if (connectivities) {
+          const match = connectivities.find(c => c.id === featureId);
+          if (match && match['long-label']) {
+            longLabels.push(match['long-label']);
+          }
+        }
       }
 
-      // Look up long-label from the connectivity store
-      const uuid = featureData.mapUUID;
-      if (uuid && this.connectivitiesStore?.globalConnectivities?.[uuid]) {
-        const connectivities = this.connectivitiesStore.globalConnectivities[uuid];
-        const match = connectivities.find(c => c.id === featureId);
-        if (match && match['long-label']) {
-          return `<div class='flatmap-feature-label'>${match['long-label']}</div>`;
-        }
+      if (longLabels.length > 0) {
+        return `<div class='flatmap-feature-label'>${longLabels.join('<hr/>')}</div>`;
       }
 
       return null; // Use default tooltip
