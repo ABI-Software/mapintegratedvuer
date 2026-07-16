@@ -20,6 +20,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
@@ -63,6 +64,10 @@ export default {
     showLongLabel: {
       type: Boolean,
       default: true,
+    },
+    truncateLongLabel: {
+      type: Boolean,
+      default: false,
     },
     /**
      * The options include APIs and Keys.
@@ -133,6 +138,7 @@ export default {
     return {
       showGlobalSettings: this.showGlobalSettings,
       showOpenMapButton: this.showOpenMapButton,
+      truncateLongLabel: computed(() => this.truncateLongLabel),
     };
   },
   data: function () {

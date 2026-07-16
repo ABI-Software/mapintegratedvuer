@@ -41,7 +41,17 @@ export default {
       default: false,
     },
   },
-  inject: ['showGlobalSettings', 'showOpenMapButton'],
+  inject: {
+    showGlobalSettings: {
+      default: true,
+    },
+    showOpenMapButton: {
+      default: true,
+    },
+    truncateLongLabel: {
+      default: false,
+    },
+  },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
@@ -795,6 +805,14 @@ export default {
       }
 
       if (longLabels.length > 0) {
+        const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
+
+        if (truncate) {
+          const truncated = longLabels.map(label =>
+            `<div style="display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden;">${label}</div>`
+          );
+          return `<div class='flatmap-feature-label'>${truncated.join('<hr/>')}</div>`;
+        }
         return `<div class='flatmap-feature-label'>${longLabels.join('<hr/>')}</div>`;
       }
 

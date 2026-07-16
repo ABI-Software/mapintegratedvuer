@@ -24,7 +24,8 @@
                 <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
                 <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
                 <el-button @click="setSearch()" size="small">Set Search</el-button>
-                <el-button @click="toggleLongLabel()" size="small">Toggle Long Label</el-button>
+                <el-button @click="toggleLongLabel()" size="small">Toggle Long Label (sidebar)</el-button>
+                <el-checkbox v-model="truncateLongLabel" size="small">Truncate Long Label (map)</el-checkbox>
               </div>
             </div>
             <template #reference>
@@ -42,6 +43,7 @@
         :options="options"
         :state="state"
         :showLongLabel="showLongLabel"
+        :truncateLongLabel="truncateLongLabel"
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
@@ -161,6 +163,7 @@ export default {
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
       showLongLabel: true,
+      truncateLongLabel: false,
     }
   },
   computed: {
