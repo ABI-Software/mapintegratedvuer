@@ -41,7 +41,17 @@ export default {
       default: false,
     },
   },
-  inject: ['showGlobalSettings', 'showOpenMapButton'],
+  inject: {
+    showGlobalSettings: {
+      default: true,
+    },
+    showOpenMapButton: {
+      default: true,
+    },
+    truncateLongLabel: {
+      default: false,
+    },
+  },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
@@ -793,6 +803,48 @@ export default {
     },
     trackEvent: function (data) {
       Tagging.sendEvent(data);
+    },
+    /**
+     * Tooltip content provider for FlatmapVuer.
+     * Looks up the 'long-label' from connectivity knowledge for path features.
+     * Only activates for path IDs (starting with 'ilxtr:' or 'ilx:').
+     * Returns null (default tooltip) for non-path features or when no long-label is found.
+     */
+    tooltipPathLabelProvider: function (featureData) {
+      // Handle both single feature data object and array of feature data (multi-feature case)
+      const features = Array.isArray(featureData) ? featureData : [featureData];
+      const longLabels = [];
+      const uuid = features[0]?.mapUUID;
+      const connectivities = uuid ? this.connectivitiesStore?.globalConnectivities?.[uuid] : null;
+
+      for (const feature of features) {
+        const featureId = feature?.id;
+        // Only applies to path features
+        if (!featureId || !(featureId.startsWith('ilxtr:') || featureId.startsWith('ilx:'))) {
+          continue;
+        }
+        // Look up long-label from the connectivity store
+        if (connectivities) {
+          const match = connectivities.find(c => c.id === featureId);
+          if (match && match['long-label']) {
+            longLabels.push(match['long-label']);
+          }
+        }
+      }
+
+      if (longLabels.length > 0) {
+        const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
+
+        if (truncate) {
+          const truncated = longLabels.map(label =>
+            `<div style="display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden;">${label}</div>`
+          );
+          return `<div class='flatmap-feature-label'>${truncated.join('<hr/>')}</div>`;
+        }
+        return `<div class='flatmap-feature-label'>${longLabels.join('<hr/>')}</div>`;
+      }
+
+      return null; // Use default tooltip
     },
   },
   data: function () {
