@@ -48,6 +48,9 @@ export default {
     showOpenMapButton: {
       default: true,
     },
+    showLongLabel: {
+      default: true,
+    },
     truncateLongLabel: {
       default: false,
     },
@@ -805,12 +808,16 @@ export default {
       Tagging.sendEvent(data);
     },
     /**
-     * Tooltip content provider for FlatmapVuer.
-     * Looks up the 'long-label' from connectivity knowledge for path features.
-     * Only activates for path IDs (starting with 'ilxtr:' or 'ilx:').
-     * Returns null (default tooltip) for non-path features or when no long-label is found.
+     * Provides custom tooltip content for FlatmapVuer path features.
+     * Uses connectivity 'long-label' values for IDs starting with 'ilxtr:' or 'ilx:'.
+     * Returns null to use the default tooltip when long labels are disabled or unavailable.
      */
     tooltipPathLabelProvider: function (featureData) {
+      const showLong = this.showLongLabel?.value ?? this.showLongLabel;
+      if (!showLong) {
+        return null;
+      }
+
       // Handle both single feature data object and array of feature data (multi-feature case)
       const features = Array.isArray(featureData) ? featureData : [featureData];
       const longLabels = [];
@@ -827,7 +834,7 @@ export default {
         if (connectivities) {
           const match = connectivities.find(c => c.id === featureId);
           if (match && match['long-label']) {
-            longLabels.push(match['long-label']);
+            longLabels.push(capitalise(match['long-label']));
           }
         }
       }
@@ -836,8 +843,15 @@ export default {
         const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
 
         if (truncate) {
+          const lineClamp = longLabels.length > 1 ? 5 : 10;
+          const styles = [
+            `display: -webkit-box`,
+            `-webkit-line-clamp: ${lineClamp}`,
+            `-webkit-box-orient: vertical`,
+            `overflow: hidden`,
+          ].join(';');
           const truncated = longLabels.map(label =>
-            `<div style="display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden;">${label}</div>`
+            `<div style="${styles}">${label}</div>`
           );
           return `<div class='flatmap-feature-label'>${truncated.join('<hr/>')}</div>`;
         }
