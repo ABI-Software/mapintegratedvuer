@@ -4,35 +4,38 @@
       href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap">
       <div class="button-container">
         <el-popover
+          ref="optionsPopover"
           placement="bottom"
           trigger="click"
           width=500
           class="popover"
           :teleported=false
-          >
-            <div class="options-container">
-              <div class="row">
-                <el-button @click="saveSettings()" size="small">Save Settings</el-button>
-                <el-button @click="restoreSettings()" size="small">Restore Settings</el-button>
-                <el-button @click="getShareableURL()" size="small">Get Link</el-button>
-              </div>
-              <div class="row">
-                <el-button @click="setRatFlatmap()" size="small">Set Rat Flatmap</el-button>
-                <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
-                <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
-                <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
-                <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
-                <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
-                <el-button @click="setSearch()" size="small">Set Search</el-button>
-                <el-button @click="toggleLongLabel()" size="small">Toggle Long Label (sidebar)</el-button>
-                <el-checkbox v-model="truncateLongLabel" size="small">Truncate Long Label (map)</el-checkbox>
-              </div>
+        >
+          <div class="options-container">
+            <div class="row">
+              <el-button @click="saveSettings()" size="small">Save Settings</el-button>
+              <el-button @click="restoreSettings()" size="small">Restore Settings</el-button>
+              <el-button @click="getShareableURL()" size="small">Get Link</el-button>
             </div>
-            <template #reference>
-
-                <el-button class="options-button" :icon="ElIconSetting">Options</el-button>
-
-            </template>
+            <div class="row">
+              <el-button @click="setRatFlatmap()" size="small">Set Rat Flatmap</el-button>
+              <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
+              <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
+              <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
+              <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
+              <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
+              <el-button @click="setSearch()" size="small">Set Search</el-button>
+            </div>
+            <div class="row">
+              <el-button @click="toggleLongLabel()" size="small">Toggle Long Label</el-button>
+              <el-checkbox @change="onTruncateLongLabelChange" v-model="truncateLongLabel" size="small">
+                Truncate Long Label (map)
+              </el-checkbox>
+            </div>
+          </div>
+          <template #reference>
+            <el-button class="options-button" :icon="ElIconSetting">Options</el-button>
+          </template>
         </el-popover>
       </div>
     <div class="map-app">
@@ -163,7 +166,7 @@ export default {
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
       showLongLabel: true,
-      truncateLongLabel: false,
+      truncateLongLabel: true,
     }
   },
   computed: {
@@ -185,6 +188,11 @@ export default {
     }
   },
   methods: {
+    closePopover: function() {
+      if (this.$refs.optionsPopover) {
+        this.$refs.optionsPopover.hide();
+      }
+    },
     changeViewingMode: function(modeName) {
       this.$refs.map.changeViewingMode(modeName);
     },
@@ -264,6 +272,7 @@ export default {
           label: "Functional"
         }
       );
+      this.closePopover();
     },
     setLegacyMultiFlatmap: function() {
       this.$refs.map.setCurrentEntry(
@@ -273,6 +282,7 @@ export default {
           uuid: "01fedbf9-d783-509c-a10c-827941ab13da",
         }
       );
+      this.closePopover();
     },
     setMultiFlatmap: function() {
       this.$refs.map.setCurrentEntry(
@@ -284,6 +294,7 @@ export default {
           organ: "UBERON:0018675"
         }
       );
+      this.closePopover();
     },
     setRatFlatmap: function() {
       this.$refs.map.setCurrentEntry(
@@ -292,6 +303,7 @@ export default {
           taxo: "NCBITaxon:10114"
         }
       );
+      this.closePopover();
     },
     setScaffold: function() {
       this.$refs.map.setCurrentEntry(
@@ -302,6 +314,7 @@ export default {
           viewUrl: "colonMouse_Layout1_view.json"
         }
       );
+      this.closePopover();
     },
     setWholebody: function() {
       this.$refs.map.setCurrentEntry(
@@ -311,12 +324,18 @@ export default {
           isBodyScaffold: true
         }
       );
+      this.closePopover();
     },
     setSearch: function() {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
+      this.closePopover();
     },
     toggleLongLabel: function() {
       this.showLongLabel = !this.showLongLabel;
+      this.closePopover();
+    },
+    onTruncateLongLabelChange: function() {
+      this.closePopover();
     },
     mapIsLoaded: function(map) {
       console.log("map is loaded", map)
