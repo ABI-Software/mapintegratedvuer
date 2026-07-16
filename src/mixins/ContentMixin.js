@@ -48,6 +48,9 @@ export default {
     showOpenMapButton: {
       default: true,
     },
+    showLongLabel: {
+      default: true,
+    },
     truncateLongLabel: {
       default: false,
     },
@@ -777,12 +780,16 @@ export default {
       Tagging.sendEvent(data);
     },
     /**
-     * Tooltip content provider for FlatmapVuer.
-     * Looks up the 'long-label' from connectivity knowledge for path features.
-     * Only activates for path IDs (starting with 'ilxtr:' or 'ilx:').
-     * Returns null (default tooltip) for non-path features or when no long-label is found.
+     * Provides custom tooltip content for FlatmapVuer path features.
+     * Uses connectivity 'long-label' values for IDs starting with 'ilxtr:' or 'ilx:'.
+     * Returns null to use the default tooltip when long labels are disabled or unavailable.
      */
     tooltipPathLabelProvider: function (featureData) {
+      const showLong = this.showLongLabel?.value ?? this.showLongLabel;
+      if (!showLong) {
+        return null;
+      }
+
       // Handle both single feature data object and array of feature data (multi-feature case)
       const features = Array.isArray(featureData) ? featureData : [featureData];
       const longLabels = [];
