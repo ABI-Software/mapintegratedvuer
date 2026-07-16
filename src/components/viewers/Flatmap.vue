@@ -41,6 +41,7 @@
       @pathway-selection-changed="onPathwaySelectionChanged"
       @mapmanager-loaded="onMapmanagerLoaded"
       :showPathwayFilter="false"
+      :tooltipContentProvider="tooltipPathLabelProvider"
       @trackEvent="trackEvent"
     />
 
