@@ -27,7 +27,9 @@
               <el-button @click="setSearch()" size="small">Set Search</el-button>
             </div>
             <div class="row">
-              <el-button @click="toggleLongLabel()" size="small">Toggle Long Label</el-button>
+              <el-button @click="toggleLongLabel()" size="small">
+                {{ showLongLabel ? 'Show default label' : 'Show long label' }}
+              </el-button>
               <el-checkbox @change="onTruncateLongLabelChange" v-model="truncateLongLabel" size="small">
                 Truncate Long Label (map)
               </el-checkbox>
