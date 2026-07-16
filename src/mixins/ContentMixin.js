@@ -815,8 +815,15 @@ export default {
         const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
 
         if (truncate) {
+          const lineClamp = longLabels.length > 1 ? 5 : 10;
+          const styles = [
+            `display: -webkit-box`,
+            `-webkit-line-clamp: ${lineClamp}`,
+            `-webkit-box-orient: vertical`,
+            `overflow: hidden`,
+          ].join(';');
           const truncated = longLabels.map(label =>
-            `<div style="display: -webkit-box; -webkit-line-clamp: 10; -webkit-box-orient: vertical; overflow: hidden;">${label}</div>`
+            `<div style="${styles}">${label}</div>`
           );
           return `<div class='flatmap-feature-label'>${truncated.join('<hr/>')}</div>`;
         }
