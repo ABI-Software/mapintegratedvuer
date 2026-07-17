@@ -44,7 +44,6 @@
       @mapmanager-loaded="onMapmanagerLoaded"
       :showPathwayFilter="false"
       @trackEvent="trackEvent"
-      @open-simulation="onSimulationOpen"
     />
 
     <HelpModeDialog
@@ -71,7 +70,7 @@
 </template>
 
 <script>
-import { ref, markRaw } from 'vue'
+import { ref } from 'vue'
 import { useMouseInElement } from '@vueuse/core'
 
 /* eslint-disable no-alert, no-console */
@@ -85,7 +84,6 @@ import '@abi-software/flatmapvuer/dist/style.css'
 import { HelpModeDialog } from '@abi-software/map-utilities'
 import '@abi-software/map-utilities/dist/style.css'
 import { useSimulationPlotStore } from '../../stores/simulationPlotStore'
-import { retrieveProtocolData } from '../../services/testData.js';
 
 import PlotComponent from '../PlotComponent.vue'
 import FloatingWindow from '../FloatingWindow.vue'
@@ -150,6 +148,9 @@ export default {
       this.$emit('flatmap-provenance-ready', provClone)
       this.flatmapReadyForMarkerUpdates(flatmap)
       this.updateViewerSettings()
+      if (mapImp?.mapMetadata?.uuid) {
+        this.fetchFlatmapProtocols(mapImp?.mapMetadata?.uuid)
+      }
       // Wait for flatmap's connectivity to load before emitting mapLoaded
       this.loadConnectivityExplorerConfig(flatmap).then(() => {
         EventBus.emit('mapLoaded', flatmap)
@@ -211,6 +212,24 @@ export default {
         if (currentFlatmap) {
           currentFlatmap.showConnectivitiesByReference(payload)
         }
+      }
+    },
+    updateProtocolMarkers: function (ids) {
+      const flatmapImp = this.getFlatmapImp();
+      if (ids.length > 0) {
+        ids.forEach((id) => {
+          const terms = flatmapImp.sparqlQuery(`
+            prefix bgf: <https://bg-rdf.org/ontologies/bondgraph-framework#>
+            prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_>
+            select ?featureUri where {
+                ?featureUri bgf:hasLocation ?region
+                filter (?region in (${id}))
+            }`)
+            const result = terms[0]
+            const featureUri = result.get('featureUri').value
+            const fID = flatmapImp.addMarkerByFeatureUri(featureUri)
+            this.markerToUberonID[fID] = id
+        })
       }
     },
     changeConnectivitySource: function (payload, ongoingSource) {
@@ -275,32 +294,6 @@ export default {
           currentFlatmap.searchAndShowResult(data.id, true, false)
         }
       }
-    },
-    populateProtocolMarkers: function(simulation) {
-      if (simulation?.path && this.protocolData) {
-        const ids = this.protocolData.reduce((results, item) => {
-          if (item.protocol.includes(simulation.path)) {
-            if (item.columns) {
-              item.columns.forEach((column) =>{
-                if (column.anatomic_location) {
-                  results.push(column.anatomic_location);
-                }
-              });
-            }
-          }
-          return results;
-        }, []);
-        this.updateProtocolMarkers(this.getFlatmapImp(), ids);
-      }
-    },
-    onSimulationOpen: async function (simulation) {
-      const uuid = this.$refs.flatmap?.mapImp?.mapMetadata?.uuid;
-      EventBus.emit('simulation-open-clicked', {...simulation, requesterEntryId: this.entry.id,
-        flatmapUUID: uuid})
-      if (!this.protocolData) {
-        this.protocolData = markRaw(await retrieveProtocolData(this.settingsStore.testDataLocation, uuid));
-      }
-      this.populateProtocolMarkers(simulation);
     },
     handleClosePlotWindow: function (windowId) {
       this.simulationPlotStore.removeWindow(windowId)

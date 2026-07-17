@@ -366,7 +366,7 @@ export default {
             location: 'map_popup_button',
           })
           this.filterTriggered = true
-        } else if (action.type == 'Simulation' && action.flatmapUUID) {
+        } else if (action.type == 'Simulation' && action.contentUUID) {
           Tagging.sendEvent({
             event: 'interaction_event',
             event_name: 'flatmaps_simulation_popup_click',

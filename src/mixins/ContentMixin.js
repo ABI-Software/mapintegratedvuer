@@ -2,6 +2,7 @@ import { markRaw } from 'vue'
 import { getNerveNames, getParentsRegion } from '../components/SimulatedData.js'
 import EventBus from '../components/EventBus'
 import { mapStores } from 'pinia'
+import { retrieveOmexData } from '../services/testData.js';
 import { useEntriesStore } from '../stores/entries'
 import { useSettingsStore } from '../stores/settings'
 import { useSplitFlowStore } from '../stores/splitFlow'
@@ -78,6 +79,80 @@ export default {
     this.connectivityFilterSources = this.connectivitiesStore.filterSources
   },
   methods: {
+    /**
+     * Main function to coordinate fetching dataset info and processing files.
+     */
+    async fetchFlatmapProtocols(uuid) {
+      const cacheKey = `flatmap_dataset_${uuid}`
+      // Try to get from cache first
+      // console.log('------- caching temporary disabled for debugging -------')
+      // const cachedData = null
+      const cachedData = this.getSessionCache(cacheKey)
+      if (cachedData) {
+        this.datasetInfo = cachedData
+        this.$emit("dataset-info-ready", {uuid, datasetInfo: this.datasetInfo})
+        return
+      }
+      try {
+        console.log('Fetching dataset info from API...')
+        // Ensure the URL matches your backend route structure
+        const response = await fetch(`${this.apiLocation}flatmap/uuid?uuid=${uuid}`)
+        let data = undefined;
+        if (!response.ok) {
+          if (this.testDataLocation) {
+            data = await retrieveOmexData(this.testDataLocation, uuid)
+          }
+        } else {
+          data = await response.json()
+        }
+        if (!data) {
+          throw new Error(`No protocol data available for map`)
+        }
+        // Save to cache and process
+        this.setSessionCache(cacheKey, data)
+        this.$emit("dataset-info-ready", {uuid, datasetInfo: this.datasetInfo})
+      } catch (error) {
+        console.error('Error fetching flatmap protocols:', error)
+      }
+    },
+    /**
+     * Retrieve data from session storage if it hasn't expired.
+     */
+    getSessionCache(key) {
+      const itemStr = sessionStorage.getItem(key)
+      if (!itemStr) return null
+
+      try {
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        // Check if expired (compare current time to expiry time)
+        if (now.getTime() > item.expiry) {
+          sessionStorage.removeItem(key)
+          return null
+        }
+        return item.value
+      } catch (e) {
+        return null
+      }
+    },
+    /**
+     * Save data to session storage with a 24-hour expiry.
+     */
+    setSessionCache(key, value) {
+      const now = new Date()
+      // 24 hours in milliseconds: 24 * 60 * 60 * 1000 = 86400000
+      const ttl = 86400000
+      const item = {
+        value: value,
+        expiry: now.getTime() + ttl,
+      }
+      try {
+        sessionStorage.setItem(key, JSON.stringify(item))
+      } catch (e) {
+        console.warn('Session storage full or disabled', e)
+      }
+    },
     toggleMinimap: function (option, prevState) {
       if (this.multiflatmapRef && this.flatmapIsReady()) {
         const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
@@ -141,6 +216,9 @@ export default {
       if (title) {
         this.entriesStore.updateTitleForEntry(this.entry, title)
       }
+    },
+    updateProtocolMarkers: function() {
+      return
     },
     updateWithViewUrl: function () {
       return
@@ -837,6 +915,7 @@ export default {
     return {
       apiLocation: undefined,
       activeSpecies: defaultSpecies,
+      datasetInfo: undefined,
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? 'calc(100% - 30px)' : '100%',

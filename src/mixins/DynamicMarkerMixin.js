@@ -51,8 +51,8 @@ export default {
           let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
           markers = removeDuplicates(markers);
           flatmapImp.clearMarkers();
-          flatmapImp.clearDatasetMarkers();
-          flatmapImp.addDatasetMarkers(markers);
+          flatmapImp.clearClusteredAnatomicalMarkers();
+          flatmapImp.addClusteredAnatomicalMarkers(markers);
 
           // Set the featured markers
           if (this.entry.type === "MultiFlatmap") {
@@ -80,24 +80,6 @@ export default {
         markersOnFlatmap.push(datasetAdjusted);
       }
       return markersOnFlatmap;
-    },
-    updateProtocolMarkers: function (flatmapImp, ids) {
-      flatmapImp.clearMarkers()
-      if (ids.length > 0) {
-        ids.forEach((id) => {
-          const terms = flatmapImp.sparqlQuery(`
-            prefix bgf: <https://bg-rdf.org/ontologies/bondgraph-framework#>
-            prefix UBERON: <http://purl.obolibrary.org/obo/UBERON_>
-            select ?featureUri where {
-                ?featureUri bgf:hasLocation ?region
-                filter (?region in (${id}))
-            }`)
-            const result = terms[0]
-            const featureUri = result.get('featureUri').value
-            const fID = flatmapImp.addMarkerByFeatureUri(featureUri)
-            this.markerToUberonID[fID] = id
-        })
-      }
     },
     flatmapReadyForMarkerUpdates: async function (flatmap) {
       if (flatmap) {

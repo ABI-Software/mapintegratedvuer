@@ -29,6 +29,7 @@ declare module 'vue' {
     ElHeader: typeof import('element-plus/es')['ElHeader']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElIconArrowDown: typeof import('@element-plus/icons-vue')['ArrowDown']
+    ElIconArrowLeft: typeof import('@element-plus/icons-vue')['ArrowLeft']
     ElIconArrowUp: typeof import('@element-plus/icons-vue')['ArrowUp']
     ElIconCompass: typeof import('@element-plus/icons-vue')['Compass']
     ElIconEditPen: typeof import('@element-plus/icons-vue')['EditPen']
@@ -62,5 +63,6 @@ declare module 'vue' {
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+    vPopover: typeof import('element-plus/es')['ElPopoverDirective']
   }
 }
