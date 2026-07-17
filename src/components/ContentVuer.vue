@@ -164,7 +164,6 @@ export default {
     processDataset: function(data) {
       if (!data || !data.datasetInfo) return
       const { uuid, datasetInfo } = data;
-      console.log(data, uuid, datasetInfo)
       this.contentUUID = uuid;
       if (datasetInfo.testData) {
         this.simulationInfo = [] // Reset list
