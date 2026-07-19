@@ -89,8 +89,7 @@ export default {
       // const cachedData = null
       const cachedData = this.getSessionCache(cacheKey)
       if (cachedData) {
-        this.datasetInfo = cachedData
-        this.$emit("dataset-info-ready", {uuid, datasetInfo: this.datasetInfo})
+        this.$emit("dataset-info-ready", {uuid, datasetInfo: cachedData})
         return
       }
       try {
@@ -110,7 +109,7 @@ export default {
         }
         // Save to cache and process
         this.setSessionCache(cacheKey, data)
-        this.$emit("dataset-info-ready", {uuid, datasetInfo: this.datasetInfo})
+        this.$emit("dataset-info-ready", {uuid, datasetInfo: data})
       } catch (error) {
         console.error('Error fetching flatmap protocols:', error)
       }
@@ -915,7 +914,6 @@ export default {
     return {
       apiLocation: undefined,
       activeSpecies: defaultSpecies,
-      datasetInfo: undefined,
       scaffoldCamera: undefined,
       mainStyle: {
         height: this.entry.datasetTitle ? 'calc(100% - 30px)' : '100%',
