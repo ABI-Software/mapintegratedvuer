@@ -35,6 +35,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    selectedSimulation: {
+      type: Object,
+      default: undefined,
+    },
     mouseHovered: {
       type: Boolean,
       default: false,
@@ -272,14 +276,14 @@ export default {
                 featuredDataset: true,
               }
             } else {
-              if (resource.protocol) {
+              if (this.selectedSimulation) {
                 let term = resource.feature.models ? resource.feature.models : resource.feature.variable;
                 if (!term && this.markerToUberonID) {
                   term = this.markerToUberonID[resource.feature.id]
                 }
                 returnedAction = {
                   type: 'ProtocolSearch',
-                  protocol: resource.protocol,
+                  protocol: this.selectedSimulation,
                   term: term,
                 }
               } else {
@@ -477,7 +481,7 @@ export default {
           offset: { left: 15, top: 15 },
           ownerId: this.entry.id,
           position: { x: this.elementX + this.left, y: this.elementY + this.top },
-          protocol: firstResource.protocol,
+          protocol: this.selectedSimulation,
           variable,
           windowId: `simulation-window-${this.entry.id}-${component}-${variable}`,
         }

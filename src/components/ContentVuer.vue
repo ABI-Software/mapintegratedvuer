@@ -83,6 +83,7 @@
           :is="viewerType"
           :entry="entry"
           :mouseHovered="mouseHovered"
+          :selectedSimulation="selectedSimulation"
           :visible="visible"
           :lazy="true"
           ref="viewer"
