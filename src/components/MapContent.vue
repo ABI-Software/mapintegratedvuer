@@ -25,6 +25,7 @@ import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
+import { useSimulationPlotStore } from '../stores/simulationPlotStore'
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { defaultSpecies, findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor} from '@abi-software/svg-sprite';
@@ -334,7 +335,7 @@ export default {
                     this.$refs.flow.setState(currentState);
                     //Do not create a new entry, instead set the multiflatmap viewer
                     //to the primary slot
-                    this.$refs.flow.setIdToPrimaryPane(entry.id);
+                    this.$refs.flow.setIdToPane(entry.id);
                     break;
                   }
                 }
@@ -389,7 +390,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useSettingsStore, useSplitFlowStore),
+    ...mapStores(useSettingsStore, useSimulationPlotStore, useSplitFlowStore),
     stateToSet() {
       return this.state ? this.state : this.initialState;
     },
@@ -412,6 +413,7 @@ export default {
       this.options.pennsieveApi ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi) : null;
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
+      this.options.testDataLocation ? this.settingsStore.updateTestDataLocation(this.options.testDataLocation) : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);
     this.splitFlowStore?.reset();
@@ -450,13 +452,16 @@ export default {
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
     this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
-  }
+    this.simulationPlotStore.initListeners();
+  },
+  beforeUnmount: function () {
+    this.simulationPlotStore.cleanupListeners();
+  },
 }
 
 </script>
 
 <style scoped lang="scss">
-
 :deep(.el-loading-spinner) {
   .path {
     stroke: $app-primary-color;

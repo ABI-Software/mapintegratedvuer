@@ -20,14 +20,74 @@
     ></DatasetHeader>
   -->
     <div class="component-container" ref="container">
+      <div
+        class="popover-location simulation top"
+        v-if="simulationInfo.length > 0"
+        :class="{
+          open: simulationDrawerOpen,
+          close: !simulationDrawerOpen,
+        }"
+      >
+        <div
+          class="simulation-container"
+          :class="{
+            open: simulationDrawerOpen,
+            close: !simulationDrawerOpen,
+          }"
+          v-popover:simulationPopover
+        >
+          <h4 style="margin-top: 0; margin-bottom: 10px">
+            Available Protocols
+          </h4>
+          <el-select
+            popper-class="flatmap-dropdown"
+            v-model="selectedSimulation"
+            placeholder="Select a simulation"
+            size="default"
+            style="width: 100%; margin-bottom: 10px"
+            value-key="path"
+          >
+            <el-option
+              v-for="info in simulationInfo"
+              :key="info.path"
+              :label="getSimulationLabel(info)"
+              :value="info"
+            />
+          </el-select>
+          <el-button
+            type="primary"
+            @click="openSimulation"
+            :disabled="!selectedSimulation"
+            style="width: 100%"
+          >
+            Open Simulation
+          </el-button>
+        </div>
+        <div
+          @click="simulationDrawerOpen = !simulationDrawerOpen"
+          class="drawer-button"
+          :class="{
+            open: simulationDrawerOpen,
+            close: !simulationDrawerOpen,
+          }"
+          title="Toggle Simulation Panel"
+        >
+          <!-- Arrow icons for open/close state -->
+          <el-icon>
+            <el-icon-arrow-left />
+          </el-icon>
+        </div>
+      </div>
       <Suspense>
         <Component
           :is="viewerType"
           :entry="entry"
           :mouseHovered="mouseHovered"
+          :selectedSimulation="selectedSimulation"
           :visible="visible"
           :lazy="true"
           ref="viewer"
+          @dataset-info-ready="processDataset"
           @flatmap-provenance-ready="flatmapProvenanceReady"
           @resource-selected="resourceSelected"
           @species-changed="speciesChanged"
@@ -39,12 +99,21 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { defineAsyncComponent } from 'vue'
-import { ElButton as Button } from "element-plus";
+import { defineAsyncComponent, markRaw } from 'vue'
+import {
+  ArrowLeft as ElIconArrowLeft,
+} from '@element-plus/icons-vue'
+import {
+  ElButton as Button,
+  ElIcon as Icon
+} from "element-plus";
 import ContentBar from "./ContentBar.vue";
+import EventBus from './EventBus'
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
+import { useSettingsStore } from '../stores/settings'
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { retrieveProtocolData } from '../services/testData.js';
 
 const Flatmap = defineAsyncComponent(() => import("./viewers/Flatmap.vue"));
 const Iframe = defineAsyncComponent(() => import("./viewers/Iframe.vue"));
@@ -62,6 +131,7 @@ export default {
      * the required viewing.
      */
     entry: Object,
+
     visible: {
       type: Boolean,
       default: true,
@@ -72,7 +142,9 @@ export default {
     Button,
     ContentBar,
     ConnectivityGraph,
+    ElIconArrowLeft,
     Flatmap,
+    Icon,
     Iframe,
     MultiFlatmap,
     Plot,
@@ -89,6 +161,77 @@ export default {
     },
     getState: function () {
       return this.$refs.viewer?.getState();
+    },
+    processDataset: function(data) {
+      if (!data || !data.datasetInfo) return
+      const { uuid, datasetInfo } = data;
+      this.contentUUID = uuid;
+      if (datasetInfo.testData) {
+        this.simulationInfo = [] // Reset list
+        datasetInfo.simulation.forEach((item) => {
+          this.simulationInfo.push({
+            label: item.name,
+            path: item.dataset.path,
+            dataset_id: item.datasetId,
+            type: 'Simulation',
+            resource: item.resource.url,
+          })
+        })
+      } else {
+        if (datasetInfo.length !== 0) {
+          this.simulationInfo = [] // Reset list
+          //FIXME: Currently only process the first dataset entry
+          const firstData = datasetInfo[0]
+          const apiLocation = this.sparcAPI
+          // Base URL for Pennsieve public assets
+          const baseUrl = `${apiLocation}/s3-resource/${firstData.dataset_id}/files`
+          const bucketName = this.extractBucketNameFromS3Uri(firstData.s3uri)
+          firstData.urls.map(async (filePath) => {
+            const fullUrl = `${baseUrl}/${filePath}?s3BucketName=${bucketName}`
+            // Add to our list of valid files
+            this.simulationInfo.push({
+              label: firstData.title,
+              s3uri: firstData.s3uri,
+              dataset_id: firstData.dataset_id,
+              version: firstData.version,
+              path: filePath,
+              type: 'Simulation',
+              resource: fullUrl,
+            })
+          })
+        }
+      }
+    },
+
+    getSimulationLabel: function (info) {
+      return info.path.split('/').pop()
+    },
+    openSimulation: async function () {
+      if (this.selectedSimulation) {
+        EventBus.emit('simulation-open-clicked', {...this.selectedSimulation, requesterEntryId: this.entry.id,
+          contentUUID: this.contentUUID})
+        if (!this.protocolData) {
+          this.protocolData = markRaw(await retrieveProtocolData(this.settingsStore.testDataLocation, this.contentUUID));
+        }
+        this.populateProtocolMarkers(this.selectedSimulation);
+      }
+    },
+    populateProtocolMarkers: function(simulation) {
+      if (simulation?.path && this.protocolData) {
+        const ids = this.protocolData.reduce((results, item) => {
+          if (item.protocol.includes(simulation.path)) {
+            if (item.columns) {
+              item.columns.forEach((column) =>{
+                if (column.anatomic_location) {
+                  results.push(column.anatomic_location);
+                }
+              });
+            }
+          }
+          return results;
+        }, []);
+        this.$refs.viewer?.updateProtocolMarkers(ids);
+      }
     },
     resourceSelected: function (payload) {
       this.$emit("resource-selected", payload);
@@ -169,12 +312,17 @@ export default {
   },
   data: function () {
     return {
+      contentUUID: undefined,
+      protocolData: undefined,
+      selectedSimulation: undefined,
+      simulationDrawerOpen: false,
+      simulationInfo: [],
       mouseHovered: false,
       activeSpecies: "Rat",
     };
   },
   computed: {
-    ...mapStores(useEntriesStore, useSplitFlowStore),
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     viewerType() {
       switch (this.entry.type) {
         case "Iframe":
@@ -240,6 +388,84 @@ export default {
     &:hover {
       box-shadow: -3px 2px 4px rgba(0, 0, 0, 0.2);
     }
+  }
+}
+
+
+.drawer-button {
+  z-index: 8;
+  width: 20px;
+  height: 40px;
+  border: solid 1px $app-primary-color;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  pointer-events: auto;
+  background-color: #f9f2fc;
+
+  i {
+    font-weight: 600;
+    margin-top: 12px;
+    color: $app-primary-color;
+  }
+  &.open {
+    i {
+      transform: rotate(0deg) scaleY(2);
+    }
+  }
+  &.close {
+    transform: translateX(22px); // button + border width
+    i {
+      transform: rotate(180deg) scaleY(2);
+    }
+  }
+}
+
+
+.simulation-container {
+  width: 276px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: 16px;
+  border: 1px solid rgb(220, 223, 230);
+  border-left: 0;
+  border-bottom: 0;
+  background: #ffffff;
+  &.open {
+    opacity: 1;
+    position: relative;
+    z-index: 2;
+  }
+  &.close {
+    opacity: 0;
+  }
+}
+
+.popover-location {
+  position: absolute;
+  left: 0px;
+  transform: translateX(0);
+  transition: all var(--el-transition-duration);
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  &.simulation {
+    .el-button {
+      background: $app-primary-color;
+    }
+  }
+  &.open {
+    transform: translateX(0);
+  }
+  &.close {
+    transform: translateX(-100%);
+  }
+  &.top {
+    top: 5px;
+  }
+  &.bottom {
+    bottom: 0px;
   }
 }
 </style>

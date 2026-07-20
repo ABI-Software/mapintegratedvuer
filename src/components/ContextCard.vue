@@ -94,7 +94,6 @@
   </div>
 </template>
 
-
 <script>
 /* eslint-disable no-alert, no-console */
 import { CopyToClipboard } from "@abi-software/map-utilities";

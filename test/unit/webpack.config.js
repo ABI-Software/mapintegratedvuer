@@ -54,7 +54,7 @@ module.exports = {
           {
             loader: 'sass-loader',
             options: {
-              prependData: `@import '@/assets/styles';`
+              prependData: `@use '@/assets/styles';`
             }
           }
         ]

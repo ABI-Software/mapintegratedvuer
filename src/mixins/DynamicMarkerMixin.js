@@ -1,6 +1,8 @@
 
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
+import { retrieveProtocolData } from '../services/testData.js';
+import { markRaw } from 'vue'
 
 // remove duplicates by stringifying the objects
 const removeDuplicates = function (arrayOfAnything) {
@@ -9,11 +11,17 @@ const removeDuplicates = function (arrayOfAnything) {
     JSON.parse(e)
   )
 }
-  
+
 /* eslint-disable no-alert, no-console */
 export default {
   computed: {
     ...mapStores(useSettingsStore),
+  },
+  data: function () {
+    return {
+      protocolData: undefined,
+      markerToUberonID: {},
+    }
   },
   methods: {
     flatmapPanZoomCallback: function (payload) {
@@ -33,22 +41,23 @@ export default {
      */
     flatmapMarkerUpdate(flatmap) {
       if (!this.flatmapReady) return;
+      if (!this.protocolData) {
+        let flatmapImp = flatmap;
+        if (!flatmapImp)
+          flatmapImp = this.getFlatmapImp();
 
-      let flatmapImp = flatmap;
-      if (!flatmapImp)
-        flatmapImp = this.getFlatmapImp();
+        if (flatmapImp) {
+          // Set the dataset markers
+          let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
+          markers = removeDuplicates(markers);
+          flatmapImp.clearMarkers();
+          flatmapImp.clearClusteredAnatomicalMarkers();
+          flatmapImp.addClusteredAnatomicalMarkers(markers);
 
-      if (flatmapImp) {
-        // Set the dataset markers
-        let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
-        markers = removeDuplicates(markers);
-        flatmapImp.clearMarkers();
-        flatmapImp.clearDatasetMarkers();
-        flatmapImp.addDatasetMarkers(markers);
-
-        // Set the featured markers
-        if (this.entry.type === "MultiFlatmap") {
-          this.restoreFeaturedMarkers(flatmapImp);
+          // Set the featured markers
+          if (this.entry.type === "MultiFlatmap") {
+            this.restoreFeaturedMarkers(flatmapImp);
+          }
         }
       }
     },
@@ -72,12 +81,18 @@ export default {
       }
       return markersOnFlatmap;
     },
-    flatmapReadyForMarkerUpdates: function (flatmap) {
+    flatmapReadyForMarkerUpdates: async function (flatmap) {
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
         const flatmapImp = flatmap.mapImp;
-        this.flatmapMarkerUpdate(flatmapImp);
+        if (flatmapImp) {
+          const flatmapUUID = flatmapImp.mapMetadata.uuid;
+          this.protocolData = markRaw(await retrieveProtocolData(this.settingsStore.testDataLocation, flatmapUUID));
+          if (!this.protocolData) {
+            this.flatmapMarkerUpdate(flatmapImp);
+          }
+        }
       }
     },
   }
