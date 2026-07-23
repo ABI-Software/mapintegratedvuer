@@ -33,6 +33,9 @@
               <el-checkbox @change="onTruncateLongLabelChange" v-model="truncateLongLabel" size="small">
                 Truncate Long Label (map)
               </el-checkbox>
+              <el-checkbox @change="onShowIdInTooltipChange" v-model="showIdInTooltip" size="small">
+                Show ID in tooltip (map)
+              </el-checkbox>
             </div>
           </div>
           <template #reference>
@@ -49,6 +52,7 @@
         :state="state"
         :showLongLabel="showLongLabel"
         :truncateLongLabel="truncateLongLabel"
+        :showIdInTooltip="showIdInTooltip"
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
@@ -169,6 +173,7 @@ export default {
       routerIsReady: false,
       showLongLabel: true,
       truncateLongLabel: true,
+      showIdInTooltip: true,
     }
   },
   computed: {
@@ -337,6 +342,9 @@ export default {
       this.closePopover();
     },
     onTruncateLongLabelChange: function() {
+      this.closePopover();
+    },
+    onShowIdInTooltipChange: function() {
       this.closePopover();
     },
     mapIsLoaded: function(map) {

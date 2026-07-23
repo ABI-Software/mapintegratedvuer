@@ -54,6 +54,9 @@ export default {
     truncateLongLabel: {
       default: false,
     },
+    showIdInTooltip: {
+      default: true,
+    },
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
@@ -807,7 +810,7 @@ export default {
           const match = connectivities.find(c => c.id === featureId);
           const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
           const lineClamp = 3;
-          const baseStyles = [
+          const withIdStyles = [
             `margin-bottom: 4px`,
           ];
           const truncateStyles = [
@@ -817,14 +820,16 @@ export default {
             `overflow: hidden`,
           ];
           const styles = [
-            ...baseStyles,
+            ...(this.showIdInTooltip ? withIdStyles : []),
             ...(truncate ? truncateStyles : [])
           ].join(';');
 
           if (match && match['long-label']) {
             let labelTag = []
             labelTag.push(`<div style="${styles}">${capitalise(match['long-label'])}</div>`);
-            labelTag.push(`<span class="id-tag">${featureId}</span>`);
+            if (this.showIdInTooltip) {
+              labelTag.push(`<span class="id-tag">${featureId}</span>`);
+            }
             longLabels.push(labelTag.join(''));
           }
         }
