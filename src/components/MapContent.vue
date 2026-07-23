@@ -69,6 +69,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    showIdInTooltip: {
+      type: Boolean,
+      default: true,
+    },
     /**
      * The options include APIs and Keys.
      */
@@ -139,6 +143,7 @@ export default {
       showGlobalSettings: this.showGlobalSettings,
       showOpenMapButton: this.showOpenMapButton,
       truncateLongLabel: computed(() => this.truncateLongLabel),
+      showIdInTooltip: computed(() => this.showIdInTooltip),
     };
   },
   data: function () {
