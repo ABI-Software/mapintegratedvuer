@@ -805,30 +805,32 @@ export default {
         // Look up long-label from the connectivity store
         if (connectivities) {
           const match = connectivities.find(c => c.id === featureId);
+          const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
+          const lineClamp = 3;
+          const baseStyles = [
+            `margin-bottom: 4px`,
+          ];
+          const truncateStyles = [
+            `display: -webkit-box`,
+            `-webkit-line-clamp: ${lineClamp}`,
+            `-webkit-box-orient: vertical`,
+            `overflow: hidden`,
+          ];
+          const styles = [
+            ...baseStyles,
+            ...(truncate ? truncateStyles : [])
+          ].join(';');
+
           if (match && match['long-label']) {
-            longLabels.push(capitalise(match['long-label']));
+            let labelTag = []
+            labelTag.push(`<div style="${styles}">${capitalise(match['long-label'])}</div>`);
+            labelTag.push(`<span class="id-tag">${featureId}</span>`);
+            longLabels.push(labelTag.join(''));
           }
         }
       }
 
       if (longLabels.length > 0) {
-        const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
-
-        if (truncate) {
-          const defaultTruncate = 3;
-          const longTruncate = 5;
-          const lineClamp = longLabels.length > 1 ? defaultTruncate : longTruncate;
-          const styles = [
-            `display: -webkit-box`,
-            `-webkit-line-clamp: ${lineClamp}`,
-            `-webkit-box-orient: vertical`,
-            `overflow: hidden`,
-          ].join(';');
-          const truncated = longLabels.map(label =>
-            `<div style="${styles}">${label}</div>`
-          );
-          return `<div class='flatmap-feature-label'>${truncated.join('<hr/>')}</div>`;
-        }
         return `<div class='flatmap-feature-label'>${longLabels.join('<hr/>')}</div>`;
       }
 
