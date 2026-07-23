@@ -799,7 +799,12 @@ export default {
       const uuid = features[0]?.mapUUID;
       const connectivities = uuid ? this.connectivitiesStore?.globalConnectivities?.[uuid] : null;
 
-      for (const feature of features) {
+      // Make features unique by it's id.
+      const uniqueFeatures = features.filter((feature, index, self) =>
+        index === self.findIndex((f) => f.id === feature.id)
+      );
+
+      for (const feature of uniqueFeatures) {
         const featureId = feature?.id;
         // Only applies to path features
         if (!featureId || !(featureId.startsWith('ilxtr:') || featureId.startsWith('ilx:'))) {
