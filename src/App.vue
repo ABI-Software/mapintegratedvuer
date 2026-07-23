@@ -27,11 +27,17 @@
               <el-button @click="setSearch()" size="small">Set Search</el-button>
             </div>
             <div class="row">
-              <el-button @click="toggleLongLabel()" size="small">
-                {{ showLongLabel ? 'Show default label' : 'Show long label' }}
-              </el-button>
-              <el-checkbox @change="onTruncateLongLabelChange" v-model="truncateLongLabel" size="small">
-                Truncate Long Label (map)
+              <div style="font-weight: 600">Connectivity tooltip labels:</div>
+            </div>
+            <div class="row">
+              <el-checkbox @change="onShowLongLabelChange" v-model="showLongLabel" size="small">
+                Show long label
+              </el-checkbox>
+              <el-checkbox @change="onTruncateLongLabelChange" :disabled="!showLongLabel" v-model="truncateLongLabel" size="small">
+                Truncate long label
+              </el-checkbox>
+              <el-checkbox @change="onShowIdInTooltipChange" :disabled="!showLongLabel" v-model="showIdInTooltip" size="small">
+                Show ID in tooltip
               </el-checkbox>
             </div>
           </div>
@@ -49,6 +55,7 @@
         :state="state"
         :showLongLabel="showLongLabel"
         :truncateLongLabel="truncateLongLabel"
+        :showIdInTooltip="showIdInTooltip"
         :shareLink="shareLink"
         :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
@@ -170,6 +177,7 @@ export default {
       showLongLabel: true,
       isMapLoaded: false,
       truncateLongLabel: true,
+      showIdInTooltip: true,
     }
   },
   computed: {
@@ -333,11 +341,13 @@ export default {
       this.$refs.map.openSearch([], "10.26275/1uno-tynt");
       this.closePopover();
     },
-    toggleLongLabel: function() {
-      this.showLongLabel = !this.showLongLabel;
+    onShowLongLabelChange: function() {
       this.closePopover();
     },
     onTruncateLongLabelChange: function() {
+      this.closePopover();
+    },
+    onShowIdInTooltipChange: function() {
       this.closePopover();
     },
     mapIsLoaded: function(map) {
