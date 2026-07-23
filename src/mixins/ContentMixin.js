@@ -815,7 +815,9 @@ export default {
         const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
 
         if (truncate) {
-          const lineClamp = longLabels.length > 1 ? 5 : 10;
+          const defaultTruncate = 3;
+          const longTruncate = 5;
+          const lineClamp = longLabels.length > 1 ? defaultTruncate : longTruncate;
           const styles = [
             `display: -webkit-box`,
             `-webkit-line-clamp: ${lineClamp}`,
