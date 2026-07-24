@@ -869,7 +869,7 @@ export default {
       }
 
       if (longLabels.length > 0) {
-        return `<div class='flatmap-feature-label'>${longLabels.join('<hr/>')}</div>`;
+        return `<div class='flatmap-feature-label flatmap-connectivity-label'>${longLabels.join('<hr/>')}</div>`;
       }
 
       return null; // Use default tooltip
