@@ -20,6 +20,7 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
+import { computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import SplitFlow from './SplitFlow.vue';
 import EventBus from './EventBus';
@@ -61,6 +62,14 @@ export default {
       default: undefined
     },
     showLongLabel: {
+      type: Boolean,
+      default: true,
+    },
+    truncateLongLabel: {
+      type: Boolean,
+      default: false,
+    },
+    showIdInTooltip: {
       type: Boolean,
       default: true,
     },
@@ -133,6 +142,8 @@ export default {
     return {
       showGlobalSettings: this.showGlobalSettings,
       showOpenMapButton: this.showOpenMapButton,
+      truncateLongLabel: computed(() => this.truncateLongLabel),
+      showIdInTooltip: computed(() => this.showIdInTooltip),
     };
   },
   data: function () {

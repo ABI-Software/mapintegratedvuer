@@ -41,7 +41,23 @@ export default {
       default: false,
     },
   },
-  inject: ['showGlobalSettings', 'showOpenMapButton'],
+  inject: {
+    showGlobalSettings: {
+      default: true,
+    },
+    showOpenMapButton: {
+      default: true,
+    },
+    showLongLabel: {
+      default: true,
+    },
+    truncateLongLabel: {
+      default: false,
+    },
+    showIdInTooltip: {
+      default: true,
+    },
+  },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),
     idNamePair() {
@@ -765,6 +781,70 @@ export default {
     },
     trackEvent: function (data) {
       Tagging.sendEvent(data);
+    },
+    /**
+     * Provides custom tooltip content for FlatmapVuer path features.
+     * Uses connectivity 'long-label' values for IDs starting with 'ilxtr:' or 'ilx:'.
+     * Returns null to use the default tooltip when long labels are disabled or unavailable.
+     */
+    tooltipPathLabelProvider: function (featureData) {
+      const showLong = this.showLongLabel?.value ?? this.showLongLabel;
+      if (!showLong) {
+        return null;
+      }
+
+      // Handle both single feature data object and array of feature data (multi-feature case)
+      const features = Array.isArray(featureData) ? featureData : [featureData];
+      const longLabels = [];
+      const uuid = features[0]?.mapUUID;
+      const connectivities = uuid ? this.connectivitiesStore?.globalConnectivities?.[uuid] : null;
+
+      // Make features unique by it's id.
+      const uniqueFeatures = features.filter((feature, index, self) =>
+        index === self.findIndex((f) => f.id === feature.id)
+      );
+
+      for (const feature of uniqueFeatures) {
+        const featureId = feature?.id;
+        // Only applies to path features
+        if (!featureId || !(featureId.startsWith('ilxtr:') || featureId.startsWith('ilx:'))) {
+          continue;
+        }
+        // Look up long-label from the connectivity store
+        if (connectivities) {
+          const match = connectivities.find(c => c.id === featureId);
+          const truncate = this.truncateLongLabel?.value ?? this.truncateLongLabel;
+          const lineClamp = 3;
+          const withIdStyles = [
+            `margin-bottom: 4px`,
+          ];
+          const truncateStyles = [
+            `display: -webkit-box`,
+            `-webkit-line-clamp: ${lineClamp}`,
+            `-webkit-box-orient: vertical`,
+            `overflow: hidden`,
+          ];
+          const styles = [
+            ...(this.showIdInTooltip ? withIdStyles : []),
+            ...(truncate ? truncateStyles : [])
+          ].join(';');
+
+          if (match && match['long-label']) {
+            let labelTag = []
+            labelTag.push(`<div style="${styles}">${capitalise(match['long-label'])}</div>`);
+            if (this.showIdInTooltip) {
+              labelTag.push(`<span class="id-tag">${featureId}</span>`);
+            }
+            longLabels.push(labelTag.join(''));
+          }
+        }
+      }
+
+      if (longLabels.length > 0) {
+        return `<div class='flatmap-feature-label flatmap-connectivity-label'>${longLabels.join('<hr/>')}</div>`;
+      }
+
+      return null; // Use default tooltip
     },
   },
   data: function () {
