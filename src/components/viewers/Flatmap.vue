@@ -87,7 +87,7 @@ export default {
     },
     /**
      * Perform a local search on this contentvuer
-     * This is similar to directly clicking onthe map
+     * This is similar to directly clicking on the map
      */
     search: function (term) {
       return this.$refs.flatmap.searchAndShowResult(term, true, true);
