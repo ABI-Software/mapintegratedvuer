@@ -31,7 +31,7 @@
           :connectivityKnowledge="connectivityKnowledge"
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
-          :showLongLabel="showLongLabel"
+          :showLongLabel="true"
           :showCellCards="showCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
