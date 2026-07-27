@@ -30,7 +30,7 @@
           :connectivityKnowledge="connectivityKnowledge"
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
-          :showLongLabel="showLongLabel"
+          :showLongLabel="true"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
