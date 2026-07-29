@@ -263,7 +263,7 @@ export default {
         this.flatmapSource.forEach((source, i) => {
           const path = this.generateFileLink(source);
           let flatmapContent = `<div>${source.name}</div>`;
-          let flatmapSource = this.flatmapAPI ? 
+          let flatmapSource = this.flatmapAPI ?
             `${this.flatmapAPI}viewer?id=${source.flatmapUUID}` : source.flatmapUUID;
           flatmapContent += `\n`;
           flatmapContent += `<div><a href="${flatmapSource}">${flatmapSource}</a></div>`;
@@ -413,8 +413,16 @@ export default {
     },
     generateFileLink(sample){
       const path = this.processPathForUrl(sample.path);
-      let link = `${this.envVars.ROOT_URL}/datasets/file/${sample.discoverId}/${sample.version}` + '?path=';
-      link = link + path;
+      const version = sample.version || '';
+      let link = '';
+
+      if (sample.datasetURL) {
+        const datasetFileURL = sample.datasetURL.replace(/datasets\/(\d+)\/version\/(\d+)/, "datasets/file/$1/$2");
+        link = `${datasetFileURL}?path=${path}`;
+      } else if (sample.discoverId) {
+        link = `${this.envVars.ROOT_URL}/datasets/file/${sample.discoverId}/${version}?path=${path}`;
+      }
+
       return link;
     },
     parseMarkdown(markdown){
@@ -426,6 +434,28 @@ export default {
       // note that we assume that the view file is in the same directory as the scaffold (viewUrls take relative paths)
       const viewUrl = this.getFileFromPath(view.path)
       this.$emit("scaffold-view-clicked", viewUrl);
+    },
+    fetchDOIURL: async function (doi) {
+      const doiKey = doi.includes('https://doi.org/') ? this.splitDoiFromUrl(doi) : doi;
+      const apiURL = `https://doi.org/api/handles/${doiKey}?noredirect`;
+
+      try {
+        const response = await fetch(apiURL);
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        const urlEntry = data.values?.find(item => item.type === 'URL');
+
+        if (urlEntry && urlEntry.data && urlEntry.data.value) {
+          return urlEntry.data.value;
+        }
+
+        throw new Error("Redirect URL not found in DOI metadata");
+      } catch (error) {
+        throw new Error(error);
+      }
     },
     getOriginalSource: function() {
       const discoverId = this.entry.discoverId
@@ -449,7 +479,12 @@ export default {
         .then((data) => {
           this.loadingOriginalSource = false
           if (data.result) {
-            data.result.forEach(result => {
+            data.result.forEach(async (result) => {
+              if (result.doi) {
+                const datasetURL = await this.fetchDOIURL(result.doi);
+                result.datasetURL = datasetURL
+                result.name = result.name || result.path.split('/').pop()
+              }
               if (result.flatmapUUID) {
                 this.flatmapSource.push(result)
               } else {
@@ -636,7 +671,7 @@ export default {
     visibility: visible;
   }
 }
- 
+
 .flatmap-entry {
   margin-top: 16px;
 }

@@ -335,13 +335,13 @@ export default {
   .shrink {
     flex-shrink: 1;
     min-width: 0;
-    overflow:hidden;
   }
 
   .information-group {
     margin-left: auto;
     margin-right: 12px;
     height: 100%;
+    position: relative;
   }
 
   .toolbar-title {
@@ -352,6 +352,9 @@ export default {
     font-weight: normal;
     line-height: 20px;
     margin-left: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .select-box {

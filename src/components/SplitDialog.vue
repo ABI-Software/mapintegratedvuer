@@ -737,7 +737,7 @@ export default {
 
 .contentvuer {
   position: absolute;
-  transition: opacity 0s, visibility 0s, left 1s ease, top 1s ease, width 1s ease, height 1s ease;
+  transition: opacity 0s, visibility 0s, left 0s ease, top 0s ease, width 0s ease, height 0s ease;
   background: rgba(255, 255, 255, 1);
   visibility: visible;
   opacity: 1;
