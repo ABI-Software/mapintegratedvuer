@@ -67,7 +67,7 @@ export default {
     },
     truncateLongLabel: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     showIdInTooltip: {
       type: Boolean,

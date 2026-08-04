@@ -52,7 +52,7 @@ export default {
       default: true,
     },
     truncateLongLabel: {
-      default: false,
+      default: true,
     },
     showIdInTooltip: {
       default: true,
