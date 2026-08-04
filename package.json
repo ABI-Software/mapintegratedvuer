@@ -2,6 +2,9 @@
   "name": "@abi-software/mapintegratedvuer",
   "version": "1.19.1",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "serve": "vite --host --force",
     "heroku-postbuild": "vite build",
@@ -106,7 +109,10 @@
     "vue-router": "^4.2.5"
   },
   "optionalDependencies": {
-    "@esbuild/darwin-arm64": "^0.25.3"
+    "@esbuild/darwin-arm64": "^0.25.3",
+    "@rollup/rollup-darwin-arm64": "4.62.3",
+    "@rollup/rollup-linux-x64-gnu": "4.62.3",
+    "@rollup/rollup-win32-x64-msvc": "4.62.3"
   },
   "eslintConfig": {
     "root": true,

@@ -65,11 +65,21 @@ export default {
     this.alive = false;
   },
   mounted: function () {
-    this.multiflatmapRef = markRaw(this.$refs.multiflatmap);
-    this.flatmapRef = markRaw(this.$refs.flatmap);
-    this.iframeRef = markRaw(this.$refs.iframe);
-    this.plotRef = markRaw(this.$refs.plot);
-    this.simulationRef = markRaw(this.$refs.simulation);
+    if (this.$refs.multiflatmap) {
+      this.multiflatmapRef = markRaw(this.$refs.multiflatmap);
+    }
+    if (this.$refs.flatmap) {
+      this.flatmapRef = markRaw(this.$refs.flatmap);
+    }
+    if (this.$refs.iframe) {
+      this.iframeRef = markRaw(this.$refs.iframe);
+    }
+    if (this.$refs.plot) {
+      this.plotRef = markRaw(this.$refs.plot);
+    }
+    if (this.$refs.simulation) {
+      this.simulationRef = markRaw(this.$refs.simulation);
+    }
     // load connectivity with mock human male flatmap
     if (this.iframeRef || this.plotRef || this.simulationRef) {
       this.loadExplorerConfig();
