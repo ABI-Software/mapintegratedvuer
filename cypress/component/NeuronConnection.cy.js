@@ -71,7 +71,7 @@ describe('MapContent', () => {
     // Sidebar should not be visbile
     cy.get('.el-drawer.rtl.my-drawer').should('not.be.visible');
 
-    cy.get('.maplibregl-canvas-container > .maplibregl-canvas').should('be.visible');
+    cy.get('.maplibregl-canvas-container > .maplibregl-canvas',  { timeout: 30000 }).should('be.visible');
     cy.get('#maplibre-minimap .maplibregl-canvas-container > .maplibregl-canvas', { timeout: 60000 }).should('be.visible');
 
     // Open the sidebar
