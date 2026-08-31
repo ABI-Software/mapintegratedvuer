@@ -41,16 +41,19 @@ describe('MapContent', () => {
 
     //cy.intercept('GET', 'https://mapcore-demo.org/current/flatmap/v2/**');
 
-    cy.mount(MapContent, {
-      props: {
-        options: {
-          sparcApi: "https://mock-test/sparc-api/",
-          flatmapAPI: "https://mapcore-demo.org/current/flatmap/v3/",
-          algoliaKey: Cypress.env('ALGOLIA_KEY'),
-          algoliaId: Cypress.env('ALGOLIA_ID'),
-        }
-      },
-    });
+    cy.env(['ALGOLIA_KEY', 'ALGOLIA_ID']).then(({ ALGOLIA_KEY, ALGOLIA_ID }) => {
+      cy.mount(MapContent, {
+        props: {
+          options: {
+            sparcApi: "https://mock-test/sparc-api/",
+            flatmapAPI: "https://mapcore-demo.org/current/flatmap/v3/",
+            algoliaKey: ALGOLIA_KEY,
+            algoliaId: ALGOLIA_ID,
+          }
+        },
+      })
+    })
+
 
     let mockClipboardText = '';
 
@@ -225,6 +228,7 @@ describe('MapContent', () => {
 
     //Check for scaffolds and open it, should have three items in select now
     cy.get('.box-card .container button').contains('Scaffolds (2)').click();
+    // cy.get('.gallery-strip .next').should('exist').click(); // TODO: to add after sidebar update.
     cy.get('.gallery-strip').contains('54-8_metadata.json').should("exist");
     cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.pane-1.contentvuer').should('have.length', 1);

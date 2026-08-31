@@ -80,7 +80,7 @@ export default {
     font-size: 0.8rem;
     margin-left: 0.5rem;
   }
-  :deep(.search-box) {
+  :deep(.search-box.el-autocomplete) {
     margin-top: 2px;
     margin-left:0.5rem;
     height:28px;

@@ -10,6 +10,13 @@ export default {
   reporterOptions: {
     configFile: "reporter-config.json",
   },
+  expose: {
+    visualRegressionType: 'regression',
+    visualRegressionBaseDirectory: 'cypress/snapshots/MapContent.cy.js/base',
+    visualRegressionDiffDirectory: 'cypress/snapshots/diff',
+    visualRegressionGenerateDiff: 'always',
+    visualRegressionFailSilently: false,
+  },
   component: {
     viewportWidth: 1440,
     viewportHeight: 900,
@@ -17,13 +24,6 @@ export default {
     devServer: {
       framework: "vue",
       bundler: "vite",
-    },
-    env: {
-      visualRegressionType: 'regression',
-      visualRegressionBaseDirectory: 'cypress/snapshots/MapContent.cy.js/base',
-      visualRegressionDiffDirectory: 'cypress/snapshots/diff',
-      visualRegressionGenerateDiff: 'always',
-      visualRegressionFailSilently: false,
     },
     screenshotsFolder: './cypress/snapshots',
     setupNodeEvents(on, config) {
@@ -34,6 +34,7 @@ export default {
         },
       });
       configureVisualRegression(on);
+      return config;
     },
     trashAssetsBeforeRuns: false,
   },

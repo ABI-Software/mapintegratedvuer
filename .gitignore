@@ -16,3 +16,4 @@ docs/.vitepress/cache
 docs/components
 .vitepress
 **/components.d.ts
+cypress.env.json

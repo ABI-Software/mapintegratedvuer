@@ -48,20 +48,22 @@ describe('MapContent', () => {
       cy.intercept('/sparc-api/dataset_info/anatomy?identifier=130', {statusCode: 200, body: anatomy_dataset}).as("anatomyResponse");
     })
 
-    cy.mount(MapContent, {
-      props: {
-        options: {
-          sparcApi: "https://mock-test/sparc-api/",
-          flatmapAPI: "https://mapcore-demo.org/current/flatmap/v3/",
-          algoliaKey: Cypress.env('ALGOLIA_KEY'),
-          algoliaId: Cypress.env('ALGOLIA_ID'),
+    cy.env(['ALGOLIA_KEY', 'ALGOLIA_ID']).then(({ ALGOLIA_KEY, ALGOLIA_ID }) => {
+      cy.mount(MapContent, {
+        props: {
+          options: {
+            sparcApi: "https://mock-test/sparc-api/",
+            flatmapAPI: "https://mapcore-demo.org/current/flatmap/v3/",
+            algoliaKey: ALGOLIA_KEY,
+            algoliaId: ALGOLIA_ID,
+          },
         },
-      },
-      global: {
-        stubs: {
-          transition: false, // Disable transition to avoid el-tag issue - PR #432 for more details
-        }
-      },
+        global: {
+          stubs: {
+            transition: false, // Disable transition to avoid el-tag issue - PR #432 for more details
+          }
+        },
+      })
     });
 
     cy.get('.mapcontent').invoke('attr', 'style', 'height: 880px').should('have.attr', 'style', 'height: 880px');

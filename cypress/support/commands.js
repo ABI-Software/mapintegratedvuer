@@ -26,6 +26,24 @@
 
 import 'cypress-wait-until';
 
+// Retries clear+type until the input's value matches, to work around inputs that
+// occasionally drop keystrokes or get detached (e.g., Element Plus fields re-rendering mid-type).
+Cypress.Commands.add('typeReliably', (selector, text, options = {}) => {
+  const attempt = (retriesLeft) => {
+    cy.get(selector)
+      .clear(options)
+      .type(text, { delay: 50, ...options });
+
+    cy.get(selector).then(($el) => {
+      if ($el.val() !== text && retriesLeft > 0) {
+        attempt(retriesLeft - 1);
+      }
+    });
+  };
+  attempt(5);
+  return cy.get(selector);
+});
+
 Cypress.on('uncaught:exception', (err) => {
   // returning false here prevents Cypress from
   // failing the test
@@ -171,12 +189,13 @@ Cypress.Commands.add('testSetCurrentEntry', (entry, species) => {
 Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
   cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
   cy.get('@viewingModes').contains(mode).click();
-  cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').type(searchTerm);
+  cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist');
+  cy.typeReliably('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner', searchTerm);
   cy.get('.search-container > .map-icon > use').should('exist').click();
   cy.wait(2000);
   const tagTerm = `${mode[0]}:${searchTerm}`
-  cy.get('.sidebar-container .filters').should('exist').contains(tagTerm);
-  cy.wait(10000);
+  cy.get('.sidebar-container .content-card:visible .filters').should('exist').contains(tagTerm);
+  cy.wait(4000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.sidebar-container .el-card:visible .header .is-link > span').contains('Reset').click({ multiple: true })
   cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
@@ -186,7 +205,7 @@ Cypress.Commands.add('connectivitySearch', (searchTerm) => {
   cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').clear();
   cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm);
   cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
-  cy.wait(10000);
+  cy.wait(4000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
 });
