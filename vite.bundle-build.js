@@ -7,13 +7,23 @@ export default defineConfig((configEnv) => {
   const config = rootConfig(configEnv);
   config.build = {
     lib: {
-      entry: path.resolve(__dirname, "./src/components/index.js"),
+      entry: path.resolve(import.meta.dirname, "./src/components/index.js"),
       name: "MapintegratedVuer",
       fileName: "mapintegratedvuer",
     },
     rollupOptions: {
-      external: ["vue", "pinia", "@abi-software/flatmapvuer", "@abi-software/plotvuer",
-        "@abi-software/scaffoldvuer", "@abi-software/simulationvuer"],
+      external: [
+        "vue",
+        "pinia",
+        "@abi-software/flatmapvuer",
+        "@abi-software/plotvuer",
+        "@abi-software/scaffoldvuer",
+        "@abi-software/simulationvuer",
+        "@abi-software/flatmapvuer/dist/style.css",
+        "@abi-software/plotvuer/dist/style.css",
+        "@abi-software/scaffoldvuer/dist/style.css",
+        "@abi-software/simulationvuer/dist/style.css",
+      ],
       output: {
         globals: {
           vue: "Vue",

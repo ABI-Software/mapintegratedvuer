@@ -335,8 +335,10 @@ export default {
      * Change the view mode of the current flatmap
      */
     changeViewingMode: function (modeName) {
-      const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-      flatmap.changeViewingMode(modeName);
+      const flatmap = this.$refs.multiflatmap?.getCurrentFlatmap();
+      if (flatmap) {
+        flatmap.changeViewingMode(modeName);
+      }
     },
     showConnectivity: function (payload) {
       if (this?.alive && this.flatmapReady && this.$refs.multiflatmap) {
@@ -409,12 +411,14 @@ export default {
       if (this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
 
-        currentFlatmap.changeViewingMode(viewingMode);
-        currentFlatmap.setFlightPath3D(flightPathDisplay);
-        currentFlatmap.setColour(organsDisplay);
-        currentFlatmap.setOutlines(outlinesDisplay);
-        currentFlatmap.backgroundChangeCallback(backgroundDisplay);
-        currentFlatmap.setConnectionType(connectionType);
+        if (currentFlatmap) {
+          currentFlatmap.changeViewingMode(viewingMode);
+          currentFlatmap.setFlightPath3D(flightPathDisplay);
+          currentFlatmap.setColour(organsDisplay);
+          currentFlatmap.setOutlines(outlinesDisplay);
+          currentFlatmap.backgroundChangeCallback(backgroundDisplay);
+          currentFlatmap.setConnectionType(connectionType);
+        }
       }
     },
     setVisibilityFilter: function (payload) {

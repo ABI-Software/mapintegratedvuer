@@ -1,19 +1,57 @@
-.DS_Store
-dist
-node_modules
-test_html
-.env.local
-.yalc
-yalc.lock
-results
-cypress/results/
-cypress/snapshots/
-cypress/videos/
-cypress/reports/
-test/src/
+# Dependencies
+node_modules/
+
+# Build output and caches
+dist/
+.cache/
+.parcel-cache/
+
+# API documentation
+docs/components
 docs/.vitepress/dist
 docs/.vitepress/cache
-docs/components
-.vitepress
-**/components.d.ts
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local configuration
+.env
+.env.local
+.env.*.local
+
+# Test artifacts
+test_html/
+coverage/
+.nyc_output/
+cypress/videos/
+cypress/screenshots/
+cypress/snapshots/
+cypress/results/
+cypress/reports/
 cypress.env.json
+
+# Generated files
+**/components.d.ts
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project specific
+test/src/
+.yalc
+yalc.lock

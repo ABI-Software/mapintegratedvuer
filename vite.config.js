@@ -55,6 +55,10 @@ export default defineConfig(({ command, mode }) => {
   if (command === "serve") {
     config.server = {
       port: 8081,
+      headers: {
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Embedder-Policy": "credentialless",
+      },
     };
     config.define = {
       "process.env.HTTP_PROXY": 8081,
