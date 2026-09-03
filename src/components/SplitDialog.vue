@@ -173,6 +173,10 @@ export default {
       const wholeBodyScaffoldIDs = [307, '307'];
       const sckanVersion = Object.keys(this.connectivitiesStore.globalConnectivities)
         .find(key => key.includes('sckan'));
+      // Filter active entries and emit their resources (species)
+      const activeEntries = this.entries.filter((entry) => activePaneIDs.includes(entry.id));
+      const activeSpecies = activeEntries.map((entry) => entry.resource);
+      this.$emit('update-active-species', activeSpecies);
       const uuids = Array.from(
         new Set(
           this.entries
@@ -637,6 +641,12 @@ export default {
       const contents = this.getActiveContents();
       contents.forEach((content) => {
         content.onShowConnectivityTooltips(payload);
+      });
+    });
+    EventBus.on('soma-location-hovered', (payload) => {
+      const contents = this.getActiveContents();
+      contents.forEach((content) => {
+        content.onShowFeatureInFlatmap(payload);
       });
     });
     EventBus.on('connectivity-source-change', (payload) => {
