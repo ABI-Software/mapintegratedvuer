@@ -9,7 +9,7 @@ const removeDuplicates = function (arrayOfAnything) {
     JSON.parse(e)
   )
 }
-  
+
 /* eslint-disable no-alert, no-console */
 export default {
   computed: {
@@ -43,8 +43,8 @@ export default {
         let markers = this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.markers : [];
         markers = removeDuplicates(markers);
         flatmapImp.clearMarkers();
-        flatmapImp.clearDatasetMarkers();
-        flatmapImp.addDatasetMarkers(markers);
+        flatmapImp.clearClusteredAnatomicalMarkers();
+        flatmapImp.addClusteredAnatomicalMarkers(markers);
 
         // Set the featured markers
         if (this.entry.type === "MultiFlatmap") {
