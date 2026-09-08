@@ -214,6 +214,10 @@ export default {
             data: connectivityData,
             highlight: [],
             processed: false,
+            // Marks this as the default/global fallback
+            // (no active map's connectivity keys resolved yet)
+            // rather than data scoped to the currently active viewers.
+            isDefaultKnowledge: true,
         });
         EventBus.emit("connectivity-filter-options", []);
         this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
