@@ -367,7 +367,7 @@ export default {
           const plot = viewer.$refs.plot;
           const simulation = viewer.$refs.simulation;
           let currentMap = null;
-          if (multiflatmap) {
+          if (multiflatmap && viewer.flatmapIsReady()) {
             const _currentMap = multiflatmap.getCurrentFlatmap();
             if (_currentMap && _currentMap.mapImp) {
               currentMap = _currentMap;
