@@ -539,12 +539,20 @@ export default {
           merged.set(entry.id, existing ? {
             ...existing,
             ...entry,
+            // Viewers emit placeholders (ready: false) before their resolved entries (ready: true),
+            // so a late placeholder from one viewer must not downgrade an entry another viewer already resolved.
+            ready: existing.ready || entry.ready,
             'nerve-label': entry['nerve-label'] || existing['nerve-label'],
             'long-label': entry['long-label'] || existing['long-label'],
             'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
           } : entry);
         });
         this.connectivityEntry = Array.from(merged.values());
+        // Entries resolve asynchronously via connectivity-info-open,
+        // which is not tied to connectivity-knowledge ticks, so re-run the restore completion check here.
+        // Otherwise the last entries becoming ready never re-evaluates allEntriesReady
+        // and the restore never finalises.
+        this.checkConnectivityRestoreComplete(this.state?.sidebar);
       } else {
         this.connectivityEntry = mappedPayload;
       }
@@ -912,6 +920,29 @@ export default {
         this.$refs.sideBar.setDrawerOpen(true);
       }
     },
+    // Shared completion check for the connectivity restore loop:
+    // finalises the restore once every restored entry has resolved,
+    // or gives up after enough retry attempts (an id may never be resolvable by any active viewer).
+    // Called both from the connectivity-knowledge retry ticks and from openConnectivityInfo,
+    // since entries resolve asynchronously through connectivity-info-open rather than the knowledge events.
+    checkConnectivityRestoreComplete: function (sidebarState) {
+      if (this.sidebarStateRestored || !sidebarState?.connectivityEntries?.length) {
+        return;
+      }
+      // Multiple viewers resolve connectivity knowledge independently,
+      // so keep retrying until all restored entries have resolved.
+      // A becoming-active flatmap alone is not enough (its knowledge may still be loading),
+      // so only finalise on that basis after enough attempts
+      // to avoid getting stuck if an id can never be resolved by any viewer.
+      const allEntriesReady =
+        this.connectivityEntry.length >= sidebarState.connectivityEntries.length &&
+        this.connectivityEntry.every((entry) => entry.ready);
+      const giveUp = this.restoreAttempts >= 30;
+      if (allEntriesReady || giveUp) {
+        this.sidebarStateRestored = true;
+        this.finalizeConnectivityRestore(sidebarState);
+      }
+    },
     restoreSidebarState: function (state) {
       // Restore sidebar state only if
       // - there is sidebar state
@@ -922,20 +953,7 @@ export default {
         if (sidebarState.connectivityEntries?.length) {
           this.restoreConnectivityEntries(sidebarState.connectivityEntries);
           this.restoreAttempts += 1;
-          // Multiple viewers resolve connectivity knowledge independently, so
-          // keep retrying (on each subsequent connectivity-knowledge tick)
-          // until all restored entries have resolved. A becoming-active
-          // flatmap alone is not enough (its knowledge may still be loading),
-          // so only finalise on that basis after enough attempts to avoid
-          // getting stuck if an id can never be resolved by any viewer.
-          const allEntriesReady =
-            this.connectivityEntry.length >= sidebarState.connectivityEntries.length &&
-            this.connectivityEntry.every((entry) => entry.ready);
-          const giveUp = this.restoreAttempts >= 30;
-          if (allEntriesReady || giveUp) {
-            this.sidebarStateRestored = true;
-            this.finalizeConnectivityRestore(sidebarState);
-          }
+          this.checkConnectivityRestoreComplete(sidebarState);
         } else if (sidebarState.annotationEntries?.length && state.annotationId) {
           // Restore annotation state only if the state has annotationId
           this.restoreConnectivityEntries(sidebarState.annotationEntries);
@@ -1192,7 +1210,9 @@ export default {
 
       // Restore sidebar state if it exists and not restored yet
       // after loading connectivity knowledge
-      this.restoreSidebarState(this.state);
+      if (!this.sidebarStateRestored) {
+        this.restoreSidebarState(this.state);
+      }
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
