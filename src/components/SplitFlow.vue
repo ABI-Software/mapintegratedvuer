@@ -173,6 +173,11 @@ export default {
       startUp: true,
       sidebarStateRestored: false,
       sidebarAnnotationState: false,
+      // true while a permalink's sidebar.connectivityEntries are being resolved across the active viewers,
+      // used to avoid flashing the full/unfiltered connectivity list
+      // or dropping entries resolved by other viewers.
+      restoringConnectivityState: false,
+      restoreAttempts: 0,
       search: '',
       expanded: '',
       filterTriggered: false,
@@ -294,7 +299,7 @@ export default {
             let flatmap = null;
 
             if (flatmapRef) flatmap = flatmapRef;
-            if (multiflatmapRef) flatmap = multiflatmapRef.getCurrentFlatmap();
+            if (multiflatmapRef && contentViewer.flatmapIsReady()) flatmap = multiflatmapRef.getCurrentFlatmap();
 
             if (flatmap) {
               activeFlatmaps.push(flatmap);
@@ -303,6 +308,25 @@ export default {
         });
       }
       return activeFlatmaps;
+    },
+    // Scaffold viewers are not Flatmap/MultiFlatmap instances so they're not returned by getActiveFlatmaps,
+    // but their own nervesKnowledge (populated once loadConnectivityExplorerConfig resolves)
+    // carries the nerve-label data needed to restore their connectivity entries.
+    getActiveScaffolds: function () {
+      const activeScaffolds = [];
+      let splitdialog = this.$refs.splitdialog;
+
+      if (splitdialog) {
+        const activeContents = splitdialog.getActiveContents();
+
+        activeContents.forEach(content => {
+          const contentViewer = content?.$refs['viewer'];
+          if (contentViewer?.scaffoldRef) {
+            activeScaffolds.push(contentViewer);
+          }
+        });
+      }
+      return activeScaffolds;
     },
     /**
      * Callback when an action is performed (open new dialogs).
@@ -506,7 +530,7 @@ export default {
 
       // Remove duplicate items from payload
       const uniquePayload = [...new Map(payload.map((entry) => [entry.featureId[0], entry])).values()];
-      this.connectivityEntry = uniquePayload.map((entry) => {
+      const mappedPayload = uniquePayload.map((entry) => {
         let result = {
           ...entry,
           label: entry.title,
@@ -514,7 +538,7 @@ export default {
         }
         const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
         if (entry.ready) {
-          result['nerve-label'] = entry['nerve-label'] || ck['nerve-label'];
+          result['nerve-label'] = entry['nerve-label'] || (ck && ck['nerve-label']);
         }
         if (ck && ck['long-label']) {
           result['long-label'] = ck['long-label'];
@@ -525,10 +549,42 @@ export default {
         return result;
       });
 
+      // While restoring a permalink's sidebar connectivityEntries,
+      // popups from multiple active viewers (e.g. two MultiFlatmaps + a Scaffold)
+      // resolve concurrently and each only reports the subset it recognises.
+      // Merge by id (keeping richer fields like nerve-label/long-label, e.g. from a Scaffold viewer,
+      // if a later duplicate for the same id lacks them) instead of replacing,
+      // so entries resolved by one viewer are not dropped or downgraded when another viewer's payload arrives.
+      if (this.restoringConnectivityState) {
+        const merged = new Map(this.connectivityEntry.map((entry) => [entry.id, entry]));
+        mappedPayload.forEach((entry) => {
+          const existing = merged.get(entry.id);
+          merged.set(entry.id, existing ? {
+            ...existing,
+            ...entry,
+            // Viewers emit placeholders (ready: false) before their resolved entries (ready: true),
+            // so a late placeholder from one viewer must not downgrade an entry another viewer already resolved.
+            ready: existing.ready || entry.ready,
+            'nerve-label': entry['nerve-label'] || existing['nerve-label'],
+            'long-label': entry['long-label'] || existing['long-label'],
+            'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
+          } : entry);
+        });
+        this.connectivityEntry = Array.from(merged.values());
+        // Entries resolve asynchronously via connectivity-info-open,
+        // which is not tied to connectivity-knowledge ticks, so re-run the restore completion check here.
+        // Otherwise the last entries becoming ready never re-evaluates allEntriesReady
+        // and the restore never finalises.
+        this.checkConnectivityRestoreComplete(this.state?.sidebar);
+      } else {
+        this.connectivityEntry = mappedPayload;
+      }
+
       // Fetch long-label from global connectivities if not exist in the payload,
       // this is for the case when user click on the flatmap paths/features directly without going through sidebar list,
-      // which will only have id and label in the payload
-      if (!this.connectivityEntry[0]['long-label'] && this.connectivityEntry[0].mapuuid) {
+      // which will only have id and label in the payload.
+      // Skipped while restoring since connectivityEntry[0] may not relate to the entries just merged in above.
+      if (!this.restoringConnectivityState && !this.connectivityEntry[0]['long-label'] && this.connectivityEntry[0].mapuuid) {
         const connectivityData = this.connectivitiesStore.globalConnectivities[this.connectivityEntry[0].mapuuid] || [];
         if (connectivityData.length) {
           const ck = connectivityData.find(ck => ck.id === this.connectivityEntry[0].id);
@@ -869,26 +925,97 @@ export default {
     restoreConnectivityEntries: function (connectivityEntries) {
       const activeFlatmaps = this.getActiveFlatmaps();
       activeFlatmaps.forEach((activeFlatmap) => {
-        const featureIds = connectivityEntries.map((entry) => {
-          const featureId = activeFlatmap.mapImp.modelFeatureIds(entry)[0];
-          const feature = activeFlatmap.mapImp.featureProperties(featureId);
-          const data = {
-            resource: [feature.models],
-            feature: feature,
-            label: feature.label,
-            provenanceTaxonomy: feature.taxons,
-            alert: feature.alert,
-          };
-          return data;
-        });
-        activeFlatmap.checkAndCreatePopups(featureIds, true)
+        if (!activeFlatmap.mapImp) return;
+        const featureIds = connectivityEntries.reduce((acc, entry) => {
+          // A given flatmap may not contain every restored connectivity id
+          // (e.g. it belongs to another species/map); skip those instead of
+          // throwing, which would otherwise abort processing for this map
+          // entirely and leave its other entries stuck loading forever.
+          try {
+            const featureId = activeFlatmap.mapImp.modelFeatureIds(entry)[0];
+            if (!featureId) return acc;
+            const feature = activeFlatmap.mapImp.featureProperties(featureId);
+            if (!feature) return acc;
+            acc.push({
+              resource: [feature.models],
+              feature: feature,
+              label: feature.label,
+              provenanceTaxonomy: feature.taxons,
+              alert: feature.alert,
+            });
+          } catch (error) {
+            // ignore entries that cannot be resolved in this map
+          }
+          return acc;
+        }, []);
+        if (featureIds.length) {
+          activeFlatmap.checkAndCreatePopups(featureIds, true)
+        }
       });
+
+      // Restore Scaffold-only connectivity entries (e.g. carrying nerve-label)
+      // via each Scaffold's own resolved knowledge, since Scaffolds aren't
+      // flatmaps and are otherwise never asked to restore their entries.
+      const activeScaffolds = this.getActiveScaffolds();
+      activeScaffolds.forEach((scaffold) => {
+        const matched = (scaffold.nervesKnowledge || []).filter((knowledge) =>
+          connectivityEntries.includes(knowledge.id)
+        );
+        if (matched.length) {
+          scaffold.getKnowledgeTooltip({ data: matched, type: scaffold.entry });
+        }
+      });
+    },
+    // Maps a sidebar activeTabId to the tab 'type' expected by tabClicked.
+    getSidebarTabType: function (tabId) {
+      if (tabId === 1) return 'datasetExplorer';
+      if (tabId === 3) return 'annotation';
+      return 'connectivityExplorer';
+    },
+    // Called once every restored connectivityEntry has resolved (or we've
+    // given up retrying): shows only the restored/filtered connectivities
+    // (not the full knowledge list) and opens the sidebar on the tab stored
+    // in the permalink state.
+    finalizeConnectivityRestore: function (sidebarState) {
+      this.restoringConnectivityState = false;
+      this.connectivityKnowledge = this.connectivityEntry;
+      if (this.connectivityEntry.every((entry) => entry.ready)) {
+        this.connectivityHighlight = this.connectivityEntry.map((entry) => entry.id);
+        this.connectivityProcessed = true;
+      }
+      if (this.$refs.sideBar) {
+        const tabId = sidebarState?.activeTabId ?? 2;
+        this.$refs.sideBar.tabClicked({ id: tabId, type: this.getSidebarTabType(tabId) });
+        this.$refs.sideBar.setDrawerOpen(true);
+      }
+    },
+    // Shared completion check for the connectivity restore loop:
+    // finalises the restore once every restored entry has resolved,
+    // or gives up after enough retry attempts (an id may never be resolvable by any active viewer).
+    // Called both from the connectivity-knowledge retry ticks and from openConnectivityInfo,
+    // since entries resolve asynchronously through connectivity-info-open rather than the knowledge events.
+    checkConnectivityRestoreComplete: function (sidebarState) {
+      if (this.sidebarStateRestored || !sidebarState?.connectivityEntries?.length) {
+        return;
+      }
+      // Multiple viewers resolve connectivity knowledge independently,
+      // so keep retrying until all restored entries have resolved.
+      // A becoming-active flatmap alone is not enough (its knowledge may still be loading),
+      // so only finalise on that basis after enough attempts
+      // to avoid getting stuck if an id can never be resolved by any viewer.
+      const allEntriesReady =
+        this.connectivityEntry.length >= sidebarState.connectivityEntries.length &&
+        this.connectivityEntry.every((entry) => entry.ready);
+      const giveUp = this.restoreAttempts >= 30;
+      if (allEntriesReady || giveUp) {
+        this.sidebarStateRestored = true;
+        this.finalizeConnectivityRestore(sidebarState);
+      }
     },
     restoreSidebarState: function (state) {
       // Restore sidebar state only if
       // - there is sidebar state
       // - sidebar component is loaded
-      // - connectivity knowledge is loaded
       // - if sidebar state is not restored yet
       const sidebarState = state?.sidebar;
       // Restore Cell Card Explorer
@@ -898,14 +1025,17 @@ export default {
       if (!this.sidebarStateRestored && sidebarState && this.$refs.sideBar && this.connectivityKnowledge?.length) {
         if (sidebarState.connectivityEntries?.length) {
           this.restoreConnectivityEntries(sidebarState.connectivityEntries);
+          this.restoreAttempts += 1;
+          this.checkConnectivityRestoreComplete(sidebarState);
         } else if (sidebarState.annotationEntries?.length && state.annotationId) {
           // Restore annotation state only if the state has annotationId
           this.restoreConnectivityEntries(sidebarState.annotationEntries);
           this.sidebarAnnotationState = true;
+          this.sidebarStateRestored = true;
         } else {
           this.$refs.sideBar.setState(sidebarState);
+          this.sidebarStateRestored = true;
         }
-        this.sidebarStateRestored = true;
       }
     },
     setState: function (state) {
@@ -916,6 +1046,21 @@ export default {
       }
       else {
         this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+      }
+
+      // Seed placeholder (not-ready) connectivity entries immediately so the
+      // sidebar shows a loading count right away, instead of either an empty
+      // list or a flash of the full/unfiltered connectivity knowledge while
+      // the active viewers and their connectivity knowledge are still loading.
+      if (state?.sidebar?.connectivityEntries?.length && !this.sidebarStateRestored) {
+        this.restoringConnectivityState = true;
+        this.connectivityEntry = state.sidebar.connectivityEntries.map((id) => ({
+          id,
+          label: '',
+          featureId: [id],
+          ready: false,
+        }));
+        this.connectivityKnowledge = this.connectivityEntry;
       }
 
       this.restoreSidebarState(state);
@@ -1131,13 +1276,21 @@ export default {
       }
     });
     EventBus.on("connectivity-knowledge", payload => {
-      this.connectivityKnowledge = payload.data;
-      this.connectivityHighlight = payload.highlight;
-      this.connectivityProcessed = payload.processed;
+      // Ignore the default/global connectivity dump (emitted when no active
+      // viewer's map/species keys are resolved yet) while restoring a
+      // permalink's sidebar connectivityEntries, otherwise the sidebar would
+      // briefly flash the entire, unfiltered connectivity list.
+      if (!(payload.isDefaultKnowledge && this.restoringConnectivityState)) {
+        this.connectivityKnowledge = payload.data;
+        this.connectivityHighlight = payload.highlight;
+        this.connectivityProcessed = payload.processed;
+      }
 
       // Restore sidebar state if it exists and not restored yet
       // after loading connectivity knowledge
-      this.restoreSidebarState(this.state);
+      if (!this.sidebarStateRestored) {
+        this.restoreSidebarState(this.state);
+      }
     })
     EventBus.on("modeUpdate", payload => {
       if (payload === "dataset") {
