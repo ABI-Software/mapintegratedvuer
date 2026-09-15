@@ -58,6 +58,8 @@ export default {
 
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
+        flatmapImp.clearClusteredAnatomicalMarkers();
+        flatmapImp.addClusteredAnatomicalMarkers(markers);
 
         if (typeof flatmapImp.clearSomaLocationMarkers === "function") {
           flatmapImp.clearSomaLocationMarkers();
