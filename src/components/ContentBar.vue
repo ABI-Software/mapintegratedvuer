@@ -15,20 +15,22 @@
           :key="entry.id"
           :label="getTitle(entry)"
           :value="entry.id"
-        />
+        >
+          <span class="option-label">
+            <span class="option-title">{{ getTitle(entry) }}</span>
+            <span
+              v-if="hasSourceInfo(entry)"
+              class="source-chip"
+              @click.stop="openSourceInfo(entry)"
+            >
+              {{ getSourceTitle(entry) }}
+            </span>
+          </span>
+        </el-option>
       </el-select>
       <div v-else class="toolbar-title shrink">
         {{ getEntryTitle(entry) }}
       </div>
-      <el-button
-        v-if="hasSourceInfo"
-        round
-        size="small"
-        class="source-chip shrink"
-        @click="openSourceInfo"
-      >
-        {{ getSourceTitle }}
-      </el-button>
       <div class="information-group shrink">
         <el-popover
           placement="bottom"
@@ -139,18 +141,6 @@ export default {
     allClosable() {
       return this.settingsStore.allClosable;
     },
-    getSourceTitle: function() {
-      if (this.entry) {
-        if (this.entry.doi) {
-          return this.entry.doi.replace("https://doi.org/", "");
-        } else if (this.entry.connectivityInfo) {
-          return "SCKAN";
-        }
-      }
-    },
-    hasSourceInfo() {
-      return this.entry.doi || this.entry.connectivityInfo;
-    },
     helpDelay() {
       return this.settingsStore.helpDelay;
     },
@@ -203,6 +193,30 @@ export default {
     },
   },
   methods: {
+    getSourceTitle: function(entry) {
+      if (entry) {
+        if (entry.doi) {
+          return entry.doi.replace("https://doi.org/", "");
+        } else if (entry.connectivityInfo) {
+          return "SCKAN";
+        }
+      }
+      return "";
+    },
+    hasSourceInfo: function(entry) {
+      return Boolean(entry && (entry.doi || entry.connectivityInfo));
+    },
+    openSourceInfo: function(entry) {
+      if (entry.doi) {
+        const returnedAction = {
+          type: "Search",
+          term: entry.doi.replace("https://doi.org/", ""),
+        };
+        EventBus.emit("PopoverActionClick", returnedAction);
+      } else if (entry.connectivityInfo) {
+        EventBus.emit('connectivity-info-open', [entry.connectivityInfo]);
+      }
+    },
     closeAndRemove: function() {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries});
       EventBus.emit("RemoveEntryRequest", this.entry.id);
@@ -254,17 +268,6 @@ export default {
       // starts from char 'A'
       const character = ' (' + String.fromCharCode(65 + id) + ')';
       return character;
-    },
-    openSourceInfo: function() {
-      if (this.entry.doi) {
-        const returnedAction = {
-          type: "Search",
-          term: this.entry.doi.replace("https://doi.org/", ""),
-        };
-        EventBus.emit("PopoverActionClick", returnedAction);
-      } else if (this.entry.connectivityInfo) {
-        EventBus.emit('connectivity-info-open', [this.entry.connectivityInfo]);
-      }
     },
     viewerChanged: function(value) {
       if (this.entry.id && this.entry.id != value) {
@@ -432,21 +435,32 @@ export default {
     }
   }
 
-  .source-chip {
-    padding: 4px!important;
-    margin-left: 2px;
-    margin-right:2px;
-    background-color: $app-primary-color;
-    border-color: $app-primary-color;
-    color: #fff;
-    font-size: 11px !important;
-    &:hover {
-      color: #fff !important;
-      background-color: #ac76c5 !important;
-      border: 1px solid #ac76c5 !important;
-    }
-    span {
+  .option-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+
+    .option-title {
+      overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .source-chip {
+    flex-shrink: 0;
+    margin-left: auto;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background-color: $app-primary-color;
+    color: #fff;
+    font-size: 10px;
+    line-height: 14px;
+    white-space: nowrap;
+    cursor: pointer;
+    &:hover {
+      background-color: #ac76c5;
     }
   }
 
