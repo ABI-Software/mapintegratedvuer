@@ -2,7 +2,6 @@
   <div>
     <div class="toolbar-flex-container">
       <el-select
-        v-if="entries.length > 1"
         :teleported="false"
         :model-value="entry.id"
         placeholder="Select"
@@ -27,10 +26,19 @@
             </span>
           </span>
         </el-option>
+        <el-option-group>
+          <el-option
+            key="__open_2d_map"
+            label="Open 2D Map"
+            :value="OPEN_2D_MAP_VALUE"
+          />
+          <el-option
+            key="__open_3d_map"
+            label="Open 3D Map"
+            :value="OPEN_3D_MAP_VALUE"
+          />
+        </el-option-group>
       </el-select>
-      <div v-else class="toolbar-title shrink">
-        {{ getEntryTitle(entry) }}
-      </div>
       <div class="information-group shrink">
         <el-popover
           placement="bottom"
@@ -101,6 +109,7 @@ import {
 import {
   ElInput as Input,
   ElOption as Option,
+  ElOptionGroup as OptionGroup,
   ElPopover as Popover,
   ElRow as Row,
   ElSelect as Select,
@@ -114,6 +123,7 @@ export default {
     ElIconArrowUp,
     Input,
     Option,
+    OptionGroup,
     Popover,
     Row,
     Select,
@@ -134,6 +144,9 @@ export default {
       showDetails: true,
       contextCardEntry: undefined,
       titles: [],
+      // Sentinel values for the action options shown in the viewer dropdown
+      OPEN_2D_MAP_VALUE: '__open_2d_map',
+      OPEN_3D_MAP_VALUE: '__open_3d_map',
     }
   },
   computed: {
@@ -217,6 +230,14 @@ export default {
         EventBus.emit('connectivity-info-open', [entry.connectivityInfo]);
       }
     },
+    // Placeholder: open a 2D map viewer
+    open2DMap: function() {
+      // TODO: implement open 2D map
+    },
+    // Placeholder: open a 3D map viewer
+    open3DMap: function() {
+      // TODO: implement open 3D map
+    },
     closeAndRemove: function() {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries});
       EventBus.emit("RemoveEntryRequest", this.entry.id);
@@ -270,6 +291,15 @@ export default {
       return character;
     },
     viewerChanged: function(value) {
+      // Handle the action options shown at the bottom of the dropdown
+      if (value === this.OPEN_2D_MAP_VALUE) {
+        this.open2DMap();
+        return;
+      }
+      if (value === this.OPEN_3D_MAP_VALUE) {
+        this.open3DMap();
+        return;
+      }
       if (this.entry.id && this.entry.id != value) {
         this.splitFlowStore.assignOrSwapPaneWithIds({
           source: this.entry.id,
@@ -496,6 +526,18 @@ export default {
     &.is-selected  {
       color: $app-primary-color;
       font-weight: normal;
+    }
+  }
+
+  .el-select-group__wrap {
+    position: relative;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid #e4e7ed;
+
+    .el-select-group__title {
+      color: $app-primary-color;
+      font-size: 11px;
     }
   }
 }
