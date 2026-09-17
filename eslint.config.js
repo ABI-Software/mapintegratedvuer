@@ -12,7 +12,7 @@ const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url));
 export default [
   includeIgnoreFile(gitignorePath),
   {
-    ignores: ['dist/**', 'docs/.vitepress/**', 'docs/components/**'],
+    ignores: ['dist/**', 'docs/.vitepress/**', 'docs/components/**', 'test/**'],
   },
   js.configs.recommended,
   ...vue.configs['flat/essential'],
