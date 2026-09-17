@@ -39,7 +39,7 @@
             placement="right-start"
             trigger="hover"
             :show-after="120"
-            :offset="0"
+            :offset="-40"
             popper-class="submenu-flyout"
           >
             <template #default>
