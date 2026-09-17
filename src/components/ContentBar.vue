@@ -41,6 +41,7 @@
             :show-after="120"
             :offset="-40"
             popper-class="submenu-flyout"
+            ref="openMapPopover"
           >
             <template #default>
               <ul class="submenu-list">
@@ -292,6 +293,20 @@ export default {
           try { sel.overlayVisible = false; } catch (e) { /* ignore */ }
         }
       }
+      // also hide the submenu popover
+      try {
+        const idx = this.openMapGroups.indexOf(group);
+        const popoverRefs = this.$refs.openMapPopover;
+        let pop = null;
+        if (Array.isArray(popoverRefs)) {
+          pop = popoverRefs[idx];
+        } else {
+          pop = popoverRefs;
+        }
+        if (pop && typeof pop.hide === 'function') {
+          pop.hide();
+        }
+      } catch (e) { /* ignore errors */ }
     },
     // Open a AC map for the selected option
     openACMap: function(option) {
