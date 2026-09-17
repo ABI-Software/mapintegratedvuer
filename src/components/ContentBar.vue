@@ -598,7 +598,7 @@ export default {
       color: inherit;
     }
     &:hover {
-      background-color: #f3ecf6;
+      background-color: var(--el-fill-color-light);
     }
     .el-tooltip__trigger {
       display: flex;
@@ -609,7 +609,7 @@ export default {
       padding: 0 20px;
     }
     .submenu-label {
-      color: $app-primary-color;
+      color: var(--el-text-color-regular);
       font-weight: normal;
       font-family: $font-family;
       cursor: pointer;
@@ -671,13 +671,12 @@ export default {
     padding: 6px 16px;
     font-size: 14px;
     line-height: 20px;
-    color: $app-primary-color;
     white-space: nowrap;
     cursor: pointer;
     font-family: $font-family;
     font-weight: normal;
     &:hover {
-      background-color: #f3ecf6;
+      background-color: var(--el-fill-color-light);
     }
   }
 }
