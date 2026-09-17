@@ -725,7 +725,7 @@ export default {
 <style lang="scss">
 .submenu-flyout.el-popover.el-popper {
   padding: 4px 0;
-  min-width: 140px;
+  min-width: 180px;
 
   .submenu-list {
     margin: 0;
