@@ -173,15 +173,15 @@ export default {
       // to the group's placeholder action method.
       openMapGroups: [
         {
-          label: 'Open 2D Map',
-          action: 'open2DMap',
+          label: 'Open AC Map',
+          action: 'openACMap',
           options: [
-            { label: 'Human Female', value: '__open_2d_map_human_female' },
-            { label: 'Human Male', value: '__open_2d_map_human_male' },
-            { label: 'Rat', value: '__open_2d_map_rat' },
-            { label: 'Mouse', value: '__open_2d_map_mouse' },
-            { label: 'Pig', value: '__open_2d_map_pig' },
-            { label: 'Cat', value: '__open_2d_map_cat' },
+            { label: 'Human Female', value: '__open_AC_map_human_female' },
+            { label: 'Human Male', value: '__open_AC_map_human_male' },
+            { label: 'Rat', value: '__open_AC_map_rat' },
+            { label: 'Mouse', value: '__open_AC_map_mouse' },
+            { label: 'Pig', value: '__open_AC_map_pig' },
+            { label: 'Cat', value: '__open_AC_map_cat' },
           ],
         },
         {
@@ -282,17 +282,17 @@ export default {
       this[group.action](option);
       this.$refs.contentSelect?.blur();
     },
-    // Open a 2D map for the selected option (AC or FC)
-    open2DMap: function(option) {
-      const type = option.value.includes("3d") ? "3D" : "2D";
+    // Open a AC map for the selected option
+    openACMap: function(option) {
+      const type = option.value.includes("3d") ? "3D" : "AC";
       EventBus.emit("OpenNewMap", type);
-      this.trackOpenMap(`open_2d_map_${option.value}`);
+      this.trackOpenMap(`open_AC_map_${option.value}`);
     },
     // Open a 3D map for the selected option
     open3DMap: function(option) {
-      const type = option.value.includes("3d") ? "3D" : "2D";
+      const type = option.value.includes("3d") ? "3D" : "AC";
       EventBus.emit("OpenNewMap", type);
-      this.trackOpenMap(`open_3d_map_${option.value}`);
+      this.trackOpenMap(`open_3D_map_${option.value}`);
     },
     trackOpenMap: function(category) {
       tagging.sendEvent({
