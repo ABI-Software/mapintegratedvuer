@@ -591,7 +591,7 @@ export default {
     border-top: 1px solid #e4e7ed;
     padding: 0;
     cursor: pointer;
-    font-family: inherit;
+    font-family: $font-family;
     font-size: 14px;
     &.is-disabled {
       cursor: pointer;
@@ -611,7 +611,7 @@ export default {
     .submenu-label {
       color: $app-primary-color;
       font-weight: normal;
-      font-family: inherit;
+      font-family: $font-family;
       cursor: pointer;
     }
     .submenu-arrow {
@@ -674,7 +674,7 @@ export default {
     color: $app-primary-color;
     white-space: nowrap;
     cursor: pointer;
-    font-family: inherit;
+    font-family: $font-family;
     font-weight: normal;
     &:hover {
       background-color: #f3ecf6;
