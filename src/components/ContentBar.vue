@@ -140,6 +140,7 @@ import {
   ElSelect as Select,
 } from "element-plus";
 import tagging from '../services/tagging';
+import { getNewMapEntry } from './scripts/utilities.js';
 
 export default {
   name: "ContentBar",
@@ -191,6 +192,13 @@ export default {
           options: [
             { label: 'Human', value: '__open_3d_map_human' },
             { label: 'Rat', value: '__open_3d_map_rat' },
+          ],
+        },
+        {
+          label: 'Open FC Map',
+          action: 'openFCMap',
+          options: [
+            { label: 'Functional Connectivity', value: '__open_FC_map_functional' },
           ],
         },
       ],
@@ -309,16 +317,25 @@ export default {
       } catch (e) { /* ignore errors */ }
     },
     // Open a AC map for the selected option
-    openACMap: function(option) {
+    openACMap: async function(option) {
       const type = option.value.includes("3d") ? "3D" : "AC";
-      EventBus.emit("OpenNewMap", type);
+      const entry = await getNewMapEntry(type, this.settingsStore.sparcApi);
+      EventBus.emit("SetCurrentEntry", entry);
       this.trackOpenMap(`open_AC_map_${option.value}`);
     },
     // Open a 3D map for the selected option
-    open3DMap: function(option) {
+    open3DMap: async function(option) {
       const type = option.value.includes("3d") ? "3D" : "AC";
-      EventBus.emit("OpenNewMap", type);
+      const entry = await getNewMapEntry(type, this.settingsStore.sparcApi);
+      EventBus.emit("SetCurrentEntry", entry);
       this.trackOpenMap(`open_3D_map_${option.value}`);
+    },
+
+    // Open a Functional Connectivity map
+    openFCMap: async function(option) {
+      const entry = await getNewMapEntry('FC', this.settingsStore.sparcApi);
+      EventBus.emit("SetCurrentEntry", entry);
+      this.trackOpenMap(`open_FC_map_${option.value}`);
     },
     trackOpenMap: function(category) {
       tagging.sendEvent({
