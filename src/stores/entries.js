@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { initialDefaultState } from "../components/scripts/utilities";
+import { initialDefaultState } from '../components/scripts/utilities';
 import { getKnowledgeSourceFromProvenance } from '@abi-software/flatmapvuer/src/services/flatmapKnowledge.js';
 
 /* eslint-disable no-alert, no-console */
@@ -9,7 +9,7 @@ export const useEntriesStore = defineStore('entries', {
     return initialDefaultState();
   },
   getters: {
-    findIndexOfId: (state) => id => {
+    findIndexOfId: (state) => (id) => {
       for (let i = 0; i < state.entries.length; i++) {
         if (state.entries[i].id == id) {
           return i;
@@ -31,9 +31,9 @@ export const useEntriesStore = defineStore('entries', {
       this.entries = [];
       Object.assign(this.entries, newEntries);
     },
-    updateViewForEntry( {id, viewUrl}) {
+    updateViewForEntry({ id, viewUrl }) {
       // Update the scaffold with a view url
-      const entry = this.entries.find(entry => entry.id === id);
+      const entry = this.entries.find((entry) => entry.id === id);
       entry.viewUrl = viewUrl;
     },
     updateMapForEntry(entry, prov) {
@@ -44,16 +44,16 @@ export const useEntriesStore = defineStore('entries', {
       }
     },
     updateLabelForEntry(targetEntry, label) {
-      const entryToAssign = this.entries.find(entry => entry.id === targetEntry.id);
+      const entryToAssign = this.entries.find((entry) => entry.id === targetEntry.id);
       if (entryToAssign) {
         entryToAssign['label'] = label;
       }
     },
     updateTitleForEntry(targetEntry, title) {
-      const entryToAssign = this.entries.find(entry => entry.id === targetEntry.id);
+      const entryToAssign = this.entries.find((entry) => entry.id === targetEntry.id);
       if (entryToAssign) {
         entryToAssign['title'] = title;
       }
     },
-  }
+  },
 });

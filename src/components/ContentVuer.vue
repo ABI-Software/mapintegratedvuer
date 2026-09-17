@@ -12,7 +12,7 @@
       @scaffold-view-clicked="scaffoldViewClicked"
       @vue:mounted="setPanesBoundary"
     />
-  <!--
+    <!--
     <DatasetHeader
       v-if="entry.datasetTitle"
       class="dataset-header"
@@ -39,23 +39,23 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { defineAsyncComponent } from 'vue'
-import { ElButton as Button } from "element-plus";
-import ContentBar from "./ContentBar.vue";
+import { defineAsyncComponent } from 'vue';
+import { ElButton as Button } from 'element-plus';
+import ContentBar from './ContentBar.vue';
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
 import { useSplitFlowStore } from '../stores/splitFlow';
 
-const Flatmap = defineAsyncComponent(() => import("./viewers/Flatmap.vue"));
-const Iframe = defineAsyncComponent(() => import("./viewers/Iframe.vue"));
-const MultiFlatmap = defineAsyncComponent(() => import("./viewers/MultiFlatmap.vue"));
-const ConnectivityGraph = defineAsyncComponent(() => import("./viewers/ConnectivityGraph.vue"));
-const Plot = defineAsyncComponent(() => import("./viewers/Plot.vue"));
-const Scaffold = defineAsyncComponent(() => import("./viewers/Scaffold.vue"));
-const Simulation = defineAsyncComponent(() => import("./viewers/Simulation.vue"));
+const Flatmap = defineAsyncComponent(() => import('./viewers/Flatmap.vue'));
+const Iframe = defineAsyncComponent(() => import('./viewers/Iframe.vue'));
+const MultiFlatmap = defineAsyncComponent(() => import('./viewers/MultiFlatmap.vue'));
+const ConnectivityGraph = defineAsyncComponent(() => import('./viewers/ConnectivityGraph.vue'));
+const Plot = defineAsyncComponent(() => import('./viewers/Plot.vue'));
+const Scaffold = defineAsyncComponent(() => import('./viewers/Scaffold.vue'));
+const Simulation = defineAsyncComponent(() => import('./viewers/Simulation.vue'));
 
 export default {
-  name: "ContentVuer",
+  name: 'ContentVuer',
   props: {
     /**
      * Object containing information for
@@ -80,7 +80,7 @@ export default {
     Simulation,
   },
   methods: {
-    flatmapProvenanceReady: function(prov) {
+    flatmapProvenanceReady: function (prov) {
       this.$refs.contentBar?.setupFlatmapContextCard(prov);
       this.entriesStore.updateMapForEntry(this.entry, prov);
     },
@@ -91,11 +91,11 @@ export default {
       return this.$refs.viewer?.getState();
     },
     resourceSelected: function (payload) {
-      this.$emit("resource-selected", payload);
+      this.$emit('resource-selected', payload);
     },
     scaffoldViewClicked: function (viewUrl) {
       if (this.entry.viewUrl !== viewUrl) {
-        this.entriesStore.updateViewForEntry({id: this.entry.id, viewUrl});
+        this.entriesStore.updateViewForEntry({ id: this.entry.id, viewUrl });
       } else {
         //Manually set it as it cannot be set with reactivity
         this.$refs.viewer?.updateWithViewUrl(viewUrl);
@@ -111,73 +111,73 @@ export default {
     /**
      * Push the suggested terms into the suggestions array
      */
-    searchSuggestions: function(term, suggestions) {
+    searchSuggestions: function (term, suggestions) {
       this.$refs.viewer?.searchSuggestions(term, suggestions);
     },
-    setPanesBoundary: function() {
-      this.$refs.contentBar?.setBoundary(this.$refs["container"]);
+    setPanesBoundary: function () {
+      this.$refs.contentBar?.setBoundary(this.$refs['container']);
     },
     speciesChanged: function (species) {
       this.activeSpecies = species;
-      this.$emit("species-changed", species);
+      this.$emit('species-changed', species);
     },
     onResize: function () {
       this.$refs.viewer?.onResize();
     },
     //The following handle EventBus.on from SplitDialog
-    onConnectivityItemClose: function() {
+    onConnectivityItemClose: function () {
       this.$refs.viewer?.onConnectivityItemClose();
     },
-    onConnectivitySourceChange: function(payload, ongoingSource) {
+    onConnectivitySourceChange: function (payload, ongoingSource) {
       this.$refs.viewer?.changeConnectivitySource(payload, ongoingSource);
     },
-    onFlatmapMarkerUpdate: function() {
+    onFlatmapMarkerUpdate: function () {
       this.$refs.viewer?.flatmapMarkerUpdate();
     },
-    onGlobalViewerSettingsUpdate: function() {
+    onGlobalViewerSettingsUpdate: function () {
       this.$refs.viewer?.updateViewerSettings();
     },
-    onHoverUpdate: function(payload) {
+    onHoverUpdate: function (payload) {
       this.$refs.viewer?.sidebarHoverHighlight(payload);
     },
-    onShowConnectivity: function(payload) {
+    onShowConnectivity: function (payload) {
       this.$refs.viewer?.showConnectivity(payload);
     },
-    onShowConnectivityTooltips: function(payload) {
+    onShowConnectivityTooltips: function (payload) {
       this.$refs.viewer?.showConnectivityTooltips(payload);
     },
-    onShowReferenceConnectivity: function(payload) {
+    onShowReferenceConnectivity: function (payload) {
       this.$refs.viewer?.showConnectivitiesByReference(payload);
     },
-    onSidebarAnnotationClose: function() {
+    onSidebarAnnotationClose: function () {
       this.$refs.viewer?.onSidebarAnnotationClose();
     },
-    onStartHelp: function() {
+    onStartHelp: function () {
       this.$refs.viewer?.startHelp();
     },
-    onFilterVisibility: function(payload) {
+    onFilterVisibility: function (payload) {
       this.$refs.viewer?.setVisibilityFilter(payload);
     },
-    onLoadConnectivityDetail: function(payload) {
+    onLoadConnectivityDetail: function (payload) {
       if (this.$refs.viewer?.entry.type !== 'ConnectivityGraph') {
         this.$refs.viewer?.getKnowledgeTooltip(payload);
       }
     },
-    toggleMinimap: function(option, prevState) {
+    toggleMinimap: function (option, prevState) {
       this.$refs.viewer?.toggleMinimap(option, prevState);
     },
   },
   data: function () {
     return {
       mouseHovered: false,
-      activeSpecies: "Rat",
+      activeSpecies: 'Rat',
     };
   },
   computed: {
     ...mapStores(useEntriesStore, useSplitFlowStore),
     viewerType() {
       switch (this.entry.type) {
-        case "Iframe":
+        case 'Iframe':
           return 'Iframe';
         default:
           return this.entry.type;
@@ -208,7 +208,7 @@ export default {
   width: 100%;
   bottom: 0px;
   position: absolute;
-  z-index:6;
+  z-index: 6;
   overflow: hidden;
 }
 

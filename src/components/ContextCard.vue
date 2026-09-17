@@ -1,14 +1,18 @@
 <template>
-  <div class="context-card-container"  ref="container">
+  <div class="context-card-container" ref="container">
     <div v-show="showContextCard">
-      <div v-if="showDetails && Object.keys(contextData).length !== 0" v-loading="loading" class="context-card" >
+      <div
+        v-if="showDetails && Object.keys(contextData).length !== 0"
+        v-loading="loading"
+        class="context-card"
+      >
         <div class="card-left">
-          <img :src="banner" class="context-image">
+          <img :src="banner" class="context-image" />
         </div>
         <div class="card-right scrollbar">
           <div>
-            <div class="title">{{contextData.heading}}</div>
-            <div v-html="parseMarkdown(contextData.description)"/>
+            <div class="title">{{ contextData.heading }}</div>
+            <div v-html="parseMarkdown(contextData.description)" />
             <!-- <br/> -->
           </div>
         </div>
@@ -17,9 +21,15 @@
             <el-collapse v-if="originalSource && originalSource.length" v-model="activeName">
               <el-collapse-item title="View/Hide source data links" name="sourceDataLinks">
                 <ul class="source-data-list">
-                  <template v-for="(source, i) in originalSource" :key="'source-'+ i">
+                  <template v-for="(source, i) in originalSource" :key="'source-' + i">
                     <li>
-                      <a v-if="source && source.path" :href="generateFileLink(source)" target="_blank">View {{source.name}}</a>
+                      <a
+                        v-if="source && source.path"
+                        :href="generateFileLink(source)"
+                        target="_blank"
+                      >
+                        View {{ source.name }}
+                      </a>
                     </li>
                   </template>
                 </ul>
@@ -31,9 +41,7 @@
             <ul class="source-data-list">
               <template v-for="(source, i) in flatmapSource" :key="'flatmap-' + i">
                 <li>
-                  <span @click="flatmapClick(source)">
-                    For {{ source.name }}
-                  </span>
+                  <span @click="flatmapClick(source)">For {{ source.name }}</span>
                 </li>
               </template>
             </ul>
@@ -41,45 +49,75 @@
           <div>
             <!-- Show sampeles and views seperately if they do not match -->
             <template v-if="!samplesUnderViews">
-              <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
-              <template v-for="(view, i) in contextData.views" :key="i+'_1'">
+              <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">
+                Scaffold Views
+              </div>
+              <template v-for="(view, i) in contextData.views" :key="i + '_1'">
                 <div @click="openViewFile(view)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)">
-                  <div class="view-description">{{view.description}}</div>
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)" />
+                  <div class="view-description">{{ view.description }}</div>
                 </div>
-                <div class="padding"/>
+                <div class="padding" />
               </template>
-              <div style="margin-bottom: 16px;"/>
-              <div v-if="contextData.samples && contextData.samples.length > 0" class="subtitle">Samples on Scaffold</div>
-              <template v-for="(sample, i) in contextData.samples" :key="i+'_3'">
-                  <span class="context-card-item cursor-pointer" @click="toggleSampleDetails(i)">
-                    <div v-bind:key="i+'_6'" style="display: flex">
-                      <div v-if="sample.color" class="color-box" :style="'background-color:'+ sample.color"></div>
-                      <img class="key-image" v-else-if="sample.thumbnail" :src="getFileFromPath(sample.thumbnail)">
-                      {{sample.heading}}
-                      <i class="el-icon-warning-outline info"></i>
-                    </div>
-                  </span>
-                  <div v-if="sampleDetails[i]" v-html="sample.description"/>
-                  <a v-if="sampleDetails[i] && sample.path" :href="generateFileLink(sample)" target="_blank">View Source</a>
-                  <div class="padding"/>
+              <div style="margin-bottom: 16px" />
+              <div v-if="contextData.samples && contextData.samples.length > 0" class="subtitle">
+                Samples on Scaffold
+              </div>
+              <template v-for="(sample, i) in contextData.samples" :key="i + '_3'">
+                <span class="context-card-item cursor-pointer" @click="toggleSampleDetails(i)">
+                  <div v-bind:key="i + '_6'" style="display: flex">
+                    <div
+                      v-if="sample.color"
+                      class="color-box"
+                      :style="'background-color:' + sample.color"
+                    ></div>
+                    <img
+                      class="key-image"
+                      v-else-if="sample.thumbnail"
+                      :src="getFileFromPath(sample.thumbnail)"
+                    />
+                    {{ sample.heading }}
+                    <i class="el-icon-warning-outline info"></i>
+                  </div>
+                </span>
+                <div v-if="sampleDetails[i]" v-html="sample.description" />
+                <a
+                  v-if="sampleDetails[i] && sample.path"
+                  :href="generateFileLink(sample)"
+                  target="_blank"
+                >
+                  View Source
+                </a>
+                <div class="padding" />
               </template>
             </template>
 
             <!-- Show samples under views if the ids match -->
             <template v-else>
-              <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">Scaffold Views</div>
-              <template v-for="(view, i) in contextData.views" :key="i+'_1'">
-                <span  @click="viewClicked(view, i)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)"/>
-                  <div class="view-description">{{view.description}}<i class="el-icon-warning-outline info"></i> </div>
+              <div v-if="contextData.views && contextData.views.length > 0" class="subtitle">
+                Scaffold Views
+              </div>
+              <template v-for="(view, i) in contextData.views" :key="i + '_1'">
+                <span @click="viewClicked(view, i)" class="context-card-view">
+                  <img class="view-image" :src="getFileFromPath(view.thumbnail)" />
+                  <div class="view-description">
+                    {{ view.description }}
+                    <i class="el-icon-warning-outline info"></i>
+                  </div>
                 </span>
-                <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description"/>
-                <a v-bind:key="i+'_5'" v-if="sampleDetails[i] && samplesMatching(view.id).path" :href="generateFileLink(samplesMatching(view.id))" target="_blank">View Source</a>
-                <div class="padding"/>
+                <div v-if="sampleDetails[i]" v-html="samplesMatching(view.id).description" />
+                <a
+                  v-bind:key="i + '_5'"
+                  v-if="sampleDetails[i] && samplesMatching(view.id).path"
+                  :href="generateFileLink(samplesMatching(view.id))"
+                  target="_blank"
+                >
+                  View Source
+                </a>
+                <div class="padding" />
 
                 <!-- Extra padding if sample details is open -->
-                <div v-if="sampleDetails[i]" class="padding"/>
+                <div v-if="sampleDetails[i]" class="padding" />
               </template>
             </template>
           </div>
@@ -94,34 +132,33 @@
   </div>
 </template>
 
-
 <script>
 /* eslint-disable no-alert, no-console */
-import { CopyToClipboard } from "@abi-software/map-utilities";
+import { CopyToClipboard } from '@abi-software/map-utilities';
 import { mapStores } from 'pinia';
 import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
 import EventBus from './EventBus';
 //provide the s3Bucket related methods and data.
-import S3Bucket from "../mixins/S3Bucket.vue";
+import S3Bucket from '../mixins/S3Bucket.vue';
 import { useSettingsStore } from '../stores/settings';
 
-import { marked } from 'marked'
-import xss from 'xss'
+import { marked } from 'marked';
+import xss from 'xss';
 
-const addFilesToPathIfMissing = function(path){
-  if (!path.includes('files')){
-    return 'files/' + path
+const addFilesToPathIfMissing = function (path) {
+  if (!path.includes('files')) {
+    return 'files/' + path;
   } else {
-    return path
+    return path;
   }
-}
+};
 
-const convertBackslashToForwardSlash = function(path){
-  path = path.replaceAll('\\','/')
-  path = path.replaceAll('\\\\', '/')
-  return path
-}
+const convertBackslashToForwardSlash = function (path) {
+  path = path.replaceAll('\\', '/');
+  path = path.replaceAll('\\\\', '/');
+  return path;
+};
 
 // const switchPathToDirectory = function(path){
 //   let newPath = path.split('/')
@@ -129,9 +166,8 @@ const convertBackslashToForwardSlash = function(path){
 //   return newPath.join('/')
 // }
 
-
 export default {
-  name: "contextCard",
+  name: 'contextCard',
   components: {
     CopyToClipboard,
   },
@@ -154,77 +190,77 @@ export default {
       loadingOriginalSource: true,
       originalSource: [],
       flatmapSource: [],
-      activeName: "",
-      copyContent: "",
+      activeName: '',
+      copyContent: '',
     };
   },
   watch: {
     'entry.contextCardUrl': {
-      handler(val){
+      handler(val) {
         if (val) {
           // used for hardcoding data
-          if (val === true){
-            console.error('asked for hardcoding but none provided')
+          if (val === true) {
+            console.error('asked for hardcoding but none provided');
           } else {
-            this.getContextFile(val)
-            this.showContextCard = true
+            this.getContextFile(val);
+            this.showContextCard = true;
           }
         } else {
-          this.showContextCard = false
+          this.showContextCard = false;
         }
       },
-      immediate: true
+      immediate: true,
     },
     'entry.s3uri': {
-      handler(val){
+      handler(val) {
         this.updateS3Bucket(val);
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   computed: {
     ...mapStores(useSettingsStore),
-    flatmapAPI: function() {
+    flatmapAPI: function () {
       return this.settingsStore.flatmapAPI;
     },
-    samplesUnderViews: function(){
-      if (this.contextData){
-        if (this.contextData.samplesUnderViews){
-          return true
+    samplesUnderViews: function () {
+      if (this.contextData) {
+        if (this.contextData.samplesUnderViews) {
+          return true;
         } else {
-          let viewId = this.contextData.views?.map(v=>v.id) || [];
-          let samplesView = this.contextData.samples?.map(s=>s.view) || [];
+          let viewId = this.contextData.views?.map((v) => v.id) || [];
+          let samplesView = this.contextData.samples?.map((s) => s.view) || [];
 
           // get matching values
-          let matching = viewId.filter(v=>samplesView.includes(v))
+          let matching = viewId.filter((v) => samplesView.includes(v));
 
           // check all arrays have the same length (which means all values are in all three)
-          if ( viewId.length === matching.length && matching.length === samplesView.length){
-            return true
+          if (viewId.length === matching.length && matching.length === samplesView.length) {
+            return true;
           }
         }
       }
       return false;
     },
-    banner: function(){
-      if (this.contextData.banner){
-        return this.getFileFromPath(this.contextData.banner)
+    banner: function () {
+      if (this.contextData.banner) {
+        return this.getFileFromPath(this.contextData.banner);
       } else if (this.contextData && this.contextData.views && this.contextData.views.length > 0) {
-        if(this.contextData.views[0].thumbnail){
-          return this.getFileFromPath(this.contextData.views[0].thumbnail)
+        if (this.contextData.views[0].thumbnail) {
+          return this.getFileFromPath(this.contextData.views[0].thumbnail);
         }
       }
-      return this.entry.banner
+      return this.entry.banner;
     },
   },
   methods: {
-    flatmapClick: function(source) {
+    flatmapClick: function (source) {
       const newView = {
-        type: "Flatmap",
+        type: 'Flatmap',
         resource: source.flatmapUUID,
-        label: this.contextData.heading
+        label: this.contextData.heading,
       };
-      EventBus.emit("CreateNewEntry", newView);
+      EventBus.emit('CreateNewEntry', newView);
     },
     updateCopyContent: function () {
       const contentArray = [];
@@ -263,8 +299,9 @@ export default {
         this.flatmapSource.forEach((source, i) => {
           const path = this.generateFileLink(source);
           let flatmapContent = `<div>${source.name}</div>`;
-          let flatmapSource = this.flatmapAPI ?
-            `${this.flatmapAPI}viewer?id=${source.flatmapUUID}` : source.flatmapUUID;
+          let flatmapSource = this.flatmapAPI
+            ? `${this.flatmapAPI}viewer?id=${source.flatmapUUID}`
+            : source.flatmapUUID;
           flatmapContent += `\n`;
           flatmapContent += `<div><a href="${flatmapSource}">${flatmapSource}</a></div>`;
           flatmapLinks.push(`<li>${flatmapContent}</li>`);
@@ -330,94 +367,98 @@ export default {
 
       return contentArray.join('\n\n<br>');
     },
-    samplesMatching: function(viewId){
-      if (this.contextData && this.contextData.samples){
-        return this.contextData.samples.filter(s=>s.view == viewId)[0]
-      }
-      else return []
+    samplesMatching: function (viewId) {
+      if (this.contextData && this.contextData.samples) {
+        return this.contextData.samples.filter((s) => s.view == viewId)[0];
+      } else return [];
     },
-    viewClicked: function(view, i){
-      this.openViewFile(view)
-      this.toggleSampleDetails(i)
+    viewClicked: function (view, i) {
+      this.openViewFile(view);
+      this.toggleSampleDetails(i);
     },
     getContextFile: function (contextFileUrl) {
-      this.loading = true
+      this.loading = true;
       fetch(contextFileUrl)
-        .then((response) =>{
-          if (!response.ok){
-            throw Error(response.statusText)
+        .then((response) => {
+          if (!response.ok) {
+            throw Error(response.statusText);
           } else {
-             return response.json()
+            return response.json();
           }
         })
         .then((data) => {
-          this.contextData = data
-          this.loading = false
-          this.addDiscoverIdsToContextData()
+          this.contextData = data;
+          this.loading = false;
+          this.addDiscoverIdsToContextData();
         })
         .catch((err) => {
           //set defaults if we hit an error
-          console.error('caught error!', err)
-          this.loading = false
+          console.error('caught error!', err);
+          this.loading = false;
         });
     },
-    removeDoubleFilesPath: function(path){
+    removeDoubleFilesPath: function (path) {
       if (path) {
-        if (path.includes('files/')){
-          return path.replace('files/', '')
+        if (path.includes('files/')) {
+          return path.replace('files/', '');
         } else if (path.includes('files\\')) {
-          return path.replace('files\\', '')
+          return path.replace('files\\', '');
         } else {
-          return path
+          return path;
         }
       }
     },
-    toggleSampleDetails: function(i){
-      if (this.sampleDetails[i] === undefined){
+    toggleSampleDetails: function (i) {
+      if (this.sampleDetails[i] === undefined) {
         this.sampleDetails[i] = true;
       } else {
         this.sampleDetails[i] = !this.sampleDetails[i];
       }
     },
-    getFileFromPath: function(path){
+    getFileFromPath: function (path) {
       // for hardcoded data
-      if(this.entry.contextCardUrl === true){
-        return path
+      if (this.entry.contextCardUrl === true) {
+        return path;
       }
-      path = this.removeDoubleFilesPath(path)
-      return  `${this.envVars.API_LOCATION}s3-resource/${this.getS3Prefix()}files/${path}${this.getS3Args()}`
+      path = this.removeDoubleFilesPath(path);
+      return `${this.envVars.API_LOCATION}s3-resource/${this.getS3Prefix()}files/${path}${this.getS3Args()}`;
     },
     //  This is used later when generateing links to the resource on sparc.science (see generateFileLink)
-    addDiscoverIdsToContextData(){
-      this.contextData.samples.forEach((sample, i)=>{
-        if (sample && sample.doi && sample.doi !== ""){
-          fetch(`${this.envVars.PENNSIEVE_API_LOCATION}/discover/datasets/doi/${this.splitDoiFromUrl(sample.doi)}`)
-          .then((response) => response.json())
-          .then((data) => {
-            this.contextData.samples[i].discoverId = data.id
-            this.contextData.samples[i].version = data.version
-          })
+    addDiscoverIdsToContextData() {
+      this.contextData.samples.forEach((sample, i) => {
+        if (sample && sample.doi && sample.doi !== '') {
+          fetch(
+            `${this.envVars.PENNSIEVE_API_LOCATION}/discover/datasets/doi/${this.splitDoiFromUrl(sample.doi)}`,
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              this.contextData.samples[i].discoverId = data.id;
+              this.contextData.samples[i].version = data.version;
+            });
         } else {
-            this.contextData.samples[i].discoverId = this.entry.discoverId
-            this.contextData.samples[i].version = this.entry.version
+          this.contextData.samples[i].discoverId = this.entry.discoverId;
+          this.contextData.samples[i].version = this.entry.version;
         }
-      })
+      });
     },
-    processPathForUrl(path){
-      path = convertBackslashToForwardSlash(path)
-      path = addFilesToPathIfMissing(path)
-      return encodeURIComponent(path)
+    processPathForUrl(path) {
+      path = convertBackslashToForwardSlash(path);
+      path = addFilesToPathIfMissing(path);
+      return encodeURIComponent(path);
     },
-    splitDoiFromUrl(url){
-      return url.split('https://doi.org/').pop()
+    splitDoiFromUrl(url) {
+      return url.split('https://doi.org/').pop();
     },
-    generateFileLink(sample){
+    generateFileLink(sample) {
       const path = this.processPathForUrl(sample.path);
       const version = sample.version || '';
       let link = '';
 
       if (sample.datasetURL) {
-        const datasetFileURL = sample.datasetURL.replace(/datasets\/(\d+)\/version\/(\d+)/, "datasets/file/$1/$2");
+        const datasetFileURL = sample.datasetURL.replace(
+          /datasets\/(\d+)\/version\/(\d+)/,
+          'datasets/file/$1/$2',
+        );
         link = `${datasetFileURL}?path=${path}`;
       } else if (sample.discoverId) {
         link = `${this.envVars.ROOT_URL}/datasets/file/${sample.discoverId}/${version}?path=${path}`;
@@ -425,15 +466,15 @@ export default {
 
       return link;
     },
-    parseMarkdown(markdown){
-      const returned_data = xss(marked.parse(markdown))
-      this.$emit('context-ready')
-      return returned_data
+    parseMarkdown(markdown) {
+      const returned_data = xss(marked.parse(markdown));
+      this.$emit('context-ready');
+      return returned_data;
     },
-    openViewFile: function(view){
+    openViewFile: function (view) {
       // note that we assume that the view file is in the same directory as the scaffold (viewUrls take relative paths)
-      const viewUrl = this.getFileFromPath(view.path)
-      this.$emit("scaffold-view-clicked", viewUrl);
+      const viewUrl = this.getFileFromPath(view.path);
+      this.$emit('scaffold-view-clicked', viewUrl);
     },
     fetchDOIURL: async function (doi) {
       const doiKey = doi.includes('https://doi.org/') ? this.splitDoiFromUrl(doi) : doi;
@@ -446,86 +487,86 @@ export default {
         }
         const data = await response.json();
 
-        const urlEntry = data.values?.find(item => item.type === 'URL');
+        const urlEntry = data.values?.find((item) => item.type === 'URL');
 
         if (urlEntry && urlEntry.data && urlEntry.data.value) {
           return urlEntry.data.value;
         }
 
-        throw new Error("Redirect URL not found in DOI metadata");
+        throw new Error('Redirect URL not found in DOI metadata');
       } catch (error) {
         throw new Error(error);
       }
     },
-    getOriginalSource: function() {
-      const discoverId = this.entry.discoverId
-      const filesPos = 'files/'.length
-      const path =  this.entry.resource.substring(
-        this.entry.resource.indexOf("files/") + filesPos,
-        this.entry.resource.lastIndexOf("?"))
+    getOriginalSource: function () {
+      const discoverId = this.entry.discoverId;
+      const filesPos = 'files/'.length;
+      const path = this.entry.resource.substring(
+        this.entry.resource.indexOf('files/') + filesPos,
+        this.entry.resource.lastIndexOf('?'),
+      );
       const params = new URLSearchParams({
         discoverId,
-        path
+        path,
       });
-      const url = `${this.envVars.API_LOCATION}/file_info/get_original_source?${params.toString()}`
+      const url = `${this.envVars.API_LOCATION}/file_info/get_original_source?${params.toString()}`;
       fetch(url)
-        .then((response) =>{
-          if (!response.ok){
-            throw Error(response.statusText)
+        .then((response) => {
+          if (!response.ok) {
+            throw Error(response.statusText);
           } else {
-             return response.json()
+            return response.json();
           }
         })
         .then((data) => {
-          this.loadingOriginalSource = false
+          this.loadingOriginalSource = false;
           if (data.result) {
             data.result.forEach(async (result) => {
               if (result.doi) {
                 const datasetURL = await this.fetchDOIURL(result.doi);
-                result.datasetURL = datasetURL
-                result.name = result.name || result.path.split('/').pop()
+                result.datasetURL = datasetURL;
+                result.name = result.name || result.path.split('/').pop();
               }
               if (result.flatmapUUID) {
-                this.flatmapSource.push(result)
+                this.flatmapSource.push(result);
               } else {
-                this.originalSource.push(result)
+                this.originalSource.push(result);
               }
-            })
+            });
             if (this.flatmapSource.length || this.originalSource.length) {
-              this.copyContent = this.updateCopyContent()
+              this.copyContent = this.updateCopyContent();
             }
           }
-          this.loadingOriginalSource = false
+          this.loadingOriginalSource = false;
         })
         .catch((err) => {
           //set defaults if we hit an error
-          console.error('caught error!', err)
-          this.loadingOriginalSource = false
+          console.error('caught error!', err);
+          this.loadingOriginalSource = false;
         });
     },
     onCopied: function () {
       const { label, type, discoverId } = this.entry;
       const category = type ? `${label} ${type}` : label;
       tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': `portal_maps_context_card_copy`,
-        'category': category || '',
-        'location': 'map_toolbar',
-        'dataset_id': discoverId ? discoverId + '' : '',
+        event: 'interaction_event',
+        event_name: `portal_maps_context_card_copy`,
+        category: category || '',
+        location: 'map_toolbar',
+        dataset_id: discoverId ? discoverId + '' : '',
       });
-    }
+    },
   },
-  mounted: function() {
-    this.copyContent = this.updateCopyContent()
-    this.getOriginalSource()
-  }
+  mounted: function () {
+    this.copyContent = this.updateCopyContent();
+    this.getOriginalSource();
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-
-.hide{
+.hide {
   color: #e4e7ed;
   cursor: pointer;
 }
@@ -548,7 +589,7 @@ export default {
   }
 }
 
-.context-card{
+.context-card {
   background-color: white;
   font-size: 14px;
   position: relative;
@@ -566,7 +607,7 @@ export default {
   }
 }
 
-.context-card-view{
+.context-card-view {
   cursor: pointer;
   margin-bottom: 8px;
   display: flex;
@@ -588,7 +629,7 @@ export default {
   width: 516px;
 }
 
-.context-image{
+.context-image {
   width: 150px;
   height: auto;
 }
@@ -601,8 +642,8 @@ export default {
   margin-right: 8px;
 }
 
-.card-left{
-  flex: 0.8
+.card-left {
+  flex: 0.8;
 }
 
 .card-right {
@@ -623,7 +664,7 @@ export default {
   cursor: pointer;
 }
 
-.info{
+.info {
   transform: rotate(180deg);
   color: $app-primary-color;
   margin-left: 8px;
@@ -633,11 +674,11 @@ export default {
   margin-bottom: 8px;
 }
 
-.title{
+.title {
   font-weight: bold;
 }
 
-.subtitle{
+.subtitle {
   font-weight: bold;
   margin-bottom: 8px;
 }
@@ -678,13 +719,13 @@ export default {
 
 .context-card-container {
   a {
-    color: #8300BF;
+    color: #8300bf;
   }
 }
 
 .source-data-list {
   span {
-    color: #8300BF;
+    color: #8300bf;
     text-decoration: underline;
     cursor: pointer;
   }

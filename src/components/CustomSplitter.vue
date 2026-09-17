@@ -1,86 +1,78 @@
 <template>
   <div style="height: 100%; width: 100%">
-    <resize-sensor
-      @resize="calculateStyles(index)">
-    </resize-sensor>
-    <splitpanes
-      class="default-theme"
-      :horizontal="isHorizontal"
-      :maximize-panes="false"
-    >
-      <template v-for="(child) in children" :key="child">
+    <resize-sensor @resize="calculateStyles(index)"></resize-sensor>
+    <splitpanes class="default-theme" :horizontal="isHorizontal" :maximize-panes="false">
+      <template v-for="child in children" :key="child">
         <pane :ref="child" @vue:beforeUnmount="childUnmounted(child)">
           <resize-sensor
             v-if="customLayout[child].content"
-            @resize="calculateStyles(child)">
-          </resize-sensor>
-          <custom-splitter
-            v-else
-            :key="child"
-            :index="child"
-          />
+            @resize="calculateStyles(child)"
+          ></resize-sensor>
+          <custom-splitter v-else :key="child" :index="child" />
         </pane>
       </template>
     </splitpanes>
   </div>
 </template>
 
-
 <script>
 /* eslint-disable no-alert, no-console */
 import EventBus from './EventBus';
-import ResizeSensor from "./ResizeSensor.vue";
-import { Splitpanes, Pane } from "splitpanes";
-import "splitpanes/dist/splitpanes.css";
+import ResizeSensor from './ResizeSensor.vue';
+import { Splitpanes, Pane } from 'splitpanes';
+import 'splitpanes/dist/splitpanes.css';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
 
 export default {
-  name: "CustomSplitter",
+  name: 'CustomSplitter',
   components: {
     Splitpanes,
     Pane,
-    ResizeSensor
+    ResizeSensor,
   },
   props: {
     index: {
       type: String,
-      default: function() {
-        return "split-1";
-      }
-    }
+      default: function () {
+        return 'split-1';
+      },
+    },
   },
   methods: {
-    requestStylesUpdate: function(refName) {
+    requestStylesUpdate: function (refName) {
       if (this.$refs) {
-        if (refName in this.$refs && this.$refs[refName] &&
-        this.$refs[refName][0] && this.$refs[refName][0].$el) {
+        if (
+          refName in this.$refs &&
+          this.$refs[refName] &&
+          this.$refs[refName][0] &&
+          this.$refs[refName][0].$el
+        ) {
           const el = this.$refs[refName][0].$el;
           const rect = el.getBoundingClientRect();
-          EventBus.emit("PaneResize", {refName, rect});
-
+          EventBus.emit('PaneResize', { refName, rect });
         }
       }
     },
     /**
      * Callback when the vuers emit a selected event.
      */
-    calculateStyles: function(refName) {
+    calculateStyles: function (refName) {
       if (this.$refs) {
-        if (refName.startsWith("pane")) {
+        if (refName.startsWith('pane')) {
           this.requestStylesUpdate(refName);
-        } else if (refName.startsWith("split")) {
+        } else if (refName.startsWith('split')) {
           this.customLayout[refName].children.forEach((childName) => {
-            if (childName.startsWith("pane")) {
-               this.requestStylesUpdate(childName);
+            if (childName.startsWith('pane')) {
+              this.requestStylesUpdate(childName);
             }
           });
         }
       }
     },
-    childUnmounted: function(refName) {
-      EventBus.emit("PaneUnmounted", {refName});
-    }
+    childUnmounted: function (refName) {
+      EventBus.emit('PaneUnmounted', { refName });
+    },
   },
   computed: {
     ...mapStores(useSplitFlowStore),
@@ -98,7 +90,6 @@ export default {
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-
 :deep() {
   .splitpanes.default-theme .splitpanes__pane {
     background-color: #ccc !important;
@@ -110,7 +101,7 @@ export default {
   margin: 0px 0px 0px 0px !important;
   z-index: 6 !important;
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     left: 0;
     top: 0;
@@ -147,5 +138,4 @@ export default {
     height: 100%;
   }
 }
-
 </style>

@@ -2,8 +2,8 @@
   <div class="header">
     <map-svg-sprite-color />
     <search-controls
-      @search="$emit('local-search', {term: $event});"
-      @fetch-suggestions="$emit('fetch-suggestions', {data: $event});"
+      @search="$emit('local-search', { term: $event })"
+      @fetch-suggestions="$emit('fetch-suggestions', { data: $event })"
       :failedSearch="failedSearch"
     />
 
@@ -19,62 +19,66 @@
           :disabled="!mapLoaded"
           placement="bottom-end"
         >
-        <span class="el-dropdown-link">
-          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">
-            <el-icon-compass />
-          </el-icon>
-          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Neuron Connection'">
-            <el-icon-share />
-          </el-icon>
-          <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Annotation'">
-            <el-icon-edit-pen />
-          </el-icon>
-          {{ globalSettings.viewingMode }}
-          <template v-if="globalSettings.viewingMode === 'Neuron Connection'">
-            &nbsp;
-            <small class="toolbar-dropdown-badge"><em>{{ globalSettings.connectionType }}</em></small>
-          </template>
-          <el-icon class="el-icon--right">
-            <el-icon-arrow-down />
-          </el-icon>
-        </span>
-        <template #dropdown>
-          <h4>Viewing Mode:</h4>
-          <el-dropdown-menu>
-            <el-dropdown-item v-for="(value, key, index) in viewingModes"
-              :key="key"
-              @click="updateViewingMode($event, key)"
-              :class="{'is-selected': globalSettings.viewingMode === key }"
+          <span class="el-dropdown-link">
+            <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Exploration'">
+              <el-icon-compass />
+            </el-icon>
+            <el-icon
+              class="el-icon--left"
+              v-if="globalSettings.viewingMode === 'Neuron Connection'"
             >
-              <h5>
-                <el-icon class="el-icon--left" v-if="key === 'Exploration'">
-                  <el-icon-compass />
-                </el-icon>
-                <el-icon class="el-icon--left" v-if="key === 'Neuron Connection'">
-                  <el-icon-share />
-                </el-icon>
-                <el-icon class="el-icon--left" v-if="key === 'Annotation'">
-                  <el-icon-edit-pen />
-                </el-icon>
-                {{ key }}
-              </h5>
-              <small class="el-option__description">
-                <template v-if="key === 'Annotation'">
-                  <template v-if="authorisedUser">
-                    {{ value[1] }}
+              <el-icon-share />
+            </el-icon>
+            <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Annotation'">
+              <el-icon-edit-pen />
+            </el-icon>
+            {{ globalSettings.viewingMode }}
+            <template v-if="globalSettings.viewingMode === 'Neuron Connection'">
+              &nbsp;
+              <small class="toolbar-dropdown-badge">
+                <em>{{ globalSettings.connectionType }}</em>
+              </small>
+            </template>
+            <el-icon class="el-icon--right">
+              <el-icon-arrow-down />
+            </el-icon>
+          </span>
+          <template #dropdown>
+            <h4>Viewing Mode:</h4>
+            <el-dropdown-menu>
+              <el-dropdown-item
+                v-for="(value, key, index) in viewingModes"
+                :key="key"
+                @click="updateViewingMode($event, key)"
+                :class="{ 'is-selected': globalSettings.viewingMode === key }"
+              >
+                <h5>
+                  <el-icon class="el-icon--left" v-if="key === 'Exploration'">
+                    <el-icon-compass />
+                  </el-icon>
+                  <el-icon class="el-icon--left" v-if="key === 'Neuron Connection'">
+                    <el-icon-share />
+                  </el-icon>
+                  <el-icon class="el-icon--left" v-if="key === 'Annotation'">
+                    <el-icon-edit-pen />
+                  </el-icon>
+                  {{ key }}
+                </h5>
+                <small class="el-option__description">
+                  <template v-if="key === 'Annotation'">
+                    <template v-if="authorisedUser">
+                      {{ value[1] }}
+                    </template>
+                    <template v-else>
+                      {{ value[0] }}
+                    </template>
+                    <template v-if="offlineAnnotationEnabled">(Anonymous annotate)</template>
                   </template>
                   <template v-else>
-                    {{ value[0] }}
+                    {{ value }}
                   </template>
-                  <template v-if="offlineAnnotationEnabled">
-                    (Anonymous annotate)
-                  </template>
-                </template>
-                <template v-else>
-                  {{ value }}
-                </template>
-              </small>
-              <!-- <template v-if="key === 'Exploration'">
+                </small>
+                <!-- <template v-if="key === 'Exploration'">
                 <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
                   <el-popover
                     class="tooltip"
@@ -97,36 +101,36 @@
                   </el-popover>
                 </div>
               </template> -->
-              <template v-if="key === 'Neuron Connection'">
-                <div class="setting-popover-block" v-if="'connectionType' in globalSettings">
-                  <el-radio-group
-                    v-model="globalSettings.connectionType"
-                    @change="updateGlobalSettings('connectionType')"
-                  >
-                    <el-radio-button value="Origin" size="small">Origin</el-radio-button>
-                    <el-radio-button value="Via" size="small">Via</el-radio-button>
-                    <el-radio-button value="Destination" size="small">Destination</el-radio-button>
-                    <el-radio-button value="All" size="small">All</el-radio-button>
-                  </el-radio-group>
-                  <div class="el-radio__description">
-                    <small v-if="globalSettings.connectionType === 'Origin'">
-                      Neuron populations beginning at a location.
-                    </small>
-                    <small v-else-if="globalSettings.connectionType === 'Via'">
-                      Neuron populations that run through a location.
-                    </small>
-                    <small v-else-if="globalSettings.connectionType === 'Destination'">
-                      Neuron populations terminating at a location.
-                    </small>
-                    <small v-else>
-                      Neuron populations associated with a location.
-                    </small>
+                <template v-if="key === 'Neuron Connection'">
+                  <div class="setting-popover-block" v-if="'connectionType' in globalSettings">
+                    <el-radio-group
+                      v-model="globalSettings.connectionType"
+                      @change="updateGlobalSettings('connectionType')"
+                    >
+                      <el-radio-button value="Origin" size="small">Origin</el-radio-button>
+                      <el-radio-button value="Via" size="small">Via</el-radio-button>
+                      <el-radio-button value="Destination" size="small">
+                        Destination
+                      </el-radio-button>
+                      <el-radio-button value="All" size="small">All</el-radio-button>
+                    </el-radio-group>
+                    <div class="el-radio__description">
+                      <small v-if="globalSettings.connectionType === 'Origin'">
+                        Neuron populations beginning at a location.
+                      </small>
+                      <small v-else-if="globalSettings.connectionType === 'Via'">
+                        Neuron populations that run through a location.
+                      </small>
+                      <small v-else-if="globalSettings.connectionType === 'Destination'">
+                        Neuron populations terminating at a location.
+                      </small>
+                      <small v-else>Neuron populations associated with a location.</small>
+                    </div>
                   </div>
-                </div>
-              </template>
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
+                </template>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
         </el-dropdown>
       </div>
 
@@ -136,60 +140,95 @@
         ref="viewPopover"
         placement="bottom"
         width="133"
-        :teleported=false
+        :teleported="false"
         trigger="click"
         popper-class="view-icon-popover"
         virtual-triggering
-        >
-        <el-row :gutter="20"
+      >
+        <el-row
+          :gutter="20"
           v-for="item in viewIcons"
           :key="item.name"
-          :class="[{ 'active': item.icon ==  activeView},
-            {'disabled': item.min > numberOfEntries},
-            'view-icon-row']"
+          :class="[
+            { active: item.icon == activeView },
+            { disabled: item.min > numberOfEntries },
+            'view-icon-row',
+          ]"
           @click="viewClicked(item.icon)"
         >
           <el-col :span="4">
-            <map-svg-icon :icon="item.icon"
-              class="view-icon"/>
+            <map-svg-icon :icon="item.icon" class="view-icon" />
           </el-col>
           <el-col :offset="2" :span="18" class="view-text">
-            {{item.name}}
+            {{ item.name }}
           </el-col>
         </el-row>
       </el-popover>
-      <el-popover class="tooltip" content="Split screen" placement="bottom-end"
-        :show-after="helpDelay" :teleported=false trigger="hover"
+      <el-popover
+        class="tooltip"
+        content="Split screen"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported="false"
+        trigger="hover"
         popper-class="header-popper"
       >
         <template #reference>
-          <map-svg-icon :icon="activeView"
-          ref="activeViewRef"
-          :class="[{'disabled': (1 >= numberOfEntries)},
-            'header-icon', 'splitscreen-icon']"
+          <map-svg-icon
+            :icon="activeView"
+            ref="activeViewRef"
+            :class="[{ disabled: 1 >= numberOfEntries }, 'header-icon', 'splitscreen-icon']"
           />
         </template>
       </el-popover>
 
-      <el-popover class="tooltip" content="Help" placement="bottom-end" :show-after="helpDelay"
-        :teleported=false trigger="hover" popper-class="header-popper" >
+      <el-popover
+        class="tooltip"
+        content="Help"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported="false"
+        trigger="hover"
+        popper-class="header-popper"
+      >
         <template #reference>
-          <map-svg-icon icon="tooltips" class="header-icon" @click="startHelp()"/>
+          <map-svg-icon icon="tooltips" class="header-icon" @click="startHelp()" />
         </template>
       </el-popover>
-      <el-popover class="tooltip"
-        content="Fullscreen" placement="bottom-end" :show-after="helpDelay"
-        :teleported=false trigger="hover" popper-class="header-popper">
+      <el-popover
+        class="tooltip"
+        content="Fullscreen"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported="false"
+        trigger="hover"
+        popper-class="header-popper"
+      >
         <template #reference>
-          <map-svg-icon v-show="!isFullscreen" icon="fullScreen" class="header-icon" @click="onFullscreen"/>
+          <map-svg-icon
+            v-show="!isFullscreen"
+            icon="fullScreen"
+            class="header-icon"
+            @click="onFullscreen"
+          />
         </template>
       </el-popover>
-      <el-popover class="tooltip"
-        content="Exit fullscreen" placement="bottom-end" :show-after="helpDelay"
-        :teleported=false trigger="hover" popper-class="header-popper">
+      <el-popover
+        class="tooltip"
+        content="Exit fullscreen"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported="false"
+        trigger="hover"
+        popper-class="header-popper"
+      >
         <template #reference>
-          <map-svg-icon v-show="isFullscreen" icon="closeFullScreen" class="header-icon"
-            @click="onFullscreen"/>
+          <map-svg-icon
+            v-show="isFullscreen"
+            icon="closeFullScreen"
+            class="header-icon"
+            @click="onFullscreen"
+          />
         </template>
       </el-popover>
       <el-popover
@@ -198,7 +237,7 @@
         :virtual-ref="permalinkRef"
         placement="bottom-end"
         width="400"
-        :teleported=false
+        :teleported="false"
         trigger="click"
         popper-class="link-popover"
         virtual-triggering
@@ -216,64 +255,77 @@
               </el-button>
             </el-col>
             <el-col :span="10">
-              <el-popover class="tooltip"
+              <el-popover
+                class="tooltip"
                 placement="bottom-end"
-                :show-after="helpDelay" :teleported=false trigger="hover"
+                :show-after="helpDelay"
+                :teleported="false"
+                trigger="hover"
                 popper-class="header-popper"
               >
                 <template #reference>
-                  <el-checkbox
-                    v-model="exportAnnotation"
-                    size="small"
-                  >
+                  <el-checkbox v-model="exportAnnotation" size="small">
                     Export Annotations
                   </el-checkbox>
                 </template>
                 <template #default>
                   Create a permalink with anonymous annotations.
-                  <br>
+                  <br />
                   NOTE: Annotations will only be stored for
-                  <br>
+                  <br />
                   30 days on the server.
                 </template>
               </el-popover>
             </el-col>
-        </el-row>
+          </el-row>
         </template>
         <template v-else>
-          <el-row :gutter="20"
-            v-loading="loadingLink"
-            element-loading-text="Creating link...">
+          <el-row :gutter="20" v-loading="loadingLink" element-loading-text="Creating link...">
             <el-col :span="20">
               <el-input
                 class="link-input"
                 size="small"
                 placeholder="Permanant Link Here"
-                :readonly=true
+                :readonly="true"
                 v-model="shareLink"
-                ref="linkInput">
-              </el-input>
+                ref="linkInput"
+              ></el-input>
             </el-col>
             <el-col :span="4">
-              <el-popover class="tooltip" content="Copy link" placement="bottom-end"
-                :show-after="helpDelay" :teleported=false trigger="hover"
-                popper-class="header-popper">
+              <el-popover
+                class="tooltip"
+                content="Copy link"
+                placement="bottom-end"
+                :show-after="helpDelay"
+                :teleported="false"
+                trigger="hover"
+                popper-class="header-popper"
+              >
                 <template #reference>
-                  <el-button class="copy-button"
-                    :icon="ElIconCopyDocument" size="small"
-                    @click="copyShareLink"></el-button>
+                  <el-button
+                    class="copy-button"
+                    :icon="ElIconCopyDocument"
+                    size="small"
+                    @click="copyShareLink"
+                  ></el-button>
                 </template>
               </el-popover>
             </el-col>
           </el-row>
         </template>
       </el-popover>
-      <el-popover class="tooltip"  content="Get permalink" placement="bottom-end"
-        :show-after="helpDelay" :teleported=false trigger="hover"
+      <el-popover
+        class="tooltip"
+        content="Get permalink"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported="false"
+        trigger="hover"
         popper-class="header-popper"
-        >
+      >
         <template #reference>
-          <map-svg-icon icon="permalink"
+          <map-svg-icon
+            icon="permalink"
             ref="permalinkRef"
             class="header-icon"
             @click="requestShareLink"
@@ -281,10 +333,17 @@
           />
         </template>
       </el-popover>
-      <el-popover class="tooltip" content="Close" placement="bottom-end" :show-after="helpDelay"
-        :teleported=false trigger="hover" popper-class="header-popper">
+      <el-popover
+        class="tooltip"
+        content="Close"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported="false"
+        trigger="hover"
+        popper-class="header-popper"
+      >
         <template #reference>
-          <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons"/>
+          <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons" />
         </template>
       </el-popover>
 
@@ -294,12 +353,12 @@
         ref="settingPopover"
         placement="bottom"
         width="230"
-        :teleported=false
+        :teleported="false"
         trigger="click"
         popper-class="setting-popover"
         virtual-triggering
         :disabled="!mapLoaded"
-        >
+      >
         <div class="setting-popover-inner">
           <h4>Display options:</h4>
           <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
@@ -395,7 +454,7 @@
         content="Global Settings"
         placement="bottom-end"
         :show-after="helpDelay"
-        :teleported=false
+        :teleported="false"
         trigger="hover"
         popper-class="header-popper"
         :disabled="!mapLoaded"
@@ -405,17 +464,15 @@
             ref="globalSettingRef"
             :disabled="!mapLoaded"
             class="header-icon"
-            :class="{'disabled': !mapLoaded}"
+            :class="{ disabled: !mapLoaded }"
           >
             <el-icon-more-filled />
           </el-icon>
         </template>
       </el-popover>
-
     </el-row>
   </div>
 </template>
-
 
 <script>
 /* eslint-disable no-alert, no-console */
@@ -441,14 +498,14 @@ import {
   ElRadio as Radio,
   ElRadioGroup as RadioGroup,
   ElRow as Row,
-} from "element-plus";
+} from 'element-plus';
 import tagging from '../services/tagging';
 
 /**
  * Cmponent for the header of differnt vuers.
  */
 export default {
-  name: "DialogToolbarContent",
+  name: 'DialogToolbarContent',
   components: {
     Button,
     Checkbox,
@@ -470,15 +527,14 @@ export default {
      */
     numberOfEntries: {
       type: Number,
-      default: 0
+      default: 0,
     },
     /**
      * Display icons for docking, undocking and etc.
      */
     showIcons: {
       type: Boolean,
-      default: false
-
+      default: false,
     },
   },
   inject: ['showGlobalSettings'],
@@ -501,11 +557,11 @@ export default {
     },
   },
   watch: {
-    shareLink: function() {
+    shareLink: function () {
       this.loadingLink = false;
     },
   },
-  data: function() {
+  data: function () {
     return {
       activeViewRef: undefined,
       displayShareOptions: false,
@@ -518,19 +574,21 @@ export default {
       loadingLink: true,
       permalinkRef: undefined,
       viewingModes: {
-        'Exploration': 'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
-        'Neuron Connection': 'Discover neuron connections by selecting a feature and viewing its associated network connections',
-        'Annotation': ['View feature annotations', 'Add, comment on and view feature annotations']
+        Exploration:
+          'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
+        'Neuron Connection':
+          'Discover neuron connections by selecting a feature and viewing its associated network connections',
+        Annotation: ['View feature annotations', 'Add, comment on and view feature annotations'],
       },
       authorisedUser: false,
       mapLoaded: false,
-    }
+    };
   },
   methods: {
     loadGlobalSettings: function () {
       this.globalSettings = {
         ...this.globalSettings,
-        ...this.settingsStore.globalSettings
+        ...this.settingsStore.globalSettings,
       };
     },
     updateViewingMode: function (event, value) {
@@ -554,7 +612,7 @@ export default {
         this.updateGlobalSettings('viewingMode');
       }
     },
-    updateGlobalSettings: function(changedKey) {
+    updateGlobalSettings: function (changedKey) {
       const updatedSettings = this.settingsStore.getUpdatedGlobalSettingsKey(this.globalSettings);
       this.settingsStore.updateGlobalSettings(this.globalSettings);
 
@@ -566,12 +624,14 @@ export default {
         EventBus.emit('modeUpdate', this.globalSettings.interactiveMode);
       }
       // viewing mode update
-      if (updatedSettings.includes('viewingMode') ||
+      if (
+        updatedSettings.includes('viewingMode') ||
         updatedSettings.includes('connectionType') ||
         updatedSettings.includes('flightPathDisplay') ||
         updatedSettings.includes('organsDisplay') ||
         updatedSettings.includes('outlinesDisplay') ||
-        updatedSettings.includes('backgroundDisplay')) {
+        updatedSettings.includes('backgroundDisplay')
+      ) {
         EventBus.emit('globalViewerSettingsUpdate');
       }
 
@@ -583,7 +643,7 @@ export default {
         category = this.globalSettings.flightPathDisplay ? '3D' : '2D';
       }
       if (changedKey === 'organsDisplay') {
-        category = this.globalSettings.organsDisplay ? 'Color': 'Grayscale';
+        category = this.globalSettings.organsDisplay ? 'Color' : 'Grayscale';
       }
       if (changedKey === 'outlinesDisplay') {
         category = this.globalSettings.outlinesDisplay ? 'Show' : 'Hide';
@@ -592,39 +652,39 @@ export default {
       // Prevent viewing mode clicks on active item
       if (updatedSettings.length) {
         tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': `portal_maps_settings_${changedKey}`,
-          'category': category,
-          'location': 'map_toolbar'
+          event: 'interaction_event',
+          event_name: `portal_maps_settings_${changedKey}`,
+          category: category,
+          location: 'map_toolbar',
         });
       }
     },
-    titleClicked: function(id) {
-      this.$emit("titleClicked", id);
+    titleClicked: function (id) {
+      this.$emit('titleClicked', id);
     },
-    startHelp: function(){
-      EventBus.emit("startHelp");
+    startHelp: function () {
+      EventBus.emit('startHelp');
 
       // GA Tracking
       tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': `portal_maps_toolbar_help`,
-        'category': 'help_mode_start',
-        'location': 'map_toolbar'
+        event: 'interaction_event',
+        event_name: `portal_maps_toolbar_help`,
+        category: 'help_mode_start',
+        location: 'map_toolbar',
       });
     },
-    onFullscreen: function() {
-      this.$emit("onFullscreen");
+    onFullscreen: function () {
+      this.$emit('onFullscreen');
       this.isFullscreen = !this.isFullscreen;
 
       // GA Tracking
       // only for fullscreen enter event to prevent duplicate events
       if (this.isFullscreen) {
         tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': `portal_maps_toolbar_fullscreen`,
-          'category': this.isFullscreen ? 'enter' : 'exit',
-          'location': 'map_toolbar'
+          event: 'interaction_event',
+          event_name: `portal_maps_toolbar_fullscreen`,
+          category: this.isFullscreen ? 'enter' : 'exit',
+          location: 'map_toolbar',
         });
       }
     },
@@ -634,54 +694,54 @@ export default {
 
         // GA Tracking
         tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': `portal_maps_toolbar_fullscreen`,
-          'category': this.isFullscreen ? 'enter' : 'exit',
-          'location': 'map_toolbar'
+          event: 'interaction_event',
+          event_name: `portal_maps_toolbar_fullscreen`,
+          category: this.isFullscreen ? 'enter' : 'exit',
+          location: 'map_toolbar',
         });
       }
     },
-    close: function() {
-      this.$emit("close");
+    close: function () {
+      this.$emit('close');
     },
-    copyShareLink: function() {
+    copyShareLink: function () {
       if (document) {
-        this.$refs.linkInput.$el.querySelector("input").select();
+        this.$refs.linkInput.$el.querySelector('input').select();
         document.execCommand('copy');
 
         // GA Tracking
         tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': 'portal_maps_permalink',
-          'category': 'permalink_copy',
-          'location': 'map_toolbar'
+          event: 'interaction_event',
+          event_name: 'portal_maps_permalink',
+          category: 'permalink_copy',
+          location: 'map_toolbar',
         });
       }
     },
-    setFailedSearch: function(result) {
+    setFailedSearch: function (result) {
       this.failedSearch = result;
     },
-    requestShareLink: function() {
+    requestShareLink: function () {
       if (sessionStorage.getItem('anonymous-annotation')) {
         this.displayShareOptions = true;
       } else {
         this.getShareLink(false);
       }
     },
-    getShareLink: function(withAnnotation) {
+    getShareLink: function (withAnnotation) {
       this.displayShareOptions = false;
       this.loadingLink = true;
-      EventBus.emit("updateShareLinkRequested", withAnnotation);
+      EventBus.emit('updateShareLinkRequested', withAnnotation);
 
       // GA Tracking
       tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_permalink',
-        'category': 'permalink_generate',
-        'location': 'map_toolbar'
+        event: 'interaction_event',
+        event_name: 'portal_maps_permalink',
+        category: 'permalink_generate',
+        location: 'map_toolbar',
       });
     },
-    viewClicked: function(view) {
+    viewClicked: function (view) {
       const prevActiveView = this.activeView;
 
       this.splitFlowStore.updateActiveView({
@@ -693,24 +753,24 @@ export default {
       if (view !== prevActiveView) {
         const viewCategory = this.viewIcons.find((item) => item.icon === view);
         tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': `portal_maps_toolbar_split_view`,
-          'category': viewCategory?.name || '',
-          'location': 'map_toolbar'
+          event: 'interaction_event',
+          event_name: `portal_maps_toolbar_split_view`,
+          category: viewCategory?.name || '',
+          location: 'map_toolbar',
         });
       }
 
       if (this.$refs.viewPopover) {
         this.$refs.viewPopover.hide();
       }
-    }
+    },
   },
   mounted: function () {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
     this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
 
-    EventBus.on("mapLoaded", (map) => {
+    EventBus.on('mapLoaded', (map) => {
       this.mapLoaded = true;
     });
 
@@ -726,11 +786,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@use "../assets/header-icon.scss";
+@use '../assets/header-icon.scss';
 
 .icon-group {
   :deep(.el-button--text) {
-    color:#606266;
+    color: #606266;
     font-size: 1.5em;
     &:hover {
       color: $app-primary-color;
@@ -744,11 +804,11 @@ export default {
   -o-transform: rotate(90deg);
   -ms-transform: rotate(90deg);
   transform: rotate(90deg);
-  padding:10px;
+  padding: 10px;
 }
 
 .header {
-  height:32px;
+  height: 32px;
 }
 
 .share-options.el-button {
@@ -764,7 +824,7 @@ export default {
 
 :deep(.header-popper.el-popover.el-popper) {
   padding: 6px 4px;
-  font-size:12px;
+  font-size: 12px;
   color: rgb(48, 49, 51);
   background-color: #f3ecf6;
   border: 1px solid $app-primary-color;
@@ -793,20 +853,21 @@ export default {
 }
 
 .copy-button {
-  color:#FFFFFF;
-  background-color:$app-primary-color;
-  &:hover, &:focus {
-    color:#FFFFFF;
-    background-color:$app-primary-color;
+  color: #ffffff;
+  background-color: $app-primary-color;
+  &:hover,
+  &:focus {
+    color: #ffffff;
+    background-color: $app-primary-color;
     box-shadow: -3px 2px 4px #000000;
   }
 }
 
 .link-input {
   :deep(.el-input__inner) {
-    color:#303133;
+    color: #303133;
     &:focus {
-      border-color:$app-primary-color;
+      border-color: $app-primary-color;
     }
   }
 }
@@ -817,7 +878,7 @@ export default {
   border-radius: 4px;
   border: 1px solid rgb(151, 151, 151);
   font-size: 14px;
-  margin:8px 0px 0px 0px!important;
+  margin: 8px 0px 0px 0px !important;
   cursor: pointer;
 
   &.active {
@@ -828,19 +889,19 @@ export default {
 
 .view-icon {
   font-size: 1.7em;
-  height: 24px!important;
-  width: 24px!important;
+  height: 24px !important;
+  width: 24px !important;
   color: $app-primary-color;
-  padding-top:3px;
+  padding-top: 3px;
 }
 
 .view-text {
-  letter-spacing:0px;
-  font-size:11px;
-  line-height:14px;
-  font-family:'Asap', 'Avenir',  Arial, sans-serif;
-  font-weight:550;
-  padding-top:7px;
+  letter-spacing: 0px;
+  font-size: 11px;
+  line-height: 14px;
+  font-family: 'Asap', 'Avenir', Arial, sans-serif;
+  font-weight: 550;
+  padding-top: 7px;
 }
 
 :deep(.view-icon-popover.el-popper),
@@ -848,10 +909,10 @@ export default {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 4px 8px 12px 8px;
-  min-width:unset!important;
-  width:unset!important;
+  min-width: unset !important;
+  width: unset !important;
   background-color: #f3ecf6;
-  cursor:default;
+  cursor: default;
   .el-popper__arrow {
     &:before {
       border-color: $app-primary-color;

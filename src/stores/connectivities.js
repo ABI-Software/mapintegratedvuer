@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { listsAreEqual } from "../components/scripts/utilities";
+import { listsAreEqual } from '../components/scripts/utilities';
 
 export const useConnectivitiesStore = defineStore('connectivities', {
   state: () => {
@@ -20,9 +20,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
         for (const connectivity of connectivities) {
           const key = connectivity.id;
 
-          acc[key] = acc[key] ?
-            { ...acc[key], ...connectivity } :
-            { ...connectivity };
+          acc[key] = acc[key] ? { ...acc[key], ...connectivity } : { ...connectivity };
         }
 
         return acc;
@@ -38,7 +36,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
           if (acc[filter.key]) {
             const mergedChildren = [...acc[filter.key].children, ...filter.children];
             const uniqueChildren = Array.from(
-              new Map(mergedChildren.map(child => [child.key, child])).values()
+              new Map(mergedChildren.map((child) => [child.key, child])).values(),
             );
             acc[filter.key].children = uniqueChildren;
           } else {
@@ -76,7 +74,9 @@ export const useConnectivitiesStore = defineStore('connectivities', {
         this.activeConnectivityKeys = activeConnectivityKeys;
         return true;
       } else if (this.connectivitiesUpdated) {
-        this.connectivitiesUpdated = !activeConnectivityKeys.every(ele => ele in this.globalConnectivities);
+        this.connectivitiesUpdated = !activeConnectivityKeys.every(
+          (ele) => ele in this.globalConnectivities,
+        );
         return true;
       }
       return false;

@@ -1,24 +1,21 @@
 <template>
-  <div
-    style="height: 100%; width: 100%; position:absolute"
-    ref="display"
-  />
+  <div style="height: 100%; width: 100%; position: absolute" ref="display" />
 </template>
 
 <script>
 /* eslint-disable no-alert, no-console */
-import ResizeSensor from "css-element-queries/src/ResizeSensor";
+import ResizeSensor from 'css-element-queries/src/ResizeSensor';
 
 export default {
-  name: "ResizeSensor",
+  name: 'ResizeSensor',
   methods: {
-    activate: function() {
+    activate: function () {
       if (!this._sensor) {
         this._sensor = new ResizeSensor(this.$refs.display, this.displayResize);
         this.displayResize();
       }
     },
-    deactivate: function() {
+    deactivate: function () {
       if (this._sensor) {
         this._sensor.detach(this.$refs.display, this.displayResize);
         delete this._sensor;
@@ -26,8 +23,8 @@ export default {
         this.displayResize();
       }
     },
-    displayResize: function() {
-      this.$emit("resize");
+    displayResize: function () {
+      this.$emit('resize');
     },
   },
   unmounted() {
@@ -41,7 +38,6 @@ export default {
   },
   mounted: function () {
     this.activate();
-  }
+  },
 };
 </script>
-

@@ -7,7 +7,7 @@ export const useSettingsStore = defineStore('settings', {
     return {
       shareLink: undefined,
       sparcApi: undefined,
-      algoliaIndex: "k-core_dev_published_time_desc",
+      algoliaIndex: 'k-core_dev_published_time_desc',
       algoliaKey: undefined,
       algoliaId: undefined,
       pennsieveApi: undefined,
@@ -46,38 +46,36 @@ export const useSettingsStore = defineStore('settings', {
         backgroundDisplay: 'white',
         connectionType: 'All', // 'Origin', 'Via', 'Destination', 'All
       },
-    }
+    };
   },
   getters: {
-    isFeaturedMarkerIdentifier: state => identifier => {
+    isFeaturedMarkerIdentifier: (state) => (identifier) => {
       // state.featuredMarkerIdentifiers can be nested array
       const flatIds = state.featuredMarkerIdentifiers.flat(Infinity);
       return flatIds.includes(identifier);
     },
-    featuredMarkerDoi: state => identifier => {
-      const index = state.featuredMarkerIdentifiers.findIndex(
-        element => element == identifier
-      );
+    featuredMarkerDoi: (state) => (identifier) => {
+      const index = state.featuredMarkerIdentifiers.findIndex((element) => element == identifier);
       return state.featuredMarkerDois[index];
     },
-    getGlobalSettings: state => () => {
+    getGlobalSettings: (state) => () => {
       const globalSettings = {};
       for (const [key, value] of Object.entries(state.globalSettings)) {
         globalSettings[key] = value;
       }
       return globalSettings;
     },
-    getUpdatedGlobalSettingsKey: state => settings => {
+    getUpdatedGlobalSettingsKey: (state) => (settings) => {
       let updatedSettings = [];
       for (const [key, value] of Object.entries(settings)) {
         const attribute = state.globalSettings[key];
-        if (attribute === undefined || (attribute !== value)) {
+        if (attribute === undefined || attribute !== value) {
           updatedSettings.push(key);
         }
       }
       return updatedSettings;
     },
-    hasAppliedFacets: state => facets => {
+    hasAppliedFacets: (state) => (facets) => {
       for (const facet of facets) {
         for (const appliedFacet of state.appliedFacets) {
           if (facet && appliedFacet && facet.toLowerCase() === appliedFacet.toLowerCase()) {
@@ -86,7 +84,7 @@ export const useSettingsStore = defineStore('settings', {
         }
       }
       return false;
-    }
+    },
   },
   actions: {
     updateShareLink(newLink) {
@@ -134,7 +132,7 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateFeaturedMarker(payload) {
       const index = this.featuredDatasetIdentifiers.findIndex(
-        element => element == payload.identifier
+        (element) => element == payload.identifier,
       );
       this.featuredMarkers[index] = payload.marker;
       this.featuredMarkerDois[index] = payload.doi;
@@ -144,9 +142,7 @@ export const useSettingsStore = defineStore('settings', {
       this.featuredMarkerIdentifiers[payload.index] = payload.markerIdentifier;
     },
     resetFeaturedMarkerIdentifier() {
-      this.featuredMarkerIdentifiers = new Array(
-        this.featuredDatasetIdentifiers.length
-      );
+      this.featuredMarkerIdentifiers = new Array(this.featuredDatasetIdentifiers.length);
     },
     updateAppliedFacets(facetsIn) {
       this.appliedFacets = facetsIn;
@@ -156,10 +152,10 @@ export const useSettingsStore = defineStore('settings', {
       let facets = { species: [], gender: [], organ: [] };
       //First add missing item
       if (facetsIn) {
-        facetsIn.forEach(e => {
+        facetsIn.forEach((e) => {
           switch (e.term.toLowerCase()) {
-            case "species":
-              if (e.facet.toLowerCase() !== "show all") {
+            case 'species':
+              if (e.facet.toLowerCase() !== 'show all') {
                 facets.species.push(e.facet);
                 if (!this.facets.species.includes(e.facet)) {
                   this.facets.species.push(e.facet);
@@ -168,18 +164,16 @@ export const useSettingsStore = defineStore('settings', {
                 this.facets.species = [];
               }
               break;
-            case "gender":
-              if (e.facet.toLowerCase() !== "show all") {
+            case 'gender':
+              if (e.facet.toLowerCase() !== 'show all') {
                 facets.gender.push(e.facet);
-                if (!this.facets.species.includes(e.facet))
-                  this.facets.gender.push(e.facet);
+                if (!this.facets.species.includes(e.facet)) this.facets.gender.push(e.facet);
               }
               break;
-            case "organ":
-              if (e.facet.toLowerCase() !== "show all") {
+            case 'organ':
+              if (e.facet.toLowerCase() !== 'show all') {
                 facets.organ.push(e.facet);
-                if (!this.facets.species.includes(e.facet))
-                  this.facets.organ.push(e.facet);
+                if (!this.facets.species.includes(e.facet)) this.facets.organ.push(e.facet);
               }
               break;
             default:
@@ -224,5 +218,5 @@ export const useSettingsStore = defineStore('settings', {
         this.globalSettings[key] = value;
       }
     },
-  }
+  },
 });

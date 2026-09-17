@@ -1,51 +1,65 @@
 <template>
   <div id="app">
-    <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap">
-      <div class="button-container">
-        <el-popover
-          ref="optionsPopover"
-          placement="bottom"
-          trigger="click"
-          width=500
-          class="popover"
-          :teleported=false
-        >
-          <div class="options-container">
-            <div class="row">
-              <el-button @click="saveSettings()" size="small">Save Settings</el-button>
-              <el-button @click="restoreSettings()" size="small">Restore Settings</el-button>
-              <el-button @click="getShareableURL()" size="small">Get Link</el-button>
-            </div>
-            <div class="row">
-              <el-button @click="setRatFlatmap()" size="small">Set Rat Flatmap</el-button>
-              <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
-              <el-button @click="setLegacyMultiFlatmap()" size="small">Set Legacy MultiFlatmap</el-button>
-              <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
-              <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
-              <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
-              <el-button @click="setSearch()" size="small">Set Search</el-button>
-            </div>
-            <div class="row">
-              <div style="font-weight: 600">Connectivity tooltip labels:</div>
-            </div>
-            <div class="row">
-              <el-checkbox @change="onShowLongLabelChange" v-model="showLongLabel" size="small">
-                Show long label
-              </el-checkbox>
-              <el-checkbox @change="onTruncateLongLabelChange" :disabled="!showLongLabel" v-model="truncateLongLabel" size="small">
-                Truncate long label
-              </el-checkbox>
-              <el-checkbox @change="onShowIdInTooltipChange" :disabled="!showLongLabel" v-model="showIdInTooltip" size="small">
-                Show ID in tooltip
-              </el-checkbox>
-            </div>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Asap:400,400i,500,600,700&display=swap"
+    />
+    <div class="button-container">
+      <el-popover
+        ref="optionsPopover"
+        placement="bottom"
+        trigger="click"
+        width="500"
+        class="popover"
+        :teleported="false"
+      >
+        <div class="options-container">
+          <div class="row">
+            <el-button @click="saveSettings()" size="small">Save Settings</el-button>
+            <el-button @click="restoreSettings()" size="small">Restore Settings</el-button>
+            <el-button @click="getShareableURL()" size="small">Get Link</el-button>
           </div>
-          <template #reference>
-            <el-button class="options-button" :icon="ElIconSetting">Options</el-button>
-          </template>
-        </el-popover>
-      </div>
+          <div class="row">
+            <el-button @click="setRatFlatmap()" size="small">Set Rat Flatmap</el-button>
+            <el-button @click="setMultiFlatmap()" size="small">Set MultiFlatmap</el-button>
+            <el-button @click="setLegacyMultiFlatmap()" size="small">
+              Set Legacy MultiFlatmap
+            </el-button>
+            <el-button @click="setScaffold()" size="small">Set To Scaffold</el-button>
+            <el-button @click="setWholebody()" size="small">Set to Wholebody</el-button>
+            <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
+            <el-button @click="setSearch()" size="small">Set Search</el-button>
+          </div>
+          <div class="row">
+            <div style="font-weight: 600">Connectivity tooltip labels:</div>
+          </div>
+          <div class="row">
+            <el-checkbox @change="onShowLongLabelChange" v-model="showLongLabel" size="small">
+              Show long label
+            </el-checkbox>
+            <el-checkbox
+              @change="onTruncateLongLabelChange"
+              :disabled="!showLongLabel"
+              v-model="truncateLongLabel"
+              size="small"
+            >
+              Truncate long label
+            </el-checkbox>
+            <el-checkbox
+              @change="onShowIdInTooltipChange"
+              :disabled="!showLongLabel"
+              v-model="showIdInTooltip"
+              size="small"
+            >
+              Show ID in tooltip
+            </el-checkbox>
+          </div>
+        </div>
+        <template #reference>
+          <el-button class="options-button" :icon="ElIconSetting">Options</el-button>
+        </template>
+      </el-popover>
+    </div>
     <div class="map-app">
       <MapContent
         v-if="routerIsReady"
@@ -74,7 +88,7 @@
 /* eslint-disable no-alert, no-console */
 import { shallowRef } from 'vue';
 import MapContent from './components/MapContent.vue';
-import { Setting as ElIconSetting } from '@element-plus/icons-vue'
+import { Setting as ElIconSetting } from '@element-plus/icons-vue';
 import {
   ElButton as Button,
   ElCol as Col,
@@ -86,7 +100,8 @@ import 'element-plus/es/components/message/style/css';
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
-    let anonymousAnnotations = JSON.parse(sessionStorage.getItem('anonymous-annotation')) || undefined;
+    let anonymousAnnotations =
+      JSON.parse(sessionStorage.getItem('anonymous-annotation')) || undefined;
     if (withAnnotation && anonymousAnnotations) {
       let maxRetry = 3;
       const annotationUrl = api + '/annotation/getshareid';
@@ -97,29 +112,30 @@ const getAnnotationId = (api, withAnnotation) => {
             'Content-type': 'application/json',
           },
           body: JSON.stringify({ state: anonymousAnnotations }),
-        }).then((response) => {
-          if (response.ok) {
-            return response.json();
-          }
-          throw new Error('Unsuccessful attempt to get annotation id')
         })
-        .then((data) => {
-          resolve(data.uuid);
-        })
-        .catch((error) => {
-          if (maxRetry > attempt) {
-            getId(attempt + 1);
-          } else {
-            resolve(undefined);
-          }
-        })
-      }
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Unsuccessful attempt to get annotation id');
+          })
+          .then((data) => {
+            resolve(data.uuid);
+          })
+          .catch((error) => {
+            if (maxRetry > attempt) {
+              getId(attempt + 1);
+            } else {
+              resolve(undefined);
+            }
+          });
+      };
       getId(1);
     } else {
       resolve(undefined);
     }
   });
-}
+};
 
 const getAnnotationState = (api, annotationId) => {
   return new Promise((resolve) => {
@@ -132,27 +148,28 @@ const getAnnotationState = (api, annotationId) => {
           'Content-type': 'application/json',
         },
         body: JSON.stringify({ uuid: annotationId }),
-      }).then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error('Unsuccessful attempt to get annotations');
       })
-      .then((data) => {
-        resolve(data);
-      })
-      .catch((error) => {
-        console.log(`Unable to get annotation state: attempt ${attempt} of ${maxRetry}`);
-        if (maxRetry > attempt) {
-          getState(attempt + 1);
-        } else {
-          resolve(undefined);
-        }
-      })
-    }
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw new Error('Unsuccessful attempt to get annotations');
+        })
+        .then((data) => {
+          resolve(data);
+        })
+        .catch((error) => {
+          console.log(`Unable to get annotation state: attempt ${attempt} of ${maxRetry}`);
+          if (maxRetry > attempt) {
+            getState(attempt + 1);
+          } else {
+            resolve(undefined);
+          }
+        });
+    };
     getState(1);
   });
-}
+};
 
 export default {
   name: 'app',
@@ -163,50 +180,51 @@ export default {
     Row,
     MapContent,
   },
-  data: function() {
+  data: function () {
     return {
       uuid: undefined,
       state: undefined,
-      prefix: "/map",
+      prefix: '/map',
       api: import.meta.env.VITE_API_LOCATION,
       discover_api: import.meta.env.PENNSIEVE_DISCOVER_API || 'https://api.pennsieve.io/discover',
       mapSettings: [],
-      startingMap: "AC",
+      startingMap: 'AC',
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
       showLongLabel: true,
       truncateLongLabel: true,
       showIdInTooltip: true,
-    }
+    };
   },
   computed: {
-    shareLink: function() {
-      if (this.uuid)
-        return this.prefix +"#/?id=" + this.uuid;
+    shareLink: function () {
+      if (this.uuid) return this.prefix + '#/?id=' + this.uuid;
       return this.prefix;
     },
-    options: function() {
+    options: function () {
       return {
         sparcApi: import.meta.env.VITE_API_LOCATION,
         algoliaIndex: import.meta.env.VITE_ALGOLIA_INDEX,
         algoliaKey: import.meta.env.VITE_ALGOLIA_KEY,
         algoliaId: import.meta.env.VITE_ALGOLIA_ID,
         pennsieveApi: import.meta.env.VITE_PENNSIEVE_API_LOCATION,
-        flatmapAPI: this.$route.query.flatmapserver ? this.$route.query.flatmapserver : import.meta.env.VITE_FLATMAPAPI_LOCATION,
+        flatmapAPI: this.$route.query.flatmapserver
+          ? this.$route.query.flatmapserver
+          : import.meta.env.VITE_FLATMAPAPI_LOCATION,
         rootUrl: import.meta.env.VITE_ROOT_URL,
-      }
-    }
+      };
+    },
   },
   methods: {
-    closePopover: function() {
+    closePopover: function () {
       if (this.$refs.optionsPopover) {
         this.$refs.optionsPopover.hide();
       }
     },
-    changeViewingMode: function(modeName) {
+    changeViewingMode: function (modeName) {
       this.$refs.map.changeViewingMode(modeName);
     },
-    saveSettings: function() {
+    saveSettings: function () {
       const mapState = JSON.parse(JSON.stringify(this.$refs.map.getState()));
       this.mapSettings.push(mapState);
       Message({
@@ -216,7 +234,7 @@ export default {
         duration: 1200,
       });
     },
-    restoreSettings: function() {
+    restoreSettings: function () {
       if (this.mapSettings.length > 0) {
         this.$refs.map.$refs.flow.sidebarStateRestored = false; // reset sidebar state flag
         this.$refs.map.$refs.flow._externalStateSet = false; // reset state flag
@@ -234,10 +252,10 @@ export default {
           type: 'warning',
           showClose: true,
           duration: 1200,
-        })
+        });
       }
     },
-    updateUUID: function(withAnnotation) {
+    updateUUID: function (withAnnotation) {
       let url = this.api + 'map/getshareid';
       let state = this.$refs.map.getState(false);
 
@@ -250,111 +268,98 @@ export default {
           },
           body: JSON.stringify({ state: state }),
         })
-        .then((response) => {
-          if (response.ok) {
-            return response.json()
-          }
-          throw new Error('Unsuccessful attempt to get shareid')
-        })
-        .then((data) => {
-          this.uuid = data.uuid
-        })
-        .catch((error) => {
-          console.log(`Unable to create permalink: attempt ${attempt} of ${maxRetry}`)
-          if (maxRetry > attempt) {
-            getShareLink(attempt + 1)
-          }
-        })
-      }
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Unsuccessful attempt to get shareid');
+          })
+          .then((data) => {
+            this.uuid = data.uuid;
+          })
+          .catch((error) => {
+            console.log(`Unable to create permalink: attempt ${attempt} of ${maxRetry}`);
+            if (maxRetry > attempt) {
+              getShareLink(attempt + 1);
+            }
+          });
+      };
       getAnnotationId(this.api, withAnnotation).then((annotationId) => {
         if (annotationId) {
           state.annotationId = annotationId;
         }
-        getShareLink(1)
+        getShareLink(1);
       });
-
     },
-    setFlatmap: function() {
-      this.$refs.map.setCurrentEntry(
-        {
-          type: "Flatmap",
-          resource: "FunctionalConnectivity",
-          label: "Functional"
-        }
-      );
+    setFlatmap: function () {
+      this.$refs.map.setCurrentEntry({
+        type: 'Flatmap',
+        resource: 'FunctionalConnectivity',
+        label: 'Functional',
+      });
       this.closePopover();
     },
-    setLegacyMultiFlatmap: function() {
-      this.$refs.map.setCurrentEntry(
-        {
-          type: "MultiFlatmap",
-          taxo: "NCBITaxon:10114",
-          uuid: "01fedbf9-d783-509c-a10c-827941ab13da",
-        }
-      );
+    setLegacyMultiFlatmap: function () {
+      this.$refs.map.setCurrentEntry({
+        type: 'MultiFlatmap',
+        taxo: 'NCBITaxon:10114',
+        uuid: '01fedbf9-d783-509c-a10c-827941ab13da',
+      });
       this.closePopover();
     },
-    setMultiFlatmap: function() {
-      this.$refs.map.setCurrentEntry(
-        {
-          type: "MultiFlatmap",
-          taxo: "NCBITaxon:9606",
-          biologicalSex: "PATO:0000384",
-          //organ: "heart"
-          organ: "UBERON:0018675"
-        }
-      );
+    setMultiFlatmap: function () {
+      this.$refs.map.setCurrentEntry({
+        type: 'MultiFlatmap',
+        taxo: 'NCBITaxon:9606',
+        biologicalSex: 'PATO:0000384',
+        //organ: "heart"
+        organ: 'UBERON:0018675',
+      });
       this.closePopover();
     },
-    setRatFlatmap: function() {
-      this.$refs.map.setCurrentEntry(
-        {
-          type: "MultiFlatmap",
-          taxo: "NCBITaxon:10114"
-        }
-      );
+    setRatFlatmap: function () {
+      this.$refs.map.setCurrentEntry({
+        type: 'MultiFlatmap',
+        taxo: 'NCBITaxon:10114',
+      });
       this.closePopover();
     },
-    setScaffold: function() {
-      this.$refs.map.setCurrentEntry(
-        {
-          type: "Scaffold",
-          label: "Colon",
-          url: `${this.api}/s3-resource/76/files/derivative/colonMouse_metadata.json?s3BucketName=prd-sparc-discover50-use1`,
-          viewUrl: "colonMouse_Layout1_view.json"
-        }
-      );
+    setScaffold: function () {
+      this.$refs.map.setCurrentEntry({
+        type: 'Scaffold',
+        label: 'Colon',
+        url: `${this.api}/s3-resource/76/files/derivative/colonMouse_metadata.json?s3BucketName=prd-sparc-discover50-use1`,
+        viewUrl: 'colonMouse_Layout1_view.json',
+      });
       this.closePopover();
     },
-    setWholebody: function() {
-      this.$refs.map.setCurrentEntry(
-        {
-          type: "Scaffold",
-          label: "Human",
-          isBodyScaffold: true
-        }
-      );
+    setWholebody: function () {
+      this.$refs.map.setCurrentEntry({
+        type: 'Scaffold',
+        label: 'Human',
+        isBodyScaffold: true,
+      });
       this.closePopover();
     },
-    setSearch: function() {
-      this.$refs.map.openSearch([], "10.26275/1uno-tynt");
+    setSearch: function () {
+      this.$refs.map.openSearch([], '10.26275/1uno-tynt');
       this.closePopover();
     },
-    onShowLongLabelChange: function() {
+    onShowLongLabelChange: function () {
       this.closePopover();
     },
-    onTruncateLongLabelChange: function() {
+    onTruncateLongLabelChange: function () {
       this.closePopover();
     },
-    onShowIdInTooltipChange: function() {
+    onShowIdInTooltipChange: function () {
       this.closePopover();
     },
-    mapIsLoaded: function(map) {
-      console.log("map is loaded", map)
+    mapIsLoaded: function (map) {
+      console.log('map is loaded', map);
       // map.changeViewingMode('Annotation')
     },
-    viewerIsReady: function() {
-      console.log("viewer is ready")
+    viewerIsReady: function () {
+      console.log('viewer is ready');
       this.parseQuery();
     },
     fetchDataFromApi: async function (url) {
@@ -380,29 +385,23 @@ export default {
       const url = `${this.api}/exists/${path}`;
       return await this.fetchDataFromApi(url);
     },
-    extractS3BucketName: function(uri) {
+    extractS3BucketName: function (uri) {
       if (uri) {
-        const substring = uri.split("//")[1]
+        const substring = uri.split('//')[1];
         if (substring) {
-          return substring.split("/")[0]
+          return substring.split('/')[0];
         }
       }
       return undefined;
     },
-    getScaffoldEntry: async function(dataset_id, file_path, dataset_version, viewUrl) {
-      const datasetInfo = await this.getDatasetInfo(
-        this.discover_api,
-        dataset_id,
-        dataset_version,
-      );
-      const s3Bucket = datasetInfo
-        ? this.extractS3BucketName(datasetInfo.uri)
-        : undefined
+    getScaffoldEntry: async function (dataset_id, file_path, dataset_version, viewUrl) {
+      const datasetInfo = await this.getDatasetInfo(this.discover_api, dataset_id, dataset_version);
+      const s3Bucket = datasetInfo ? this.extractS3BucketName(datasetInfo.uri) : undefined;
 
       if (s3Bucket) {
-        let path = `${dataset_id}/${file_path}`
+        let path = `${dataset_id}/${file_path}`;
         if (s3Bucket) {
-          path = path + `?s3BucketName=${s3Bucket}`
+          path = path + `?s3BucketName=${s3Bucket}`;
         }
         const fileCheckResults = await this.checkFileExists(path);
 
@@ -444,65 +443,63 @@ export default {
           xmlhttp.open('POST', url, true);
           //Send the proper header information along with the request
           xmlhttp.setRequestHeader('Content-type', 'application/json');
-          xmlhttp.onreadystatechange = () => {//Call a function when the state changes.
-              if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                let state = JSON.parse(xmlhttp.responseText);
-                console.log(state)
-                if (state?.state?.annotationId) {
-                  getAnnotationState(this.api, state.state.annotationId).
-                  then((data) => {
-                    if (data) {
-                      sessionStorage.setItem('anonymous-annotation', JSON.stringify(data.state))
-                    }
-                    this.state = state.state;
-                  });
-                } else {
+          xmlhttp.onreadystatechange = () => {
+            //Call a function when the state changes.
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+              let state = JSON.parse(xmlhttp.responseText);
+              console.log(state);
+              if (state?.state?.annotationId) {
+                getAnnotationState(this.api, state.state.annotationId).then((data) => {
+                  if (data) {
+                    sessionStorage.setItem('anonymous-annotation', JSON.stringify(data.state));
+                  }
                   this.state = state.state;
-                }
+                });
+              } else {
+                this.state = state.state;
               }
-          }
-          xmlhttp.send(JSON.stringify({"uuid": this.uuid}));
+            }
+          };
+          xmlhttp.send(JSON.stringify({ uuid: this.uuid }));
         }
 
         if (type === 'ac') {
           // Load AC map with different species
-          this.startingMap = "AC";
+          this.startingMap = 'AC';
           this.$nextTick(() => {
             const currentEntry = {
-              type: "MultiFlatmap",
+              type: 'MultiFlatmap',
               taxo: taxo || '',
             };
             if (anatomy) {
               currentEntry.organ = anatomy;
             }
             this.$refs.map.setCurrentEntry(currentEntry);
-          })
+          });
         } else if (type === 'fc') {
           // Load FC map
-          this.startingMap = "FC";
+          this.startingMap = 'FC';
           this.$nextTick(() => {
             const currentEntry = {
               type: 'Flatmap',
               resource: 'FunctionalConnectivity',
               label: 'Functional',
-            }
+            };
             if (this.$route.query.fid) {
               currentEntry.resource = this.$route.query.fid;
             }
             this.$refs.map.setCurrentEntry(currentEntry);
-          })
+          });
         } else if (type === 'wholebody') {
           // Load Wholebody scaffold
-          this.startingMap = "WholeBody";
+          this.startingMap = 'WholeBody';
           this.$nextTick(() => {
-            this.$refs.map.setCurrentEntry(
-              {
-                type: "Scaffold",
-                label: "Human",
-                isBodyScaffold: true
-              }
-            );
-          })
+            this.$refs.map.setCurrentEntry({
+              type: 'Scaffold',
+              label: 'Human',
+              isBodyScaffold: true,
+            });
+          });
         } else if (type === 'scaffold' && dataset_id && file_path) {
           // Load scaffold from dataset
           // e.g. type=scaffold&dataset_id=444&dataset_version=1&file_path=[file_path]_metadata.json
@@ -516,13 +513,13 @@ export default {
             this.$refs.map.setCurrentEntry(scaffoldEntry);
           }
         }
-      })
+      });
     },
   },
-  mounted: function() {
+  mounted: function () {
     this.waitForRouter();
   },
-}
+};
 </script>
 
 <style lang="scss">
@@ -530,12 +527,12 @@ $button-container-size: 50px;
 $gap: 24px;
 
 #app {
-  height:100%;
+  height: 100%;
   width: 100%;
-  position:absolute;
-  font-family: "Asap",sans-serif;
+  position: absolute;
+  font-family: 'Asap', sans-serif;
   background-color: #f5f7fa;
-  --el-color-primary: #8300BF;
+  --el-color-primary: #8300bf;
   --el-color-primary-light-7: #dab3ec;
   --el-color-primary-light-8: #e6ccf2;
   --el-color-primary-light-9: #f3e6f9;
@@ -555,11 +552,11 @@ body {
   position: relative;
 }
 
-.popover{
-  top:10px;
-  right:50%;
-  position:absolute;
-  z-index:1000;
+.popover {
+  top: 10px;
+  right: 50%;
+  position: absolute;
+  z-index: 1000;
 }
 
 .row {
@@ -583,13 +580,12 @@ body {
   height: $button-container-size;
 }
 
-
-.options-container{
+.options-container {
   text-align: center;
 }
 
 .map-icon {
-  color: $app-primary-color!important;
+  color: $app-primary-color !important;
 }
 
 .el-message.is-closable {
@@ -598,7 +594,7 @@ body {
   --el-message-text-color: #{$app-primary-color};
 
   .el-message__content {
-    font-family: "Asap",sans-serif;
+    font-family: 'Asap', sans-serif;
     font-size: 12px;
   }
 }

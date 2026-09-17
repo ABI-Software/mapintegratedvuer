@@ -10,15 +10,15 @@
 
 <script>
 /* eslint-disable no-alert, no-console */
-import { PlotVuer } from "@abi-software/plotvuer";
-import "@abi-software/plotvuer/dist/style.css";
-import ContentMixin from "../../mixins/ContentMixin";
+import { PlotVuer } from '@abi-software/plotvuer';
+import '@abi-software/plotvuer/dist/style.css';
+import ContentMixin from '../../mixins/ContentMixin';
 
 export default {
-  name: "Plot",
-  mixins: [ ContentMixin ],
+  name: 'Plot',
+  mixins: [ContentMixin],
   components: {
     PlotVuer,
-  }
+  },
 };
 </script>
