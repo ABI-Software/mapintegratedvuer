@@ -140,7 +140,7 @@ import {
   ElSelect as Select,
 } from "element-plus";
 import tagging from '../services/tagging';
-import { getNewMapEntry } from './scripts/utilities.js';
+import { getNewMapEntry, getBodyScaffoldInfo, capitalise } from './scripts/utilities.js';
 
 export default {
   name: "ContentBar",
@@ -178,12 +178,12 @@ export default {
           label: 'Open AC Map',
           action: 'openACMap',
           options: [
-            { label: 'Human Female', value: '__open_AC_map_human_female' },
-            { label: 'Human Male', value: '__open_AC_map_human_male' },
-            { label: 'Rat', value: '__open_AC_map_rat' },
-            { label: 'Mouse', value: '__open_AC_map_mouse' },
-            { label: 'Pig', value: '__open_AC_map_pig' },
-            { label: 'Cat', value: '__open_AC_map_cat' },
+            { label: 'Human Female', value: 'Human Female' },
+            { label: 'Human Male', value: 'Human Male' },
+            { label: 'Rat', value: 'Rat' },
+            { label: 'Mouse', value: 'Mouse' },
+            { label: 'Pig', value: 'Pig' },
+            { label: 'Cat', value: 'Cat' },
           ],
         },
         {
@@ -198,7 +198,7 @@ export default {
           label: 'Open FC Map',
           action: 'openFCMap',
           options: [
-            { label: 'Functional Connectivity', value: '__open_FC_map_functional' },
+            { label: 'Functional Connectivity', value: 'Functional Connectivity' },
           ],
         },
       ],
@@ -318,16 +318,39 @@ export default {
     },
     // Open a AC map for the selected option
     openACMap: async function(option) {
-      const type = option.value.includes("3d") ? "3D" : "AC";
-      const entry = await getNewMapEntry(type, this.settingsStore.sparcApi);
+      // Create an AC (MultiFlatmap) entry for the selected species/resource
+      const entry = {
+        resource: option.value,
+        type: "MultiFlatmap",
+        mode: "main",
+        state: undefined,
+        label: "",
+        discoverId: undefined,
+      };
       EventBus.emit("SetCurrentEntry", entry);
       this.trackOpenMap(`open_AC_map_${option.value}`);
     },
     // Open a 3D map for the selected option
     open3DMap: async function(option) {
-      const type = option.value.includes("3d") ? "3D" : "AC";
-      const entry = await getNewMapEntry(type, this.settingsStore.sparcApi);
-      EventBus.emit("SetCurrentEntry", entry);
+      // Infer species from the option value (expecting 'human' or 'rat')
+      let species = 'human';
+      if (option && option.value && option.value.toLowerCase().includes('rat')) {
+        species = 'rat';
+      }
+      const data = await getBodyScaffoldInfo(this.settingsStore.sparcApi, species);
+      const entry = {
+        resource: data.url,
+        type: 'Scaffold',
+        mode: 'main',
+        state: undefined,
+        label: capitalise(species),
+        discoverId: data.datasetInfo ? data.datasetInfo.discoverId : undefined,
+        contextCardUrl: data.datasetInfo ? data.datasetInfo.contextCardUrl : undefined,
+        s3uri: data.datasetInfo ? data.datasetInfo.s3uri : undefined,
+        version: data.datasetInfo ? data.datasetInfo.version : undefined,
+        isBodyScaffold: true,
+      };
+      EventBus.emit('SetCurrentEntry', entry);
       this.trackOpenMap(`open_3D_map_${option.value}`);
     },
 
