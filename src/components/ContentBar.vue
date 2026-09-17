@@ -280,7 +280,18 @@ export default {
     // dropdown so the flyout doesn't linger.
     openMapOption: function(group, option) {
       this[group.action](option);
-      this.$refs.contentSelect?.blur();
+      const sel = this.$refs.contentSelect;
+      if (sel) {
+        if (typeof sel.hide === 'function') {
+          sel.hide();
+        }
+        if (typeof sel.blur === 'function') {
+          sel.blur();
+        }
+        if (Object.prototype.hasOwnProperty.call(sel, 'overlayVisible')) {
+          try { sel.overlayVisible = false; } catch (e) { /* ignore */ }
+        }
+      }
     },
     // Open a AC map for the selected option
     openACMap: function(option) {
