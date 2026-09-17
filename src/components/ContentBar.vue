@@ -2,6 +2,7 @@
   <div>
     <div class="toolbar-flex-container">
       <el-select
+        ref="contentSelect"
         :teleported="false"
         :model-value="entry.id"
         placeholder="Select"
@@ -26,18 +27,41 @@
             </span>
           </span>
         </el-option>
-        <el-option-group>
-          <el-option
-            key="__open_2d_map"
-            label="Open 2D Map"
-            :value="OPEN_2D_MAP_VALUE"
-          />
-          <el-option
-            key="__open_3d_map"
-            label="Open 3D Map"
-            :value="OPEN_3D_MAP_VALUE"
-          />
-        </el-option-group>
+        <el-option
+          v-for="group in openMapGroups"
+          :key="group.label"
+          :value="group.label"
+          :label="group.label"
+          disabled
+          class="submenu-parent"
+        >
+          <el-popover
+            placement="right-start"
+            trigger="hover"
+            :show-after="120"
+            :offset="0"
+            popper-class="submenu-flyout"
+          >
+            <template #default>
+              <ul class="submenu-list">
+                <li
+                  v-for="option in group.options"
+                  :key="option.value"
+                  class="submenu-item"
+                  @click="openMapOption(group, option)"
+                >
+                  {{ option.label }}
+                </li>
+              </ul>
+            </template>
+            <template #reference>
+              <span class="submenu-label">
+                {{ group.label }}
+                <el-icon class="submenu-arrow"><el-icon-arrow-right /></el-icon>
+              </span>
+            </template>
+          </el-popover>
+        </el-option>
       </el-select>
       <div class="information-group shrink">
         <el-popover
@@ -105,11 +129,11 @@ import FlatmapContextCard from './FlatmapContextCard.vue';
 import {
   ArrowDown as ElIconArrowDown,
   ArrowUp as ElIconArrowUp,
+  ArrowRight as ElIconArrowRight,
 } from '@element-plus/icons-vue'
 import {
   ElInput as Input,
   ElOption as Option,
-  ElOptionGroup as OptionGroup,
   ElPopover as Popover,
   ElRow as Row,
   ElSelect as Select,
@@ -121,9 +145,9 @@ export default {
   components: {
     ElIconArrowDown,
     ElIconArrowUp,
+    ElIconArrowRight,
     Input,
     Option,
-    OptionGroup,
     Popover,
     Row,
     Select,
@@ -144,9 +168,31 @@ export default {
       showDetails: true,
       contextCardEntry: undefined,
       titles: [],
-      // Sentinel values for the action options shown in the viewer dropdown
-      OPEN_2D_MAP_VALUE: '__open_2d_map',
-      OPEN_3D_MAP_VALUE: '__open_3d_map',
+      // Base options shown at the bottom of the viewer dropdown. Each group
+      // flyouts to its own child options (submenu); clicking a child dispatches
+      // to the group's placeholder action method.
+      openMapGroups: [
+        {
+          label: 'Open 2D Map',
+          action: 'open2DMap',
+          options: [
+            { label: 'Human Female', value: '__open_2d_map_human_female' },
+            { label: 'Human Male', value: '__open_2d_map_human_male' },
+            { label: 'Rat', value: '__open_2d_map_rat' },
+            { label: 'Mouse', value: '__open_2d_map_mouse' },
+            { label: 'Pig', value: '__open_2d_map_pig' },
+            { label: 'Cat', value: '__open_2d_map_cat' },
+          ],
+        },
+        {
+          label: 'Open 3D Map',
+          action: 'open3DMap',
+          options: [
+            { label: 'Human', value: '__open_3d_map_human' },
+            { label: 'Rat', value: '__open_3d_map_rat' },
+          ],
+        },
+      ],
     }
   },
   computed: {
@@ -230,13 +276,31 @@ export default {
         EventBus.emit('connectivity-info-open', [entry.connectivityInfo]);
       }
     },
-    // Placeholder: open a 2D map viewer
-    open2DMap: function() {
-      // TODO: implement open 2D map
+    // A submenu child option was clicked: run the group's action and close the
+    // dropdown so the flyout doesn't linger.
+    openMapOption: function(group, option) {
+      this[group.action](option);
+      this.$refs.contentSelect?.blur();
     },
-    // Placeholder: open a 3D map viewer
-    open3DMap: function() {
-      // TODO: implement open 3D map
+    // Open a 2D map for the selected option (AC or FC)
+    open2DMap: function(option) {
+      const type = option.value.includes("3d") ? "3D" : "2D";
+      EventBus.emit("OpenNewMap", type);
+      this.trackOpenMap(`open_2d_map_${option.value}`);
+    },
+    // Open a 3D map for the selected option
+    open3DMap: function(option) {
+      const type = option.value.includes("3d") ? "3D" : "2D";
+      EventBus.emit("OpenNewMap", type);
+      this.trackOpenMap(`open_3d_map_${option.value}`);
+    },
+    trackOpenMap: function(category) {
+      tagging.sendEvent({
+        'event': 'interaction_event',
+        'event_name': `portal_maps_toolbar_open_map`,
+        'category': category,
+        'location': 'map_toolbar'
+      });
     },
     closeAndRemove: function() {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries});
@@ -291,15 +355,6 @@ export default {
       return character;
     },
     viewerChanged: function(value) {
-      // Handle the action options shown at the bottom of the dropdown
-      if (value === this.OPEN_2D_MAP_VALUE) {
-        this.open2DMap();
-        return;
-      }
-      if (value === this.OPEN_3D_MAP_VALUE) {
-        this.open3DMap();
-        return;
-      }
       if (this.entry.id && this.entry.id != value) {
         this.splitFlowStore.assignOrSwapPaneWithIds({
           source: this.entry.id,
@@ -529,15 +584,39 @@ export default {
     }
   }
 
-  .el-select-group__wrap {
-    position: relative;
+  // Base "Open ... Map" options: disabled so they can't be selected, but they
+  // still receive hover events to reveal their flyout submenu.
+  .el-select-dropdown__item.submenu-parent {
     margin-top: 4px;
-    padding-top: 4px;
     border-top: 1px solid #e4e7ed;
-
-    .el-select-group__title {
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    &.is-disabled {
+      cursor: pointer;
+      color: inherit;
+    }
+    &:hover {
+      background-color: #f3ecf6;
+    }
+    .el-tooltip__trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      padding: 0 20px;
+    }
+    .submenu-label {
       color: $app-primary-color;
-      font-size: 11px;
+      font-weight: normal;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .submenu-arrow {
+      font-size: 12px;
+      color: $app-primary-color;
     }
   }
 }
@@ -573,4 +652,33 @@ export default {
   background: #fff!important;
 }
 
+</style>
+
+<!-- Non-scoped: the submenu flyout is teleported to <body>, outside this
+     component's scoped DOM, so its styles must be global. -->
+<style lang="scss">
+.submenu-flyout.el-popover.el-popper {
+  padding: 4px 0;
+  min-width: 140px;
+
+  .submenu-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .submenu-item {
+    padding: 6px 16px;
+    font-size: 14px;
+    line-height: 20px;
+    color: $app-primary-color;
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: normal;
+    &:hover {
+      background-color: #f3ecf6;
+    }
+  }
+}
 </style>
