@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url));
 
 export default [
-  includeIgnoreFile(gitignorePath),
+  includeIgnoreFile(gitignorePath, { gitignoreResolution: true }),
   {
     ignores: ['dist/**', 'docs/.vitepress/**', 'docs/components/**', 'test/**'],
   },
