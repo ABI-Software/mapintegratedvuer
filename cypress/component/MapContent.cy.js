@@ -138,6 +138,7 @@ describe('MapContent', () => {
     }
 
     cy.get('html').invoke('css', 'width', '1200px');
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     cy.get(
       '[style="height: 100%;"] > [style="height: 100%; width: 100%; position: relative;"] > [style="height: 100%; width: 100%;"] > :nth-child(2) > :nth-child(2) > #maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas',
@@ -148,6 +149,7 @@ describe('MapContent', () => {
       });
     cy.get('html').invoke('css', 'width', 'initial');
 
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // CLI
     cy.get('html').screenshot('base/cypress/component/MapContent.cy.js/MapContent_1pane');
@@ -361,6 +363,7 @@ describe('MapContent', () => {
     // All available maps should show to annotation tools
     cy.get('.toolbar-container > .toolbar-icons').should('have.length', 3);
 
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(
       '.viewer-container > .flatmap-container > [style="height: 100%; width: 100%; position: relative;"] > .pathway-location > .drawer-button',

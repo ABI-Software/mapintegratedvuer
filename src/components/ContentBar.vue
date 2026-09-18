@@ -130,7 +130,6 @@ export default {
       boundariesElement: null, // this is set @vue:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntry: undefined,
-      titles: [],
     };
   },
   computed: {
@@ -188,18 +187,18 @@ export default {
       };
     },
     entries: function () {
-      this.titles = [];
       return this.entriesStore.entries.map((entry) => {
-        const title = this.getEntryTitle(entry);
-        this.titles.push({
-          id: entry.id,
-          title: title,
-        });
         return {
           ...entry,
-          title: title,
+          title: this.getEntryTitle(entry),
         };
       });
+    },
+    titles: function () {
+      return this.entries.map((entry) => ({
+        id: entry.id,
+        title: entry.title,
+      }));
     },
   },
   methods: {

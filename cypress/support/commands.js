@@ -30,9 +30,8 @@ import 'cypress-wait-until';
 // occasionally drop keystrokes or get detached (e.g., Element Plus fields re-rendering mid-type).
 Cypress.Commands.add('typeReliably', (selector, text, options = {}) => {
   const attempt = (retriesLeft) => {
-    cy.get(selector)
-      .clear(options)
-      .type(text, { delay: 50, ...options });
+    cy.get(selector).clear(options);
+    cy.get(selector).type(text, { delay: 50, ...options });
 
     cy.get(selector).then(($el) => {
       if ($el.val() !== text && retriesLeft > 0) {
@@ -109,6 +108,7 @@ ${publicationLink}`;
           }
         });
         cy.get('.float-button-container button').click({ force: true });
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(100);
 
         if (prevPublicationLink) {
@@ -132,6 +132,7 @@ ${publicationLink}`;
 });
 
 Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
   cy.get('.el-icon.header-icon').as('globalSettings').click(); // open
   cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`)
@@ -140,6 +141,7 @@ Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
     .click();
   cy.get('@globalSettings').click(); // close
   cy.get('@globalSettings').trigger('mouseleave');
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
   cy.get('html')
     .compareSnapshot(compare)
@@ -150,6 +152,7 @@ Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
   cy.get('@settingOptions').first().click(); // reset to default
   cy.get('@globalSettings').click(); // close
   cy.get('@globalSettings').trigger('mouseleave');
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
 });
 
@@ -213,9 +216,11 @@ Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
     searchTerm,
   );
   cy.get('.search-container > .map-icon > use').should('exist').click();
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   const tagTerm = `${mode[0]}:${searchTerm}`;
   cy.get('.sidebar-container .content-card:visible .filters').should('exist').contains(tagTerm);
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(4000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.sidebar-container .el-card:visible .header .is-link > span')
@@ -234,6 +239,7 @@ Cypress.Commands.add('connectivitySearch', (searchTerm) => {
     '[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner',
   ).type(searchTerm);
   cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(4000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
@@ -241,11 +247,13 @@ Cypress.Commands.add('connectivitySearch', (searchTerm) => {
 
 Cypress.Commands.add('compareConnectivitySearchResults', ([searchTerm1, searchTerm2], isSame) => {
   cy.connectivitySearch(searchTerm1);
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get('.dataset-results-feedback:visible')
     .invoke('text')
     .then((storedvalue1) => {
       cy.connectivitySearch(searchTerm2);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
       cy.get('.dataset-results-feedback:visible')
         .invoke('text')

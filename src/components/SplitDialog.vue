@@ -209,7 +209,7 @@ export default {
       const ids = [];
       entry.forEach((data) => {
         let compareRanges = [JSON.stringify(data['nerve-label'])];
-        if ((type = 'query')) {
+        if (_type === 'query') {
           compareRanges = [
             ...compareRanges,
             data.id,
@@ -253,7 +253,7 @@ export default {
 
       const searchTerm = term.toLowerCase();
       const minTermLength = 3;
-      const hasDelimiters = /[-_:\s\/]+/.test(searchTerm);
+      const hasDelimiters = /[-_:\s/]+/.test(searchTerm);
 
       if (hasDelimiters) {
         return pathwayModels
@@ -268,7 +268,7 @@ export default {
         return pathwayModels
           .filter((pathway) => {
             const pathwayId = pathway.id?.toLowerCase() || '';
-            const segments = pathwayId.split(/[-_:\s\/]+/);
+            const segments = pathwayId.split(/[-_:\s/]+/);
             return segments.includes(searchTerm);
           })
           .map((pathway) => pathway.id);
@@ -277,7 +277,7 @@ export default {
       return pathwayModels
         .filter((pathway) => {
           const pathwayId = pathway.id?.toLowerCase() || '';
-          const segments = pathwayId.split(/[-_:\s\/]+/);
+          const segments = pathwayId.split(/[-_:\s/]+/);
 
           return segments.some(
             (segment) =>
@@ -415,7 +415,7 @@ export default {
               // generate connectivityQueries to query related ids
               if (isNeuronConnection && item.facet?.toLowerCase() !== 'show all') {
                 // string format with a space for CQ
-                const feature = item.facet.replace(',\[', ', \[');
+                const feature = item.facet.replace(',[', ', [');
                 const mode = item.facetPropPath.split('.').pop();
 
                 if (mode === 'origin') {

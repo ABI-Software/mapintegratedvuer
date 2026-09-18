@@ -493,7 +493,7 @@ export default {
 
         throw new Error('Redirect URL not found in DOI metadata');
       } catch (error) {
-        throw new Error(error);
+        throw new Error('Failed to resolve DOI redirect URL', { cause: error });
       }
     },
     getOriginalSource: function () {
