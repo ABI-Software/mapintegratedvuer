@@ -168,7 +168,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
   getters: {
     getActivePaneIds: (state) => () => {
       const availablePaneIDs = [];
-      let activePaneIDs = undefined;
+      let activePaneIDs;
       for (const key in state.customLayout) {
         if (state.customLayout[key].id) {
           availablePaneIDs.push(state.customLayout[key].id);
@@ -281,7 +281,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
     },
     setState(newState) {
       if (newState) {
-        let customLayout = undefined;
+        let customLayout;
         if (newState.activeView) {
           this.activeView = newState.activeView;
         }

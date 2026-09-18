@@ -180,7 +180,7 @@ export const useSettingsStore = defineStore('settings', {
         });
         //Remove item not in list
         for (const [key, arr] of Object.entries(this.facets)) {
-          let i = 0;
+          let i;
           for (i = arr.length - 1; i >= 0; i -= 1) {
             const index = facets[key].indexOf(arr[i]);
             if (index == -1) {
