@@ -21,7 +21,6 @@
 </template>
 
 <script>
-import { ElLoading as Loading } from 'element-plus';
 import { CopyToClipboard } from '@abi-software/map-utilities';
 import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
@@ -29,7 +28,6 @@ import '@abi-software/map-utilities/dist/style.css';
 export default {
   name: 'FlatmapContextCard',
   components: {
-    Loading,
     CopyToClipboard,
   },
   props: {

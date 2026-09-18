@@ -279,7 +279,7 @@ export default {
         let sourceDataLinks = '<div><strong>Source data links</strong></div>';
         const sourceLinks = [];
 
-        this.originalSource.forEach((source, i) => {
+        this.originalSource.forEach((source) => {
           const path = this.generateFileLink(source);
           let sourceContent = `<div>${source.name}</div>`;
           sourceContent += `\n`;
@@ -295,8 +295,7 @@ export default {
         let flatmapDataLinks = '<div><strong>Associated flatmaps from source</strong></div>';
         const flatmapLinks = [];
 
-        this.flatmapSource.forEach((source, i) => {
-          const path = this.generateFileLink(source);
+        this.flatmapSource.forEach((source) => {
           let flatmapContent = `<div>${source.name}</div>`;
           let flatmapSource = this.flatmapAPI
             ? `${this.flatmapAPI}viewer?id=${source.flatmapUUID}`
@@ -314,7 +313,7 @@ export default {
         let scaffoldViews = '<div><strong>Scaffold Views</strong></div>';
         const views = [];
 
-        this.contextData.views.forEach((view, i) => {
+        this.contextData.views.forEach((view) => {
           const viewContents = [];
           const viewPath = this.getFileFromPath(view.path);
           let viewContent = `<div>${view.description}</div>`;
@@ -346,7 +345,7 @@ export default {
           let sampleViews = '<div><strong>Samples on Scaffold</strong></div>';
           const samples = [];
 
-          this.contextData.samples.forEach((sample, i) => {
+          this.contextData.samples.forEach((sample) => {
             let sampleContents = '';
             sampleContents += `<div>${sample.heading}</div>`;
             sampleContents += `\n`;

@@ -407,7 +407,7 @@ export default {
       immediate: true,
     },
     connectivityKnowledge: {
-      handler(newVal, oldVal) {
+      handler(newVal, _oldVal) {
         // Store scaffold knowledge locally
         if (this.entry.resource in newVal) {
           const scaffoldKnowledge = newVal[this.entry.resource];

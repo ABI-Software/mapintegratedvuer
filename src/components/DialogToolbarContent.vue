@@ -47,7 +47,7 @@
             <h4>Viewing Mode:</h4>
             <el-dropdown-menu>
               <el-dropdown-item
-                v-for="(value, key, index) in viewingModes"
+                v-for="(value, key) in viewingModes"
                 :key="key"
                 @click="updateViewingMode($event, key)"
                 :class="{ 'is-selected': globalSettings.viewingMode === key }"
@@ -485,7 +485,6 @@ import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
 import {
   CopyDocument as ElIconCopyDocument,
-  MoreFilled as ElIconMoreFilled,
 } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
@@ -498,7 +497,6 @@ export default {
     MapSvgIcon,
     MapSvgSpriteColor,
     SearchControls,
-    ElIconCopyDocument,
   },
   props: {
     /**
@@ -749,7 +747,7 @@ export default {
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
     this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
 
-    EventBus.on('mapLoaded', (map) => {
+    EventBus.on('mapLoaded', () => {
       this.mapLoaded = true;
     });
 

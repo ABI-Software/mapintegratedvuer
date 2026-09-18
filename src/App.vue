@@ -115,7 +115,7 @@ const getAnnotationId = (api, withAnnotation) => {
           .then((data) => {
             resolve(data.uuid);
           })
-          .catch((error) => {
+          .catch((_error) => {
             if (maxRetry > attempt) {
               getId(attempt + 1);
             } else {
@@ -151,7 +151,7 @@ const getAnnotationState = (api, annotationId) => {
         .then((data) => {
           resolve(data);
         })
-        .catch((error) => {
+        .catch((_error) => {
           console.log(`Unable to get annotation state: attempt ${attempt} of ${maxRetry}`);
           if (maxRetry > attempt) {
             getState(attempt + 1);
@@ -266,7 +266,7 @@ export default {
           .then((data) => {
             this.uuid = data.uuid;
           })
-          .catch((error) => {
+          .catch((_error) => {
             console.log(`Unable to create permalink: attempt ${attempt} of ${maxRetry}`);
             if (maxRetry > attempt) {
               getShareLink(attempt + 1);

@@ -30,7 +30,6 @@ import { defaultSpecies, findSpeciesKey } from './scripts/utilities.js';
 import { MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import { initialState, getBodyScaffoldInfo } from './scripts/utilities.js';
 import RetrieveContextCardMixin from '../mixins/RetrieveContextCardMixin.js';
-import { ElLoading as Loading } from 'element-plus';
 
 /**
  * Content of the app. More work flows will be added here.
@@ -39,7 +38,6 @@ export default {
   name: 'MapContent',
   components: {
     MapSvgSpriteColor,
-    Loading,
     SplitFlow,
   },
   mixins: [RetrieveContextCardMixin],

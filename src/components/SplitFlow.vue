@@ -86,7 +86,6 @@ import { useMainStore } from '../stores/index';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
-import { ElContainer as Container, ElHeader as Header, ElMain as Main } from 'element-plus';
 
 const getAllFacetLabels = (children) => {
   const labels = [];
@@ -125,9 +124,6 @@ const getAnatomyTermsForFilters = (action, availableNameCurieMapping) => {
 export default {
   name: 'SplitFlow',
   components: {
-    Container,
-    Header,
-    Main,
     DialogToolbarContent,
     SplitDialog,
     SideBar,
@@ -909,7 +905,7 @@ export default {
     resourceSelected: function (result) {
       this.$emit('resource-selected', result);
     },
-    speciesChanged: function (species) {
+    speciesChanged: function (_species) {
       if (this.$refs.sideBar) {
         // Use to update the connectivity when switch species
         // Wait for provenance info with uuid update
@@ -1049,7 +1045,7 @@ export default {
     EventBus.on('connectivity-info-open', (payload) => {
       this.openConnectivityInfo(payload);
     });
-    EventBus.on('connectivity-info-close', (payload) => {
+    EventBus.on('connectivity-info-close', (_payload) => {
       if (this.$refs.sideBar) {
         this.connectivityProcessed = false;
         this.$refs.sideBar.resetConnectivitySearch();

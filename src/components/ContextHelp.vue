@@ -20,13 +20,8 @@
 </template>
 
 <script>
-import { ElCard as Card } from 'element-plus';
-
 export default {
   name: 'ContextHelp',
-  components: {
-    Card,
-  },
   props: {
     /**
      * Object containing information for

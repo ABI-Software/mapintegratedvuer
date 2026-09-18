@@ -18,7 +18,6 @@
 
 <script>
 import { MapSvgIcon } from '@abi-software/svg-sprite';
-import { ElAutocomplete as Autocomplete } from 'element-plus';
 
 export default {
   name: 'SearchControls',
@@ -26,7 +25,6 @@ export default {
     failedSearch: undefined,
   },
   components: {
-    Autocomplete,
     MapSvgIcon,
   },
   methods: {

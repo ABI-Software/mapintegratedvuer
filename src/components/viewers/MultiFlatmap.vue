@@ -71,7 +71,7 @@ import '@abi-software/flatmapvuer/dist/style.css';
 import { HelpModeDialog } from '@abi-software/map-utilities';
 import '@abi-software/map-utilities/dist/style.css';
 
-const getOpenMapOptions = (species) => {
+const getOpenMapOptions = (_species) => {
   const options = [
     {
       display: 'Open AC Map',

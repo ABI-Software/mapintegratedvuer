@@ -1,5 +1,4 @@
 import { markRaw } from 'vue';
-import { getNerveNames, getParentsRegion } from '../components/SimulatedData.js';
 import EventBus from '../components/EventBus';
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
@@ -194,7 +193,6 @@ export default {
       }
 
       let returnedAction = undefined;
-      let action = 'none';
       let fireResourceSelected = false;
       const result = {
         paneIndex: this.entry.id,
@@ -281,7 +279,6 @@ export default {
         }
         result.eventType = 'selected';
         fireResourceSelected = true;
-        action = 'search';
       }
       if (returnedAction) EventBus.emit('PopoverActionClick', returnedAction);
       if (fireResourceSelected) this.$emit('resource-selected', result);
@@ -305,13 +302,13 @@ export default {
           let markerCurie;
           try {
             markerCurie = resultPayload.anatomy.organ[0].curie;
-          } catch (error) {
+          } catch (_error) {
             markerCurie = undefined;
           }
           let markerDoi;
           try {
             markerDoi = resultPayload.item.curie;
-          } catch (error) {
+          } catch (_error) {
             markerDoi = undefined;
           }
           let markerSpecies;
@@ -326,7 +323,7 @@ export default {
               }
               index += 1;
             }
-          } catch (error) {
+          } catch (_error) {
             markerSpecies = undefined;
           }
           // can test the featured marker by uncommenting the line below:

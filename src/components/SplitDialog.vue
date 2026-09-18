@@ -205,7 +205,7 @@ export default {
         this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
       }
     },
-    getGeneralSearchedId: function (entry, term, type = 'query') {
+    getGeneralSearchedId: function (entry, term, _type = 'query') {
       const ids = [];
       entry.forEach((data) => {
         let compareRanges = [JSON.stringify(data['nerve-label'])];
