@@ -22,16 +22,13 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
-import {
-  ConnectivityGraph as MapUtilitiesConnectivityGraph,
-} from '@abi-software/map-utilities';
-import ContentMixin from "../../mixins/ContentMixin";
+import { ConnectivityGraph as MapUtilitiesConnectivityGraph } from '@abi-software/map-utilities';
+import ContentMixin from '../../mixins/ContentMixin';
 import EventBus from '../EventBus';
 
 export default {
-  name: "ConnectivityGraph",
-  mixins: [ ContentMixin ],
+  name: 'ConnectivityGraph',
+  mixins: [ContentMixin],
   components: {
     MapUtilitiesConnectivityGraph,
   },
@@ -84,7 +81,7 @@ export default {
   },
   methods: {
     onTapNode: function (data) {
-      const name = data.map(t => t.label).join(', ');
+      const name = data.map((t) => t.label).join(', ');
       this.onConnectivityHovered(name);
     },
     onConnectivityHovered: function (label) {
@@ -100,17 +97,17 @@ export default {
       const names = label.split(',');
       let data = [];
       names.forEach((n) => {
-        const foundData = allWithDatasets.find((a) =>
-          a.name.toLowerCase().trim() === n.toLowerCase().trim()
+        const foundData = allWithDatasets.find(
+          (a) => a.name.toLowerCase().trim() === n.toLowerCase().trim(),
         );
         if (foundData) {
           data.push({
             id: foundData.id,
-            label: foundData.name
+            label: foundData.name,
           });
         }
       });
-      return data
+      return data;
     },
   },
 };

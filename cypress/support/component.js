@@ -14,27 +14,25 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+import './commands';
 import { createPinia } from 'pinia';
-import { mount } from 'cypress/vue'
+import { mount } from 'cypress/vue';
 import { addCompareSnapshotCommand } from 'cypress-visual-regression/dist/command';
-
 
 addCompareSnapshotCommand({
   capture: 'fullPage', // cypress screenshot option
   errorThreshold: 1, // plugin threshold option
   pixelmatchOptions: {
-    threshold: 0.1 // pixelmatch threshold option
-  }
-})
+    threshold: 0.1, // pixelmatch threshold option
+  },
+});
 
 Cypress.Commands.add('mount', (component, options = {}) => {
-
   const pinia = createPinia();
 
   const installPinia = (app) => {
     app.use(pinia);
-  }
+  };
 
   // To support global overrides in mount options
   options.global = options.global || {};
@@ -44,12 +42,12 @@ Cypress.Commands.add('mount', (component, options = {}) => {
   return mount(component, options);
 });
 
-Cypress.on('uncaught:exception', (err, runnable) => {
+Cypress.on('uncaught:exception', (err) => {
   // we expect a flatmap-viewer error with message ''Graph.addNode'
   // and don't want to fail the test so we return false
   if (err.message.includes('Graph.addNode')) {
-    return false
+    return false;
   }
   // we still want to ensure there are no other unexpected
   // errors, so we let them fail the test
-})
+});

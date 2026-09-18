@@ -6,41 +6,41 @@ module.exports = {
   entry: 'app.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
   },
   resolve: {
     alias: {
-      'vue$': 'vue/dist/vue.esm.js' // 'vue/dist/vue.common.js' for webpack 1
-    }
+      vue$: 'vue/dist/vue.esm.js', // 'vue/dist/vue.common.js' for webpack 1
+    },
   },
   devtool: 'inline-cheap-module-source-map',
   module: {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader'
+        loader: 'vue-loader',
       },
       {
         test: /\.js$/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
           options: {
             presets: ['@vue/cli-plugin-babel/preset'],
             plugins: [
               [
-                "component",
+                'component',
                 {
-                  libraryName: "element-ui",
-                  styleLibraryName: "theme-chalk"
-                }
-              ]
-            ]
+                  libraryName: 'element-ui',
+                  styleLibraryName: 'theme-chalk',
+                },
+              ],
+            ],
           },
-        }
+        },
       },
       {
         test: /\.(woff|woff2|eot|ttf|svg|png|jpg|jpeg)(\?.*$|$)/,
-        loader: "file-loader"
+        loader: 'file-loader',
       },
       {
         test: /\.css$/,
@@ -54,10 +54,10 @@ module.exports = {
           {
             loader: 'sass-loader',
             options: {
-              prependData: `@import '@/assets/styles';`
-            }
-          }
-        ]
+              prependData: `@import '@/assets/styles';`,
+            },
+          },
+        ],
       },
       {
         test: /\.(vs|fs)$/i,
@@ -66,17 +66,15 @@ module.exports = {
       {
         test: /\.mjs$/,
         include: /node_modules/,
-        type: 'javascript/auto'
-      }
-    ]
+        type: 'javascript/auto',
+      },
+    ],
   },
-  plugins: [
-    new VueLoaderPlugin()
-  ],
+  plugins: [new VueLoaderPlugin()],
   resolve: {
     extensions: ['*', '.js', '.vue', '.json'],
     alias: {
       '@': path.resolve('src'),
-    }
+    },
   },
-}
+};

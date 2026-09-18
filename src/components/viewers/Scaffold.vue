@@ -38,7 +38,7 @@
       :showOpenMapButton="showOpenMapButton"
       :usageConfig="{
         showTubeLinesControls: false,
-        tubeLines: (entry.discoverId === '307' || entry.discoverId === 307)
+        tubeLines: entry.discoverId === '307' || entry.discoverId === 307,
       }"
     />
 
@@ -54,20 +54,22 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
-import { markRaw } from "vue";
-import EventBus from "../EventBus";
-import ContentMixin from "../../mixins/ContentMixin";
+import { markRaw } from 'vue';
+import EventBus from '../EventBus';
+import ContentMixin from '../../mixins/ContentMixin';
 
-import { ScaffoldVuer } from "@abi-software/scaffoldvuer";
-import "@abi-software/scaffoldvuer/dist/style.css";
-import { HelpModeDialog } from '@abi-software/map-utilities'
-import '@abi-software/map-utilities/dist/style.css'
-import { getReferenceConnectivitiesFromStorage, getReferenceConnectivitiesByAPI } from "@abi-software/flatmapvuer/src/services/flatmapKnowledge.js";
+import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
+import '@abi-software/scaffoldvuer/dist/style.css';
+import { HelpModeDialog } from '@abi-software/map-utilities';
+import '@abi-software/map-utilities/dist/style.css';
+import {
+  getReferenceConnectivitiesFromStorage,
+  getReferenceConnectivitiesByAPI,
+} from '@abi-software/flatmapvuer/src/services/flatmapKnowledge.js';
 
 export default {
-  name: "Scaffold",
-  mixins: [ ContentMixin ],
+  name: 'Scaffold',
+  mixins: [ContentMixin],
   components: {
     ScaffoldVuer,
     HelpModeDialog,
@@ -76,24 +78,28 @@ export default {
     showConnectivitiesByReference: async function (resource) {
       if (this.$refs.scaffold) {
         const flatmapKnowledge = sessionStorage.getItem('flatmap-knowledge');
-        let featureIds = [];
+        let featureIds;
         if (flatmapKnowledge) {
           featureIds = await getReferenceConnectivitiesFromStorage(resource);
         } else {
-          featureIds = await getReferenceConnectivitiesByAPI(this.flatmapService.mapImp, resource, this.flatmapService.flatmapQueries);
+          featureIds = await getReferenceConnectivitiesByAPI(
+            this.flatmapService.mapImp,
+            resource,
+            this.flatmapService.flatmapQueries,
+          );
         }
         const nerveLabels = [];
         for (const id of featureIds) {
-          const knowledge = this.nervesKnowledge.find(k => k.id === id);
+          const knowledge = this.nervesKnowledge.find((k) => k.id === id);
           if (!knowledge) continue;
 
           const nerves = knowledge['nerve-label'];
           if (nerves) {
-            const subNerves = nerves.flatMap(n => n.subNerves);
+            const subNerves = nerves.flatMap((n) => n.subNerves);
             nerveLabels.push(...subNerves);
           }
         }
-        this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
+        this.$refs.scaffold.changeHighlightedByName(nerveLabels, '', false);
       }
     },
     setNerveGreyScale: function () {
@@ -115,7 +121,7 @@ export default {
         const processed = payload ? true : false;
         if (payload) {
           const ids = [];
-          payload['OR'].forEach(orData => {
+          payload['OR'].forEach((orData) => {
             if ('AND' in orData) {
               if (orData['AND'].length >= 2 && 'models' in orData['AND'][1]) {
                 ids.push(...orData['AND'][1]['models']);
@@ -125,7 +131,7 @@ export default {
           for (const id of ids) {
             const nerveKnowledge = this.nervesKnowledge.find((knowledge) => knowledge.id === id);
             if (nerveKnowledge) {
-              const nerves = nerveKnowledge['nerve-label'].map(n => n.subNerves).flat(Infinity);
+              const nerves = nerveKnowledge['nerve-label'].map((n) => n.subNerves).flat(Infinity);
               names.push(...nerves);
             }
           }
@@ -134,12 +140,12 @@ export default {
       }
     },
     syncFilter: function (data) {
-      if (this.$refs.scaffold?.viewingMode === "Neuron Connection") {
-        this.filter = data.filter(f => f.facet?.toLowerCase() !== 'show all');
+      if (this.$refs.scaffold?.viewingMode === 'Neuron Connection') {
+        this.filter = data.filter((f) => f.facet?.toLowerCase() !== 'show all');
       }
     },
     scaffoldResourceSelected: async function (type, resource) {
-      this.resourceSelected(type, resource, true)
+      this.resourceSelected(type, resource, true);
       // When we directly click on a nerve, there will only be only one resource selected.
       // Both EventBus.emit and getKnowledgeTooltip will trigger sidebar content update
       // Then setVisibilityFilter will be called to zoom to the clicked nerve.
@@ -147,7 +153,7 @@ export default {
         this.clickedObject = resource[0].data;
         if (this.clickedObject.isNerves || this.clickedObject.anatomicalId) {
           const label = this.clickedObject.id.toLowerCase();
-          if (this.$refs.scaffold.viewingMode === "Neuron Connection") {
+          if (this.$refs.scaffold.viewingMode === 'Neuron Connection') {
             const connectionType = this.settingsStore.globalSettings.connectionType;
 
             // nerve click
@@ -172,7 +178,9 @@ export default {
               } else {
                 // get filterOptions from store
                 const filterOptions = this.connectivitiesStore.filterOptions[this.entry.resource];
-                const filterOption = filterOptions.find((option) => option.key === `flatmap.connectivity.source.${connectionTypeKey}`);
+                const filterOption = filterOptions.find(
+                  (option) => option.key === `flatmap.connectivity.source.${connectionTypeKey}`,
+                );
                 let neuronFilter;
 
                 filterOption?.children.forEach((child) => {
@@ -187,7 +195,10 @@ export default {
                 });
 
                 if (neuronFilter) {
-                  uberonTerm = neuronFilter.key.replace(`flatmap.connectivity.source.${connectionTypeKey}.`, '');
+                  uberonTerm = neuronFilter.key.replace(
+                    `flatmap.connectivity.source.${connectionTypeKey}.`,
+                    '',
+                  );
                   this.filter.push({
                     facet: uberonTerm,
                     facetPropPath: `flatmap.connectivity.source.${connectionTypeKey}`,
@@ -198,13 +209,14 @@ export default {
               }
             }
 
-            EventBus.emit("neuron-connection-feature-click", {
+            EventBus.emit('neuron-connection-feature-click', {
               filters: this.filter,
-              search: this.filter.length ? '' : label
-            })
-          } else if (this.$refs.scaffold.viewingMode === "Exploration") {
-            const nerveKnowledge = this.nervesKnowledge
-              .filter(knowledge => JSON.stringify(knowledge['nerve-label']).includes(label));
+              search: this.filter.length ? '' : label,
+            });
+          } else if (this.$refs.scaffold.viewingMode === 'Exploration') {
+            const nerveKnowledge = this.nervesKnowledge.filter((knowledge) =>
+              JSON.stringify(knowledge['nerve-label']).includes(label),
+            );
             if (nerveKnowledge.length) {
               this.getKnowledgeTooltip({ data: nerveKnowledge, type: this.entry });
             }
@@ -215,14 +227,14 @@ export default {
         // if multiple resources selected is because of directly clicking on a nerve
         // enable picking again
         // otherwise, it is related to the explorer search
-        if (this.$refs.scaffold.viewingMode === "Exploration") {
+        if (this.$refs.scaffold.viewingMode === 'Exploration') {
           if (this.clickedObject) {
             this.$refs.scaffold.$module.setIgnorePicking(false);
           }
         }
       } else {
         this.clickedObject = undefined;
-        EventBus.emit("connectivity-info-close");
+        EventBus.emit('connectivity-info-close');
       }
     },
     onResize: function () {
@@ -248,37 +260,37 @@ export default {
         return this.$refs.scaffold.search(term, true);
       }
     },
-    searchSuggestions: function(term, suggestions){
-      if (term === "" || !this.$refs.scaffold) {
+    searchSuggestions: function (term, suggestions) {
+      if (term === '' || !this.$refs.scaffold) {
         return suggestions;
       }
       const items = this.$refs.scaffold.fetchSuggestions(term);
-      items.forEach(item => {
+      items.forEach((item) => {
         if (item.suggestion) suggestions.push(item.suggestion);
       });
     },
     showConnectivityTooltips: function (payload) {
       if (this.$refs.scaffold) {
         if (payload.label) {
-          this.$refs.scaffold.changeHighlightedByName([payload.label], "", false);
+          this.$refs.scaffold.changeHighlightedByName([payload.label], '', false);
           this.$refs.scaffold.showRegionTooltip(payload.label, false, false);
         } else {
           const nerves = payload.connectivityInfo['nerve-label'];
           if (nerves) {
-            const nerveLabels = nerves.flatMap(n => n.subNerves);
-            this.$refs.scaffold.changeHighlightedByName(nerveLabels, "", false);
+            const nerveLabels = nerves.flatMap((n) => n.subNerves);
+            this.$refs.scaffold.changeHighlightedByName(nerveLabels, '', false);
           }
           this.$refs.scaffold.hideRegionTooltip();
         }
       }
     },
-    zoomToFeatures: function(info, forceSelect) {
+    zoomToFeatures: function (info, forceSelect) {
       if (this.$refs.scaffold) {
-        let names = undefined;
+        let names;
         if (Array.isArray(info)) names = info;
-        else names = [ info.name ];
+        else names = [info.name];
         if (forceSelect) {
-          this.$refs.scaffold.changeActiveByName(names, "", false);
+          this.$refs.scaffold.changeActiveByName(names, '', false);
         }
         this.$refs.scaffold.viewRegion(names);
       }
@@ -296,7 +308,7 @@ export default {
         }
       }
       this.updateViewerSettings();
-      EventBus.emit("mapLoaded", this.$refs.scaffold);
+      EventBus.emit('mapLoaded', this.$refs.scaffold);
       setTimeout(() => {
         this.setNerveGreyScale();
       }, 500);
@@ -312,13 +324,13 @@ export default {
         internalName: undefined,
       };
       if (resource && resource[0]) {
-        if (resource[0].data?.id === undefined || resource[0].data?.id === "") {
+        if (resource[0].data?.id === undefined || resource[0].data?.id === '') {
           resource[0].data.id = resource[0].data?.group;
         }
         result.internalName = resource[0].data.id;
-        result.eventType = "highlighted";
+        result.eventType = 'highlighted';
       }
-      this.$emit("resource-selected", result);
+      this.$emit('resource-selected', result);
     },
     /**
      * Callback when the vuers emit a selected event.
@@ -327,14 +339,14 @@ export default {
       if (this.mouseHovered) {
         const result = {
           paneIndex: this.entry.id,
-          eventType: "panZoom",
+          eventType: 'panZoom',
           payload: resource,
           type: type,
         };
-        this.$emit("resource-selected", result);
+        this.$emit('resource-selected', result);
       }
     },
-    updateWithViewUrl: function(viewUrl) {
+    updateWithViewUrl: function (viewUrl) {
       if (this.$refs.scaffold) {
         this.$refs.scaffold.updateViewURL(viewUrl);
       }
@@ -349,12 +361,8 @@ export default {
     },
     updateViewerSettings: function () {
       if (this.$refs.scaffold) {
-        const {
-          backgroundDisplay,
-          organsDisplay,
-          outlinesDisplay,
-          viewingMode,
-        } = this.settingsStore.globalSettings;
+        const { backgroundDisplay, organsDisplay, outlinesDisplay, viewingMode } =
+          this.settingsStore.globalSettings;
         this.$refs.scaffold.backgroundChangeCallback(backgroundDisplay);
         this.$refs.scaffold.changeViewingMode(viewingMode);
         this.$refs.scaffold.setColour(organsDisplay);
@@ -363,22 +371,24 @@ export default {
     },
   },
   computed: {
-    warningMessage: function() {
-      if ((this.entry.discoverId === '307' || this.entry.discoverId === 307)) {
-        return "This map displays the anatomical location and connectivity of nerves, through which the neuron populations from the ApiNATOMY models available in SCKAN can be routed.";
+    warningMessage: function () {
+      if (this.entry.discoverId === '307' || this.entry.discoverId === 307) {
+        return 'This map displays the anatomical location and connectivity of nerves, through which the neuron populations from the ApiNATOMY models available in SCKAN can be routed.';
       } else {
-        return "Under active development";
+        return 'Under active development';
       }
     },
     markerLabels: function () {
-      return this.settingsStore.globalSettings.displayMarkers ? this.settingsStore.numberOfDatasetsForFacets : {};
+      return this.settingsStore.globalSettings.displayMarkers
+        ? this.settingsStore.numberOfDatasetsForFacets
+        : {};
     },
   },
   watch: {
     visible: {
       handler(visible) {
         // Only activate scaffoldvuer when the pane becomes active
-        if (visible && (!this.activated)) {
+        if (visible && !this.activated) {
           this.activated = true;
           this.$nextTick(() => {
             if (this.$refs.scaffold) {
@@ -397,7 +407,7 @@ export default {
       immediate: true,
     },
     connectivityKnowledge: {
-      handler(newVal, oldVal) {
+      handler(newVal, _oldVal) {
         // Store scaffold knowledge locally
         if (this.entry.resource in newVal) {
           const scaffoldKnowledge = newVal[this.entry.resource];
