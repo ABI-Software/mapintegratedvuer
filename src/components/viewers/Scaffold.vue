@@ -78,7 +78,7 @@ export default {
     showConnectivitiesByReference: async function (resource) {
       if (this.$refs.scaffold) {
         const flatmapKnowledge = sessionStorage.getItem('flatmap-knowledge');
-        let featureIds = [];
+        let featureIds;
         if (flatmapKnowledge) {
           featureIds = await getReferenceConnectivitiesFromStorage(resource);
         } else {
@@ -286,7 +286,7 @@ export default {
     },
     zoomToFeatures: function (info, forceSelect) {
       if (this.$refs.scaffold) {
-        let names = undefined;
+        let names;
         if (Array.isArray(info)) names = info;
         else names = [info.name];
         if (forceSelect) {

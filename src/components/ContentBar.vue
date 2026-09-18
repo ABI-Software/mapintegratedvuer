@@ -146,6 +146,7 @@ export default {
           return 'SCKAN';
         }
       }
+      return '';
     },
     hasSourceInfo() {
       return this.entry.doi || this.entry.connectivityInfo;

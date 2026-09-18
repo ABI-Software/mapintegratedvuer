@@ -33,8 +33,6 @@
 <script>
 export default {
   name: 'DatasetHeader',
-  components: {
-  },
   props: {
     /**
      * Object containing information for

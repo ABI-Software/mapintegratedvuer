@@ -45,7 +45,7 @@ import { useEntriesStore } from '../stores/entries';
 import { useSplitFlowStore } from '../stores/splitFlow';
 
 const Flatmap = defineAsyncComponent(() => import('./viewers/Flatmap.vue'));
-const Iframe = defineAsyncComponent(() => import('./viewers/Iframe.vue'));
+const MapIframe = defineAsyncComponent(() => import('./viewers/Iframe.vue'));
 const MultiFlatmap = defineAsyncComponent(() => import('./viewers/MultiFlatmap.vue'));
 const ConnectivityGraph = defineAsyncComponent(() => import('./viewers/ConnectivityGraph.vue'));
 const Plot = defineAsyncComponent(() => import('./viewers/Plot.vue'));
@@ -70,7 +70,7 @@ export default {
     ContentBar,
     ConnectivityGraph,
     Flatmap,
-    Iframe,
+    MapIframe,
     MultiFlatmap,
     Plot,
     Scaffold,
@@ -174,8 +174,8 @@ export default {
     ...mapStores(useEntriesStore, useSplitFlowStore),
     viewerType() {
       switch (this.entry.type) {
-        case 'Iframe':
-          return 'Iframe';
+        case 'MapIframe':
+          return 'MapIframe';
         default:
           return this.entry.type;
       }

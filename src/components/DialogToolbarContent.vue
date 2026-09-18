@@ -483,9 +483,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
-import {
-  CopyDocument as ElIconCopyDocument,
-} from '@element-plus/icons-vue';
+import { CopyDocument as ElIconCopyDocument } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
 /**

@@ -8,7 +8,7 @@
 import ContentMixin from '../../mixins/ContentMixin';
 
 export default {
-  name: 'Iframe',
+  name: 'MapIframe',
   mixins: [ContentMixin],
 };
 </script>
