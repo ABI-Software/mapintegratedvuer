@@ -2,7 +2,6 @@ import { configureVisualRegression } from 'cypress-visual-regression';
 
 export default {
   defaultCommandTimeout: 10000,
-  reporter: 'junit',
   experimentalMemoryManagement: true,
   numTestsKeptInMemory: 0,
   reporter: 'cypress-multi-reporters',
