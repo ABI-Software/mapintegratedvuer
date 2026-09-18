@@ -64,7 +64,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { provide, markRaw, computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import DialogToolbarContent from './DialogToolbarContent.vue';

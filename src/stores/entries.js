@@ -2,8 +2,6 @@ import { defineStore } from 'pinia';
 import { initialDefaultState } from '../components/scripts/utilities';
 import { getKnowledgeSourceFromProvenance } from '@abi-software/flatmapvuer/src/services/flatmapKnowledge.js';
 
-/* eslint-disable no-alert, no-console */
-
 export const useEntriesStore = defineStore('entries', {
   state: () => {
     return initialDefaultState();

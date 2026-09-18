@@ -7,7 +7,6 @@ const removeDuplicates = function (arrayOfAnything) {
   return [...new Set(arrayOfAnything.map((e) => JSON.stringify(e)))].map((e) => JSON.parse(e));
 };
 
-/* eslint-disable no-alert, no-console */
 export default {
   computed: {
     ...mapStores(useSettingsStore),

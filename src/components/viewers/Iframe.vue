@@ -5,7 +5,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import ContentMixin from '../../mixins/ContentMixin';
 
 export default {

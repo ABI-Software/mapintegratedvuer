@@ -1,4 +1,3 @@
-/* eslint-disable no-alert, no-console */
 export default {
   // Note that the setting store is included in MapContent.vue
   methods: {

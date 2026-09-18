@@ -24,7 +24,6 @@ function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1);
 }
 
-/* eslint-disable no-alert, no-console */
 export default {
   emits: ['flatmap-provenance-ready', 'resource-selected', 'species-changed'],
   props: {

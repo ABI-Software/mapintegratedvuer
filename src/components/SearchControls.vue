@@ -17,7 +17,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { MapSvgIcon } from '@abi-software/svg-sprite';
 import { ElAutocomplete as Autocomplete } from 'element-plus';
 

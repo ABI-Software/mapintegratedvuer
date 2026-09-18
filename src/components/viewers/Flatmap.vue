@@ -57,7 +57,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import Tagging from '../../services/tagging.js';
 import EventBus from '../EventBus';
 import ContentMixin from '../../mixins/ContentMixin';

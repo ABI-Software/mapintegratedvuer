@@ -3,7 +3,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import ResizeSensor from 'css-element-queries/src/ResizeSensor';
 
 export default {

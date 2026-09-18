@@ -6,10 +6,12 @@
       @mouseleave="isActive = false"
       :class="{ active: isActive }"
     >
-      <div slot="header" class="header">
-        <span>Needing some help?</span>
-        <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
-      </div>
+      <template v-slot:header>
+        <div class="header">
+          <span>Needing some help?</span>
+          <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
+        </div>
+      </template>
       <div class="content">
         <div v-for="o in steps" :key="o" class="step-item">{{ o.description }}</div>
       </div>
@@ -18,7 +20,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { ElCard as Card } from 'element-plus';
 
 export default {

@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { getAvailableTermsForSpecies } from '../components/SimulatedData.js';
 import EventBus from '../components/EventBus.js';
 
-/* eslint-disable no-alert, no-console */
 const presetLayouts = (view) => {
   switch (view) {
     case '2horpanel':

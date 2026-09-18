@@ -21,7 +21,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { ElLoading as Loading } from 'element-plus';
 import { CopyToClipboard } from '@abi-software/map-utilities';
 import tagging from '../services/tagging';

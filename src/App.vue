@@ -85,7 +85,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { shallowRef } from 'vue';
 import MapContent from './components/MapContent.vue';
 import { Setting as ElIconSetting } from '@element-plus/icons-vue';

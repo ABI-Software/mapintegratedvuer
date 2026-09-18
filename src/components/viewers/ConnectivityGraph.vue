@@ -22,7 +22,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { ConnectivityGraph as MapUtilitiesConnectivityGraph } from '@abi-software/map-utilities';
 import ContentMixin from '../../mixins/ContentMixin';
 import EventBus from '../EventBus';

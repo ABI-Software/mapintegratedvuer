@@ -20,7 +20,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import ContentVuer from './ContentVuer.vue';
 import CustomSplitter from './CustomSplitter.vue';
 import EventBus from './EventBus';

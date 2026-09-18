@@ -1,4 +1,3 @@
-/* eslint-disable no-alert, no-console */
 import { MapContent } from '../../src/components/index.js';
 
 const settings = {

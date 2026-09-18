@@ -38,7 +38,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { defineAsyncComponent } from 'vue';
 import { ElButton as Button } from 'element-plus';
 import ContentBar from './ContentBar.vue';

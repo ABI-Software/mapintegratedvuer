@@ -133,7 +133,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { CopyToClipboard } from '@abi-software/map-utilities';
 import { mapStores } from 'pinia';
 import tagging from '../services/tagging';

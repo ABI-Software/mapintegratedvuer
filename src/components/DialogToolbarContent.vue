@@ -475,7 +475,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { shallowRef } from 'vue';
 import EventBus from './EventBus';
 import { mapStores } from 'pinia';

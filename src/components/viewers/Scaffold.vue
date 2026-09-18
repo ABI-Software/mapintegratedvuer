@@ -54,7 +54,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { markRaw } from 'vue';
 import EventBus from '../EventBus';
 import ContentMixin from '../../mixins/ContentMixin';

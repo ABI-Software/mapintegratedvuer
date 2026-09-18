@@ -100,7 +100,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import EventBus from './EventBus';
 import { MapSvgIcon } from '@abi-software/svg-sprite';
 import { mapStores } from 'pinia';

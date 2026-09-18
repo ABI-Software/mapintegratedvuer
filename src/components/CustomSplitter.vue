@@ -16,7 +16,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import EventBus from './EventBus';
 import ResizeSensor from './ResizeSensor.vue';
 import { Splitpanes, Pane } from 'splitpanes';

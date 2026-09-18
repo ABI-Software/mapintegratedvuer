@@ -19,7 +19,6 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import SplitFlow from './SplitFlow.vue';
