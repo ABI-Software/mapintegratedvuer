@@ -109,13 +109,6 @@ import { useSplitFlowStore } from '../stores/splitFlow';
 import ContextCard from './ContextCard.vue';
 import FlatmapContextCard from './FlatmapContextCard.vue';
 import { ArrowDown as ElIconArrowDown, ArrowUp as ElIconArrowUp } from '@element-plus/icons-vue';
-import {
-  ElInput as Input,
-  ElOption as Option,
-  ElPopover as Popover,
-  ElRow as Row,
-  ElSelect as Select,
-} from 'element-plus';
 import tagging from '../services/tagging';
 
 export default {
@@ -123,11 +116,6 @@ export default {
   components: {
     ElIconArrowDown,
     ElIconArrowUp,
-    Input,
-    Option,
-    Popover,
-    Row,
-    Select,
     ContextCard,
     FlatmapContextCard,
     MapSvgIcon,

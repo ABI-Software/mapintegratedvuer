@@ -88,13 +88,7 @@
 import { shallowRef } from 'vue';
 import MapContent from './components/MapContent.vue';
 import { Setting as ElIconSetting } from '@element-plus/icons-vue';
-import {
-  ElButton as Button,
-  ElCol as Col,
-  ElPopover as Popover,
-  ElRow as Row,
-  ElMessage as Message,
-} from 'element-plus';
+import { ElMessage as Message } from 'element-plus';
 import 'element-plus/es/components/message/style/css';
 
 const getAnnotationId = (api, withAnnotation) => {
@@ -173,10 +167,6 @@ const getAnnotationState = (api, annotationId) => {
 export default {
   name: 'app',
   components: {
-    Button,
-    Col,
-    Popover,
-    Row,
     MapContent,
   },
   data: function () {

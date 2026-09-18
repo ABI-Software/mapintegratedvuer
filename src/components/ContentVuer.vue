@@ -39,7 +39,6 @@
 
 <script>
 import { defineAsyncComponent } from 'vue';
-import { ElButton as Button } from 'element-plus';
 import ContentBar from './ContentBar.vue';
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
@@ -68,7 +67,6 @@ export default {
   },
   components: {
     //DatasetHeader,
-    Button,
     ContentBar,
     ConnectivityGraph,
     Flatmap,

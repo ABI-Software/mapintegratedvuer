@@ -487,17 +487,6 @@ import {
   CopyDocument as ElIconCopyDocument,
   MoreFilled as ElIconMoreFilled,
 } from '@element-plus/icons-vue';
-import {
-  ElButton as Button,
-  ElCheckbox as Checkbox,
-  ElCol as Col,
-  ElIcon as Icon,
-  ElInput as Input,
-  ElPopover as Popover,
-  ElRadio as Radio,
-  ElRadioGroup as RadioGroup,
-  ElRow as Row,
-} from 'element-plus';
 import tagging from '../services/tagging';
 
 /**
@@ -506,15 +495,6 @@ import tagging from '../services/tagging';
 export default {
   name: 'DialogToolbarContent',
   components: {
-    Button,
-    Checkbox,
-    Col,
-    Icon,
-    Input,
-    Popover,
-    Radio,
-    RadioGroup,
-    Row,
     MapSvgIcon,
     MapSvgSpriteColor,
     SearchControls,

@@ -31,14 +31,9 @@
 </template>
 
 <script>
-import { ElButton as Button, ElCard as Card, ElLink as Link } from 'element-plus';
-
 export default {
   name: 'DatasetHeader',
   components: {
-    Button,
-    Card,
-    Link,
   },
   props: {
     /**
