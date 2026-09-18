@@ -51,6 +51,7 @@ export default [
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+      'vue/multi-word-component-names': 'off',
     },
   },
 ];
