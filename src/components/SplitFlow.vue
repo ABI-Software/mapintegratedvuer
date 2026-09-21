@@ -904,7 +904,7 @@ export default {
               provenanceTaxonomy: feature.taxons,
               alert: feature.alert,
             });
-          } catch (error) {
+          } catch (_error) {
             // ignore entries that cannot be resolved in this map
           }
           return acc;
