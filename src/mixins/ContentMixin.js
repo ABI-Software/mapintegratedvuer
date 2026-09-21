@@ -125,7 +125,7 @@ export default {
     },
     onConnectivityItemClose() {
       if (this?.alive) {
-        if (this.multiflatmapRef) {
+        if (this.multiflatmapRef && this.flatmapIsReady()) {
           const currentFlatmap = this.multiflatmapRef.getCurrentFlatmap();
           if (currentFlatmap) {
             currentFlatmap.closeTooltip();
