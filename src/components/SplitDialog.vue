@@ -214,6 +214,10 @@ export default {
             data: connectivityData,
             highlight: [],
             processed: false,
+            // Marks this as the default/global fallback
+            // (no active map's connectivity keys resolved yet)
+            // rather than data scoped to the currently active viewers.
+            isDefaultKnowledge: true,
         });
         EventBus.emit("connectivity-filter-options", []);
         this.connectivitiesStore.updateActiveConnectivityKeys([sckanVersion]);
@@ -363,7 +367,7 @@ export default {
           const plot = viewer.$refs.plot;
           const simulation = viewer.$refs.simulation;
           let currentMap = null;
-          if (multiflatmap) {
+          if (multiflatmap && viewer.flatmapIsReady()) {
             const _currentMap = multiflatmap.getCurrentFlatmap();
             if (_currentMap && _currentMap.mapImp) {
               currentMap = _currentMap;
