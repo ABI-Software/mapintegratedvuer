@@ -2,7 +2,7 @@
 @forward '_variables';
 
 .tooltip {
-  font-family: 'Asap', 'Avenir',  Arial, sans-serif;
+  font-family: 'Asap', 'Avenir', Arial, sans-serif;
   :deep(.el-popper__arrow) {
     &:before {
       border-color: $app-primary-color;
@@ -12,7 +12,7 @@
 }
 
 .icon-group {
-  position:absolute;
+  position: absolute;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -23,7 +23,7 @@
 
 .icon-group {
   :deep(.el-button--text) {
-    color:#606266;
+    color: #606266;
     font-size: 1.5em;
     &:hover {
       color: $app-primary-color;
@@ -32,8 +32,8 @@
 }
 
 .header-icon {
-  height: 24px!important;
-  width: 24px!important;
+  height: 24px !important;
+  width: 24px !important;
   cursor: pointer;
   :deep(.el-popper__arrow) {
     &:before {
@@ -59,17 +59,16 @@
 .header-icon.disabled,
 .disabled .view-icon,
 .disabled .view-text {
-  opacity:0.5;
+  opacity: 0.5;
 }
 
 :deep(.header-popper) {
   padding: 6px 4px;
-  font-size:12px;
+  font-size: 12px;
   color: rgb(48, 49, 51);
   background-color: #f3ecf6;
   border: 1px solid $app-primary-color;
   white-space: nowrap;
   min-width: unset;
-  width: unset!important;
+  width: unset !important;
 }
-

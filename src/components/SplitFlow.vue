@@ -15,9 +15,7 @@
       />
     </el-header>
     <el-main class="dialog-main">
-      <div
-        style="width: 100%; height: 100%; position: relative; overflow: hidden"
-      >
+      <div style="width: 100%; height: 100%; position: relative; overflow: hidden">
         <SideBar
           ref="sideBar"
           :envVars="envVars"
@@ -66,36 +64,28 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import { provide, markRaw, computed } from 'vue';
 import Tagging from '../services/tagging.js';
-import DialogToolbarContent from "./DialogToolbarContent.vue";
-import EventBus from "./EventBus";
-import SplitDialog from "./SplitDialog.vue";
+import DialogToolbarContent from './DialogToolbarContent.vue';
+import EventBus from './EventBus';
+import SplitDialog from './SplitDialog.vue';
 // import contextCards from './context-cards'
-import { SideBar } from "@abi-software/map-side-bar";
-import "@abi-software/map-side-bar/dist/style.css";
-import {
-  queryForwardBackwardConnections
-} from '@abi-software/map-utilities';
+import { SideBar } from '@abi-software/map-side-bar';
+import '@abi-software/map-side-bar/dist/style.css';
+import { queryForwardBackwardConnections } from '@abi-software/map-utilities';
 import {
   capitalise,
   getNewMapEntry,
   initialDefaultState,
   intersectArrays,
-} from "./scripts/utilities.js";
-import { AnnotationService } from '@abi-software/sparc-annotation'
+} from './scripts/utilities.js';
+import { AnnotationService } from '@abi-software/sparc-annotation';
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
-import { useMainStore } from '../stores/index'
+import { useMainStore } from '../stores/index';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
-import {
-  ElContainer as Container,
-  ElHeader as Header,
-  ElMain as Main,
-} from "element-plus";
 
 const getAllFacetLabels = (children) => {
   const labels = [];
@@ -108,12 +98,12 @@ const getAllFacetLabels = (children) => {
     });
   }
   return labels;
-}
+};
 
 const getFacetsFromAction = (action) => {
   const actionFacets = action.facets ? action.facets : action.labels ? action.labels : [];
   return actionFacets;
-}
+};
 
 const getAnatomyTermsForFilters = (action, availableNameCurieMapping) => {
   const facets = [];
@@ -126,17 +116,14 @@ const getAnatomyTermsForFilters = (action, availableNameCurieMapping) => {
     }
   }
   return facets;
-}
+};
 
 /**
  * Component of the floating dialogs.
  */
 export default {
-  name: "SplitFlow",
+  name: 'SplitFlow',
   components: {
-    Container,
-    Header,
-    Main,
     DialogToolbarContent,
     SplitDialog,
     SideBar,
@@ -147,8 +134,11 @@ export default {
     let annotator = markRaw(new AnnotationService(`${settings.flatmapAPI}annotator`));
     provide('userApiKey', mainStore.userToken);
     provide('$annotator', annotator);
-    provide('showLongLabel', computed(() => props.showLongLabel));
-    return { annotator }
+    provide(
+      'showLongLabel',
+      computed(() => props.showLongLabel),
+    );
+    return { annotator };
   },
   props: {
     state: {
@@ -192,7 +182,7 @@ export default {
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
-    }
+    };
   },
   watch: {
     state: {
@@ -223,29 +213,27 @@ export default {
       const filterExpression = {
         OR: [
           { NOT: { 'tile-layer': 'pathways' } },
-          { NOT: { 'HAS': 'nerves' } },
+          { NOT: { HAS: 'nerves' } },
           {
-            AND: [
-              { 'tile-layer': 'pathways' },
-              { 'models': this.connectivityHighlight }
-            ]
-          }
-        ]
+            AND: [{ 'tile-layer': 'pathways' }, { models: this.connectivityHighlight }],
+          },
+        ],
       };
       const validFilter = this.filterVisibility && this.connectivityProcessed;
       const payload = validFilter ? filterExpression : undefined;
       EventBus.emit('filter-visibility', payload);
     },
     onConnectivityCollapseChange: function (payload) {
-      this.expanded = payload.id
+      this.expanded = payload.id;
       const splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
-        const hasFlatmap = activeContents.find(c => c.viewerType.includes('Flatmap'));
-        const hasHumanMaleFlatmap = activeContents.find(c => c.activeSpecies === "Human Male");
-        let nonFlatmapLoad = false
-        activeContents.forEach(content => {
-          const isFlatmap = content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap';
+        const hasFlatmap = activeContents.find((c) => c.viewerType.includes('Flatmap'));
+        const hasHumanMaleFlatmap = activeContents.find((c) => c.activeSpecies === 'Human Male');
+        let nonFlatmapLoad = false;
+        activeContents.forEach((content) => {
+          const isFlatmap =
+            content.viewerType === 'Flatmap' || content.viewerType === 'MultiFlatmap';
           // minimise connectivity detail fetch
           const shouldLoad =
             (hasFlatmap && isFlatmap) ||
@@ -270,7 +258,7 @@ export default {
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
 
-        activeContents.forEach(content => {
+        activeContents.forEach((content) => {
           if (content?.$refs['viewer']) {
             const contentViewer = content.$refs['viewer'];
             const flatmapRef = contentViewer.flatmapRef;
@@ -278,7 +266,8 @@ export default {
             let flatmap = null;
 
             if (flatmapRef) flatmap = flatmapRef;
-            if (multiflatmapRef && contentViewer.flatmapIsReady()) flatmap = multiflatmapRef.getCurrentFlatmap();
+            if (multiflatmapRef && contentViewer.flatmapIsReady())
+              flatmap = multiflatmapRef.getCurrentFlatmap();
 
             if (flatmap) {
               activeFlatmaps.push(flatmap);
@@ -298,7 +287,7 @@ export default {
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
 
-        activeContents.forEach(content => {
+        activeContents.forEach((content) => {
           const contentViewer = content?.$refs['viewer'];
           if (contentViewer?.scaffoldRef) {
             activeScaffolds.push(contentViewer);
@@ -312,7 +301,7 @@ export default {
      */
     actionClick: function (action) {
       if (action) {
-        if (!this.availableFacets || (this.availableFacets.length === 0)) {
+        if (!this.availableFacets || this.availableFacets.length === 0) {
           const availableFacetsRaw = localStorage.getItem('available-anatomy-facets');
           const availableFacetsAll = availableFacetsRaw ? JSON.parse(availableFacetsRaw) : [];
 
@@ -320,7 +309,10 @@ export default {
           this.availableFacets = markRaw([...new Set(getAllFacetLabels(availableFacetsAll))]);
         }
 
-        if (!this.availableNameCurieMapping || (Object.keys(this.availableNameCurieMapping).length === 0)) {
+        if (
+          !this.availableNameCurieMapping ||
+          Object.keys(this.availableNameCurieMapping).length === 0
+        ) {
           const availableDataRaw = localStorage.getItem('available-name-curie-mapping');
           const availableData = availableDataRaw ? JSON.parse(availableDataRaw) : {};
 
@@ -328,7 +320,7 @@ export default {
           this.availableNameCurieMapping = markRaw(availableData);
         }
 
-        if (action.type == "Search") {
+        if (action.type == 'Search') {
           if (action.nervePath) {
             this.openSearch([action.filter], action.label);
           } else {
@@ -339,67 +331,67 @@ export default {
               ? 'portal_maps_featured_dataset_search'
               : 'portal_maps_action_search';
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': eventName,
-              'category': action.term || 'filter',
-              'location': 'map_location_pin'
+              event: 'interaction_event',
+              event_name: eventName,
+              category: action.term || 'filter',
+              location: 'map_location_pin',
             });
             this.filterTriggered = true;
           }
-        } else if (action.type == "URL") {
-          window.open(action.resource, "_blank");
-        } else if (action.type == "Facet") {
+        } else if (action.type == 'URL') {
+          window.open(action.resource, '_blank');
+        } else if (action.type == 'Facet') {
           if (this.$refs.sideBar) {
             const sendAction = {
-              facetPropPath: "anatomy.organ.category.name",
-              facetSubPropPath: "anatomy.organ.name",
-              term: "Anatomical structure",
+              facetPropPath: 'anatomy.organ.category.name',
+              facetSubPropPath: 'anatomy.organ.name',
+              term: 'Anatomical structure',
             };
             const filters = [];
             const facets = getAnatomyTermsForFilters(action, this.availableNameCurieMapping);
             const actionFacets = getFacetsFromAction(action);
             const facetString = actionFacets.join(', ');
-            facets.forEach(facet => filters.push({...sendAction, facet}));
+            facets.forEach((facet) => filters.push({ ...sendAction, facet }));
             this.$refs.sideBar.addFilter(filters);
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_filter',
-              'category': facetString || 'filter_reset',
-              'location': 'map_location_pin'
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_filter',
+              category: facetString || 'filter_reset',
+              location: 'map_location_pin',
             });
             this.filterTriggered = true;
           }
-        } else if (action.type == "Facets") {
+        } else if (action.type == 'Facets') {
           const facets = [];
           const facetsArray = getAnatomyTermsForFilters(action, this.availableNameCurieMapping);
           const filterValuesArray = intersectArrays(this.availableFacets, facetsArray);
           const filterValues = filterValuesArray.join(', ');
 
-          this.settingsStore.facets.species.forEach(e => {
+          this.settingsStore.facets.species.forEach((e) => {
             facets.push({
               facet: capitalise(e),
-              term: "Species",
-              facetPropPath: "organisms.primary.species.name",
+              term: 'Species',
+              facetPropPath: 'organisms.primary.species.name',
             });
           });
           facets.push(
-            ...filterValuesArray.map(val => ({
+            ...filterValuesArray.map((val) => ({
               facet: capitalise(val),
-              term: "Anatomical structure",
-              facetPropPath: "anatomy.organ.category.name",
-              facetSubPropPath: "anatomy.organ.name",
-            }))
+              term: 'Anatomical structure',
+              facetPropPath: 'anatomy.organ.category.name',
+              facetSubPropPath: 'anatomy.organ.name',
+            })),
           );
-          this.openSearch(facets, "")
+          this.openSearch(facets, '');
           // GA Tagging
           // Event tracking for map action search/filter data
           Tagging.sendEvent({
-            'event': 'interaction_event',
-            'event_name': 'portal_maps_action_filter',
-            'category': filterValues || 'filter_reset',
-            'location': 'map_popup_button'
+            event: 'interaction_event',
+            event_name: 'portal_maps_action_filter',
+            category: filterValues || 'filter_reset',
+            location: 'map_popup_button',
           });
           this.filterTriggered = true;
         } else {
@@ -417,7 +409,7 @@ export default {
       if (type) categoryValues.push(type);
       if (datasetId) categoryValues.push('(' + id + ')');
       if (resource) {
-        if (type === "Plot") {
+        if (type === 'Plot') {
           filePath = resource.dataSource.url;
         } else {
           filePath = typeof resource === 'string' ? resource : resource.share_link;
@@ -427,12 +419,12 @@ export default {
       // GA Tagging
       // Event tracking for map sidebar gallery click
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_gallery_click',
-        'category': categoryValues.join(' '),
-        'location': 'map_sidebar_gallery',
-        'dataset_id': id ? id + '' : '', // change to string format
-        'file_path': filePath,
+        event: 'interaction_event',
+        event_name: 'portal_maps_gallery_click',
+        category: categoryValues.join(' '),
+        location: 'map_sidebar_gallery',
+        dataset_id: id ? id + '' : '', // change to string format
+        file_path: filePath,
       });
     },
     onDisplaySearch: function (payload, tracking = true) {
@@ -441,7 +433,7 @@ export default {
       let splitdialog = this.$refs.splitdialog;
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
-        activeContents.forEach(content => {
+        activeContents.forEach((content) => {
           if (content.search(payload.term)) {
             searchFound = true;
           }
@@ -453,29 +445,31 @@ export default {
         // GA Tagging
         // Event tracking for map on display search
         Tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': 'portal_maps_display_search',
-          'category': payload.term,
-          'location': 'map_toolbar'
+          event: 'interaction_event',
+          event_name: 'portal_maps_display_search',
+          category: payload.term,
+          location: 'map_toolbar',
         });
       }
     },
-    fetchSuggestions: function(payload) {
+    fetchSuggestions: function (payload) {
       const suggestions = [];
       //Search all active viewers when global callback is on
       let splitdialog = this.$refs.splitdialog;
       const activeContents = splitdialog.getActiveContents();
       //Push new suggestions into the pre-existing suggestions array
-      activeContents.forEach(content => content.searchSuggestions(payload.data.term, suggestions));
+      activeContents.forEach((content) =>
+        content.searchSuggestions(payload.data.term, suggestions),
+      );
       const parsed = [];
       //Remove double quote as it is used as a speical character
-      suggestions.forEach(suggestion => {
-        parsed.push(suggestion.replaceAll("\"", ""));
+      suggestions.forEach((suggestion) => {
+        parsed.push(suggestion.replaceAll('"', ''));
       });
       const unique = new Set(parsed);
       suggestions.length = 0;
       for (const item of unique) {
-        suggestions.push({"value": "\"" + item +"\""});
+        suggestions.push({ value: '"' + item + '"' });
       }
       payload.data.cb(suggestions);
     },
@@ -491,7 +485,7 @@ export default {
         // offset sidebar only on singlepanel and 2horpanel views
         EventBus.emit('show-connectivity', {
           featureIds: featureIds,
-          offset: activeView === 'singlepanel' || activeView === '2horpanel'
+          offset: activeView === 'singlepanel' || activeView === '2horpanel',
         });
       }
     },
@@ -499,21 +493,23 @@ export default {
       // expand connectivity card and show connectivity info
       // if expanded exist, payload should be an array of one element
       // skip payload not match the expanded in multiple views
-      const isMatched = payload.some(entry => entry.featureId[0] === this.expanded);
+      const isMatched = payload.some((entry) => entry.featureId[0] === this.expanded);
       if (this.expanded && this.connectivityExplorerClicked.length && !isMatched) {
         this.connectivityExplorerClicked.pop();
         return;
       }
 
       // Remove duplicate items from payload
-      const uniquePayload = [...new Map(payload.map((entry) => [entry.featureId[0], entry])).values()];
+      const uniquePayload = [
+        ...new Map(payload.map((entry) => [entry.featureId[0], entry])).values(),
+      ];
       const mappedPayload = uniquePayload.map((entry) => {
         let result = {
           ...entry,
           label: entry.title,
           id: entry.featureId[0],
-        }
-        const ck = this.connectivityKnowledge.find(ck => ck.id === result.id);
+        };
+        const ck = this.connectivityKnowledge.find((ck) => ck.id === result.id);
         if (entry.ready) {
           result['nerve-label'] = entry['nerve-label'] || (ck && ck['nerve-label']);
         }
@@ -536,16 +532,22 @@ export default {
         const merged = new Map(this.connectivityEntry.map((entry) => [entry.id, entry]));
         mappedPayload.forEach((entry) => {
           const existing = merged.get(entry.id);
-          merged.set(entry.id, existing ? {
-            ...existing,
-            ...entry,
-            // Viewers emit placeholders (ready: false) before their resolved entries (ready: true),
-            // so a late placeholder from one viewer must not downgrade an entry another viewer already resolved.
-            ready: existing.ready || entry.ready,
-            'nerve-label': entry['nerve-label'] || existing['nerve-label'],
-            'long-label': entry['long-label'] || existing['long-label'],
-            'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
-          } : entry);
+          merged.set(
+            entry.id,
+            existing
+              ? {
+                  ...existing,
+                  ...entry,
+                  // Viewers emit placeholders (ready: false) before their resolved entries (ready: true),
+                  // so a late placeholder from one viewer must not downgrade an entry another viewer already resolved.
+                  ready: existing.ready || entry.ready,
+                  'nerve-label': entry['nerve-label'] || existing['nerve-label'],
+                  'long-label': entry['long-label'] || existing['long-label'],
+                  'expert-consultants':
+                    entry['expert-consultants'] || existing['expert-consultants'],
+                }
+              : entry,
+          );
         });
         this.connectivityEntry = Array.from(merged.values());
         // Entries resolve asynchronously via connectivity-info-open,
@@ -561,10 +563,15 @@ export default {
       // this is for the case when user click on the flatmap paths/features directly without going through sidebar list,
       // which will only have id and label in the payload.
       // Skipped while restoring since connectivityEntry[0] may not relate to the entries just merged in above.
-      if (!this.restoringConnectivityState && !this.connectivityEntry[0]['long-label'] && this.connectivityEntry[0].mapuuid) {
-        const connectivityData = this.connectivitiesStore.globalConnectivities[this.connectivityEntry[0].mapuuid] || [];
+      if (
+        !this.restoringConnectivityState &&
+        !this.connectivityEntry[0]['long-label'] &&
+        this.connectivityEntry[0].mapuuid
+      ) {
+        const connectivityData =
+          this.connectivitiesStore.globalConnectivities[this.connectivityEntry[0].mapuuid] || [];
         if (connectivityData.length) {
-          const ck = connectivityData.find(ck => ck.id === this.connectivityEntry[0].id);
+          const ck = connectivityData.find((ck) => ck.id === this.connectivityEntry[0].id);
           if (ck && ck['long-label']) {
             this.connectivityEntry[0]['long-label'] = ck['long-label'];
           }
@@ -573,13 +580,13 @@ export default {
 
       if (this.connectivityExplorerClicked.length) {
         // only remove clicked if not placeholder entry
-        if (this.connectivityEntry.every(entry => entry.ready)) {
+        if (this.connectivityEntry.every((entry) => entry.ready)) {
           this.connectivityExplorerClicked.pop();
         }
       } else {
         // click on the flatmap paths/features directly
         // or onDisplaySearch is performed
-        const connectivityEntries = this.connectivityEntry.map(entry => entry.id);
+        const connectivityEntries = this.connectivityEntry.map((entry) => entry.id);
         const flatmapAPI = this.settingsStore.flatmapAPI;
         const { viewingMode } = this.settingsStore.globalSettings;
         const knowledgeSource = this.connectivityEntry[0].mapuuid || '';
@@ -588,11 +595,12 @@ export default {
 
         // fetch forward/backward connections on Neuron Connection mode
         if (viewingMode === 'Neuron Connection' && connectivityEntries.length && knowledgeSource) {
-          forwardBackwardConnections = await queryForwardBackwardConnections(flatmapAPI, knowledgeSource, connectivityEntries);
-          const allConnections = [
-            ...connectivityEntries,
-            ...forwardBackwardConnections,
-          ];
+          forwardBackwardConnections = await queryForwardBackwardConnections(
+            flatmapAPI,
+            knowledgeSource,
+            connectivityEntries,
+          );
+          const allConnections = [...connectivityEntries, ...forwardBackwardConnections];
           const availableConnectivities = this.connectivitiesStore.getUniqueConnectivitiesByKeys;
           mappedConnections = allConnections.map((connId) => {
             return availableConnectivities.find((ac) => ac.id === connId);
@@ -603,12 +611,12 @@ export default {
         if (forwardBackwardConnections.length) {
           this.connectivityEntry = [];
           this.connectivityKnowledge = mappedConnections;
-          this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
+          this.connectivityHighlight = this.connectivityKnowledge.map((ck) => ck.id);
           this.connectivityProcessed = true;
         } else {
           this.connectivityKnowledge = this.connectivityEntry;
-          if (this.connectivityKnowledge.every(ck => ck.ready)) {
-            this.connectivityHighlight = this.connectivityKnowledge.map(ck => ck.id);
+          if (this.connectivityKnowledge.every((ck) => ck.ready)) {
+            this.connectivityHighlight = this.connectivityKnowledge.map((ck) => ck.id);
             this.connectivityProcessed = true;
           }
         }
@@ -623,7 +631,7 @@ export default {
       this.annotationEntry = payload.annotationEntry;
       // If drawing, `entry.models` may be undefined; use an empty array instead of [undefined]
       // to prevent errors on highlight
-      this.annotationHighlight = this.annotationEntry.map(entry => entry.models).filter(Boolean);
+      this.annotationHighlight = this.annotationEntry.map((entry) => entry.models).filter(Boolean);
       if (payload.commitCallback) {
         this.annotationCallback = markRaw(payload.commitCallback);
       }
@@ -645,7 +653,7 @@ export default {
         this.confirmCommentCallback = markRaw(payload.confirmComment);
       }
       if (this.$refs.sideBar) {
-        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
+        this.$refs.sideBar.tabClicked({ id: 3, type: 'annotation' });
         this.$refs.sideBar.setDrawerOpen(true);
       }
     },
@@ -665,74 +673,95 @@ export default {
         connectivityInfo: data.connectivityInfo,
         resource: data.entry,
         type: 'ConnectivityGraph',
-        label: data.title || data.label || data.entry ||'Connectivity Graph',
+        label: data.title || data.label || data.entry || 'Connectivity Graph',
         graphPayload: { ...data },
         mapServer: this.settingsStore.flatmapAPI,
         sckanVersion: data.sckanVersion,
       });
 
-      this.splitFlowStore.updateActiveView({
-        view: '2vertpanel',
-        entries: this.entries,
-      }, false);
+      this.splitFlowStore.updateActiveView(
+        {
+          view: '2vertpanel',
+          entries: this.entries,
+        },
+        false,
+      );
 
       if (previousPrimaryId && previousPrimaryId !== connectivityGraphId) {
-        this.splitFlowStore.assignOrSwapPaneWithIds({
-          source: connectivityGraphId,
-          target: previousPrimaryId,
-        }, false);
+        this.splitFlowStore.assignOrSwapPaneWithIds(
+          {
+            source: connectivityGraphId,
+            target: previousPrimaryId,
+          },
+          false,
+        );
       }
 
       const secondPaneId = this.splitFlowStore.customLayout?.['pane-2']?.id;
       if (secondPaneId && secondPaneId !== connectivityGraphId) {
-        this.splitFlowStore.assignOrSwapPaneWithIds({
-          source: connectivityGraphId,
-          target: secondPaneId,
-        }, false);
+        this.splitFlowStore.assignOrSwapPaneWithIds(
+          {
+            source: connectivityGraphId,
+            target: secondPaneId,
+          },
+          false,
+        );
       }
       this.splitFlowStore.updateSplitPanels();
     },
     hoverChanged: function (data) {
-      let hoverAnatomies = [], hoverOrgans = [], hoverDOI = '', hoverConnectivity = [];
+      let hoverAnatomies = [],
+        hoverOrgans = [],
+        hoverDOI = '',
+        hoverConnectivity = [];
       if (data.tabType === 'dataset') {
         hoverAnatomies = data.anatomy ? data.anatomy : [];
         hoverOrgans = data.organs ? data.organs : [];
         hoverDOI = data.doi ? data.doi : '';
       } else if (data.tabType === 'connectivity') {
         hoverConnectivity = data.id ? [data.id] : this.connectivityHighlight;
-        hoverOrgans = data['nerve-label'] ? data['nerve-label'].flatMap(nerve => nerve.subNerves) : [];
+        hoverOrgans = data['nerve-label']
+          ? data['nerve-label'].flatMap((nerve) => nerve.subNerves)
+          : [];
       } else if (data.tabType === 'annotation') {
         hoverConnectivity = data.models ? [data.models] : this.annotationHighlight;
       }
-      this.settingsStore.updateHoverFeatures(hoverAnatomies, hoverOrgans, hoverDOI, hoverConnectivity);
-      EventBus.emit("hoverUpdate", { connectivityProcessed: this.connectivityProcessed });
+      this.settingsStore.updateHoverFeatures(
+        hoverAnatomies,
+        hoverOrgans,
+        hoverDOI,
+        hoverConnectivity,
+      );
+      EventBus.emit('hoverUpdate', { connectivityProcessed: this.connectivityProcessed });
     },
     searchChanged: function (data) {
       if (data.tabType === 'dataset') {
-        if (data && data.type == "reset-update") {
+        if (data && data.type == 'reset-update') {
           this.settingsStore.updateAppliedFacets([]);
         }
-        if (data && data.type == "query-update") {
+        if (data && data.type == 'query-update') {
           this.search = data.value;
           if (this.search && !this.filterTriggered) {
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_search',
-              'category': this.search,
-              'location': 'map_sidebar_dataset_search'
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_search',
+              category: this.search,
+              location: 'map_sidebar_dataset_search',
             });
           }
           this.filterTriggered = false; // reset for next action
         }
-        if (data && data.type == "filter-update") {
+        if (data && data.type == 'filter-update') {
           this.settingsStore.updateFacets(data.value);
           // Remove filter event from maps' popup
           if (!this.filterTriggered) {
-            const filterValuesArray = data.value.filter((val) => {
-              return val.facet && val.facet.toLowerCase() !== 'show all';
-            }).map((val) => val.facet);
+            const filterValuesArray = data.value
+              .filter((val) => {
+                return val.facet && val.facet.toLowerCase() !== 'show all';
+              })
+              .map((val) => val.facet);
             const labels = filterValuesArray.map((val) => val.toLowerCase());
             const newFacets = [...new Set([...labels])];
             this.settingsStore.updateAppliedFacets(newFacets);
@@ -740,16 +769,16 @@ export default {
             // GA Tagging
             // Event tracking for map action search/filter data
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_filter',
-              'category': filterValues || 'filter_reset',
-              'location': 'map_sidebar_dataset_filter'
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_filter',
+              category: filterValues || 'filter_reset',
+              location: 'map_sidebar_dataset_filter',
             });
           }
           this.filterTriggered = false; // reset for next action
         }
       } else if (data.tabType === 'connectivity') {
-        if (data && data.type == "reset-update") {
+        if (data && data.type == 'reset-update') {
           const activeFlatmaps = this.getActiveFlatmaps();
           activeFlatmaps.forEach((activeFlatmap) => {
             activeFlatmap.resetConnectivityfilters(data.value);
@@ -762,28 +791,29 @@ export default {
           activeFlatmaps.forEach((activeFlatmap) => {
             activeFlatmap.updateConnectivityFilters(data.filter);
           });
-          EventBus.emit("connectivity-query-filter", data);
+          EventBus.emit('connectivity-query-filter', data);
 
-          const filterValues = data.filter.filter(f => (f.facet && f.facet.toLowerCase() !== 'show all'))
+          const filterValues = data.filter
+            .filter((f) => f.facet && f.facet.toLowerCase() !== 'show all')
             .map((f) => f.tagLabel)
             .join(', ');
           const searchValue = data.query;
 
           if (filterValues) {
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_filter',
-              'category': filterValues,
-              'location': 'map_sidebar_connectivity_filter'
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_filter',
+              category: filterValues,
+              location: 'map_sidebar_connectivity_filter',
             });
           }
 
           if (searchValue) {
             Tagging.sendEvent({
-              'event': 'interaction_event',
-              'event_name': 'portal_maps_action_search',
-              'category': searchValue,
-              'location': 'map_sidebar_connectivity_search'
+              event: 'interaction_event',
+              event_name: 'portal_maps_action_search',
+              category: searchValue,
+              location: 'map_sidebar_connectivity_search',
             });
           }
         }
@@ -791,14 +821,14 @@ export default {
     },
     updateMarkers: function (data) {
       this.settingsStore.updateMarkers(data);
-      EventBus.emit("markerUpdate");
+      EventBus.emit('markerUpdate');
     },
     updateScaffoldMarkers: function (data) {
       this.settingsStore.updateNumberOfDatasetsForFacets(data);
     },
-    getNewEntryId: function() {
+    getNewEntryId: function () {
       if (this.entries.length) {
-        return (this.entries[this.entries.length - 1]).id + 1;
+        return this.entries[this.entries.length - 1].id + 1;
       }
       return 1;
     },
@@ -811,7 +841,7 @@ export default {
       newEntry.viewUrl = undefined;
       newEntry.state = undefined;
       Object.assign(newEntry, data);
-      newEntry.mode = "normal";
+      newEntry.mode = 'normal';
       newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
       this.entriesStore.addNewEntry(newEntry);
@@ -827,7 +857,7 @@ export default {
       const entry = await getNewMapEntry(type, this.settingsStore.sparcApi);
       this.createNewEntry(entry);
       if (entry.contextCard) {
-        EventBus.emit("contextUpdate", entry.contextCard);
+        EventBus.emit('contextUpdate', entry.contextCard);
       }
     },
     openSearch: function (facets, query) {
@@ -840,12 +870,12 @@ export default {
       this._facets = facets;
       if (this.$refs && this.$refs.sideBar) {
         this.$refs.sideBar.openSearch(facets, query);
-        this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
+        this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' });
       }
       this.startUp = false;
     },
     onFullscreen: function (val) {
-      this.$emit("onFullscreen", val);
+      this.$emit('onFullscreen', val);
     },
     resetApp: function () {
       this.setState(initialDefaultState());
@@ -874,13 +904,13 @@ export default {
               provenanceTaxonomy: feature.taxons,
               alert: feature.alert,
             });
-          } catch (error) {
+          } catch (_error) {
             // ignore entries that cannot be resolved in this map
           }
           return acc;
         }, []);
         if (featureIds.length) {
-          activeFlatmap.checkAndCreatePopups(featureIds, true)
+          activeFlatmap.checkAndCreatePopups(featureIds, true);
         }
       });
 
@@ -890,7 +920,7 @@ export default {
       const activeScaffolds = this.getActiveScaffolds();
       activeScaffolds.forEach((scaffold) => {
         const matched = (scaffold.nervesKnowledge || []).filter((knowledge) =>
-          connectivityEntries.includes(knowledge.id)
+          connectivityEntries.includes(knowledge.id),
         );
         if (matched.length) {
           scaffold.getKnowledgeTooltip({ data: matched, type: scaffold.entry });
@@ -949,7 +979,12 @@ export default {
       // - sidebar component is loaded
       // - if sidebar state is not restored yet
       const sidebarState = state?.sidebar;
-      if (!this.sidebarStateRestored && sidebarState && this.$refs.sideBar) {
+      if (
+        !this.sidebarStateRestored &&
+        sidebarState &&
+        this.$refs.sideBar &&
+        this.connectivityKnowledge?.length
+      ) {
         if (sidebarState.connectivityEntries?.length) {
           this.restoreConnectivityEntries(sidebarState.connectivityEntries);
           this.restoreAttempts += 1;
@@ -970,9 +1005,8 @@ export default {
       //Support both old and new permalink.
       if (state.splitFlow) {
         this.splitFlowStore.setState(state.splitFlow);
-      }
-      else {
-        this.entries.forEach(entry => this.splitFlowStore.setIdToPrimaryPane(entry.id));
+      } else {
+        this.entries.forEach((entry) => this.splitFlowStore.setIdToPrimaryPane(entry.id));
       }
 
       // Seed placeholder (not-ready) connectivity entries immediately so the
@@ -1002,12 +1036,10 @@ export default {
           const entry = state.entries[i];
           entry.state = dialogStates[i];
           //We do not want to serialise the following properties
-          if (entry.type === "Scaffold" && "viewUrl" in entry)
-            delete entry.viewUrl;
-          if (entry.type === "MultiFlatmap" && "uberonId" in entry)
-            delete entry.uberonId;
+          if (entry.type === 'Scaffold' && 'viewUrl' in entry) delete entry.viewUrl;
+          if (entry.type === 'MultiFlatmap' && 'uberonId' in entry) delete entry.uberonId;
           if (anonymousAnnotations === false) {
-            if (entry.type === "Scaffold" && entry?.state?.offlineAnnotations) {
+            if (entry.type === 'Scaffold' && entry?.state?.offlineAnnotations) {
               delete entry.state.offlineAnnotations;
             } else if (entry?.state?.state?.offlineAnnotations) {
               delete entry.state.state.offlineAnnotations;
@@ -1027,20 +1059,20 @@ export default {
       this.entriesStore.destroyEntry(index);
     },
     resourceSelected: function (result) {
-      this.$emit("resource-selected", result);
+      this.$emit('resource-selected', result);
     },
-    speciesChanged: function (species) {
+    speciesChanged: function (_species) {
       if (this.$refs.sideBar) {
         // Use to update the connectivity when switch species
         // Wait for provenance info with uuid update
         this.$nextTick(() => {
           EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
-        })
+        });
       }
     },
     contextUpdate: function (payload) {
-      EventBus.emit("contextUpdate", payload);
+      EventBus.emit('contextUpdate', payload);
     },
     datalinkClicked: function (payload) {
       // payload is dataset URL
@@ -1049,37 +1081,37 @@ export default {
       const substringB = '?type=dataset';
       const datasetId = datasetURL.substring(
         datasetURL.indexOf(substringA) + substringA.length,
-        datasetURL.indexOf(substringB)
+        datasetURL.indexOf(substringB),
       );
 
       // GA Tagging
       // Event tracking for map sidebar gallery dataset click
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_gallery_click',
-        'category': datasetURL,
-        'location': 'map_sidebar_gallery',
-        'dataset_id': datasetId || ''
+        event: 'interaction_event',
+        event_name: 'portal_maps_gallery_click',
+        category: datasetURL,
+        location: 'map_sidebar_gallery',
+        dataset_id: datasetId || '',
       });
     },
-    onAnnotationSubmitted: function(annotation) {
+    onAnnotationSubmitted: function (annotation) {
       if (this.annotationCallback) {
         this.annotationCallback(annotation);
       } else if (this.confirmCommentCallback) {
-        this.confirmCommentCallback(annotation)
+        this.confirmCommentCallback(annotation);
       }
     },
-    onConfirmCreate: function(payload) {
+    onConfirmCreate: function (payload) {
       if (this.confirmCreateCallback) {
         this.confirmCreateCallback(payload);
       }
     },
-    onCancelCreate: function() {
+    onCancelCreate: function () {
       if (this.cancelCreateCallback) {
         this.cancelCreateCallback();
       }
     },
-    onConfirmDelete: function(payload) {
+    onConfirmDelete: function (payload) {
       if (this.confirmDeleteCallback) {
         this.confirmDeleteCallback(payload);
       }
@@ -1099,7 +1131,7 @@ export default {
       this.$refs.dialogToolbar.loadGlobalSettings();
     },
     onSidebarTabClosed: function (tab) {
-      if (tab.id === 3 && tab.type === "annotation") {
+      if (tab.id === 3 && tab.type === 'annotation') {
         EventBus.emit('sidebar-annotation-close');
       }
     },
@@ -1124,16 +1156,16 @@ export default {
     this._externalStateSet = false;
   },
   mounted: function () {
-    EventBus.on("CreateNewEntry", newView => {
+    EventBus.on('CreateNewEntry', (newView) => {
       this.createNewEntry(newView);
     });
-    EventBus.on("RemoveEntryRequest", id => {
+    EventBus.on('RemoveEntryRequest', (id) => {
       this.removeEntry(id);
     });
-    EventBus.on("PopoverActionClick", payload => {
+    EventBus.on('PopoverActionClick', (payload) => {
       this.actionClick(payload);
     });
-    EventBus.on('annotation-open', payload => {
+    EventBus.on('annotation-open', (payload) => {
       this.openAnnotation(payload);
     });
     EventBus.on('sidebar-annotation-close', () => {
@@ -1145,7 +1177,7 @@ export default {
       // open the anootation tab and return.
       if (this.sidebarAnnotationState && viewingMode === 'Annotation') {
         this.sidebarAnnotationState = false;
-        this.$refs.sideBar.tabClicked({id: 3, type: 'annotation'});
+        this.$refs.sideBar.tabClicked({ id: 3, type: 'annotation' });
         return;
       }
 
@@ -1153,10 +1185,10 @@ export default {
       this.createData = {};
 
       if (this.$refs.sideBar) {
-        if (interactiveMode === "dataset") {
-          this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
-        } else if (interactiveMode === "connectivity") {
-          this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+        if (interactiveMode === 'dataset') {
+          this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' });
+        } else if (interactiveMode === 'connectivity') {
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
         }
 
         this.$refs.sideBar.closeConnectivity();
@@ -1166,21 +1198,21 @@ export default {
     EventBus.on('update-offline-annotation-enabled', (payload) => {
       this.settingsStore.updateOfflineAnnotationEnabled(payload);
     });
-    EventBus.on('connectivity-info-open', payload => {
+    EventBus.on('connectivity-info-open', (payload) => {
       this.openConnectivityInfo(payload);
     });
-    EventBus.on('connectivity-info-close', payload => {
+    EventBus.on('connectivity-info-close', (_payload) => {
       if (this.$refs.sideBar) {
         this.connectivityProcessed = false;
         this.$refs.sideBar.resetConnectivitySearch();
       }
     });
-    EventBus.on('connectivity-error', payload => {
+    EventBus.on('connectivity-error', (payload) => {
       if (this.$refs.sideBar) {
         this.$refs.sideBar.updateConnectivityError(payload.data);
       }
     });
-    EventBus.on('neuron-connection-feature-click', payload => {
+    EventBus.on('neuron-connection-feature-click', (payload) => {
       if (this.$refs.sideBar) {
         const { filters, search } = payload;
         this.$refs.sideBar.openConnectivitySearch(filters, search);
@@ -1188,16 +1220,16 @@ export default {
         this.$refs.sideBar.setDrawerOpen(true);
       }
     });
-    EventBus.on("OpenNewMap", type => {
+    EventBus.on('OpenNewMap', (type) => {
       this.updateFlatmapMinimap();
       this.openNewMap(type);
     });
-    EventBus.on("startHelp", () => {
+    EventBus.on('startHelp', () => {
       if (this.$refs.sideBar) {
         this.$refs.sideBar.close();
       }
     });
-    EventBus.on("connectivity-knowledge", payload => {
+    EventBus.on('connectivity-knowledge', (payload) => {
       // Ignore the default/global connectivity dump (emitted when no active
       // viewer's map/species keys are resolved yet) while restoring a
       // permalink's sidebar connectivityEntries, otherwise the sidebar would
@@ -1213,19 +1245,19 @@ export default {
       if (!this.sidebarStateRestored) {
         this.restoreSidebarState(this.state);
       }
-    })
-    EventBus.on("modeUpdate", payload => {
-      if (payload === "dataset") {
-        this.$refs.sideBar.tabClicked({id:  1, type: 'datasetExplorer'});
-      } else if (payload === "connectivity") {
-        this.$refs.sideBar.tabClicked({id:  2, type: 'connectivityExplorer'});
+    });
+    EventBus.on('modeUpdate', (payload) => {
+      if (payload === 'dataset') {
+        this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' });
+      } else if (payload === 'connectivity') {
+        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
       }
-    })
-    EventBus.on("connectivity-filter-options", payload => {
+    });
+    EventBus.on('connectivity-filter-options', (payload) => {
       this.filterOptions = payload;
-    })
+    });
     this.$nextTick(() => {
-      if (this.search === "" && this._facets.length === 0) {
+      if (this.search === '' && this._facets.length === 0) {
         if (this.$refs.sideBar) {
           this.$refs.sideBar.close();
         }
@@ -1248,7 +1280,7 @@ export default {
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
       };
     },
-    entries: function() {
+    entries: function () {
       return this.entriesStore.entries;
     },
   },
@@ -1292,5 +1324,4 @@ export default {
     }
   }
 }
-
 </style>

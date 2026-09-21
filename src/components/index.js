@@ -3,6 +3,4 @@
 import MapContent from './MapContent.vue';
 import '../assets/fonts.scss';
 
-export {
-  MapContent
-};
+export { MapContent };

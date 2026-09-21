@@ -1,7 +1,8 @@
 @font-face {
   font-family: 'mapicon-species';
-  src:  url('fonts/mapicon-species.eot?h40clo');
-  src:  url('fonts/mapicon-species.eot?h40clo#iefix') format('embedded-opentype'),
+  src: url('fonts/mapicon-species.eot?h40clo');
+  src:
+    url('fonts/mapicon-species.eot?h40clo#iefix') format('embedded-opentype'),
     url('fonts/mapicon-species.ttf?h40clo') format('truetype'),
     url('fonts/mapicon-species.woff?h40clo') format('woff');
   font-weight: normal;
@@ -9,7 +10,8 @@
   font-display: block;
 }
 
-[class^="mapicon-icon"], [class*=" mapicon-icon"] {
+[class^='mapicon-icon'],
+[class*=' mapicon-icon'] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'mapicon-species' !important;
   speak: never;
@@ -25,17 +27,17 @@
 }
 
 .mapicon-icon_cat:before {
-  content: "\e904";
+  content: '\e904';
 }
 .mapicon-icon_rat:before {
-  content: "\e900";
+  content: '\e900';
 }
 .mapicon-icon_pig:before {
-  content: "\e901";
+  content: '\e901';
 }
 .mapicon-icon_mouse:before {
-  content: "\e902";
+  content: '\e902';
 }
 .mapicon-icon_human:before {
-  content: "\e903";
+  content: '\e903';
 }

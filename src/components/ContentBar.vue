@@ -43,8 +43,7 @@
           <template #default v-if="contextCardEntry">
             <flatmap-context-card
               class="flatmap-context-card"
-              v-if="(contextCardEntry.type == 'Flatmap' ||
-                contextCardEntry.type == 'MultiFlatmap')"
+              v-if="contextCardEntry.type == 'Flatmap' || contextCardEntry.type == 'MultiFlatmap'"
               :mapImpProv="contextCardEntry.mapImpProv"
             />
             <context-card
@@ -58,11 +57,19 @@
           </template>
           <template #reference>
             <div v-show="contextCardEntry">
-              <div v-show="contextCardVisible" class="information" @click="contextCardVisible = false">
+              <div
+                v-show="contextCardVisible"
+                class="information"
+                @click="contextCardVisible = false"
+              >
                 Hide information
                 <el-icon><el-icon-arrow-up /></el-icon>
               </div>
-              <div v-show="!contextCardVisible" class="information" @click="contextCardVisible = true">
+              <div
+                v-show="!contextCardVisible"
+                class="information"
+                @click="contextCardVisible = true"
+              >
                 Show information
                 <el-icon><el-icon-arrow-down /></el-icon>
               </div>
@@ -70,51 +77,45 @@
           </template>
         </el-popover>
       </div>
-      <el-popover class="tooltip" content="Close and remove" placement="bottom-end" :show-after="helpDelay"
-        :teleported=false trigger="hover" popper-class="header-popper" >
+      <el-popover
+        class="tooltip"
+        content="Close and remove"
+        placement="bottom-end"
+        :show-after="helpDelay"
+        :teleported="false"
+        trigger="hover"
+        popper-class="header-popper"
+      >
         <template #reference>
-          <map-svg-icon icon="close-no-bk" class="header-icon rightmost"
-            v-show="(activeView !== 'singlepanel') && ((entry.mode !== 'main') || allClosable )"
-            @click="closeAndRemove()"/>
-          </template>
+          <map-svg-icon
+            icon="close-no-bk"
+            class="header-icon rightmost"
+            v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
+            @click="closeAndRemove()"
+          />
+        </template>
       </el-popover>
     </div>
   </div>
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import EventBus from './EventBus';
 import { MapSvgIcon } from '@abi-software/svg-sprite';
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
-import ContextCard from "./ContextCard.vue";
+import ContextCard from './ContextCard.vue';
 import FlatmapContextCard from './FlatmapContextCard.vue';
-import {
-  ArrowDown as ElIconArrowDown,
-  ArrowUp as ElIconArrowUp,
-} from '@element-plus/icons-vue'
-import {
-  ElInput as Input,
-  ElOption as Option,
-  ElPopover as Popover,
-  ElRow as Row,
-  ElSelect as Select,
-} from "element-plus";
+import { ArrowDown as ElIconArrowDown, ArrowUp as ElIconArrowUp } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
 export default {
-  name: "ContentBar",
+  name: 'ContentBar',
   components: {
     ElIconArrowDown,
     ElIconArrowUp,
-    Input,
-    Option,
-    Popover,
-    Row,
-    Select,
     ContextCard,
     FlatmapContextCard,
     MapSvgIcon,
@@ -122,31 +123,29 @@ export default {
   props: {
     entry: Object,
   },
-  data: function() {
+  data: function () {
     return {
       contextCardVisible: false,
-      slot:{
-
-      },
+      slot: {},
       boundariesElement: null, // this is set @vue:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntry: undefined,
-      titles: [],
-    }
+    };
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     allClosable() {
       return this.settingsStore.allClosable;
     },
-    getSourceTitle: function() {
+    getSourceTitle: function () {
       if (this.entry) {
         if (this.entry.doi) {
-          return this.entry.doi.replace("https://doi.org/", "");
+          return this.entry.doi.replace('https://doi.org/', '');
         } else if (this.entry.connectivityInfo) {
-          return "SCKAN";
+          return 'SCKAN';
         }
       }
+      return '';
     },
     hasSourceInfo() {
       return this.entry.doi || this.entry.connectivityInfo;
@@ -154,7 +153,7 @@ export default {
     helpDelay() {
       return this.settingsStore.helpDelay;
     },
-    activeView: function() {
+    activeView: function () {
       return this.splitFlowStore.activeView;
     },
     envVars: function () {
@@ -167,14 +166,14 @@ export default {
         ROOT_URL: this.settingsStore.rootUrl,
       };
     },
-    popperOptions: function() {
+    popperOptions: function () {
       return {
         modifiers: [
           {
             name: 'preventOverflow',
             options: {
               boundary: this.boundariesElement,
-            }
+            },
           },
           {
             name: 'flip',
@@ -182,52 +181,49 @@ export default {
               boundary: this.boundariesElement,
               flipVariations: false,
               allowedAutoPlacements: ['bottom'],
-            }
+            },
           },
-        ]
-      }
+        ],
+      };
     },
-    entries: function() {
-      this.titles = [];
+    entries: function () {
       return this.entriesStore.entries.map((entry) => {
-        const title = this.getEntryTitle(entry);
-        this.titles.push({
-          id: entry.id,
-          title: title,
-        });
         return {
           ...entry,
-          title: title,
+          title: this.getEntryTitle(entry),
         };
       });
     },
+    titles: function () {
+      return this.entries.map((entry) => ({
+        id: entry.id,
+        title: entry.title,
+      }));
+    },
   },
   methods: {
-    closeAndRemove: function() {
-      this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries});
-      EventBus.emit("RemoveEntryRequest", this.entry.id);
+    closeAndRemove: function () {
+      this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries });
+      EventBus.emit('RemoveEntryRequest', this.entry.id);
       this.$nextTick(() => {
         this.splitFlowStore.updateSplitPanels();
       });
     },
-    getEntryTitle: function(entry) {
+    getEntryTitle: function (entry) {
       if (entry) {
-        let title = entry.label ? entry.label + " ": '';
+        let title = entry.label ? entry.label + ' ' : '';
         let type = entry.type;
-        if (type == "Scaffold")
-          type = "3D Scaffold";
+        if (type == 'Scaffold') type = '3D Scaffold';
         title += type;
-        if (entry.datasetId)
-          title += " - " + entry.datasetId + "";
-        else if (entry.discoverId)
-          title += " - " + entry.discoverId + "";
+        if (entry.datasetId) title += ' - ' + entry.datasetId + '';
+        else if (entry.discoverId) title += ' - ' + entry.discoverId + '';
 
         return title;
       }
-      return "Viewer";
+      return 'Viewer';
     },
-    getTitle: function(_entry) {
-      const {id, title} = _entry;
+    getTitle: function (_entry) {
+      const { id, title } = _entry;
       const foundTitles = this.titles.filter((t) => t.title === title);
 
       if (foundTitles.length > 1) {
@@ -242,7 +238,7 @@ export default {
           });
         }
 
-        const titleToReturn = titleList.find(t => t.id === id);
+        const titleToReturn = titleList.find((t) => t.id === id);
         if (titleToReturn) {
           return titleToReturn.title;
         }
@@ -250,87 +246,85 @@ export default {
 
       return title;
     },
-    getCharById: function(id) {
+    getCharById: function (id) {
       // starts from char 'A'
       const character = ' (' + String.fromCharCode(65 + id) + ')';
       return character;
     },
-    openSourceInfo: function() {
+    openSourceInfo: function () {
       if (this.entry.doi) {
         const returnedAction = {
-          type: "Search",
-          term: this.entry.doi.replace("https://doi.org/", ""),
+          type: 'Search',
+          term: this.entry.doi.replace('https://doi.org/', ''),
         };
-        EventBus.emit("PopoverActionClick", returnedAction);
+        EventBus.emit('PopoverActionClick', returnedAction);
       } else if (this.entry.connectivityInfo) {
         EventBus.emit('connectivity-info-open', [this.entry.connectivityInfo]);
       }
     },
-    viewerChanged: function(value) {
+    viewerChanged: function (value) {
       if (this.entry.id && this.entry.id != value) {
         this.splitFlowStore.assignOrSwapPaneWithIds({
           source: this.entry.id,
-          target: value
+          target: value,
         });
         this.$nextTick(() => {
           setTimeout(() => {
-            this.$emit("chooser-changed");
+            this.$emit('chooser-changed');
           }, 1200);
         });
         //this.contextCardVisible = false; // Hide all context cards when switching viewers
 
         // GA Tracking
-        const viewCategory = this.entries.find(entry => entry.id === value);
+        const viewCategory = this.entries.find((entry) => entry.id === value);
         tagging.sendEvent({
-          'event': 'interaction_event',
-          'event_name': `portal_maps_toolbar_viewer_changed`,
-          'category': viewCategory?.title || '',
-          'location': 'map_toolbar'
+          event: 'interaction_event',
+          event_name: `portal_maps_toolbar_viewer_changed`,
+          category: viewCategory?.title || '',
+          location: 'map_toolbar',
         });
       }
     },
     // setPopper with is needed as the flatmap context card does not have an image and has smaller with
-    setPopperWidth: function(slotId) {
-      let entry = this.entries.find(entry => entry.id === slotId);
+    setPopperWidth: function (slotId) {
+      let entry = this.entries.find((entry) => entry.id === slotId);
       if (entry) {
-        if (entry.type == "Flatmap" || entry.type == "MultiFlatmap") {
-          return "240px";
+        if (entry.type == 'Flatmap' || entry.type == 'MultiFlatmap') {
+          return '240px';
         } else {
-          return "440px";
+          return '440px';
         }
       }
     },
     // Set the boundaries element for the popper
-    setBoundary: function(boundaryElement) {
+    setBoundary: function (boundaryElement) {
       this.boundariesElement = boundaryElement;
     },
-    setupFlatmapContextCard: function(mapImpProv) {
+    setupFlatmapContextCard: function (mapImpProv) {
       // flatmap context update
       this.contextCardVisible = false; // hide the context card when new map loads
-      let contextEntry = Object.assign({mapImpProv: mapImpProv.prov}, this.entry);
+      let contextEntry = Object.assign({ mapImpProv: mapImpProv.prov }, this.entry);
       this.contextCardEntry = contextEntry;
     },
-    setupScaffoldContextCard: function(){
+    setupScaffoldContextCard: function () {
       // scaffold context update
       if (this.entry.contextCardUrl) {
-        this.contextCardEntry = { ...this.entry};
+        this.contextCardEntry = { ...this.entry };
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.setupScaffoldContextCard();
-  }
+  },
 };
 </script>
 
-
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-@use "../assets/header-icon.scss";
-
+@use '../assets/header-icon.scss';
 
 .toolbar-flex-container {
-  display:flex;
+  display: flex;
   flex-direction: row;
   align-items: center;
   flex-wrap: nowrap;
@@ -416,7 +410,7 @@ export default {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    line-height:18px;
+    line-height: 18px;
   }
   .title {
     width: 140px;
@@ -433,9 +427,9 @@ export default {
   }
 
   .source-chip {
-    padding: 4px!important;
+    padding: 4px !important;
     margin-left: 2px;
-    margin-right:2px;
+    margin-right: 2px;
     background-color: $app-primary-color;
     border-color: $app-primary-color;
     color: #fff;
@@ -471,7 +465,6 @@ export default {
     cursor: pointer;
     line-height: normal;
   }
-
 }
 
 .viewer_dropdown {
@@ -479,7 +472,7 @@ export default {
   .el-select-dropdown__item {
     white-space: nowrap;
     text-align: left;
-    &.is-selected  {
+    &.is-selected {
       color: $app-primary-color;
       font-weight: normal;
     }
@@ -496,7 +489,7 @@ export default {
 
 :deep(.header-popper.el-popover.el-popper) {
   padding: 6px 4px;
-  font-size:12px;
+  font-size: 12px;
   color: rgb(48, 49, 51);
   background-color: #f3ecf6;
   border: 1px solid $app-primary-color;
@@ -513,8 +506,7 @@ export default {
 :deep(.context-card-popover.el-popover.el-popper) {
   max-width: calc(100vw - 100px);
   padding: 0px;
-  width: unset!important;
-  background: #fff!important;
+  width: unset !important;
+  background: #fff !important;
 }
-
 </style>

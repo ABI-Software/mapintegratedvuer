@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { listsAreEqual } from "../components/scripts/utilities";
+import { listsAreEqual } from '../components/scripts/utilities';
 
 function mergeConnectivityEntries(existingEntries = [], incomingEntries = []) {
   const merged = new Map();
@@ -10,13 +10,18 @@ function mergeConnectivityEntries(existingEntries = [], incomingEntries = []) {
     }
 
     const existing = merged.get(entry.id);
-    merged.set(entry.id, existing ? {
-      ...existing,
-      ...entry,
-      'nerve-label': entry['nerve-label'] || existing['nerve-label'],
-      'long-label': entry['long-label'] || existing['long-label'],
-      'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
-    } : { ...entry });
+    merged.set(
+      entry.id,
+      existing
+        ? {
+            ...existing,
+            ...entry,
+            'nerve-label': entry['nerve-label'] || existing['nerve-label'],
+            'long-label': entry['long-label'] || existing['long-label'],
+            'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
+          }
+        : { ...entry },
+    );
   });
 
   return Array.from(merged.values());
@@ -41,9 +46,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
         for (const connectivity of connectivities) {
           const key = connectivity.id;
 
-          acc[key] = acc[key] ?
-            { ...acc[key], ...connectivity } :
-            { ...connectivity };
+          acc[key] = acc[key] ? { ...acc[key], ...connectivity } : { ...connectivity };
         }
 
         return acc;
@@ -59,7 +62,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
           if (acc[filter.key]) {
             const mergedChildren = [...acc[filter.key].children, ...filter.children];
             const uniqueChildren = Array.from(
-              new Map(mergedChildren.map(child => [child.key, child])).values()
+              new Map(mergedChildren.map((child) => [child.key, child])).values(),
             );
             acc[filter.key].children = uniqueChildren;
           } else {
@@ -97,7 +100,9 @@ export const useConnectivitiesStore = defineStore('connectivities', {
         this.activeConnectivityKeys = activeConnectivityKeys;
         return true;
       } else if (this.connectivitiesUpdated) {
-        this.connectivitiesUpdated = !activeConnectivityKeys.every(ele => ele in this.globalConnectivities);
+        this.connectivitiesUpdated = !activeConnectivityKeys.every(
+          (ele) => ele in this.globalConnectivities,
+        );
         return true;
       }
       return false;
