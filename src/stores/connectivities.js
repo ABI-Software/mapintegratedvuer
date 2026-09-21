@@ -10,13 +10,18 @@ function mergeConnectivityEntries(existingEntries = [], incomingEntries = []) {
     }
 
     const existing = merged.get(entry.id);
-    merged.set(entry.id, existing ? {
-      ...existing,
-      ...entry,
-      'nerve-label': entry['nerve-label'] || existing['nerve-label'],
-      'long-label': entry['long-label'] || existing['long-label'],
-      'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
-    } : { ...entry });
+    merged.set(
+      entry.id,
+      existing
+        ? {
+            ...existing,
+            ...entry,
+            'nerve-label': entry['nerve-label'] || existing['nerve-label'],
+            'long-label': entry['long-label'] || existing['long-label'],
+            'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
+          }
+        : { ...entry },
+    );
   });
 
   return Array.from(merged.values());

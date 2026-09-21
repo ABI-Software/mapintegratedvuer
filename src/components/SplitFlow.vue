@@ -266,7 +266,8 @@ export default {
             let flatmap = null;
 
             if (flatmapRef) flatmap = flatmapRef;
-            if (multiflatmapRef && contentViewer.flatmapIsReady()) flatmap = multiflatmapRef.getCurrentFlatmap();
+            if (multiflatmapRef && contentViewer.flatmapIsReady())
+              flatmap = multiflatmapRef.getCurrentFlatmap();
 
             if (flatmap) {
               activeFlatmaps.push(flatmap);
@@ -286,7 +287,7 @@ export default {
       if (splitdialog) {
         const activeContents = splitdialog.getActiveContents();
 
-        activeContents.forEach(content => {
+        activeContents.forEach((content) => {
           const contentViewer = content?.$refs['viewer'];
           if (contentViewer?.scaffoldRef) {
             activeScaffolds.push(contentViewer);
@@ -531,16 +532,22 @@ export default {
         const merged = new Map(this.connectivityEntry.map((entry) => [entry.id, entry]));
         mappedPayload.forEach((entry) => {
           const existing = merged.get(entry.id);
-          merged.set(entry.id, existing ? {
-            ...existing,
-            ...entry,
-            // Viewers emit placeholders (ready: false) before their resolved entries (ready: true),
-            // so a late placeholder from one viewer must not downgrade an entry another viewer already resolved.
-            ready: existing.ready || entry.ready,
-            'nerve-label': entry['nerve-label'] || existing['nerve-label'],
-            'long-label': entry['long-label'] || existing['long-label'],
-            'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
-          } : entry);
+          merged.set(
+            entry.id,
+            existing
+              ? {
+                  ...existing,
+                  ...entry,
+                  // Viewers emit placeholders (ready: false) before their resolved entries (ready: true),
+                  // so a late placeholder from one viewer must not downgrade an entry another viewer already resolved.
+                  ready: existing.ready || entry.ready,
+                  'nerve-label': entry['nerve-label'] || existing['nerve-label'],
+                  'long-label': entry['long-label'] || existing['long-label'],
+                  'expert-consultants':
+                    entry['expert-consultants'] || existing['expert-consultants'],
+                }
+              : entry,
+          );
         });
         this.connectivityEntry = Array.from(merged.values());
         // Entries resolve asynchronously via connectivity-info-open,
@@ -556,8 +563,13 @@ export default {
       // this is for the case when user click on the flatmap paths/features directly without going through sidebar list,
       // which will only have id and label in the payload.
       // Skipped while restoring since connectivityEntry[0] may not relate to the entries just merged in above.
-      if (!this.restoringConnectivityState && !this.connectivityEntry[0]['long-label'] && this.connectivityEntry[0].mapuuid) {
-        const connectivityData = this.connectivitiesStore.globalConnectivities[this.connectivityEntry[0].mapuuid] || [];
+      if (
+        !this.restoringConnectivityState &&
+        !this.connectivityEntry[0]['long-label'] &&
+        this.connectivityEntry[0].mapuuid
+      ) {
+        const connectivityData =
+          this.connectivitiesStore.globalConnectivities[this.connectivityEntry[0].mapuuid] || [];
         if (connectivityData.length) {
           const ck = connectivityData.find((ck) => ck.id === this.connectivityEntry[0].id);
           if (ck && ck['long-label']) {
@@ -898,7 +910,7 @@ export default {
           return acc;
         }, []);
         if (featureIds.length) {
-          activeFlatmap.checkAndCreatePopups(featureIds, true)
+          activeFlatmap.checkAndCreatePopups(featureIds, true);
         }
       });
 
@@ -908,7 +920,7 @@ export default {
       const activeScaffolds = this.getActiveScaffolds();
       activeScaffolds.forEach((scaffold) => {
         const matched = (scaffold.nervesKnowledge || []).filter((knowledge) =>
-          connectivityEntries.includes(knowledge.id)
+          connectivityEntries.includes(knowledge.id),
         );
         if (matched.length) {
           scaffold.getKnowledgeTooltip({ data: matched, type: scaffold.entry });
@@ -1233,7 +1245,7 @@ export default {
       if (!this.sidebarStateRestored) {
         this.restoreSidebarState(this.state);
       }
-    })
+    });
     EventBus.on('modeUpdate', (payload) => {
       if (payload === 'dataset') {
         this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' });
