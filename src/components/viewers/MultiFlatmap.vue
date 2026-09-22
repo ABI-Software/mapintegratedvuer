@@ -58,47 +58,43 @@
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
 import Tagging from '../../services/tagging.js';
-import ContentMixin from "../../mixins/ContentMixin";
-import EventBus from "../EventBus";
-import {
-  availableSpecies,
-  defaultSpecies,
-} from "../scripts/utilities";
-import DyncamicMarkerMixin from "../../mixins/DynamicMarkerMixin";
+import ContentMixin from '../../mixins/ContentMixin';
+import EventBus from '../EventBus';
+import { availableSpecies, defaultSpecies } from '../scripts/utilities';
+import DyncamicMarkerMixin from '../../mixins/DynamicMarkerMixin';
 
-import YellowStar from "../../icons/yellowstar";
+import YellowStar from '../../icons/yellowstar';
 
-import { MultiFlatmapVuer } from "@abi-software/flatmapvuer";
-import "@abi-software/flatmapvuer/dist/style.css";
-import { HelpModeDialog } from '@abi-software/map-utilities'
-import '@abi-software/map-utilities/dist/style.css'
+import { MultiFlatmapVuer } from '@abi-software/flatmapvuer';
+import '@abi-software/flatmapvuer/dist/style.css';
+import { HelpModeDialog } from '@abi-software/map-utilities';
+import '@abi-software/map-utilities/dist/style.css';
 
-const getOpenMapOptions = (species) => {
+const getOpenMapOptions = (_species) => {
   const options = [
     {
-      display: "Open AC Map",
-      key: "AC"
+      display: 'Open AC Map',
+      key: 'AC',
     },
     {
-      display: "Open FC Map",
-      key: "FC"
+      display: 'Open FC Map',
+      key: 'FC',
     },
     {
-      display: "Open 3D Human Map",
-      key: "3D"
+      display: 'Open 3D Human Map',
+      key: '3D',
     },
     {
-      display: "Open Connectivity Graph",
-      key: "CG"
+      display: 'Open Connectivity Graph',
+      key: 'CG',
     },
-  ]
+  ];
   return options;
-}
+};
 
 export default {
-  name: "MultiFlatmap",
+  name: 'MultiFlatmap',
   mixins: [ContentMixin, DyncamicMarkerMixin],
   components: {
     MultiFlatmapVuer,
@@ -108,12 +104,12 @@ export default {
     return {
       availableSpecies: availableSpecies(),
       flatmapReady: false,
-      scaffoldResource: { },
+      scaffoldResource: {},
       showStarInLegend: false,
       speciesHasChanged: false,
       openMapOptions: getOpenMapOptions(defaultSpecies),
       zoomLevel: 6,
-    }
+    };
   },
   methods: {
     getState: function () {
@@ -124,11 +120,11 @@ export default {
       if (this.mouseHovered) {
         const result = {
           paneIndex: this.entry.id,
-          eventType: "panZoom",
+          eventType: 'panZoom',
           payload: payload,
           type: this.entry.type,
         };
-        this.$emit("resource-selected", result);
+        this.$emit('resource-selected', result);
       }
     },
     /**
@@ -147,10 +143,9 @@ export default {
       if (term && flatmap.mapImp) {
         const results = flatmap.mapImp.search(term);
         const featureIds = results.__featureIds || results.featureIds;
-        featureIds.forEach(id => {
+        featureIds.forEach((id) => {
           const annotation = flatmap.mapImp.annotation(id);
-          if (annotation && annotation.label)
-            suggestions.push(annotation.label);
+          if (annotation && annotation.label) suggestions.push(annotation.label);
         });
       }
     },
@@ -159,26 +154,26 @@ export default {
       // GA Tagging
       // Event tracking for maps' pathway selection change
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_pathway_change',
-        'category': label + ' [' + property + '] ' + checked,
-        'location': selectionsTitle
+        event: 'interaction_event',
+        event_name: 'portal_maps_pathway_change',
+        category: label + ' [' + property + '] ' + checked,
+        location: selectionsTitle,
       });
     },
-    onSidebarAnnotationClose: function() {
+    onSidebarAnnotationClose: function () {
       if (this.flatmapReady) {
         const currentFlatmap = this.$refs.multiflatmap.getCurrentFlatmap();
-        currentFlatmap.annotationEventCallback({}, { type: 'aborted' })
+        currentFlatmap.annotationEventCallback({}, { type: 'aborted' });
       }
     },
     onOpenPubmedUrl: function (url) {
       // GA Tagging
       // Event tracking for open pubmed url from popup
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_pubmed_url',
-        'file_path': url,
-        'location': 'map_popup_button',
+        event: 'interaction_event',
+        event_name: 'portal_maps_pubmed_url',
+        file_path: url,
+        location: 'map_popup_button',
       });
     },
     zoomToFeatures: function (info, forceSelect) {
@@ -198,21 +193,21 @@ export default {
         flatmap.clearSearchResults();
       }
     },
-    updateProvCard: function() {
+    updateProvCard: function () {
       const imp = this.getFlatmapImp();
       if (imp) {
-        let provClone = {id: this.entry.id, prov: imp.mapMetadata};
-        EventBus.emit("mapImpProv", provClone);
-        this.$emit("flatmap-provenance-ready", provClone);
+        let provClone = { id: this.entry.id, prov: imp.mapMetadata };
+        EventBus.emit('mapImpProv', provClone);
+        this.$emit('flatmap-provenance-ready', provClone);
       }
     },
-    contextRestored: function(flatmap) {
+    contextRestored: function (flatmap) {
       if (flatmap) {
         this.flatmapMarkerUpdate(flatmap.mapImp);
         this.updateViewerSettings();
         if (this.speciesHasChanged) {
           this.speciesHasChanged = false;
-          this.$emit("species-changed", this.activeSpecies);
+          this.$emit('species-changed', this.activeSpecies);
         }
       }
     },
@@ -228,7 +223,7 @@ export default {
           this.flatmapMarkerUpdate(flatmapImp);
           this.updateViewerSettings();
           this.speciesHasChanged = false;
-          this.$emit("species-changed", activeSpecies);
+          this.$emit('species-changed', activeSpecies);
         } else {
           this.speciesHasChanged = true;
         }
@@ -236,9 +231,9 @@ export default {
       // GA Tagging
       // Event tracking for maps' species change
       Tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': 'portal_maps_species_change',
-        'category': this.activeSpecies
+        event: 'interaction_event',
+        event_name: 'portal_maps_species_change',
+        category: this.activeSpecies,
       });
     },
     multiFlatmapReady: function (flatmap) {
@@ -251,13 +246,13 @@ export default {
         this.updateViewerSettings();
         // Wait for flatmap's connectivity to load before emitting mapLoaded
         this.loadConnectivityExplorerConfig(flatmap).then(() => {
-          EventBus.emit("mapLoaded", flatmap);
+          EventBus.emit('mapLoaded', flatmap);
         });
       }
     },
     getFlatmapImp: function () {
-      if (this.entry.type === "MultiFlatmap" && this.flatmapReady && this.$refs.multiflatmap) {
-        return this.$refs.multiflatmap.getCurrentFlatmap()["mapImp"];
+      if (this.entry.type === 'MultiFlatmap' && this.flatmapReady && this.$refs.multiflatmap) {
+        return this.$refs.multiflatmap.getCurrentFlatmap()['mapImp'];
       } else {
         return undefined;
       }
@@ -266,17 +261,16 @@ export default {
       const flatmapImp = this.getFlatmapImp();
       let shownMarkers = flatmapImp.visibleMarkerAnatomicalIds();
       let returnedAction = {
-        type: "Facets",
-        label: "Unused",
-        val: shownMarkers.map(marker => this.idNamePair[marker]),
+        type: 'Facets',
+        label: 'Unused',
+        val: shownMarkers.map((marker) => this.idNamePair[marker]),
       };
-      EventBus.emit("PopoverActionClick", returnedAction);
+      EventBus.emit('PopoverActionClick', returnedAction);
     },
     flatmapIsReady() {
       return this.flatmapReady;
     },
     restoreFeaturedMarkers: function (flatmap) {
-
       this.settingsStore.resetFeaturedMarkerIdentifier();
       const markers = this.settingsStore.featuredMarkers;
       this.updateFeaturedMarkers(markers, flatmap);
@@ -286,8 +280,7 @@ export default {
       this.showStarInLegend = false; // will show if we have a featured marker
       for (let index = 0; index < markers.length; ++index) {
         if (markers[index]) {
-          const markerIdentifier =
-            this.settingsStore.featuredMarkerIdentifiers[index];
+          const markerIdentifier = this.settingsStore.featuredMarkerIdentifiers[index];
           if (!markerIdentifier) {
             // Add the featured marker to the legend if we have a featured marker
             const markerExists = this.addFeaturedMarker(markers[index], index, flatmap);
@@ -300,8 +293,7 @@ export default {
     },
     // addFeaturedMarker: add a featured marker to the map at the specified uberon location
     addFeaturedMarker: function (marker, index, flatmap) {
-      const markerSpecies =
-        this.settingsStore.featuredMarkerSpecies[index];
+      const markerSpecies = this.settingsStore.featuredMarkerSpecies[index];
       if (markerSpecies && !this.activeSpecies.startsWith(markerSpecies)) {
         return false;
       }
@@ -312,14 +304,14 @@ export default {
 
       if (flatmapImp) {
         // create the star marker
-        let wrapperElement = document.createElement("div");
+        let wrapperElement = document.createElement('div');
         wrapperElement.innerHTML = YellowStar;
 
         // add it to the flatmap
         const markerIdentifier = flatmapImp.addMarker(marker, {
           element: wrapperElement,
-          className: "highlight-marker",
-          cluster: false
+          className: 'highlight-marker',
+          cluster: false,
         });
 
         // update the store with the marker identifier
@@ -445,7 +437,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-
 .viewer-container {
   width: 100%;
   height: 100%;
@@ -470,7 +461,6 @@ export default {
     }
   }
 }
-
 </style>
 
 <style src="../../assets/mapicon-species-style.css"></style>

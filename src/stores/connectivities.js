@@ -1,5 +1,31 @@
 import { defineStore } from 'pinia';
-import { listsAreEqual } from "../components/scripts/utilities";
+import { listsAreEqual } from '../components/scripts/utilities';
+
+function mergeConnectivityEntries(existingEntries = [], incomingEntries = []) {
+  const merged = new Map();
+
+  [...existingEntries, ...incomingEntries].forEach((entry) => {
+    if (!entry || entry.id === undefined) {
+      return;
+    }
+
+    const existing = merged.get(entry.id);
+    merged.set(
+      entry.id,
+      existing
+        ? {
+            ...existing,
+            ...entry,
+            'nerve-label': entry['nerve-label'] || existing['nerve-label'],
+            'long-label': entry['long-label'] || existing['long-label'],
+            'expert-consultants': entry['expert-consultants'] || existing['expert-consultants'],
+          }
+        : { ...entry },
+    );
+  });
+
+  return Array.from(merged.values());
+}
 
 export const useConnectivitiesStore = defineStore('connectivities', {
   state: () => {
@@ -20,9 +46,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
         for (const connectivity of connectivities) {
           const key = connectivity.id;
 
-          acc[key] = acc[key] ?
-            { ...acc[key], ...connectivity } :
-            { ...connectivity };
+          acc[key] = acc[key] ? { ...acc[key], ...connectivity } : { ...connectivity };
         }
 
         return acc;
@@ -38,7 +62,7 @@ export const useConnectivitiesStore = defineStore('connectivities', {
           if (acc[filter.key]) {
             const mergedChildren = [...acc[filter.key].children, ...filter.children];
             const uniqueChildren = Array.from(
-              new Map(mergedChildren.map(child => [child.key, child])).values()
+              new Map(mergedChildren.map((child) => [child.key, child])).values(),
             );
             acc[filter.key].children = uniqueChildren;
           } else {
@@ -76,15 +100,29 @@ export const useConnectivitiesStore = defineStore('connectivities', {
         this.activeConnectivityKeys = activeConnectivityKeys;
         return true;
       } else if (this.connectivitiesUpdated) {
-        this.connectivitiesUpdated = !activeConnectivityKeys.every(ele => ele in this.globalConnectivities);
+        this.connectivitiesUpdated = !activeConnectivityKeys.every(
+          (ele) => ele in this.globalConnectivities,
+        );
         return true;
       }
       return false;
     },
     updateGlobalConnectivities(globalConnectivities) {
       if (globalConnectivities) {
-        if (JSON.stringify(globalConnectivities) !== JSON.stringify(this.globalConnectivities)) {
-          this.globalConnectivities = globalConnectivities;
+        // Each viewer (MultiFlatmap/Flatmap/Scaffold) only knows about its own
+        // uuid/sckanVersion key(s) when it calls this action, and its local
+        // snapshot may be stale for the same entry set. Merge by key and by id
+        // so a later flatmap update does not wipe richer scaffold metadata such
+        // as nerve-label.
+        const merged = { ...this.globalConnectivities };
+
+        Object.entries(globalConnectivities).forEach(([uuid, entries]) => {
+          const existingEntries = merged[uuid] || [];
+          merged[uuid] = mergeConnectivityEntries(existingEntries, entries || []);
+        });
+
+        if (JSON.stringify(merged) !== JSON.stringify(this.globalConnectivities)) {
+          this.globalConnectivities = merged;
           this.connectivitiesUpdated = true;
         }
       }

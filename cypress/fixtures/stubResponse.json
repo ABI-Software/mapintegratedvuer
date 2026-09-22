@@ -15,13 +15,9 @@
             },
             "datacite": {
               "isSourceOf": {
-                "path": [
-                  "derivative/sub-54-8/scaffold/54-8_view.json"
-                ],
+                "path": ["derivative/sub-54-8/scaffold/54-8_view.json"],
                 "relative": {
-                  "path": [
-                    "54-8_view.json"
-                  ]
+                  "path": ["54-8_view.json"]
                 }
               }
             },
@@ -45,13 +41,9 @@
             },
             "datacite": {
               "isSourceOf": {
-                "path": [
-                  "derivative/sub-54-5/scaffold/54-5_view.json"
-                ],
+                "path": ["derivative/sub-54-5/scaffold/54-5_view.json"],
                 "relative": {
-                  "path": [
-                    "54-5_view.json"
-                  ]
+                  "path": ["54-5_view.json"]
                 }
               }
             },
@@ -298,8 +290,6 @@
     }
   },
   "featuredDatasetResponse": {
-    "identifiers": [
-      "130"
-    ]
+    "identifiers": ["130"]
   }
 }

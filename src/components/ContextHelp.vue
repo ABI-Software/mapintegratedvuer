@@ -1,50 +1,46 @@
 <template>
   <div v-if="showHelp" class="content-container">
-    <el-card class="box-card"
+    <el-card
+      class="box-card"
       @mouseover="isActive = true"
       @mouseleave="isActive = false"
-      :class="{active: isActive}">
-      <div slot="header" class="header">
-        <span>Needing some help?</span>
-        <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
-      </div>
+      :class="{ active: isActive }"
+    >
+      <template v-slot:header>
+        <div class="header">
+          <span>Needing some help?</span>
+          <i class="el-icon-close" style="float: right; padding: 3px 0" @click="close"></i>
+        </div>
+      </template>
       <div class="content">
-      <div v-for="o in steps" :key="o" class="step-item">{{o.description}}</div>
+        <div v-for="o in steps" :key="o" class="step-item">{{ o.description }}</div>
       </div>
     </el-card>
   </div>
 </template>
 
 <script>
-/* eslint-disable no-alert, no-console */
-import { ElCard as Card } from "element-plus";
-
 export default {
-  name: "ContextHelp",
-  components: {
-    Card
-  },
+  name: 'ContextHelp',
   props: {
     /**
      * Object containing information for
      * the required viewing.
      */
-    entry: Object
+    entry: Object,
   },
-  data: function() {
-    return  {
+  data: function () {
+    return {
       isActive: false,
       showHelp: true,
-      steps: [
-      ]
-    }
+      steps: [],
+    };
   },
   methods: {
-      close: function(){
-        this.showHelp = false
-      },
-
-  }
+    close: function () {
+      this.showHelp = false;
+    },
+  },
 };
 </script>
 
@@ -56,7 +52,7 @@ export default {
   text-align: left;
 }
 
-.header{
+.header {
   height: 20px;
 }
 
