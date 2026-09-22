@@ -419,17 +419,6 @@ export default {
       const character = ' (' + String.fromCharCode(65 + id) + ')';
       return character;
     },
-    openSourceInfo: function () {
-      if (this.entry.doi) {
-        const returnedAction = {
-          type: 'Search',
-          term: this.entry.doi.replace('https://doi.org/', ''),
-        };
-        EventBus.emit('PopoverActionClick', returnedAction);
-      } else if (this.entry.connectivityInfo) {
-        EventBus.emit('connectivity-info-open', [this.entry.connectivityInfo]);
-      }
-    },
     viewerChanged: function (value) {
       if (this.entry.id && this.entry.id != value) {
         this.splitFlowStore.assignOrSwapPaneWithIds({
