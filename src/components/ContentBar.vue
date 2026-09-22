@@ -211,19 +211,6 @@ export default {
     allClosable() {
       return this.settingsStore.allClosable;
     },
-    getSourceTitle: function () {
-      if (this.entry) {
-        if (this.entry.doi) {
-          return this.entry.doi.replace('https://doi.org/', '');
-        } else if (this.entry.connectivityInfo) {
-          return 'SCKAN';
-        }
-      }
-      return '';
-    },
-    hasSourceInfo() {
-      return this.entry.doi || this.entry.connectivityInfo;
-    },
     helpDelay() {
       return this.settingsStore.helpDelay;
     },
