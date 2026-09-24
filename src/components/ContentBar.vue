@@ -2,7 +2,7 @@
   <div>
     <div class="toolbar-flex-container">
       <el-select
-        ref="contentSelect"
+        v-if="entries.length > 1"
         :teleported="false"
         :model-value="entry.id"
         placeholder="Select"
@@ -15,55 +15,20 @@
           :key="entry.id"
           :label="getTitle(entry)"
           :value="entry.id"
-        >
-          <span class="option-label">
-            <span class="option-title">{{ getTitle(entry) }}</span>
-            <span
-              v-if="hasSourceInfo(entry)"
-              class="source-chip"
-              @click.stop="openSourceInfo(entry)"
-            >
-              {{ getSourceTitle(entry) }}
-            </span>
-          </span>
-        </el-option>
-        <el-option
-          v-for="group in openMapGroups"
-          :key="group.label"
-          :value="group.label"
-          :label="group.label"
-          disabled
-          class="submenu-parent"
-        >
-          <el-popover
-            placement="right-start"
-            trigger="hover"
-            :show-after="120"
-            :offset="-40"
-            popper-class="submenu-flyout"
-            ref="openMapPopover"
-          >
-            <template #default>
-              <ul class="submenu-list">
-                <li
-                  v-for="option in group.options"
-                  :key="option.value"
-                  class="submenu-item"
-                  @click="openMapOption(group, option)"
-                >
-                  {{ option.label }}
-                </li>
-              </ul>
-            </template>
-            <template #reference>
-              <span class="submenu-label">
-                {{ group.label }}
-                <el-icon class="submenu-arrow"><el-icon-arrow-right /></el-icon>
-              </span>
-            </template>
-          </el-popover>
-        </el-option>
+        />
       </el-select>
+      <div v-else class="toolbar-title shrink">
+        {{ getEntryTitle(entry) }}
+      </div>
+      <el-button
+        v-if="hasSourceInfo"
+        round
+        size="small"
+        class="source-chip shrink"
+        @click="openSourceInfo"
+      >
+        {{ getSourceTitle }}
+      </el-button>
       <div class="information-group shrink">
         <el-popover
           placement="bottom"
@@ -146,17 +111,14 @@ import FlatmapContextCard from './FlatmapContextCard.vue';
 import {
   ArrowDown as ElIconArrowDown,
   ArrowUp as ElIconArrowUp,
-  ArrowRight as ElIconArrowRight,
 } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
-import { getNewMapEntry, getBodyScaffoldInfo, capitalise } from './scripts/utilities.js';
 
 export default {
   name: 'ContentBar',
   components: {
     ElIconArrowDown,
     ElIconArrowUp,
-    ElIconArrowRight,
     ContextCard,
     FlatmapContextCard,
     MapSvgIcon,
@@ -171,42 +133,25 @@ export default {
       boundariesElement: null, // this is set @vue:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntry: undefined,
-      // Base options shown at the bottom of the viewer dropdown. Each group
-      // flyouts to its own child options (submenu); clicking a child dispatches
-      // to the group's placeholder action method.
-      openMapGroups: [
-        {
-          label: 'Open AC Map',
-          action: 'openACMap',
-          options: [
-            { label: 'Human Female', value: 'Human Female' },
-            { label: 'Human Male', value: 'Human Male' },
-            { label: 'Rat', value: 'Rat' },
-            { label: 'Mouse', value: 'Mouse' },
-            { label: 'Pig', value: 'Pig' },
-            { label: 'Cat', value: 'Cat' },
-          ],
-        },
-        {
-          label: 'Open 3D Map',
-          action: 'open3DMap',
-          options: [
-            { label: 'Human', value: '__open_3d_map_human' },
-            { label: 'Rat', value: '__open_3d_map_rat' },
-          ],
-        },
-        {
-          label: 'Open FC Map',
-          action: 'openFCMap',
-          options: [{ label: 'Functional Connectivity', value: 'Functional Connectivity' }],
-        },
-      ],
     };
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     allClosable() {
       return this.settingsStore.allClosable;
+    },
+    getSourceTitle: function () {
+      if (this.entry) {
+        if (this.entry.doi) {
+          return this.entry.doi.replace('https://doi.org/', '');
+        } else if (this.entry.connectivityInfo) {
+          return 'SCKAN';
+        }
+      }
+      return '';
+    },
+    hasSourceInfo: function () {
+      return this.entry.doi || this.entry.connectivityInfo;
     },
     helpDelay() {
       return this.settingsStore.helpDelay;
@@ -260,119 +205,6 @@ export default {
     },
   },
   methods: {
-    getSourceTitle: function (entry) {
-      if (entry) {
-        if (entry.doi) {
-          return entry.doi.replace('https://doi.org/', '');
-        } else if (entry.connectivityInfo) {
-          return 'SCKAN';
-        }
-      }
-      return '';
-    },
-    hasSourceInfo: function (entry) {
-      return Boolean(entry && (entry.doi || entry.connectivityInfo));
-    },
-    openSourceInfo: function (entry) {
-      if (entry.doi) {
-        const returnedAction = {
-          type: 'Search',
-          term: entry.doi.replace('https://doi.org/', ''),
-        };
-        EventBus.emit('PopoverActionClick', returnedAction);
-      } else if (entry.connectivityInfo) {
-        EventBus.emit('connectivity-info-open', [entry.connectivityInfo]);
-      }
-    },
-    // A submenu child option was clicked: run the group's action and close the
-    // dropdown so the flyout doesn't linger.
-    openMapOption: function (group, option) {
-      this[group.action](option);
-      const sel = this.$refs.contentSelect;
-      if (sel) {
-        if (typeof sel.hide === 'function') {
-          sel.hide();
-        }
-        if (typeof sel.blur === 'function') {
-          sel.blur();
-        }
-        if (Object.prototype.hasOwnProperty.call(sel, 'overlayVisible')) {
-          try {
-            sel.overlayVisible = false;
-          } catch (_e) {
-            /* ignore */
-          }
-        }
-      }
-      // also hide the submenu popover
-      try {
-        const idx = this.openMapGroups.indexOf(group);
-        const popoverRefs = this.$refs.openMapPopover;
-        let pop = null;
-        if (Array.isArray(popoverRefs)) {
-          pop = popoverRefs[idx];
-        } else {
-          pop = popoverRefs;
-        }
-        if (pop && typeof pop.hide === 'function') {
-          pop.hide();
-        }
-      } catch (_e) {
-        /* ignore errors */
-      }
-    },
-    // Open a AC map for the selected option
-    openACMap: async function (option) {
-      // Create an AC (MultiFlatmap) entry for the selected species/resource
-      const entry = {
-        resource: option.value,
-        type: 'MultiFlatmap',
-        mode: 'main',
-        state: undefined,
-        label: '',
-        discoverId: undefined,
-      };
-      EventBus.emit('SetCurrentEntry', entry);
-      this.trackOpenMap(`open_AC_map_${option.value}`);
-    },
-    // Open a 3D map for the selected option
-    open3DMap: async function (option) {
-      // Infer species from the option value (expecting 'human' or 'rat')
-      let species = 'human';
-      if (option && option.value && option.value.toLowerCase().includes('rat')) {
-        species = 'rat';
-      }
-      const data = await getBodyScaffoldInfo(this.settingsStore.sparcApi, species);
-      const entry = {
-        resource: data.url,
-        type: 'Scaffold',
-        mode: 'main',
-        state: undefined,
-        label: capitalise(species),
-        discoverId: data.datasetInfo ? data.datasetInfo.discoverId : undefined,
-        contextCardUrl: data.datasetInfo ? data.datasetInfo.contextCardUrl : undefined,
-        s3uri: data.datasetInfo ? data.datasetInfo.s3uri : undefined,
-        version: data.datasetInfo ? data.datasetInfo.version : undefined,
-        isBodyScaffold: true,
-      };
-      EventBus.emit('SetCurrentEntry', entry);
-      this.trackOpenMap(`open_3D_map_${option.value}`);
-    },
-
-    // Open a Functional Connectivity map
-    openFCMap: async function (option) {
-      const entry = await getNewMapEntry('FC', this.settingsStore.sparcApi);
-      EventBus.emit('SetCurrentEntry', entry);
-      this.trackOpenMap(`open_FC_map_${option.value}`);
-    },
-    trackOpenMap: function (category) {
-      tagging.sendEvent({
-        event: 'interaction_event',
-        event_name: `portal_maps_toolbar_open_map`,
-        category: category,
-        location: 'map_toolbar',
-      });
-    },
     closeAndRemove: function () {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries });
       EventBus.emit('RemoveEntryRequest', this.entry.id);
@@ -421,6 +253,17 @@ export default {
       // starts from char 'A'
       const character = ' (' + String.fromCharCode(65 + id) + ')';
       return character;
+    },
+    openSourceInfo: function () {
+      if (this.entry.doi) {
+        const returnedAction = {
+          type: 'Search',
+          term: this.entry.doi.replace('https://doi.org/', ''),
+        };
+        EventBus.emit('PopoverActionClick', returnedAction);
+      } else if (this.entry.connectivityInfo) {
+        EventBus.emit('connectivity-info-open', [this.entry.connectivityInfo]);
+      }
     },
     viewerChanged: function (value) {
       if (this.entry.id && this.entry.id != value) {
@@ -586,32 +429,20 @@ export default {
     }
   }
 
-  .option-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-
-    .option-title {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
   .source-chip {
-    flex-shrink: 0;
-    margin-left: auto;
-    padding: 1px 6px;
-    border-radius: 8px;
+    padding: 4px !important;
+    margin-left: 2px;
+    margin-right: 2px;
     background-color: $app-primary-color;
+    border-color: $app-primary-color;
     color: #fff;
-    font-size: 10px;
-    line-height: 14px;
-    white-space: nowrap;
-    cursor: pointer;
+    font-size: 11px !important;
+
     &:hover {
-      background-color: #ac76c5;
+      color: #fff !important;
+      background-color: #ac76c5 !important;
+      border: 1px solid #ac76c5 !important;
+      text-overflow: ellipsis;
     }
   }
 
@@ -648,42 +479,6 @@ export default {
       font-weight: normal;
     }
   }
-
-  // Base "Open ... Map" options: disabled so they can't be selected, but they
-  // still receive hover events to reveal their flyout submenu.
-  .el-select-dropdown__item.submenu-parent {
-    margin-top: 4px;
-    border-top: 1px solid #e4e7ed;
-    padding: 0;
-    cursor: pointer;
-    font-family: $font-family;
-    font-size: 14px;
-    &.is-disabled {
-      cursor: pointer;
-      color: inherit;
-    }
-    &:hover {
-      background-color: var(--el-fill-color-light);
-    }
-    .el-tooltip__trigger {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      height: 100%;
-      padding: 0 20px;
-    }
-    .submenu-label {
-      color: var(--el-text-color-regular);
-      font-weight: normal;
-      font-family: $font-family;
-      cursor: pointer;
-    }
-    .submenu-arrow {
-      font-size: 12px;
-      color: $app-primary-color;
-    }
-  }
 }
 
 .flatmap-context-card {
@@ -715,33 +510,5 @@ export default {
   padding: 0px;
   width: unset !important;
   background: #fff !important;
-}
-</style>
-
-<!-- Non-scoped: the submenu flyout is teleported to <body>, outside this
-     component's scoped DOM, so its styles must be global. -->
-<style lang="scss">
-.submenu-flyout.el-popover.el-popper {
-  padding: 4px 0;
-  min-width: 180px;
-
-  .submenu-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .submenu-item {
-    padding: 6px 16px;
-    font-size: 14px;
-    line-height: 20px;
-    white-space: nowrap;
-    cursor: pointer;
-    font-family: $font-family;
-    font-weight: normal;
-    &:hover {
-      background-color: var(--el-fill-color-light);
-    }
-  }
 }
 </style>
