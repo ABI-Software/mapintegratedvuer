@@ -108,10 +108,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import ContextCard from './ContextCard.vue';
 import FlatmapContextCard from './FlatmapContextCard.vue';
-import {
-  ArrowDown as ElIconArrowDown,
-  ArrowUp as ElIconArrowUp,
-} from '@element-plus/icons-vue';
+import { ArrowDown as ElIconArrowDown, ArrowUp as ElIconArrowUp } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
 export default {
@@ -150,7 +147,7 @@ export default {
       }
       return '';
     },
-    hasSourceInfo: function () {
+    hasSourceInfo() {
       return this.entry.doi || this.entry.connectivityInfo;
     },
     helpDelay() {
@@ -442,6 +439,8 @@ export default {
       color: #fff !important;
       background-color: #ac76c5 !important;
       border: 1px solid #ac76c5 !important;
+    }
+    span {
       text-overflow: ellipsis;
     }
   }
