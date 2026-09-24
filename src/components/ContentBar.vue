@@ -434,6 +434,7 @@ export default {
     border-color: $app-primary-color;
     color: #fff;
     font-size: 11px !important;
+
     &:hover {
       color: #fff !important;
       background-color: #ac76c5 !important;

@@ -37,6 +37,7 @@
       :showOpenMapButton="showOpenMapButton"
       @pan-zoom-callback="flatmapPanZoomCallback"
       @open-map="openMap"
+      @open-map-species="openMapSpecies"
       @finish-help-mode="endHelp"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
@@ -134,6 +135,18 @@ export default {
       const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
       //First search and show the result
       return flatmap.searchAndShowResult(term, true, true);
+    },
+    // Open the given species as a new view.
+    openMapSpecies: function (species) {
+      EventBus.emit('SetCurrentEntry', {
+        resource: species,
+        type: 'MultiFlatmap',
+        mode: 'main',
+        state: undefined,
+        label: '',
+        discoverId: undefined,
+      });
+      this.trackOpenMap(`open_new_AC_map_${species}`);
     },
     /**
      * Append the list of suggested terms to suggestions
