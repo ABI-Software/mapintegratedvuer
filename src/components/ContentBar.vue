@@ -199,9 +199,7 @@ export default {
         {
           label: 'Open FC Map',
           action: 'openFCMap',
-          options: [
-            { label: 'Functional Connectivity', value: 'Functional Connectivity' },
-          ],
+          options: [{ label: 'Functional Connectivity', value: 'Functional Connectivity' }],
         },
       ],
     };
@@ -263,33 +261,33 @@ export default {
     },
   },
   methods: {
-    getSourceTitle: function(entry) {
+    getSourceTitle: function (entry) {
       if (entry) {
         if (entry.doi) {
-          return entry.doi.replace("https://doi.org/", "");
+          return entry.doi.replace('https://doi.org/', '');
         } else if (entry.connectivityInfo) {
-          return "SCKAN";
+          return 'SCKAN';
         }
       }
-      return "";
+      return '';
     },
-    hasSourceInfo: function(entry) {
+    hasSourceInfo: function (entry) {
       return Boolean(entry && (entry.doi || entry.connectivityInfo));
     },
-    openSourceInfo: function(entry) {
+    openSourceInfo: function (entry) {
       if (entry.doi) {
         const returnedAction = {
-          type: "Search",
-          term: entry.doi.replace("https://doi.org/", ""),
+          type: 'Search',
+          term: entry.doi.replace('https://doi.org/', ''),
         };
-        EventBus.emit("PopoverActionClick", returnedAction);
+        EventBus.emit('PopoverActionClick', returnedAction);
       } else if (entry.connectivityInfo) {
         EventBus.emit('connectivity-info-open', [entry.connectivityInfo]);
       }
     },
     // A submenu child option was clicked: run the group's action and close the
     // dropdown so the flyout doesn't linger.
-    openMapOption: function(group, option) {
+    openMapOption: function (group, option) {
       this[group.action](option);
       const sel = this.$refs.contentSelect;
       if (sel) {
@@ -300,7 +298,11 @@ export default {
           sel.blur();
         }
         if (Object.prototype.hasOwnProperty.call(sel, 'overlayVisible')) {
-          try { sel.overlayVisible = false; } catch (e) { /* ignore */ }
+          try {
+            sel.overlayVisible = false;
+          } catch (e) {
+            /* ignore */
+          }
         }
       }
       // also hide the submenu popover
@@ -316,24 +318,26 @@ export default {
         if (pop && typeof pop.hide === 'function') {
           pop.hide();
         }
-      } catch (e) { /* ignore errors */ }
+      } catch (e) {
+        /* ignore errors */
+      }
     },
     // Open a AC map for the selected option
-    openACMap: async function(option) {
+    openACMap: async function (option) {
       // Create an AC (MultiFlatmap) entry for the selected species/resource
       const entry = {
         resource: option.value,
-        type: "MultiFlatmap",
-        mode: "main",
+        type: 'MultiFlatmap',
+        mode: 'main',
         state: undefined,
-        label: "",
+        label: '',
         discoverId: undefined,
       };
-      EventBus.emit("SetCurrentEntry", entry);
+      EventBus.emit('SetCurrentEntry', entry);
       this.trackOpenMap(`open_AC_map_${option.value}`);
     },
     // Open a 3D map for the selected option
-    open3DMap: async function(option) {
+    open3DMap: async function (option) {
       // Infer species from the option value (expecting 'human' or 'rat')
       let species = 'human';
       if (option && option.value && option.value.toLowerCase().includes('rat')) {
@@ -357,17 +361,17 @@ export default {
     },
 
     // Open a Functional Connectivity map
-    openFCMap: async function(option) {
+    openFCMap: async function (option) {
       const entry = await getNewMapEntry('FC', this.settingsStore.sparcApi);
-      EventBus.emit("SetCurrentEntry", entry);
+      EventBus.emit('SetCurrentEntry', entry);
       this.trackOpenMap(`open_FC_map_${option.value}`);
     },
-    trackOpenMap: function(category) {
+    trackOpenMap: function (category) {
       tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': `portal_maps_toolbar_open_map`,
-        'category': category,
-        'location': 'map_toolbar'
+        event: 'interaction_event',
+        event_name: `portal_maps_toolbar_open_map`,
+        category: category,
+        location: 'map_toolbar',
       });
     },
     closeAndRemove: function () {

@@ -467,7 +467,7 @@ export default {
       this.$emit('mapLoaded', map);
     });
     // Allow other components to request opening a map via setCurrentEntry
-    EventBus.on("SetCurrentEntry", (entry) => {
+    EventBus.on('SetCurrentEntry', (entry) => {
       if (entry) {
         this.setCurrentEntry(entry);
       }
