@@ -171,7 +171,6 @@ export default {
       boundariesElement: null, // this is set @vue:mounted by the parent component via the 'setBoundary' method
       showDetails: true,
       contextCardEntry: undefined,
-      titles: [],
       // Base options shown at the bottom of the viewer dropdown. Each group
       // flyouts to its own child options (submenu); clicking a child dispatches
       // to the group's placeholder action method.
@@ -300,7 +299,7 @@ export default {
         if (Object.prototype.hasOwnProperty.call(sel, 'overlayVisible')) {
           try {
             sel.overlayVisible = false;
-          } catch (e) {
+          } catch (_e) {
             /* ignore */
           }
         }
@@ -318,7 +317,7 @@ export default {
         if (pop && typeof pop.hide === 'function') {
           pop.hide();
         }
-      } catch (e) {
+      } catch (_e) {
         /* ignore errors */
       }
     },
