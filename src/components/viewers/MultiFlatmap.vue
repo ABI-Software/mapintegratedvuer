@@ -145,6 +145,7 @@ export default {
         state: undefined,
         label: '',
         discoverId: undefined,
+        sourceId: this.entry.id,
       });
       this.trackOpenMap(`open_new_AC_map_${species}`);
     },

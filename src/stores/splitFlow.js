@@ -349,6 +349,40 @@ export const useSplitFlowStore = defineStore('splitFlow', {
         this.customLayout[currentKey].id = firstPaneId;
       }
     },
+    /**
+     * Place a newly created entry alongside the source entry.
+     * Single view: switch to vertical split with the new entry on the right.
+     * Multiple views: replace the other pane (pane-2 if the source is in
+     * pane-1, otherwise pane-1). The replaced entry remains in the entries list.
+     * Falls back to the primary pane if the source is not currently visible.
+     */
+    placeEntryInSplitView(payload) {
+      const { id, sourceId, entries } = payload;
+      if (this.activeView === 'singlepanel') {
+        const sourceKey = findKeyWithId(this.customLayout, sourceId);
+        if (sourceKey !== 'pane-1') {
+          this.setIdToPrimaryPane(id);
+          return;
+        }
+        this.updateActiveView({ view: '2vertpanel', entries }, false);
+        this.assignOrSwapPaneWithIds(
+          { source: id, target: this.customLayout['pane-2'].id },
+          false,
+        );
+      } else {
+        const sourceKey = findKeyWithId(this.customLayout, sourceId);
+        if (!sourceKey || !this.isPaneActive(sourceKey)) {
+          this.setIdToPrimaryPane(id);
+          return;
+        }
+        const targetKey = sourceKey === 'pane-1' ? 'pane-2' : 'pane-1';
+        this.assignOrSwapPaneWithIds(
+          { source: id, target: this.customLayout[targetKey].id },
+          false,
+        );
+      }
+      this.updateSplitPanels();
+    },
     reset() {
       const original = getOriginalState();
       this.activeView = original.activeView;

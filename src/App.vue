@@ -31,28 +31,9 @@
             <el-button @click="setSearch()" size="small">Set Search</el-button>
           </div>
           <div class="row">
-            <div style="font-weight: 600">Connectivity tooltip labels:</div>
-          </div>
-          <div class="row">
-            <el-checkbox @change="onShowLongLabelChange" v-model="showLongLabel" size="small">
-              Show long label
-            </el-checkbox>
-            <el-checkbox
-              @change="onTruncateLongLabelChange"
-              :disabled="!showLongLabel"
-              v-model="truncateLongLabel"
-              size="small"
-            >
-              Truncate long label
-            </el-checkbox>
-            <el-checkbox
-              @change="onShowIdInTooltipChange"
-              :disabled="!showLongLabel"
-              v-model="showIdInTooltip"
-              size="small"
-            >
-              Show ID in tooltip
-            </el-checkbox>
+            <el-button @click="toggleOpenNewSpeciesInSplitView()" size="small">
+              Toggle Open New Species in Split View
+            </el-button>
           </div>
         </div>
         <template #reference>
@@ -76,6 +57,7 @@
         :allClosable="false"
         :showGlobalSettings="true"
         :showOpenMapButton="true"
+        :openNewSpeciesInSplitView="openNewSpeciesInSplitView"
         @updateShareLinkRequested="updateUUID"
         @isReady="viewerIsReady"
         @mapLoaded="mapIsLoaded"
@@ -183,6 +165,7 @@ export default {
       showLongLabel: true,
       truncateLongLabel: true,
       showIdInTooltip: true,
+      openNewSpeciesInSplitView: false,
     };
   },
   computed: {
@@ -334,14 +317,8 @@ export default {
       this.$refs.map.openSearch([], '10.26275/1uno-tynt');
       this.closePopover();
     },
-    onShowLongLabelChange: function () {
-      this.closePopover();
-    },
-    onTruncateLongLabelChange: function () {
-      this.closePopover();
-    },
-    onShowIdInTooltipChange: function () {
-      this.closePopover();
+    toggleOpenNewSpeciesInSplitView: function () {
+      this.openNewSpeciesInSplitView = !this.openNewSpeciesInSplitView;
     },
     mapIsLoaded: function (map) {
       console.log('map is loaded', map);
