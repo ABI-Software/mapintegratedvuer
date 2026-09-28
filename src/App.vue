@@ -30,10 +30,12 @@
             <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
             <el-button @click="setSearch()" size="small">Set Search</el-button>
           </div>
-          <div class="row">
-            <el-button @click="toggleOpenNewSpeciesInSplitView()" size="small">
-              Toggle Open New Species in Split View
-            </el-button>
+          <div class="row radio-row">
+            <span class="radio-label">Open new species in:</span>
+            <el-radio-group v-model="openNewSpeciesInSplitView" size="small">
+              <el-radio :value="false">Current view</el-radio>
+              <el-radio :value="true">Split view</el-radio>
+            </el-radio-group>
           </div>
         </div>
         <template #reference>
@@ -317,9 +319,6 @@ export default {
       this.$refs.map.openSearch([], '10.26275/1uno-tynt');
       this.closePopover();
     },
-    toggleOpenNewSpeciesInSplitView: function () {
-      this.openNewSpeciesInSplitView = !this.openNewSpeciesInSplitView;
-    },
     mapIsLoaded: function (map) {
       console.log('map is loaded', map);
       // map.changeViewingMode('Annotation')
@@ -548,6 +547,14 @@ body {
 
 .options-container {
   text-align: center;
+}
+
+.radio-row {
+  align-items: center;
+}
+
+.radio-label {
+  font-size: 12px;
 }
 
 .map-icon {
