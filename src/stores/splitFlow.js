@@ -365,10 +365,7 @@ export const useSplitFlowStore = defineStore('splitFlow', {
           return;
         }
         this.updateActiveView({ view: '2vertpanel', entries }, false);
-        this.assignOrSwapPaneWithIds(
-          { source: id, target: this.customLayout['pane-2'].id },
-          false,
-        );
+        this.assignOrSwapPaneWithIds({ source: id, target: this.customLayout['pane-2'].id }, false);
       } else {
         const sourceKey = findKeyWithId(this.customLayout, sourceId);
         if (!sourceKey || !this.isPaneActive(sourceKey)) {
