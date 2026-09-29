@@ -1,14 +1,16 @@
 <template>
-  <div v-loading="loading" class="flatmap-context-card" >
+  <div v-loading="loading" class="flatmap-context-card">
     <div class="card-right scrollbar">
       <div class="title">Flatmap Provenance</div>
-        SCKAN version: <a :href="sckanReleaseLink" target="_blank"> {{sckanReleaseDisplay}} </a>
-        <br>
-        Published on:
-        {{flatmapPublishedDisplay}}
-        <br>
-        View publication <a :href="flatmapSource" class="publication-link" target="_blank">here</a>
-      <br/>
+      SCKAN version:
+      <a :href="sckanReleaseLink" target="_blank">{{ sckanReleaseDisplay }}</a>
+      <br />
+      Published on:
+      {{ flatmapPublishedDisplay }}
+      <br />
+      View publication
+      <a :href="flatmapSource" class="publication-link" target="_blank">here</a>
+      <br />
     </div>
 
     <!-- Copy to clipboard button container -->
@@ -18,20 +20,14 @@
   </div>
 </template>
 
-
 <script>
-/* eslint-disable no-alert, no-console */
-import {
-  ElLoading as Loading
-} from "element-plus";
-import { CopyToClipboard } from "@abi-software/map-utilities";
+import { CopyToClipboard } from '@abi-software/map-utilities';
 import tagging from '../services/tagging';
 import '@abi-software/map-utilities/dist/style.css';
 
 export default {
-  name: "FlatmapContextCard",
+  name: 'FlatmapContextCard',
   components: {
-    Loading,
     CopyToClipboard,
   },
   props: {
@@ -51,57 +47,59 @@ export default {
     };
   },
   computed: {
-    flatmapPublishedDisplay: function() {
-      let flatmapPublished = "Unknown"
-      if(this.mapImpProv){
+    flatmapPublishedDisplay: function () {
+      let flatmapPublished = 'Unknown';
+      if (this.mapImpProv) {
         flatmapPublished = new Date(this.mapImpProv.created).toLocaleDateString('en-US', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-        })
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        });
       }
-      return flatmapPublished
+      return flatmapPublished;
     },
-    sckanReleaseDisplay: function() {
-      let sckanRelease = "Unknown"
-      if(this.mapImpProv){
-        sckanRelease = this.mapImpProv.connectivity?.npo?.date
+    sckanReleaseDisplay: function () {
+      let sckanRelease = 'Unknown';
+      if (this.mapImpProv) {
+        sckanRelease = this.mapImpProv.connectivity?.npo?.date;
         if (!sckanRelease) {
-          let sckanCreated = this.mapImpProv.sckan?.created ? this.mapImpProv.sckan.created : this.mapImpProv.sckan
+          let sckanCreated = this.mapImpProv.sckan?.created
+            ? this.mapImpProv.sckan.created
+            : this.mapImpProv.sckan;
           if (sckanCreated) {
-            let isoTime = sckanCreated.replace(',', '.') // Date time does not accept commas but Sckan uses them
+            let isoTime = sckanCreated.replace(',', '.'); // Date time does not accept commas but Sckan uses them
             sckanRelease = new Date(isoTime).toLocaleDateString('en-US', {
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric',
-            })
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            });
           }
         }
         if (!sckanRelease) {
-          sckanRelease = "Unknown";
+          sckanRelease = 'Unknown';
         }
       }
-      return sckanRelease
+      return sckanRelease;
     },
-    sckanReleaseLink: function() {
-      let sckanLink = "Unknown"
-      if(this.mapImpProv){
-        sckanLink = this.mapImpProv.connectivity?.npo?.path
+    sckanReleaseLink: function () {
+      let sckanLink = 'Unknown';
+      if (this.mapImpProv) {
+        sckanLink = this.mapImpProv.connectivity?.npo?.path;
         if (!sckanLink) {
-          sckanLink = this.mapImpProv.sckan?.release
+          sckanLink = this.mapImpProv.sckan?.release;
         }
         if (!sckanLink) {
-          sckanLink = "Unknown"
+          sckanLink = 'Unknown';
         }
       }
-      return sckanLink
+      return sckanLink;
     },
-    flatmapSource: function() {
-      let flatmapSource = "Unknown"
-      if(this.mapImpProv){
-        flatmapSource = this.mapImpProv.source
+    flatmapSource: function () {
+      let flatmapSource = 'Unknown';
+      if (this.mapImpProv) {
+        flatmapSource = this.mapImpProv.source;
       }
-      return flatmapSource
+      return flatmapSource;
     },
     updatedCopyContent: function () {
       const contentArray = [];
@@ -132,10 +130,10 @@ export default {
   methods: {
     onCopied: function () {
       tagging.sendEvent({
-        'event': 'interaction_event',
-        'event_name': `portal_maps_context_card_copy`,
-        'category': this.mapImpProv?.id || 'Flatmap Provenance',
-        'location': 'map_toolbar'
+        event: 'interaction_event',
+        event_name: `portal_maps_context_card_copy`,
+        category: this.mapImpProv?.id || 'Flatmap Provenance',
+        location: 'map_toolbar',
       });
     },
   },
@@ -144,9 +142,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-
-
-.flatmap-context-card{
+.flatmap-context-card {
   background-color: white;
   font-size: 12px;
   position: relative;
@@ -164,10 +160,9 @@ export default {
   cursor: pointer;
 }
 
-.title{
+.title {
   font-weight: bold;
 }
-
 
 .scrollbar::-webkit-scrollbar-track {
   border-radius: 10px;

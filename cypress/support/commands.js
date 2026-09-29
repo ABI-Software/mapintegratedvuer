@@ -30,9 +30,8 @@ import 'cypress-wait-until';
 // occasionally drop keystrokes or get detached (e.g., Element Plus fields re-rendering mid-type).
 Cypress.Commands.add('typeReliably', (selector, text, options = {}) => {
   const attempt = (retriesLeft) => {
-    cy.get(selector)
-      .clear(options)
-      .type(text, { delay: 50, ...options });
+    cy.get(selector).clear(options);
+    cy.get(selector).type(text, { delay: 50, ...options });
 
     cy.get(selector).then(($el) => {
       if ($el.val() !== text && retriesLeft > 0) {
@@ -47,46 +46,49 @@ Cypress.Commands.add('typeReliably', (selector, text, options = {}) => {
 Cypress.on('uncaught:exception', (err) => {
   // returning false here prevents Cypress from
   // failing the test
-  if (err.message.includes("this.$refs.sideBar.closeConnectivity is not a function"))
-    return false
-  if (err.message.includes("Cannot read properties of undefined (reading 'left')"))
-    return false
-  if (err.message.includes("Failed to fetch"))
-    return false
-  if (err.message.includes('Source "mapbox-gl-draw-cold" already exists.'))
-    return false
-  if (err.message.includes('Source "markers" already exists.'))
-    return false
+  if (err.message.includes('this.$refs.sideBar.closeConnectivity is not a function')) return false;
+  if (err.message.includes("Cannot read properties of undefined (reading 'left')")) return false;
+  if (err.message.includes('Failed to fetch')) return false;
+  if (err.message.includes('Source "mapbox-gl-draw-cold" already exists.')) return false;
+  if (err.message.includes('Source "markers" already exists.')) return false;
   if (err.message.includes("Cannot read properties of undefined (reading 'onResize')"))
-    return false
-  if (err.message.includes("knowledge/query/")) {
-    return false
+    return false;
+  if (err.message.includes('knowledge/query/')) {
+    return false;
   }
   if (err.message.includes("Cannot read properties of null (reading 'id')")) {
-    return false
+    return false;
   }
-  if (err.message.includes("$el.css is not a function")) {
-    return false
+  if (err.message.includes('$el.css is not a function')) {
+    return false;
   }
-  return true
-})
+  return true;
+});
 
 Cypress.Commands.add('checkFlatmapProvenanceCard', (species, prevPublicationLink) => {
-  cy.get('#flatmap-select').click({force: true} );
+  cy.get('#flatmap-select').click({ force: true });
   cy.get('.el-select-dropdown__wrap > .el-scrollbar__view').contains(species).click();
-  cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
-  cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');
-  cy.get('.information-group > div.el-tooltip__trigger > :nth-child(2)').click()
-  cy.get('.flatmap-context-card > .card-right > a').contains('here').should('have.attr', 'href').and('include', species.toLowerCase())
-  cy.get('.flatmap-context-card').trigger('mouseover', {force: true});
+  cy.get(
+    '.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask',
+    { timeout: 60000 },
+  ).should('not.exist');
+  cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {
+    timeout: 60000,
+  }).should('be.visible');
+  cy.get('.information-group > div.el-tooltip__trigger > :nth-child(2)').click();
+  cy.get('.flatmap-context-card > .card-right > a')
+    .contains('here')
+    .should('have.attr', 'href')
+    .and('include', species.toLowerCase());
+  cy.get('.flatmap-context-card').trigger('mouseover', { force: true });
   cy.get('.flatmap-context-card').within(() => {
     cy.get('.publication-link').invoke('attr', 'href').as(`${species}_publicationLink`);
 
     // To verify data change
     if (prevPublicationLink) {
       cy.get('.float-button-container').invoke('css', {
-        'opacity': '1',
-        'visibility': 'visible'
+        opacity: '1',
+        visibility: 'visible',
       });
 
       cy.get(`@${species}_publicationLink`).then((publicationLink) => {
@@ -106,42 +108,53 @@ ${publicationLink}`;
           }
         });
         cy.get('.float-button-container button').click({ force: true });
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(100);
 
         if (prevPublicationLink) {
           expect(publicationLink).to.not.equal(prevPublicationLink);
         }
 
-        cy.window().then((win) => {
-          return win.navigator.clipboard.readText();
-        }).then((text) => {
-          expect(text).to.include(publicationLink);
+        cy.window()
+          .then((win) => {
+            return win.navigator.clipboard.readText();
+          })
+          .then((text) => {
+            expect(text).to.include(publicationLink);
 
-          if (prevPublicationLink) {
-            expect(text).to.not.include(prevPublicationLink);
-          }
-        });
+            if (prevPublicationLink) {
+              expect(text).to.not.include(prevPublicationLink);
+            }
+          });
       });
     }
   });
-})
+});
 
 Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
   cy.get('.el-icon.header-icon').as('globalSettings').click(); // open
-  cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`).as('settingOptions').last().click();
+  cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`)
+    .as('settingOptions')
+    .last()
+    .click();
   cy.get('@globalSettings').click(); // close
   cy.get('@globalSettings').trigger('mouseleave');
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
-  cy.get('html').compareSnapshot(compare).then(comparisonResults => {
-    expect(comparisonResults.percentage, `${setting} should be applied`).to.be.above(0);
-  });
+  cy.get('html')
+    .compareSnapshot(compare)
+    .then((comparisonResults) => {
+      expect(comparisonResults.percentage, `${setting} should be applied`).to.be.above(0);
+    });
   cy.get('@globalSettings').click(); // open
   cy.get('@settingOptions').first().click(); // reset to default
   cy.get('@globalSettings').click(); // close
   cy.get('@globalSettings').trigger('mouseleave');
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
-})
+});
 
 Cypress.Commands.add('testSetCurrentEntry', (entry, species) => {
   cy.window().then((win) => {
@@ -155,12 +168,18 @@ Cypress.Commands.add('testSetCurrentEntry', (entry, species) => {
   });
 
   // Wait for the loading to complete
-  cy.get('.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask', {timeout: 60000}).should('not.exist');
-  cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {timeout: 60000}).should('be.visible');
+  cy.get(
+    '.multi-container > .el-loading-parent--relative > [name="el-loading-fade"] > .el-loading-mask',
+    { timeout: 60000 },
+  ).should('not.exist');
+  cy.get('#maplibre-minimap > .maplibregl-canvas-container > .maplibregl-canvas', {
+    timeout: 60000,
+  }).should('be.visible');
 
   // Verify that the selected species is in the species dropdown
-  cy.get('.contentvuer .component-container .el-select.select-box .el-select__selection .el-select__selected-item.el-select__placeholder')
-    .should('contain.text', species)
+  cy.get(
+    '.contentvuer .component-container .el-select.select-box .el-select__selection .el-select__selected-item.el-select__placeholder',
+  ).should('contain.text', species);
 
   // Verify that the selected flatmap is loaded by checking the flatmap content
   cy.window().then((win) => {
@@ -172,8 +191,8 @@ Cypress.Commands.add('testSetCurrentEntry', (entry, species) => {
 
         if (splitdialog) {
           const activeContents = splitdialog.getActiveContents();
-          const multiFlatmapContent = activeContents.find(content =>
-            content.viewerType === 'MultiFlatmap'
+          const multiFlatmapContent = activeContents.find(
+            (content) => content.viewerType === 'MultiFlatmap',
           );
 
           if (multiFlatmapContent && multiFlatmapContent.$refs['viewer']) {
@@ -184,27 +203,43 @@ Cypress.Commands.add('testSetCurrentEntry', (entry, species) => {
       }
     }
   });
-})
+});
 
 Cypress.Commands.add('checkNeuronConnectionMode', (mode, searchTerm) => {
   cy.get('.viewing-mode-selector .el-dropdown').as('viewingModes').trigger('mouseenter'); // open
   cy.get('@viewingModes').contains(mode).click();
-  cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist');
-  cy.typeReliably('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner', searchTerm);
+  cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should(
+    'exist',
+  );
+  cy.typeReliably(
+    '.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner',
+    searchTerm,
+  );
   cy.get('.search-container > .map-icon > use').should('exist').click();
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  const tagTerm = `${mode[0]}:${searchTerm}`
+  const tagTerm = `${mode[0]}:${searchTerm}`;
   cy.get('.sidebar-container .content-card:visible .filters').should('exist').contains(tagTerm);
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(4000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
-  cy.get('.sidebar-container .el-card:visible .header .is-link > span').contains('Reset').click({ multiple: true })
-  cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner').should('exist').clear();
-})
+  cy.get('.sidebar-container .el-card:visible .header .is-link > span')
+    .contains('Reset')
+    .click({ multiple: true });
+  cy.get('.search-box.el-autocomplete > .el-input > .el-input__wrapper > .el-input__inner')
+    .should('exist')
+    .clear();
+});
 
 Cypress.Commands.add('connectivitySearch', (searchTerm) => {
-  cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').clear();
-  cy.get('[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner').type(searchTerm);
+  cy.get(
+    '[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner',
+  ).clear();
+  cy.get(
+    '[style=""] > .el-card__header > .header > .search-input-container > .el-input > .el-input__wrapper > .el-input__inner',
+  ).type(searchTerm);
   cy.get('[style=""] > .el-card__header > .header > .el-button--primary').click();
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(4000);
   cy.get('.connectivity-card-container > .connectivity-card').should('have.length.greaterThan', 0);
   cy.get('.dataset-results-feedback:visible').should('exist').contains('results');
@@ -212,16 +247,22 @@ Cypress.Commands.add('connectivitySearch', (searchTerm) => {
 
 Cypress.Commands.add('compareConnectivitySearchResults', ([searchTerm1, searchTerm2], isSame) => {
   cy.connectivitySearch(searchTerm1);
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue1) => {
-    cy.connectivitySearch(searchTerm2);
-    cy.wait(2000);
-    cy.get('.dataset-results-feedback:visible').invoke('text').then((storedvalue2) => {
-      if (isSame) {
-        expect(storedvalue1.trim()).to.equal(storedvalue2.trim());
-      } else {
-        expect(storedvalue1.trim()).to.not.equal(storedvalue2.trim());
-      }
+  cy.get('.dataset-results-feedback:visible')
+    .invoke('text')
+    .then((storedvalue1) => {
+      cy.connectivitySearch(searchTerm2);
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(2000);
+      cy.get('.dataset-results-feedback:visible')
+        .invoke('text')
+        .then((storedvalue2) => {
+          if (isSame) {
+            expect(storedvalue1.trim()).to.equal(storedvalue2.trim());
+          } else {
+            expect(storedvalue1.trim()).to.not.equal(storedvalue2.trim());
+          }
+        });
     });
-  });
-})
+});

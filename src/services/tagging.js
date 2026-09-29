@@ -1,6 +1,6 @@
 import EventBus from '../components/EventBus';
 export default {
-  sendEvent: function(data) {
+  sendEvent: function (data) {
     const taggingData = {
       event: data.event || '',
       event_name: data.event_name || '',
@@ -13,7 +13,7 @@ export default {
       version_id: data.version_id || '',
       doi: data.doi || '',
       citation_type: data.citation_type || '',
-      location: data.location || ''
+      location: data.location || '',
     };
 
     // set debugging mode
@@ -23,5 +23,5 @@ export default {
 
     // Emit data for GTM
     EventBus.emit('trackEvent', taggingData);
-  }
-}
+  },
+};

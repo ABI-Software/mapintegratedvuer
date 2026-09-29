@@ -1,14 +1,11 @@
-
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 
 // remove duplicates by stringifying the objects
 const removeDuplicates = function (arrayOfAnything) {
-  if (!arrayOfAnything) return []
-  return [...new Set(arrayOfAnything.map((e) => JSON.stringify(e)))].map((e) =>
-    JSON.parse(e)
-  )
-}
+  if (!arrayOfAnything) return [];
+  return [...new Set(arrayOfAnything.map((e) => JSON.stringify(e)))].map((e) => JSON.parse(e));
+};
 
 const getCellTypeSomaLocations = function (somaLocations) {
   return (Array.isArray(somaLocations) ? somaLocations : [])
@@ -20,7 +17,6 @@ const getCellTypeSomaLocations = function (somaLocations) {
     .filter((location) => location.curie && location.count > 0)
 }
 
-/* eslint-disable no-alert, no-console */
 export default {
   computed: {
     ...mapStores(useSettingsStore),
@@ -30,11 +26,11 @@ export default {
       if (this.mouseHovered) {
         const result = {
           paneIndex: this.entry.id,
-          eventType: "panZoom",
+          eventType: 'panZoom',
           payload: payload,
           type: this.entry.type,
         };
-        this.$emit("resource-selected", result);
+        this.$emit('resource-selected', result);
       }
     },
     /**
@@ -58,6 +54,8 @@ export default {
 
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
+        flatmapImp.clearClusteredAnatomicalMarkers();
+        flatmapImp.addClusteredAnatomicalMarkers(markers);
 
         if (typeof flatmapImp.clearSomaLocationMarkers === "function") {
           flatmapImp.clearSomaLocationMarkers();
@@ -70,22 +68,21 @@ export default {
         }
 
         // Set the featured markers
-        if (this.entry.type === "MultiFlatmap") {
+        if (this.entry.type === 'MultiFlatmap') {
           this.restoreFeaturedMarkers(flatmapImp);
         }
       }
     },
     // removeMarkersNotOnFlatmap: rewrites the dataset marker list to only include markers that are on the flatmap
     removeMarkersNotOnFlatmap(flatmapImp, datasets) {
-
       // dataset markers are in the form [{id: "discoverId", terms: ["term1", "term2"]}, {id:....}]
       let fma = flatmapImp.anatomicalIdentifiers;
-      let markersOnFlatmap = []
+      let markersOnFlatmap = [];
 
       // the block below steps through each dataset and checks each term to see if it is in the flatmap
       for (let i = 0; i < datasets.length; i++) {
         let dataset = datasets[i];
-        let datasetAdjusted = {id: dataset.id, terms: []};
+        let datasetAdjusted = { id: dataset.id, terms: [] };
         for (let j = 0; j < dataset.terms.length; j++) {
           if (fma.includes(dataset.terms[j])) {
             datasetAdjusted.terms.push(dataset.terms[j]);
@@ -103,5 +100,5 @@ export default {
         this.flatmapMarkerUpdate(flatmapImp);
       }
     },
-  }
-}
+  },
+};
