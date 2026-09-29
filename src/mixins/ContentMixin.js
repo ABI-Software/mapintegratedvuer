@@ -209,54 +209,73 @@ export default {
         if (resource.eventType == 'click') {
           result.eventType = 'selected';
           if (resource.feature.type == 'marker') {
-            let label = result.internalName;
-            // `resource.feature.id` is the marker identifier (not featureId or models)
-            if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
-              // It is a featured dataset search for DOI.
+            // Cell card explorer - cell type markers
+            if (!resource.feature['dataset-terms']) {
               returnedAction = {
-                type: 'Search',
-                term: this.settingsStore.featuredMarkerDoi(resource.feature.id),
-                featuredDataset: true,
+                type: 'OpenCellCardExplorer',
+                label: resource.feature.label,
+                models: resource.feature.models,
+                query: '',
+                filters: [
+                  {
+                    facet: resource.feature.label,
+                    term: 'Soma location',
+                  },
+                ],
               };
+              fireResourceSelected = true;
             } else {
-              // Facet search on anatomy if it is not a keyword search
-              returnedAction = {
-                type: 'Facet',
-                facets: [label],
-              };
-              let labels = new Set();
-              // 'marker-terms' changed to 'dataset-terms' in flatmap-viewer@4.3.5
-              resource.feature['dataset-terms'].forEach((term) => {
-                labels.add(term.label ? term.label : term.term);
-              });
-              if (labels.size === 0) {
-                labels.add(label);
-              }
-              returnedAction.facets = [...labels];
-              // The number of current level labels will reduce as zoom in flatmap
-              if (
-                this.settingsStore.hasAppliedFacets(labels) &&
-                this.settingsStore.appliedFacets.length <= labels.size
-              ) {
-                return;
-              }
-              /* Add to the filter list as and if there is selected facets */
-              if (this.settingsStore.appliedFacets.length) {
-                if (!this.settingsStore.hasAppliedFacets(labels)) {
-                  const newFacets = [...new Set([...this.settingsStore.appliedFacets, ...labels])];
-                  this.settingsStore.updateAppliedFacets(newFacets);
-                }
+              let label = result.internalName;
+              // `resource.feature.id` is the marker identifier (not featureId or models)
+              if (this.settingsStore.isFeaturedMarkerIdentifier(resource.feature.id)) {
+                // It is a featured dataset search for DOI.
+                returnedAction = {
+                  type: 'Search',
+                  term: this.settingsStore.featuredMarkerDoi(resource.feature.id),
+                  featuredDataset: true,
+                };
               } else {
-                if (labels.size > 1) {
-                  returnedAction.type = 'Facets';
+                // Facet search on anatomy if it is not a keyword search
+                returnedAction = {
+                  type: 'Facet',
+                  facets: [label],
+                };
+                let labels = new Set();
+                // 'marker-terms' changed to 'dataset-terms' in flatmap-viewer@4.3.5
+                resource.feature['dataset-terms'].forEach((term) => {
+                  labels.add(term.label ? term.label : term.term);
+                });
+                if (labels.size === 0) {
+                  labels.add(label);
                 }
-                this.settingsStore.updateAppliedFacets(returnedAction.facets);
+                returnedAction.facets = [...labels];
+                // The number of current level labels will reduce as zoom in flatmap
+                if (
+                  this.settingsStore.hasAppliedFacets(labels) &&
+                  this.settingsStore.appliedFacets.length <= labels.size
+                ) {
+                  return;
+                }
+                /* Add to the filter list as and if there is selected facets */
+                if (this.settingsStore.appliedFacets.length) {
+                  if (!this.settingsStore.hasAppliedFacets(labels)) {
+                    const newFacets = [
+                      ...new Set([...this.settingsStore.appliedFacets, ...labels]),
+                    ];
+                    this.settingsStore.updateAppliedFacets(newFacets);
+                  }
+                } else {
+                  if (labels.size > 1) {
+                    returnedAction.type = 'Facets';
+                  }
+                  this.settingsStore.updateAppliedFacets(returnedAction.facets);
+                }
               }
-            }
-            fireResourceSelected = true;
-            if (type == 'MultiFlatmap') {
-              const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
-              flatmap.clearSearchResults();
+              fireResourceSelected = true;
+              if (type == 'MultiFlatmap') {
+                const flatmap = this.$refs.multiflatmap.getCurrentFlatmap().mapImp;
+                flatmap.clearSearchResults();
+              }
             }
           }
         } else if (resource.eventType == 'mouseenter') {
@@ -606,6 +625,9 @@ export default {
       return;
     },
     showConnectivityTooltips: function () {
+      return;
+    },
+    showFeatureInFlatmap: function () {
       return;
     },
     setVisibilityFilter: function () {

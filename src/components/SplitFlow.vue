@@ -11,6 +11,7 @@
         @onFullscreen="onFullscreen"
         @local-search="onDisplaySearch"
         @fetch-suggestions="fetchSuggestions"
+        @open-cell-card-explorer="openCellCardExplorerFromToolbar"
         ref="dialogToolbar"
       />
     </el-header>
@@ -29,6 +30,7 @@
           :filterOptions="filterOptions"
           :showVisibilityFilter="showVisibilityFilter"
           :showLongLabel="true"
+          :showCellCards="showCellCards"
           @tabClicked="onSidebarTabClicked"
           @tabClosed="onSidebarTabClosed"
           @actionClick="actionClick"
@@ -50,6 +52,8 @@
           @show-connectivity-graph="onShowConnectivityGraph"
           @filter-visibility="onFilterVisibility"
           @connectivity-item-close="onConnectivityItemClose"
+          @soma-location-hovered="showSomaLocation"
+          @soma-locations-ready="onSomaLocationsReady"
           @trackEvent="trackEvent"
         />
         <SplitDialog
@@ -57,6 +61,7 @@
           ref="splitdialog"
           @resource-selected="resourceSelected"
           @species-changed="speciesChanged"
+          @update-active-species="updateActiveSpeciesForEntries"
         />
       </div>
     </el-main>
@@ -182,6 +187,8 @@ export default {
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
+      showCellCards: false,
+      cellCardSomaLocations: [],
     };
   },
   watch: {
@@ -208,6 +215,20 @@ export default {
     },
   },
   methods: {
+    openCellCardExplorerFromToolbar: function () {
+      this.openCellCardExplorer();
+    },
+    openCellCardExplorer: function (payload = {}) {
+      this.showCellCards = true;
+
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.tabClicked({ id: 4, type: 'cellCardExplorer' });
+        this.$refs.sideBar.setDrawerOpen(true);
+        if (payload && (payload.filters?.length || payload.query)) {
+          this.$refs.sideBar.openCellCardExplorerSearch(payload.filters || [], payload.query || '');
+        }
+      }
+    },
     onFilterVisibility: function (state) {
       this.filterVisibility = state;
       const filterExpression = {
@@ -338,6 +359,8 @@ export default {
             });
             this.filterTriggered = true;
           }
+        } else if (action.type === 'OpenCellCardExplorer') {
+          this.openCellCardExplorer(action);
         } else if (action.type == 'URL') {
           window.open(action.resource, '_blank');
         } else if (action.type == 'Facet') {
@@ -663,6 +686,27 @@ export default {
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', data);
     },
+    showSomaLocation: function (name) {
+      EventBus.emit('soma-location-hovered', name);
+    },
+    onSomaLocationsReady: function (somaLocations) {
+      const normalizedSomaLocations = (Array.isArray(somaLocations) ? somaLocations : [])
+        .map((item) => {
+          return {
+            label: String(item?.label || '').trim(),
+            curie: String(item?.curie || '').trim(),
+            count: Number(item?.count || 0),
+          };
+        })
+        .filter((item) => item.label);
+
+      this.cellCardSomaLocations = [
+        ...new Map(
+          normalizedSomaLocations.map((item) => [item.label.toLowerCase(), item]),
+        ).values(),
+      ];
+      this.updateSomaLocationMarkers(this.cellCardSomaLocations);
+    },
     onConnectivitySourceChange: function (data) {
       this.connectivityExplorerClicked.push(true);
       EventBus.emit('connectivity-source-change', data);
@@ -817,7 +861,35 @@ export default {
             });
           }
         }
+      } else if (data.tabType === 'cellType') {
+        const filterValues = data.filter
+          .filter((f) => f.facet && f.facet.toLowerCase() !== 'show all')
+          .map((f) => f.tagLabel)
+          .join(', ');
+        const searchValue = data.query;
+
+        if (filterValues) {
+          Tagging.sendEvent({
+            event: 'interaction_event',
+            event_name: 'portal_maps_action_filter',
+            category: filterValues,
+            location: 'map_sidebar_cell_card_filter',
+          });
+        }
+
+        if (searchValue) {
+          Tagging.sendEvent({
+            event: 'interaction_event',
+            event_name: 'portal_maps_action_search',
+            category: searchValue,
+            location: 'map_sidebar_cell_card_search',
+          });
+        }
       }
+    },
+    updateSomaLocationMarkers: function (data) {
+      this.settingsStore.updateCellCardSomaLocations(data);
+      EventBus.emit('markerUpdate');
     },
     updateMarkers: function (data) {
       this.settingsStore.updateMarkers(data);
@@ -979,6 +1051,10 @@ export default {
       // - sidebar component is loaded
       // - if sidebar state is not restored yet
       const sidebarState = state?.sidebar;
+      // Restore Cell Card Explorer
+      if (sidebarState?.activeTabId === 4) {
+        this.showCellCards = true;
+      }
       if (
         !this.sidebarStateRestored &&
         sidebarState &&
@@ -1069,6 +1145,11 @@ export default {
           EventBus.emit('species-layout-connectivity-update');
           this.$refs.sideBar.close();
         });
+      }
+    },
+    updateActiveSpeciesForEntries: function (activeSpecies) {
+      if (this.$refs.sideBar) {
+        this.$refs.sideBar.updateActiveSpeciesForEntries(activeSpecies);
       }
     },
     contextUpdate: function (payload) {
@@ -1278,6 +1359,7 @@ export default {
         PENNSIEVE_API_LOCATION: this.settingsStore.pennsieveApi,
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
+        CELL_CARDS_API: this.settingsStore.cellCardsApi,
       };
     },
     entries: function () {
