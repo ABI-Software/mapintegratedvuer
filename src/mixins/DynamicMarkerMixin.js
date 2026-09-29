@@ -14,8 +14,8 @@ const getCellTypeSomaLocations = function (somaLocations) {
       curie: String(location?.curie || '').trim(),
       count: Number(location?.count || 0),
     }))
-    .filter((location) => location.curie && location.count > 0)
-}
+    .filter((location) => location.curie && location.count > 0);
+};
 
 export default {
   computed: {
@@ -44,24 +44,26 @@ export default {
 
       if (flatmapImp) {
         const displayMarkers = this.settingsStore.globalSettings.displayMarkers;
-        const isCellTypeViewingMode = this.settingsStore.globalSettings.viewingMode === "Cell Type";
-        const markers = !displayMarkers || isCellTypeViewingMode
-          ? []
-          : removeDuplicates(this.settingsStore.markers);
-        const somaLocations = !displayMarkers || !isCellTypeViewingMode
-          ? []
-          : getCellTypeSomaLocations(this.settingsStore.cellCardSomaLocations);
+        const isCellTypeViewingMode = this.settingsStore.globalSettings.viewingMode === 'Cell Type';
+        const markers =
+          !displayMarkers || isCellTypeViewingMode
+            ? []
+            : removeDuplicates(this.settingsStore.markers);
+        const somaLocations =
+          !displayMarkers || !isCellTypeViewingMode
+            ? []
+            : getCellTypeSomaLocations(this.settingsStore.cellCardSomaLocations);
 
         flatmapImp.clearMarkers();
         flatmapImp.clearDatasetMarkers();
         flatmapImp.clearClusteredAnatomicalMarkers();
         flatmapImp.addClusteredAnatomicalMarkers(markers);
 
-        if (typeof flatmapImp.clearSomaLocationMarkers === "function") {
+        if (typeof flatmapImp.clearSomaLocationMarkers === 'function') {
           flatmapImp.clearSomaLocationMarkers();
         }
 
-        if (isCellTypeViewingMode && typeof flatmapImp.addSomaLocationMarkers === "function") {
+        if (isCellTypeViewingMode && typeof flatmapImp.addSomaLocationMarkers === 'function') {
           flatmapImp.addSomaLocationMarkers(somaLocations);
         } else {
           flatmapImp.addDatasetMarkers(markers);

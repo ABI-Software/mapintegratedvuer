@@ -189,7 +189,7 @@ export default {
       annotationHighlight: [],
       showCellCards: false,
       cellCardSomaLocations: [],
-    }
+    };
   },
   watch: {
     state: {
@@ -700,9 +700,11 @@ export default {
         })
         .filter((item) => item.label);
 
-      this.cellCardSomaLocations = [...new Map(
-        normalizedSomaLocations.map((item) => [item.label.toLowerCase(), item])
-      ).values()];
+      this.cellCardSomaLocations = [
+        ...new Map(
+          normalizedSomaLocations.map((item) => [item.label.toLowerCase(), item]),
+        ).values(),
+      ];
       this.updateSomaLocationMarkers(this.cellCardSomaLocations);
     },
     onConnectivitySourceChange: function (data) {
@@ -860,33 +862,34 @@ export default {
           }
         }
       } else if (data.tabType === 'cellType') {
-        const filterValues = data.filter.filter(f => (f.facet && f.facet.toLowerCase() !== 'show all'))
+        const filterValues = data.filter
+          .filter((f) => f.facet && f.facet.toLowerCase() !== 'show all')
           .map((f) => f.tagLabel)
           .join(', ');
         const searchValue = data.query;
 
         if (filterValues) {
           Tagging.sendEvent({
-            'event': 'interaction_event',
-            'event_name': 'portal_maps_action_filter',
-            'category': filterValues,
-            'location': 'map_sidebar_cell_card_filter'
+            event: 'interaction_event',
+            event_name: 'portal_maps_action_filter',
+            category: filterValues,
+            location: 'map_sidebar_cell_card_filter',
           });
         }
 
         if (searchValue) {
           Tagging.sendEvent({
-            'event': 'interaction_event',
-            'event_name': 'portal_maps_action_search',
-            'category': searchValue,
-            'location': 'map_sidebar_cell_card_search'
+            event: 'interaction_event',
+            event_name: 'portal_maps_action_search',
+            category: searchValue,
+            location: 'map_sidebar_cell_card_search',
           });
         }
       }
     },
     updateSomaLocationMarkers: function (data) {
       this.settingsStore.updateCellCardSomaLocations(data);
-      EventBus.emit("markerUpdate");
+      EventBus.emit('markerUpdate');
     },
     updateMarkers: function (data) {
       this.settingsStore.updateMarkers(data);

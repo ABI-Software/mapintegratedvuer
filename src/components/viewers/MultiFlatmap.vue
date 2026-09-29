@@ -368,7 +368,7 @@ export default {
           }
         } else {
           flatmap.closeTooltip();
-          this.showConnectivityTooltips({connectivityInfo: null, data: []});
+          this.showConnectivityTooltips({ connectivityInfo: null, data: [] });
         }
       }
     },

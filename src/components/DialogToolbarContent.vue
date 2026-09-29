@@ -606,7 +606,10 @@ export default {
       this.settingsStore.updateGlobalSettings(this.globalSettings);
 
       // display marker update
-      if (updatedSettings.includes('displayMarkers') || updatedSettings.includes('interactiveMode')) {
+      if (
+        updatedSettings.includes('displayMarkers') ||
+        updatedSettings.includes('interactiveMode')
+      ) {
         EventBus.emit('markerUpdate');
       }
       if (updatedSettings.includes('interactiveMode')) {

@@ -143,7 +143,7 @@ export default {
     onShowConnectivityTooltips: function (payload) {
       this.$refs.viewer?.showConnectivityTooltips(payload);
     },
-    onShowFeatureInFlatmap: function(payload) {
+    onShowFeatureInFlatmap: function (payload) {
       this.$refs.viewer?.showFeatureInFlatmap(payload);
     },
     onShowReferenceConnectivity: function (payload) {
