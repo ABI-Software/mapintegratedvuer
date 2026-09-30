@@ -167,7 +167,7 @@ export default {
       showLongLabel: true,
       truncateLongLabel: true,
       showIdInTooltip: true,
-      openNewSpeciesInSplitView: false,
+      openNewSpeciesInSplitView: true,
     };
   },
   computed: {

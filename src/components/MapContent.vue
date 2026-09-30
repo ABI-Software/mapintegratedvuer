@@ -136,11 +136,11 @@ export default {
      * The option to open a species from the species dropdown's "open new view"
      * in a split view. From a single view, it opens as a vertical split on the right.
      * From a split view, it replaces the other pane's view.
-     * Default is `false`.
+     * Default is `true`.
      */
     openNewSpeciesInSplitView: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   provide: function () {
