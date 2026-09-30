@@ -32,6 +32,9 @@
             <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Annotation'">
               <el-icon-edit-pen />
             </el-icon>
+            <el-icon class="el-icon--left" v-if="globalSettings.viewingMode === 'Cell Type'">
+              <el-icon-cpu />
+            </el-icon>
             {{ globalSettings.viewingMode }}
             <template v-if="globalSettings.viewingMode === 'Neuron Connection'">
               &nbsp;
@@ -61,6 +64,9 @@
                   </el-icon>
                   <el-icon class="el-icon--left" v-if="key === 'Annotation'">
                     <el-icon-edit-pen />
+                  </el-icon>
+                  <el-icon class="el-icon--left" v-if="key === 'Cell Type'">
+                    <el-icon-cpu />
                   </el-icon>
                   {{ key }}
                 </h5>
@@ -554,6 +560,7 @@ export default {
         'Neuron Connection':
           'Discover neuron connections by selecting a feature and viewing its associated network connections',
         Annotation: ['View feature annotations', 'Add, comment on and view feature annotations'],
+        'Cell Type': 'Explore cell cards for different cell types and their associated data',
       },
       authorisedUser: false,
       mapLoaded: false,
@@ -579,12 +586,19 @@ export default {
         } else if (value === 'Annotation') {
           this.globalSettings.displayMarkers = false;
           this.globalSettings.interactiveMode = 'dataset';
+        } else if (value === 'Cell Type') {
+          this.globalSettings.displayMarkers = true;
+          this.globalSettings.interactiveMode = 'connectivity';
         } else {
           this.globalSettings.displayMarkers = false;
           this.globalSettings.interactiveMode = 'connectivity';
         }
 
         this.updateGlobalSettings('viewingMode');
+
+        if (value === 'Cell Type') {
+          this.$emit('open-cell-card-explorer');
+        }
       }
     },
     updateGlobalSettings: function (changedKey) {
@@ -592,7 +606,10 @@ export default {
       this.settingsStore.updateGlobalSettings(this.globalSettings);
 
       // display marker update
-      if (updatedSettings.includes('displayMarkers')) {
+      if (
+        updatedSettings.includes('displayMarkers') ||
+        updatedSettings.includes('interactiveMode')
+      ) {
         EventBus.emit('markerUpdate');
       }
       if (updatedSettings.includes('interactiveMode')) {

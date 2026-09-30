@@ -7,6 +7,16 @@ const removeDuplicates = function (arrayOfAnything) {
   return [...new Set(arrayOfAnything.map((e) => JSON.stringify(e)))].map((e) => JSON.parse(e));
 };
 
+const getCellTypeSomaLocations = function (somaLocations) {
+  return (Array.isArray(somaLocations) ? somaLocations : [])
+    .map((location) => ({
+      label: String(location?.label || '').trim(),
+      curie: String(location?.curie || '').trim(),
+      count: Number(location?.count || 0),
+    }))
+    .filter((location) => location.curie && location.count > 0);
+};
+
 export default {
   computed: {
     ...mapStores(useSettingsStore),
@@ -30,18 +40,34 @@ export default {
     flatmapMarkerUpdate(flatmap) {
       if (!this.flatmapReady) return;
 
-      let flatmapImp = flatmap;
-      if (!flatmapImp) flatmapImp = this.getFlatmapImp();
+      const flatmapImp = flatmap ?? this.getFlatmapImp();
 
       if (flatmapImp) {
-        // Set the dataset markers
-        let markers = this.settingsStore.globalSettings.displayMarkers
-          ? this.settingsStore.markers
-          : [];
-        markers = removeDuplicates(markers);
+        const displayMarkers = this.settingsStore.globalSettings.displayMarkers;
+        const isCellTypeViewingMode = this.settingsStore.globalSettings.viewingMode === 'Cell Type';
+        const markers =
+          !displayMarkers || isCellTypeViewingMode
+            ? []
+            : removeDuplicates(this.settingsStore.markers);
+        const somaLocations =
+          !displayMarkers || !isCellTypeViewingMode
+            ? []
+            : getCellTypeSomaLocations(this.settingsStore.cellCardSomaLocations);
+
         flatmapImp.clearMarkers();
+        flatmapImp.clearDatasetMarkers();
         flatmapImp.clearClusteredAnatomicalMarkers();
         flatmapImp.addClusteredAnatomicalMarkers(markers);
+
+        if (typeof flatmapImp.clearSomaLocationMarkers === 'function') {
+          flatmapImp.clearSomaLocationMarkers();
+        }
+
+        if (isCellTypeViewingMode && typeof flatmapImp.addSomaLocationMarkers === 'function') {
+          flatmapImp.addSomaLocationMarkers(somaLocations);
+        } else {
+          flatmapImp.addDatasetMarkers(markers);
+        }
 
         // Set the featured markers
         if (this.entry.type === 'MultiFlatmap') {
