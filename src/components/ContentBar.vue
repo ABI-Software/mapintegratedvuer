@@ -77,6 +77,13 @@
           </template>
         </el-popover>
       </div>
+      <ScreenshotPopover
+        v-if="captureScreenshot"
+        class="screenshot-button"
+        tooltip="Download screenshot of this view"
+        :capture="onCaptureScreenshot"
+        :getTarget="getScreenshotTarget"
+      />
       <el-popover
         class="tooltip"
         content="Close and remove"
@@ -108,6 +115,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import ContextCard from './ContextCard.vue';
 import FlatmapContextCard from './FlatmapContextCard.vue';
+import ScreenshotPopover from './ScreenshotPopover.vue';
 import { ArrowDown as ElIconArrowDown, ArrowUp as ElIconArrowUp } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
@@ -119,9 +127,24 @@ export default {
     ContextCard,
     FlatmapContextCard,
     MapSvgIcon,
+    ScreenshotPopover,
   },
   props: {
     entry: Object,
+    /**
+     * Async function capturing a screenshot of this view.
+     */
+    captureScreenshot: {
+      type: Function,
+      default: undefined,
+    },
+    /**
+     * Function returning the element captured, used for size preview.
+     */
+    getScreenshotTarget: {
+      type: Function,
+      default: undefined,
+    },
   },
   data: function () {
     return {
@@ -202,6 +225,17 @@ export default {
     },
   },
   methods: {
+    onCaptureScreenshot: async function (options) {
+      await this.captureScreenshot(options);
+
+      // GA Tracking
+      tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: 'portal_maps_screenshot',
+        category: `png_${options.scale}x`,
+        location: 'pane_header',
+      });
+    },
     closeAndRemove: function () {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries });
       EventBus.emit('RemoveEntryRequest', this.entry.id);
@@ -452,6 +486,11 @@ export default {
 
   .rightmost {
     flex-shrink: 0;
+  }
+
+  .screenshot-button {
+    flex-shrink: 0;
+    margin-right: 8px;
   }
 
   .information {
