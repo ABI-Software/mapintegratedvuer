@@ -33,11 +33,16 @@ export const SCREENSHOT_HIDE_SELECTORS = [
   '.el-loading-mask',
 ];
 
-// Safari limits the canvas area to 16,777,216 pixels.
-// TODO: from iOS 18, it changed to 67,108,864 pixels.
-// Other browsers limit each side to around 16384/32767 pixels.
-const MAX_CANVAS_AREA = 16777216;
+// Canvas limits vary by browser and version, e.g. Safari before iOS 18
+// allowed 16,777,216 pixels (4096²), later versions 67,108,864 (8192²),
+// Chrome/Firefox about 268,435,456 (16384²). Rather than hard-coding one
+// value, the output size is verified at capture time (see `fitCanvasSize`),
+// falling back through these areas when the browser cannot allocate it.
+const CANVAS_AREA_FALLBACKS = [268435456, 67108864, 16777216];
 const MAX_CANVAS_SIDE = 16384;
+
+// Largest canvas area known to work, lowered when a probe fails.
+let maxCanvasArea = CANVAS_AREA_FALLBACKS[0];
 
 const SCREENSHOT_OVERLAY_ATTR = 'data-screenshot-overlay';
 
@@ -67,8 +72,31 @@ const getMaxRenderbufferSize = () => {
 };
 
 /**
+ * Check whether the browser can allocate and draw to a canvas of this size.
+ * Oversized canvases fail silently (null context or blank pixels).
+ */
+const canvasSupportsSize = (width, height) => {
+  const canvas = document.createElement('canvas');
+  try {
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return false;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(width - 1, height - 1, 1, 1);
+    return ctx.getImageData(width - 1, height - 1, 1, 1).data[3] !== 0;
+  } catch {
+    return false;
+  } finally {
+    // Release the memory immediately, Safari keeps it otherwise.
+    canvas.width = 0;
+    canvas.height = 0;
+  }
+};
+
+/**
  * Compute the pixel ratio for the requested scale, reduced if
- * the output would exceed browser canvas limits.
+ * the output would exceed known browser canvas limits.
  */
 export const getEffectivePixelRatio = (width, height, scale) => {
   const requested = (window.devicePixelRatio || 1) * scale;
@@ -79,11 +107,32 @@ export const getEffectivePixelRatio = (width, height, scale) => {
       ratio,
       maxSide / width,
       maxSide / height,
-      Math.sqrt(MAX_CANVAS_AREA / (width * height)),
+      Math.sqrt(maxCanvasArea / (width * height)),
     );
   }
   ratio = Math.max(1, Math.floor(ratio * 100) / 100);
   return { pixelRatio: ratio, clamped: ratio < requested };
+};
+
+/**
+ * Like `getEffectivePixelRatio`, but verifies the browser can allocate the
+ * output canvas, stepping down through `CANVAS_AREA_FALLBACKS` if not.
+ */
+const fitCanvasSize = (width, height, scale) => {
+  let result = getEffectivePixelRatio(width, height, scale);
+  while (
+    !canvasSupportsSize(
+      Math.round(width * result.pixelRatio),
+      Math.round(height * result.pixelRatio),
+    )
+  ) {
+    const area = width * height * result.pixelRatio ** 2;
+    const nextArea = CANVAS_AREA_FALLBACKS.find((a) => a < area);
+    if (!nextArea || result.pixelRatio <= 1) break;
+    maxCanvasArea = nextArea;
+    result = { ...getEffectivePixelRatio(width, height, scale), clamped: true };
+  }
+  return result;
 };
 
 /**
@@ -220,7 +269,7 @@ export const captureElement = async (el, options = {}) => {
   await waitForRender();
 
   const { width, height } = el.getBoundingClientRect();
-  const { pixelRatio, clamped } = getEffectivePixelRatio(width, height, scale);
+  const { pixelRatio, clamped } = fitCanvasSize(width, height, scale);
 
   const sources = [];
   for (const viewer of viewers) {
