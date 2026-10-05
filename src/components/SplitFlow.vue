@@ -835,8 +835,10 @@ export default {
     /**
      * Add new entry which will sequentially create a
      * new dialog.
+     * Set `options.openInSplitView` with `options.sourceId` to open the
+     * new entry next to the source entry instead of the primary pane.
      */
-    createNewEntry: function (data) {
+    createNewEntry: function (data, options = {}) {
       let newEntry = {};
       newEntry.viewUrl = undefined;
       newEntry.state = undefined;
@@ -845,7 +847,15 @@ export default {
       newEntry.id = this.getNewEntryId();
       newEntry.discoverId = data.discoverId;
       this.entriesStore.addNewEntry(newEntry);
-      this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
+      if (options.openInSplitView) {
+        this.splitFlowStore.placeEntryInSplitView({
+          id: newEntry.id,
+          sourceId: options.sourceId,
+          entries: this.entries,
+        });
+      } else {
+        this.splitFlowStore.setIdToPrimaryPane(newEntry.id);
+      }
       //close sidebar on entry creation to see the context card
       if (this.$refs.sideBar) {
         this.$refs.sideBar.setDrawerOpen(false);
