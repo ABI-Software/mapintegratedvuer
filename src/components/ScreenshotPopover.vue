@@ -39,7 +39,7 @@
           size="small"
           class="screenshot-download"
           :loading="capturing"
-          @click="onCapture"
+          @click="onCapture()"
         >
           Download
         </el-button>
@@ -47,7 +47,7 @@
     </el-popover>
     <el-popover
       class="tooltip"
-      :content="tooltip"
+      :content="tooltipText"
       :placement="placement"
       :show-after="helpDelay"
       :teleported="false"
@@ -115,6 +115,14 @@ export default {
       type: Boolean,
       default: false,
     },
+    /**
+     * Enable the Alt/Option + Shift + S keyboard shortcut,
+     * which captures at the last used resolution.
+     */
+    shortcut: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -131,6 +139,14 @@ export default {
     helpDelay() {
       return this.settingsStore.helpDelay;
     },
+    tooltipText() {
+      if (!this.shortcut) {
+        return this.tooltip;
+      }
+      const platform = navigator.userAgentData?.platform || navigator.platform || '';
+      const isMac = /mac/i.test(platform);
+      return `${this.tooltip} (${isMac ? '⌥⇧S' : 'Alt+Shift+S'})`;
+    },
   },
   watch: {
     scale: function () {
@@ -138,22 +154,39 @@ export default {
     },
   },
   methods: {
-    onShow: function () {
+    loadSavedScale: function () {
       const { scale } = this.settingsStore.screenshot;
       this.scale = SCREENSHOT_SCALES.includes(scale) ? scale : SCREENSHOT_SCALES[0];
+    },
+    onShow: function () {
+      this.loadSavedScale();
       this.errorMessage = '';
       this.updateOutputSize();
+    },
+    onKeydown: function (event) {
+      // Match on `code`, as Option changes `key` on macOS
+      const isShortcut =
+        event.altKey && event.shiftKey && !event.ctrlKey && !event.metaKey && event.code === 'KeyS';
+      if (!isShortcut || event.repeat || this.disabled || this.capturing) {
+        return;
+      }
+      if (event.target?.closest?.('input, textarea, select, [contenteditable]')) {
+        return;
+      }
+      event.preventDefault();
+      this.loadSavedScale();
+      this.onCapture('shortcut');
     },
     updateOutputSize: function () {
       const target = this.getTarget?.();
       this.outputSize = getOutputSize(target, this.scale);
     },
-    onCapture: async function () {
+    onCapture: async function (source = 'button') {
       this.capturing = true;
       this.errorMessage = '';
       try {
         this.$refs.popover?.hide();
-        await this.capture({ scale: this.scale });
+        await this.capture({ scale: this.scale, source });
       } catch (error) {
         console.error('Screenshot failed', error);
         this.errorMessage = 'Screenshot failed. Please try a lower resolution.';
@@ -165,6 +198,12 @@ export default {
   },
   mounted: function () {
     this.triggerRef = shallowRef(this.$refs.triggerRef);
+    if (this.shortcut) {
+      document.addEventListener('keydown', this.onKeydown);
+    }
+  },
+  beforeUnmount: function () {
+    document.removeEventListener('keydown', this.onKeydown);
   },
 };
 </script>
