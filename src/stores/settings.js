@@ -34,6 +34,9 @@ export const useSettingsStore = defineStore('settings', {
       allClosable: true,
       offlineAnnotationEnabled: false,
       displayMinimap: true,
+      screenshot: {
+        scale: 1, // multiplier on top of the device pixel ratio
+      },
       globalSettings: {
         displayMarkers: true, // comment out to hide in settings
         // highlightConnectedPaths: false, // comment out to hide in settings
@@ -218,6 +221,12 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateDisplayMinimap(displayMinimap) {
       this.displayMinimap = displayMinimap;
+    },
+    updateScreenshotOptions(options) {
+      const { scale } = options || {};
+      if (Number(scale) > 0) {
+        this.screenshot.scale = Number(scale);
+      }
     },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {
