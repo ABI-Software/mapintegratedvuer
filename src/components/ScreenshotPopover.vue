@@ -149,7 +149,9 @@ export default {
     },
   },
   watch: {
-    scale: function () {
+    scale: function (value) {
+      // Remember the selection so reopening and the shortcut reuse it
+      this.settingsStore.updateScreenshotOptions({ scale: value });
       this.updateOutputSize();
     },
   },
