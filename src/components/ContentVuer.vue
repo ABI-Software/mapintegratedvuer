@@ -10,6 +10,8 @@
       ref="contentBar"
       @chooser-changed="onResize"
       @scaffold-view-clicked="scaffoldViewClicked"
+      :captureScreenshot="captureScreenshot"
+      :getScreenshotTarget="getScreenshotElement"
       @vue:mounted="setPanesBoundary"
     />
     <!--
@@ -42,7 +44,9 @@ import { defineAsyncComponent } from 'vue';
 import ContentBar from './ContentBar.vue';
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
+import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
+import { captureElement, getScreenshotFilename } from '../services/screenshot';
 
 const Flatmap = defineAsyncComponent(() => import('./viewers/Flatmap.vue'));
 const MapIframe = defineAsyncComponent(() => import('./viewers/Iframe.vue'));
@@ -86,6 +90,25 @@ export default {
     },
     getState: function () {
       return this.$refs.viewer?.getState();
+    },
+    /**
+     * Capture this pane, excluding its header bar, and download it.
+     * @param {Object} options - { scale }
+     */
+    captureScreenshot: function (options = {}) {
+      const scale = options.scale || this.settingsStore.screenshot.scale;
+      const title = this.$refs.contentBar?.getEntryTitle(this.entry) || this.entry.type;
+      return captureElement(this.$refs.container, {
+        scale,
+        filename: getScreenshotFilename(title),
+        viewers: [this],
+      });
+    },
+    getScreenshotElement: function () {
+      return this.$refs.container;
+    },
+    getScreenshotSources: function (pixelRatio) {
+      return this.$refs.viewer?.getScreenshotSources?.(pixelRatio) || [];
     },
     resourceSelected: function (payload) {
       this.$emit('resource-selected', payload);
@@ -174,7 +197,7 @@ export default {
     };
   },
   computed: {
-    ...mapStores(useEntriesStore, useSplitFlowStore),
+    ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore),
     viewerType() {
       switch (this.entry.type) {
         case 'MapIframe':

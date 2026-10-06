@@ -12,11 +12,16 @@
         @local-search="onDisplaySearch"
         @fetch-suggestions="fetchSuggestions"
         @open-cell-card-explorer="openCellCardExplorerFromToolbar"
+        :captureScreenshot="captureScreenshot"
+        :getScreenshotTarget="getScreenshotElement"
         ref="dialogToolbar"
       />
     </el-header>
     <el-main class="dialog-main">
-      <div style="width: 100%; height: 100%; position: relative; overflow: hidden">
+      <div
+        ref="captureArea"
+        style="width: 100%; height: 100%; position: relative; overflow: hidden"
+      >
         <SideBar
           ref="sideBar"
           :envVars="envVars"
@@ -72,6 +77,7 @@
 import { provide, markRaw, computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import DialogToolbarContent from './DialogToolbarContent.vue';
+import { captureElement, getScreenshotFilename } from '../services/screenshot';
 import EventBus from './EventBus';
 import SplitDialog from './SplitDialog.vue';
 // import contextCards from './context-cards'
@@ -958,6 +964,31 @@ export default {
     },
     onFullscreen: function (val) {
       this.$emit('onFullscreen', val);
+    },
+    /**
+     * Capture a screenshot and download it.
+     * Captures the pane with `paneId` if provided, otherwise all
+     * visible panes including the sidebar.
+     * @param {Object} options - { paneId, scale }
+     */
+    captureScreenshot: function (options = {}) {
+      const { paneId } = options;
+      if (paneId !== undefined) {
+        const content = this.$refs.splitdialog?.getContentsWithId(paneId);
+        if (!content) {
+          return Promise.reject(new Error(`Pane ${paneId} not found`));
+        }
+        return content.captureScreenshot(options);
+      }
+      const scale = options.scale || this.settingsStore.screenshot.scale;
+      return captureElement(this.$refs.captureArea, {
+        scale,
+        filename: getScreenshotFilename('sparc-maps'),
+        viewers: this.$refs.splitdialog?.getActiveContents() || [],
+      });
+    },
+    getScreenshotElement: function () {
+      return this.$refs.captureArea;
     },
     resetApp: function () {
       this.setState(initialDefaultState());

@@ -70,6 +70,8 @@ export default {
     },
     /**
      * The options include APIs and Keys.
+     * `options.screenshot` sets the screenshot defaults,
+     * e.g. `{ scale: 2 }`.
      */
     options: {
       type: Object,
@@ -270,6 +272,17 @@ export default {
     },
     /**
      * @public
+     * Capture a screenshot and download it as PNG.
+     * Captures the pane with `paneId` (entry id) if provided, otherwise
+     * all visible panes including the sidebar.
+     * The default `scale` comes from `options.screenshot`.
+     * @arg `options` { paneId, scale: Number }
+     */
+    captureScreenshot: function (options = {}) {
+      return this.$refs.flow.captureScreenshot(options);
+    },
+    /**
+     * @public
      * Provide a way to set the current view, this is currently limited
      * to setting view for flatmapm, multiflatmap or scaffold.
      * In the case of the multiflatmap, it will not create a new entry and
@@ -449,6 +462,9 @@ export default {
         ? this.settingsStore.updateCellCardsApi(this.options.cellCardsApi)
         : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
+      this.options.screenshot
+        ? this.settingsStore.updateScreenshotOptions(this.options.screenshot)
+        : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);
     this.splitFlowStore?.reset();
