@@ -30,29 +30,12 @@
             <el-button @click="setFlatmap()" size="small">Set Flatmap</el-button>
             <el-button @click="setSearch()" size="small">Set Search</el-button>
           </div>
-          <div class="row">
-            <div style="font-weight: 600">Connectivity tooltip labels:</div>
-          </div>
-          <div class="row">
-            <el-checkbox @change="onShowLongLabelChange" v-model="showLongLabel" size="small">
-              Show long label
-            </el-checkbox>
-            <el-checkbox
-              @change="onTruncateLongLabelChange"
-              :disabled="!showLongLabel"
-              v-model="truncateLongLabel"
-              size="small"
-            >
-              Truncate long label
-            </el-checkbox>
-            <el-checkbox
-              @change="onShowIdInTooltipChange"
-              :disabled="!showLongLabel"
-              v-model="showIdInTooltip"
-              size="small"
-            >
-              Show ID in tooltip
-            </el-checkbox>
+          <div class="row radio-row">
+            <span class="radio-label">Open new species in:</span>
+            <el-radio-group v-model="openNewSpeciesInSplitView" size="small">
+              <el-radio :value="false">Current view</el-radio>
+              <el-radio :value="true">Split view</el-radio>
+            </el-radio-group>
           </div>
         </div>
         <template #reference>
@@ -76,6 +59,7 @@
         :allClosable="false"
         :showGlobalSettings="true"
         :showOpenMapButton="true"
+        :openNewSpeciesInSplitView="openNewSpeciesInSplitView"
         @updateShareLinkRequested="updateUUID"
         @isReady="viewerIsReady"
         @mapLoaded="mapIsLoaded"
@@ -183,6 +167,7 @@ export default {
       showLongLabel: true,
       truncateLongLabel: true,
       showIdInTooltip: true,
+      openNewSpeciesInSplitView: true,
     };
   },
   computed: {
@@ -332,15 +317,6 @@ export default {
     },
     setSearch: function () {
       this.$refs.map.openSearch([], '10.26275/1uno-tynt');
-      this.closePopover();
-    },
-    onShowLongLabelChange: function () {
-      this.closePopover();
-    },
-    onTruncateLongLabelChange: function () {
-      this.closePopover();
-    },
-    onShowIdInTooltipChange: function () {
       this.closePopover();
     },
     mapIsLoaded: function (map) {
@@ -571,6 +547,14 @@ body {
 
 .options-container {
   text-align: center;
+}
+
+.radio-row {
+  align-items: center;
+}
+
+.radio-label {
+  font-size: 12px;
 }
 
 .map-icon {
