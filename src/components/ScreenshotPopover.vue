@@ -215,6 +215,11 @@ export default {
 .screenshot-download.el-button {
   align-self: flex-end;
   font-family: inherit;
+
+  &:hover {
+    background-color: $app-primary-color;
+    border-color: $app-primary-color;
+  }
 }
 
 :deep(.screenshot-popover.el-popper) {
