@@ -238,6 +238,7 @@
         :capture="onCaptureScreenshot"
         :getTarget="getScreenshotTarget"
         :disabled="!mapLoaded"
+        shortcut
       />
       <el-popover
         v-if="permalinkRef"
@@ -735,7 +736,7 @@ export default {
         event: 'interaction_event',
         event_name: 'portal_maps_screenshot',
         category: `png_${options.scale}x`,
-        location: 'map_toolbar',
+        location: options.source === 'shortcut' ? 'keyboard_shortcut' : 'map_toolbar',
       });
     },
     getShareLink: function (withAnnotation) {
