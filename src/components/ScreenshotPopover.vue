@@ -5,7 +5,7 @@
       ref="popover"
       :virtual-ref="triggerRef"
       :placement="placement"
-      width="240"
+      width="260"
       :teleported="false"
       trigger="click"
       popper-class="screenshot-popover"
@@ -23,9 +23,19 @@
             </el-radio-button>
           </el-radio-group>
         </div>
+        <div v-if="hasLegend" class="screenshot-row">
+          <span class="screenshot-label">Legend</span>
+          <el-radio-group v-model="legend" size="small">
+            <el-radio-button v-for="item in legendModes" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </el-radio-button>
+          </el-radio-group>
+        </div>
         <div class="screenshot-info">
           <template v-if="outputSize.width">
-            PNG, {{ outputSize.width }} × {{ outputSize.height }} px
+            <template v-if="outputSize.count > 1">{{ outputSize.count }} PNG files, up to</template>
+            <template v-else>PNG,</template>
+            {{ outputSize.width }} × {{ outputSize.height }} px
           </template>
           <div v-if="outputSize.clamped" class="screenshot-warning">
             Reduced to fit browser limits.
@@ -73,7 +83,18 @@ import { shallowRef } from 'vue';
 import { mapStores } from 'pinia';
 import { Camera as ElIconCamera } from '@element-plus/icons-vue';
 import { useSettingsStore } from '../stores/settings';
-import { SCREENSHOT_SCALES, getOutputSize } from '../services/screenshot';
+import {
+  SCREENSHOT_SCALES,
+  SCREENSHOT_LEGEND_MODES,
+  findLegends,
+  getOutputSize,
+} from '../services/screenshot';
+
+const LEGEND_LABELS = {
+  exclude: 'Hide',
+  include: 'Include',
+  only: 'Only',
+};
 
 /**
  * Camera button with a popover to choose the resolution
@@ -86,14 +107,15 @@ export default {
   },
   props: {
     /**
-     * Async function called with `{ scale }` to perform the capture.
+     * Async function called with `{ scale, legend, source }` to perform the capture.
      */
     capture: {
       type: Function,
       required: true,
     },
     /**
-     * Function returning the element to be captured, used for size preview.
+     * Function returning the element to be captured, used for size preview
+     * and to check whether it has a legend.
      */
     getTarget: {
       type: Function,
@@ -117,7 +139,7 @@ export default {
     },
     /**
      * Enable the Alt/Option + Shift + S keyboard shortcut,
-     * which captures at the last used resolution.
+     * which captures with the last used options.
      */
     shortcut: {
       type: Boolean,
@@ -129,9 +151,12 @@ export default {
       triggerRef: undefined,
       scales: SCREENSHOT_SCALES,
       scale: 1,
+      legendModes: SCREENSHOT_LEGEND_MODES.map((value) => ({ value, label: LEGEND_LABELS[value] })),
+      legend: SCREENSHOT_LEGEND_MODES[0],
+      hasLegend: false,
       capturing: false,
       errorMessage: '',
-      outputSize: { width: 0, height: 0, clamped: false },
+      outputSize: { width: 0, height: 0, clamped: false, count: 0 },
     };
   },
   computed: {
@@ -154,14 +179,26 @@ export default {
       this.settingsStore.updateScreenshotOptions({ scale: value });
       this.updateOutputSize();
     },
+    legend: function (value) {
+      this.settingsStore.updateScreenshotOptions({ legend: value });
+      this.updateOutputSize();
+    },
   },
   methods: {
-    loadSavedScale: function () {
-      const { scale } = this.settingsStore.screenshot;
+    loadSavedOptions: function () {
+      const { scale, legend } = this.settingsStore.screenshot;
       this.scale = SCREENSHOT_SCALES.includes(scale) ? scale : SCREENSHOT_SCALES[0];
+      this.legend = SCREENSHOT_LEGEND_MODES.includes(legend) ? legend : SCREENSHOT_LEGEND_MODES[0];
+      this.hasLegend = findLegends(this.getTarget?.()).length > 0;
+    },
+    /**
+     * The legend option only applies when the target has a legend.
+     */
+    getLegendMode: function () {
+      return this.hasLegend ? this.legend : 'exclude';
     },
     onShow: function () {
-      this.loadSavedScale();
+      this.loadSavedOptions();
       this.errorMessage = '';
       this.updateOutputSize();
     },
@@ -176,22 +213,25 @@ export default {
         return;
       }
       event.preventDefault();
-      this.loadSavedScale();
+      this.loadSavedOptions();
       this.onCapture('shortcut');
     },
     updateOutputSize: function () {
       const target = this.getTarget?.();
-      this.outputSize = getOutputSize(target, this.scale);
+      this.outputSize = getOutputSize(target, this.scale, this.getLegendMode());
     },
     onCapture: async function (source = 'button') {
       this.capturing = true;
       this.errorMessage = '';
       try {
         this.$refs.popover?.hide();
-        await this.capture({ scale: this.scale, source });
+        await this.capture({ scale: this.scale, legend: this.getLegendMode(), source });
       } catch (error) {
         console.error('Screenshot failed', error);
-        this.errorMessage = 'Screenshot failed. Please try a lower resolution.';
+        this.errorMessage =
+          error?.message === 'No legend to capture'
+            ? 'There is no legend to capture.'
+            : 'Screenshot failed. Please try a lower resolution.';
         this.$refs.popover?.show?.();
       } finally {
         this.capturing = false;

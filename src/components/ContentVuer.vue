@@ -46,7 +46,7 @@ import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
-import { captureElement, getScreenshotFilename } from '../services/screenshot';
+import { captureElement, findLegends, getScreenshotFilename } from '../services/screenshot';
 
 const Flatmap = defineAsyncComponent(() => import('./viewers/Flatmap.vue'));
 const MapIframe = defineAsyncComponent(() => import('./viewers/Iframe.vue'));
@@ -93,16 +93,21 @@ export default {
     },
     /**
      * Capture this pane, excluding its header bar, and download it.
-     * @param {Object} options - { scale }
+     * @param {Object} options - { scale, legend }
      */
     captureScreenshot: function (options = {}) {
       const scale = options.scale || this.settingsStore.screenshot.scale;
+      const legend = options.legend || this.settingsStore.screenshot.legend;
       const title = this.$refs.contentBar?.getEntryTitle(this.entry) || this.entry.type;
       return captureElement(this.$refs.container, {
         scale,
-        filename: getScreenshotFilename(title),
+        legend,
+        filename: getScreenshotFilename(legend === 'only' ? `${title}-legend` : title),
         viewers: [this],
       });
+    },
+    hasLegend: function () {
+      return findLegends(this.$refs.container).length > 0;
     },
     getScreenshotElement: function () {
       return this.$refs.container;

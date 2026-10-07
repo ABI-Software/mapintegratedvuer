@@ -897,9 +897,10 @@ export default {
      * Capture a screenshot and download it.
      * Captures the pane with `paneId` if provided, otherwise all
      * visible panes including the sidebar.
-     * @param {Object} options - { paneId, scale }
+     * With `legend` set to `only`, the legend of each pane is downloaded as a separate image.
+     * @param {Object} options - { paneId, scale, legend }
      */
-    captureScreenshot: function (options = {}) {
+    captureScreenshot: async function (options = {}) {
       const { paneId } = options;
       if (paneId !== undefined) {
         const content = this.$refs.splitdialog?.getContentsWithId(paneId);
@@ -908,11 +909,25 @@ export default {
         }
         return content.captureScreenshot(options);
       }
+      const contents = this.$refs.splitdialog?.getActiveContents() || [];
       const scale = options.scale || this.settingsStore.screenshot.scale;
+      const legend = options.legend || this.settingsStore.screenshot.legend;
+      if (legend === 'only') {
+        const withLegend = contents.filter((content) => content.hasLegend?.());
+        if (!withLegend.length) {
+          throw new Error('No legend to capture');
+        }
+        const results = [];
+        for (const content of withLegend) {
+          results.push(...(await content.captureScreenshot({ ...options, scale, legend })));
+        }
+        return results;
+      }
       return captureElement(this.$refs.captureArea, {
         scale,
+        legend,
         filename: getScreenshotFilename('sparc-maps'),
-        viewers: this.$refs.splitdialog?.getActiveContents() || [],
+        viewers: contents,
       });
     },
     getScreenshotElement: function () {
