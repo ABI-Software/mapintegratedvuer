@@ -92,16 +92,19 @@ export default {
       return this.$refs.viewer?.getState();
     },
     /**
-     * Capture this pane, excluding its header bar, and download it.
-     * @param {Object} options - { scale, legend }
+     * Capture this pane and download it.
+     * The header bar is included only if `toolbar` is set.
+     * @param {Object} options - { scale, legend, toolbar }
      */
     captureScreenshot: function (options = {}) {
       const scale = options.scale || this.settingsStore.screenshot.scale;
       const legend = options.legend || this.settingsStore.screenshot.legend;
+      const toolbar = options.toolbar ?? this.settingsStore.screenshot.toolbar;
       const title = this.$refs.contentBar?.getEntryTitle(this.entry) || this.entry.type;
-      return captureElement(this.$refs.container, {
+      return captureElement(this.getScreenshotElement({ legend, toolbar }), {
         scale,
         legend,
+        toolbar,
         filename: getScreenshotFilename(legend === 'only' ? `${title}-legend` : title),
         viewers: [this],
       });
@@ -109,8 +112,13 @@ export default {
     hasLegend: function () {
       return findLegends(this.$refs.container).length > 0;
     },
-    getScreenshotElement: function () {
-      return this.$refs.container;
+    /**
+     * The whole pane when the header bar is included, otherwise only the viewer.
+     * @param {Object} options - { legend, toolbar }
+     */
+    getScreenshotElement: function (options = {}) {
+      const { legend, toolbar } = options;
+      return toolbar && legend !== 'only' ? this.$el : this.$refs.container;
     },
     getScreenshotSources: function (pixelRatio) {
       return this.$refs.viewer?.getScreenshotSources?.(pixelRatio) || [];

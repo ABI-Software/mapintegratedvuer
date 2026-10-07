@@ -71,7 +71,7 @@ export default {
     /**
      * The options include APIs and Keys.
      * `options.screenshot` sets the screenshot defaults,
-     * e.g. `{ scale: 2, legend: 'include' }`.
+     * e.g. `{ scale: 2, legend: 'include', toolbar: true }`.
      */
     options: {
       type: Object,
@@ -277,8 +277,9 @@ export default {
      * otherwise all visible panes including the sidebar.
      * `legend` is `exclude` (default), `include` or `only`,
      * the latter downloads only the legend panel of each pane.
-     * The default `scale` and `legend` come from `options.screenshot`.
-     * @arg `options` { paneId, scale: Number, legend: String }
+     * `toolbar` includes the header bar of each pane (default `false`).
+     * The default `scale`, `legend` and `toolbar` come from `options.screenshot`.
+     * @arg `options` { paneId, scale: Number, legend: String, toolbar: Boolean }
      */
     captureScreenshot: function (options = {}) {
       return this.$refs.flow.captureScreenshot(options);

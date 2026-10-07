@@ -898,34 +898,44 @@ export default {
      * Captures the pane with `paneId` if provided, otherwise all
      * visible panes including the sidebar.
      * With `legend` set to `only`, the legend of each pane is downloaded as a separate image.
-     * @param {Object} options - { paneId, scale, legend }
+     * @param {Object} options - { paneId, scale, legend, toolbar }
      */
     captureScreenshot: async function (options = {}) {
       const { paneId } = options;
-      if (paneId !== undefined) {
-        const content = this.$refs.splitdialog?.getContentsWithId(paneId);
-        if (!content) {
-          return Promise.reject(new Error(`Pane ${paneId} not found`));
-        }
-        return content.captureScreenshot(options);
-      }
       const contents = this.$refs.splitdialog?.getActiveContents() || [];
       const scale = options.scale || this.settingsStore.screenshot.scale;
       const legend = options.legend || this.settingsStore.screenshot.legend;
+      const toolbar = options.toolbar ?? this.settingsStore.screenshot.toolbar;
+
+      if (paneId !== undefined) {
+        const content = this.$refs.splitdialog?.getContentsWithId(paneId);
+
+        if (!content) {
+          return Promise.reject(new Error(`Pane ${paneId} not found`));
+        }
+
+        return content.captureScreenshot(options);
+      }
+
       if (legend === 'only') {
         const withLegend = contents.filter((content) => content.hasLegend?.());
+        const results = [];
+
         if (!withLegend.length) {
           throw new Error('No legend to capture');
         }
-        const results = [];
+
         for (const content of withLegend) {
           results.push(...(await content.captureScreenshot({ ...options, scale, legend })));
         }
+
         return results;
       }
+
       return captureElement(this.$refs.captureArea, {
         scale,
         legend,
+        toolbar,
         filename: getScreenshotFilename('sparc-maps'),
         viewers: contents,
       });

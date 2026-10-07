@@ -30,11 +30,12 @@ const LEGEND_PANELS = [
 
 export const SCREENSHOT_LEGEND_SELECTORS = LEGEND_PANELS.map((panel) => panel.wrapper);
 
+// ContentBar header of each pane, hidden unless the `toolbar` option is set.
+export const SCREENSHOT_TOOLBAR_SELECTORS = ['.content-container > .toolbar'];
+
 // UI controls that should not appear in the screenshot.
 export const SCREENSHOT_HIDE_SELECTORS = [
   '[data-screenshot-ignore]',
-  // ContentBar header of each pane
-  '.content-container > .toolbar',
   // flatmapvuer
   '.bottom-right-control',
   '.settings-group',
@@ -455,6 +456,7 @@ const captureLegends = async (el, options) => {
  * @param {Number} options.scale - Multiplier on top of the device pixel ratio.
  * @param {String} options.filename - Optional filename.
  * @param {String} options.legend - One of `SCREENSHOT_LEGEND_MODES`.
+ * @param {Boolean} options.toolbar - Include the header bar of each pane.
  * @param {Array} options.viewers - ContentVuer instances inside `el`
  *   providing `getScreenshotSources(pixelRatio)`.
  * @param {Array} options.hideSelectors - Selectors of nodes to exclude.
@@ -466,6 +468,7 @@ export const captureElement = async (el, options = {}) => {
     scale = 1,
     filename = getScreenshotFilename(),
     legend = 'exclude',
+    toolbar = false,
     viewers = [],
     hideSelectors = SCREENSHOT_HIDE_SELECTORS,
   } = options;
@@ -488,13 +491,16 @@ export const captureElement = async (el, options = {}) => {
 
   const { excluded, cleanup } = await prepareOverlays(el, sources);
 
+  const hidden = [...hideSelectors];
+  if (legend !== 'include') hidden.push(...SCREENSHOT_LEGEND_SELECTORS);
+  if (!toolbar) hidden.push(...SCREENSHOT_TOOLBAR_SELECTORS);
+
   let canvas;
   try {
     canvas = await renderToCanvas(el, {
       pixelRatio,
       excluded,
-      hideSelectors:
-        legend === 'include' ? hideSelectors : [...hideSelectors, ...SCREENSHOT_LEGEND_SELECTORS],
+      hideSelectors: hidden,
     });
   } finally {
     cleanup();

@@ -31,6 +31,13 @@
             </el-radio-button>
           </el-radio-group>
         </div>
+        <div v-if="getLegendMode() !== 'only'" class="screenshot-row">
+          <span class="screenshot-label">Header</span>
+          <el-radio-group v-model="toolbar" size="small">
+            <el-radio-button :value="false">Hide</el-radio-button>
+            <el-radio-button :value="true">Include</el-radio-button>
+          </el-radio-group>
+        </div>
         <div class="screenshot-info">
           <template v-if="outputSize.width">
             <template v-if="outputSize.count > 1">{{ outputSize.count }} PNG files, up to</template>
@@ -107,7 +114,7 @@ export default {
   },
   props: {
     /**
-     * Async function called with `{ scale, legend, source }` to perform the capture.
+     * Async function called with `{ scale, legend, toolbar, source }` to perform the capture.
      */
     capture: {
       type: Function,
@@ -116,6 +123,7 @@ export default {
     /**
      * Function returning the element to be captured, used for size preview
      * and to check whether it has a legend.
+     * Called with `{ legend, toolbar }` as the element may depend on them.
      */
     getTarget: {
       type: Function,
@@ -153,6 +161,7 @@ export default {
       scale: 1,
       legendModes: SCREENSHOT_LEGEND_MODES.map((value) => ({ value, label: LEGEND_LABELS[value] })),
       legend: SCREENSHOT_LEGEND_MODES[0],
+      toolbar: false,
       hasLegend: false,
       capturing: false,
       errorMessage: '',
@@ -183,19 +192,27 @@ export default {
       this.settingsStore.updateScreenshotOptions({ legend: value });
       this.updateOutputSize();
     },
+    toolbar: function (value) {
+      this.settingsStore.updateScreenshotOptions({ toolbar: value });
+      this.updateOutputSize();
+    },
   },
   methods: {
     loadSavedOptions: function () {
-      const { scale, legend } = this.settingsStore.screenshot;
+      const { scale, legend, toolbar } = this.settingsStore.screenshot;
       this.scale = SCREENSHOT_SCALES.includes(scale) ? scale : SCREENSHOT_SCALES[0];
       this.legend = SCREENSHOT_LEGEND_MODES.includes(legend) ? legend : SCREENSHOT_LEGEND_MODES[0];
-      this.hasLegend = findLegends(this.getTarget?.()).length > 0;
+      this.toolbar = toolbar === true;
+      this.hasLegend = findLegends(this.getTarget?.({ legend: 'only' })).length > 0;
     },
     /**
      * The legend option only applies when the target has a legend.
      */
     getLegendMode: function () {
       return this.hasLegend ? this.legend : 'exclude';
+    },
+    getOptions: function () {
+      return { scale: this.scale, legend: this.getLegendMode(), toolbar: this.toolbar };
     },
     onShow: function () {
       this.loadSavedOptions();
@@ -217,15 +234,16 @@ export default {
       this.onCapture('shortcut');
     },
     updateOutputSize: function () {
-      const target = this.getTarget?.();
-      this.outputSize = getOutputSize(target, this.scale, this.getLegendMode());
+      const { scale, legend, toolbar } = this.getOptions();
+      const target = this.getTarget?.({ legend, toolbar });
+      this.outputSize = getOutputSize(target, scale, legend);
     },
     onCapture: async function (source = 'button') {
       this.capturing = true;
       this.errorMessage = '';
       try {
         this.$refs.popover?.hide();
-        await this.capture({ scale: this.scale, legend: this.getLegendMode(), source });
+        await this.capture({ ...this.getOptions(), source });
       } catch (error) {
         console.error('Screenshot failed', error);
         this.errorMessage =
