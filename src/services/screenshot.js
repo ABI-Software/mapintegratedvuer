@@ -42,8 +42,8 @@ export const SCREENSHOT_HIDE_SELECTORS = [
   '.drawer-button',
   '.minimap-resize',
   '.maplibregl-ctrl-minimap',
-  // scaffoldvuer
-  '.control-layer',
+  // scaffoldvuer, the tree controls also have this class but are a legend panel
+  '.control-layer:not(.tree-controls)',
   // map-side-bar drawer tabs
   '.open-tab',
   '.close-tab',
