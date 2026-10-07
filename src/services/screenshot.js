@@ -163,6 +163,57 @@ const getLegendSize = (node) => {
   return { width: node.offsetWidth, height: node.scrollHeight + borders };
 };
 
+const isClipped = (node) => {
+  const { overflowX, overflowY } = getComputedStyle(node);
+  return (
+    (overflowX !== 'visible' && node.scrollWidth > node.clientWidth) ||
+    (overflowY !== 'visible' && node.scrollHeight > node.clientHeight)
+  );
+};
+
+/**
+ * Some panels scroll inside (e.g. the scaffoldvuer region tree),
+ * which `getLegendSize` and the root style of `renderToCanvas` cannot expand.
+ * In that case, return an off-screen copy of `legend` with those scroll containers
+ * and their ancestors grown to fit their content.
+ * The copy is placed next to the original so the same styles apply,
+ * and the panel on screen is left untouched.
+ * @returns {Object} { node, cleanup } where `node` is the element to capture.
+ */
+const expandLegend = (legend) => {
+  const nodes = [...legend.querySelectorAll('*')];
+  const expand = new Set();
+  nodes.filter(isClipped).forEach((node) => {
+    for (let n = node; n && n !== legend; n = n.parentElement) expand.add(n);
+  });
+  if (!expand.size) return { node: legend, cleanup: () => {} };
+
+  const copy = legend.cloneNode(true);
+  const copies = [...copy.querySelectorAll('*')];
+  nodes.forEach((node, index) => {
+    if (!expand.has(node)) return;
+    Object.assign(copies[index].style, {
+      width: 'max-content',
+      minWidth: getComputedStyle(node).width,
+      maxWidth: 'none',
+      height: 'auto',
+      maxHeight: 'none',
+      overflow: 'visible',
+    });
+  });
+  // Overridden by the root style in `captureLegends`.
+  Object.assign(copy.style, {
+    position: 'fixed',
+    left: '-100000px',
+    top: '0',
+    opacity: '0',
+    pointerEvents: 'none',
+  });
+  copy.setAttribute(SCREENSHOT_OVERLAY_ATTR, '');
+  legend.after(copy);
+  return { node: copy, cleanup: () => copy.remove() };
+};
+
 /**
  * Find the legend panels inside `el` that have content.
  * Panels in a closed drawer are included.
@@ -188,13 +239,20 @@ export const findLegends = (el) => {
 
 /**
  * Get the expected output size in pixels, used by the UI for preview.
- * With `legend` set to `only`, `count` is the number of images and
- * the size is the largest one.
+ * With `legend` set to `only`, `count` is the number of images
+ * and the size is the largest one.
  */
 export const getOutputSize = (el, scale, legend = 'exclude') => {
   if (!el) return { width: 0, height: 0, clamped: false, count: 0 };
   const sizes =
-    legend === 'only' ? findLegends(el).map(getLegendSize) : [el.getBoundingClientRect()];
+    legend === 'only'
+      ? findLegends(el).map((legendNode) => {
+          const { node, cleanup } = expandLegend(legendNode);
+          const size = getLegendSize(node);
+          cleanup();
+          return size;
+        })
+      : [el.getBoundingClientRect()];
   const result = { width: 0, height: 0, clamped: false, count: sizes.length };
   sizes.forEach(({ width, height }) => {
     const { pixelRatio, clamped } = getEffectivePixelRatio(width, height, scale);
@@ -360,21 +418,27 @@ const captureLegends = async (el, options) => {
 
   const results = [];
   for (const [index, legend] of legends.entries()) {
-    const { width, height } = getLegendSize(legend);
-    const { pixelRatio, clamped } = fitCanvasSize(width, height, scale);
-    const canvas = await renderToCanvas(legend, {
-      pixelRatio,
-      width,
-      height,
-      hideSelectors,
-      style: {
-        position: 'relative',
-        maxHeight: 'none',
-        height: 'auto',
-        overflow: 'visible',
-        opacity: '1',
-      },
-    });
+    const { node, cleanup } = expandLegend(legend);
+    let canvas, pixelRatio, clamped;
+    try {
+      const { width, height } = getLegendSize(node);
+      ({ pixelRatio, clamped } = fitCanvasSize(width, height, scale));
+      canvas = await renderToCanvas(node, {
+        pixelRatio,
+        width,
+        height,
+        hideSelectors,
+        style: {
+          position: 'relative',
+          maxHeight: 'none',
+          height: 'auto',
+          overflow: 'visible',
+          opacity: '1',
+        },
+      });
+    } finally {
+      cleanup();
+    }
     const blob = await canvasToBlob(canvas, 'image/png');
     const name = index > 0 ? filename.replace(/\.png$/, `-${index + 1}.png`) : filename;
     downloadBlob(blob, name);
