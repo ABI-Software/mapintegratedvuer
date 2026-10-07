@@ -6,6 +6,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import Tagging from '../services/tagging.js';
+import { snapshotMaplibre } from '../services/screenshot.js';
 
 import { getFlatmapFilterOptions } from '@abi-software/map-utilities';
 import { FlatmapQueries } from '@abi-software/flatmapvuer/src/services/flatmapQueries.js';
@@ -138,6 +139,17 @@ export default {
     },
     getState: function () {
       return undefined;
+    },
+    /**
+     * Return snapshots of WebGL canvases rendered at `pixelRatio`,
+     * used by the screenshot service. Defaults to the flatmap canvas.
+     */
+    getScreenshotSources: async function (pixelRatio) {
+      const map = this.getFlatmapImp?.()?.map;
+      if (map) {
+        return [await snapshotMaplibre(map, pixelRatio)];
+      }
+      return [];
     },
     openMap: function (type) {
       EventBus.emit('OpenNewMap', type);
