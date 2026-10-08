@@ -2,110 +2,110 @@
   <div>
     <div class="toolbar-flex-container">
       <div class="toolbar-left shrink">
-      <el-select
-        v-if="entries.length > 1"
-        :teleported="false"
-        :model-value="entry.id"
-        placeholder="Select"
-        class="select-box"
-        popper-class="viewer_dropdown"
-        @change="viewerChanged($event)"
-      >
-        <el-option
-          v-for="entry in entries"
-          :key="entry.id"
-          :label="getTitle(entry)"
-          :value="entry.id"
-        />
-      </el-select>
-      <div v-else class="toolbar-title shrink">
-        {{ getEntryTitle(entry) }}
-      </div>
-      <el-button
-        v-if="hasSourceInfo"
-        round
-        size="small"
-        class="source-chip shrink"
-        @click="openSourceInfo"
-      >
-        {{ getSourceTitle }}
-      </el-button>
+        <el-select
+          v-if="entries.length > 1"
+          :teleported="false"
+          :model-value="entry.id"
+          placeholder="Select"
+          class="select-box"
+          popper-class="viewer_dropdown"
+          @change="viewerChanged($event)"
+        >
+          <el-option
+            v-for="entry in entries"
+            :key="entry.id"
+            :label="getTitle(entry)"
+            :value="entry.id"
+          />
+        </el-select>
+        <div v-else class="toolbar-title shrink">
+          {{ getEntryTitle(entry) }}
+        </div>
+        <el-button
+          v-if="hasSourceInfo"
+          round
+          size="small"
+          class="source-chip shrink"
+          @click="openSourceInfo"
+        >
+          {{ getSourceTitle }}
+        </el-button>
       </div>
 
       <div class="toolbar-right shrink">
-      <div class="information-group shrink">
+        <div class="information-group shrink">
+          <el-popover
+            placement="bottom"
+            :teleported="false"
+            trigger="manual"
+            :width="setPopperWidth(slot.id)"
+            :offset="0"
+            popper-class="context-card-popover"
+            :popper-options="popperOptions"
+            :visible="contextCardVisible"
+          >
+            <template #default v-if="contextCardEntry">
+              <flatmap-context-card
+                class="flatmap-context-card"
+                v-if="contextCardEntry.type == 'Flatmap' || contextCardEntry.type == 'MultiFlatmap'"
+                :mapImpProv="contextCardEntry.mapImpProv"
+              />
+              <context-card
+                v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
+                :entry="contextCardEntry"
+                :envVars="envVars"
+                class="context-card"
+                @context-ready="contextCardVisible = true"
+                @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
+              />
+            </template>
+            <template #reference>
+              <div v-show="contextCardEntry">
+                <div
+                  v-show="contextCardVisible"
+                  class="information"
+                  @click="contextCardVisible = false"
+                >
+                  Hide information
+                  <el-icon><el-icon-arrow-up /></el-icon>
+                </div>
+                <div
+                  v-show="!contextCardVisible"
+                  class="information"
+                  @click="contextCardVisible = true"
+                >
+                  Show information
+                  <el-icon><el-icon-arrow-down /></el-icon>
+                </div>
+              </div>
+            </template>
+          </el-popover>
+        </div>
+        <ScreenshotPopover
+          v-if="captureScreenshot"
+          class="screenshot-button"
+          tooltip="Download screenshot of this view"
+          :capture="onCaptureScreenshot"
+          :getTarget="getScreenshotTarget"
+        />
         <el-popover
-          placement="bottom"
+          class="tooltip"
+          content="Close and remove"
+          placement="bottom-end"
+          :show-after="helpDelay"
           :teleported="false"
-          trigger="manual"
-          :width="setPopperWidth(slot.id)"
-          :offset="0"
-          popper-class="context-card-popover"
-          :popper-options="popperOptions"
-          :visible="contextCardVisible"
+          trigger="hover"
+          popper-class="header-popper"
         >
-          <template #default v-if="contextCardEntry">
-            <flatmap-context-card
-              class="flatmap-context-card"
-              v-if="contextCardEntry.type == 'Flatmap' || contextCardEntry.type == 'MultiFlatmap'"
-              :mapImpProv="contextCardEntry.mapImpProv"
-            />
-            <context-card
-              v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
-              :entry="contextCardEntry"
-              :envVars="envVars"
-              class="context-card"
-              @context-ready="contextCardVisible = true"
-              @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
-            />
-          </template>
           <template #reference>
-            <div v-show="contextCardEntry">
-              <div
-                v-show="contextCardVisible"
-                class="information"
-                @click="contextCardVisible = false"
-              >
-                Hide information
-                <el-icon><el-icon-arrow-up /></el-icon>
-              </div>
-              <div
-                v-show="!contextCardVisible"
-                class="information"
-                @click="contextCardVisible = true"
-              >
-                Show information
-                <el-icon><el-icon-arrow-down /></el-icon>
-              </div>
-            </div>
+            <map-svg-icon
+              icon="close-no-bk"
+              class="header-icon rightmost"
+              v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
+              @click="closeAndRemove()"
+            />
           </template>
         </el-popover>
-      </div>
-      <ScreenshotPopover
-        v-if="captureScreenshot"
-        class="screenshot-button"
-        tooltip="Download screenshot of this view"
-        :capture="onCaptureScreenshot"
-        :getTarget="getScreenshotTarget"
-      />
-      <el-popover
-        class="tooltip"
-        content="Close and remove"
-        placement="bottom-end"
-        :show-after="helpDelay"
-        :teleported="false"
-        trigger="hover"
-        popper-class="header-popper"
-      >
-        <template #reference>
-          <map-svg-icon
-            icon="close-no-bk"
-            class="header-icon rightmost"
-            v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
-            @click="closeAndRemove()"
-          />
-        </template>
-      </el-popover>
       </div>
     </div>
   </div>
