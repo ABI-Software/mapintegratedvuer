@@ -220,7 +220,7 @@ const expandLegend = (legend) => {
 
 /**
  * Find the legend panels inside `el` that have content.
- * Panels in a closed drawer are included.
+ * Panels in a closed drawer are included, panels in inactive panes are not.
  * @returns {Array} the content elements of the panels.
  */
 export const findLegends = (el) => {
@@ -230,6 +230,9 @@ export const findLegends = (el) => {
   el.querySelectorAll(wrapperSelector).forEach((wrapper) => {
     // Skip panels hidden with `display: none` or nested in another panel
     if (!wrapper.getClientRects().length) return;
+    // Skip panels in inactive panes, which SplitDialog hides with `visibility: hidden`.
+    // Closed drawers only use opacity/transform so they are still found.
+    if (getComputedStyle(wrapper).visibility !== 'visible') return;
     if (wrapper.parentElement?.closest(wrapperSelector)) return;
     const { content } = LEGEND_PANELS.find((panel) => wrapper.matches(panel.wrapper));
     const node = wrapper.querySelector(content) || wrapper;
