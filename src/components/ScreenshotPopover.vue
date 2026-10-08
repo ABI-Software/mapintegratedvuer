@@ -300,18 +300,26 @@ export default {
   box-sizing: border-box;
 
   &.is-capturing {
+    position: relative;
+    overflow: visible;
     cursor: progress;
-    animation: screenshot-pulse 1.2s ease-in-out infinite;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border: 2px solid rgba($app-primary-color, 0.2);
+      border-top-color: $app-primary-color;
+      border-radius: 50%;
+      animation: screenshot-spin 0.8s linear infinite;
+      pointer-events: none;
+    }
   }
 }
 
-@keyframes screenshot-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.35;
+@keyframes screenshot-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
