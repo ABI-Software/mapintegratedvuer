@@ -88,10 +88,9 @@
         <el-icon
           ref="triggerRef"
           class="header-icon screenshot-icon"
-          :class="{ disabled: disabled, 'is-loading': capturing }"
+          :class="{ disabled: disabled, 'is-capturing': capturing }"
         >
-          <el-icon-loading v-if="capturing" />
-          <el-icon-camera v-else />
+          <el-icon-camera />
         </el-icon>
       </template>
     </el-popover>
@@ -101,11 +100,7 @@
 <script>
 import { shallowRef } from 'vue';
 import { mapStores } from 'pinia';
-import {
-  Camera as ElIconCamera,
-  Download as ElIconDownload,
-  Loading as ElIconLoading,
-} from '@element-plus/icons-vue';
+import { Camera as ElIconCamera, Download as ElIconDownload } from '@element-plus/icons-vue';
 import { useSettingsStore } from '../stores/settings';
 import {
   SCREENSHOT_SCALES,
@@ -128,7 +123,6 @@ export default {
   name: 'ScreenshotPopover',
   components: {
     ElIconCamera,
-    ElIconLoading,
   },
   props: {
     /**
@@ -304,6 +298,21 @@ export default {
 .screenshot-icon {
   padding: 3px;
   box-sizing: border-box;
+
+  &.is-capturing {
+    cursor: progress;
+    animation: screenshot-pulse 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes screenshot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .screenshot-popover-inner {
