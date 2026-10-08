@@ -14,52 +14,56 @@
       @show="onShow"
     >
       <div class="screenshot-popover-inner">
-        <div class="screenshot-title">{{ title }}</div>
-        <div class="screenshot-row">
-          <span class="screenshot-label">Resolution</span>
+        <h4>{{ title }}</h4>
+        <div class="screenshot-popover-block">
+          <h5>Resolution</h5>
           <el-radio-group v-model="scale" size="small">
             <el-radio-button v-for="item in scales" :key="item" :value="item">
               {{ item }}x
             </el-radio-button>
           </el-radio-group>
         </div>
-        <div v-if="hasLegend" class="screenshot-row">
-          <span class="screenshot-label">Legend</span>
+        <div v-if="hasLegend" class="screenshot-popover-block">
+          <h5>Legend</h5>
           <el-radio-group v-model="legend" size="small">
             <el-radio-button v-for="item in legendModes" :key="item.value" :value="item.value">
               {{ item.label }}
             </el-radio-button>
           </el-radio-group>
         </div>
-        <div v-if="getLegendMode() !== 'only'" class="screenshot-row">
-          <span class="screenshot-label">Header</span>
+        <div v-if="getLegendMode() !== 'only'" class="screenshot-popover-block">
+          <h5>Header</h5>
           <el-radio-group v-model="toolbar" size="small">
             <el-radio-button :value="false">Hide</el-radio-button>
             <el-radio-button :value="true">Include</el-radio-button>
           </el-radio-group>
         </div>
-        <div class="screenshot-info">
-          <template v-if="outputSize.width">
-            <template v-if="outputSize.count > 1">{{ outputSize.count }} PNG files, up to</template>
-            <template v-else>PNG,</template>
-            {{ outputSize.width }} × {{ outputSize.height }} px
-          </template>
-          <div v-if="outputSize.clamped" class="screenshot-warning">
-            Reduced to fit browser limits.
+        <div class="screenshot-popover-footer">
+          <div class="screenshot-info">
+            <template v-if="outputSize.width">
+              <template v-if="outputSize.count > 1">
+                {{ outputSize.count }} PNG files, up to
+              </template>
+              <template v-else>PNG,</template>
+              {{ outputSize.width }} × {{ outputSize.height }} px
+            </template>
+            <div v-if="outputSize.clamped" class="screenshot-warning">
+              Reduced to fit browser limits.
+            </div>
+            <div v-if="errorMessage" class="screenshot-warning">
+              {{ errorMessage }}
+            </div>
           </div>
-          <div v-if="errorMessage" class="screenshot-warning">
-            {{ errorMessage }}
-          </div>
+          <el-button
+            type="primary"
+            size="small"
+            class="screenshot-download"
+            :loading="capturing"
+            @click="onCapture()"
+          >
+            Download
+          </el-button>
         </div>
-        <el-button
-          type="primary"
-          size="small"
-          class="screenshot-download"
-          :loading="capturing"
-          @click="onCapture()"
-        >
-          Download
-        </el-button>
       </div>
     </el-popover>
     <el-popover
@@ -282,29 +286,58 @@ export default {
 }
 
 .screenshot-popover-inner {
+  padding: 0.5rem 0.75rem;
+  max-height: calc(100vh - 135px);
+  overflow-y: auto;
+  border-radius: var(--el-popover-border-radius);
+  scrollbar-width: thin;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 12px;
+  gap: 0.5rem;
+
+  > h4 {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    color: $app-primary-color;
+    text-align: center;
+  }
 }
 
-.screenshot-title {
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.screenshot-row {
+.screenshot-popover-block {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+
+  h5 {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 32px;
+    color: #303133;
+  }
 }
 
-.screenshot-label {
-  color: #303133;
+.screenshot-popover-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.25rem;
 }
 
 .screenshot-info {
-  color: #606266;
+  font-size: 12px;
+  line-height: 1.2;
+  font-style: italic;
+  color: gray;
 }
 
 .screenshot-warning {
@@ -312,7 +345,8 @@ export default {
 }
 
 .screenshot-download.el-button {
-  align-self: flex-end;
+  flex-shrink: 0;
+  margin-left: auto;
   font-family: inherit;
 
   &:hover {
@@ -322,10 +356,17 @@ export default {
 }
 
 :deep(.screenshot-popover.el-popper) {
-  padding: 12px;
   border: 1px solid $app-primary-color;
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
+  padding: 1px !important;
+  min-width: 260px !important;
+  width: unset !important;
+  background-color: #f3ecf6;
+  cursor: default;
+
   .el-popper__arrow:before {
     border-color: $app-primary-color;
+    background-color: #f3ecf6;
   }
 }
 
