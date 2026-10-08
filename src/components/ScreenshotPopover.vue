@@ -65,6 +65,7 @@
             type="primary"
             size="small"
             class="screenshot-download"
+            :icon="ElIconDownload"
             :loading="capturing"
             @click="onCapture()"
           >
@@ -99,7 +100,7 @@
 <script>
 import { shallowRef } from 'vue';
 import { mapStores } from 'pinia';
-import { Camera as ElIconCamera } from '@element-plus/icons-vue';
+import { Camera as ElIconCamera, Download as ElIconDownload } from '@element-plus/icons-vue';
 import { useSettingsStore } from '../stores/settings';
 import {
   SCREENSHOT_SCALES,
@@ -168,6 +169,7 @@ export default {
   data: function () {
     return {
       triggerRef: undefined,
+      ElIconDownload: shallowRef(ElIconDownload),
       scales: SCREENSHOT_SCALES,
       scale: 1,
       legendModes: SCREENSHOT_LEGEND_MODES.map((value) => ({ value, label: LEGEND_LABELS[value] })),
