@@ -228,6 +228,8 @@ export default {
     flatmapChanged: async function (activeSpecies) {
       this.activeSpecies = activeSpecies;
       this.openMapOptions = getOpenMapOptions(activeSpecies);
+      // The selected species' map may still be loading, multiFlatmapReady will set it ready
+      this.$emit('viewer-ready', !!this.$refs.multiflatmap?.getCurrentFlatmap()?.mapImp);
       const flatmapImp = this.getFlatmapImp();
       this.updateProvCard();
       //If the viewer is loading a new map, flatmapImp is not defined here yet.
@@ -254,6 +256,7 @@ export default {
       if (flatmap) {
         flatmap.enablePanZoomEvents(true); // Use zoom events for dynamic markers
         this.flatmapReady = true;
+        this.$emit('viewer-ready', true);
         const flatmapImp = flatmap.mapImp;
         this.flatmapMarkerUpdate(flatmapImp);
         this.updateProvCard();
