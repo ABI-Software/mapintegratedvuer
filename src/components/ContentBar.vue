@@ -382,21 +382,21 @@ export default {
     flex-direction: row;
     align-items: center;
     height: 100%;
+    gap: 8px;
   }
 
   .toolbar-left {
     justify-content: flex-start;
-    gap: 8px;
   }
 
   .toolbar-right {
     justify-content: flex-end;
     margin-left: auto;
     position: relative;
+    margin-right: 1rem; // same as header toolbar
   }
 
   .information-group {
-    margin-right: 12px;
     height: 100%;
   }
 
@@ -454,12 +454,14 @@ export default {
       color: $lightGrey;
     }
   }
+
   i .select-box :deep(.el-input__icon) {
     color: rgb(48, 49, 51);
     height: 24px;
     padding-left: 8px;
     padding-right: 8px;
   }
+
   .text {
     margin-left: 8px;
     margin-top: 7px;
@@ -470,6 +472,7 @@ export default {
     user-select: none;
     line-height: 18px;
   }
+
   .title {
     width: 140px;
     color: $app-primary-color;
@@ -513,7 +516,6 @@ export default {
 
   .screenshot-button {
     flex-shrink: 0;
-    margin-right: 8px;
   }
 
   .information {
@@ -526,6 +528,10 @@ export default {
     color: $app-primary-color;
     cursor: pointer;
     line-height: normal;
+  }
+
+  svg.map-icon {
+    margin: 0;
   }
 }
 
