@@ -10,7 +10,7 @@
       trigger="click"
       popper-class="screenshot-popover"
       virtual-triggering
-      :disabled="disabled"
+      :disabled="disabled || capturing"
       @show="onShow"
     >
       <div class="screenshot-popover-inner">
@@ -88,9 +88,10 @@
         <el-icon
           ref="triggerRef"
           class="header-icon screenshot-icon"
-          :class="{ disabled: disabled }"
+          :class="{ disabled: disabled, 'is-loading': capturing }"
         >
-          <el-icon-camera />
+          <el-icon-loading v-if="capturing" />
+          <el-icon-camera v-else />
         </el-icon>
       </template>
     </el-popover>
@@ -100,7 +101,11 @@
 <script>
 import { shallowRef } from 'vue';
 import { mapStores } from 'pinia';
-import { Camera as ElIconCamera, Download as ElIconDownload } from '@element-plus/icons-vue';
+import {
+  Camera as ElIconCamera,
+  Download as ElIconDownload,
+  Loading as ElIconLoading,
+} from '@element-plus/icons-vue';
 import { useSettingsStore } from '../stores/settings';
 import {
   SCREENSHOT_SCALES,
@@ -123,6 +128,7 @@ export default {
   name: 'ScreenshotPopover',
   components: {
     ElIconCamera,
+    ElIconLoading,
   },
   props: {
     /**
@@ -191,6 +197,9 @@ export default {
       return /mac/i.test(platform) ? '⌥⇧S' : 'Alt+Shift+S';
     },
     tooltipText() {
+      if (this.capturing) {
+        return 'Capturing screenshot…';
+      }
       return this.shortcut ? `${this.tooltip} (${this.shortcutLabel})` : this.tooltip;
     },
   },
@@ -262,9 +271,13 @@ export default {
           error?.message === 'No legend to capture'
             ? 'There is no legend to capture.'
             : 'Screenshot failed. Please try a lower resolution.';
-        this.$refs.popover?.show?.();
       } finally {
         this.capturing = false;
+      }
+      if (this.errorMessage) {
+        // Reopen after `capturing` resets, as the popover is disabled while capturing
+        await this.$nextTick();
+        this.$refs.popover?.show?.();
       }
     },
   },
