@@ -100,6 +100,7 @@ export default {
     },
     flatmapReadyCall: function (flatmap) {
       this.flatmapReady = true;
+      this.$emit('viewer-ready', true);
       const mapImp = this.getFlatmapImp();
       if (mapImp?.mapMetadata?.name) {
         this.updateEntryLabel(mapImp?.mapMetadata?.name);

@@ -83,6 +83,7 @@
         </div>
         <ScreenshotPopover
           v-if="captureScreenshot"
+          :disabled="!viewerReady"
           class="screenshot-button"
           tooltip="Download screenshot of this view"
           :capture="onCaptureScreenshot"
@@ -149,6 +150,13 @@ export default {
     getScreenshotTarget: {
       type: Function,
       default: undefined,
+    },
+    /**
+     * Whether the viewer's content has finished loading.
+     */
+    viewerReady: {
+      type: Boolean,
+      default: false,
     },
   },
   data: function () {

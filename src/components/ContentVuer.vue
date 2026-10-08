@@ -12,6 +12,7 @@
       @scaffold-view-clicked="scaffoldViewClicked"
       :captureScreenshot="captureScreenshot"
       :getScreenshotTarget="getScreenshotElement"
+      :viewerReady="viewerReady"
       @vue:mounted="setPanesBoundary"
     />
     <!--
@@ -33,6 +34,7 @@
           @flatmap-provenance-ready="flatmapProvenanceReady"
           @resource-selected="resourceSelected"
           @species-changed="speciesChanged"
+          @viewer-ready="viewerReady = $event"
         />
       </Suspense>
     </div>
@@ -204,6 +206,8 @@ export default {
     return {
       mouseHovered: false,
       activeSpecies: 'Rat',
+      // Viewers without a ready event are considered ready immediately
+      viewerReady: !['Flatmap', 'MultiFlatmap', 'Scaffold'].includes(this.entry.type),
     };
   },
   computed: {
