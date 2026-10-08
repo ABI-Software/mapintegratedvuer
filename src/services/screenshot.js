@@ -66,6 +66,9 @@ let maxCanvasArea = CANVAS_AREA_FALLBACKS[0];
 
 const SCREENSHOT_OVERLAY_ATTR = 'data-screenshot-overlay';
 
+// Border drawn around view captures to match the frame around the app in the UI.
+const SCREENSHOT_BORDER = { width: 1, color: '#dcdfe6' };
+
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
 /**
@@ -253,7 +256,7 @@ export const getOutputSize = (el, scale, legend = 'exclude') => {
           cleanup();
           return size;
         })
-      : [el.getBoundingClientRect()];
+      : [getBorderedSize(el.getBoundingClientRect())];
   const result = { width: 0, height: 0, clamped: false, count: sizes.length };
   sizes.forEach(({ width, height }) => {
     const { pixelRatio, clamped } = getEffectivePixelRatio(width, height, scale);
@@ -266,6 +269,29 @@ export const getOutputSize = (el, scale, legend = 'exclude') => {
     result.clamped = result.clamped || clamped;
   });
   return result;
+};
+
+/**
+ * Size of a view capture including `SCREENSHOT_BORDER`.
+ */
+const getBorderedSize = ({ width, height }) => ({
+  width: width + SCREENSHOT_BORDER.width * 2,
+  height: height + SCREENSHOT_BORDER.width * 2,
+});
+
+/**
+ * Return a copy of `canvas` framed with `SCREENSHOT_BORDER`.
+ */
+const addBorder = (canvas, pixelRatio) => {
+  const border = Math.max(1, Math.round(SCREENSHOT_BORDER.width * pixelRatio));
+  const framed = document.createElement('canvas');
+  framed.width = canvas.width + border * 2;
+  framed.height = canvas.height + border * 2;
+  const ctx = framed.getContext('2d');
+  ctx.fillStyle = SCREENSHOT_BORDER.color;
+  ctx.fillRect(0, 0, framed.width, framed.height);
+  ctx.drawImage(canvas, border, border);
+  return framed;
 };
 
 /**
@@ -480,7 +506,7 @@ export const captureElement = async (el, options = {}) => {
     return captureLegends(el, { scale, filename, hideSelectors });
   }
 
-  const { width, height } = el.getBoundingClientRect();
+  const { width, height } = getBorderedSize(el.getBoundingClientRect());
   const { pixelRatio, clamped } = fitCanvasSize(width, height, scale);
 
   const sources = [];
@@ -506,6 +532,7 @@ export const captureElement = async (el, options = {}) => {
     cleanup();
   }
 
+  canvas = addBorder(canvas, pixelRatio);
   const blob = await canvasToBlob(canvas, 'image/png');
   downloadBlob(blob, filename);
 
