@@ -1,100 +1,113 @@
 <template>
   <div>
     <div class="toolbar-flex-container">
-      <el-select
-        v-if="entries.length > 1"
-        :teleported="false"
-        :model-value="entry.id"
-        placeholder="Select"
-        class="select-box"
-        popper-class="viewer_dropdown"
-        @change="viewerChanged($event)"
-      >
-        <el-option
-          v-for="entry in entries"
-          :key="entry.id"
-          :label="getTitle(entry)"
-          :value="entry.id"
-        />
-      </el-select>
-      <div v-else class="toolbar-title shrink">
-        {{ getEntryTitle(entry) }}
-      </div>
-      <el-button
-        v-if="hasSourceInfo"
-        round
-        size="small"
-        class="source-chip shrink"
-        @click="openSourceInfo"
-      >
-        {{ getSourceTitle }}
-      </el-button>
-      <div class="information-group shrink">
-        <el-popover
-          placement="bottom"
+      <div class="toolbar-left shrink">
+        <el-select
+          v-if="entries.length > 1"
           :teleported="false"
-          trigger="manual"
-          :width="setPopperWidth(slot.id)"
-          :offset="0"
-          popper-class="context-card-popover"
-          :popper-options="popperOptions"
-          :visible="contextCardVisible"
+          :model-value="entry.id"
+          placeholder="Select"
+          class="select-box"
+          popper-class="viewer_dropdown"
+          @change="viewerChanged($event)"
         >
-          <template #default v-if="contextCardEntry">
-            <flatmap-context-card
-              class="flatmap-context-card"
-              v-if="contextCardEntry.type == 'Flatmap' || contextCardEntry.type == 'MultiFlatmap'"
-              :mapImpProv="contextCardEntry.mapImpProv"
-            />
-            <context-card
-              v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
-              :entry="contextCardEntry"
-              :envVars="envVars"
-              class="context-card"
-              @context-ready="contextCardVisible = true"
-              @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
-            />
-          </template>
+          <el-option
+            v-for="entry in entries"
+            :key="entry.id"
+            :label="getTitle(entry)"
+            :value="entry.id"
+          />
+        </el-select>
+        <div v-else class="toolbar-title shrink">
+          {{ getEntryTitle(entry) }}
+        </div>
+        <el-button
+          v-if="hasSourceInfo"
+          round
+          size="small"
+          class="source-chip shrink"
+          @click="openSourceInfo"
+        >
+          {{ getSourceTitle }}
+        </el-button>
+      </div>
+
+      <div class="toolbar-right shrink">
+        <div class="information-group shrink">
+          <el-popover
+            placement="bottom"
+            :teleported="false"
+            trigger="manual"
+            :width="setPopperWidth(slot.id)"
+            :offset="0"
+            popper-class="context-card-popover"
+            :popper-options="popperOptions"
+            :visible="contextCardVisible"
+          >
+            <template #default v-if="contextCardEntry">
+              <flatmap-context-card
+                class="flatmap-context-card"
+                v-if="contextCardEntry.type == 'Flatmap' || contextCardEntry.type == 'MultiFlatmap'"
+                :mapImpProv="contextCardEntry.mapImpProv"
+              />
+              <context-card
+                v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
+                :entry="contextCardEntry"
+                :envVars="envVars"
+                class="context-card"
+                @context-ready="contextCardVisible = true"
+                @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
+              />
+            </template>
+            <template #reference>
+              <div v-show="contextCardEntry">
+                <div
+                  v-show="contextCardVisible"
+                  class="information"
+                  @click="contextCardVisible = false"
+                >
+                  Hide information
+                  <el-icon><el-icon-arrow-up /></el-icon>
+                </div>
+                <div
+                  v-show="!contextCardVisible"
+                  class="information"
+                  @click="contextCardVisible = true"
+                >
+                  Show information
+                  <el-icon><el-icon-arrow-down /></el-icon>
+                </div>
+              </div>
+            </template>
+          </el-popover>
+        </div>
+        <ScreenshotPopover
+          v-if="captureScreenshot"
+          :disabled="!viewerReady"
+          class="screenshot-button"
+          tooltip="Download screenshot of this view"
+          :capture="onCaptureScreenshot"
+          :getTarget="getScreenshotTarget"
+        />
+        <el-popover
+          class="tooltip"
+          content="Close and remove"
+          placement="bottom-end"
+          :show-after="helpDelay"
+          :teleported="false"
+          trigger="hover"
+          popper-class="header-popper"
+        >
           <template #reference>
-            <div v-show="contextCardEntry">
-              <div
-                v-show="contextCardVisible"
-                class="information"
-                @click="contextCardVisible = false"
-              >
-                Hide information
-                <el-icon><el-icon-arrow-up /></el-icon>
-              </div>
-              <div
-                v-show="!contextCardVisible"
-                class="information"
-                @click="contextCardVisible = true"
-              >
-                Show information
-                <el-icon><el-icon-arrow-down /></el-icon>
-              </div>
-            </div>
+            <map-svg-icon
+              icon="close-no-bk"
+              class="header-icon rightmost"
+              v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
+              @click="closeAndRemove()"
+            />
           </template>
         </el-popover>
       </div>
-      <el-popover
-        class="tooltip"
-        content="Close and remove"
-        placement="bottom-end"
-        :show-after="helpDelay"
-        :teleported="false"
-        trigger="hover"
-        popper-class="header-popper"
-      >
-        <template #reference>
-          <map-svg-icon
-            icon="close-no-bk"
-            class="header-icon rightmost"
-            v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
-            @click="closeAndRemove()"
-          />
-        </template>
-      </el-popover>
     </div>
   </div>
 </template>
@@ -108,6 +121,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import ContextCard from './ContextCard.vue';
 import FlatmapContextCard from './FlatmapContextCard.vue';
+import ScreenshotPopover from './ScreenshotPopover.vue';
 import { ArrowDown as ElIconArrowDown, ArrowUp as ElIconArrowUp } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
@@ -119,9 +133,31 @@ export default {
     ContextCard,
     FlatmapContextCard,
     MapSvgIcon,
+    ScreenshotPopover,
   },
   props: {
     entry: Object,
+    /**
+     * Async function capturing a screenshot of this view.
+     */
+    captureScreenshot: {
+      type: Function,
+      default: undefined,
+    },
+    /**
+     * Function returning the element captured, used for size preview.
+     */
+    getScreenshotTarget: {
+      type: Function,
+      default: undefined,
+    },
+    /**
+     * Whether the viewer's content has finished loading.
+     */
+    viewerReady: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -202,6 +238,17 @@ export default {
     },
   },
   methods: {
+    onCaptureScreenshot: async function (options) {
+      await this.captureScreenshot(options);
+
+      // GA Tracking
+      tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: 'portal_maps_screenshot',
+        category: `png_${options.scale}x`,
+        location: 'pane_header',
+      });
+    },
     closeAndRemove: function () {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries });
       EventBus.emit('RemoveEntryRequest', this.entry.id);
@@ -327,19 +374,38 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: nowrap;
   width: 100%;
+  gap: 16px;
 
   .shrink {
     flex-shrink: 1;
     min-width: 0;
   }
 
-  .information-group {
-    margin-left: auto;
-    margin-right: 12px;
+  .toolbar-left,
+  .toolbar-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     height: 100%;
+    gap: 8px;
+  }
+
+  .toolbar-left {
+    justify-content: flex-start;
+  }
+
+  .toolbar-right {
+    justify-content: flex-end;
+    margin-left: auto;
     position: relative;
+    margin-right: 1rem; // same as header toolbar
+  }
+
+  .information-group {
+    height: 100%;
   }
 
   .toolbar-title {
@@ -396,12 +462,14 @@ export default {
       color: $lightGrey;
     }
   }
+
   i .select-box :deep(.el-input__icon) {
     color: rgb(48, 49, 51);
     height: 24px;
     padding-left: 8px;
     padding-right: 8px;
   }
+
   .text {
     margin-left: 8px;
     margin-top: 7px;
@@ -412,6 +480,7 @@ export default {
     user-select: none;
     line-height: 18px;
   }
+
   .title {
     width: 140px;
     color: $app-primary-color;
@@ -428,8 +497,6 @@ export default {
 
   .source-chip {
     padding: 4px !important;
-    margin-left: 2px;
-    margin-right: 2px;
     background-color: $app-primary-color;
     border-color: $app-primary-color;
     color: #fff;
@@ -455,6 +522,10 @@ export default {
     flex-shrink: 0;
   }
 
+  .screenshot-button {
+    flex-shrink: 0;
+  }
+
   .information {
     font-size: 12px;
     margin-top: 0;
@@ -465,6 +536,10 @@ export default {
     color: $app-primary-color;
     cursor: pointer;
     line-height: normal;
+  }
+
+  svg.map-icon {
+    margin: 0;
   }
 }
 

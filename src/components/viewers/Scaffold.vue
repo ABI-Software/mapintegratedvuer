@@ -57,6 +57,7 @@
 import { markRaw } from 'vue';
 import EventBus from '../EventBus';
 import ContentMixin from '../../mixins/ContentMixin';
+import { snapshotThreeRenderer } from '../../services/screenshot.js';
 
 import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
 import '@abi-software/scaffoldvuer/dist/style.css';
@@ -245,6 +246,12 @@ export default {
         this.scaffoldCamera.onResize();
       }
     },
+    getScreenshotSources: async function (pixelRatio) {
+      const zincRenderer = this.$refs.scaffold?.$module?.zincRenderer;
+      const renderer = zincRenderer?.getThreeJSRenderer();
+      if (!renderer) return [];
+      return [snapshotThreeRenderer(renderer, () => zincRenderer.render(), pixelRatio)];
+    },
     getState: function () {
       if (this.$refs.scaffold) {
         return this.$refs.scaffold.getState();
@@ -297,6 +304,7 @@ export default {
     },
     scaffoldIsReady: function () {
       this.scaffoldLoaded = true;
+      this.$emit('viewer-ready', true);
       this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
       if (!this.scaffoldRef) {
         this.scaffoldRef = markRaw(this.$refs.scaffold);
