@@ -5,7 +5,7 @@
       ref="popover"
       :virtual-ref="triggerRef"
       :placement="placement"
-      width="260"
+      width="280"
       :teleported="false"
       trigger="click"
       popper-class="screenshot-popover"
@@ -359,8 +359,6 @@ export default {
   border: 1px solid $app-primary-color;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.06);
   padding: 1px !important;
-  min-width: 260px !important;
-  width: unset !important;
   background-color: #f3ecf6;
   cursor: default;
 
