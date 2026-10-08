@@ -41,8 +41,8 @@
         <div v-if="shortcut" class="screenshot-popover-block is-stacked">
           <h5>Shortcut ({{ shortcutLabel }})</h5>
           <small class="screenshot-description">
-            To capture a tooltip on Flatmap, choose your settings here,
-            then hover over the feature or connection in the Flatmap and press the shortcut.
+            To capture a tooltip on Flatmap, choose your settings here, then hover over the feature
+            or connection in the Flatmap and press the shortcut.
           </small>
         </div>
         <div class="screenshot-popover-footer">

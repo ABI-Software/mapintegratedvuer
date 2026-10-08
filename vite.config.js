@@ -49,9 +49,7 @@ export default defineConfig(({ command }) => {
       },
     },
     preview: {
-      allowedHosts: [
-        'mapintegratedvuer-mapcore-754fcb3bf891.herokuapp.com',
-      ]
+      allowedHosts: ['mapintegratedvuer-mapcore-754fcb3bf891.herokuapp.com'],
     },
   };
 
