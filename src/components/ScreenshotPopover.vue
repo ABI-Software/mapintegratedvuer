@@ -38,6 +38,13 @@
             <el-radio-button :value="true">Include</el-radio-button>
           </el-radio-group>
         </div>
+        <div v-if="shortcut" class="screenshot-popover-block is-stacked">
+          <h5>Shortcut ({{ shortcutLabel }})</h5>
+          <small class="screenshot-description">
+            To capture a tooltip on Flatmap, choose your settings here,
+            then hover over the feature or connection in the Flatmap and press the shortcut.
+          </small>
+        </div>
         <div class="screenshot-popover-footer">
           <div class="screenshot-info">
             <template v-if="outputSize.width">
@@ -177,13 +184,12 @@ export default {
     helpDelay() {
       return this.settingsStore.helpDelay;
     },
-    tooltipText() {
-      if (!this.shortcut) {
-        return this.tooltip;
-      }
+    shortcutLabel() {
       const platform = navigator.userAgentData?.platform || navigator.platform || '';
-      const isMac = /mac/i.test(platform);
-      return `${this.tooltip} (${isMac ? '⌥⇧S' : 'Alt+Shift+S'})`;
+      return /mac/i.test(platform) ? '⌥⇧S' : 'Alt+Shift+S';
+    },
+    tooltipText() {
+      return this.shortcut ? `${this.tooltip} (${this.shortcutLabel})` : this.tooltip;
     },
   },
   watch: {
@@ -323,6 +329,22 @@ export default {
     line-height: 32px;
     color: #303133;
   }
+
+  &.is-stacked {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+}
+
+.screenshot-description {
+  display: inline-block;
+  font-size: 12px;
+  white-space: normal;
+  line-height: 1.2;
+  font-weight: normal;
+  font-style: italic;
+  color: gray;
 }
 
 .screenshot-popover-footer {
@@ -330,7 +352,6 @@ export default {
   align-items: flex-end;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0 0.25rem;
 }
 
 .screenshot-info {
