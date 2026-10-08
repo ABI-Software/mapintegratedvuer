@@ -399,39 +399,159 @@ export const getScreenshotFilename = (title) => {
 const IMAGE_PLACEHOLDER =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
+// Safari and every iOS browser use WebKit.
+const isWebKit = () => navigator.vendor === 'Apple Computer, Inc.';
+
+// WebKit decodes images nested in an SVG `<foreignObject>` asynchronously,
+// per drawn size, and draws them blank until they are ready,
+// so the snapshot overlays would be missing.
+// The SVG is redrawn until the result stops changing.
+const WEBKIT_MIN_DRAWS = 3;
+const WEBKIT_MAX_DRAWS = 10;
+const WEBKIT_DRAW_INTERVAL = 100;
+const FINGERPRINT_WIDTH = 128;
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Return a function giving a downscaled copy of `canvas` pixels as a string.
+ */
+const createFingerprint = (canvas) => {
+  const probe = document.createElement('canvas');
+  probe.width = Math.min(FINGERPRINT_WIDTH, canvas.width);
+  probe.height = Math.max(1, Math.round((probe.width * canvas.height) / canvas.width));
+  const ctx = probe.getContext('2d', { willReadFrequently: true });
+  return () => {
+    ctx.clearRect(0, 0, probe.width, probe.height);
+    ctx.drawImage(canvas, 0, 0, probe.width, probe.height);
+    try {
+      return ctx.getImageData(0, 0, probe.width, probe.height).data.join();
+    } catch {
+      // Unreadable, fall back to the minimum number of draws
+      return '';
+    }
+  };
+};
+
+const redrawUntilStable = async (canvas, draw) => {
+  const fingerprint = createFingerprint(canvas);
+  let previous = fingerprint();
+  for (let count = 2; count <= WEBKIT_MAX_DRAWS; count++) {
+    await delay(WEBKIT_DRAW_INTERVAL * (count - 1));
+    await nextFrame();
+    draw();
+    const current = fingerprint();
+    if (count >= WEBKIT_MIN_DRAWS && current === previous) return;
+    previous = current;
+  }
+};
+
+/**
+ * Serialise a computed style the same way html-to-image copies it property by property.
+ */
+const formatComputedStyle = (node, style) => {
+  let text = '';
+  for (let i = 0; i < style.length; i++) {
+    const name = style[i];
+    let value = style.getPropertyValue(name);
+    if (name === 'font-size' && value.endsWith('px')) {
+      value = `${Math.floor(parseFloat(value)) - 0.1}px`;
+    }
+    if (name === 'display' && value === 'inline' && node instanceof HTMLIFrameElement) {
+      value = 'block';
+    }
+    if (name === 'd' && node.getAttribute?.('d')) {
+      value = `path(${node.getAttribute('d')})`;
+    }
+    text += `${name}: ${value}; `;
+  }
+  return text;
+};
+
+/**
+ * When the computed `cssText` is empty (Safari, Firefox),
+ * html-to-image copies each of the ~500 properties with `setProperty`,
+ * which takes tens of seconds in Safari on a flatmap and freezes the page.
+ * While `callback` runs, provide `cssText` so each style is assigned at once.
+ */
+const withComputedCssText = async (callback) => {
+  const getComputedStyle = window.getComputedStyle;
+  if (getComputedStyle(document.documentElement).cssText) return callback();
+  window.getComputedStyle = function (node, pseudo) {
+    const style = getComputedStyle.call(window, node, pseudo);
+    if (!pseudo && !style.cssText) {
+      let text;
+      try {
+        Object.defineProperty(style, 'cssText', {
+          configurable: true,
+          get: () => (text ??= formatComputedStyle(node, style)),
+        });
+      } catch {
+        // Keep the per-property copy
+      }
+    }
+    return style;
+  };
+  try {
+    return await callback();
+  } finally {
+    window.getComputedStyle = getComputedStyle;
+  }
+};
+
 /**
  * Rasterise `el` with html-to-image, skipping `excluded` nodes
  * and nodes matching `hideSelectors`.
  */
 const renderToCanvas = async (el, options) => {
   const { pixelRatio, width, height, style, excluded = new Set(), hideSelectors = [] } = options;
-  const { toCanvas } = await import('html-to-image');
+  const { toSvg } = await import('html-to-image');
   const hideSelector = hideSelectors.join(',');
-  return toCanvas(el, {
-    pixelRatio,
-    width,
-    height,
-    backgroundColor: '#ffffff',
-    // The root clone keeps its computed position (e.g. `top: 32px` on the pane container),
-    // reset it so the content starts at the origin.
-    style: {
-      margin: '0',
-      top: '0',
-      left: '0',
-      right: 'auto',
-      bottom: 'auto',
-      transform: 'none',
-      ...style,
-    },
-    imagePlaceholder: IMAGE_PLACEHOLDER,
-    filter: (node) => {
-      if (excluded.has(node)) return false;
-      if (node.nodeType === Node.ELEMENT_NODE && hideSelector && node.matches(hideSelector)) {
-        return false;
-      }
-      return true;
-    },
-  });
+  const backgroundColor = '#ffffff';
+  // Draw the SVG ourselves rather than with `toCanvas`, to handle WebKit.
+  const svg = await withComputedCssText(() =>
+    toSvg(el, {
+      width,
+      height,
+      backgroundColor,
+      // The root clone keeps its computed position (e.g. `top: 32px` on the pane container),
+      // reset it so the content starts at the origin.
+      style: {
+        margin: '0',
+        top: '0',
+        left: '0',
+        right: 'auto',
+        bottom: 'auto',
+        transform: 'none',
+        ...style,
+      },
+      imagePlaceholder: IMAGE_PLACEHOLDER,
+      filter: (node) => {
+        if (excluded.has(node)) return false;
+        if (node.nodeType === Node.ELEMENT_NODE && hideSelector && node.matches(hideSelector)) {
+          return false;
+        }
+        return true;
+      },
+    }),
+  );
+
+  const img = await loadImage(svg);
+  await img.decode?.();
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(width * pixelRatio);
+  canvas.height = Math.round(height * pixelRatio);
+  const ctx = canvas.getContext('2d');
+  const draw = () => {
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  };
+  draw();
+  if (isWebKit()) {
+    await redrawUntilStable(canvas, draw);
+  }
+  return canvas;
 };
 
 /**
@@ -506,7 +626,8 @@ export const captureElement = async (el, options = {}) => {
     return captureLegends(el, { scale, filename, hideSelectors });
   }
 
-  const { width, height } = getBorderedSize(el.getBoundingClientRect());
+  const rect = el.getBoundingClientRect();
+  const { width, height } = getBorderedSize(rect);
   const { pixelRatio, clamped } = fitCanvasSize(width, height, scale);
 
   const sources = [];
@@ -525,6 +646,8 @@ export const captureElement = async (el, options = {}) => {
   try {
     canvas = await renderToCanvas(el, {
       pixelRatio,
+      width: rect.width,
+      height: rect.height,
       excluded,
       hideSelectors: hidden,
     });
