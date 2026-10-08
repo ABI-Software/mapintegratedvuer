@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="toolbar-flex-container">
+      <div class="toolbar-left shrink">
       <el-select
         v-if="entries.length > 1"
         :teleported="false"
@@ -29,6 +30,9 @@
       >
         {{ getSourceTitle }}
       </el-button>
+      </div>
+
+      <div class="toolbar-right shrink">
       <div class="information-group shrink">
         <el-popover
           placement="bottom"
@@ -102,6 +106,7 @@
           />
         </template>
       </el-popover>
+      </div>
     </div>
   </div>
 </template>
@@ -361,16 +366,35 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: nowrap;
   width: 100%;
+  gap: 16px;
 
   .shrink {
     flex-shrink: 1;
     min-width: 0;
   }
 
-  .information-group {
+  .toolbar-left,
+  .toolbar-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+  }
+
+  .toolbar-left {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .toolbar-right {
+    justify-content: flex-end;
     margin-left: auto;
+  }
+
+  .information-group {
     margin-right: 12px;
     height: 100%;
     position: relative;
@@ -462,8 +486,6 @@ export default {
 
   .source-chip {
     padding: 4px !important;
-    margin-left: 2px;
-    margin-right: 2px;
     background-color: $app-primary-color;
     border-color: $app-primary-color;
     color: #fff;
