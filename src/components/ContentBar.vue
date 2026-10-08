@@ -392,12 +392,12 @@ export default {
   .toolbar-right {
     justify-content: flex-end;
     margin-left: auto;
+    position: relative;
   }
 
   .information-group {
     margin-right: 12px;
     height: 100%;
-    position: relative;
   }
 
   .toolbar-title {
