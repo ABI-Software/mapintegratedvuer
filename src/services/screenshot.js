@@ -669,16 +669,19 @@ export const captureElement = async (el, options = {}) => {
  * Snapshot a three.js renderer at the given pixel ratio.
  * `render` must draw the scene synchronously.
  */
-export const snapshotThreeRenderer = (renderer, render, pixelRatio) => {
+export const snapshotThreeRenderer = (zincRenderer, pixelRatio) => {
+  const renderer = zincRenderer?.getThreeJSRenderer();
   const canvas = renderer.domElement;
   const originalPixelRatio = renderer.getPixelRatio();
   try {
     renderer.setPixelRatio(pixelRatio);
-    render();
+    zincRenderer.invalidate?.();
+    zincRenderer.render();
     return { canvas, dataUrl: canvas.toDataURL('image/png') };
   } finally {
     renderer.setPixelRatio(originalPixelRatio);
-    render();
+    zincRenderer.invalidate?.();
+    zincRenderer.render();
   }
 };
 
