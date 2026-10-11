@@ -25,7 +25,7 @@ function capitalise(text) {
 }
 
 export default {
-  emits: ['flatmap-provenance-ready', 'resource-selected', 'species-changed'],
+  emits: ['flatmap-provenance-ready', 'resource-selected', 'species-changed', 'viewer-ready'],
   props: {
     /**
      * Object containing information for

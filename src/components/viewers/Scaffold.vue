@@ -304,6 +304,7 @@ export default {
     },
     scaffoldIsReady: function () {
       this.scaffoldLoaded = true;
+      this.$emit('viewer-ready', true);
       this.$refs.scaffold.$module.graphicsHighlight.highlightColour = [1, 0, 1];
       if (!this.scaffoldRef) {
         this.scaffoldRef = markRaw(this.$refs.scaffold);
