@@ -248,9 +248,8 @@ export default {
     },
     getScreenshotSources: async function (pixelRatio) {
       const zincRenderer = this.$refs.scaffold?.$module?.zincRenderer;
-      const renderer = zincRenderer?.getThreeJSRenderer();
-      if (!renderer) return [];
-      return [snapshotThreeRenderer(renderer, () => zincRenderer.render(), pixelRatio)];
+      if (!zincRenderer) return [];
+      return [snapshotThreeRenderer(zincRenderer, pixelRatio)];
     },
     getState: function () {
       if (this.$refs.scaffold) {
