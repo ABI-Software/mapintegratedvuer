@@ -18,7 +18,7 @@
         class="dataset-card"
         ref="card"
       >
-        <img :src="entry.datasetImage" class="image" />
+        <img crossorigin="anonymous" :src="entry.datasetImage" class="image" />
         <div style="padding: 14px">
           <span class="dataset-description">{{ entry.datasetDescription }}</span>
           <div>

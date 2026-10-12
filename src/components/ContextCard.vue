@@ -7,7 +7,7 @@
         class="context-card"
       >
         <div class="card-left">
-          <img :src="banner" class="context-image" />
+          <img crossorigin="anonymous" :src="banner" class="context-image" />
         </div>
         <div class="card-right scrollbar">
           <div>
@@ -54,7 +54,11 @@
               </div>
               <template v-for="(view, i) in contextData.views" :key="i + '_1'">
                 <div @click="openViewFile(view)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)" />
+                  <img
+                    crossorigin="anonymous"
+                    class="view-image"
+                    :src="getFileFromPath(view.thumbnail)"
+                  />
                   <div class="view-description">{{ view.description }}</div>
                 </div>
                 <div class="padding" />
@@ -72,6 +76,7 @@
                       :style="'background-color:' + sample.color"
                     ></div>
                     <img
+                      crossorigin="anonymous"
                       class="key-image"
                       v-else-if="sample.thumbnail"
                       :src="getFileFromPath(sample.thumbnail)"
@@ -99,7 +104,11 @@
               </div>
               <template v-for="(view, i) in contextData.views" :key="i + '_1'">
                 <span @click="viewClicked(view, i)" class="context-card-view">
-                  <img class="view-image" :src="getFileFromPath(view.thumbnail)" />
+                  <img
+                    crossorigin="anonymous"
+                    class="view-image"
+                    :src="getFileFromPath(view.thumbnail)"
+                  />
                   <div class="view-description">
                     {{ view.description }}
                     <i class="el-icon-warning-outline info"></i>
