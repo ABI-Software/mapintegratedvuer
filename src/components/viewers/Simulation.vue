@@ -1,5 +1,14 @@
 <template>
-  <SimulationVuer :apiLocation="apiLocation" :id="id" ref="simulation" />
+  <SimulationVuer
+    v-if="isCrossOriginIsolated"
+    :apiLocation="apiLocation"
+    :id="id"
+    ref="simulation"
+  />
+  <div v-else class="simulation-unsupported">
+    Simulations require a cross-origin isolated page (for SharedArrayBuffer support). This browser
+    or host is not configured for it.
+  </div>
 </template>
 
 <script>
@@ -13,6 +22,13 @@ export default {
   components: {
     SimulationVuer,
   },
+  data: function () {
+    return {
+      // libOpenCOR (wasm) uses threads, which need SharedArrayBuffer and therefore COOP/COEP headers.
+      // Without them it aborts on Safari.
+      isCrossOriginIsolated: window.crossOriginIsolated === true,
+    };
+  },
   computed: {
     id: function () {
       //resource field is only available for simulation omex file and it will run locally.
@@ -22,3 +38,9 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="scss">
+.simulation-unsupported {
+  padding: 1rem;
+}
+</style>
