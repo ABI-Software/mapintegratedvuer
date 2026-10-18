@@ -6,8 +6,8 @@
     ref="simulation"
   />
   <div v-else class="simulation-unsupported">
-    Simulations require a cross-origin isolated page (for SharedArrayBuffer support). This browser
-    or host is not configured for it.
+    Simulations require a cross-origin isolated page (for SharedArrayBuffer support).
+    This browser or host is not configured for it.
   </div>
 </template>
 

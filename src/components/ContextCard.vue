@@ -7,7 +7,7 @@
         class="context-card"
       >
         <div class="card-left">
-          <img crossorigin="anonymous" :src="banner" class="context-image" />
+          <img :crossorigin="crossorigin" :src="banner" class="context-image" />
         </div>
         <div class="card-right scrollbar">
           <div>
@@ -55,7 +55,7 @@
               <template v-for="(view, i) in contextData.views" :key="i + '_1'">
                 <div @click="openViewFile(view)" class="context-card-view">
                   <img
-                    crossorigin="anonymous"
+                    :crossorigin="crossorigin"
                     class="view-image"
                     :src="getFileFromPath(view.thumbnail)"
                   />
@@ -76,7 +76,7 @@
                       :style="'background-color:' + sample.color"
                     ></div>
                     <img
-                      crossorigin="anonymous"
+                      :crossorigin="crossorigin"
                       class="key-image"
                       v-else-if="sample.thumbnail"
                       :src="getFileFromPath(sample.thumbnail)"
@@ -105,7 +105,7 @@
               <template v-for="(view, i) in contextData.views" :key="i + '_1'">
                 <span @click="viewClicked(view, i)" class="context-card-view">
                   <img
-                    crossorigin="anonymous"
+                    :crossorigin="crossorigin"
                     class="view-image"
                     :src="getFileFromPath(view.thumbnail)"
                   />
@@ -180,6 +180,9 @@ export default {
     CopyToClipboard,
   },
   mixins: [S3Bucket],
+  inject: {
+    crossorigin: { default: 'anonymous' },
+  },
   props: {
     /**
      * Object containing information for
