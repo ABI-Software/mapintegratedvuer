@@ -9,6 +9,32 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pathSrc = path.resolve(__dirname, './src');
 
+// SimulationVuer (libOpenCOR wasm) needs SharedArrayBuffer, which requires cross-origin isolation.
+// Safari/WebKit does not support COEP `credentialless`,
+// so serve `require-corp` to WebKit browsers and `credentialless` to the rest.
+const isWebKitOnly = (ua = '') => ua.includes('AppleWebKit') && !/(Chrome|Chromium|Edg)\//.test(ua);
+
+const crossOriginIsolation = () => {
+  const middleware = (req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader(
+      'Cross-Origin-Embedder-Policy',
+      isWebKitOnly(req.headers['user-agent']) ? 'require-corp' : 'credentialless',
+    );
+    res.setHeader('Vary', 'User-Agent');
+    next();
+  };
+  return {
+    name: 'cross-origin-isolation',
+    configureServer: (server) => {
+      server.middlewares.use(middleware);
+    },
+    configurePreviewServer: (server) => {
+      server.middlewares.use(middleware);
+    },
+  };
+};
+
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   const config = {
@@ -53,11 +79,8 @@ export default defineConfig(({ command }) => {
   if (command === 'serve') {
     config.server = {
       port: 8081,
-      headers: {
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'credentialless',
-      },
     };
+    config.plugins.push(crossOriginIsolation());
     config.define = {
       'process.env.HTTP_PROXY': 8081,
       global: 'globalThis',

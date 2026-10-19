@@ -144,9 +144,17 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The `crossorigin` attribute value used for images.
+     */
+    crossorigin: {
+      type: String,
+      default: 'anonymous',
+    },
   },
   provide: function () {
     return {
+      crossorigin: computed(() => this.crossorigin),
       showGlobalSettings: this.showGlobalSettings,
       showOpenMapButton: this.showOpenMapButton,
       truncateLongLabel: computed(() => this.truncateLongLabel),

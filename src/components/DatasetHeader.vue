@@ -18,7 +18,7 @@
         class="dataset-card"
         ref="card"
       >
-        <img :src="entry.datasetImage" class="image" />
+        <img :crossorigin="crossorigin" :src="entry.datasetImage" class="image" />
         <div style="padding: 14px">
           <span class="dataset-description">{{ entry.datasetDescription }}</span>
           <div>
@@ -33,6 +33,9 @@
 <script>
 export default {
   name: 'DatasetHeader',
+  inject: {
+    crossorigin: { default: 'anonymous' },
+  },
   props: {
     /**
      * Object containing information for
