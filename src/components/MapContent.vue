@@ -132,9 +132,27 @@ export default {
       type: Boolean,
       default: true,
     },
+    /**
+     * The option to open a species from the species dropdown's "open new view"
+     * in a split view. From a single view, it opens as a vertical split on the right.
+     * From a split view, it replaces the other pane's view.
+     * Default is `true`.
+     */
+    openNewSpeciesInSplitView: {
+      type: Boolean,
+      default: true,
+    },
+    /**
+     * The `crossorigin` attribute value used for images.
+     */
+    crossorigin: {
+      type: String,
+      default: 'anonymous',
+    },
   },
   provide: function () {
     return {
+      crossorigin: computed(() => this.crossorigin),
       showGlobalSettings: this.showGlobalSettings,
       showOpenMapButton: this.showOpenMapButton,
       truncateLongLabel: computed(() => this.truncateLongLabel),
@@ -308,7 +326,11 @@ export default {
               discoverId: state.dataset_id,
               version: state.dataset_version,
             };
-            this.$refs.flow.createNewEntry(newView);
+            // sourceId is only provided by "open new view" from the species dropdown
+            this.$refs.flow.createNewEntry(newView, {
+              openInSplitView: this.openNewSpeciesInSplitView && state.sourceId !== undefined,
+              sourceId: state.sourceId,
+            });
           } else {
             //State for multiflatmap containing the following items:
             //  taxo - taxo of species to set
@@ -468,6 +490,12 @@ export default {
        * This event emit when the map is loaded.
        */
       this.$emit('mapLoaded', map);
+    });
+    // Allow other components to request opening a map via setCurrentEntry
+    EventBus.on('SetCurrentEntry', (entry) => {
+      if (entry) {
+        this.setCurrentEntry(entry);
+      }
     });
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
