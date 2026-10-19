@@ -78,6 +78,8 @@ export default {
   },
   beforeUnmount: function () {
     this.alive = false;
+    window.removeEventListener('mousedown', this.checkEndHelpMouseDown);
+    clearTimeout(this.highlightDelay);
   },
   mounted: function () {
     if (this.$refs.multiflatmap) {
