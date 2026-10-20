@@ -150,7 +150,10 @@ export default {
       // Both EventBus.emit and getKnowledgeTooltip will trigger sidebar content update
       // Then setVisibilityFilter will be called to zoom to the clicked nerve.
       if (resource.length === 1) {
-        this.clickedObject = resource[0].data;
+        // Keep only the fields needed here; resource data carries the live
+        // zincObject, which should not be made reactive or retained.
+        const { id, isNerves, anatomicalId } = resource[0].data;
+        this.clickedObject = { id, isNerves, anatomicalId };
         if (this.clickedObject.isNerves || this.clickedObject.anatomicalId) {
           const label = this.clickedObject.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === 'Neuron Connection') {
