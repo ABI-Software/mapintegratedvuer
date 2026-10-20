@@ -60,6 +60,13 @@
         />
       </div>
     </el-main>
+    <HelpModeTour
+      v-model="helpTourOpen"
+      :steps="helpTourSteps"
+      @change="onHelpTourChange"
+      @finish="onHelpTourEnd('help_mode_finish')"
+      @close="onHelpTourEnd('help_mode_exit')"
+    />
   </el-container>
 </template>
 
@@ -72,7 +79,7 @@ import SplitDialog from './SplitDialog.vue';
 // import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/style.css';
-import { queryForwardBackwardConnections } from '@abi-software/map-utilities';
+import { HelpModeTour, queryForwardBackwardConnections } from '@abi-software/map-utilities';
 import {
   capitalise,
   getNewMapEntry,
@@ -125,6 +132,7 @@ export default {
   name: 'SplitFlow',
   components: {
     DialogToolbarContent,
+    HelpModeTour,
     SplitDialog,
     SideBar,
   },
@@ -182,9 +190,18 @@ export default {
       filterVisibility: true,
       filterOptions: [],
       annotationHighlight: [],
+      helpTourOpen: false,
+      helpTourSteps: [],
     };
   },
   watch: {
+    'splitFlowStore.activeView': function () {
+      // The panels have changed, the steps of the help tour are no longer valid
+      this.helpTourOpen = false;
+    },
+    'entries.length': function () {
+      this.helpTourOpen = false;
+    },
     state: {
       handler: function (value) {
         if (value) {
@@ -208,6 +225,39 @@ export default {
     },
   },
   methods: {
+    /**
+     * Start a single help tour for the toolbar and all the visible panels.
+     */
+    startHelpTour: function () {
+      const toolbarSteps = this.$refs.dialogToolbar?.getHelpModeSteps() ?? [];
+      const contents = this.$refs.splitdialog?.getActiveContentsInViewOrder() ?? [];
+      const contentSteps = contents.flatMap((content, index) => {
+        const steps = content.getHelpModeSteps();
+        if (contents.length < 2) return steps;
+        const group = `Panel ${index + 1} · ${content.getTitle()}`;
+        return steps.map((step) => ({ ...step, id: `panel-${index + 1}-${step.id}`, group }));
+      });
+      this.helpTourSteps = [...toolbarSteps, ...contentSteps];
+      this.helpTourOpen = this.helpTourSteps.length > 0;
+    },
+    onHelpTourChange: function (step, index, direction) {
+      // The first step is shown when the tour starts, which is already tracked
+      if (index === 0) return;
+      Tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: `portal_maps_help_mode_${direction > 0 ? 'next' : 'back'}`,
+        category: 'help_mode_step',
+        location: step?.id,
+      });
+    },
+    onHelpTourEnd: function (category) {
+      Tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: `portal_maps_${category}`,
+        category: category,
+        location: 'map_toolbar',
+      });
+    },
     onFilterVisibility: function (state) {
       this.filterVisibility = state;
       const filterExpression = {
@@ -1239,6 +1289,7 @@ export default {
         if (this.$refs.sideBar) {
           this.$refs.sideBar.close();
         }
+        this.startHelpTour();
       },
       'connectivity-knowledge': (payload) => {
         // Ignore the default/global connectivity dump (emitted when no active

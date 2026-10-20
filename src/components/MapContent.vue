@@ -84,9 +84,8 @@ export default {
       default: 'AC',
     },
     /**
-     * To use help-mode-dialog when user clicks "Help".
-     * This option is available on Flatmap, MultiFlatmap, and Scaffold.
-     * When this is set to `true`, "Help" tooltips will be shown one by one.
+     * @deprecated "Help" now always starts a single guided tour across the toolbar
+     * and all the visible panels. This option is kept for compatibility and has no effect.
      */
     useHelpModeDialog: {
       type: Boolean,

@@ -25,11 +25,12 @@
         round
         size="small"
         class="source-chip shrink"
+        data-help-id="source"
         @click="openSourceInfo"
       >
         {{ getSourceTitle }}
       </el-button>
-      <div class="information-group shrink">
+      <div class="information-group shrink" data-help-id="information">
         <el-popover
           placement="bottom"
           :teleported="false"
@@ -90,6 +91,7 @@
           <map-svg-icon
             icon="close-no-bk"
             class="header-icon rightmost"
+            data-help-id="close-panel"
             v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
             @click="closeAndRemove()"
           />
@@ -202,6 +204,42 @@ export default {
     },
   },
   methods: {
+    /**
+     * Returns the help mode tour steps for the controls in this bar.
+     */
+    getHelpModeSteps: function () {
+      const findTarget = (selector) => () => this.$el?.querySelector?.(selector);
+      return [
+        {
+          id: 'content-bar-viewer-select',
+          title: 'Switch map',
+          description: 'Choose which of the opened maps and data is shown in this panel.',
+          placement: 'bottom',
+          target: findTarget('.select-box'),
+        },
+        {
+          id: 'content-bar-source',
+          title: 'Source',
+          description: 'See where the data shown in this panel comes from.',
+          placement: 'bottom',
+          target: findTarget('[data-help-id="source"]'),
+        },
+        {
+          id: 'content-bar-information',
+          title: 'Information',
+          description: 'Show more information about what is shown in this panel.',
+          placement: 'bottom',
+          target: findTarget('[data-help-id="information"] .information'),
+        },
+        {
+          id: 'content-bar-close',
+          title: 'Close panel',
+          description: 'Close this panel and remove its content from the view.',
+          placement: 'bottom-end',
+          target: findTarget('[data-help-id="close-panel"]'),
+        },
+      ];
+    },
     closeAndRemove: function () {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries });
       EventBus.emit('RemoveEntryRequest', this.entry.id);

@@ -149,8 +149,16 @@ export default {
     onSidebarAnnotationClose: function () {
       this.$refs.viewer?.onSidebarAnnotationClose();
     },
-    onStartHelp: function () {
-      this.$refs.viewer?.startHelp();
+    /**
+     * Returns the help mode tour steps of this panel, the content bar first, then the viewer.
+     */
+    getHelpModeSteps: function () {
+      const contentBarSteps = this.$refs.contentBar?.getHelpModeSteps() ?? [];
+      const viewerSteps = this.$refs.viewer?.getHelpModeSteps?.() ?? [];
+      return [...contentBarSteps, ...viewerSteps];
+    },
+    getTitle: function () {
+      return this.$refs.contentBar?.getEntryTitle(this.entry) ?? '';
     },
     onFilterVisibility: function (payload) {
       this.$refs.viewer?.setVisibilityFilter(payload);

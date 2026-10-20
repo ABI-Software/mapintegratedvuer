@@ -2,13 +2,14 @@
   <div class="header">
     <map-svg-sprite-color />
     <search-controls
+      data-help-id="search"
       @search="$emit('local-search', { term: $event })"
       @fetch-suggestions="$emit('fetch-suggestions', { data: $event })"
       :failedSearch="failedSearch"
     />
 
     <el-row class="icon-group">
-      <div class="viewing-mode-selector">
+      <div class="viewing-mode-selector" data-help-id="viewing-mode">
         Viewing Mode:
         <el-dropdown
           :teleported="false"
@@ -178,6 +179,7 @@
             :icon="activeView"
             ref="activeViewRef"
             :class="[{ disabled: 1 >= numberOfEntries }, 'header-icon', 'splitscreen-icon']"
+            data-help-id="split-screen"
           />
         </template>
       </el-popover>
@@ -192,7 +194,12 @@
         popper-class="header-popper"
       >
         <template #reference>
-          <map-svg-icon icon="tooltips" class="header-icon" @click="startHelp()" />
+          <map-svg-icon
+            icon="tooltips"
+            class="header-icon"
+            data-help-id="help"
+            @click="startHelp()"
+          />
         </template>
       </el-popover>
       <el-popover
@@ -209,6 +216,7 @@
             v-show="!isFullscreen"
             icon="fullScreen"
             class="header-icon"
+            data-help-id="fullscreen"
             @click="onFullscreen"
           />
         </template>
@@ -227,6 +235,7 @@
             v-show="isFullscreen"
             icon="closeFullScreen"
             class="header-icon"
+            data-help-id="exit-fullscreen"
             @click="onFullscreen"
           />
         </template>
@@ -328,6 +337,7 @@
             icon="permalink"
             ref="permalinkRef"
             class="header-icon"
+            data-help-id="permalink"
             @click="requestShareLink"
             v-show="shareLink"
           />
@@ -343,7 +353,13 @@
         popper-class="header-popper"
       >
         <template #reference>
-          <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons" />
+          <map-svg-icon
+            icon="close"
+            class="header-icon"
+            data-help-id="close"
+            @click="close"
+            v-show="showIcons"
+          />
         </template>
       </el-popover>
 
@@ -462,6 +478,7 @@
         <template #reference>
           <el-icon
             ref="globalSettingRef"
+            data-help-id="global-settings"
             :disabled="!mapLoaded"
             class="header-icon"
             :class="{ disabled: !mapLoaded }"
@@ -560,6 +577,79 @@ export default {
     };
   },
   methods: {
+    /**
+     * Returns the help mode tour steps for the controls in the toolbar.
+     */
+    getHelpModeSteps: function () {
+      const findTarget = (id) => () => this.$el?.querySelector?.(`[data-help-id="${id}"]`);
+      return [
+        {
+          id: 'toolbar-search',
+          title: 'Search within display',
+          description: 'Search for a term, such as an organ or a nerve, in the opened maps.',
+          placement: 'bottom',
+          target: findTarget('search'),
+        },
+        {
+          id: 'toolbar-viewing-mode',
+          title: 'Viewing mode',
+          description:
+            'Change how you interact with the maps, e.g. explore the features or the neuron connections.',
+          placement: 'bottom',
+          target: findTarget('viewing-mode'),
+        },
+        {
+          id: 'toolbar-split-screen',
+          title: 'Split screen',
+          description: 'View several maps side by side by choosing a split screen layout.',
+          placement: 'bottom-end',
+          target: findTarget('split-screen'),
+        },
+        {
+          id: 'toolbar-help',
+          title: 'Help',
+          description: 'Start this tour again at any time.',
+          placement: 'bottom-end',
+          target: findTarget('help'),
+        },
+        {
+          id: 'toolbar-fullscreen',
+          title: 'Fullscreen',
+          description: 'View the maps in fullscreen.',
+          placement: 'bottom-end',
+          target: findTarget('fullscreen'),
+        },
+        {
+          id: 'toolbar-exit-fullscreen',
+          title: 'Exit fullscreen',
+          description: 'Exit the fullscreen view.',
+          placement: 'bottom-end',
+          target: findTarget('exit-fullscreen'),
+        },
+        {
+          id: 'toolbar-permalink',
+          title: 'Permalink',
+          description: 'Create a link to share the current view with others.',
+          placement: 'bottom-end',
+          target: findTarget('permalink'),
+        },
+        {
+          id: 'toolbar-close',
+          title: 'Close',
+          description: 'Close the maps viewer.',
+          placement: 'bottom-end',
+          target: findTarget('close'),
+        },
+        {
+          id: 'toolbar-global-settings',
+          title: 'Global settings',
+          description:
+            'Change the settings that apply to all the maps, such as the display options.',
+          placement: 'bottom-end',
+          target: findTarget('global-settings'),
+        },
+      ];
+    },
     loadGlobalSettings: function () {
       this.globalSettings = {
         ...this.globalSettings,
