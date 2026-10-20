@@ -386,6 +386,9 @@ export default {
         ? this.settingsStore.numberOfDatasetsForFacets
         : {};
     },
+    scaffoldKnowledge: function () {
+      return this.connectivityKnowledge?.[this.entry.resource];
+    },
   },
   watch: {
     visible: {
@@ -406,23 +409,19 @@ export default {
           });
         }
       },
-      deep: true,
       immediate: true,
     },
-    connectivityKnowledge: {
-      handler(newVal, _oldVal) {
+    // Knowledge entries are replaced so a shallow watch on this scaffold's entry is sufficient
+    scaffoldKnowledge: {
+      handler(scaffoldKnowledge) {
         // Store scaffold knowledge locally
-        if (this.entry.resource in newVal) {
-          const scaffoldKnowledge = newVal[this.entry.resource];
-          if (scaffoldKnowledge.length !== this.nervesKnowledge.length) {
-            this.nervesKnowledge = scaffoldKnowledge;
-            if (this.scaffoldLoaded) {
-              this.setNerveGreyScale();
-            }
+        if (scaffoldKnowledge && scaffoldKnowledge.length !== this.nervesKnowledge.length) {
+          this.nervesKnowledge = scaffoldKnowledge;
+          if (this.scaffoldLoaded) {
+            this.setNerveGreyScale();
           }
         }
       },
-      deep: true,
       immediate: true,
     },
   },
