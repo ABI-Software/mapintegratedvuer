@@ -316,7 +316,7 @@ export default {
       }
       this.updateViewerSettings();
       EventBus.emit('mapLoaded', this.$refs.scaffold);
-      setTimeout(() => {
+      this._greyScaleTimer = setTimeout(() => {
         this.setNerveGreyScale();
       }, 500);
     },
@@ -441,6 +441,9 @@ export default {
       filter: [],
       query: '',
     };
+  },
+  beforeUnmount: function () {
+    clearTimeout(this._greyScaleTimer);
   },
 };
 </script>
