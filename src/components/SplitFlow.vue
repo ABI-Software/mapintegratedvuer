@@ -936,7 +936,7 @@ export default {
         scale,
         legend,
         toolbar,
-        title: 'sparc-maps',
+        title: 'maps-view',
         viewers: contents,
       });
     },
