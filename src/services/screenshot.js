@@ -33,6 +33,12 @@ export const SCREENSHOT_LEGEND_SELECTORS = LEGEND_PANELS.map((panel) => panel.wr
 // ContentBar header of each pane, hidden unless the `toolbar` option is set.
 export const SCREENSHOT_TOOLBAR_SELECTORS = ['.content-container > .toolbar'];
 
+// Dividers between panes, which may cross a header row that is removed.
+const TOOLBAR_ROW_DIVIDER_SELECTORS = ['.splitpanes__splitter'];
+
+// Spacing in CSS pixels between the points checked along a header row.
+const TOOLBAR_ROW_SAMPLE_STEP = 4;
+
 // UI controls that should not appear in the screenshot.
 export const SCREENSHOT_HIDE_SELECTORS = [
   '[data-screenshot-ignore]',
@@ -245,11 +251,102 @@ export const findLegends = (el) => {
 };
 
 /**
+ * Find the rows of `el` that only show hidden header bars, which would be left blank.
+ * A row is kept if anything else is on top at that height,
+ * e.g. the open sidebar or a pane with its header elsewhere.
+ * @param {HTMLElement} el - Element to capture.
+ * @param {Array} hideSelectors - Selectors of nodes excluded from the capture,
+ *   ignored when checking what is on top (e.g. the screenshot popover).
+ * @returns {Array} { top, bottom } in CSS pixels relative to `el`, sorted and merged.
+ */
+const getToolbarRows = (el, hideSelectors = SCREENSHOT_HIDE_SELECTORS) => {
+  const rect = el.getBoundingClientRect();
+  const toolbarSelector = SCREENSHOT_TOOLBAR_SELECTORS.join(',');
+  const allowedSelector = [...SCREENSHOT_TOOLBAR_SELECTORS, ...TOOLBAR_ROW_DIVIDER_SELECTORS].join(
+    ',',
+  );
+  const ignoredSelector = hideSelectors.join(',');
+
+  const edges = new Set();
+  el.querySelectorAll(toolbarSelector).forEach((toolbar) => {
+    if (getComputedStyle(toolbar).visibility !== 'visible') return;
+    const { top, bottom } = toolbar.getBoundingClientRect();
+    const rowTop = Math.max(top, rect.top) - rect.top;
+    const rowBottom = Math.min(bottom, rect.bottom) - rect.top;
+    if (rowBottom > rowTop) {
+      edges.add(rowTop);
+      edges.add(rowBottom);
+    }
+  });
+
+  const isToolbarOnly = (y) => {
+    for (let x = rect.left + 0.5; x < rect.right; x += TOOLBAR_ROW_SAMPLE_STEP) {
+      const node = document
+        .elementsFromPoint(x, y)
+        .find((n) => !ignoredSelector || !n.closest(ignoredSelector));
+      if (!node || !el.contains(node) || !node.closest(allowedSelector)) return false;
+    }
+    return true;
+  };
+
+  // Check each strip between consecutive edges,
+  // as headers of side by side panes may not line up exactly.
+  const sorted = [...edges].sort((a, b) => a - b);
+  const rows = [];
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const top = sorted[i];
+    const bottom = sorted[i + 1];
+    if (!isToolbarOnly(rect.top + (top + bottom) / 2)) continue;
+    const last = rows[rows.length - 1];
+    if (last && last.bottom === top) {
+      last.bottom = bottom;
+    } else {
+      rows.push({ top, bottom });
+    }
+  }
+  return rows;
+};
+
+/**
+ * Convert `rows` from `getToolbarRows` to canvas pixels.
+ */
+const toCanvasRows = (rows, pixelRatio) =>
+  rows
+    .map(({ top, bottom }) => ({
+      top: Math.round(top * pixelRatio),
+      bottom: Math.round(bottom * pixelRatio),
+    }))
+    .filter(({ top, bottom }) => bottom > top);
+
+/**
+ * Return a copy of `canvas` without `rows` (in canvas pixels).
+ */
+const removeRows = (canvas, rows) => {
+  if (!rows.length) return canvas;
+  const removed = rows.reduce((sum, { top, bottom }) => sum + bottom - top, 0);
+  const result = document.createElement('canvas');
+  result.width = canvas.width;
+  result.height = canvas.height - removed;
+  const ctx = result.getContext('2d');
+  let source = 0;
+  let target = 0;
+  [...rows, { top: canvas.height, bottom: canvas.height }].forEach(({ top, bottom }) => {
+    const height = top - source;
+    if (height > 0) {
+      ctx.drawImage(canvas, 0, source, canvas.width, height, 0, target, canvas.width, height);
+      target += height;
+    }
+    source = bottom;
+  });
+  return result;
+};
+
+/**
  * Get the expected output size in pixels, used by the UI for preview.
  * With `legend` set to `only`, `count` is the number of images
  * and the size is the largest one.
  */
-export const getOutputSize = (el, scale, legend = 'exclude') => {
+export const getOutputSize = (el, scale, legend = 'exclude', toolbar = false) => {
   if (!el) return { width: 0, height: 0, clamped: false, count: 0 };
   const sizes =
     legend === 'only'
@@ -259,12 +356,21 @@ export const getOutputSize = (el, scale, legend = 'exclude') => {
           cleanup();
           return size;
         })
-      : [getBorderedSize(el.getBoundingClientRect())];
+      : [
+          {
+            ...getBorderedSize(el.getBoundingClientRect()),
+            rows: toolbar ? [] : getToolbarRows(el),
+          },
+        ];
   const result = { width: 0, height: 0, clamped: false, count: sizes.length };
-  sizes.forEach(({ width, height }) => {
+  sizes.forEach(({ width, height, rows = [] }) => {
     const { pixelRatio, clamped } = getEffectivePixelRatio(width, height, scale);
+    const removed = toCanvasRows(rows, pixelRatio).reduce(
+      (sum, { top, bottom }) => sum + bottom - top,
+      0,
+    );
     const outWidth = Math.round(width * pixelRatio);
-    const outHeight = Math.round(height * pixelRatio);
+    const outHeight = Math.round(height * pixelRatio) - removed;
     if (outWidth * outHeight > result.width * result.height) {
       result.width = outWidth;
       result.height = outHeight;
@@ -663,6 +769,9 @@ export const captureElement = async (el, options = {}) => {
   const { width, height } = getBorderedSize(rect);
   const { pixelRatio, clamped } = fitCanvasSize(width, height, scale);
 
+  // Find the blank header rows before the overlays are added.
+  const toolbarRows = toolbar ? [] : getToolbarRows(el, hideSelectors);
+
   const sources = [];
   for (const viewer of viewers) {
     const viewerSources = await viewer?.getScreenshotSources?.(pixelRatio);
@@ -688,6 +797,7 @@ export const captureElement = async (el, options = {}) => {
     cleanup();
   }
 
+  canvas = removeRows(canvas, toCanvasRows(toolbarRows, pixelRatio));
   canvas = addBorder(canvas, pixelRatio);
   const blob = await canvasToBlob(canvas, 'image/png');
   const filename = getScreenshotFilename(title, {

@@ -251,7 +251,7 @@ export default {
     updateOutputSize: function () {
       const { scale, legend, toolbar } = this.getOptions();
       const target = this.getTarget?.({ legend, toolbar });
-      this.outputSize = getOutputSize(target, scale, legend);
+      this.outputSize = getOutputSize(target, scale, legend, toolbar);
     },
     onCapture: async function (source = 'button') {
       this.capturing = true;
