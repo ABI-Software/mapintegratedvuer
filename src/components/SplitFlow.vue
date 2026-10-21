@@ -72,7 +72,7 @@
 import { provide, markRaw, computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import DialogToolbarContent from './DialogToolbarContent.vue';
-import { captureElement, getScreenshotFilename } from '../services/screenshot';
+import { captureElement } from '../services/screenshot';
 import EventBus, { onEvents } from './EventBus';
 import SplitDialog from './SplitDialog.vue';
 // import contextCards from './context-cards'
@@ -936,7 +936,7 @@ export default {
         scale,
         legend,
         toolbar,
-        filename: getScreenshotFilename('sparc-maps'),
+        title: 'sparc-maps',
         viewers: contents,
       });
     },

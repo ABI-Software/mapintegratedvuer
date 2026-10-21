@@ -386,16 +386,39 @@ const downloadBlob = (blob, filename) => {
 
 const pad = (n) => String(n).padStart(2, '0');
 
-export const getScreenshotFilename = (title) => {
+/**
+ * Build a filename describing the capture,
+ * e.g. `Rat-flatmap_2x_with-header_with-legend_2400x1800_261021143005.png`.
+ * Parts are separated by `_`, words within a part by `-`.
+ * The size is the actual output, which may be smaller than requested when clamped.
+ * The timestamp comes last and keeps repeated captures with the same options apart.
+ * @param {String} title - Name of the captured content.
+ * @param {Object} options - { scale, legend, toolbar, width, height, index }
+ *   where `index` numbers the images of a multi-image capture.
+ */
+export const getScreenshotFilename = (title, options = {}) => {
+  const { scale, legend, toolbar, width, height, index } = options;
   const now = new Date();
   const stamp =
-    `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-` +
+    `${pad(now.getFullYear() % 100)}${pad(now.getMonth() + 1)}${pad(now.getDate())}` +
     `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   const name = (title || 'screenshot')
-    .replace(/[^a-z0-9_]+/gi, '-')
+    .replace(/[^a-z0-9]+/gi, '-')
     .replace(/^-+|-+$/g, '')
-    .slice(0, 80);
-  return `${name || 'screenshot'}-${stamp}.png`;
+    .slice(0, 60)
+    .replace(/-+$/, '');
+  const parts = [name || 'screenshot'];
+  if (legend === 'only') {
+    parts.push(index > 0 ? `legend-${index + 1}` : 'legend');
+  }
+  if (scale) parts.push(`${scale}x`);
+  if (legend !== 'only') {
+    if (toolbar) parts.push('with-header');
+    if (legend === 'include') parts.push('with-legend');
+  }
+  if (width && height) parts.push(`${width}x${height}`);
+  parts.push(stamp);
+  return `${parts.join('_')}.png`;
 };
 
 // Transparent pixel for images that fail to load (e.g. CORS).
@@ -562,7 +585,7 @@ const renderToCanvas = async (el, options) => {
  * expanded to show all its content and visible even when the drawer is closed.
  */
 const captureLegends = async (el, options) => {
-  const { scale, filename, hideSelectors } = options;
+  const { scale, title, hideSelectors } = options;
   const legends = findLegends(el);
   if (!legends.length) throw new Error('No legend to capture');
 
@@ -590,8 +613,14 @@ const captureLegends = async (el, options) => {
       cleanup();
     }
     const blob = await canvasToBlob(canvas, 'image/png');
-    const name = index > 0 ? filename.replace(/\.png$/, `-${index + 1}.png`) : filename;
-    downloadBlob(blob, name);
+    const filename = getScreenshotFilename(title, {
+      scale,
+      legend: 'only',
+      width: canvas.width,
+      height: canvas.height,
+      index,
+    });
+    downloadBlob(blob, filename);
     results.push({ width: canvas.width, height: canvas.height, pixelRatio, clamped });
   }
   return results;
@@ -603,7 +632,8 @@ const captureLegends = async (el, options) => {
  * @param {HTMLElement} el - Element to capture.
  * @param {Object} options
  * @param {Number} options.scale - Multiplier on top of the device pixel ratio.
- * @param {String} options.filename - Optional filename.
+ * @param {String} options.title - Name of the content, used in the filename
+ *   along with the options and output size.
  * @param {String} options.legend - One of `SCREENSHOT_LEGEND_MODES`.
  * @param {Boolean} options.toolbar - Include the header bar of each pane.
  * @param {Array} options.viewers - ContentVuer instances inside `el`
@@ -615,7 +645,7 @@ const captureLegends = async (el, options) => {
 export const captureElement = async (el, options = {}) => {
   const {
     scale = 1,
-    filename = getScreenshotFilename(),
+    title,
     legend = 'exclude',
     toolbar = false,
     viewers = [],
@@ -626,7 +656,7 @@ export const captureElement = async (el, options = {}) => {
   await waitForRender();
 
   if (legend === 'only') {
-    return captureLegends(el, { scale, filename, hideSelectors });
+    return captureLegends(el, { scale, title, hideSelectors });
   }
 
   const rect = el.getBoundingClientRect();
@@ -660,6 +690,13 @@ export const captureElement = async (el, options = {}) => {
 
   canvas = addBorder(canvas, pixelRatio);
   const blob = await canvasToBlob(canvas, 'image/png');
+  const filename = getScreenshotFilename(title, {
+    scale,
+    legend,
+    toolbar,
+    width: canvas.width,
+    height: canvas.height,
+  });
   downloadBlob(blob, filename);
 
   return { width: canvas.width, height: canvas.height, pixelRatio, clamped };
