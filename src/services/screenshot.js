@@ -494,7 +494,7 @@ const pad = (n) => String(n).padStart(2, '0');
 
 /**
  * Build a filename describing the capture,
- * e.g. `Rat-flatmap_2x_with-header_with-legend_2400x1800_261021143005.png`.
+ * e.g. `Rat-flatmap_2x_with-header-and-legend_2400x1800_261021143005.png`.
  * Parts are separated by `_`, words within a part by `-`.
  * The size is the actual output, which may be smaller than requested when clamped.
  * The timestamp comes last and keeps repeated captures with the same options apart.
@@ -519,8 +519,10 @@ export const getScreenshotFilename = (title, options = {}) => {
   }
   if (scale) parts.push(`${scale}x`);
   if (legend !== 'only') {
-    if (toolbar) parts.push('with-header');
-    if (legend === 'include') parts.push('with-legend');
+    const extras = [];
+    if (toolbar) extras.push('header');
+    if (legend === 'include') extras.push('legend');
+    if (extras.length) parts.push(`with-${extras.join('-and-')}`);
   }
   if (width && height) parts.push(`${width}x${height}`);
   parts.push(stamp);
