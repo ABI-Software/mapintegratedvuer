@@ -9,6 +9,55 @@
  * before the DOM is rasterised with html-to-image.
  */
 
+// Legend/checkbox panels drawn over the viewers. `wrapper` is the whole
+// panel including its drawer button, `content` is what `only` captures.
+const LEGEND_PANELS = [
+  // flatmapvuer
+  { wrapper: '.pathway-location', content: '.pathway-container' },
+  // scaffoldvuer
+  { wrapper: '.tree-controls', content: '.tree-controls-container' },
+];
+
+// Dividers between panes, which may cross a header row that is removed.
+const TOOLBAR_ROW_DIVIDER_SELECTORS = ['.splitpanes__splitter'];
+
+// Spacing in CSS pixels between the points checked along a header row.
+const TOOLBAR_ROW_SAMPLE_STEP = 4;
+
+const BLOB_URL_LIFETIME = 60000;
+
+// Transparent pixel for images that fail to load (e.g. CORS).
+const IMAGE_PLACEHOLDER =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+// WebKit decodes images nested in an SVG `<foreignObject>` asynchronously,
+// per drawn size, and draws them blank until they are ready,
+// so the snapshot overlays would be missing.
+// The SVG is redrawn until the result stops changing.
+const WEBKIT_MIN_DRAWS = 3;
+const WEBKIT_MAX_DRAWS = 10;
+const WEBKIT_DRAW_INTERVAL = 100;
+const FINGERPRINT_WIDTH = 128;
+
+// Canvas limits vary by browser and version, e.g. Safari before iOS 18
+// allowed 16,777,216 pixels (4096²), later versions 67,108,864 (8192²),
+// Chrome/Firefox about 268,435,456 (16384²). Rather than hard-coding one
+// value, the output size is verified at capture time (see `fitCanvasSize`),
+// falling back through these areas when the browser cannot allocate it.
+const CANVAS_AREA_FALLBACKS = [268435456, 67108864, 16777216];
+const MAX_CANVAS_SIDE = 16384;
+
+// Border drawn around view captures to match the frame around the app in the UI.
+const SCREENSHOT_BORDER = { width: 1, color: '#dcdfe6' };
+
+// Fraction of the pixel area kept when retrying a failed capture.
+const RETRY_AREA_FACTOR = 0.5;
+
+const SCREENSHOT_OVERLAY_ATTR = 'data-screenshot-overlay';
+
+// Largest canvas area known to work, lowered when a probe fails.
+let maxCanvasArea = CANVAS_AREA_FALLBACKS[0];
+
 export const SCREENSHOT_SCALES = [1, 2, 3, 4];
 
 /**
@@ -19,25 +68,10 @@ export const SCREENSHOT_SCALES = [1, 2, 3, 4];
  */
 export const SCREENSHOT_LEGEND_MODES = ['exclude', 'include', 'only'];
 
-// Legend/checkbox panels drawn over the viewers. `wrapper` is the whole
-// panel including its drawer button, `content` is what `only` captures.
-const LEGEND_PANELS = [
-  // flatmapvuer
-  { wrapper: '.pathway-location', content: '.pathway-container' },
-  // scaffoldvuer
-  { wrapper: '.tree-controls', content: '.tree-controls-container' },
-];
-
 export const SCREENSHOT_LEGEND_SELECTORS = LEGEND_PANELS.map((panel) => panel.wrapper);
 
 // ContentBar header of each pane, hidden unless the `toolbar` option is set.
 export const SCREENSHOT_TOOLBAR_SELECTORS = ['.content-container > .toolbar'];
-
-// Dividers between panes, which may cross a header row that is removed.
-const TOOLBAR_ROW_DIVIDER_SELECTORS = ['.splitpanes__splitter'];
-
-// Spacing in CSS pixels between the points checked along a header row.
-const TOOLBAR_ROW_SAMPLE_STEP = 4;
 
 // UI controls that should not appear in the screenshot.
 export const SCREENSHOT_HIDE_SELECTORS = [
@@ -59,21 +93,21 @@ export const SCREENSHOT_HIDE_SELECTORS = [
   '.el-loading-mask',
 ];
 
-// Canvas limits vary by browser and version, e.g. Safari before iOS 18
-// allowed 16,777,216 pixels (4096²), later versions 67,108,864 (8192²),
-// Chrome/Firefox about 268,435,456 (16384²). Rather than hard-coding one
-// value, the output size is verified at capture time (see `fitCanvasSize`),
-// falling back through these areas when the browser cannot allocate it.
-const CANVAS_AREA_FALLBACKS = [268435456, 67108864, 16777216];
-const MAX_CANVAS_SIDE = 16384;
-
-// Largest canvas area known to work, lowered when a probe fails.
-let maxCanvasArea = CANVAS_AREA_FALLBACKS[0];
-
-const SCREENSHOT_OVERLAY_ATTR = 'data-screenshot-overlay';
-
-// Border drawn around view captures to match the frame around the app in the UI.
-const SCREENSHOT_BORDER = { width: 1, color: '#dcdfe6' };
+/**
+ * Reasons a capture can fail, used by the UI to explain what to do:
+ * - `no-legend`: legend only capture without a legend
+ * - `failed`: the browser could not create the image, even at the lowest resolution,
+ *   usually because the view is too large or complex for its memory limits
+ * - `context-lost`: a viewer lost its WebGL context (out of graphics memory)
+ *   and stays blank until the page is reloaded
+ */
+export class ScreenshotError extends Error {
+  constructor(code, message, options) {
+    super(message, options);
+    this.name = 'ScreenshotError';
+    this.code = code;
+  }
+}
 
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
@@ -338,7 +372,18 @@ const removeRows = (canvas, rows) => {
     }
     source = bottom;
   });
+  releaseCanvas(canvas);
   return result;
+};
+
+/**
+ * Free the memory of a canvas that is no longer needed.
+ * WebKit limits the total memory of all canvases and keeps it until garbage collection,
+ * so large captures fail otherwise.
+ */
+const releaseCanvas = (canvas) => {
+  canvas.width = 0;
+  canvas.height = 0;
 };
 
 /**
@@ -400,6 +445,7 @@ const addBorder = (canvas, pixelRatio) => {
   ctx.fillStyle = SCREENSHOT_BORDER.color;
   ctx.fillRect(0, 0, framed.width, framed.height);
   ctx.drawImage(canvas, border, border);
+  releaseCanvas(canvas);
   return framed;
 };
 
@@ -430,7 +476,7 @@ const loadImage = (src) =>
   new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = reject;
+    img.onerror = () => reject(new Error('Failed to load image'));
     img.src = src;
   });
 
@@ -441,13 +487,25 @@ const loadImage = (src) =>
 const prepareOverlays = async (el, sources) => {
   const excluded = new Set();
   const overlays = [];
+  const cleanup = () =>
+    overlays.forEach((overlay) => {
+      overlay.remove();
+      // Drop the decoded snapshot, WebKit keeps it while the element is referenced.
+      if (overlay instanceof HTMLImageElement) overlay.removeAttribute('src');
+    });
 
-  for (const { canvas, dataUrl } of sources) {
-    if (!canvas || !dataUrl || !el.contains(canvas)) continue;
-    const img = await loadImage(dataUrl);
-    placeOverlay(canvas, img);
-    overlays.push(img);
-    excluded.add(canvas);
+  try {
+    for (const { canvas, dataUrl } of sources) {
+      if (!canvas || !dataUrl || !el.contains(canvas)) continue;
+      const img = await loadImage(dataUrl);
+      placeOverlay(canvas, img);
+      overlays.push(img);
+      excluded.add(canvas);
+    }
+  } catch (error) {
+    // Otherwise the overlays already placed stay on screen and in memory.
+    cleanup();
+    throw error;
   }
 
   // Cross-origin iframes cannot be captured.
@@ -467,7 +525,6 @@ const prepareOverlays = async (el, sources) => {
     excluded.add(iframe);
   });
 
-  const cleanup = () => overlays.forEach((overlay) => overlay.remove());
   return { excluded, cleanup };
 };
 
@@ -487,7 +544,10 @@ const downloadBlob = (blob, filename) => {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  // Safari reads the blob after `click` returns, and fails the download
+  // ("WebKitBlobResource error 1") if the URL is revoked too early,
+  // which happens with large images.
+  setTimeout(() => URL.revokeObjectURL(url), BLOB_URL_LIFETIME);
 };
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -529,21 +589,8 @@ export const getScreenshotFilename = (title, options = {}) => {
   return `${parts.join('_')}.png`;
 };
 
-// Transparent pixel for images that fail to load (e.g. CORS).
-const IMAGE_PLACEHOLDER =
-  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
 // Safari and every iOS browser use WebKit.
 const isWebKit = () => navigator.vendor === 'Apple Computer, Inc.';
-
-// WebKit decodes images nested in an SVG `<foreignObject>` asynchronously,
-// per drawn size, and draws them blank until they are ready,
-// so the snapshot overlays would be missing.
-// The SVG is redrawn until the result stops changing.
-const WEBKIT_MIN_DRAWS = 3;
-const WEBKIT_MAX_DRAWS = 10;
-const WEBKIT_DRAW_INTERVAL = 100;
-const FINGERPRINT_WIDTH = 128;
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -567,15 +614,22 @@ const createFingerprint = (canvas) => {
   };
 };
 
-const redrawUntilStable = async (canvas, draw) => {
-  const fingerprint = createFingerprint(canvas);
+/**
+ * Whether a fingerprint only contains white opaque pixels, i.e. only the background
+ * was drawn. Browsers fail silently when the SVG is too large to rasterise.
+ */
+const isBlankFingerprint = (fingerprint) =>
+  fingerprint !== '' && fingerprint.split(',').every((value) => value === '255');
+
+const redrawUntilStable = async (fingerprint, draw, isBlank) => {
   let previous = fingerprint();
   for (let count = 2; count <= WEBKIT_MAX_DRAWS; count++) {
     await delay(WEBKIT_DRAW_INTERVAL * (count - 1));
     await nextFrame();
     draw();
     const current = fingerprint();
-    if (count >= WEBKIT_MIN_DRAWS && current === previous) return;
+    // A blank result may still be decoding, keep waiting.
+    if (count >= WEBKIT_MIN_DRAWS && current === previous && !isBlank(current)) return;
     previous = current;
   }
 };
@@ -673,19 +727,74 @@ const renderToCanvas = async (el, options) => {
   const img = await loadImage(svg);
   await img.decode?.();
   const canvas = document.createElement('canvas');
-  canvas.width = Math.round(width * pixelRatio);
-  canvas.height = Math.round(height * pixelRatio);
-  const ctx = canvas.getContext('2d');
-  const draw = () => {
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  };
-  draw();
-  if (isWebKit()) {
-    await redrawUntilStable(canvas, draw);
+  try {
+    canvas.width = Math.round(width * pixelRatio);
+    canvas.height = Math.round(height * pixelRatio);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Failed to allocate canvas');
+    const draw = () => {
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    draw();
+    const fingerprint = createFingerprint(canvas);
+    if (isWebKit()) {
+      await redrawUntilStable(fingerprint, draw, isBlankFingerprint);
+    }
+    // The captured views always have content, a blank image means drawing failed.
+    if (isBlankFingerprint(fingerprint())) throw new Error('Captured image is blank');
+    return canvas;
+  } catch (error) {
+    releaseCanvas(canvas);
+    throw error;
+  } finally {
+    img.removeAttribute('src');
   }
-  return canvas;
+};
+
+/**
+ * Run `attempt(pixelRatio)` at the ratio from `fitCanvasSize`.
+ * Browsers often fail silently (blank image, null blob, image load error)
+ * when the output is too large for their memory limits, even though the
+ * canvas size probe passed, so retry at lower ratios until the ratio reaches 1.
+ * The lowered area limit is kept for later captures and size previews.
+ * @returns {Object} the result of `attempt` with `pixelRatio`, `clamped`,
+ *   and `reduced` when a retry lowered the ratio.
+ * @throws {ScreenshotError} `failed` when the attempt at ratio 1 also fails.
+ */
+const withSizeFallback = async (width, height, scale, attempt) => {
+  let { pixelRatio, clamped } = fitCanvasSize(width, height, scale);
+  let reduced = false;
+  for (;;) {
+    try {
+      const result = await attempt(pixelRatio);
+      return { ...result, pixelRatio, clamped, reduced };
+    } catch (error) {
+      // Retrying does not help, the viewer is blank until the page is reloaded.
+      if (error instanceof ScreenshotError) throw error;
+      if (pixelRatio <= 1) {
+        throw new ScreenshotError('failed', 'Failed to create the screenshot', { cause: error });
+      }
+      console.warn(`Screenshot failed at pixel ratio ${pixelRatio}, retrying smaller`, error);
+      maxCanvasArea = Math.floor(width * height * pixelRatio ** 2 * RETRY_AREA_FACTOR);
+      ({ pixelRatio } = getEffectivePixelRatio(width, height, scale));
+      clamped = true;
+      reduced = true;
+      await nextFrame();
+    }
+  }
+};
+
+/**
+ * Encode `canvas` as PNG and release it.
+ */
+const encodeCanvas = async (canvas) => {
+  try {
+    return await canvasToBlob(canvas, 'image/png');
+  } finally {
+    releaseCanvas(canvas);
+  }
 };
 
 /**
@@ -695,41 +804,44 @@ const renderToCanvas = async (el, options) => {
 const captureLegends = async (el, options) => {
   const { scale, title, hideSelectors } = options;
   const legends = findLegends(el);
-  if (!legends.length) throw new Error('No legend to capture');
+  if (!legends.length) throw new ScreenshotError('no-legend', 'No legend to capture');
 
   const results = [];
   for (const [index, legend] of legends.entries()) {
     const { node, cleanup } = expandLegend(legend);
-    let canvas, pixelRatio, clamped;
+    let result;
     try {
       const { width, height } = getLegendSize(node);
-      ({ pixelRatio, clamped } = fitCanvasSize(width, height, scale));
-      canvas = await renderToCanvas(node, {
-        pixelRatio,
-        width,
-        height,
-        hideSelectors,
-        style: {
-          position: 'relative',
-          maxHeight: 'none',
-          height: 'auto',
-          overflow: 'visible',
-          opacity: '1',
-        },
+      result = await withSizeFallback(width, height, scale, async (pixelRatio) => {
+        const canvas = await renderToCanvas(node, {
+          pixelRatio,
+          width,
+          height,
+          hideSelectors,
+          style: {
+            position: 'relative',
+            maxHeight: 'none',
+            height: 'auto',
+            overflow: 'visible',
+            opacity: '1',
+          },
+        });
+        const size = { width: canvas.width, height: canvas.height };
+        return { ...size, blob: await encodeCanvas(canvas) };
       });
     } finally {
       cleanup();
     }
-    const blob = await canvasToBlob(canvas, 'image/png');
+    const { blob, ...info } = result;
     const filename = getScreenshotFilename(title, {
       scale,
       legend: 'only',
-      width: canvas.width,
-      height: canvas.height,
+      width: info.width,
+      height: info.height,
       index,
     });
     downloadBlob(blob, filename);
-    results.push({ width: canvas.width, height: canvas.height, pixelRatio, clamped });
+    results.push(info);
   }
   return results;
 };
@@ -747,8 +859,10 @@ const captureLegends = async (el, options) => {
  * @param {Array} options.viewers - ContentVuer instances inside `el`
  *   providing `getScreenshotSources(pixelRatio)`.
  * @param {Array} options.hideSelectors - Selectors of nodes to exclude.
- * @returns {Object} { width, height, pixelRatio, clamped },
+ * @returns {Object} { width, height, pixelRatio, clamped, reduced },
  *   or an array of these when `legend` is `only`.
+ *   `reduced` is set when the size was lowered after a failed attempt.
+ * @throws {ScreenshotError} see `ScreenshotError` for the codes.
  */
 export const captureElement = async (el, options = {}) => {
   const {
@@ -769,49 +883,74 @@ export const captureElement = async (el, options = {}) => {
 
   const rect = el.getBoundingClientRect();
   const { width, height } = getBorderedSize(rect);
-  const { pixelRatio, clamped } = fitCanvasSize(width, height, scale);
 
   // Find the blank header rows before the overlays are added.
   const toolbarRows = toolbar ? [] : getToolbarRows(el, hideSelectors);
-
-  const sources = [];
-  for (const viewer of viewers) {
-    const viewerSources = await viewer?.getScreenshotSources?.(pixelRatio);
-    if (viewerSources) sources.push(...viewerSources);
-  }
-
-  const { excluded, cleanup } = await prepareOverlays(el, sources);
 
   const hidden = [...hideSelectors];
   if (legend !== 'include') hidden.push(...SCREENSHOT_LEGEND_SELECTORS);
   if (!toolbar) hidden.push(...SCREENSHOT_TOOLBAR_SELECTORS);
 
-  let canvas;
-  try {
-    canvas = await renderToCanvas(el, {
-      pixelRatio,
-      width: rect.width,
-      height: rect.height,
-      excluded,
-      hideSelectors: hidden,
-    });
-  } finally {
-    cleanup();
-  }
+  const { blob, ...info } = await withSizeFallback(width, height, scale, async (pixelRatio) => {
+    const sources = [];
+    for (const viewer of viewers) {
+      const viewerSources = await viewer?.getScreenshotSources?.(pixelRatio);
+      if (viewerSources) sources.push(...viewerSources);
+    }
 
-  canvas = removeRows(canvas, toCanvasRows(toolbarRows, pixelRatio));
-  canvas = addBorder(canvas, pixelRatio);
-  const blob = await canvasToBlob(canvas, 'image/png');
+    const { excluded, cleanup } = await prepareOverlays(el, sources);
+
+    let canvas;
+    try {
+      canvas = await renderToCanvas(el, {
+        pixelRatio,
+        width: rect.width,
+        height: rect.height,
+        excluded,
+        hideSelectors: hidden,
+      });
+    } finally {
+      cleanup();
+    }
+
+    canvas = removeRows(canvas, toCanvasRows(toolbarRows, pixelRatio));
+    canvas = addBorder(canvas, pixelRatio);
+    const size = { width: canvas.width, height: canvas.height };
+    return { ...size, blob: await encodeCanvas(canvas) };
+  });
+
   const filename = getScreenshotFilename(title, {
     scale,
     legend,
     toolbar,
-    width: canvas.width,
-    height: canvas.height,
+    width: info.width,
+    height: info.height,
   });
   downloadBlob(blob, filename);
 
-  return { width: canvas.width, height: canvas.height, pixelRatio, clamped };
+  return info;
+};
+
+const assertContext = (gl) => {
+  if (gl?.isContextLost?.()) {
+    throw new ScreenshotError('context-lost', 'The WebGL context of the viewer was lost');
+  }
+};
+
+/**
+ * Read a WebGL canvas just rendered at the requested size.
+ * Throws if the browser could not provide a drawing buffer that large
+ * (it is then silently clamped), so the capture is retried smaller.
+ */
+const readWebGLCanvas = (canvas, gl) => {
+  assertContext(gl);
+  if (gl && (gl.drawingBufferWidth < canvas.width || gl.drawingBufferHeight < canvas.height)) {
+    throw new Error('WebGL drawing buffer is smaller than requested');
+  }
+  const dataUrl = canvas.toDataURL('image/png');
+  // `data:,` when the canvas cannot be read
+  if (!dataUrl.startsWith('data:image/')) throw new Error('Failed to read WebGL canvas');
+  return dataUrl;
 };
 
 /**
@@ -821,12 +960,14 @@ export const captureElement = async (el, options = {}) => {
 export const snapshotThreeRenderer = (zincRenderer, pixelRatio) => {
   const renderer = zincRenderer?.getThreeJSRenderer();
   const canvas = renderer.domElement;
+  const gl = renderer.getContext?.();
+  assertContext(gl);
   const originalPixelRatio = renderer.getPixelRatio();
   try {
     renderer.setPixelRatio(pixelRatio);
     zincRenderer.invalidate?.();
     zincRenderer.render();
-    return { canvas, dataUrl: canvas.toDataURL('image/png') };
+    return { canvas, dataUrl: readWebGLCanvas(canvas, gl) };
   } finally {
     renderer.setPixelRatio(originalPixelRatio);
     zincRenderer.invalidate?.();
@@ -839,6 +980,9 @@ export const snapshotThreeRenderer = (zincRenderer, pixelRatio) => {
  */
 export const snapshotMaplibre = async (map, pixelRatio) => {
   const canvas = map.getCanvas();
+  const gl = map.painter?.context?.gl;
+  // Checked first, as `render` never fires once the context is lost.
+  assertContext(gl);
   const originalPixelRatio = map.getPixelRatio?.();
   // maplibre caps the drawing buffer (default 4096px), raise it temporarily.
   const originalMaxCanvasSize = map._maxCanvasSize;
@@ -853,12 +997,18 @@ export const snapshotMaplibre = async (map, pixelRatio) => {
     if (originalPixelRatio !== undefined) map.setPixelRatio(pixelRatio);
     if (typeof map.redraw === 'function') {
       map.redraw();
-      const dataUrl = canvas.toDataURL('image/png');
+      const dataUrl = readWebGLCanvas(canvas, gl);
       restore();
       return { canvas, dataUrl };
     }
-    const dataUrl = await new Promise((resolve) => {
-      map.once('render', () => resolve(canvas.toDataURL('image/png')));
+    const dataUrl = await new Promise((resolve, reject) => {
+      map.once('render', () => {
+        try {
+          resolve(readWebGLCanvas(canvas, gl));
+        } catch (error) {
+          reject(error);
+        }
+      });
       map.triggerRepaint();
     });
     restore();

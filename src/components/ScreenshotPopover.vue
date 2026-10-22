@@ -41,8 +41,8 @@
         <div v-if="shortcut" class="screenshot-popover-block is-stacked">
           <h5>Shortcut ({{ shortcutLabel }})</h5>
           <small class="screenshot-description">
-            To capture a tooltip on Flatmap, choose your settings here,
-            then hover over the feature or connection in the Flatmap and press the shortcut.
+            To capture a tooltip on Flatmap, choose your settings here, then hover over the feature
+            or connection in the Flatmap and press the shortcut.
           </small>
         </div>
         <div class="screenshot-popover-footer">
@@ -101,6 +101,9 @@
 import { shallowRef } from 'vue';
 import { mapStores } from 'pinia';
 import { Camera as ElIconCamera, Download as ElIconDownload } from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import 'element-plus/es/components/message/style/css';
+import 'element-plus/es/components/message-box/style/css';
 import { useSettingsStore } from '../stores/settings';
 import {
   SCREENSHOT_SCALES,
@@ -108,6 +111,47 @@ import {
   findLegends,
   getOutputSize,
 } from '../services/screenshot';
+
+// Safari and every iOS browser use WebKit, which has lower canvas memory limits.
+const isWebKit = () => navigator.vendor === 'Apple Computer, Inc.';
+
+/**
+ * Explain a failed capture and what the user can do about it.
+ * @param {Error} error - usually a `ScreenshotError` from the screenshot service.
+ * @param {Number} scale - the requested resolution.
+ * @returns {Object} { title, message, inline } where `inline` is the short
+ *   version shown in the popover.
+ */
+const describeError = (error, scale) => {
+  if (error?.code === 'no-legend') {
+    return { inline: 'There is no legend to capture.' };
+  }
+  const otherBrowser = isWebKit()
+    ? ' Safari has lower limits for large images, so another browser such as Chrome or Firefox may work better.'
+    : '';
+  if (error?.code === 'context-lost') {
+    return {
+      title: 'Screenshot failed',
+      message:
+        'The viewer ran out of graphics memory while creating the screenshot ' +
+        'and cannot be drawn again until the page is reloaded. ' +
+        'Please reload the page, then try a lower resolution.' +
+        otherBrowser,
+      inline: 'Screenshot failed. Please reload the page and try a lower resolution.',
+    };
+  }
+  const lower =
+    scale > 1
+      ? `This view is too large or complex to capture at ${scale}x in this browser. ` +
+        'Please choose a lower resolution and download again.'
+      : 'This view is too large or complex to capture in this browser. ' +
+        'Please make the window or view smaller, or reload the page and try again.';
+  return {
+    title: 'Screenshot failed',
+    message: lower + otherBrowser,
+    inline: 'Screenshot failed. Please try a lower resolution.',
+  };
+};
 
 const LEGEND_LABELS = {
   exclude: 'Hide',
@@ -254,25 +298,50 @@ export default {
       this.outputSize = getOutputSize(target, scale, legend, toolbar);
     },
     onCapture: async function (source = 'button') {
+      const options = this.getOptions();
+      let failure;
       this.capturing = true;
       this.errorMessage = '';
       try {
         this.$refs.popover?.hide();
-        await this.capture({ ...this.getOptions(), source });
+        const result = await this.capture({ ...options, source });
+        this.notifyReduced(result);
       } catch (error) {
         console.error('Screenshot failed', error);
-        this.errorMessage =
-          error?.message === 'No legend to capture'
-            ? 'There is no legend to capture.'
-            : 'Screenshot failed. Please try a lower resolution.';
+        failure = describeError(error, options.scale);
+        this.errorMessage = failure.inline;
       } finally {
         this.capturing = false;
       }
-      if (this.errorMessage) {
+      if (failure?.message) {
+        await ElMessageBox.alert(failure.message, failure.title, {
+          type: 'error',
+          confirmButtonText: 'OK',
+        }).catch(() => {});
+      }
+      if (failure) {
         // Reopen after `capturing` resets, as the popover is disabled while capturing
         await this.$nextTick();
         this.$refs.popover?.show?.();
       }
+    },
+    /**
+     * Tell the user when the image was saved smaller than the preview,
+     * because the browser could not create it at the requested size.
+     */
+    notifyReduced: function (result) {
+      const results = [result].flat().filter(Boolean);
+      const reduced = results.find((item) => item.reduced);
+      if (!reduced) return;
+      ElMessage({
+        type: 'warning',
+        duration: 8000,
+        showClose: true,
+        message:
+          `The screenshot was too large for this browser and was saved at ` +
+          `${reduced.width} × ${reduced.height} px instead. ` +
+          `Choose a lower resolution to avoid the wait next time.`,
+      });
     },
   },
   mounted: function () {

@@ -729,7 +729,7 @@ export default {
       }
     },
     onCaptureScreenshot: async function (options) {
-      await this.captureScreenshot(options);
+      const result = await this.captureScreenshot(options);
 
       // GA Tracking
       tagging.sendEvent({
@@ -738,6 +738,8 @@ export default {
         category: `png_${options.scale}x`,
         location: options.source === 'shortcut' ? 'keyboard_shortcut' : 'map_toolbar',
       });
+
+      return result;
     },
     getShareLink: function (withAnnotation) {
       this.displayShareOptions = false;
