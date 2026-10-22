@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { SCREENSHOT_LEGEND_MODES } from '../services/screenshot';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => {
@@ -32,6 +33,11 @@ export const useSettingsStore = defineStore('settings', {
       allClosable: true,
       offlineAnnotationEnabled: false,
       displayMinimap: true,
+      screenshot: {
+        scale: 1, // multiplier on top of the device pixel ratio
+        legend: 'exclude', // exclude, include, only
+        toolbar: false, // include the header bar of each pane
+      },
       globalSettings: {
         displayMarkers: true, // comment out to hide in settings
         // highlightConnectedPaths: false, // comment out to hide in settings
@@ -210,6 +216,18 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateDisplayMinimap(displayMinimap) {
       this.displayMinimap = displayMinimap;
+    },
+    updateScreenshotOptions(options) {
+      const { scale, legend, toolbar } = options || {};
+      if (Number(scale) > 0) {
+        this.screenshot.scale = Number(scale);
+      }
+      if (SCREENSHOT_LEGEND_MODES.includes(legend)) {
+        this.screenshot.legend = legend;
+      }
+      if (typeof toolbar === 'boolean') {
+        this.screenshot.toolbar = toolbar;
+      }
     },
     updateGlobalSettings(globalSettings) {
       for (const [key, value] of Object.entries(globalSettings)) {
