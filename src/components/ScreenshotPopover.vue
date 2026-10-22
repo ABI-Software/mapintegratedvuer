@@ -317,6 +317,7 @@ export default {
         await ElMessageBox.alert(failure.message, failure.title, {
           type: 'error',
           confirmButtonText: 'OK',
+          customClass: 'screenshot-failure-message-box',
         }).catch(() => {});
       }
       if (failure) {
@@ -494,5 +495,33 @@ export default {
   background-color: $app-primary-color;
   border-color: $app-primary-color;
   box-shadow: -1px 0 0 0 $app-primary-color;
+}
+
+:global(.screenshot-failure-message-box) {
+  --el-color-primary: #{$app-primary-color};
+  font-family: 'Asap', sans-serif;
+  border: 1px solid $app-primary-color;
+  border-radius: 8px;
+}
+
+:global(.screenshot-failure-message-box .el-message-box__title) {
+  color: $app-primary-color;
+  font-family: 'Asap', sans-serif;
+}
+
+:global(.screenshot-failure-message-box .el-message-box__message) {
+  color: #303133;
+  font-family: 'Asap', sans-serif;
+}
+
+:global(.screenshot-failure-message-box .el-button) {
+  font-family: 'Asap', sans-serif;
+}
+
+:global(.screenshot-failure-message-box .el-button--primary),
+:global(.screenshot-failure-message-box .el-button--primary:hover),
+:global(.screenshot-failure-message-box .el-button--primary:focus) {
+  background-color: $app-primary-color;
+  border-color: $app-primary-color;
 }
 </style>
