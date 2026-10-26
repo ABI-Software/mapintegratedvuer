@@ -3,22 +3,20 @@
 </template>
 
 <script>
-import ResizeSensor from 'css-element-queries/src/ResizeSensor';
-
 export default {
   name: 'ResizeSensor',
   methods: {
     activate: function () {
-      if (!this._sensor) {
-        this._sensor = new ResizeSensor(this.$refs.display, this.displayResize);
+      if (!this._observer && this.$refs.display) {
+        this._observer = new ResizeObserver(() => this.displayResize());
+        this._observer.observe(this.$refs.display);
         this.displayResize();
       }
     },
     deactivate: function () {
-      if (this._sensor) {
-        this._sensor.detach(this.$refs.display, this.displayResize);
-        delete this._sensor;
-        this._sensor = undefined;
+      if (this._observer) {
+        this._observer.disconnect();
+        this._observer = undefined;
         this.displayResize();
       }
     },
@@ -26,7 +24,7 @@ export default {
       this.$emit('resize');
     },
   },
-  unmounted() {
+  beforeUnmount() {
     this.deactivate();
   },
   activated() {

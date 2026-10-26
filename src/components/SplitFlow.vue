@@ -78,7 +78,7 @@ import { provide, markRaw, computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import DialogToolbarContent from './DialogToolbarContent.vue';
 import { captureElement, getScreenshotFilename } from '../services/screenshot';
-import EventBus from './EventBus';
+import EventBus, { onEvents } from './EventBus';
 import SplitDialog from './SplitDialog.vue';
 // import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
@@ -1303,116 +1303,122 @@ export default {
     this._externalStateSet = false;
   },
   mounted: function () {
-    EventBus.on('CreateNewEntry', (newView) => {
-      this.createNewEntry(newView);
-    });
-    EventBus.on('RemoveEntryRequest', (id) => {
-      this.removeEntry(id);
-    });
-    EventBus.on('PopoverActionClick', (payload) => {
-      this.actionClick(payload);
-    });
-    EventBus.on('annotation-open', (payload) => {
-      this.openAnnotation(payload);
-    });
-    EventBus.on('sidebar-annotation-close', () => {
-      const globalSettings = { ...this.settingsStore.globalSettings };
-      const { interactiveMode, viewingMode } = globalSettings;
+    this._offBus = onEvents({
+      CreateNewEntry: (newView) => {
+        this.createNewEntry(newView);
+      },
+      RemoveEntryRequest: (id) => {
+        this.removeEntry(id);
+      },
+      PopoverActionClick: (payload) => {
+        this.actionClick(payload);
+      },
+      'annotation-open': (payload) => {
+        this.openAnnotation(payload);
+      },
+      'sidebar-annotation-close': () => {
+        const globalSettings = { ...this.settingsStore.globalSettings };
+        const { interactiveMode, viewingMode } = globalSettings;
 
-      // Sidebar annotation close event emits whenever viewing mode is changed.
-      // if annotation state is being restored on first load for annotation viewing mode,
-      // open the anootation tab and return.
-      if (this.sidebarAnnotationState && viewingMode === 'Annotation') {
-        this.sidebarAnnotationState = false;
-        this.$refs.sideBar.tabClicked({ id: 3, type: 'annotation' });
-        return;
-      }
-
-      this.annotationEntry = [];
-      this.createData = {};
-
-      if (this.$refs.sideBar) {
-        if (interactiveMode === 'dataset') {
-          this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' });
-        } else if (interactiveMode === 'connectivity') {
-          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
+        // Sidebar annotation close event emits whenever viewing mode is changed.
+        // if annotation state is being restored on first load for annotation viewing mode,
+        // open the anootation tab and return.
+        if (this.sidebarAnnotationState && viewingMode === 'Annotation') {
+          this.sidebarAnnotationState = false;
+          this.$refs.sideBar.tabClicked({ id: 3, type: 'annotation' });
+          return;
         }
 
-        this.$refs.sideBar.closeConnectivity();
-        EventBus.emit('connectivity-item-close');
-      }
-    });
-    EventBus.on('update-offline-annotation-enabled', (payload) => {
-      this.settingsStore.updateOfflineAnnotationEnabled(payload);
-    });
-    EventBus.on('connectivity-info-open', (payload) => {
-      this.openConnectivityInfo(payload);
-    });
-    EventBus.on('connectivity-info-close', (_payload) => {
-      if (this.$refs.sideBar) {
-        this.connectivityProcessed = false;
-        this.$refs.sideBar.resetConnectivitySearch();
-      }
-    });
-    EventBus.on('connectivity-error', (payload) => {
-      if (this.$refs.sideBar) {
-        this.$refs.sideBar.updateConnectivityError(payload.data);
-      }
-    });
-    EventBus.on('neuron-connection-feature-click', (payload) => {
-      if (this.$refs.sideBar) {
-        const { filters, search } = payload;
-        this.$refs.sideBar.openConnectivitySearch(filters, search);
-        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
-        this.$refs.sideBar.setDrawerOpen(true);
-      }
-    });
-    EventBus.on('OpenNewMap', (type) => {
-      this.updateFlatmapMinimap();
-      this.openNewMap(type);
-    });
-    EventBus.on('startHelp', () => {
-      if (this.$refs.sideBar) {
-        this.$refs.sideBar.close();
-      }
-    });
-    EventBus.on('connectivity-knowledge', (payload) => {
-      // Ignore the default/global connectivity dump (emitted when no active
-      // viewer's map/species keys are resolved yet) while restoring a
-      // permalink's sidebar connectivityEntries, otherwise the sidebar would
-      // briefly flash the entire, unfiltered connectivity list.
-      if (!(payload.isDefaultKnowledge && this.restoringConnectivityState)) {
-        this.connectivityKnowledge = payload.data;
-        this.connectivityHighlight = payload.highlight;
-        this.connectivityProcessed = payload.processed;
-      }
+        this.annotationEntry = [];
+        this.createData = {};
 
-      // Restore sidebar state if it exists and not restored yet
-      // after loading connectivity knowledge
-      if (!this.sidebarStateRestored) {
-        this.restoreSidebarState(this.state);
-      }
-    });
-    EventBus.on('modeUpdate', (payload) => {
-      if (payload === 'dataset') {
-        this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' });
-      } else if (payload === 'connectivity') {
-        this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
-      }
-    });
-    EventBus.on('connectivity-filter-options', (payload) => {
-      this.filterOptions = payload;
+        if (this.$refs.sideBar) {
+          if (interactiveMode === 'dataset') {
+            this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' });
+          } else if (interactiveMode === 'connectivity') {
+            this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
+          }
+
+          this.$refs.sideBar.closeConnectivity();
+          EventBus.emit('connectivity-item-close');
+        }
+      },
+      'update-offline-annotation-enabled': (payload) => {
+        this.settingsStore.updateOfflineAnnotationEnabled(payload);
+      },
+      'connectivity-info-open': (payload) => {
+        this.openConnectivityInfo(payload);
+      },
+      'connectivity-info-close': (_payload) => {
+        if (this.$refs.sideBar) {
+          this.connectivityProcessed = false;
+          this.$refs.sideBar.resetConnectivitySearch();
+        }
+      },
+      'connectivity-error': (payload) => {
+        if (this.$refs.sideBar) {
+          this.$refs.sideBar.updateConnectivityError(payload.data);
+        }
+      },
+      'neuron-connection-feature-click': (payload) => {
+        if (this.$refs.sideBar) {
+          const { filters, search } = payload;
+          this.$refs.sideBar.openConnectivitySearch(filters, search);
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
+          this.$refs.sideBar.setDrawerOpen(true);
+        }
+      },
+      OpenNewMap: (type) => {
+        this.updateFlatmapMinimap();
+        this.openNewMap(type);
+      },
+      startHelp: () => {
+        if (this.$refs.sideBar) {
+          this.$refs.sideBar.close();
+        }
+      },
+      'connectivity-knowledge': (payload) => {
+        // Ignore the default/global connectivity dump (emitted when no active
+        // viewer's map/species keys are resolved yet) while restoring a
+        // permalink's sidebar connectivityEntries, otherwise the sidebar would
+        // briefly flash the entire, unfiltered connectivity list.
+        if (!(payload.isDefaultKnowledge && this.restoringConnectivityState)) {
+          this.connectivityKnowledge = payload.data;
+          this.connectivityHighlight = payload.highlight;
+          this.connectivityProcessed = payload.processed;
+        }
+
+        // Restore sidebar state if it exists and not restored yet
+        // after loading connectivity knowledge
+        if (!this.sidebarStateRestored) {
+          this.restoreSidebarState(this.state);
+        }
+      },
+      modeUpdate: (payload) => {
+        if (payload === 'dataset') {
+          this.$refs.sideBar.tabClicked({ id: 1, type: 'datasetExplorer' });
+        } else if (payload === 'connectivity') {
+          this.$refs.sideBar.tabClicked({ id: 2, type: 'connectivityExplorer' });
+        }
+      },
+      'connectivity-filter-options': (payload) => {
+        this.filterOptions = payload;
+      },
     });
     this.$nextTick(() => {
       if (this.search === '' && this._facets.length === 0) {
         if (this.$refs.sideBar) {
           this.$refs.sideBar.close();
         }
-        setTimeout(() => {
+        this._startUpTimer = setTimeout(() => {
           this.startUp = false;
         }, 2000);
       } else this.openSearch(this._facets, this.search);
     });
+  },
+  beforeUnmount: function () {
+    this._offBus?.();
+    clearTimeout(this._startUpTimer);
   },
   computed: {
     ...mapStores(useEntriesStore, useSettingsStore, useSplitFlowStore, useConnectivitiesStore),

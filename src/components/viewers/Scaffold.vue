@@ -151,7 +151,10 @@ export default {
       // Both EventBus.emit and getKnowledgeTooltip will trigger sidebar content update
       // Then setVisibilityFilter will be called to zoom to the clicked nerve.
       if (resource.length === 1) {
-        this.clickedObject = resource[0].data;
+        // Keep only the fields needed here; resource data carries the live
+        // zincObject, which should not be made reactive or retained.
+        const { id, isNerves, anatomicalId } = resource[0].data;
+        this.clickedObject = { id, isNerves, anatomicalId };
         if (this.clickedObject.isNerves || this.clickedObject.anatomicalId) {
           const label = this.clickedObject.id.toLowerCase();
           if (this.$refs.scaffold.viewingMode === 'Neuron Connection') {
@@ -316,7 +319,7 @@ export default {
       }
       this.updateViewerSettings();
       EventBus.emit('mapLoaded', this.$refs.scaffold);
-      setTimeout(() => {
+      this._greyScaleTimer = setTimeout(() => {
         this.setNerveGreyScale();
       }, 500);
     },
@@ -390,6 +393,9 @@ export default {
         ? this.settingsStore.numberOfDatasetsForFacets
         : {};
     },
+    scaffoldKnowledge: function () {
+      return this.connectivityKnowledge?.[this.entry.resource];
+    },
   },
   watch: {
     visible: {
@@ -410,23 +416,19 @@ export default {
           });
         }
       },
-      deep: true,
       immediate: true,
     },
-    connectivityKnowledge: {
-      handler(newVal, _oldVal) {
+    // Knowledge entries are replaced so a shallow watch on this scaffold's entry is sufficient
+    scaffoldKnowledge: {
+      handler(scaffoldKnowledge) {
         // Store scaffold knowledge locally
-        if (this.entry.resource in newVal) {
-          const scaffoldKnowledge = newVal[this.entry.resource];
-          if (scaffoldKnowledge.length !== this.nervesKnowledge.length) {
-            this.nervesKnowledge = scaffoldKnowledge;
-            if (this.scaffoldLoaded) {
-              this.setNerveGreyScale();
-            }
+        if (scaffoldKnowledge && scaffoldKnowledge.length !== this.nervesKnowledge.length) {
+          this.nervesKnowledge = scaffoldKnowledge;
+          if (this.scaffoldLoaded) {
+            this.setNerveGreyScale();
           }
         }
       },
-      deep: true,
       immediate: true,
     },
   },
@@ -441,6 +443,9 @@ export default {
       filter: [],
       query: '',
     };
+  },
+  beforeUnmount: function () {
+    clearTimeout(this._greyScaleTimer);
   },
 };
 </script>
