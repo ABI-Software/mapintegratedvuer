@@ -17,7 +17,11 @@ import {
   getTermNerveMaps,
   getFilterOptions as getScaffoldFilterOptions,
 } from '@abi-software/scaffoldvuer/src/scripts/MappedNerves.js';
-import { defaultSpecies } from '../components/scripts/utilities.js';
+import {
+  defaultSpecies,
+  getLatestFlatmap,
+  getFlatmapPathways,
+} from '../components/scripts/utilities.js';
 
 function capitalise(text) {
   return text[0].toUpperCase() + text.substring(1);
@@ -551,19 +555,14 @@ export default {
       return;
     },
     loadExplorerConfig: async function () {
-      this.flatmapService = await this.mockUpFlatmapService();
+      this.flatmapService = markRaw(await this.mockUpFlatmapService());
       this.loadConnectivityExplorerConfig(this.flatmapService);
     },
     mockUpFlatmapService: async function () {
-      const flatmapResponse = await fetch(this.flatmapAPI);
-      const flatmapJson = await flatmapResponse.json();
-      const latestFlatmap = flatmapJson
-        .filter((f) => f.id === 'human-flatmap_male')
-        .sort((a, b) => b.created.localeCompare(a.created))[0];
+      const latestFlatmap = await getLatestFlatmap(this.flatmapAPI, 'human-flatmap_male');
       const flatmapUuid = latestFlatmap.uuid;
       const flatmapSource = latestFlatmap.sckan['knowledge-source'];
-      const pathwaysResponse = await fetch(`${this.flatmapAPI}/flatmap/${flatmapUuid}/pathways`);
-      const pathwaysJson = await pathwaysResponse.json();
+      const pathwaysJson = await getFlatmapPathways(this.flatmapAPI, flatmapUuid);
 
       this.flatmapQueries = markRaw(new FlatmapQueries());
       this.flatmapQueries.initialise(this.flatmapAPI);

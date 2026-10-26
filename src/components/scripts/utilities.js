@@ -1,4 +1,45 @@
+import { markRaw } from 'vue';
+
 const defaultSpecies = 'Human Male';
+
+// Session-level caches, so viewers and searches share one request instead of
+// re-fetching the same data.
+const flatmapListCache = new Map();
+const flatmapPathwaysCache = new Map();
+const bodyScaffoldInfoCache = new Map();
+
+// Cache the promise so concurrent callers share a single request.
+// Failed requests are dropped so a later call can retry.
+const cachedRequest = (cache, key, load) => {
+  if (!cache.has(key)) {
+    const promise = load().catch((error) => {
+      cache.delete(key);
+      throw error;
+    });
+    cache.set(key, promise);
+  }
+  return cache.get(key);
+};
+
+const fetchJson = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Request failed (${response.status}): ${url}`);
+  }
+  return response.json();
+};
+
+// Latest version of the flatmap with the given id, e.g. 'human-flatmap_male'
+const getLatestFlatmap = async (flatmapAPI, id) => {
+  const flatmaps = await cachedRequest(flatmapListCache, flatmapAPI, () => fetchJson(flatmapAPI));
+  return flatmaps.filter((f) => f.id === id).sort((a, b) => b.created.localeCompare(a.created))[0];
+};
+
+// Pathways are large and read-only, so they are shared and kept non-reactive
+const getFlatmapPathways = (flatmapAPI, uuid) => {
+  const url = `${flatmapAPI}/flatmap/${uuid}/pathways`;
+  return cachedRequest(flatmapPathwaysCache, url, () => fetchJson(url).then(markRaw));
+};
 
 const initialDefaultState = () => {
   return {
@@ -174,7 +215,19 @@ const extractS3BucketNameAndPrefix = (uri) => {
   return undefined;
 };
 
-const getBodyScaffoldInfo = async (sparcApi, species) => {
+const getBodyScaffoldInfo = (sparcApi, species) => {
+  const key = `${sparcApi}|${species}`;
+  return cachedRequest(bodyScaffoldInfoCache, key, async () => {
+    const info = await fetchBodyScaffoldInfo(sparcApi, species);
+    // Do not keep the fallback url, so a later call can retry the API
+    if (!info.datasetInfo) {
+      bodyScaffoldInfoCache.delete(key);
+    }
+    return info;
+  });
+};
+
+const fetchBodyScaffoldInfo = async (sparcApi, species) => {
   //Get body scaffold information
   let url = '';
   let datasetInfo = undefined;
@@ -243,6 +296,8 @@ export {
   initialState,
   initialDefaultState,
   getBodyScaffoldInfo,
+  getLatestFlatmap,
+  getFlatmapPathways,
   getNewMapEntry,
   intersectArrays,
   transformObjToString,
