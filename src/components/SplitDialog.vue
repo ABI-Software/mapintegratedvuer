@@ -22,12 +22,13 @@
 <script>
 import ContentVuer from './ContentVuer.vue';
 import CustomSplitter from './CustomSplitter.vue';
-import EventBus from './EventBus';
+import EventBus, { onEvents } from './EventBus';
 import { mapStores } from 'pinia';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useSettingsStore } from '../stores/settings';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import { queryPathsByRoute, queryAllConnectedPaths } from '@abi-software/map-utilities';
+import { getLatestFlatmap } from './scripts/utilities.js';
 
 export default {
   name: 'SplitDialog',
@@ -319,13 +320,8 @@ export default {
       return ids;
     },
     getLatestFlatmapUUID: async function (flatmapAPI, id) {
-      const flatmapResponse = await fetch(flatmapAPI);
-      const flatmapJson = await flatmapResponse.json();
-      const latestFlatmap = flatmapJson
-        .filter((f) => f.id === id)
-        .sort((a, b) => b.created.localeCompare(a.created))[0];
-      const flatmapUUID = latestFlatmap.uuid;
-      return flatmapUUID;
+      const latestFlatmap = await getLatestFlatmap(flatmapAPI, id);
+      return latestFlatmap.uuid;
     },
     parseSearchTerms: function (query) {
       return query
@@ -592,98 +588,103 @@ export default {
     },
   },
   mounted: function () {
-    EventBus.on('PaneResize', (payload) => {
-      this.setStyles(payload.refName, payload.rect);
-      this.updateFlatmapMinimap();
+    this._offBus = onEvents({
+      PaneResize: (payload) => {
+        this.setStyles(payload.refName, payload.rect);
+        this.updateFlatmapMinimap();
+      },
+      PaneUnmounted: (payload) => {
+        this.hidePane(payload.refName);
+      },
+      'species-layout-connectivity-update': () => {
+        this.onSpeciesLayoutConnectivityUpdate();
+      },
+      'connectivity-query-filter': (payload) => {
+        this.connectivityQueryFilter(payload);
+      },
+      //The followings are migrated from ContentVuer and its child components to here
+      hoverUpdate: (payload) => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onHoverUpdate(payload);
+        });
+      },
+      startHelp: () => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onStartHelp();
+        });
+      },
+      'connectivity-item-close': () => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onConnectivityItemClose();
+        });
+      },
+      'sidebar-annotation-close': () => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onSidebarAnnotationClose();
+        });
+      },
+      globalViewerSettingsUpdate: () => {
+        const contents = this.$refs['content'];
+        contents.forEach((content) => {
+          content.onGlobalViewerSettingsUpdate();
+        });
+      },
+      markerUpdate: () => {
+        const contents = this.$refs['content'];
+        contents.forEach((content) => {
+          content.onFlatmapMarkerUpdate();
+        });
+      },
+      'connectivity-hovered': (payload) => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onShowConnectivityTooltips(payload);
+        });
+      },
+      'soma-location-hovered': (payload) => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onShowFeatureInFlatmap(payload);
+        });
+      },
+      'connectivity-source-change': (payload) => {
+        const contents = this.getActiveContents();
+        //Use ongoingSource array to make sure, the knowledge
+        //from each source is only loaded once.
+        //TODO: This can be improved with using just one viewer to give us
+        //the new knowlegdge with the species/sources specified which
+        //will require some UI changes on the sidebar
+        const ongoingSources = [];
+        contents.forEach((content) => {
+          content.onConnectivitySourceChange(payload, ongoingSources);
+        });
+      },
+      'show-connectivity': (payload) => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onShowConnectivity(payload);
+        });
+      },
+      'show-reference-connectivities': (payload) => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onShowReferenceConnectivity(payload);
+        });
+      },
+      'filter-visibility': (payload) => {
+        const contents = this.getActiveContents();
+        contents.forEach((content) => {
+          content.onFilterVisibility(payload);
+        });
+      },
     });
-    EventBus.on('PaneUnmounted', (payload) => {
-      this.hidePane(payload.refName);
-    });
-    EventBus.on('species-layout-connectivity-update', () => {
-      this.onSpeciesLayoutConnectivityUpdate();
-    });
-    EventBus.on('connectivity-query-filter', (payload) => {
-      this.connectivityQueryFilter(payload);
-    });
-    //The followings are migrated from ContentVuer and its child components to here
-    EventBus.on('hoverUpdate', (payload) => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onHoverUpdate(payload);
-      });
-    });
-    EventBus.on('startHelp', () => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onStartHelp();
-      });
-    });
-    EventBus.on('connectivity-item-close', () => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onConnectivityItemClose();
-      });
-    });
-    EventBus.on('sidebar-annotation-close', () => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onSidebarAnnotationClose();
-      });
-    });
-    EventBus.on('globalViewerSettingsUpdate', () => {
-      const contents = this.$refs['content'];
-      contents.forEach((content) => {
-        content.onGlobalViewerSettingsUpdate();
-      });
-    });
-    EventBus.on('markerUpdate', () => {
-      const contents = this.$refs['content'];
-      contents.forEach((content) => {
-        content.onFlatmapMarkerUpdate();
-      });
-    });
-    EventBus.on('connectivity-hovered', (payload) => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onShowConnectivityTooltips(payload);
-      });
-    });
-    EventBus.on('soma-location-hovered', (payload) => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onShowFeatureInFlatmap(payload);
-      });
-    });
-    EventBus.on('connectivity-source-change', (payload) => {
-      const contents = this.getActiveContents();
-      //Use ongoingSource array to make sure, the knowledge
-      //from each source is only loaded once.
-      //TODO: This can be improved with using just one viewer to give us
-      //the new knowlegdge with the species/sources specified which
-      //will require some UI changes on the sidebar
-      const ongoingSources = [];
-      contents.forEach((content) => {
-        content.onConnectivitySourceChange(payload, ongoingSources);
-      });
-    });
-    EventBus.on('show-connectivity', (payload) => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onShowConnectivity(payload);
-      });
-    });
-    EventBus.on('show-reference-connectivities', (payload) => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onShowReferenceConnectivity(payload);
-      });
-    });
-    EventBus.on('filter-visibility', (payload) => {
-      const contents = this.getActiveContents();
-      contents.forEach((content) => {
-        content.onFilterVisibility(payload);
-      });
-    });
+  },
+  beforeUnmount: function () {
+    this._offBus?.();
   },
 };
 </script>

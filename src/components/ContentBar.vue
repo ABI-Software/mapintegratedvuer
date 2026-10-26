@@ -269,7 +269,7 @@ export default {
           target: value,
         });
         this.$nextTick(() => {
-          setTimeout(() => {
+          this._chooserTimer = setTimeout(() => {
             this.$emit('chooser-changed');
           }, 1200);
         });
@@ -315,6 +315,9 @@ export default {
   },
   mounted: function () {
     this.setupScaffoldContextCard();
+  },
+  beforeUnmount: function () {
+    clearTimeout(this._chooserTimer);
   },
 };
 </script>

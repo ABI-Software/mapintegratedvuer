@@ -22,7 +22,7 @@
 import { computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import SplitFlow from './SplitFlow.vue';
-import EventBus from './EventBus';
+import { onEvents } from './EventBus';
 import { mapStores } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
@@ -463,44 +463,53 @@ export default {
     this.splitFlowStore?.getAvailableTerms(this.settingsStore.sparcApi);
   },
   mounted: async function () {
-    EventBus.on('updateShareLinkRequested', (data) => {
-      /**
-       * This event emits when the share link is requested.
-       */
-      this.$emit('updateShareLinkRequested', data);
-    });
-    EventBus.on('trackEvent', (taggingData) => {
-      /**
-       * This event triggers data tracking for Google Tag Manager (GTM) related to map interactions.
-       */
-      this.$emit('trackEvent', taggingData);
+    this._offBus = onEvents({
+      updateShareLinkRequested: (data) => {
+        /**
+         * This event emits when the share link is requested.
+         */
+        this.$emit('updateShareLinkRequested', data);
+      },
+      trackEvent: (taggingData) => {
+        /**
+         * This event triggers data tracking for Google Tag Manager (GTM) related to map interactions.
+         */
+        this.$emit('trackEvent', taggingData);
+      },
+      mapLoaded: (map) => {
+        // Check if there is a search term to display
+        if (this.displaySearchFromQuery) {
+          setTimeout(() => {
+            this.$refs.flow?.onDisplaySearch({ term: this.displaySearchFromQuery });
+            this.displaySearchFromQuery = ''; // Clear after using it from first load
+          });
+        }
+        /**
+         * This event emit when the map is loaded.
+         */
+        this.$emit('mapLoaded', map);
+      },
+      // Allow other components to request opening a map via setCurrentEntry
+      SetCurrentEntry: (entry) => {
+        // Ignore requests until the flow is ready, as before
+        if (entry && this.isReady) {
+          this.setCurrentEntry(entry);
+        }
+      },
     });
     if (!this.state) {
       this.initialState = await initialState(this.startingMap, this.options.sparcApi);
+      // The component may have been unmounted while awaiting
+      if (this._unmounted) return;
     }
-    EventBus.on('mapLoaded', (map) => {
-      // Check if there is a search term to display
-      if (this.displaySearchFromQuery) {
-        setTimeout(() => {
-          this.$refs.flow.onDisplaySearch({ term: this.displaySearchFromQuery });
-          this.displaySearchFromQuery = ''; // Clear after using it from first load
-        });
-      }
-      /**
-       * This event emit when the map is loaded.
-       */
-      this.$emit('mapLoaded', map);
-    });
-    // Allow other components to request opening a map via setCurrentEntry
-    EventBus.on('SetCurrentEntry', (entry) => {
-      if (entry) {
-        this.setCurrentEntry(entry);
-      }
-    });
     this.isReady = true;
     this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
     this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
+  },
+  beforeUnmount: function () {
+    this._unmounted = true;
+    this._offBus?.();
   },
 };
 </script>
