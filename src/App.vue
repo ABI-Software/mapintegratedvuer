@@ -165,6 +165,7 @@ export default {
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
       showLongLabel: true,
+      isMapLoaded: false,
       truncateLongLabel: true,
       showIdInTooltip: true,
       openNewSpeciesInSplitView: true,
@@ -185,6 +186,7 @@ export default {
         flatmapAPI: this.$route.query.flatmapserver
           ? this.$route.query.flatmapserver
           : import.meta.env.VITE_FLATMAPAPI_LOCATION,
+        cellCardsApi: import.meta.env.VITE_APP_CELL_CARDS_API,
         rootUrl: import.meta.env.VITE_ROOT_URL,
       };
     },
@@ -321,6 +323,7 @@ export default {
     },
     mapIsLoaded: function (map) {
       console.log('map is loaded', map);
+      this.isMapLoaded = true;
       // map.changeViewingMode('Annotation')
     },
     viewerIsReady: function () {
