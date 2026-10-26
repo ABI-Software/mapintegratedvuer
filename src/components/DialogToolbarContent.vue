@@ -491,7 +491,7 @@
 
 <script>
 import { shallowRef } from 'vue';
-import EventBus from './EventBus';
+import EventBus, { onEvents } from './EventBus';
 import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
 import { useSettingsStore } from '../stores/settings';
@@ -798,8 +798,10 @@ export default {
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
     this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
 
-    EventBus.on('mapLoaded', () => {
-      this.mapLoaded = true;
+    this._offBus = onEvents({
+      mapLoaded: () => {
+        this.mapLoaded = true;
+      },
     });
 
     document.addEventListener('fullscreenchange', this.onFullscreenEsc);
@@ -807,6 +809,7 @@ export default {
     this.loadGlobalSettings();
   },
   unmounted: function () {
+    this._offBus?.();
     document.removeEventListener('fullscreenchange', this.onFullscreenEsc);
   },
 };
