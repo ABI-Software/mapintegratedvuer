@@ -49,6 +49,7 @@ export default {
 .search-container {
   display: flex;
   flex-direction: row;
+  max-width: fit-content;
 
   .text {
     margin-left: 8px;
