@@ -212,6 +212,7 @@ export default {
       return [
         {
           id: 'content-bar-viewer-select',
+          area: 'panel-header',
           title: 'Switch map',
           description: 'Choose which of the opened maps and data is shown in this panel.',
           placement: 'bottom',
@@ -219,6 +220,7 @@ export default {
         },
         {
           id: 'content-bar-source',
+          area: 'panel-header',
           title: 'Source',
           description: 'See where the data shown in this panel comes from.',
           placement: 'bottom',
@@ -226,6 +228,7 @@ export default {
         },
         {
           id: 'content-bar-information',
+          area: 'panel-header',
           title: 'Information',
           description: 'Show more information about what is shown in this panel.',
           placement: 'bottom',
@@ -233,6 +236,7 @@ export default {
         },
         {
           id: 'content-bar-close',
+          area: 'panel-header',
           title: 'Close panel',
           description: 'Close this panel and remove its content from the view.',
           placement: 'bottom-end',

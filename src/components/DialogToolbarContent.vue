@@ -194,13 +194,26 @@
         popper-class="header-popper"
       >
         <template #reference>
-          <map-svg-icon
-            icon="tooltips"
-            class="header-icon"
-            data-help-id="help"
-            @click="startHelp()"
-          />
+          <map-svg-icon icon="tooltips" ref="helpRef" class="header-icon" data-help-id="help" />
         </template>
+      </el-popover>
+      <el-popover
+        v-if="helpRef"
+        :virtual-ref="helpRef"
+        ref="helpPopover"
+        placement="bottom"
+        :teleported="false"
+        trigger="click"
+        popper-class="setting-popover"
+        virtual-triggering
+        @before-enter="loadHelpModeOptions"
+      >
+        <HelpModeMenu
+          :views="helpModeOptions.views"
+          :getAreas="helpModeOptions.getAreas"
+          @start-tour="startHelp({ mode: 'tour', ...$event })"
+          @start-hover="startHelp({ mode: 'hover' })"
+        />
       </el-popover>
       <el-popover
         class="tooltip"
@@ -500,6 +513,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
+import HelpModeMenu from './HelpModeMenu.vue';
 import { CopyDocument as ElIconCopyDocument } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
@@ -512,6 +526,7 @@ export default {
     MapSvgIcon,
     MapSvgSpriteColor,
     SearchControls,
+    HelpModeMenu,
   },
   props: {
     /**
@@ -527,6 +542,13 @@ export default {
     showIcons: {
       type: Boolean,
       default: false,
+    },
+    /**
+     * Function returning the options of the help menu, `{ views, getAreas }`.
+     */
+    helpModeProvider: {
+      type: Function,
+      default: () => ({ views: [], getAreas: () => [] }),
     },
   },
   inject: ['showGlobalSettings'],
@@ -562,6 +584,8 @@ export default {
       failedSearch: undefined,
       globalSettings: {},
       globalSettingRef: undefined,
+      helpRef: undefined,
+      helpModeOptions: { views: [], getAreas: () => [] },
       isFullscreen: false,
       loadingLink: true,
       permalinkRef: undefined,
@@ -585,6 +609,7 @@ export default {
       return [
         {
           id: 'toolbar-search',
+          area: 'toolbar',
           title: 'Search within display',
           description: 'Search for a term, such as an organ or a nerve, in the opened maps.',
           placement: 'bottom',
@@ -592,6 +617,7 @@ export default {
         },
         {
           id: 'toolbar-viewing-mode',
+          area: 'toolbar',
           title: 'Viewing mode',
           description:
             'Change how you interact with the maps, e.g. explore the features or the neuron connections.',
@@ -600,6 +626,7 @@ export default {
         },
         {
           id: 'toolbar-split-screen',
+          area: 'toolbar',
           title: 'Split screen',
           description: 'View several maps side by side by choosing a split screen layout.',
           placement: 'bottom-end',
@@ -607,13 +634,16 @@ export default {
         },
         {
           id: 'toolbar-help',
+          area: 'toolbar',
           title: 'Help',
-          description: 'Start this tour again at any time.',
+          description:
+            'Start a guided tour of a view or an area, or hover over the controls to see what they do.',
           placement: 'bottom-end',
           target: findTarget('help'),
         },
         {
           id: 'toolbar-fullscreen',
+          area: 'toolbar',
           title: 'Fullscreen',
           description: 'View the maps in fullscreen.',
           placement: 'bottom-end',
@@ -621,6 +651,7 @@ export default {
         },
         {
           id: 'toolbar-exit-fullscreen',
+          area: 'toolbar',
           title: 'Exit fullscreen',
           description: 'Exit the fullscreen view.',
           placement: 'bottom-end',
@@ -628,6 +659,7 @@ export default {
         },
         {
           id: 'toolbar-permalink',
+          area: 'toolbar',
           title: 'Permalink',
           description: 'Create a link to share the current view with others.',
           placement: 'bottom-end',
@@ -635,6 +667,7 @@ export default {
         },
         {
           id: 'toolbar-close',
+          area: 'toolbar',
           title: 'Close',
           description: 'Close the maps viewer.',
           placement: 'bottom-end',
@@ -642,6 +675,7 @@ export default {
         },
         {
           id: 'toolbar-global-settings',
+          area: 'toolbar',
           title: 'Global settings',
           description:
             'Change the settings that apply to all the maps, such as the display options.',
@@ -727,13 +761,20 @@ export default {
     titleClicked: function (id) {
       this.$emit('titleClicked', id);
     },
-    startHelp: function () {
-      EventBus.emit('startHelp');
+    loadHelpModeOptions: function () {
+      this.helpModeOptions = this.helpModeProvider();
+    },
+    /**
+     * Start the help, `options` is `{ mode: 'tour', view, area }` or `{ mode: 'hover' }`.
+     */
+    startHelp: function (options) {
+      this.$refs.helpPopover?.hide();
+      EventBus.emit('startHelp', options);
 
       // GA Tracking
       tagging.sendEvent({
         event: 'interaction_event',
-        event_name: `portal_maps_toolbar_help`,
+        event_name: `portal_maps_toolbar_help_${options.mode}`,
         category: 'help_mode_start',
         location: 'map_toolbar',
       });
@@ -834,6 +875,7 @@ export default {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
     this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
+    this.helpRef = shallowRef(this.$refs.helpRef);
 
     this._offBus = onEvents({
       mapLoaded: () => {
