@@ -89,6 +89,7 @@ import '@abi-software/map-side-bar/dist/style.css';
 import {
   HelpModeHover,
   HelpModeTour,
+  collectHelpModeSteps,
   getHelpModeAreas,
   queryForwardBackwardConnections,
 } from '@abi-software/map-utilities';
@@ -243,14 +244,14 @@ export default {
   },
   methods: {
     /**
-     * Collect the help steps of the toolbar and all the visible panels.
-     * Panel steps have `panel` set to the index of their panel in view order.
+     * Collect the help steps of the toolbar and all the visible panels, from the elements
+     * with `v-help-mode`. Panel steps have `panel` set to the index of their panel in view order.
      */
     collectHelpSteps: function () {
-      const toolbarSteps = this.$refs.dialogToolbar?.getHelpModeSteps() ?? [];
+      const toolbarSteps = collectHelpModeSteps(this.$refs.dialogToolbar?.$el);
       const contents = this.$refs.splitdialog?.getActiveContentsInViewOrder() ?? [];
       const contentSteps = contents.flatMap((content, index) => {
-        const steps = content.getHelpModeSteps().map((step) => ({ ...step, panel: index }));
+        const steps = collectHelpModeSteps(content.$el).map((step) => ({ ...step, panel: index }));
         if (contents.length < 2) return steps;
         const group = `Panel ${index + 1} · ${content.getTitle()}`;
         return steps.map((step) => ({ ...step, id: `panel-${index + 1}-${step.id}`, group }));

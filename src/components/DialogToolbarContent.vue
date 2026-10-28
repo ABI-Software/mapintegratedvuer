@@ -2,14 +2,30 @@
   <div class="header">
     <map-svg-sprite-color />
     <search-controls
-      data-help-id="search"
+      v-help-mode="{
+        id: 'toolbar-search',
+        area: 'toolbar',
+        title: 'Search within display',
+        description: 'Search for a term, such as an organ or a nerve, in the opened maps.',
+        placement: 'bottom',
+      }"
       @search="$emit('local-search', { term: $event })"
       @fetch-suggestions="$emit('fetch-suggestions', { data: $event })"
       :failedSearch="failedSearch"
     />
 
     <el-row class="icon-group">
-      <div class="viewing-mode-selector" data-help-id="viewing-mode">
+      <div
+        class="viewing-mode-selector"
+        v-help-mode="{
+          id: 'toolbar-viewing-mode',
+          area: 'toolbar',
+          title: 'Viewing mode',
+          description:
+            'Change how you interact with the maps, e.g. explore the features or the neuron connections.',
+          placement: 'bottom',
+        }"
+      >
         Viewing Mode:
         <el-dropdown
           :teleported="false"
@@ -179,7 +195,13 @@
             :icon="activeView"
             ref="activeViewRef"
             :class="[{ disabled: 1 >= numberOfEntries }, 'header-icon', 'splitscreen-icon']"
-            data-help-id="split-screen"
+            v-help-mode="{
+              id: 'toolbar-split-screen',
+              area: 'toolbar',
+              title: 'Split screen',
+              description: 'View several maps side by side by choosing a split screen layout.',
+              placement: 'bottom-end',
+            }"
           />
         </template>
       </el-popover>
@@ -194,7 +216,19 @@
         popper-class="header-popper"
       >
         <template #reference>
-          <map-svg-icon icon="tooltips" ref="helpRef" class="header-icon" data-help-id="help" />
+          <map-svg-icon
+            icon="tooltips"
+            ref="helpRef"
+            class="header-icon"
+            v-help-mode="{
+              id: 'toolbar-help',
+              area: 'toolbar',
+              title: 'Help',
+              description:
+                'Start a guided tour of a view or an area, or hover over the controls to see what they do.',
+              placement: 'bottom-end',
+            }"
+          />
         </template>
       </el-popover>
       <el-popover
@@ -229,7 +263,13 @@
             v-show="!isFullscreen"
             icon="fullScreen"
             class="header-icon"
-            data-help-id="fullscreen"
+            v-help-mode="{
+              id: 'toolbar-fullscreen',
+              area: 'toolbar',
+              title: 'Fullscreen',
+              description: 'View the maps in fullscreen.',
+              placement: 'bottom-end',
+            }"
             @click="onFullscreen"
           />
         </template>
@@ -248,7 +288,13 @@
             v-show="isFullscreen"
             icon="closeFullScreen"
             class="header-icon"
-            data-help-id="exit-fullscreen"
+            v-help-mode="{
+              id: 'toolbar-exit-fullscreen',
+              area: 'toolbar',
+              title: 'Exit fullscreen',
+              description: 'Exit the fullscreen view.',
+              placement: 'bottom-end',
+            }"
             @click="onFullscreen"
           />
         </template>
@@ -350,7 +396,13 @@
             icon="permalink"
             ref="permalinkRef"
             class="header-icon"
-            data-help-id="permalink"
+            v-help-mode="{
+              id: 'toolbar-permalink',
+              area: 'toolbar',
+              title: 'Permalink',
+              description: 'Create a link to share the current view with others.',
+              placement: 'bottom-end',
+            }"
             @click="requestShareLink"
             v-show="shareLink"
           />
@@ -369,7 +421,13 @@
           <map-svg-icon
             icon="close"
             class="header-icon"
-            data-help-id="close"
+            v-help-mode="{
+              id: 'toolbar-close',
+              area: 'toolbar',
+              title: 'Close',
+              description: 'Close the maps viewer.',
+              placement: 'bottom-end',
+            }"
             @click="close"
             v-show="showIcons"
           />
@@ -491,7 +549,14 @@
         <template #reference>
           <el-icon
             ref="globalSettingRef"
-            data-help-id="global-settings"
+            v-help-mode="{
+              id: 'toolbar-global-settings',
+              area: 'toolbar',
+              title: 'Global settings',
+              description:
+                'Change the settings that apply to all the maps, such as the display options.',
+              placement: 'bottom-end',
+            }"
             :disabled="!mapLoaded"
             class="header-icon"
             :class="{ disabled: !mapLoaded }"
@@ -514,6 +579,7 @@ import { useSplitFlowStore } from '../stores/splitFlow';
 import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
 import HelpModeMenu from './HelpModeMenu.vue';
+import { helpModeDirective } from '@abi-software/map-utilities';
 import { CopyDocument as ElIconCopyDocument } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
@@ -527,6 +593,9 @@ export default {
     MapSvgSpriteColor,
     SearchControls,
     HelpModeMenu,
+  },
+  directives: {
+    helpMode: helpModeDirective,
   },
   props: {
     /**
@@ -601,89 +670,6 @@ export default {
     };
   },
   methods: {
-    /**
-     * Returns the help mode tour steps for the controls in the toolbar.
-     */
-    getHelpModeSteps: function () {
-      const findTarget = (id) => () => this.$el?.querySelector?.(`[data-help-id="${id}"]`);
-      return [
-        {
-          id: 'toolbar-search',
-          area: 'toolbar',
-          title: 'Search within display',
-          description: 'Search for a term, such as an organ or a nerve, in the opened maps.',
-          placement: 'bottom',
-          target: findTarget('search'),
-        },
-        {
-          id: 'toolbar-viewing-mode',
-          area: 'toolbar',
-          title: 'Viewing mode',
-          description:
-            'Change how you interact with the maps, e.g. explore the features or the neuron connections.',
-          placement: 'bottom',
-          target: findTarget('viewing-mode'),
-        },
-        {
-          id: 'toolbar-split-screen',
-          area: 'toolbar',
-          title: 'Split screen',
-          description: 'View several maps side by side by choosing a split screen layout.',
-          placement: 'bottom-end',
-          target: findTarget('split-screen'),
-        },
-        {
-          id: 'toolbar-help',
-          area: 'toolbar',
-          title: 'Help',
-          description:
-            'Start a guided tour of a view or an area, or hover over the controls to see what they do.',
-          placement: 'bottom-end',
-          target: findTarget('help'),
-        },
-        {
-          id: 'toolbar-fullscreen',
-          area: 'toolbar',
-          title: 'Fullscreen',
-          description: 'View the maps in fullscreen.',
-          placement: 'bottom-end',
-          target: findTarget('fullscreen'),
-        },
-        {
-          id: 'toolbar-exit-fullscreen',
-          area: 'toolbar',
-          title: 'Exit fullscreen',
-          description: 'Exit the fullscreen view.',
-          placement: 'bottom-end',
-          target: findTarget('exit-fullscreen'),
-        },
-        {
-          id: 'toolbar-permalink',
-          area: 'toolbar',
-          title: 'Permalink',
-          description: 'Create a link to share the current view with others.',
-          placement: 'bottom-end',
-          target: findTarget('permalink'),
-        },
-        {
-          id: 'toolbar-close',
-          area: 'toolbar',
-          title: 'Close',
-          description: 'Close the maps viewer.',
-          placement: 'bottom-end',
-          target: findTarget('close'),
-        },
-        {
-          id: 'toolbar-global-settings',
-          area: 'toolbar',
-          title: 'Global settings',
-          description:
-            'Change the settings that apply to all the maps, such as the display options.',
-          placement: 'bottom-end',
-          target: findTarget('global-settings'),
-        },
-      ];
-    },
     loadGlobalSettings: function () {
       this.globalSettings = {
         ...this.globalSettings,

@@ -58,9 +58,6 @@ export default {
     ScaffoldVuer,
   },
   methods: {
-    getHelpModeSteps: function () {
-      return this.$refs.scaffold?.getHelpModeSteps?.() ?? [];
-    },
     showConnectivitiesByReference: async function (resource) {
       if (this.$refs.scaffold) {
         const flatmapKnowledge = sessionStorage.getItem('flatmap-knowledge');

@@ -54,7 +54,6 @@
         :truncateLongLabel="truncateLongLabel"
         :showIdInTooltip="showIdInTooltip"
         :shareLink="shareLink"
-        :useHelpModeDialog="true"
         :connectivityInfoSidebar="true"
         :allClosable="false"
         :showGlobalSettings="true"

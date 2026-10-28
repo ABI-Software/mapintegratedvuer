@@ -63,9 +63,6 @@ export default {
     };
   },
   methods: {
-    getHelpModeSteps: function () {
-      return this.$refs.flatmap?.getHelpModeSteps?.() ?? [];
-    },
     getState: function () {
       return this.$refs.flatmap.getState();
     },

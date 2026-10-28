@@ -84,14 +84,6 @@ export default {
       default: 'AC',
     },
     /**
-     * @deprecated "Help" now always starts a single guided tour across the toolbar
-     * and all the visible panels. This option is kept for compatibility and has no effect.
-     */
-    useHelpModeDialog: {
-      type: Boolean,
-      default: false,
-    },
-    /**
      * The option to show connectivity info in sidebar.
      * Default is `true`. Set `false` to show as popup on map.
      */
@@ -499,7 +491,6 @@ export default {
       if (this._unmounted) return;
     }
     this.isReady = true;
-    this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
     this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
   },

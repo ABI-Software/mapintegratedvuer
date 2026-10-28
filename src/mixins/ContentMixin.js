@@ -414,12 +414,6 @@ export default {
     updateViewerSettings: function () {
       return;
     },
-    /**
-     * Returns the help mode tour steps of the viewer, override in the viewers which support it.
-     */
-    getHelpModeSteps: function () {
-      return [];
-    },
     flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
       let toHighlight = [...hoverAnatomies, ...hoverConnectivity];
       const globalSettings = this.settingsStore.globalSettings;

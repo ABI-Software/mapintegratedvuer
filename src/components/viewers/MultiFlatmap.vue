@@ -95,9 +95,6 @@ export default {
     };
   },
   methods: {
-    getHelpModeSteps: function () {
-      return this.$refs.multiflatmap?.getHelpModeSteps?.() ?? [];
-    },
     getState: function () {
       if (this.flatmapReady) return this.$refs.multiflatmap.getState();
       else return undefined;

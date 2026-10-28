@@ -7,6 +7,13 @@
         :model-value="entry.id"
         placeholder="Select"
         class="select-box"
+        v-help-mode="{
+          id: 'content-bar-viewer-select',
+          area: 'panel-header',
+          title: 'Switch map',
+          description: 'Choose which of the opened maps and data is shown in this panel.',
+          placement: 'bottom',
+        }"
         popper-class="viewer_dropdown"
         @change="viewerChanged($event)"
       >
@@ -25,12 +32,18 @@
         round
         size="small"
         class="source-chip shrink"
-        data-help-id="source"
+        v-help-mode="{
+          id: 'content-bar-source',
+          area: 'panel-header',
+          title: 'Source',
+          description: 'See where the data shown in this panel comes from.',
+          placement: 'bottom',
+        }"
         @click="openSourceInfo"
       >
         {{ getSourceTitle }}
       </el-button>
-      <div class="information-group shrink" data-help-id="information">
+      <div class="information-group shrink">
         <el-popover
           placement="bottom"
           :teleported="false"
@@ -57,7 +70,16 @@
             />
           </template>
           <template #reference>
-            <div v-show="contextCardEntry">
+            <div
+              v-show="contextCardEntry"
+              v-help-mode="{
+                id: 'content-bar-information',
+                area: 'panel-header',
+                title: 'Information',
+                description: 'Show more information about what is shown in this panel.',
+                placement: 'bottom',
+              }"
+            >
               <div
                 v-show="contextCardVisible"
                 class="information"
@@ -91,7 +113,13 @@
           <map-svg-icon
             icon="close-no-bk"
             class="header-icon rightmost"
-            data-help-id="close-panel"
+            v-help-mode="{
+              id: 'content-bar-close',
+              area: 'panel-header',
+              title: 'Close panel',
+              description: 'Close this panel and remove its content from the view.',
+              placement: 'bottom-end',
+            }"
             v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
             @click="closeAndRemove()"
           />
@@ -112,6 +140,7 @@ import ContextCard from './ContextCard.vue';
 import FlatmapContextCard from './FlatmapContextCard.vue';
 import { ArrowDown as ElIconArrowDown, ArrowUp as ElIconArrowUp } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
+import { helpModeDirective } from '@abi-software/map-utilities';
 
 export default {
   name: 'ContentBar',
@@ -121,6 +150,9 @@ export default {
     ContextCard,
     FlatmapContextCard,
     MapSvgIcon,
+  },
+  directives: {
+    helpMode: helpModeDirective,
   },
   props: {
     entry: Object,
@@ -204,46 +236,6 @@ export default {
     },
   },
   methods: {
-    /**
-     * Returns the help mode tour steps for the controls in this bar.
-     */
-    getHelpModeSteps: function () {
-      const findTarget = (selector) => () => this.$el?.querySelector?.(selector);
-      return [
-        {
-          id: 'content-bar-viewer-select',
-          area: 'panel-header',
-          title: 'Switch map',
-          description: 'Choose which of the opened maps and data is shown in this panel.',
-          placement: 'bottom',
-          target: findTarget('.select-box'),
-        },
-        {
-          id: 'content-bar-source',
-          area: 'panel-header',
-          title: 'Source',
-          description: 'See where the data shown in this panel comes from.',
-          placement: 'bottom',
-          target: findTarget('[data-help-id="source"]'),
-        },
-        {
-          id: 'content-bar-information',
-          area: 'panel-header',
-          title: 'Information',
-          description: 'Show more information about what is shown in this panel.',
-          placement: 'bottom',
-          target: findTarget('[data-help-id="information"] .information'),
-        },
-        {
-          id: 'content-bar-close',
-          area: 'panel-header',
-          title: 'Close panel',
-          description: 'Close this panel and remove its content from the view.',
-          placement: 'bottom-end',
-          target: findTarget('[data-help-id="close-panel"]'),
-        },
-      ];
-    },
     closeAndRemove: function () {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries });
       EventBus.emit('RemoveEntryRequest', this.entry.id);
