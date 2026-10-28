@@ -313,6 +313,13 @@
         :getTarget="getScreenshotTarget"
         :disabled="!mapLoaded"
         shortcut
+        v-help-mode="{
+          id: 'toolbar-screenshot',
+          area: 'toolbar',
+          title: 'Download screenshot',
+          description: 'Download a screenshot of the current view.',
+          placement: 'bottom-end',
+        }"
       />
       <el-popover
         v-if="permalinkRef"
