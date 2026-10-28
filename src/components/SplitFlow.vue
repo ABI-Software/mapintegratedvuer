@@ -14,6 +14,7 @@
         @open-cell-card-explorer="openCellCardExplorerFromToolbar"
         :captureScreenshot="captureScreenshot"
         :getScreenshotTarget="getScreenshotElement"
+        :helpModeProvider="getHelpModeOptions"
         ref="dialogToolbar"
       />
     </el-header>
@@ -70,6 +71,19 @@
         />
       </div>
     </el-main>
+    <HelpModeTour
+      v-model="helpTourOpen"
+      :steps="helpTourSteps"
+      @change="onHelpTourChange"
+      @finish="onHelpTourEnd('help_mode_finish')"
+      @close="onHelpTourEnd('help_mode_exit')"
+    />
+    <HelpModeHover
+      v-model="helpHoverOpen"
+      :steps="helpHoverSteps"
+      :container="getHelpContainer"
+      @close="onHelpHoverClose"
+    />
   </el-container>
 </template>
 
@@ -83,7 +97,13 @@ import SplitDialog from './SplitDialog.vue';
 // import contextCards from './context-cards'
 import { SideBar } from '@abi-software/map-side-bar';
 import '@abi-software/map-side-bar/dist/style.css';
-import { queryForwardBackwardConnections } from '@abi-software/map-utilities';
+import {
+  HelpModeHover,
+  HelpModeTour,
+  collectHelpModeSteps,
+  getHelpModeAreas,
+  queryForwardBackwardConnections,
+} from '@abi-software/map-utilities';
 import {
   capitalise,
   getNewMapEntry,
@@ -136,6 +156,8 @@ export default {
   name: 'SplitFlow',
   components: {
     DialogToolbarContent,
+    HelpModeHover,
+    HelpModeTour,
     SplitDialog,
     SideBar,
   },
@@ -195,9 +217,22 @@ export default {
       annotationHighlight: [],
       showCellCards: false,
       cellCardSomaLocations: [],
+      helpTourOpen: false,
+      helpTourSteps: [],
+      helpHoverOpen: false,
+      helpHoverSteps: [],
     };
   },
   watch: {
+    'splitFlowStore.activeView': function () {
+      // The panels have changed, the steps of the help are no longer valid
+      this.helpTourOpen = false;
+      this.helpHoverOpen = false;
+    },
+    'entries.length': function () {
+      this.helpTourOpen = false;
+      this.helpHoverOpen = false;
+    },
     state: {
       handler: function (value) {
         if (value) {
@@ -234,6 +269,99 @@ export default {
           this.$refs.sideBar.openCellCardExplorerSearch(payload.filters || [], payload.query || '');
         }
       }
+    },
+    /**
+     * Collect the help steps of the toolbar and all the visible panels, from the elements
+     * with `v-help-mode`. Panel steps have `panel` set to the index of their panel in view order.
+     */
+    collectHelpSteps: function () {
+      const toolbarSteps = collectHelpModeSteps(this.$refs.dialogToolbar?.$el);
+      const contents = this.$refs.splitdialog?.getActiveContentsInViewOrder() ?? [];
+      const contentSteps = contents.flatMap((content, index) => {
+        const steps = collectHelpModeSteps(content.$el).map((step) => ({ ...step, panel: index }));
+        if (contents.length < 2) return steps;
+        const group = `Panel ${index + 1} · ${content.getTitle()}`;
+        return steps.map((step) => ({ ...step, id: `panel-${index + 1}-${step.id}`, group }));
+      });
+      return [...toolbarSteps, ...contentSteps];
+    },
+    /**
+     * Filter the help steps by view (`'all'` or a panel index) and area (`'all'` or an area key).
+     * The toolbar is shared by all the views, it is only included for a single view
+     * when its area is chosen.
+     */
+    filterHelpSteps: function (steps, view = 'all', area = 'all') {
+      return steps.filter((step) => {
+        const inView =
+          view === 'all' || step.panel === view || (step.panel === undefined && area === 'toolbar');
+        return inView && (area === 'all' || step.area === area);
+      });
+    },
+    /**
+     * Options for the help menu in the toolbar.
+     */
+    getHelpModeOptions: function () {
+      const contents = this.$refs.splitdialog?.getActiveContentsInViewOrder() ?? [];
+      const views = contents.map((content, index) => ({
+        value: index,
+        label: `Panel ${index + 1} · ${content.getTitle()}`,
+      }));
+      const steps = this.collectHelpSteps();
+      const getAreas = (view) => {
+        const viewSteps = this.filterHelpSteps(steps, view);
+        // The toolbar is always available
+        const toolbarSteps = view === 'all' ? [] : this.filterHelpSteps(steps, view, 'toolbar');
+        return getHelpModeAreas([...toolbarSteps, ...viewSteps]);
+      };
+      return { views, getAreas };
+    },
+    /**
+     * Start the help tour for the given view and area.
+     */
+    startHelpTour: function (view = 'all', area = 'all') {
+      this.helpHoverOpen = false;
+      this.helpTourSteps = this.filterHelpSteps(this.collectHelpSteps(), view, area);
+      this.helpTourOpen = this.helpTourSteps.length > 0;
+    },
+    /**
+     * The hover help only greys out the viewer, which can be embedded in a longer page.
+     */
+    getHelpContainer: function () {
+      return this.$el;
+    },
+    /**
+     * Start the hover help for the toolbar and all the visible panels.
+     */
+    startHelpHover: function () {
+      this.helpTourOpen = false;
+      this.helpHoverSteps = this.collectHelpSteps();
+      this.helpHoverOpen = true;
+    },
+    onHelpTourChange: function (step, index, direction) {
+      // The first step is shown when the tour starts, which is already tracked
+      if (index === 0) return;
+      Tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: `portal_maps_help_mode_${direction > 0 ? 'next' : 'back'}`,
+        category: 'help_mode_step',
+        location: step?.id,
+      });
+    },
+    onHelpHoverClose: function () {
+      Tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: 'portal_maps_help_hover_exit',
+        category: 'help_hover_exit',
+        location: 'map_toolbar',
+      });
+    },
+    onHelpTourEnd: function (category) {
+      Tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: `portal_maps_${category}`,
+        category: category,
+        location: 'map_toolbar',
+      });
     },
     onFilterVisibility: function (state) {
       this.filterVisibility = state;
@@ -1372,9 +1500,14 @@ export default {
         this.updateFlatmapMinimap();
         this.openNewMap(type);
       },
-      startHelp: () => {
+      startHelp: (options = {}) => {
         if (this.$refs.sideBar) {
           this.$refs.sideBar.close();
+        }
+        if (options.mode === 'hover') {
+          this.startHelpHover();
+        } else {
+          this.startHelpTour(options.view, options.area);
         }
       },
       'connectivity-knowledge': (payload) => {

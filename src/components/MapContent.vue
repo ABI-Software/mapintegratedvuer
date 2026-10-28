@@ -86,15 +86,6 @@ export default {
       default: 'AC',
     },
     /**
-     * To use help-mode-dialog when user clicks "Help".
-     * This option is available on Flatmap, MultiFlatmap, and Scaffold.
-     * When this is set to `true`, "Help" tooltips will be shown one by one.
-     */
-    useHelpModeDialog: {
-      type: Boolean,
-      default: false,
-    },
-    /**
      * The option to show connectivity info in sidebar.
      * Default is `true`. Set `false` to show as popup on map.
      */
@@ -522,7 +513,6 @@ export default {
       if (this._unmounted) return;
     }
     this.isReady = true;
-    this.settingsStore.updateUseHelpModeDialog(this.useHelpModeDialog);
     this.settingsStore.updateConnectivityInfoSidebar(this.connectivityInfoSidebar);
     this.settingsStore.updateAnnotationSidebar(this.annotationSidebar);
   },
