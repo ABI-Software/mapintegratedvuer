@@ -66,9 +66,6 @@ export default {
     idNamePair() {
       return this.splitFlowStore.idNamePair;
     },
-    useHelpModeDialog() {
-      return this.settingsStore.useHelpModeDialog;
-    },
     connectivityInfoSidebar() {
       return this.settingsStore.connectivityInfoSidebar;
     },
@@ -82,7 +79,6 @@ export default {
   },
   beforeUnmount: function () {
     this.alive = false;
-    window.removeEventListener('mousedown', this.checkEndHelpMouseDown);
     clearTimeout(this.highlightDelay);
   },
   mounted: function () {
@@ -417,71 +413,6 @@ export default {
     },
     updateViewerSettings: function () {
       return;
-    },
-    startHelp: function () {
-      if (this?.alive) {
-        if (this.isInHelp === false) {
-          this.helpMode = true;
-          window.addEventListener('mousedown', this.checkEndHelpMouseDown);
-          this.isInHelp = true;
-        }
-      }
-    },
-    endHelp: function () {
-      window.removeEventListener('mousedown', this.checkEndHelpMouseDown);
-      this.helpMode = false;
-      setTimeout(() => {
-        this.isInHelp = false;
-      }, 200);
-    },
-    onHelpModeShowNext: function () {
-      this.helpModeActiveItem += 1;
-    },
-    onHelpModeLastItem: function (isLastItem) {
-      if (isLastItem) {
-        this.helpModeLastItem = true;
-      }
-    },
-    onFinishHelpMode: function () {
-      this.helpMode = false;
-      // reset help mode to default values
-      this.helpModeActiveItem = 0;
-      this.helpModeLastItem = false;
-    },
-    onTooltipShown: function () {
-      if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
-        this.$refs.multiflatmapHelp.toggleTooltipHighlight();
-      }
-
-      if (this.$refs.flatmap && this.$refs.flatmapHelp) {
-        this.$refs.flatmapHelp.toggleTooltipHighlight();
-      }
-
-      if (this.$refs.scaffold && this.$refs.scaffoldHelp) {
-        this.$refs.scaffoldHelp.toggleTooltipHighlight();
-      }
-    },
-    onMapTooltipShown: function () {
-      if (this.$refs.multiflatmap && this.$refs.multiflatmapHelp) {
-        this.$refs.multiflatmapHelp.toggleTooltipPinHighlight();
-      }
-
-      if (this.$refs.flatmap && this.$refs.flatmapHelp) {
-        this.$refs.flatmapHelp.toggleTooltipPinHighlight();
-      }
-
-      if (this.$refs.scaffold && this.$refs.scaffoldHelp) {
-        this.$refs.scaffoldHelp.toggleTooltipPinHighlight();
-      }
-    },
-    /**
-     * End help-mode only if user clicks outside of help mode dialog.
-     */
-    checkEndHelpMouseDown: function (e) {
-      const el = e.target;
-      if (!el.closest('.help-mode-dialog')) {
-        this.endHelp();
-      }
     },
     flatmapHighlight: async function (flatmap, hoverAnatomies, hoverDOI, hoverConnectivity) {
       let toHighlight = [...hoverAnatomies, ...hoverConnectivity];
@@ -900,9 +831,6 @@ export default {
         width: '100%',
         bottom: '0px',
       },
-      helpMode: false,
-      helpModeActiveItem: 0,
-      helpModeLastItem: false,
       multiflatmapRef: null,
       flatmapRef: null,
       scaffoldRef: null,
@@ -910,7 +838,6 @@ export default {
       plotRef: null,
       simulationRef: null,
       scaffoldLoaded: false,
-      isInHelp: false,
       mapManager: undefined,
       connectivityKnowledge: {},
       connectivityFilterOptions: {},
@@ -930,12 +857,5 @@ export default {
     if (this.settingsStore.mapManager) {
       this.mapManager = this.settingsStore.mapManager;
     }
-  },
-  watch: {
-    helpMode: function (newVal) {
-      if (!newVal) {
-        this.helpModeActiveItem = 0;
-      }
-    },
   },
 };

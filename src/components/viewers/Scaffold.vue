@@ -13,16 +13,10 @@
       ref="scaffold"
       :background-toggle="true"
       :traditional="true"
-      :helpMode="helpMode"
-      :helpModeActiveItem="helpModeActiveItem"
-      :helpModeDialog="useHelpModeDialog"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
       @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
       :annotationSidebar="annotationSidebar"
-      @help-mode-last-item="onHelpModeLastItem"
-      @shown-tooltip="onTooltipShown"
-      @shown-map-tooltip="onMapTooltipShown"
       :render="visible"
       :display-latest-message="true"
       :warning-message="warningMessage"
@@ -41,15 +35,6 @@
         tubeLines: entry.discoverId === '307' || entry.discoverId === 307,
       }"
     />
-
-    <HelpModeDialog
-      v-if="helpMode && useHelpModeDialog"
-      ref="scaffoldHelp"
-      :scaffoldRef="scaffoldRef"
-      :lastItem="helpModeLastItem"
-      @show-next="onHelpModeShowNext"
-      @finish-help-mode="onFinishHelpMode"
-    />
   </div>
 </template>
 
@@ -60,7 +45,6 @@ import ContentMixin from '../../mixins/ContentMixin';
 
 import { ScaffoldVuer } from '@abi-software/scaffoldvuer';
 import '@abi-software/scaffoldvuer/dist/style.css';
-import { HelpModeDialog } from '@abi-software/map-utilities';
 import '@abi-software/map-utilities/dist/style.css';
 import {
   getReferenceConnectivitiesFromStorage,
@@ -72,7 +56,6 @@ export default {
   mixins: [ContentMixin],
   components: {
     ScaffoldVuer,
-    HelpModeDialog,
   },
   methods: {
     showConnectivitiesByReference: async function (resource) {
