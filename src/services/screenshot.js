@@ -5,8 +5,9 @@
  * so a plain DOM-to-image capture would produce blank maps.
  * Each viewer therefore provides `getScreenshotSources(pixelRatio)`
  * which re-renders its canvas and reads it back in the same tick.
- * The resulting images are temporarily overlaid on top of the canvases
- * before the DOM is rasterised with html-to-image.
+ * The canvases are temporarily covered with placeholders while the DOM is rasterised
+ * with html-to-image, then the snapshots are composited into the result
+ * under anything drawn on top of them (see `compositeLayers`).
  */
 
 // Legend/checkbox panels drawn over the viewers. `wrapper` is the whole
@@ -32,7 +33,7 @@ const IMAGE_PLACEHOLDER =
 
 // WebKit decodes images nested in an SVG `<foreignObject>` asynchronously,
 // per drawn size, and draws them blank until they are ready,
-// so the snapshot overlays would be missing.
+// so images such as icons would be missing.
 // The SVG is redrawn until the result stops changing.
 const WEBKIT_MIN_DRAWS = 3;
 const WEBKIT_MAX_DRAWS = 10;
@@ -54,6 +55,14 @@ const SCREENSHOT_BORDER = { width: 1, color: '#dcdfe6' };
 const RETRY_AREA_FACTOR = 0.5;
 
 const SCREENSHOT_OVERLAY_ATTR = 'data-screenshot-overlay';
+
+// WebGL snapshots are not embedded in the SVG, WebKit draws large images nested
+// in an SVG `<foreignObject>` blank. Instead the canvases are covered with placeholders,
+// rendered once dark and once light, and the difference between the two tells how much
+// of each snapshot pixel shows through whatever is drawn on top (see `compositeLayers`).
+// Unusual values so they can be swapped in the SVG source without affecting anything else.
+const LAYER_KEY_COLOR = 'rgb(0, 0, 1)';
+const LAYER_FILL_COLOR = 'rgb(255, 255, 254)';
 
 // Largest canvas area known to work, lowered when a probe fails.
 let maxCanvasArea = CANVAS_AREA_FALLBACKS[0];
@@ -353,27 +362,34 @@ const toCanvasRows = (rows, pixelRatio) =>
     .filter(({ top, bottom }) => bottom > top);
 
 /**
- * Return a copy of `canvas` without `rows` (in canvas pixels).
+ * Return a copy of `canvas` without `rows` (in canvas pixels),
+ * framed with `SCREENSHOT_BORDER`, in a single copy to limit memory use.
  */
-const removeRows = (canvas, rows) => {
-  if (!rows.length) return canvas;
+const frameCanvas = (canvas, rows, pixelRatio) => {
+  const border = Math.max(1, Math.round(SCREENSHOT_BORDER.width * pixelRatio));
   const removed = rows.reduce((sum, { top, bottom }) => sum + bottom - top, 0);
-  const result = document.createElement('canvas');
-  result.width = canvas.width;
-  result.height = canvas.height - removed;
-  const ctx = result.getContext('2d');
+  const framed = document.createElement('canvas');
+  framed.width = canvas.width + border * 2;
+  framed.height = canvas.height - removed + border * 2;
+  const ctx = framed.getContext('2d');
+  if (!ctx) {
+    releaseCanvas(canvas);
+    throw new Error('Failed to allocate canvas');
+  }
+  ctx.fillStyle = SCREENSHOT_BORDER.color;
+  ctx.fillRect(0, 0, framed.width, framed.height);
   let source = 0;
-  let target = 0;
+  let target = border;
   [...rows, { top: canvas.height, bottom: canvas.height }].forEach(({ top, bottom }) => {
     const height = top - source;
     if (height > 0) {
-      ctx.drawImage(canvas, 0, source, canvas.width, height, 0, target, canvas.width, height);
+      ctx.drawImage(canvas, 0, source, canvas.width, height, border, target, canvas.width, height);
       target += height;
     }
     source = bottom;
   });
   releaseCanvas(canvas);
-  return result;
+  return framed;
 };
 
 /**
@@ -434,22 +450,6 @@ const getBorderedSize = ({ width, height }) => ({
 });
 
 /**
- * Return a copy of `canvas` framed with `SCREENSHOT_BORDER`.
- */
-const addBorder = (canvas, pixelRatio) => {
-  const border = Math.max(1, Math.round(SCREENSHOT_BORDER.width * pixelRatio));
-  const framed = document.createElement('canvas');
-  framed.width = canvas.width + border * 2;
-  framed.height = canvas.height + border * 2;
-  const ctx = framed.getContext('2d');
-  ctx.fillStyle = SCREENSHOT_BORDER.color;
-  ctx.fillRect(0, 0, framed.width, framed.height);
-  ctx.drawImage(canvas, border, border);
-  releaseCanvas(canvas);
-  return framed;
-};
-
-/**
  * Place `overlay` exactly on top of `target` without affecting layout.
  */
 const placeOverlay = (target, overlay) => {
@@ -481,32 +481,48 @@ const loadImage = (src) =>
   });
 
 /**
- * Overlay snapshot images on WebGL canvases and placeholders on iframes.
- * Returns the set of nodes to be excluded and a cleanup function.
+ * Background colour showing through transparent pixels of `node`,
+ * from the closest ancestor with an opaque background.
  */
-const prepareOverlays = async (el, sources) => {
+const getBackdropColor = (node) => {
+  for (let n = node.parentElement; n; n = n.parentElement) {
+    const color = getComputedStyle(n).backgroundColor;
+    const alpha = color.match(/rgba\(.*,\s*([\d.]+)\)/)?.[1];
+    if (color !== 'transparent' && (alpha === undefined || parseFloat(alpha) > 0)) return color;
+  }
+  return '#ffffff';
+};
+
+/**
+ * Place placeholders on WebGL canvases and iframes.
+ * The snapshots of the WebGL canvases are composited later (see `compositeLayers`).
+ * @returns {Object} { excluded, layers, cleanup } where `excluded` is the set of nodes
+ *   to be excluded and `layers` the snapshots with their position relative to `el`.
+ */
+const prepareOverlays = (el, sources) => {
   const excluded = new Set();
   const overlays = [];
-  const cleanup = () =>
-    overlays.forEach((overlay) => {
-      overlay.remove();
-      // Drop the decoded snapshot, WebKit keeps it while the element is referenced.
-      if (overlay instanceof HTMLImageElement) overlay.removeAttribute('src');
-    });
+  const layers = [];
+  const cleanup = () => overlays.forEach((overlay) => overlay.remove());
+  const elRect = el.getBoundingClientRect();
 
-  try {
-    for (const { canvas, dataUrl } of sources) {
-      if (!canvas || !dataUrl || !el.contains(canvas)) continue;
-      const img = await loadImage(dataUrl);
-      placeOverlay(canvas, img);
-      overlays.push(img);
-      excluded.add(canvas);
-    }
-  } catch (error) {
-    // Otherwise the overlays already placed stay on screen and in memory.
-    cleanup();
-    throw error;
-  }
+  sources.forEach(({ canvas, image }) => {
+    if (!canvas || !image || !el.contains(canvas)) return;
+    const placeholder = document.createElement('div');
+    placeholder.style.background = LAYER_KEY_COLOR;
+    placeOverlay(canvas, placeholder);
+    overlays.push(placeholder);
+    excluded.add(canvas);
+    const rect = canvas.getBoundingClientRect();
+    layers.push({
+      image,
+      backdrop: getBackdropColor(canvas),
+      x: rect.left - elRect.left,
+      y: rect.top - elRect.top,
+      width: rect.width,
+      height: rect.height,
+    });
+  });
 
   // Cross-origin iframes cannot be captured.
   el.querySelectorAll('iframe').forEach((iframe) => {
@@ -525,7 +541,7 @@ const prepareOverlays = async (el, sources) => {
     excluded.add(iframe);
   });
 
-  return { excluded, cleanup };
+  return { excluded, layers, cleanup };
 };
 
 const canvasToBlob = (canvas, type) =>
@@ -688,11 +704,107 @@ const withComputedCssText = async (callback) => {
 };
 
 /**
+ * Composite the WebGL snapshots of `layers` into `canvas`,
+ * which was drawn from `svg` with the placeholders in `LAYER_KEY_COLOR`.
+ * The area of each layer is drawn again with the placeholders in `LAYER_FILL_COLOR`.
+ * The two match where something opaque covers the placeholder, differ by about 255
+ * where nothing does, and are in between for semi-transparent or anti-aliased content
+ * on top (e.g. markers, tooltips, legends). Adding `snapshot × (light − dark) / 255`
+ * to the dark render therefore draws the snapshot under that content, as the browser does.
+ * Each area only needs a canvas of its own size, and each snapshot is drawn only once.
+ */
+const compositeLayers = async (canvas, svg, size, layers) => {
+  const key = encodeURIComponent(LAYER_KEY_COLOR);
+  if (!svg.includes(key)) throw new Error('Placeholders are missing from the capture');
+  const light = await loadImage(svg.replaceAll(key, encodeURIComponent(LAYER_FILL_COLOR)));
+  const ctx = canvas.getContext('2d');
+  // From CSS pixels to canvas pixels
+  const scaleX = canvas.width / size.width;
+  const scaleY = canvas.height / size.height;
+  try {
+    await light.decode?.();
+    for (const layer of layers) {
+      const left = Math.max(0, Math.round(layer.x * scaleX));
+      const top = Math.max(0, Math.round(layer.y * scaleY));
+      const width = Math.min(canvas.width, Math.round((layer.x + layer.width) * scaleX)) - left;
+      const height = Math.min(canvas.height, Math.round((layer.y + layer.height) * scaleY)) - top;
+      if (width <= 0 || height <= 0) continue;
+
+      const { image } = layer;
+      // Fill transparent pixels with what is behind the WebGL canvas,
+      // as the snapshot must be opaque to be multiplied.
+      const imageCtx = image.getContext('2d');
+      imageCtx.globalCompositeOperation = 'destination-over';
+      imageCtx.fillStyle = layer.backdrop;
+      imageCtx.fillRect(0, 0, image.width, image.height);
+
+      const area = document.createElement('canvas');
+      try {
+        area.width = width;
+        area.height = height;
+        const areaCtx = area.getContext('2d');
+        if (!areaCtx) throw new Error('Failed to allocate canvas');
+        const drawLight = () => {
+          areaCtx.fillStyle = '#ffffff';
+          areaCtx.fillRect(0, 0, width, height);
+          areaCtx.drawImage(
+            light,
+            left / scaleX,
+            top / scaleY,
+            width / scaleX,
+            height / scaleY,
+            0,
+            0,
+            width,
+            height,
+          );
+        };
+        drawLight();
+        if (isWebKit()) {
+          await redrawUntilStable(createFingerprint(area), drawLight, isBlankFingerprint);
+        }
+        areaCtx.globalCompositeOperation = 'difference';
+        areaCtx.drawImage(canvas, left, top, width, height, 0, 0, width, height);
+        const imageScaleX = image.width / layer.width;
+        const imageScaleY = image.height / layer.height;
+        areaCtx.globalCompositeOperation = 'multiply';
+        areaCtx.drawImage(
+          image,
+          (left / scaleX - layer.x) * imageScaleX,
+          (top / scaleY - layer.y) * imageScaleY,
+          (width / scaleX) * imageScaleX,
+          (height / scaleY) * imageScaleY,
+          0,
+          0,
+          width,
+          height,
+        );
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.drawImage(area, left, top);
+      } finally {
+        ctx.globalCompositeOperation = 'source-over';
+        releaseCanvas(area);
+      }
+    }
+  } finally {
+    light.removeAttribute('src');
+  }
+};
+
+/**
  * Rasterise `el` with html-to-image, skipping `excluded` nodes
- * and nodes matching `hideSelectors`.
+ * and nodes matching `hideSelectors`, then composite `layers` (see `compositeLayers`).
  */
 const renderToCanvas = async (el, options) => {
-  const { pixelRatio, width, height, style, excluded = new Set(), hideSelectors = [] } = options;
+  const {
+    pixelRatio,
+    width,
+    height,
+    style,
+    excluded = new Set(),
+    hideSelectors = [],
+    layers = [],
+  } = options;
   const { toSvg } = await import('html-to-image');
   const hideSelector = hideSelectors.join(',');
   const backgroundColor = '#ffffff';
@@ -744,6 +856,7 @@ const renderToCanvas = async (el, options) => {
     }
     // The captured views always have content, a blank image means drawing failed.
     if (isBlankFingerprint(fingerprint())) throw new Error('Captured image is blank');
+    if (layers.length) await compositeLayers(canvas, svg, { width, height }, layers);
     return canvas;
   } catch (error) {
     releaseCanvas(canvas);
@@ -893,28 +1006,31 @@ export const captureElement = async (el, options = {}) => {
 
   const { blob, ...info } = await withSizeFallback(width, height, scale, async (pixelRatio) => {
     const sources = [];
-    for (const viewer of viewers) {
-      const viewerSources = await viewer?.getScreenshotSources?.(pixelRatio);
-      if (viewerSources) sources.push(...viewerSources);
-    }
-
-    const { excluded, cleanup } = await prepareOverlays(el, sources);
-
     let canvas;
     try {
-      canvas = await renderToCanvas(el, {
-        pixelRatio,
-        width: rect.width,
-        height: rect.height,
-        excluded,
-        hideSelectors: hidden,
-      });
+      for (const viewer of viewers) {
+        const viewerSources = await viewer?.getScreenshotSources?.(pixelRatio);
+        if (viewerSources) sources.push(...viewerSources);
+      }
+
+      const { excluded, layers, cleanup } = prepareOverlays(el, sources);
+      try {
+        canvas = await renderToCanvas(el, {
+          pixelRatio,
+          width: rect.width,
+          height: rect.height,
+          excluded,
+          hideSelectors: hidden,
+          layers,
+        });
+      } finally {
+        cleanup();
+      }
     } finally {
-      cleanup();
+      sources.forEach(({ image }) => image && releaseCanvas(image));
     }
 
-    canvas = removeRows(canvas, toCanvasRows(toolbarRows, pixelRatio));
-    canvas = addBorder(canvas, pixelRatio);
+    canvas = frameCanvas(canvas, toCanvasRows(toolbarRows, pixelRatio), pixelRatio);
     const size = { width: canvas.width, height: canvas.height };
     return { ...size, blob: await encodeCanvas(canvas) };
   });
@@ -938,7 +1054,9 @@ const assertContext = (gl) => {
 };
 
 /**
- * Read a WebGL canvas just rendered at the requested size.
+ * Copy a WebGL canvas just rendered at the requested size into a 2D canvas.
+ * Must be called in the same tick as the render, as the drawing buffer is not preserved.
+ * A copy is used rather than a data URL, which takes tens of MB at high resolutions.
  * Throws if the browser could not provide a drawing buffer that large
  * (it is then silently clamped), so the capture is retried smaller.
  */
@@ -947,10 +1065,16 @@ const readWebGLCanvas = (canvas, gl) => {
   if (gl && (gl.drawingBufferWidth < canvas.width || gl.drawingBufferHeight < canvas.height)) {
     throw new Error('WebGL drawing buffer is smaller than requested');
   }
-  const dataUrl = canvas.toDataURL('image/png');
-  // `data:,` when the canvas cannot be read
-  if (!dataUrl.startsWith('data:image/')) throw new Error('Failed to read WebGL canvas');
-  return dataUrl;
+  const copy = document.createElement('canvas');
+  copy.width = canvas.width;
+  copy.height = canvas.height;
+  const ctx = copy.getContext('2d');
+  if (!ctx) {
+    releaseCanvas(copy);
+    throw new Error('Failed to read WebGL canvas');
+  }
+  ctx.drawImage(canvas, 0, 0);
+  return copy;
 };
 
 /**
@@ -967,7 +1091,7 @@ export const snapshotThreeRenderer = (zincRenderer, pixelRatio) => {
     renderer.setPixelRatio(pixelRatio);
     zincRenderer.invalidate?.();
     zincRenderer.render();
-    return { canvas, dataUrl: readWebGLCanvas(canvas, gl) };
+    return { canvas, image: readWebGLCanvas(canvas, gl) };
   } finally {
     renderer.setPixelRatio(originalPixelRatio);
     zincRenderer.invalidate?.();
@@ -997,11 +1121,11 @@ export const snapshotMaplibre = async (map, pixelRatio) => {
     if (originalPixelRatio !== undefined) map.setPixelRatio(pixelRatio);
     if (typeof map.redraw === 'function') {
       map.redraw();
-      const dataUrl = readWebGLCanvas(canvas, gl);
+      const image = readWebGLCanvas(canvas, gl);
       restore();
-      return { canvas, dataUrl };
+      return { canvas, image };
     }
-    const dataUrl = await new Promise((resolve, reject) => {
+    const image = await new Promise((resolve, reject) => {
       map.once('render', () => {
         try {
           resolve(readWebGLCanvas(canvas, gl));
@@ -1012,7 +1136,7 @@ export const snapshotMaplibre = async (map, pixelRatio) => {
       map.triggerRepaint();
     });
     restore();
-    return { canvas, dataUrl };
+    return { canvas, image };
   } catch (error) {
     restore();
     throw error;
