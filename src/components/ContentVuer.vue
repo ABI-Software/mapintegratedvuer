@@ -190,8 +190,8 @@ export default {
     onSidebarAnnotationClose: function () {
       this.$refs.viewer?.onSidebarAnnotationClose();
     },
-    onStartHelp: function () {
-      this.$refs.viewer?.startHelp();
+    getTitle: function () {
+      return this.$refs.contentBar?.getEntryTitle(this.entry) ?? '';
     },
     onFilterVisibility: function (payload) {
       this.$refs.viewer?.setVisibilityFilter(payload);

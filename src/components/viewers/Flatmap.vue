@@ -9,13 +9,6 @@
       :name="entry.resource"
       style="height: 100%; width: 100%"
       :minZoom="entry.minZoom"
-      :helpMode="helpMode"
-      :helpModeActiveItem="helpModeActiveItem"
-      :helpModeInitialIndex="-1"
-      :helpModeDialog="useHelpModeDialog"
-      @help-mode-last-item="onHelpModeLastItem"
-      @shown-tooltip="onTooltipShown"
-      @shown-map-tooltip="onMapTooltipShown"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
       @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
@@ -44,15 +37,6 @@
       :tooltipContentProvider="tooltipPathLabelProvider"
       @trackEvent="trackEvent"
     />
-
-    <HelpModeDialog
-      v-if="helpMode && useHelpModeDialog"
-      ref="flatmapHelp"
-      :flatmapRef="flatmapRef"
-      :lastItem="helpModeLastItem"
-      @show-next="onHelpModeShowNext"
-      @finish-help-mode="onFinishHelpMode"
-    />
   </div>
 </template>
 
@@ -64,7 +48,6 @@ import DynamicMarkerMixin from '../../mixins/DynamicMarkerMixin';
 
 import { FlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/style.css';
-import { HelpModeDialog } from '@abi-software/map-utilities';
 import '@abi-software/map-utilities/dist/style.css';
 
 export default {
@@ -72,7 +55,6 @@ export default {
   mixins: [ContentMixin, DynamicMarkerMixin],
   components: {
     FlatmapVuer,
-    HelpModeDialog,
   },
   data: function () {
     return {

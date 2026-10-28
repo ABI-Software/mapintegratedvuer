@@ -100,6 +100,17 @@ export default {
       }
       return activeContents;
     },
+    /**
+     * Returns the visible contents in reading order, top to bottom then left to right.
+     */
+    getActiveContentsInViewOrder: function () {
+      return this.getActiveContents()
+        .map((content) => ({ content, rect: content.$el.getBoundingClientRect() }))
+        .sort(
+          (a, b) => Math.round(a.rect.top - b.rect.top) || Math.round(a.rect.left - b.rect.left),
+        )
+        .map(({ content }) => content);
+    },
     isIdVisible: function (id) {
       const paneName = this.splitFlowStore.getPaneNameById(id);
       let visible = false;
@@ -607,12 +618,6 @@ export default {
         const contents = this.getActiveContents();
         contents.forEach((content) => {
           content.onHoverUpdate(payload);
-        });
-      },
-      startHelp: () => {
-        const contents = this.getActiveContents();
-        contents.forEach((content) => {
-          content.onStartHelp();
         });
       },
       'connectivity-item-close': () => {

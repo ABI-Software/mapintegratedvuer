@@ -1,13 +1,20 @@
 <template>
   <div>
     <div class="toolbar-flex-container">
-      <div class="toolbar-left shrink">
+      <div class="tollbar-left shrink">
         <el-select
           v-if="entries.length > 1"
           :teleported="false"
           :model-value="entry.id"
           placeholder="Select"
           class="select-box"
+          v-help-mode="{
+            id: 'content-bar-viewer-select',
+            area: 'panel-header',
+            title: 'Switch map',
+            description: 'Choose which of the opened maps and data is shown in this panel.',
+            placement: 'bottom',
+          }"
           popper-class="viewer_dropdown"
           @change="viewerChanged($event)"
         >
@@ -26,6 +33,13 @@
           round
           size="small"
           class="source-chip shrink"
+          v-help-mode="{
+            id: 'content-bar-source',
+            area: 'panel-header',
+            title: 'Source',
+            description: 'See where the data shown in this panel comes from.',
+            placement: 'bottom',
+          }"
           @click="openSourceInfo"
         >
           {{ getSourceTitle }}
@@ -60,7 +74,16 @@
               />
             </template>
             <template #reference>
-              <div v-show="contextCardEntry">
+              <div
+                v-show="contextCardEntry"
+                v-help-mode="{
+                  id: 'content-bar-information',
+                  area: 'panel-header',
+                  title: 'Information',
+                  description: 'Show more information about what is shown in this panel.',
+                  placement: 'bottom',
+                }"
+              >
                 <div
                   v-show="contextCardVisible"
                   class="information"
@@ -102,6 +125,13 @@
             <map-svg-icon
               icon="close-no-bk"
               class="header-icon rightmost"
+              v-help-mode="{
+                id: 'content-bar-close',
+                area: 'panel-header',
+                title: 'Close panel',
+                description: 'Close this panel and remove its content from the view.',
+                placement: 'bottom-end',
+              }"
               v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
               @click="closeAndRemove()"
             />
@@ -124,6 +154,7 @@ import FlatmapContextCard from './FlatmapContextCard.vue';
 import ScreenshotPopover from './ScreenshotPopover.vue';
 import { ArrowDown as ElIconArrowDown, ArrowUp as ElIconArrowUp } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
+import { helpModeDirective } from '@abi-software/map-utilities';
 
 export default {
   name: 'ContentBar',
@@ -134,6 +165,9 @@ export default {
     FlatmapContextCard,
     MapSvgIcon,
     ScreenshotPopover,
+  },
+  directives: {
+    helpMode: helpModeDirective,
   },
   props: {
     entry: Object,
