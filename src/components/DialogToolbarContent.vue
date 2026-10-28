@@ -61,7 +61,7 @@
             </el-icon>
           </span>
           <template #dropdown>
-            <h4>Viewing Mode:</h4>
+            <h4>Viewing Mode</h4>
             <el-dropdown-menu>
               <el-dropdown-item
                 v-for="(value, key) in viewingModes"
@@ -447,7 +447,7 @@
         :disabled="!mapLoaded"
       >
         <div class="setting-popover-inner">
-          <h4>Display options:</h4>
+          <h4>Display options</h4>
           <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"

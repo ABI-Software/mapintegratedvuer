@@ -2,7 +2,10 @@
   <div class="help-mode-menu">
     <h4>Help</h4>
     <div class="help-mode-menu-block">
-      <h5>Guided tour</h5>
+      <h5>
+        <el-icon class="el-icon--left"><el-icon-guide /></el-icon>
+        Guided tour
+      </h5>
       <div v-if="views.length > 1" class="help-mode-menu-field">
         <span>View</span>
         <el-select v-model="view" size="small" :teleported="false">
@@ -27,7 +30,10 @@
       </div>
     </div>
     <div class="help-mode-menu-block">
-      <h5>Hover for help</h5>
+      <h5>
+        <el-icon class="el-icon--left"><el-icon-pointer /></el-icon>
+        Hover for help
+      </h5>
       <small>Point at any highlighted control to see what it does.</small>
       <div class="help-mode-menu-actions">
         <el-button size="small" type="primary" @click="$emit('start-hover')">Start</el-button>
@@ -37,12 +43,18 @@
 </template>
 
 <script>
+import { Guide as ElIconGuide, Pointer as ElIconPointer } from '@element-plus/icons-vue';
+
 /**
  * The menu shown when clicking "Help" in the toolbar, to choose the view and the area
  * of the guided tour or to start the hover help.
  */
 export default {
   name: 'HelpModeMenu',
+  components: {
+    ElIconGuide,
+    ElIconPointer,
+  },
   props: {
     /**
      * The opened views, `[{ value, label }]`.
@@ -98,6 +110,7 @@ export default {
 
   h4 {
     margin: 0;
+    padding: 0;
     font-size: 16px;
     color: $app-primary-color;
     text-align: center;
@@ -105,9 +118,13 @@ export default {
 
   h5 {
     margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
     font-size: 14px;
+    line-height: 32px;
     font-weight: 500;
-    color: $app-primary-color;
+    color: #303133;
   }
 
   small {
