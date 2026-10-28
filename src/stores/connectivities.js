@@ -1,5 +1,22 @@
+import { markRaw, toRaw } from 'vue';
 import { defineStore } from 'pinia';
 import { listsAreEqual } from '../components/scripts/utilities';
+
+// Structural equality with JSON.stringify semantics (undefined properties are
+// ignored), without serialising the whole knowledge base into strings.
+function isJsonEqual(a, b) {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) {
+    return false;
+  }
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a)) {
+    return a.length === b.length && a.every((value, index) => isJsonEqual(value, b[index]));
+  }
+  const keysA = Object.keys(a).filter((key) => a[key] !== undefined);
+  const keysB = Object.keys(b).filter((key) => b[key] !== undefined);
+  return keysA.length === keysB.length && keysA.every((key) => isJsonEqual(a[key], b[key]));
+}
 
 function mergeConnectivityEntries(existingEntries = [], incomingEntries = []) {
   const merged = new Map();
@@ -114,14 +131,30 @@ export const useConnectivitiesStore = defineStore('connectivities', {
         // snapshot may be stale for the same entry set. Merge by key and by id
         // so a later flatmap update does not wipe richer scaffold metadata such
         // as nerve-label.
-        const merged = { ...this.globalConnectivities };
+        //
+        // Entry arrays are large, read-only and not watched by any module, they
+        // are marked as raw.
+        const current = toRaw(this.globalConnectivities);
+        const merged = { ...current };
+        let changed = false;
 
-        Object.entries(globalConnectivities).forEach(([uuid, entries]) => {
-          const existingEntries = merged[uuid] || [];
-          merged[uuid] = mergeConnectivityEntries(existingEntries, entries || []);
+        Object.entries(toRaw(globalConnectivities)).forEach(([uuid, entries]) => {
+          const existingEntries = toRaw(current[uuid]);
+          const mergedEntries = mergeConnectivityEntries(
+            existingEntries || [],
+            toRaw(entries) || [],
+          );
+          if (existingEntries && isJsonEqual(mergedEntries, existingEntries)) {
+            // Unchanged; keep the stored array (viewers may have written it
+            // into the store directly) but stop Vue from proxying it
+            markRaw(existingEntries);
+          } else {
+            merged[uuid] = markRaw(mergedEntries);
+            changed = true;
+          }
         });
 
-        if (JSON.stringify(merged) !== JSON.stringify(this.globalConnectivities)) {
+        if (changed) {
           this.globalConnectivities = merged;
           this.connectivitiesUpdated = true;
         }

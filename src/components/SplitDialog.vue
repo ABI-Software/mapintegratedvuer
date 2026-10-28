@@ -28,6 +28,7 @@ import { useSplitFlowStore } from '../stores/splitFlow';
 import { useSettingsStore } from '../stores/settings';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import { queryPathsByRoute, queryAllConnectedPaths } from '@abi-software/map-utilities';
+import { getLatestFlatmap } from './scripts/utilities.js';
 
 export default {
   name: 'SplitDialog',
@@ -314,13 +315,8 @@ export default {
       return ids;
     },
     getLatestFlatmapUUID: async function (flatmapAPI, id) {
-      const flatmapResponse = await fetch(flatmapAPI);
-      const flatmapJson = await flatmapResponse.json();
-      const latestFlatmap = flatmapJson
-        .filter((f) => f.id === id)
-        .sort((a, b) => b.created.localeCompare(a.created))[0];
-      const flatmapUUID = latestFlatmap.uuid;
-      return flatmapUUID;
+      const latestFlatmap = await getLatestFlatmap(flatmapAPI, id);
+      return latestFlatmap.uuid;
     },
     parseSearchTerms: function (query) {
       return query
