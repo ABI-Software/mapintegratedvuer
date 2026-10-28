@@ -1009,7 +1009,8 @@ export default {
   width: unset !important;
   background-color: #f3ecf6;
   cursor: default;
-  .el-popper__arrow {
+  // Only the arrow of this popover, not of the dropdowns inside it, e.g. the selects of the help menu
+  > .el-popper__arrow {
     &:before {
       border-color: $app-primary-color;
       background-color: #f3ecf6;
