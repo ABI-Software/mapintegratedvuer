@@ -55,6 +55,7 @@ const SCREENSHOT_BORDER = { width: 1, color: '#dcdfe6' };
 const RETRY_AREA_FACTOR = 0.5;
 
 const SCREENSHOT_OVERLAY_ATTR = 'data-screenshot-overlay';
+const SCREENSHOT_PLACEHOLDER_ATTR = 'data-screenshot-placeholder';
 
 // WebGL snapshots are not embedded in the SVG, WebKit draws large images nested
 // in an SVG `<foreignObject>` blank. Instead the canvases are covered with placeholders,
@@ -451,15 +452,18 @@ const getBorderedSize = ({ width, height }) => ({
 
 /**
  * Place `overlay` exactly on top of `target` without affecting layout.
+ * It is transparent on screen and only shows in the capture (see `withComputedCssText`).
  */
 const placeOverlay = (target, overlay) => {
   overlay.setAttribute(SCREENSHOT_OVERLAY_ATTR, '');
+  overlay.setAttribute(SCREENSHOT_PLACEHOLDER_ATTR, '');
   Object.assign(overlay.style, {
     position: 'absolute',
     left: '0px',
     top: '0px',
     margin: '0',
     pointerEvents: 'none',
+    opacity: '0',
   });
   target.after(overlay);
   const targetRect = target.getBoundingClientRect();
@@ -677,18 +681,26 @@ const formatComputedStyle = (node, style) => {
  * html-to-image copies each of the ~500 properties with `setProperty`,
  * which takes tens of seconds in Safari on a flatmap and freezes the page.
  * While `callback` runs, provide `cssText` so each style is assigned at once.
+ * Placeholders, transparent on screen so the viewers stay visible during the capture,
+ * are also made opaque in the copy.
  */
 const withComputedCssText = async (callback) => {
   const getComputedStyle = window.getComputedStyle;
-  if (getComputedStyle(document.documentElement).cssText) return callback();
+  const hasCssText = !!getComputedStyle(document.documentElement).cssText;
   window.getComputedStyle = function (node, pseudo) {
     const style = getComputedStyle.call(window, node, pseudo);
-    if (!pseudo && !style.cssText) {
+    const isPlaceholder = !pseudo && node?.hasAttribute?.(SCREENSHOT_PLACEHOLDER_ATTR);
+    if (isPlaceholder || (!hasCssText && !pseudo && !style.cssText)) {
+      const cssText = style.cssText;
       let text;
       try {
         Object.defineProperty(style, 'cssText', {
           configurable: true,
-          get: () => (text ??= formatComputedStyle(node, style)),
+          // The last declaration wins
+          get: () =>
+            (text ??=
+              (cssText || formatComputedStyle(node, style)) +
+              (isPlaceholder ? ' opacity: 1;' : '')),
         });
       } catch {
         // Keep the per-property copy
