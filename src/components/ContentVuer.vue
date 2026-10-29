@@ -48,7 +48,7 @@ import { mapStores } from 'pinia';
 import { useEntriesStore } from '../stores/entries';
 import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
-import { captureElement, findLegends, getScreenshotFilename } from '../services/screenshot';
+import { captureElement, findLegends } from '../services/screenshot';
 
 const Flatmap = defineAsyncComponent(() => import('./viewers/Flatmap.vue'));
 const MapIframe = defineAsyncComponent(() => import('./viewers/Iframe.vue'));
@@ -107,7 +107,7 @@ export default {
         scale,
         legend,
         toolbar,
-        filename: getScreenshotFilename(legend === 'only' ? `${title}-legend` : title),
+        title,
         viewers: [this],
       });
     },

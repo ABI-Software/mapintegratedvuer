@@ -280,7 +280,7 @@ export default {
   },
   methods: {
     onCaptureScreenshot: async function (options) {
-      await this.captureScreenshot(options);
+      const result = await this.captureScreenshot(options);
 
       // GA Tracking
       tagging.sendEvent({
@@ -289,6 +289,8 @@ export default {
         category: `png_${options.scale}x`,
         location: 'pane_header',
       });
+
+      return result;
     },
     closeAndRemove: function () {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries });
