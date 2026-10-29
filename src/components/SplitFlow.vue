@@ -91,7 +91,7 @@
 import { provide, markRaw, computed } from 'vue';
 import Tagging from '../services/tagging.js';
 import DialogToolbarContent from './DialogToolbarContent.vue';
-import { captureElement, getScreenshotFilename } from '../services/screenshot';
+import { captureElement, ScreenshotError } from '../services/screenshot';
 import EventBus, { onEvents } from './EventBus';
 import SplitDialog from './SplitDialog.vue';
 // import contextCards from './context-cards'
@@ -1122,7 +1122,7 @@ export default {
         const results = [];
 
         if (!withLegend.length) {
-          throw new Error('No legend to capture');
+          throw new ScreenshotError('no-legend', 'No legend to capture');
         }
 
         for (const content of withLegend) {
@@ -1136,7 +1136,7 @@ export default {
         scale,
         legend,
         toolbar,
-        filename: getScreenshotFilename('sparc-maps'),
+        title: 'maps-view',
         viewers: contents,
       });
     },
