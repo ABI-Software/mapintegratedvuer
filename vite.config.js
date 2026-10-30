@@ -74,6 +74,9 @@ export default defineConfig(({ command }) => {
         '@': pathSrc,
       },
     },
+    define: {
+      global: 'globalThis',
+    },
     preview: {
       allowedHosts: ['mapintegratedvuer-mapcore-754fcb3bf891.herokuapp.com'],
     },
@@ -84,12 +87,7 @@ export default defineConfig(({ command }) => {
       port: 8081,
     };
     config.plugins.push(crossOriginIsolation());
-    config.define = {
-      'process.env.HTTP_PROXY': 8081,
-      global: 'globalThis',
-      // If you want to exposes all env variables, which is not recommended
-      // 'process.env': env
-    };
+    config.define['process.env.HTTP_PROXY'] = 8081;
   }
   return config;
 });
