@@ -134,7 +134,7 @@ ${publicationLink}`;
 Cypress.Commands.add('checkGlobalSettings', (compare, setting, index) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
-  cy.get('.el-icon.header-icon').as('globalSettings').click(); // open
+  cy.get('.el-icon.global-settings-icon').as('globalSettings').click(); // open
   cy.get(`.setting-popover-inner > :nth-child(${index}) > .el-radio-group > .el-radio`)
     .as('settingOptions')
     .last()
