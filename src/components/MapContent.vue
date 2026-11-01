@@ -33,6 +33,24 @@ import RetrieveContextCardMixin from '../mixins/RetrieveContextCardMixin.js';
 
 /**
  * Content of the app. More work flows will be added here.
+ *
+ * ## Screenshots
+ *
+ * Each viewer pane has a camera button in its header that downloads a screenshot of that pane.
+ * The camera button in the top toolbar downloads all visible panes together, including the sidebar if it is open.
+ * Screenshots are saved as PNG. Pick the resolution (1x to 4x the device pixel ratio) before downloading; higher resolutions suit printing.
+ * On-screen controls such as zoom buttons and settings panels are left out of the image.
+ * Very large outputs are reduced automatically to stay within browser canvas limits.
+ *
+ * Default screenshot settings can be set with `options.screenshot`,
+ * and screenshots can be triggered programmatically with the `captureScreenshot` method:
+ *
+ * ```js
+ * // All visible panes
+ * this.$refs.map.captureScreenshot({ scale: 3 });
+ * // A single pane, by entry id
+ * this.$refs.map.captureScreenshot({ paneId: 1, scale: 2 });
+ * ```
  */
 export default {
   name: 'MapContent',
