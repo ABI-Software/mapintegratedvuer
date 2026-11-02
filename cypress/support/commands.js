@@ -46,6 +46,8 @@ Cypress.Commands.add('typeReliably', (selector, text, options = {}) => {
 Cypress.on('uncaught:exception', (err) => {
   // returning false here prevents Cypress from
   // failing the test
+  // Benign browser notice when a resize callback changes the layout again within a frame.
+  if (err.message.includes('ResizeObserver loop')) return false;
   if (err.message.includes('this.$refs.sideBar.closeConnectivity is not a function')) return false;
   if (err.message.includes("Cannot read properties of undefined (reading 'left')")) return false;
   if (err.message.includes('Failed to fetch')) return false;
