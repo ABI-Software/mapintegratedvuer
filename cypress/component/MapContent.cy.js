@@ -244,6 +244,10 @@ describe('MapContent', () => {
       '.sidebar-container .el-card.content-card:visible .header .el-input .el-input__inner',
     ).type('heart');
     cy.get('.sidebar-container .el-card.content-card:visible .header .el-button--primary').click();
+    // The search and the knowledge of the open maps load slowly on CI.
+    cy.get('.sidebar-container .el-card.content-card:visible .content .el-loading-mask', {
+      timeout: 60000,
+    }).should('not.exist');
     cy.get('.connectivity-card-container > .connectivity-card').should(
       'have.length.greaterThan',
       0,
