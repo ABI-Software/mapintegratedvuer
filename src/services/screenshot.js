@@ -65,9 +65,6 @@ const SCREENSHOT_PLACEHOLDER_ATTR = 'data-screenshot-placeholder';
 const LAYER_KEY_COLOR = 'rgb(0, 0, 1)';
 const LAYER_FILL_COLOR = 'rgb(255, 255, 254)';
 
-// Largest canvas area known to work, lowered when a probe fails.
-let maxCanvasArea = CANVAS_AREA_FALLBACKS[0];
-
 export const SCREENSHOT_SCALES = [1, 2, 3, 4];
 
 /**
@@ -103,6 +100,12 @@ export const SCREENSHOT_HIDE_SELECTORS = [
   '.el-popper.header-popper',
   '.el-loading-mask',
 ];
+
+// Largest canvas area known to work, lowered when a probe fails.
+let maxCanvasArea = CANVAS_AREA_FALLBACKS[0];
+
+// Pending captures, run one at a time (see `serialize`).
+let captureQueue = Promise.resolve();
 
 /**
  * Reasons a capture can fail, used by the UI to explain what to do:
@@ -166,26 +169,6 @@ const canvasSupportsSize = (width, height) => {
     canvas.width = 0;
     canvas.height = 0;
   }
-};
-
-/**
- * Compute the pixel ratio for the requested scale, reduced if
- * the output would exceed known browser canvas limits.
- */
-export const getEffectivePixelRatio = (width, height, scale) => {
-  const requested = (window.devicePixelRatio || 1) * scale;
-  const maxSide = Math.min(MAX_CANVAS_SIDE, getMaxRenderbufferSize());
-  let ratio = requested;
-  if (width > 0 && height > 0) {
-    ratio = Math.min(
-      ratio,
-      maxSide / width,
-      maxSide / height,
-      Math.sqrt(maxCanvasArea / (width * height)),
-    );
-  }
-  ratio = Math.max(1, Math.floor(ratio * 100) / 100);
-  return { pixelRatio: ratio, clamped: ratio < requested };
 };
 
 /**
@@ -267,32 +250,6 @@ const expandLegend = (legend) => {
   copy.setAttribute(SCREENSHOT_OVERLAY_ATTR, '');
   legend.after(copy);
   return { node: copy, cleanup: () => copy.remove() };
-};
-
-/**
- * Find the legend panels inside `el` that have content.
- * Panels in a closed drawer are included, panels in inactive panes are not.
- * @returns {Array} the content elements of the panels.
- */
-export const findLegends = (el) => {
-  if (!el) return [];
-  const wrapperSelector = SCREENSHOT_LEGEND_SELECTORS.join(',');
-  const legends = [];
-  el.querySelectorAll(wrapperSelector).forEach((wrapper) => {
-    // Skip panels hidden with `display: none` or nested in another panel
-    if (!wrapper.getClientRects().length) return;
-    // Skip panels in inactive panes, which SplitDialog hides with `visibility: hidden`.
-    // Closed drawers only use opacity/transform so they are still found.
-    if (getComputedStyle(wrapper).visibility !== 'visible') return;
-    if (wrapper.parentElement?.closest(wrapperSelector)) return;
-    const { content } = LEGEND_PANELS.find((panel) => wrapper.matches(panel.wrapper));
-    const node = wrapper.querySelector(content) || wrapper;
-    const { width, height } = getLegendSize(node);
-    if (width > 0 && height > 0 && node.textContent.trim()) {
-      legends.push(node);
-    }
-  });
-  return legends;
 };
 
 /**
@@ -402,45 +359,6 @@ const frameCanvas = (canvas, rows, pixelRatio) => {
 const releaseCanvas = (canvas) => {
   canvas.width = 0;
   canvas.height = 0;
-};
-
-/**
- * Get the expected output size in pixels, used by the UI for preview.
- * With `legend` set to `only`, `count` is the number of images
- * and the size is the largest one.
- */
-export const getOutputSize = (el, scale, legend = 'exclude', toolbar = false) => {
-  if (!el) return { width: 0, height: 0, clamped: false, count: 0 };
-  const sizes =
-    legend === 'only'
-      ? findLegends(el).map((legendNode) => {
-          const { node, cleanup } = expandLegend(legendNode);
-          const size = getLegendSize(node);
-          cleanup();
-          return size;
-        })
-      : [
-          {
-            ...getBorderedSize(el.getBoundingClientRect()),
-            rows: toolbar ? [] : getToolbarRows(el),
-          },
-        ];
-  const result = { width: 0, height: 0, clamped: false, count: sizes.length };
-  sizes.forEach(({ width, height, rows = [] }) => {
-    const { pixelRatio, clamped } = getEffectivePixelRatio(width, height, scale);
-    const removed = toCanvasRows(rows, pixelRatio).reduce(
-      (sum, { top, bottom }) => sum + bottom - top,
-      0,
-    );
-    const outWidth = Math.round(width * pixelRatio);
-    const outHeight = Math.round(height * pixelRatio) - removed;
-    if (outWidth * outHeight > result.width * result.height) {
-      result.width = outWidth;
-      result.height = outHeight;
-    }
-    result.clamped = result.clamped || clamped;
-  });
-  return result;
 };
 
 /**
@@ -572,43 +490,6 @@ const downloadBlob = (blob, filename) => {
 };
 
 const pad = (n) => String(n).padStart(2, '0');
-
-/**
- * Build a filename describing the capture,
- * e.g. `Rat-flatmap_2x_with-header-and-legend_2400x1800_261021143005.png`.
- * Parts are separated by `_`, words within a part by `-`.
- * The size is the actual output, which may be smaller than requested when clamped.
- * The timestamp comes last and keeps repeated captures with the same options apart.
- * @param {String} title - Name of the captured content.
- * @param {Object} options - { scale, legend, toolbar, width, height, index }
- *   where `index` numbers the images of a multi-image capture.
- */
-export const getScreenshotFilename = (title, options = {}) => {
-  const { scale, legend, toolbar, width, height, index } = options;
-  const now = new Date();
-  const stamp =
-    `${pad(now.getFullYear() % 100)}${pad(now.getMonth() + 1)}${pad(now.getDate())}` +
-    `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-  const name = (title || 'screenshot')
-    .replace(/[^a-z0-9]+/gi, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60)
-    .replace(/-+$/, '');
-  const parts = [name || 'screenshot'];
-  if (legend === 'only') {
-    parts.push(index > 0 ? `legend-${index + 1}` : 'legend');
-  }
-  if (scale) parts.push(`${scale}x`);
-  if (legend !== 'only') {
-    const extras = [];
-    if (toolbar) extras.push('header');
-    if (legend === 'include') extras.push('legend');
-    if (extras.length) parts.push(`with-${extras.join('-and-')}`);
-  }
-  if (width && height) parts.push(`${width}x${height}`);
-  parts.push(stamp);
-  return `${parts.join('_')}.png`;
-};
 
 // Safari and every iOS browser use WebKit.
 const isWebKit = () => navigator.vendor === 'Apple Computer, Inc.';
@@ -973,24 +854,16 @@ const captureLegends = async (el, options) => {
 };
 
 /**
- * Capture `el` and download it as PNG.
- *
- * @param {HTMLElement} el - Element to capture.
- * @param {Object} options
- * @param {Number} options.scale - Multiplier on top of the device pixel ratio.
- * @param {String} options.title - Name of the content, used in the filename
- *   along with the options and output size.
- * @param {String} options.legend - One of `SCREENSHOT_LEGEND_MODES`.
- * @param {Boolean} options.toolbar - Include the header bar of each pane.
- * @param {Array} options.viewers - ContentVuer instances inside `el`
- *   providing `getScreenshotSources(pixelRatio)`.
- * @param {Array} options.hideSelectors - Selectors of nodes to exclude.
- * @returns {Object} { width, height, pixelRatio, clamped, reduced },
- *   or an array of these when `legend` is `only`.
- *   `reduced` is set when the size was lowered after a failed attempt.
- * @throws {ScreenshotError} see `ScreenshotError` for the codes.
+ * Run captures one at a time, as they patch `window.getComputedStyle`,
+ * add overlays to the page and change the viewers' pixel ratio.
  */
-export const captureElement = async (el, options = {}) => {
+const serialize = (task) => {
+  const run = captureQueue.then(task);
+  captureQueue = run.catch(() => {});
+  return run;
+};
+
+const captureElementNow = async (el, options = {}) => {
   const {
     scale = 1,
     title,
@@ -1060,10 +933,11 @@ export const captureElement = async (el, options = {}) => {
   return info;
 };
 
+const contextLostError = () =>
+  new ScreenshotError('context-lost', 'The WebGL context of the viewer was lost');
+
 const assertContext = (gl) => {
-  if (gl?.isContextLost?.()) {
-    throw new ScreenshotError('context-lost', 'The WebGL context of the viewer was lost');
-  }
+  if (gl?.isContextLost?.()) throw contextLostError();
 };
 
 /**
@@ -1089,6 +963,149 @@ const readWebGLCanvas = (canvas, gl) => {
   ctx.drawImage(canvas, 0, 0);
   return copy;
 };
+
+/**
+ * Compute the pixel ratio for the requested scale, reduced if
+ * the output would exceed known browser canvas limits.
+ */
+export const getEffectivePixelRatio = (width, height, scale) => {
+  const requested = (window.devicePixelRatio || 1) * scale;
+  const maxSide = Math.min(MAX_CANVAS_SIDE, getMaxRenderbufferSize());
+  let ratio = requested;
+  if (width > 0 && height > 0) {
+    ratio = Math.min(
+      ratio,
+      maxSide / width,
+      maxSide / height,
+      Math.sqrt(maxCanvasArea / (width * height)),
+    );
+  }
+  ratio = Math.max(1, Math.floor(ratio * 100) / 100);
+  return { pixelRatio: ratio, clamped: ratio < requested };
+};
+
+/**
+ * Find the legend panels inside `el` that have content.
+ * Panels in a closed drawer are included, panels in inactive panes are not.
+ * @returns {Array} the content elements of the panels.
+ */
+export const findLegends = (el) => {
+  if (!el) return [];
+  const wrapperSelector = SCREENSHOT_LEGEND_SELECTORS.join(',');
+  const legends = [];
+  el.querySelectorAll(wrapperSelector).forEach((wrapper) => {
+    // Skip panels hidden with `display: none` or nested in another panel
+    if (!wrapper.getClientRects().length) return;
+    // Skip panels in inactive panes, which SplitDialog hides with `visibility: hidden`.
+    // Closed drawers only use opacity/transform so they are still found.
+    if (getComputedStyle(wrapper).visibility !== 'visible') return;
+    if (wrapper.parentElement?.closest(wrapperSelector)) return;
+    const { content } = LEGEND_PANELS.find((panel) => wrapper.matches(panel.wrapper));
+    const node = wrapper.querySelector(content) || wrapper;
+    const { width, height } = getLegendSize(node);
+    if (width > 0 && height > 0 && node.textContent.trim()) {
+      legends.push(node);
+    }
+  });
+  return legends;
+};
+
+/**
+ * Get the expected output size in pixels, used by the UI for preview.
+ * With `legend` set to `only`, `count` is the number of images
+ * and the size is the largest one.
+ */
+export const getOutputSize = (el, scale, legend = 'exclude', toolbar = false) => {
+  if (!el) return { width: 0, height: 0, clamped: false, count: 0 };
+  const sizes =
+    legend === 'only'
+      ? findLegends(el).map((legendNode) => {
+          const { node, cleanup } = expandLegend(legendNode);
+          const size = getLegendSize(node);
+          cleanup();
+          return size;
+        })
+      : [
+          {
+            ...getBorderedSize(el.getBoundingClientRect()),
+            rows: toolbar ? [] : getToolbarRows(el),
+          },
+        ];
+  const result = { width: 0, height: 0, clamped: false, count: sizes.length };
+  sizes.forEach(({ width, height, rows = [] }) => {
+    const { pixelRatio, clamped } = getEffectivePixelRatio(width, height, scale);
+    const removed = toCanvasRows(rows, pixelRatio).reduce(
+      (sum, { top, bottom }) => sum + bottom - top,
+      0,
+    );
+    const outWidth = Math.round(width * pixelRatio);
+    const outHeight = Math.round(height * pixelRatio) - removed;
+    if (outWidth * outHeight > result.width * result.height) {
+      result.width = outWidth;
+      result.height = outHeight;
+    }
+    result.clamped = result.clamped || clamped;
+  });
+  return result;
+};
+
+/**
+ * Build a filename describing the capture,
+ * e.g. `Rat-flatmap_2x_with-header-and-legend_2400x1800_261021143005.png`.
+ * Parts are separated by `_`, words within a part by `-`.
+ * The size is the actual output, which may be smaller than requested when clamped.
+ * The timestamp comes last and keeps repeated captures with the same options apart.
+ * @param {String} title - Name of the captured content.
+ * @param {Object} options - { scale, legend, toolbar, width, height, index }
+ *   where `index` numbers the images of a multi-image capture.
+ */
+export const getScreenshotFilename = (title, options = {}) => {
+  const { scale, legend, toolbar, width, height, index } = options;
+  const now = new Date();
+  const stamp =
+    `${pad(now.getFullYear() % 100)}${pad(now.getMonth() + 1)}${pad(now.getDate())}` +
+    `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const name = (title || 'screenshot')
+    .replace(/[^a-z0-9]+/gi, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60)
+    .replace(/-+$/, '');
+  const parts = [name || 'screenshot'];
+  if (legend === 'only') {
+    parts.push(index > 0 ? `legend-${index + 1}` : 'legend');
+  }
+  if (scale) parts.push(`${scale}x`);
+  if (legend !== 'only') {
+    const extras = [];
+    if (toolbar) extras.push('header');
+    if (legend === 'include') extras.push('legend');
+    if (extras.length) parts.push(`with-${extras.join('-and-')}`);
+  }
+  if (width && height) parts.push(`${width}x${height}`);
+  parts.push(stamp);
+  return `${parts.join('_')}.png`;
+};
+
+/**
+ * Capture `el` and download it as PNG.
+ * Overlapping calls run one after another.
+ *
+ * @param {HTMLElement} el - Element to capture.
+ * @param {Object} options
+ * @param {Number} options.scale - Multiplier on top of the device pixel ratio.
+ * @param {String} options.title - Name of the content, used in the filename
+ *   along with the options and output size.
+ * @param {String} options.legend - One of `SCREENSHOT_LEGEND_MODES`.
+ * @param {Boolean} options.toolbar - Include the header bar of each pane.
+ * @param {Array} options.viewers - ContentVuer instances inside `el`
+ *   providing `getScreenshotSources(pixelRatio)`.
+ * @param {Array} options.hideSelectors - Selectors of nodes to exclude.
+ * @returns {Object} { width, height, pixelRatio, clamped, reduced },
+ *   or an array of these when `legend` is `only`.
+ *   `reduced` is set when the size was lowered after a failed attempt.
+ * @throws {ScreenshotError} see `ScreenshotError` for the codes.
+ */
+export const captureElement = (el, options) => serialize(() => captureElementNow(el, options));
 
 /**
  * Snapshot a three.js renderer at the given pixel ratio.
@@ -1139,13 +1156,25 @@ export const snapshotMaplibre = async (map, pixelRatio) => {
       return { canvas, image };
     }
     const image = await new Promise((resolve, reject) => {
-      map.once('render', () => {
+      const cleanup = () => {
+        map.off('render', onRender);
+        canvas.removeEventListener('webglcontextlost', onContextLost);
+      };
+      const onRender = () => {
+        cleanup();
         try {
           resolve(readWebGLCanvas(canvas, gl));
         } catch (error) {
           reject(error);
         }
-      });
+      };
+      // `render` never fires once the context is lost.
+      const onContextLost = () => {
+        cleanup();
+        reject(contextLostError());
+      };
+      map.on('render', onRender);
+      canvas.addEventListener('webglcontextlost', onContextLost);
       map.triggerRepaint();
     });
     restore();

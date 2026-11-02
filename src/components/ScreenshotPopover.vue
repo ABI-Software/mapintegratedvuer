@@ -275,7 +275,6 @@ export default {
     },
     onShow: function () {
       this.loadSavedOptions();
-      this.errorMessage = '';
       this.updateOutputSize();
     },
     onKeydown: function (event) {

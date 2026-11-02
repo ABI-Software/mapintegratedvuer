@@ -580,7 +580,7 @@
               placement: 'bottom-end',
             }"
             :disabled="!mapLoaded"
-            class="header-icon"
+            class="header-icon global-settings-icon"
             :class="{ disabled: !mapLoaded }"
           >
             <el-icon-more-filled />
