@@ -972,25 +972,19 @@ const captureLegends = async (el, options) => {
   return results;
 };
 
+let captureQueue = Promise.resolve();
+
 /**
- * Capture `el` and download it as PNG.
- *
- * @param {HTMLElement} el - Element to capture.
- * @param {Object} options
- * @param {Number} options.scale - Multiplier on top of the device pixel ratio.
- * @param {String} options.title - Name of the content, used in the filename
- *   along with the options and output size.
- * @param {String} options.legend - One of `SCREENSHOT_LEGEND_MODES`.
- * @param {Boolean} options.toolbar - Include the header bar of each pane.
- * @param {Array} options.viewers - ContentVuer instances inside `el`
- *   providing `getScreenshotSources(pixelRatio)`.
- * @param {Array} options.hideSelectors - Selectors of nodes to exclude.
- * @returns {Object} { width, height, pixelRatio, clamped, reduced },
- *   or an array of these when `legend` is `only`.
- *   `reduced` is set when the size was lowered after a failed attempt.
- * @throws {ScreenshotError} see `ScreenshotError` for the codes.
+ * Run captures one at a time, as they patch `window.getComputedStyle`,
+ * add overlays to the page and change the viewers' pixel ratio.
  */
-export const captureElement = async (el, options = {}) => {
+const serialize = (task) => {
+  const run = captureQueue.then(task);
+  captureQueue = run.catch(() => {});
+  return run;
+};
+
+const captureElementNow = async (el, options = {}) => {
   const {
     scale = 1,
     title,
@@ -1059,6 +1053,27 @@ export const captureElement = async (el, options = {}) => {
 
   return info;
 };
+
+/**
+ * Capture `el` and download it as PNG.
+ * Overlapping calls run one after another.
+ *
+ * @param {HTMLElement} el - Element to capture.
+ * @param {Object} options
+ * @param {Number} options.scale - Multiplier on top of the device pixel ratio.
+ * @param {String} options.title - Name of the content, used in the filename
+ *   along with the options and output size.
+ * @param {String} options.legend - One of `SCREENSHOT_LEGEND_MODES`.
+ * @param {Boolean} options.toolbar - Include the header bar of each pane.
+ * @param {Array} options.viewers - ContentVuer instances inside `el`
+ *   providing `getScreenshotSources(pixelRatio)`.
+ * @param {Array} options.hideSelectors - Selectors of nodes to exclude.
+ * @returns {Object} { width, height, pixelRatio, clamped, reduced },
+ *   or an array of these when `legend` is `only`.
+ *   `reduced` is set when the size was lowered after a failed attempt.
+ * @throws {ScreenshotError} see `ScreenshotError` for the codes.
+ */
+export const captureElement = (el, options) => serialize(() => captureElementNow(el, options));
 
 const assertContext = (gl) => {
   if (gl?.isContextLost?.()) {
