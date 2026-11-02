@@ -1075,10 +1075,11 @@ const captureElementNow = async (el, options = {}) => {
  */
 export const captureElement = (el, options) => serialize(() => captureElementNow(el, options));
 
+const contextLostError = () =>
+  new ScreenshotError('context-lost', 'The WebGL context of the viewer was lost');
+
 const assertContext = (gl) => {
-  if (gl?.isContextLost?.()) {
-    throw new ScreenshotError('context-lost', 'The WebGL context of the viewer was lost');
-  }
+  if (gl?.isContextLost?.()) throw contextLostError();
 };
 
 /**
@@ -1154,13 +1155,25 @@ export const snapshotMaplibre = async (map, pixelRatio) => {
       return { canvas, image };
     }
     const image = await new Promise((resolve, reject) => {
-      map.once('render', () => {
+      const cleanup = () => {
+        map.off('render', onRender);
+        canvas.removeEventListener('webglcontextlost', onContextLost);
+      };
+      const onRender = () => {
+        cleanup();
         try {
           resolve(readWebGLCanvas(canvas, gl));
         } catch (error) {
           reject(error);
         }
-      });
+      };
+      // `render` never fires once the context is lost.
+      const onContextLost = () => {
+        cleanup();
+        reject(contextLostError());
+      };
+      map.on('render', onRender);
+      canvas.addEventListener('webglcontextlost', onContextLost);
       map.triggerRepaint();
     });
     restore();
