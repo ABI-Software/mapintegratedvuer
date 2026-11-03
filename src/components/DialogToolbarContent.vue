@@ -22,17 +22,18 @@
           id: 'toolbar-viewing-mode',
           area: 'toolbar',
           title: 'Viewing mode',
-          description: `<p>Change how you interact with the maps:</p>
-            <ul>
-              <li><b>Exploration</b>: find relevant research and view the details of neural pathways.</li>
-              <li><b>Neuron Connection</b>: select a feature to see its network of neuron connections.</li>
-              <li><b>Annotation</b>: add, comment on and view feature annotations.</li>
-            </ul>`,
-          placement: 'bottom',
+          description: `<p>Choose how you interact with the maps, the current mode is highlighted.</p>
+            <p>In <b>Neuron Connection</b> mode, also choose which neuron populations to show:
+            <i>Origin</i>, <i>Via</i>, <i>Destination</i> or <i>All</i>.</p>`,
+          placement: 'left',
+          target: getViewingModeHelpTarget,
+          onEnter: openViewingModeHelp,
+          onLeave: closeViewingModeHelp,
         }"
       >
         Viewing Mode:
         <el-dropdown
+          ref="viewingModeDropdown"
           :teleported="false"
           trigger="hover"
           class="toolbar-dropdown"
@@ -751,6 +752,21 @@ export default {
     },
     titleClicked: function (id) {
       this.$emit('titleClicked', id);
+    },
+    /**
+     * The viewing mode list is shown for its help, the help points at the list, or at the
+     * selector when the list cannot be opened, e.g. while the map is loading.
+     */
+    getViewingModeHelpTarget: function () {
+      const list = this.$el.querySelector('.toolbar-dropdown-popper');
+      if (list?.getClientRects().length) return list;
+      return this.$el.querySelector('[data-help-id="toolbar-viewing-mode"]');
+    },
+    openViewingModeHelp: function () {
+      if (this.mapLoaded) this.$refs.viewingModeDropdown?.handleOpen();
+    },
+    closeViewingModeHelp: function () {
+      this.$refs.viewingModeDropdown?.handleClose();
     },
     loadHelpModeOptions: function () {
       this.helpModeOptions = this.helpModeProvider();
