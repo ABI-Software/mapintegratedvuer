@@ -6,7 +6,8 @@
         id: 'toolbar-search',
         area: 'toolbar',
         title: 'Search within display',
-        description: 'Search for a term, such as an organ or a nerve, in the opened maps.',
+        description:
+          'Search for a term in the opened maps, such as an organ like <i>heart</i> or a nerve like <i>vagus nerve</i>.',
         placement: 'bottom',
       }"
       @search="$emit('local-search', { term: $event })"
@@ -21,8 +22,12 @@
           id: 'toolbar-viewing-mode',
           area: 'toolbar',
           title: 'Viewing mode',
-          description:
-            'Change how you interact with the maps, e.g. explore the features or the neuron connections.',
+          description: `<p>Change how you interact with the maps:</p>
+            <ul>
+              <li><b>Exploration</b>: find relevant research and view the details of neural pathways.</li>
+              <li><b>Neuron Connection</b>: select a feature to see its network of neuron connections.</li>
+              <li><b>Annotation</b>: add, comment on and view feature annotations.</li>
+            </ul>`,
           placement: 'bottom',
         }"
       >
