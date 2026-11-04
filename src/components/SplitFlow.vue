@@ -67,6 +67,7 @@
       @change="onHelpTourChange"
       @finish="onHelpTourEnd('help_mode_finish')"
       @close="onHelpTourEnd('help_mode_exit')"
+      @empty="onHelpTourEmpty"
     />
     <HelpModeHover
       v-model="helpHoverOpen"
@@ -79,6 +80,7 @@
 
 <script>
 import { provide, markRaw, computed } from 'vue';
+import { ElMessage } from 'element-plus';
 import Tagging from '../services/tagging.js';
 import DialogToolbarContent from './DialogToolbarContent.vue';
 import EventBus, { onEvents } from './EventBus';
@@ -247,14 +249,27 @@ export default {
      * Collect the help steps of the toolbar and all the visible panels, from the elements
      * with `v-help-mode`. Panel steps have `panel` set to the index of their panel in view order.
      */
-    collectHelpSteps: function () {
-      const toolbarSteps = collectHelpModeSteps(this.$refs.dialogToolbar?.$el);
+    /**
+     * The visible panels in view order, with their index and label, e.g. "Panel 2 · Heart".
+     */
+    getHelpPanels: function () {
       const contents = this.$refs.splitdialog?.getActiveContentsInViewOrder() ?? [];
-      const contentSteps = contents.flatMap((content, index) => {
+      return contents.map((content, index) => ({
+        content,
+        index,
+        label: `Panel ${index + 1} · ${content.getTitle()}`,
+      }));
+    },
+    collectHelpSteps: function (panels = this.getHelpPanels()) {
+      const toolbarSteps = collectHelpModeSteps(this.$refs.dialogToolbar?.$el);
+      const contentSteps = panels.flatMap(({ content, index, label }) => {
         const steps = collectHelpModeSteps(content.$el).map((step) => ({ ...step, panel: index }));
-        if (contents.length < 2) return steps;
-        const group = `Panel ${index + 1} · ${content.getTitle()}`;
-        return steps.map((step) => ({ ...step, id: `panel-${index + 1}-${step.id}`, group }));
+        if (panels.length < 2) return steps;
+        return steps.map((step) => ({
+          ...step,
+          id: `panel-${index + 1}-${step.id}`,
+          group: label,
+        }));
       });
       return [...toolbarSteps, ...contentSteps];
     },
@@ -274,12 +289,9 @@ export default {
      * Options for the help menu in the toolbar.
      */
     getHelpModeOptions: function () {
-      const contents = this.$refs.splitdialog?.getActiveContentsInViewOrder() ?? [];
-      const views = contents.map((content, index) => ({
-        value: index,
-        label: `Panel ${index + 1} · ${content.getTitle()}`,
-      }));
-      const steps = this.collectHelpSteps();
+      const panels = this.getHelpPanels();
+      const views = panels.map(({ index, label }) => ({ value: index, label }));
+      const steps = this.collectHelpSteps(panels);
       const getAreas = (view) => {
         const viewSteps = this.filterHelpSteps(steps, view);
         // The toolbar is always available
@@ -311,8 +323,9 @@ export default {
       this.helpHoverOpen = true;
     },
     onHelpTourChange: function (step, index, direction) {
-      // The first step is shown when the tour starts, which is already tracked
-      if (index === 0) return;
+      // The first step is shown when the tour starts, which is already tracked,
+      // going back to it is tracked
+      if (index === 0 && direction > 0) return;
       Tagging.sendEvent({
         event: 'interaction_event',
         event_name: `portal_maps_help_mode_${direction > 0 ? 'next' : 'back'}`,
@@ -326,6 +339,12 @@ export default {
         event_name: 'portal_maps_help_hover_exit',
         category: 'help_hover_exit',
         location: 'map_toolbar',
+      });
+    },
+    onHelpTourEmpty: function () {
+      ElMessage({
+        message: 'There is no help to show for this area right now.',
+        type: 'info',
       });
     },
     onHelpTourEnd: function (category) {

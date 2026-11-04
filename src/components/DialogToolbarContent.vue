@@ -18,6 +18,7 @@
     <el-row class="icon-group">
       <div
         class="viewing-mode-selector"
+        ref="viewingModeSelector"
         v-help-mode="{
           id: 'toolbar-viewing-mode',
           area: 'toolbar',
@@ -38,6 +39,7 @@
         <el-dropdown
           ref="viewingModeDropdown"
           :teleported="false"
+          @visible-change="onViewingModeVisibleChange"
           trigger="hover"
           class="toolbar-dropdown"
           popper-class="toolbar-dropdown-popper"
@@ -586,7 +588,7 @@ import { useSplitFlowStore } from '../stores/splitFlow';
 import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
 import HelpModeMenu from './HelpModeMenu.vue';
-import { helpModeDirective } from '@abi-software/map-utilities';
+import { helpModeDirective, isElementVisible } from '@abi-software/map-utilities';
 import { CopyDocument as ElIconCopyDocument } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
@@ -759,14 +761,20 @@ export default {
      */
     getViewingModeHelpTarget: function () {
       const list = this.$el.querySelector('.toolbar-dropdown-popper');
-      if (list?.getClientRects().length) return list;
-      return this.$el.querySelector('[data-help-id="toolbar-viewing-mode"]');
+      return isElementVisible(list) ? list : this.$refs.viewingModeSelector;
     },
     openViewingModeHelp: function () {
-      if (this.mapLoaded) this.$refs.viewingModeDropdown?.handleOpen();
+      if (!this.mapLoaded) return;
+      this.viewingModeHelpOpen = true;
+      this.$refs.viewingModeDropdown?.handleOpen();
     },
     closeViewingModeHelp: function () {
+      this.viewingModeHelpOpen = false;
       this.$refs.viewingModeDropdown?.handleClose();
+    },
+    onViewingModeVisibleChange: function (visible) {
+      // The list opens on hover, it closes when the mouse leaves it, keep it open for its help
+      if (!visible && this.viewingModeHelpOpen) this.$refs.viewingModeDropdown?.handleOpen();
     },
     loadHelpModeOptions: function () {
       this.helpModeOptions = this.helpModeProvider();
@@ -781,8 +789,8 @@ export default {
       // GA Tracking
       tagging.sendEvent({
         event: 'interaction_event',
-        event_name: `portal_maps_toolbar_help_${options.mode}`,
-        category: 'help_mode_start',
+        event_name: 'portal_maps_toolbar_help',
+        category: `help_mode_start_${options.mode}`,
         location: 'map_toolbar',
       });
     },
