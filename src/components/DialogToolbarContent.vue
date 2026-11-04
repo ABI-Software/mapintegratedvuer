@@ -23,8 +23,11 @@
           area: 'toolbar',
           title: 'Viewing mode',
           description: `<p>Choose how you interact with the maps, the current mode is highlighted.</p>
-            <p>In <b>Neuron Connection</b> mode, also choose which neuron populations to show:
-            <i>Origin</i>, <i>Via</i>, <i>Destination</i> or <i>All</i>.</p>`,
+            <ul>
+              <li><b>Neuron Connection</b>: also choose which neuron populations to show.</li>
+              <li><b>Annotation</b>: sign in to save your annotations, otherwise they are kept
+              in this browser session and can be shared with <i>Export Annotations</i> in the permalink.</li>
+            </ul>`,
           placement: 'left',
           target: getViewingModeHelpTarget,
           onEnter: openViewingModeHelp,
@@ -88,17 +91,15 @@
                   {{ key }}
                 </h5>
                 <small class="el-option__description">
-                  <template v-if="key === 'Annotation'">
-                    <template v-if="authorisedUser">
-                      {{ value[1] }}
-                    </template>
-                    <template v-else>
-                      {{ value[0] }}
-                    </template>
-                    <template v-if="offlineAnnotationEnabled">(Anonymous annotate)</template>
-                  </template>
-                  <template v-else>
-                    {{ value }}
+                  {{ value }}
+                  <template
+                    v-if="
+                      key === 'Annotation' &&
+                      globalSettings.viewingMode === 'Annotation' &&
+                      offlineAnnotationEnabled
+                    "
+                  >
+                    (Anonymous, kept in this browser session)
                   </template>
                 </small>
                 <!-- <template v-if="key === 'Exploration'">
@@ -669,9 +670,8 @@ export default {
           'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
         'Neuron Connection':
           'Discover neuron connections by selecting a feature and viewing its associated network connections',
-        Annotation: ['View feature annotations', 'Add, comment on and view feature annotations'],
+        Annotation: 'Draw on the map, or select a feature to view and edit its annotations',
       },
-      authorisedUser: false,
       mapLoaded: false,
     };
   },
