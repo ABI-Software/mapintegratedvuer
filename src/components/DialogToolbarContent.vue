@@ -39,7 +39,7 @@
         <el-dropdown
           ref="viewingModeDropdown"
           :teleported="false"
-          @visible-change="onViewingModeVisibleChange"
+          :hide-timeout="viewingModeHelpOpen ? HELP_KEEP_OPEN_TIMEOUT : DROPDOWN_HIDE_TIMEOUT"
           trigger="hover"
           class="toolbar-dropdown"
           popper-class="toolbar-dropdown-popper"
@@ -592,6 +592,12 @@ import { helpModeDirective, isElementVisible } from '@abi-software/map-utilities
 import { CopyDocument as ElIconCopyDocument } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
+// Delay before the viewing mode list closes, the Element Plus default
+const DROPDOWN_HIDE_TIMEOUT = 150;
+// While the list is open for its help it does not close on its own, e.g. when it loses
+// the focus to the tour or the mouse leaves it; re-opening it instead would make it flicker
+const HELP_KEEP_OPEN_TIMEOUT = 1e9;
+
 /**
  * Cmponent for the header of differnt vuers.
  */
@@ -663,6 +669,9 @@ export default {
       globalSettings: {},
       globalSettingRef: undefined,
       helpRef: undefined,
+      viewingModeHelpOpen: false,
+      DROPDOWN_HIDE_TIMEOUT,
+      HELP_KEEP_OPEN_TIMEOUT,
       helpModeOptions: { views: [], getAreas: () => [] },
       isFullscreen: false,
       loadingLink: true,
@@ -768,13 +777,11 @@ export default {
       this.viewingModeHelpOpen = true;
       this.$refs.viewingModeDropdown?.handleOpen();
     },
-    closeViewingModeHelp: function () {
+    closeViewingModeHelp: async function () {
       this.viewingModeHelpOpen = false;
+      // Close with the normal delay
+      await this.$nextTick();
       this.$refs.viewingModeDropdown?.handleClose();
-    },
-    onViewingModeVisibleChange: function (visible) {
-      // The list opens on hover, it closes when the mouse leaves it, keep it open for its help
-      if (!visible && this.viewingModeHelpOpen) this.$refs.viewingModeDropdown?.handleOpen();
     },
     loadHelpModeOptions: function () {
       this.helpModeOptions = this.helpModeProvider();
