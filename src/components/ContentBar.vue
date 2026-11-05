@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="toolbar-flex-container">
-      <div class="tollbar-left shrink">
+      <div class="toolbar-left shrink">
         <el-select
           v-if="entries.length > 1"
           :teleported="false"
