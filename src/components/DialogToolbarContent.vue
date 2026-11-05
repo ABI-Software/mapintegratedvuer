@@ -6,7 +6,8 @@
         id: 'toolbar-search',
         area: 'toolbar',
         title: 'Search within display',
-        description: 'Search for a term, such as an organ or a nerve, in the opened maps.',
+        description:
+          'Search for a term in the opened maps, such as an organ like <i>heart</i> or a nerve like <i>vagus nerve</i>.',
         placement: 'bottom',
       }"
       @search="$emit('local-search', { term: $event })"
@@ -17,18 +18,28 @@
     <el-row class="icon-group">
       <div
         class="viewing-mode-selector"
+        ref="viewingModeSelector"
         v-help-mode="{
           id: 'toolbar-viewing-mode',
           area: 'toolbar',
           title: 'Viewing mode',
-          description:
-            'Change how you interact with the maps, e.g. explore the features or the neuron connections.',
-          placement: 'bottom',
+          description: `<p>Choose how you interact with the maps, the current mode is highlighted.</p>
+            <ul>
+              <li><b>Neuron Connection</b>: also choose which neuron populations to show.</li>
+              <li><b>Annotation</b>: sign in to save your annotations, otherwise they are kept
+              in this browser session and can be shared with <i>Export Annotations</i> in the permalink.</li>
+            </ul>`,
+          placement: 'left',
+          target: getViewingModeHelpTarget,
+          onEnter: openViewingModeHelp,
+          onLeave: closeViewingModeHelp,
         }"
       >
         Viewing Mode:
         <el-dropdown
+          ref="viewingModeDropdown"
           :teleported="false"
+          :hide-timeout="viewingModeHelpOpen ? HELP_KEEP_OPEN_TIMEOUT : DROPDOWN_HIDE_TIMEOUT"
           trigger="hover"
           class="toolbar-dropdown"
           popper-class="toolbar-dropdown-popper"
@@ -88,17 +99,15 @@
                   {{ key }}
                 </h5>
                 <small class="el-option__description">
-                  <template v-if="key === 'Annotation'">
-                    <template v-if="authorisedUser">
-                      {{ value[1] }}
-                    </template>
-                    <template v-else>
-                      {{ value[0] }}
-                    </template>
-                    <template v-if="offlineAnnotationEnabled">(Anonymous annotate)</template>
-                  </template>
-                  <template v-else>
-                    {{ value }}
+                  {{ value }}
+                  <template
+                    v-if="
+                      key === 'Annotation' &&
+                      globalSettings.viewingMode === 'Annotation' &&
+                      offlineAnnotationEnabled
+                    "
+                  >
+                    (Anonymous, kept in this browser session)
                   </template>
                 </small>
                 <!-- <template v-if="key === 'Exploration'">
@@ -602,9 +611,15 @@ import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
 import ScreenshotPopover from './ScreenshotPopover.vue';
 import HelpModeMenu from './HelpModeMenu.vue';
-import { helpModeDirective } from '@abi-software/map-utilities';
+import { helpModeDirective, isElementVisible } from '@abi-software/map-utilities';
 import { CopyDocument as ElIconCopyDocument } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
+
+// Delay before the viewing mode list closes, the Element Plus default
+const DROPDOWN_HIDE_TIMEOUT = 150;
+// While the list is open for its help it does not close on its own, e.g. when it loses
+// the focus to the tour or the mouse leaves it; re-opening it instead would make it flicker
+const HELP_KEEP_OPEN_TIMEOUT = 1e9;
 
 /**
  * Cmponent for the header of differnt vuers.
@@ -692,6 +707,9 @@ export default {
       globalSettings: {},
       globalSettingRef: undefined,
       helpRef: undefined,
+      viewingModeHelpOpen: false,
+      DROPDOWN_HIDE_TIMEOUT,
+      HELP_KEEP_OPEN_TIMEOUT,
       helpModeOptions: { views: [], getAreas: () => [] },
       isFullscreen: false,
       loadingLink: true,
@@ -701,10 +719,9 @@ export default {
           'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
         'Neuron Connection':
           'Discover neuron connections by selecting a feature and viewing its associated network connections',
-        Annotation: ['View feature annotations', 'Add, comment on and view feature annotations'],
+        Annotation: 'Draw on the map, or select a feature to view and edit its annotations',
         'Cell Type': 'Explore cell cards for different cell types and their associated data',
       },
-      authorisedUser: false,
       mapLoaded: false,
     };
   },
@@ -796,6 +813,25 @@ export default {
     titleClicked: function (id) {
       this.$emit('titleClicked', id);
     },
+    /**
+     * The viewing mode list is shown for its help, the help points at the list, or at the
+     * selector when the list cannot be opened, e.g. while the map is loading.
+     */
+    getViewingModeHelpTarget: function () {
+      const list = this.$el.querySelector('.toolbar-dropdown-popper');
+      return isElementVisible(list) ? list : this.$refs.viewingModeSelector;
+    },
+    openViewingModeHelp: function () {
+      if (!this.mapLoaded) return;
+      this.viewingModeHelpOpen = true;
+      this.$refs.viewingModeDropdown?.handleOpen();
+    },
+    closeViewingModeHelp: async function () {
+      this.viewingModeHelpOpen = false;
+      // Close with the normal delay
+      await this.$nextTick();
+      this.$refs.viewingModeDropdown?.handleClose();
+    },
     loadHelpModeOptions: function () {
       this.helpModeOptions = this.helpModeProvider();
     },
@@ -809,8 +845,8 @@ export default {
       // GA Tracking
       tagging.sendEvent({
         event: 'interaction_event',
-        event_name: `portal_maps_toolbar_help_${options.mode}`,
-        category: 'help_mode_start',
+        event_name: 'portal_maps_toolbar_help',
+        category: `help_mode_start_${options.mode}`,
         location: 'map_toolbar',
       });
     },
