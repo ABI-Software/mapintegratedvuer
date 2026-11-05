@@ -6,6 +6,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { useConnectivitiesStore } from '../stores/connectivities';
 import Tagging from '../services/tagging.js';
+import { snapshotMaplibre } from '../services/screenshot.js';
 
 import { getFlatmapFilterOptions } from '@abi-software/map-utilities';
 import { FlatmapQueries } from '@abi-software/flatmapvuer/src/services/flatmapQueries.js';
@@ -28,7 +29,7 @@ function capitalise(text) {
 }
 
 export default {
-  emits: ['flatmap-provenance-ready', 'resource-selected', 'species-changed'],
+  emits: ['flatmap-provenance-ready', 'resource-selected', 'species-changed', 'viewer-ready'],
   props: {
     /**
      * Object containing information for
@@ -144,6 +145,17 @@ export default {
     },
     getState: function () {
       return undefined;
+    },
+    /**
+     * Return snapshots of WebGL canvases rendered at `pixelRatio`,
+     * used by the screenshot service. Defaults to the flatmap canvas.
+     */
+    getScreenshotSources: async function (pixelRatio) {
+      const map = this.getFlatmapImp?.()?.map;
+      if (map) {
+        return [await snapshotMaplibre(map, pixelRatio)];
+      }
+      return [];
     },
     openMap: function (type) {
       EventBus.emit('OpenNewMap', type);
@@ -715,8 +727,10 @@ export default {
       let validNerves = [];
 
       if (!this.connectivityKnowledge[sckanVersion]) {
-        this.flatmapQueries = markRaw(new FlatmapQueries());
-        this.flatmapQueries.initialise(this.flatmapAPI);
+        if (!this.flatmapQueries) {
+          this.flatmapQueries = markRaw(new FlatmapQueries());
+          this.flatmapQueries.initialise(this.flatmapAPI);
+        }
         const knowledge = await loadAndStoreKnowledge(flatmapImp, this.flatmapQueries);
         this.connectivityKnowledge[sckanVersion] = knowledge
           .filter((item) => item.connectivity?.length)
@@ -793,10 +807,8 @@ export default {
       EventBus.emit('species-layout-connectivity-update');
     },
     knowledgeTooltipQuery: async function (data) {
-      await this.flatmapQueries.retrieveFlatmapKnowledgeForEvent(this.flatmapService.mapImp, {
-        resource: [data.id],
-      });
-      let tooltip = await this.flatmapQueries.createTooltipData(this.flatmapService.mapImp, {
+      // queryTooltipData does not share state between queries, so it can run in parallel
+      let tooltip = await this.flatmapQueries.queryTooltipData(this.flatmapService.mapImp, {
         resource: [data.id],
         label: data.label,
         provenanceTaxonomy: data.taxons,
@@ -816,12 +828,10 @@ export default {
       );
       EventBus.emit('connectivity-info-open', this.tooltipEntry);
 
-      let prom1 = [];
       // While having placeholders displayed, get details for all paths and then replace.
-      for (let index = 0; index < payload.data.length; index++) {
-        prom1.push(await this.knowledgeTooltipQuery(payload.data[index]));
-      }
-      this.tooltipEntry = await Promise.all(prom1);
+      this.tooltipEntry = await Promise.all(
+        payload.data.map((data) => this.knowledgeTooltipQuery(data)),
+      );
       const featureIds = this.tooltipEntry.map((tooltip) => tooltip.featureId[0]);
       if (featureIds.length > 0) {
         EventBus.emit('connectivity-info-open', this.tooltipEntry);

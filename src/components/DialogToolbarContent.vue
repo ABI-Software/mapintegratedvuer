@@ -237,6 +237,15 @@
           />
         </template>
       </el-popover>
+      <ScreenshotPopover
+        v-if="captureScreenshot"
+        title="Download screenshot of all views"
+        tooltip="Download screenshot"
+        :capture="onCaptureScreenshot"
+        :getTarget="getScreenshotTarget"
+        :disabled="!mapLoaded"
+        shortcut
+      />
       <el-popover
         v-if="permalinkRef"
         ref="linkPopover"
@@ -469,7 +478,7 @@
           <el-icon
             ref="globalSettingRef"
             :disabled="!mapLoaded"
-            class="header-icon"
+            class="header-icon global-settings-icon"
             :class="{ disabled: !mapLoaded }"
           >
             <el-icon-more-filled />
@@ -489,6 +498,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
+import ScreenshotPopover from './ScreenshotPopover.vue';
 import { CopyDocument as ElIconCopyDocument } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 
@@ -500,6 +510,7 @@ export default {
   components: {
     MapSvgIcon,
     MapSvgSpriteColor,
+    ScreenshotPopover,
     SearchControls,
   },
   props: {
@@ -516,6 +527,20 @@ export default {
     showIcons: {
       type: Boolean,
       default: false,
+    },
+    /**
+     * Async function capturing a screenshot of all visible views.
+     */
+    captureScreenshot: {
+      type: Function,
+      default: undefined,
+    },
+    /**
+     * Function returning the element captured, used for size preview.
+     */
+    getScreenshotTarget: {
+      type: Function,
+      default: undefined,
     },
   },
   inject: ['showGlobalSettings'],
@@ -719,6 +744,19 @@ export default {
       } else {
         this.getShareLink(false);
       }
+    },
+    onCaptureScreenshot: async function (options) {
+      const result = await this.captureScreenshot(options);
+
+      // GA Tracking
+      tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: 'portal_maps_screenshot',
+        category: `png_${options.scale}x`,
+        location: options.source === 'shortcut' ? 'keyboard_shortcut' : 'map_toolbar',
+      });
+
+      return result;
     },
     getShareLink: function (withAnnotation) {
       this.displayShareOptions = false;

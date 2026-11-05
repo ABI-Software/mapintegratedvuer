@@ -33,6 +33,24 @@ import RetrieveContextCardMixin from '../mixins/RetrieveContextCardMixin.js';
 
 /**
  * Content of the app. More work flows will be added here.
+ *
+ * ## Screenshots
+ *
+ * Each viewer pane has a camera button in its header that downloads a screenshot of that pane.
+ * The camera button in the top toolbar downloads all visible panes together, including the sidebar if it is open.
+ * Screenshots are saved as PNG. Pick the resolution (1x to 4x the device pixel ratio) before downloading; higher resolutions suit printing.
+ * On-screen controls such as zoom buttons and settings panels are left out of the image.
+ * Very large outputs are reduced automatically to stay within browser canvas limits.
+ *
+ * Default screenshot settings can be set with `options.screenshot`,
+ * and screenshots can be triggered programmatically with the `captureScreenshot` method:
+ *
+ * ```js
+ * // All visible panes
+ * this.$refs.map.captureScreenshot({ scale: 3 });
+ * // A single pane, by entry id
+ * this.$refs.map.captureScreenshot({ paneId: 1, scale: 2 });
+ * ```
  */
 export default {
   name: 'MapContent',
@@ -70,6 +88,8 @@ export default {
     },
     /**
      * The options include APIs and Keys.
+     * `options.screenshot` sets the screenshot defaults,
+     * e.g. `{ scale: 2, legend: 'include', toolbar: true }`.
      */
     options: {
       type: Object,
@@ -278,6 +298,20 @@ export default {
     },
     /**
      * @public
+     * Capture a screenshot and download it as PNG.
+     * Captures the pane with `paneId` (entry id) if provided,
+     * otherwise all visible panes including the sidebar.
+     * `legend` is `exclude` (default), `include` or `only`,
+     * the latter downloads only the legend panel of each pane.
+     * `toolbar` includes the header bar of each pane (default `false`).
+     * The default `scale`, `legend` and `toolbar` come from `options.screenshot`.
+     * @arg `options` { paneId, scale: Number, legend: String, toolbar: Boolean }
+     */
+    captureScreenshot: function (options = {}) {
+      return this.$refs.flow.captureScreenshot(options);
+    },
+    /**
+     * @public
      * Provide a way to set the current view, this is currently limited
      * to setting view for flatmapm, multiflatmap or scaffold.
      * In the case of the multiflatmap, it will not create a new entry and
@@ -457,6 +491,9 @@ export default {
         ? this.settingsStore.updateCellCardsApi(this.options.cellCardsApi)
         : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
+      this.options.screenshot
+        ? this.settingsStore.updateScreenshotOptions(this.options.screenshot)
+        : null;
     }
     this.settingsStore.updateAllClosable(this.allClosable);
     this.splitFlowStore?.reset();

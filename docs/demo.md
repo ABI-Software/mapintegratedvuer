@@ -6,7 +6,7 @@
   <div class="demo-map-container-inner">
     <ClientOnly>
       <iframe
-        src="https://mapcore-demo.org/current/mapintegratedvuer/"
+        src="https://mapintegratedvuer-mapcore-754fcb3bf891.herokuapp.com"
       >
       </iframe>
     </ClientOnly>
@@ -14,8 +14,8 @@
 </div>
 <p>
   Live demo full page URL:
-  <a href="https://mapcore-demo.org/current/mapintegratedvuer/" target="_blank">
-  https://mapcore-demo.org/current/mapintegratedvuer
+  <a href="https://mapintegratedvuer-mapcore-754fcb3bf891.herokuapp.com" target="_blank">
+  https://mapintegratedvuer-mapcore-754fcb3bf891.herokuapp.com
   </a>
 </p>
 
