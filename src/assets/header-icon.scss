@@ -16,9 +16,15 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  top: 4px;
-  right: 12px;
-  gap: 10px;
+  align-items: center;
+  top: 0;
+  right: 1rem;
+  gap: 8px;
+  height: 31px; // header has 1px border
+
+  svg.map-icon {
+    margin: 0;
+  }
 }
 
 .icon-group {

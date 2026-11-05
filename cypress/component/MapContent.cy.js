@@ -216,14 +216,16 @@ describe('MapContent', () => {
     cy.get('.open-map-popper > :nth-child(2) > .el-button:visible').should('exist').click();
 
     //Switch back to the original viewer
-    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper')
+    cy.get(
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select > .el-select__wrapper',
+    )
       .should('exist')
       .click();
     cy.get(
-      '.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li',
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select .viewer_dropdown ul > li',
     ).should('have.length', 2);
     cy.get(
-      '.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > :nth-child(1)',
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select .viewer_dropdown ul > :nth-child(1)',
       { timeout: 60000 },
     ).click();
 
@@ -242,6 +244,10 @@ describe('MapContent', () => {
       '.sidebar-container .el-card.content-card:visible .header .el-input .el-input__inner',
     ).type('heart');
     cy.get('.sidebar-container .el-card.content-card:visible .header .el-button--primary').click();
+    // The search and the knowledge of the open maps load slowly on CI.
+    cy.get('.sidebar-container .el-card.content-card:visible .content .el-loading-mask', {
+      timeout: 60000,
+    }).should('not.exist');
     cy.get('.connectivity-card-container > .connectivity-card').should(
       'have.length.greaterThan',
       0,
@@ -301,11 +307,13 @@ describe('MapContent', () => {
     cy.get('.gallery-strip .next').should('exist').click(); // TODO: to add after sidebar update.
     cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.pane-1.contentvuer').should('have.length', 1);
-    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper')
+    cy.get(
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select > .el-select__wrapper',
+    )
       .should('exist')
       .click();
     cy.get(
-      '.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li',
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select .viewer_dropdown ul > li',
     ).should('have.length', 3);
 
     //Check for plot and open it, should have four items in select now
@@ -313,11 +321,13 @@ describe('MapContent', () => {
     cy.get('.box-card .container button').filter(':visible').contains('Plots (1)').click();
     cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
     cy.get('.gallery-strip').contains('RAGP_4subs_negdct.csv').should('exist');
-    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper')
+    cy.get(
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select > .el-select__wrapper',
+    )
       .should('exist')
       .click();
     cy.get(
-      '.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li',
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select .viewer_dropdown ul > li',
     ).should('have.length', 4);
 
     cy.get('@simulation_ui').then((simulation_ui) => {
@@ -328,11 +338,13 @@ describe('MapContent', () => {
     cy.get('.open-tab > .el-icon').click();
     cy.get('.box-card .container button').filter(':visible').contains('Simulations (1)').click();
     cy.get('.box-card :nth-child(1) > .details .el-button').filter(':visible').click();
-    cy.get('.pane-1 .toolbar > .toolbar-flex-container > .el-select > .el-select__wrapper')
+    cy.get(
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select > .el-select__wrapper',
+    )
       .should('exist')
       .click();
     cy.get(
-      '.pane-1 .toolbar > .toolbar-flex-container > .el-select .viewer_dropdown ul > li',
+      '.pane-1 .toolbar > .toolbar-flex-container > .toolbar-left > .el-select .viewer_dropdown ul > li',
     ).should('have.length', 5);
 
     //Close the sidebar

@@ -104,6 +104,14 @@
             </template>
           </el-popover>
         </div>
+        <ScreenshotPopover
+          v-if="captureScreenshot"
+          :disabled="!viewerReady"
+          class="screenshot-button"
+          tooltip="Download screenshot of this view"
+          :capture="onCaptureScreenshot"
+          :getTarget="getScreenshotTarget"
+        />
         <el-popover
           class="tooltip"
           content="Close and remove"
@@ -143,6 +151,7 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import ContextCard from './ContextCard.vue';
 import FlatmapContextCard from './FlatmapContextCard.vue';
+import ScreenshotPopover from './ScreenshotPopover.vue';
 import { ArrowDown as ElIconArrowDown, ArrowUp as ElIconArrowUp } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
 import { helpModeDirective } from '@abi-software/map-utilities';
@@ -155,12 +164,34 @@ export default {
     ContextCard,
     FlatmapContextCard,
     MapSvgIcon,
+    ScreenshotPopover,
   },
   directives: {
     helpMode: helpModeDirective,
   },
   props: {
     entry: Object,
+    /**
+     * Async function capturing a screenshot of this view.
+     */
+    captureScreenshot: {
+      type: Function,
+      default: undefined,
+    },
+    /**
+     * Function returning the element captured, used for size preview.
+     */
+    getScreenshotTarget: {
+      type: Function,
+      default: undefined,
+    },
+    /**
+     * Whether the viewer's content has finished loading.
+     */
+    viewerReady: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -241,6 +272,19 @@ export default {
     },
   },
   methods: {
+    onCaptureScreenshot: async function (options) {
+      const result = await this.captureScreenshot(options);
+
+      // GA Tracking
+      tagging.sendEvent({
+        event: 'interaction_event',
+        event_name: 'portal_maps_screenshot',
+        category: `png_${options.scale}x`,
+        location: 'pane_header',
+      });
+
+      return result;
+    },
     closeAndRemove: function () {
       this.splitFlowStore.closeSlot({ id: this.entry.id, entries: this.entries });
       EventBus.emit('RemoveEntryRequest', this.entry.id);
@@ -369,19 +413,38 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: nowrap;
   width: 100%;
+  gap: 16px;
 
   .shrink {
     flex-shrink: 1;
     min-width: 0;
   }
 
-  .information-group {
-    margin-left: auto;
-    margin-right: 12px;
+  .toolbar-left,
+  .toolbar-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     height: 100%;
+    gap: 8px;
+  }
+
+  .toolbar-left {
+    justify-content: flex-start;
+  }
+
+  .toolbar-right {
+    justify-content: flex-end;
+    margin-left: auto;
     position: relative;
+    margin-right: 1rem; // same as header toolbar
+  }
+
+  .information-group {
+    height: 100%;
   }
 
   .toolbar-title {
@@ -438,12 +501,14 @@ export default {
       color: $lightGrey;
     }
   }
+
   i .select-box :deep(.el-input__icon) {
     color: rgb(48, 49, 51);
     height: 24px;
     padding-left: 8px;
     padding-right: 8px;
   }
+
   .text {
     margin-left: 8px;
     margin-top: 7px;
@@ -454,6 +519,7 @@ export default {
     user-select: none;
     line-height: 18px;
   }
+
   .title {
     width: 140px;
     color: $app-primary-color;
@@ -470,8 +536,6 @@ export default {
 
   .source-chip {
     padding: 4px !important;
-    margin-left: 2px;
-    margin-right: 2px;
     background-color: $app-primary-color;
     border-color: $app-primary-color;
     color: #fff;
@@ -497,6 +561,10 @@ export default {
     flex-shrink: 0;
   }
 
+  .screenshot-button {
+    flex-shrink: 0;
+  }
+
   .information {
     font-size: 12px;
     margin-top: 0;
@@ -507,6 +575,10 @@ export default {
     color: $app-primary-color;
     cursor: pointer;
     line-height: normal;
+  }
+
+  svg.map-icon {
+    margin: 0;
   }
 }
 
