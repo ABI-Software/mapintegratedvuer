@@ -27,7 +27,6 @@ export const useSettingsStore = defineStore('settings', {
       featuredMarkerSpecies: [],
       featuredDatasetIdentifiers: [],
       helpDelay: 0,
-      useHelpModeDialog: false,
       connectivityInfoSidebar: true,
       annotationSidebar: true,
       allClosable: true,
@@ -198,9 +197,6 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateNumberOfDatasetsForFacets(numberOfDatasetsForFacets) {
       this.numberOfDatasetsForFacets = numberOfDatasetsForFacets;
-    },
-    updateUseHelpModeDialog(helpModeOption) {
-      this.useHelpModeDialog = helpModeOption;
     },
     updateConnectivityInfoSidebar(connectivityInfoSidebar) {
       this.connectivityInfoSidebar = connectivityInfoSidebar;

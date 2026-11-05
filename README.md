@@ -168,14 +168,8 @@ npm run docs:watch
 
 This will start the documentation server with `vitepress` on port `:5173` and watch the `FlatmapVuer` and `MultiFlatmapVuer` components changes.
 
-## The HelpModeDialog
+## Help mode
 
-The `HelpModeDialog` is used to show help tooltips individually and one by one. This is available on Flatmap, MultiFlatmap, and Scaffold views.
-To use `HelpModeDialog`, set `useHelpModeDialog` to `true`. The default value is `false`.
+Clicking "Help" in the toolbar opens a menu to start a guided tour of a view or an area, or the hover help, where hovering over a highlighted control shows what it does.
 
-```HTML
-<MapContent
-  ...
-  :useHelpModeDialog="true"
-/>
-```
+The controls with help are marked in the templates with the `v-help-mode` directive from `@abi-software/map-utilities`, see its README to add or remove a control.
