@@ -111,6 +111,13 @@
           tooltip="Download screenshot of this view"
           :capture="onCaptureScreenshot"
           :getTarget="getScreenshotTarget"
+          v-help-mode="{
+            id: 'content-bar-screenshot',
+            area: 'panel-header',
+            title: 'Download screenshot',
+            description: 'Download a screenshot of this view.',
+            placement: 'bottom-end',
+          }"
         />
         <el-popover
           class="tooltip"
