@@ -487,6 +487,9 @@ export default {
         ? this.settingsStore.updatePennsieveApi(this.options.pennsieveApi)
         : null;
       this.options.flatmapAPI ? this.settingsStore.updateFlatmapAPI(this.options.flatmapAPI) : null;
+      this.options.cellCardsApi
+        ? this.settingsStore.updateCellCardsApi(this.options.cellCardsApi)
+        : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
       this.options.screenshot
         ? this.settingsStore.updateScreenshotOptions(this.options.screenshot)
