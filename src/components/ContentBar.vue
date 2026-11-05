@@ -1,130 +1,135 @@
 <template>
   <div>
     <div class="toolbar-flex-container">
-      <el-select
-        v-if="entries.length > 1"
-        :teleported="false"
-        :model-value="entry.id"
-        placeholder="Select"
-        class="select-box"
-        v-help-mode="{
-          id: 'content-bar-viewer-select',
-          area: 'panel-header',
-          title: 'Switch map',
-          description: 'Choose which of the opened maps and data is shown in this panel.',
-          placement: 'bottom',
-        }"
-        popper-class="viewer_dropdown"
-        @change="viewerChanged($event)"
-      >
-        <el-option
-          v-for="entry in entries"
-          :key="entry.id"
-          :label="getTitle(entry)"
-          :value="entry.id"
-        />
-      </el-select>
-      <div v-else class="toolbar-title shrink">
-        {{ getEntryTitle(entry) }}
-      </div>
-      <el-button
-        v-if="hasSourceInfo"
-        round
-        size="small"
-        class="source-chip shrink"
-        v-help-mode="{
-          id: 'content-bar-source',
-          area: 'panel-header',
-          title: 'Source',
-          description: 'See where the data shown in this panel comes from.',
-          placement: 'bottom',
-        }"
-        @click="openSourceInfo"
-      >
-        {{ getSourceTitle }}
-      </el-button>
-      <div class="information-group shrink">
-        <el-popover
-          placement="bottom"
+      <div class="toolbar-left shrink">
+        <el-select
+          v-if="entries.length > 1"
           :teleported="false"
-          trigger="manual"
-          :width="setPopperWidth(slot.id)"
-          :offset="0"
-          popper-class="context-card-popover"
-          :popper-options="popperOptions"
-          :visible="contextCardVisible"
+          :model-value="entry.id"
+          placeholder="Select"
+          class="select-box"
+          v-help-mode="{
+            id: 'content-bar-viewer-select',
+            area: 'panel-header',
+            title: 'Switch map',
+            description: 'Choose which of the opened maps and data is shown in this panel.',
+            placement: 'bottom',
+          }"
+          popper-class="viewer_dropdown"
+          @change="viewerChanged($event)"
         >
-          <template #default v-if="contextCardEntry">
-            <flatmap-context-card
-              class="flatmap-context-card"
-              v-if="contextCardEntry.type == 'Flatmap' || contextCardEntry.type == 'MultiFlatmap'"
-              :mapImpProv="contextCardEntry.mapImpProv"
-            />
-            <context-card
-              v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
-              :entry="contextCardEntry"
-              :envVars="envVars"
-              class="context-card"
-              @context-ready="contextCardVisible = true"
-              @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
-            />
-          </template>
+          <el-option
+            v-for="entry in entries"
+            :key="entry.id"
+            :label="getTitle(entry)"
+            :value="entry.id"
+          />
+        </el-select>
+        <div v-else class="toolbar-title shrink">
+          {{ getEntryTitle(entry) }}
+        </div>
+        <el-button
+          v-if="hasSourceInfo"
+          round
+          size="small"
+          class="source-chip shrink"
+          v-help-mode="{
+            id: 'content-bar-source',
+            area: 'panel-header',
+            title: 'Source',
+            description: 'See where the data shown in this panel comes from.',
+            placement: 'bottom',
+          }"
+          @click="openSourceInfo"
+        >
+          {{ getSourceTitle }}
+        </el-button>
+      </div>
+
+      <div class="toolbar-right shrink">
+        <div class="information-group shrink">
+          <el-popover
+            placement="bottom"
+            :teleported="false"
+            trigger="manual"
+            :width="setPopperWidth(slot.id)"
+            :offset="0"
+            popper-class="context-card-popover"
+            :popper-options="popperOptions"
+            :visible="contextCardVisible"
+          >
+            <template #default v-if="contextCardEntry">
+              <flatmap-context-card
+                class="flatmap-context-card"
+                v-if="contextCardEntry.type == 'Flatmap' || contextCardEntry.type == 'MultiFlatmap'"
+                :mapImpProv="contextCardEntry.mapImpProv"
+              />
+              <context-card
+                v-if="contextCardEntry.type.toLowerCase() == 'scaffold'"
+                :entry="contextCardEntry"
+                :envVars="envVars"
+                class="context-card"
+                @context-ready="contextCardVisible = true"
+                @scaffold-view-clicked="$emit('scaffold-view-clicked', $event)"
+              />
+            </template>
+            <template #reference>
+              <div
+                v-show="contextCardEntry"
+                v-help-mode="{
+                  id: 'content-bar-information',
+                  area: 'panel-header',
+                  title: 'Information',
+                  description: 'Show more information about what is shown in this panel.',
+                  placement: 'bottom',
+                }"
+              >
+                <div
+                  v-show="contextCardVisible"
+                  class="information"
+                  @click="contextCardVisible = false"
+                >
+                  Hide information
+                  <el-icon><el-icon-arrow-up /></el-icon>
+                </div>
+                <div
+                  v-show="!contextCardVisible"
+                  class="information"
+                  @click="contextCardVisible = true"
+                >
+                  Show information
+                  <el-icon><el-icon-arrow-down /></el-icon>
+                </div>
+              </div>
+            </template>
+          </el-popover>
+        </div>
+        <el-popover
+          class="tooltip"
+          content="Close and remove"
+          placement="bottom-end"
+          :show-after="helpDelay"
+          :teleported="false"
+          trigger="hover"
+          popper-class="header-popper"
+        >
           <template #reference>
-            <div
-              v-show="contextCardEntry"
+            <map-svg-icon
+              icon="close-no-bk"
+              class="header-icon rightmost"
               v-help-mode="{
-                id: 'content-bar-information',
+                id: 'content-bar-close',
                 area: 'panel-header',
-                title: 'Information',
-                description: 'Show more information about what is shown in this panel.',
-                placement: 'bottom',
+                title: 'Close panel',
+                description: 'Close this panel and remove its content from the view.',
+                placement: 'bottom-end',
               }"
-            >
-              <div
-                v-show="contextCardVisible"
-                class="information"
-                @click="contextCardVisible = false"
-              >
-                Hide information
-                <el-icon><el-icon-arrow-up /></el-icon>
-              </div>
-              <div
-                v-show="!contextCardVisible"
-                class="information"
-                @click="contextCardVisible = true"
-              >
-                Show information
-                <el-icon><el-icon-arrow-down /></el-icon>
-              </div>
-            </div>
+              v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
+              @click="closeAndRemove()"
+            />
           </template>
         </el-popover>
       </div>
-      <el-popover
-        class="tooltip"
-        content="Close and remove"
-        placement="bottom-end"
-        :show-after="helpDelay"
-        :teleported="false"
-        trigger="hover"
-        popper-class="header-popper"
-      >
-        <template #reference>
-          <map-svg-icon
-            icon="close-no-bk"
-            class="header-icon rightmost"
-            v-help-mode="{
-              id: 'content-bar-close',
-              area: 'panel-header',
-              title: 'Close panel',
-              description: 'Close this panel and remove its content from the view.',
-              placement: 'bottom-end',
-            }"
-            v-show="activeView !== 'singlepanel' && (entry.mode !== 'main' || allClosable)"
-            @click="closeAndRemove()"
-          />
-        </template>
-      </el-popover>
     </div>
   </div>
 </template>
