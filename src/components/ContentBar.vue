@@ -12,7 +12,7 @@
             id: 'content-bar-viewer-select',
             area: 'panel-header',
             title: 'Switch map',
-            description: 'Choose which of the opened maps and data is shown in this panel.',
+            description: 'Choose which of the opened maps or data is shown in this panel.',
             placement: 'bottom',
           }"
           popper-class="viewer_dropdown"
@@ -37,7 +37,7 @@
             id: 'content-bar-source',
             area: 'panel-header',
             title: 'Source',
-            description: 'See where the data shown in this panel comes from.',
+            description: 'See where the data shown in this viewer comes from.',
             placement: 'bottom',
           }"
           @click="openSourceInfo"
@@ -80,7 +80,7 @@
                   id: 'content-bar-information',
                   area: 'panel-header',
                   title: 'Information',
-                  description: 'Show more information about what is shown in this panel.',
+                  description: 'Show more information about what is shown in this viewer.',
                   placement: 'bottom',
                 }"
               >
@@ -115,7 +115,7 @@
             id: 'content-bar-screenshot',
             area: 'panel-header',
             title: 'Download screenshot',
-            description: 'Download a screenshot of this view.',
+            description: 'Download a screenshot of the current viewer.',
             placement: 'bottom-end',
           }"
         />

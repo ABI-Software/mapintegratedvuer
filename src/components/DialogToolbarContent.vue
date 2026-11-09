@@ -25,7 +25,6 @@
           title: 'Viewing mode',
           description: `<p>Choose how you interact with the maps, the current mode is highlighted.</p>
             <ul>
-              <li><b>Neuron Connection</b>: also choose which neuron populations to show.</li>
               <li><b>Annotation</b>: sign in to save your annotations, otherwise they are kept
               in this browser session and can be shared with <i>Export Annotations</i> in the permalink.</li>
             </ul>`,
@@ -326,7 +325,7 @@
           id: 'toolbar-screenshot',
           area: 'toolbar',
           title: 'Download screenshot',
-          description: 'Download a screenshot of the current view.',
+          description: 'Download a screenshot of all viewers.',
           placement: 'bottom-end',
         }"
       />
