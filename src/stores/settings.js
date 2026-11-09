@@ -13,6 +13,8 @@ export const useSettingsStore = defineStore('settings', {
       flatmapAPI: undefined,
       cellCardsApi: undefined,
       cellCardsSourceId: undefined,
+      cellCardsJsonApi: undefined,
+      cellCardsDataSource: 'api',
       mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
@@ -120,6 +122,12 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateCellCardsSourceId(cellCardsSourceId) {
       this.cellCardsSourceId = cellCardsSourceId;
+    },
+    updateCellCardsJsonApi(cellCardsJsonApi) {
+      this.cellCardsJsonApi = cellCardsJsonApi;
+    },
+    updateCellCardsDataSource(cellCardsDataSource) {
+      this.cellCardsDataSource = cellCardsDataSource === 'json' ? 'json' : 'api';
     },
     updateMapManager(mapManager) {
       this.mapManager = mapManager;

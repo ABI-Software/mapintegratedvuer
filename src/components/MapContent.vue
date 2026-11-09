@@ -473,6 +473,10 @@ export default {
       },
       immediate: true,
     },
+    'options.cellCardsDataSource': function (dataSource) {
+      // Switching between the cell cards API and the demo JSON reloads the cell cards.
+      this.settingsStore.updateCellCardsDataSource(dataSource);
+    },
   },
   beforeMount: function () {
     if (this.options) {
@@ -492,6 +496,12 @@ export default {
         : null;
       this.options.cellCardsSourceId
         ? this.settingsStore.updateCellCardsSourceId(this.options.cellCardsSourceId)
+        : null;
+      this.options.cellCardsJsonApi
+        ? this.settingsStore.updateCellCardsJsonApi(this.options.cellCardsJsonApi)
+        : null;
+      this.options.cellCardsDataSource
+        ? this.settingsStore.updateCellCardsDataSource(this.options.cellCardsDataSource)
         : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
       this.options.screenshot
