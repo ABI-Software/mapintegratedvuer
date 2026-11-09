@@ -1432,6 +1432,7 @@ export default {
         ROOT_URL: this.settingsStore.rootUrl,
         FLATMAPAPI_LOCATION: this.settingsStore.flatmapAPI,
         CELL_CARDS_API: this.settingsStore.cellCardsApi,
+        CELL_CARDS_SOURCE_ID: this.settingsStore.cellCardsSourceId,
       };
     },
     entries: function () {

@@ -490,6 +490,9 @@ export default {
       this.options.cellCardsApi
         ? this.settingsStore.updateCellCardsApi(this.options.cellCardsApi)
         : null;
+      this.options.cellCardsSourceId
+        ? this.settingsStore.updateCellCardsSourceId(this.options.cellCardsSourceId)
+        : null;
       this.options.rootUrl ? this.settingsStore.updateRootUrl(this.options.rootUrl) : null;
       this.options.screenshot
         ? this.settingsStore.updateScreenshotOptions(this.options.screenshot)

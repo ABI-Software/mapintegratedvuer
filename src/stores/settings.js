@@ -12,6 +12,7 @@ export const useSettingsStore = defineStore('settings', {
       pennsieveApi: undefined,
       flatmapAPI: undefined,
       cellCardsApi: undefined,
+      cellCardsSourceId: undefined,
       mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
@@ -116,6 +117,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateCellCardsApi(cellCardsApi) {
       this.cellCardsApi = cellCardsApi;
+    },
+    updateCellCardsSourceId(cellCardsSourceId) {
+      this.cellCardsSourceId = cellCardsSourceId;
     },
     updateMapManager(mapManager) {
       this.mapManager = mapManager;

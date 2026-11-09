@@ -187,6 +187,7 @@ export default {
           ? this.$route.query.flatmapserver
           : import.meta.env.VITE_FLATMAPAPI_LOCATION,
         cellCardsApi: import.meta.env.VITE_APP_CELL_CARDS_API,
+        cellCardsSourceId: import.meta.env.VITE_APP_CELL_CARDS_SOURCE_ID,
         rootUrl: import.meta.env.VITE_ROOT_URL,
       };
     },
