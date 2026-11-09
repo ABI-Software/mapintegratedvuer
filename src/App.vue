@@ -37,6 +37,17 @@
               <el-radio :value="true">Split view</el-radio>
             </el-radio-group>
           </div>
+          <div class="row radio-row">
+            <span class="radio-label">Cell cards data:</span>
+            <el-radio-group
+              v-model="cellCardsDataSource"
+              size="small"
+              @change="onCellCardsDataSourceChange"
+            >
+              <el-radio value="api">New API</el-radio>
+              <el-radio value="json">Demo JSON</el-radio>
+            </el-radio-group>
+          </div>
         </div>
         <template #reference>
           <el-button class="options-button" :icon="ElIconSetting">Options</el-button>
@@ -74,6 +85,16 @@ import MapContent from './components/MapContent.vue';
 import { Setting as ElIconSetting } from '@element-plus/icons-vue';
 import { ElMessage as Message } from 'element-plus';
 import 'element-plus/es/components/message/style/css';
+
+// Cell cards data source: 'api' (cell precision queries, default) or 'json' (demo JSON).
+const CELL_CARDS_DATA_SOURCE_KEY = 'mapintegratedvuer-cell-cards-data-source';
+const getStoredCellCardsDataSource = () => {
+  try {
+    return localStorage.getItem(CELL_CARDS_DATA_SOURCE_KEY) === 'json' ? 'json' : 'api';
+  } catch {
+    return 'api';
+  }
+};
 
 const getAnnotationId = (api, withAnnotation) => {
   return new Promise((resolve) => {
@@ -165,9 +186,11 @@ export default {
       ElIconSetting: shallowRef(ElIconSetting),
       routerIsReady: false,
       showLongLabel: true,
+      isMapLoaded: false,
       truncateLongLabel: true,
       showIdInTooltip: true,
       openNewSpeciesInSplitView: true,
+      cellCardsDataSource: getStoredCellCardsDataSource(),
     };
   },
   computed: {
@@ -185,11 +208,36 @@ export default {
         flatmapAPI: this.$route.query.flatmapserver
           ? this.$route.query.flatmapserver
           : import.meta.env.VITE_FLATMAPAPI_LOCATION,
+        cellCardsApi: import.meta.env.VITE_APP_CELL_CARDS_API,
+        cellCardsSourceId: import.meta.env.VITE_APP_CELL_CARDS_SOURCE_ID,
+        cellCardsJsonApi: import.meta.env.VITE_APP_CELL_CARDS_JSON_API,
+        cellCardsDataSource: this.cellCardsDataSource,
         rootUrl: import.meta.env.VITE_ROOT_URL,
       };
     },
   },
   methods: {
+    onCellCardsDataSourceChange: function (dataSource) {
+      try {
+        localStorage.setItem(CELL_CARDS_DATA_SOURCE_KEY, dataSource);
+      } catch {
+        // Storage is not available; the choice applies to this session only.
+      }
+
+      const url =
+        dataSource === 'json'
+          ? import.meta.env.VITE_APP_CELL_CARDS_JSON_API
+          : import.meta.env.VITE_APP_CELL_CARDS_API;
+      const name = dataSource === 'json' ? 'Demo JSON' : 'New API';
+      Message({
+        message: url
+          ? `Cell cards now use ${name}.`
+          : `Cell cards source "${name}" has no URL configured in the .env file.`,
+        type: url ? 'success' : 'warning',
+        showClose: true,
+        duration: 2000,
+      });
+    },
     closePopover: function () {
       if (this.$refs.optionsPopover) {
         this.$refs.optionsPopover.hide();
@@ -321,6 +369,7 @@ export default {
     },
     mapIsLoaded: function (map) {
       console.log('map is loaded', map);
+      this.isMapLoaded = true;
       // map.changeViewingMode('Annotation')
     },
     viewerIsReady: function () {

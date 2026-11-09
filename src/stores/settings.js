@@ -11,12 +11,17 @@ export const useSettingsStore = defineStore('settings', {
       algoliaId: undefined,
       pennsieveApi: undefined,
       flatmapAPI: undefined,
+      cellCardsApi: undefined,
+      cellCardsSourceId: undefined,
+      cellCardsJsonApi: undefined,
+      cellCardsDataSource: 'api',
       mapManager: undefined,
       rootUrl: undefined,
       facets: { species: [], gender: [], organ: [] },
       appliedFacets: [],
       numberOfDatasetsForFacets: [],
       markers: [],
+      cellCardSomaLocations: [],
       hoverAnatomies: [],
       hoverOrgans: [],
       hoverDOI: '',
@@ -112,6 +117,18 @@ export const useSettingsStore = defineStore('settings', {
     updateFlatmapAPI(flatmapAPI) {
       this.flatmapAPI = flatmapAPI;
     },
+    updateCellCardsApi(cellCardsApi) {
+      this.cellCardsApi = cellCardsApi;
+    },
+    updateCellCardsSourceId(cellCardsSourceId) {
+      this.cellCardsSourceId = cellCardsSourceId;
+    },
+    updateCellCardsJsonApi(cellCardsJsonApi) {
+      this.cellCardsJsonApi = cellCardsJsonApi;
+    },
+    updateCellCardsDataSource(cellCardsDataSource) {
+      this.cellCardsDataSource = cellCardsDataSource === 'json' ? 'json' : 'api';
+    },
     updateMapManager(mapManager) {
       this.mapManager = mapManager;
     },
@@ -120,6 +137,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateMarkers(markers) {
       this.markers = markers;
+    },
+    updateCellCardSomaLocations(somaLocations) {
+      this.cellCardSomaLocations = somaLocations;
     },
     updateHoverFeatures(anatomies, organs, doi, connectivity) {
       this.hoverAnatomies = anatomies;
