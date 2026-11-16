@@ -16,20 +16,20 @@ on:
           - patch
           - minor
 
+env:
+  CYPRESS_ALGOLIA_ID: ${{ secrets.ALGOLIA_ID }}
+  CYPRESS_ALGOLIA_KEY: ${{ secrets.ALGOLIA_KEY }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Start Jenkins job
-        uses: mickeygoussetorg/trigger-jenkins-job@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          jenkins-job: ${{ secrets.JENKINS_JOB_NAME }}
-          jenkins-server: ${{ secrets.JENKINS_URL }}
-          jenkins-username: ${{ secrets.JENKINS_USER }}
-          jenkins-pat: ${{ secrets.JENKINS_PAT }}
-          poll-time: 30
-          timeout-value: 3000
-          verbose: true
+          node-version: '24.20.0'
+      - run: npm install
+      - run: npm run cypress-component
 
   build:
     needs: test
