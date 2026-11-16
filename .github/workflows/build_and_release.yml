@@ -34,7 +34,7 @@ jobs:
           component: true
           build: npm run cypress-prepare   # runs before the tests
       - name: Upload screenshots/videos on failure
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-artifacts
