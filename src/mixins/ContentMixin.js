@@ -566,10 +566,18 @@ export default {
               this.flatmapHighlight(flatmap, hoverAnatomies, hoverDOI, hoverConnectivity).then(
                 (paths) => {
                   try {
-                    flatmap.showConnectivityTooltips({
+                    const highlighted = flatmap.showConnectivityTooltips({
                       connectivityInfo: { featureId: paths },
                       data: [],
                     });
+                    //Reset the highlight when there is nothing to highlight, otherwise
+                    //previous highlighted item will remain
+                    if (!highlighted?.length && flatmap.mapImp && !flatmap.mapImp.contextLost) {
+                      flatmap.mapImp.clearSearchResults();
+                      if (payload.connectivityProcessed) {
+                        flatmap.mapImp.setPaint({ dimmed: true });
+                      }
+                    }
                   } catch (error) {
                     console.log(error);
                     // only for connectivity hover highlight

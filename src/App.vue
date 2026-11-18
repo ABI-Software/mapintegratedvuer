@@ -302,7 +302,7 @@ export default {
       this.$refs.map.setCurrentEntry({
         type: 'Scaffold',
         label: 'Colon',
-        url: `${this.api}/s3-resource/76/files/derivative/colonMouse_metadata.json?s3BucketName=prd-sparc-discover50-use1`,
+        url: `${this.api}/s3-resource/76/files/derivative/colonMouse_metadata.json?s3BucketName=sparc-prod-aod-discover-publish50-use1`,
         viewUrl: 'colonMouse_Layout1_view.json',
       });
       this.closePopover();
