@@ -1,0 +1,77 @@
+name: Pull Request Cypress Testing
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cypress-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-permission:
+    runs-on: ubuntu-latest
+    outputs:
+      allowed: ${{ github.event_name == 'workflow_dispatch' || (steps.author.outputs.require-result == 'true' && steps.sender.outputs.require-result == 'true') }}
+    steps:
+      - name: Check PR author permission
+        if: github.event_name == 'pull_request_target'
+        id: author
+        uses: actions-cool/check-user-permission@v2
+        with:
+          require: write
+          username: ${{ github.event.pull_request.user.login }}
+
+      - name: Check triggering user permission
+        if: github.event_name == 'pull_request_target'
+        id: sender
+        uses: actions-cool/check-user-permission@v2
+        with:
+          require: write
+          username: ${{ github.event.sender.login }}
+
+  cypress-run:
+    needs: check-permission
+    if: needs.check-permission.outputs.allowed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          allow-unsafe-pr-checkout: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.20.0'
+
+      - name: Cypress component tests
+        uses: cypress-io/github-action@v6
+        with:
+          component: true
+          build: npm run cypress-prepare # runs before the tests
+        env:
+          CYPRESS_ALGOLIA_ID: ${{ secrets.ALGOLIA_ID }}
+          CYPRESS_ALGOLIA_KEY: ${{ secrets.ALGOLIA_KEY }}
+
+      - name: Upload screenshots, videos and snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            cypress/screenshots
+            cypress/videos
+            cypress/snapshots
+          if-no-files-found: ignore
+          retention-days: 28
