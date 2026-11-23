@@ -2,16 +2,43 @@
   <div class="header">
     <map-svg-sprite-color />
     <search-controls
+      v-help-mode="{
+        id: 'toolbar-search',
+        area: 'toolbar',
+        title: 'Search within display',
+        description:
+          'Search for a term in the opened maps, such as an organ like <i>heart</i> or a nerve like <i>vagus nerve</i>.',
+        placement: 'bottom',
+      }"
       @search="$emit('local-search', { term: $event })"
       @fetch-suggestions="$emit('fetch-suggestions', { data: $event })"
       :failedSearch="failedSearch"
     />
 
     <el-row class="icon-group">
-      <div class="viewing-mode-selector">
+      <div
+        class="viewing-mode-selector"
+        ref="viewingModeSelector"
+        v-help-mode="{
+          id: 'toolbar-viewing-mode',
+          area: 'toolbar',
+          title: 'Viewing mode',
+          description: `<p>Choose how you interact with the maps, the current mode is highlighted.</p>
+            <ul>
+              <li><b>Annotation</b>: sign in to save your annotations, otherwise they are kept
+              in this browser session and can be shared with <i>Export Annotations</i> in the permalink.</li>
+            </ul>`,
+          placement: 'left',
+          target: getViewingModeHelpTarget,
+          onEnter: openViewingModeHelp,
+          onLeave: closeViewingModeHelp,
+        }"
+      >
         Viewing Mode:
         <el-dropdown
+          ref="viewingModeDropdown"
           :teleported="false"
+          :hide-timeout="viewingModeHelpOpen ? HELP_KEEP_OPEN_TIMEOUT : DROPDOWN_HIDE_TIMEOUT"
           trigger="hover"
           class="toolbar-dropdown"
           popper-class="toolbar-dropdown-popper"
@@ -44,7 +71,7 @@
             </el-icon>
           </span>
           <template #dropdown>
-            <h4>Viewing Mode:</h4>
+            <h4>Viewing Mode</h4>
             <el-dropdown-menu>
               <el-dropdown-item
                 v-for="(value, key) in viewingModes"
@@ -65,17 +92,15 @@
                   {{ key }}
                 </h5>
                 <small class="el-option__description">
-                  <template v-if="key === 'Annotation'">
-                    <template v-if="authorisedUser">
-                      {{ value[1] }}
-                    </template>
-                    <template v-else>
-                      {{ value[0] }}
-                    </template>
-                    <template v-if="offlineAnnotationEnabled">(Anonymous annotate)</template>
-                  </template>
-                  <template v-else>
-                    {{ value }}
+                  {{ value }}
+                  <template
+                    v-if="
+                      key === 'Annotation' &&
+                      globalSettings.viewingMode === 'Annotation' &&
+                      offlineAnnotationEnabled
+                    "
+                  >
+                    (Anonymous, kept in this browser session)
                   </template>
                 </small>
                 <!-- <template v-if="key === 'Exploration'">
@@ -178,6 +203,13 @@
             :icon="activeView"
             ref="activeViewRef"
             :class="[{ disabled: 1 >= numberOfEntries }, 'header-icon', 'splitscreen-icon']"
+            v-help-mode="{
+              id: 'toolbar-split-screen',
+              area: 'toolbar',
+              title: 'Split screen',
+              description: 'View several maps side by side by choosing a split screen layout.',
+              placement: 'bottom-end',
+            }"
           />
         </template>
       </el-popover>
@@ -192,8 +224,38 @@
         popper-class="header-popper"
       >
         <template #reference>
-          <map-svg-icon icon="tooltips" class="header-icon" @click="startHelp()" />
+          <map-svg-icon
+            icon="tooltips"
+            ref="helpRef"
+            class="header-icon"
+            v-help-mode="{
+              id: 'toolbar-help',
+              area: 'toolbar',
+              title: 'Help',
+              description:
+                'Start a guided tour of a view or an area, or hover over the controls to see what they do.',
+              placement: 'bottom-end',
+            }"
+          />
         </template>
+      </el-popover>
+      <el-popover
+        v-if="helpRef"
+        :virtual-ref="helpRef"
+        ref="helpPopover"
+        placement="bottom"
+        :teleported="false"
+        trigger="click"
+        popper-class="setting-popover"
+        virtual-triggering
+        @before-enter="loadHelpModeOptions"
+      >
+        <HelpModeMenu
+          :views="helpModeOptions.views"
+          :getAreas="helpModeOptions.getAreas"
+          @start-tour="startHelp({ mode: 'tour', ...$event })"
+          @start-hover="startHelp({ mode: 'hover' })"
+        />
       </el-popover>
       <el-popover
         class="tooltip"
@@ -209,6 +271,13 @@
             v-show="!isFullscreen"
             icon="fullScreen"
             class="header-icon"
+            v-help-mode="{
+              id: 'toolbar-fullscreen',
+              area: 'toolbar',
+              title: 'Fullscreen',
+              description: 'View the maps in fullscreen.',
+              placement: 'bottom-end',
+            }"
             @click="onFullscreen"
           />
         </template>
@@ -227,6 +296,13 @@
             v-show="isFullscreen"
             icon="closeFullScreen"
             class="header-icon"
+            v-help-mode="{
+              id: 'toolbar-exit-fullscreen',
+              area: 'toolbar',
+              title: 'Exit fullscreen',
+              description: 'Exit the fullscreen view.',
+              placement: 'bottom-end',
+            }"
             @click="onFullscreen"
           />
         </template>
@@ -239,6 +315,13 @@
         :getTarget="getScreenshotTarget"
         :disabled="!mapLoaded"
         shortcut
+        v-help-mode="{
+          id: 'toolbar-screenshot',
+          area: 'toolbar',
+          title: 'Download screenshot',
+          description: 'Download a screenshot of all viewers.',
+          placement: 'bottom-end',
+        }"
       />
       <el-popover
         v-if="permalinkRef"
@@ -337,6 +420,13 @@
             icon="permalink"
             ref="permalinkRef"
             class="header-icon"
+            v-help-mode="{
+              id: 'toolbar-permalink',
+              area: 'toolbar',
+              title: 'Permalink',
+              description: 'Create a link to share the current view with others.',
+              placement: 'bottom-end',
+            }"
             @click="requestShareLink"
             v-show="shareLink"
           />
@@ -352,7 +442,19 @@
         popper-class="header-popper"
       >
         <template #reference>
-          <map-svg-icon icon="close" class="header-icon" @click="close" v-show="showIcons" />
+          <map-svg-icon
+            icon="close"
+            class="header-icon"
+            v-help-mode="{
+              id: 'toolbar-close',
+              area: 'toolbar',
+              title: 'Close',
+              description: 'Close the maps viewer.',
+              placement: 'bottom-end',
+            }"
+            @click="close"
+            v-show="showIcons"
+          />
         </template>
       </el-popover>
 
@@ -369,7 +471,7 @@
         :disabled="!mapLoaded"
       >
         <div class="setting-popover-inner">
-          <h4>Display options:</h4>
+          <h4>Display options</h4>
           <!-- <div class="setting-popover-block" v-if="'displayMarkers' in globalSettings">
             <el-checkbox
               v-model="globalSettings.displayMarkers"
@@ -471,6 +573,14 @@
         <template #reference>
           <el-icon
             ref="globalSettingRef"
+            v-help-mode="{
+              id: 'toolbar-global-settings',
+              area: 'toolbar',
+              title: 'Global settings',
+              description:
+                'Change the settings that apply to all the maps, such as the display options.',
+              placement: 'bottom-end',
+            }"
             :disabled="!mapLoaded"
             class="header-icon global-settings-icon"
             :class="{ disabled: !mapLoaded }"
@@ -492,9 +602,17 @@ import { useSettingsStore } from '../stores/settings';
 import { useSplitFlowStore } from '../stores/splitFlow';
 import { MapSvgIcon, MapSvgSpriteColor } from '@abi-software/svg-sprite';
 import SearchControls from './SearchControls.vue';
+import HelpModeMenu from './HelpModeMenu.vue';
+import { helpModeDirective, isElementVisible } from '@abi-software/map-utilities';
 import ScreenshotPopover from './ScreenshotPopover.vue';
 import { CopyDocument as ElIconCopyDocument } from '@element-plus/icons-vue';
 import tagging from '../services/tagging';
+
+// Delay before the viewing mode list closes, the Element Plus default
+const DROPDOWN_HIDE_TIMEOUT = 150;
+// While the list is open for its help it does not close on its own, e.g. when it loses
+// the focus to the tour or the mouse leaves it; re-opening it instead would make it flicker
+const HELP_KEEP_OPEN_TIMEOUT = 1e9;
 
 /**
  * Cmponent for the header of differnt vuers.
@@ -506,6 +624,10 @@ export default {
     MapSvgSpriteColor,
     ScreenshotPopover,
     SearchControls,
+    HelpModeMenu,
+  },
+  directives: {
+    helpMode: helpModeDirective,
   },
   props: {
     /**
@@ -521,6 +643,13 @@ export default {
     showIcons: {
       type: Boolean,
       default: false,
+    },
+    /**
+     * Function returning the options of the help menu, `{ views, getAreas }`.
+     */
+    helpModeProvider: {
+      type: Function,
+      default: () => ({ views: [], getAreas: () => [] }),
     },
     /**
      * Async function capturing a screenshot of all visible views.
@@ -570,6 +699,11 @@ export default {
       failedSearch: undefined,
       globalSettings: {},
       globalSettingRef: undefined,
+      helpRef: undefined,
+      viewingModeHelpOpen: false,
+      DROPDOWN_HIDE_TIMEOUT,
+      HELP_KEEP_OPEN_TIMEOUT,
+      helpModeOptions: { views: [], getAreas: () => [] },
       isFullscreen: false,
       loadingLink: true,
       permalinkRef: undefined,
@@ -578,9 +712,8 @@ export default {
           'Find relevant research and view detail of neural pathways by selecting a pathway to view its connections and data sources',
         'Neuron Connection':
           'Discover neuron connections by selecting a feature and viewing its associated network connections',
-        Annotation: ['View feature annotations', 'Add, comment on and view feature annotations'],
+        Annotation: 'Draw on the map, or select a feature to view and edit its annotations',
       },
-      authorisedUser: false,
       mapLoaded: false,
     };
   },
@@ -662,14 +795,40 @@ export default {
     titleClicked: function (id) {
       this.$emit('titleClicked', id);
     },
-    startHelp: function () {
-      EventBus.emit('startHelp');
+    /**
+     * The viewing mode list is shown for its help, the help points at the list, or at the
+     * selector when the list cannot be opened, e.g. while the map is loading.
+     */
+    getViewingModeHelpTarget: function () {
+      const list = this.$el.querySelector('.toolbar-dropdown-popper');
+      return isElementVisible(list) ? list : this.$refs.viewingModeSelector;
+    },
+    openViewingModeHelp: function () {
+      if (!this.mapLoaded) return;
+      this.viewingModeHelpOpen = true;
+      this.$refs.viewingModeDropdown?.handleOpen();
+    },
+    closeViewingModeHelp: async function () {
+      this.viewingModeHelpOpen = false;
+      // Close with the normal delay
+      await this.$nextTick();
+      this.$refs.viewingModeDropdown?.handleClose();
+    },
+    loadHelpModeOptions: function () {
+      this.helpModeOptions = this.helpModeProvider();
+    },
+    /**
+     * Start the help, `options` is `{ mode: 'tour', view, area }` or `{ mode: 'hover' }`.
+     */
+    startHelp: function (options) {
+      this.$refs.helpPopover?.hide();
+      EventBus.emit('startHelp', options);
 
       // GA Tracking
       tagging.sendEvent({
         event: 'interaction_event',
-        event_name: `portal_maps_toolbar_help`,
-        category: 'help_mode_start',
+        event_name: 'portal_maps_toolbar_help',
+        category: `help_mode_start_${options.mode}`,
         location: 'map_toolbar',
       });
     },
@@ -782,6 +941,7 @@ export default {
     this.activeViewRef = shallowRef(this.$refs.activeViewRef);
     this.permalinkRef = shallowRef(this.$refs.permalinkRef);
     this.globalSettingRef = shallowRef(this.$refs.globalSettingRef);
+    this.helpRef = shallowRef(this.$refs.helpRef);
 
     this._offBus = onEvents({
       mapLoaded: () => {
@@ -929,7 +1089,8 @@ export default {
   width: unset !important;
   background-color: #f3ecf6;
   cursor: default;
-  .el-popper__arrow {
+  // Only the arrow of this popover, not of the dropdowns inside it, e.g. the selects of the help menu
+  > .el-popper__arrow {
     &:before {
       border-color: $app-primary-color;
       background-color: #f3ecf6;

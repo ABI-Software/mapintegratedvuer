@@ -10,12 +10,6 @@
       @resource-selected="flatmapResourceSelected(entry.type, $event)"
       style="height: 100%; width: 100%"
       :initial="entry.resource"
-      :helpMode="helpMode"
-      :helpModeActiveItem="helpModeActiveItem"
-      :helpModeDialog="useHelpModeDialog"
-      @help-mode-last-item="onHelpModeLastItem"
-      @shown-tooltip="onTooltipShown"
-      @shown-map-tooltip="onMapTooltipShown"
       @annotation-open="onAnnotationOpen"
       @annotation-close="onAnnotationClose"
       @update-offline-annotation-enabled="updateOfflineAnnotationEnabled"
@@ -38,22 +32,12 @@
       @pan-zoom-callback="flatmapPanZoomCallback"
       @open-map="openMap"
       @open-map-species="openMapSpecies"
-      @finish-help-mode="endHelp"
       @pathway-selection-changed="onPathwaySelectionChanged"
       @open-pubmed-url="onOpenPubmedUrl"
       @mapmanager-loaded="onMapmanagerLoaded"
       :showPathwayFilter="false"
       :tooltipContentProvider="tooltipPathLabelProvider"
       @trackEvent="trackEvent"
-    />
-
-    <HelpModeDialog
-      v-if="helpMode && useHelpModeDialog"
-      ref="multiflatmapHelp"
-      :multiflatmapRef="multiflatmapRef"
-      :lastItem="helpModeLastItem"
-      @show-next="onHelpModeShowNext"
-      @finish-help-mode="onFinishHelpMode"
     />
   </div>
 </template>
@@ -69,7 +53,6 @@ import YellowStar from '../../icons/yellowstar';
 
 import { MultiFlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/style.css';
-import { HelpModeDialog } from '@abi-software/map-utilities';
 import '@abi-software/map-utilities/dist/style.css';
 
 const getOpenMapOptions = (_species) => {
@@ -99,7 +82,6 @@ export default {
   mixins: [ContentMixin, DyncamicMarkerMixin],
   components: {
     MultiFlatmapVuer,
-    HelpModeDialog,
   },
   data: function () {
     return {
