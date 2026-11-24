@@ -16,20 +16,33 @@ on:
           - patch
           - minor
 
+env:
+  CYPRESS_ALGOLIA_ID: ${{ secrets.ALGOLIA_ID }}
+  CYPRESS_ALGOLIA_KEY: ${{ secrets.ALGOLIA_KEY }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Start Jenkins job
-        uses: mickeygoussetorg/trigger-jenkins-job@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          jenkins-job: ${{ secrets.JENKINS_JOB_NAME }}
-          jenkins-server: ${{ secrets.JENKINS_URL }}
-          jenkins-username: ${{ secrets.JENKINS_USER }}
-          jenkins-pat: ${{ secrets.JENKINS_PAT }}
-          poll-time: 30
-          timeout-value: 3000
-          verbose: true
+          node-version: '24.20.0'
+      - name: Cypress component tests
+        uses: cypress-io/github-action@v6
+        with:
+          component: true
+          build: npm run cypress-prepare # runs before the tests
+      - name: Upload screenshots/videos on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            cypress/screenshots
+            cypress/videos
+            cypress/snapshots
+          if-no-files-found: ignore
 
   build:
     needs: test
