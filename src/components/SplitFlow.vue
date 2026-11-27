@@ -692,8 +692,9 @@ export default {
     onConnectivityHovered: function (data) {
       EventBus.emit('connectivity-hovered', data);
     },
-    showSomaLocation: function (name) {
-      EventBus.emit('soma-location-hovered', name);
+    // `curie` (UBERON id) is sent by cell card locations, so the map can find the feature by id.
+    showSomaLocation: function (name, curie) {
+      EventBus.emit('soma-location-hovered', curie ? { name, curie } : name);
     },
     onSomaLocationsReady: function (somaLocations) {
       const normalizedSomaLocations = (Array.isArray(somaLocations) ? somaLocations : [])

@@ -62,7 +62,7 @@
 import Tagging from '../../services/tagging.js';
 import ContentMixin from '../../mixins/ContentMixin';
 import EventBus from '../EventBus';
-import { availableSpecies, defaultSpecies } from '../scripts/utilities';
+import { availableSpecies, defaultSpecies, findLocationFeature } from '../scripts/utilities';
 import DyncamicMarkerMixin from '../../mixins/DynamicMarkerMixin';
 
 import YellowStar from '../../icons/yellowstar';
@@ -372,16 +372,9 @@ export default {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
 
         if (payload) {
-          const searchResults = flatmap.searchSuggestions(payload);
-          let geoJSONID = undefined;
-
-          if (searchResults?.results.length) {
-            const featureId = searchResults?.results[0].featureId;
-            geoJSONID = featureId;
-          }
-
-          if (geoJSONID) {
-            flatmap.showPopup(geoJSONID, payload);
+          const feature = findLocationFeature(flatmap, payload);
+          if (feature) {
+            flatmap.showPopup(feature.featureId, feature.label);
           }
         } else {
           flatmap.closeTooltip();

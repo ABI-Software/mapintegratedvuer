@@ -287,7 +287,35 @@ const listsAreEqual = (a, b) => {
   return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
 };
 
+/**
+ * Find the flatmap feature of a location hovered in the sidebar (e.g. a cell card soma location).
+ * `payload` is the location name, or { name, curie }.
+ * The feature is found by its anatomical id (curie) when the map has it,
+ * otherwise by searching the name.
+ * @returns {{ featureId: string, label: string } | undefined}
+ */
+const findLocationFeature = (flatmap, payload) => {
+  const name = typeof payload === 'string' ? payload : payload?.name || '';
+  const curie = typeof payload === 'object' ? payload?.curie || '' : '';
+  let featureId;
+
+  if (curie && flatmap?.mapImp) {
+    try {
+      featureId = flatmap.mapImp.modelFeatureIds(curie)?.[0];
+    } catch {
+      featureId = undefined;
+    }
+  }
+
+  if (!featureId && name) {
+    featureId = flatmap?.searchSuggestions(name)?.results?.[0]?.featureId;
+  }
+
+  return featureId ? { featureId, label: name || curie } : undefined;
+};
+
 export {
+  findLocationFeature,
   listsAreEqual,
   availableSpecies,
   capitalise,

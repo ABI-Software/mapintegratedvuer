@@ -61,6 +61,7 @@ import Tagging from '../../services/tagging.js';
 import EventBus from '../EventBus';
 import ContentMixin from '../../mixins/ContentMixin';
 import DynamicMarkerMixin from '../../mixins/DynamicMarkerMixin';
+import { findLocationFeature } from '../scripts/utilities';
 
 import { FlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/style.css';
@@ -171,16 +172,9 @@ export default {
         const flatmap = this.$refs.flatmap;
 
         if (payload) {
-          const searchResults = flatmap.searchSuggestions(payload);
-          let geoJSONID = undefined;
-
-          if (searchResults?.results.length) {
-            const featureId = searchResults?.results[0].featureId;
-            geoJSONID = featureId;
-          }
-
-          if (geoJSONID) {
-            flatmap.showPopup(geoJSONID, payload);
+          const feature = findLocationFeature(flatmap, payload);
+          if (feature) {
+            flatmap.showPopup(feature.featureId, feature.label);
           }
         } else {
           flatmap.closeTooltip();
