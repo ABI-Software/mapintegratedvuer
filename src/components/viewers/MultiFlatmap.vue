@@ -62,7 +62,7 @@
 import Tagging from '../../services/tagging.js';
 import ContentMixin from '../../mixins/ContentMixin';
 import EventBus from '../EventBus';
-import { availableSpecies, defaultSpecies } from '../scripts/utilities';
+import { availableSpecies, defaultSpecies, findLocationFeature } from '../scripts/utilities';
 import DyncamicMarkerMixin from '../../mixins/DynamicMarkerMixin';
 
 import YellowStar from '../../icons/yellowstar';
@@ -210,7 +210,7 @@ export default {
     updateProvCard: function () {
       const imp = this.getFlatmapImp();
       if (imp) {
-        let provClone = { id: this.entry.id, prov: imp.mapMetadata };
+        let provClone = { id: this.entry.id, prov: imp.mapMetadata, species: this.activeSpecies };
         EventBus.emit('mapImpProv', provClone);
         this.$emit('flatmap-provenance-ready', provClone);
       }
@@ -365,6 +365,21 @@ export default {
       if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.showConnectivityTooltips(payload);
+      }
+    },
+    showFeatureInFlatmap: function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
+
+        if (payload) {
+          const feature = findLocationFeature(flatmap, payload);
+          if (feature) {
+            flatmap.showPopup(feature.featureId, feature.label);
+          }
+        } else {
+          flatmap.closeTooltip();
+          this.showConnectivityTooltips({ connectivityInfo: null, data: [] });
+        }
       }
     },
     showConnectivitiesByReference: function (payload) {

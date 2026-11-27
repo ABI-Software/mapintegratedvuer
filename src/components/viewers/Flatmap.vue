@@ -61,6 +61,7 @@ import Tagging from '../../services/tagging.js';
 import EventBus from '../EventBus';
 import ContentMixin from '../../mixins/ContentMixin';
 import DynamicMarkerMixin from '../../mixins/DynamicMarkerMixin';
+import { findLocationFeature } from '../scripts/utilities';
 
 import { FlatmapVuer } from '@abi-software/flatmapvuer';
 import '@abi-software/flatmapvuer/dist/style.css';
@@ -164,6 +165,21 @@ export default {
       if (this?.alive && this.flatmapReady) {
         const flatmap = this.$refs.multiflatmap.getCurrentFlatmap();
         flatmap.showConnectivityTooltips(payload);
+      }
+    },
+    showFeatureInFlatmap: function (payload) {
+      if (this?.alive && this.flatmapReady) {
+        const flatmap = this.$refs.flatmap;
+
+        if (payload) {
+          const feature = findLocationFeature(flatmap, payload);
+          if (feature) {
+            flatmap.showPopup(feature.featureId, feature.label);
+          }
+        } else {
+          flatmap.closeTooltip();
+          this.showConnectivityTooltips({ connectivityInfo: null, data: [] });
+        }
       }
     },
     showConnectivitiesByReference: function (payload) {
